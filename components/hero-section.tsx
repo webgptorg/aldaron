@@ -83,7 +83,7 @@ export function HeroSection() {
                   Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like <span className="bg-gradient-purple bg-clip-text text-transparent">You</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle emails, meetings, and routine work while you focus on what truly matters.
+                  Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle emails, meetings, and routine work while you focus on what <b>truly matters</b>.
                 </p>
               </div>
 
