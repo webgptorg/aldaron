@@ -18,6 +18,9 @@ const nextConfig = {
     "*.macaly-app.com",
     "*.macaly-user-data.dev",
   ],
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
 };
 
 module.exports = nextConfig;
