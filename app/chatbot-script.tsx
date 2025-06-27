@@ -17,7 +17,7 @@ export default function ChatbotScript() {
       strategy="afterInteractive"
       onLoad={() => {
         activateEmbeddedChatbot({
-          "theme": "DARK",
+          "theme": "LIGHT",
           "position": "BOTTOM_RIGHT",
           "isTestingMode": false
         });
