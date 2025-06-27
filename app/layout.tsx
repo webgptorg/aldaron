@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-        <body className={inter.className}>{children}</body>
+      <head>
+        <Script
+          src="https://promptbook.studio/api/embed/miniapp.js?id=5e408aff-6fc5-42f1-9db9-fa8601c626ae"
+          strategy="afterInteractive"
+          onLoad={() => {
+            // @ts-ignore
+            activateEmbeddedChatbot({
+              "theme": "DARK",
+              "position": "BOTTOM_RIGHT",
+              "isTestingMode": false
+            });
+          }}
+        />
+      </head>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
