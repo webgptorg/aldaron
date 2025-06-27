@@ -44,7 +44,7 @@ export function HeroSection() {
           clearInterval(interval)
           setTimeout(() => {
             console.log("Redirecting to agent creation page")
-            window.open('https://ptbk.io/agent-oC0c35', '_blank')
+            window.open('https://ptbk.io/agent-pavol-1', '_blank')
             setIsModalOpen(false)
             setIsProcessing(false)
             setProgress(0)
