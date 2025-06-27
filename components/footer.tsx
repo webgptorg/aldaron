@@ -8,15 +8,43 @@ import { Checkbox } from '@/components/ui/checkbox'
 export function Footer() {
   const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
-  console.log("Footer rendered", { email, consent })
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-  const handleSubscribe = () => {
-    console.log("Newsletter subscription attempted", { email, consent })
-    if (email && consent) {
-      // Handle subscription logic here
+    if (!consent) {
+      setError('Please consent to receive news and updates')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('https://promptbook.studio/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to subscribe')
+      }
+
+      setSuccess(true)
       setEmail('')
       setConsent(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -59,7 +87,7 @@ export function Footer() {
           {/* Stay Updated */}
           <div>
             <h3 className="text-lg font-semibold mb-6">Stay Updated</h3>
-            <div className="space-y-4">
+            <form onSubmit={handleSubscribe} className="space-y-4">
               <div>
                 <label className="text-sm text-gray-400 mb-2 block">Email *</label>
                 <Input
@@ -68,6 +96,7 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                  required
                 />
               </div>
               
@@ -82,15 +111,18 @@ export function Footer() {
                   I consent to receive news and updates via email *
                 </label>
               </div>
+
+              {error && <p className="text-sm text-red-500">{error}</p>}
+              {success && <p className="text-sm text-green-500">Successfully subscribed!</p>}
               
               <Button 
-                onClick={handleSubscribe}
-                disabled={!email || !consent}
+                type="submit"
+                disabled={!email || !consent || isSubmitting}
                 className="w-full bg-primary hover:bg-primary/90"
               >
-                Subscribe
+                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
               </Button>
-            </div>
+            </form>
           </div>
         </div>
 
