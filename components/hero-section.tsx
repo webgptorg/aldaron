@@ -91,17 +91,17 @@ export function HeroSection() {
                 </div>
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                   {youParam ? (
-                    <>
-                      Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}
-                    </>
-                  ) : (
-                    <>
-                      Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You
-                    </>
-                  )}
+                      <>
+                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}
+                      </>
+                    ) : (
+                      <>
+                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You
+                      </>
+                    )}
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle emails, meetings, and routine work while you focus on what truly matters.
+                  Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle emails, meetings, and routine work while you focus on what <b>truly matters</b>.
                 </p>
               </div>
 
