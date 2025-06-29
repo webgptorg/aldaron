@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { HeroSection } from '@/components/hero-section'
 import { BenefitsSection } from '@/components/benefits-section'
 import { IntegrationsSection } from '@/components/integrations-section'
@@ -9,7 +10,9 @@ export default function Home() {
   
   return (
     <main className="min-h-screen">
-      <HeroSection />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeroSection />
+      </Suspense>
       <BenefitsSection />
       <IntegrationsSection />
       <PricingSection />

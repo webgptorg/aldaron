@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
@@ -19,8 +20,17 @@ export function HeroSection() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
+  const searchParams = useSearchParams()
+  
+  // Get the 'you' parameter from URL
+  const youParam = searchParams.get('you')
+  
+  // Create dynamic hero text
+  const heroText = youParam 
+    ? `Reclaim Your Time with AI That Thinks Like You ${youParam.charAt(0).toUpperCase() + youParam.slice(1)}`
+    : "Reclaim Your Time with AI That Thinks Like You"
 
-  console.log("HeroSection rendered", { isModalOpen, selectedPlatforms, isProcessing, progress })
+  console.log("HeroSection rendered", { isModalOpen, selectedPlatforms, isProcessing, progress, youParam, heroText })
 
   const togglePlatform = (platform: string) => {
     console.log("Toggling platform:", platform)
@@ -80,7 +90,15 @@ export function HeroSection() {
                   Your Personal AI Avatar
                 </div>
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You
+                  {youParam ? (
+                    <>
+                      Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}
+                    </>
+                  ) : (
+                    <>
+                      Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You
+                    </>
+                  )}
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
                   Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle emails, meetings, and routine work while you focus on what truly matters.
