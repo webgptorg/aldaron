@@ -43,27 +43,23 @@ export function HeroSection() {
 
   const startProcessing = () => {
     console.log("Starting processing with platforms:", selectedPlatforms)
-    setIsProcessing(true)
     
-    // Simulate progress
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        const newProgress = prev + 10
-        console.log("Progress updated:", newProgress)
-        if (newProgress >= 100) {
-          clearInterval(interval)
-          setTimeout(() => {
-            console.log("Redirecting to agent creation page")
-            window.open('https://ptbk.io/agent-pavol-1', '_blank')
-            setIsModalOpen(false)
-            setIsProcessing(false)
-            setProgress(0)
-            setSelectedPlatforms([])
-          }, 1000)
-        }
-        return newProgress
-      })
-    }, 300)
+    if (selectedPlatforms.length === 0) {
+      return
+    }
+    
+    // Convert platform names to lowercase for URL parameters
+    const serviceParams = selectedPlatforms.map(platform => platform.toLowerCase()).join(',')
+    const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}`
+    
+    console.log("Redirecting to:", redirectUrl)
+    window.open(redirectUrl, '_blank')
+    
+    // Reset modal state
+    setIsModalOpen(false)
+    setIsProcessing(false)
+    setProgress(0)
+    setSelectedPlatforms([])
   }
 
   return (
