@@ -92,11 +92,11 @@ export function HeroSection() {
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                   {youParam ? (
                       <>
-                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}
+                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like <span className="bg-gradient-purple bg-clip-text text-transparent">You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}</span>
                       </>
                     ) : (
                       <>
-                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like You
+                        Reclaim Your <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with AI That Thinks Like <span className="bg-gradient-purple bg-clip-text text-transparent">You</span>
                       </>
                     )}
                 </h1>
