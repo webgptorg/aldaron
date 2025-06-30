@@ -200,7 +200,12 @@ export function Footer() {
                 {/* Bottom Section */}
                 <div className="pt-8 border-t border-gray-800">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                        <div>
+                        <div className="flex flex-col items-center lg:items-end gap-4">
+                            <img
+                                src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo-white-transparent-1024.da2672f8.png&w=128&q=75"
+                                alt="Technology Incubation logo"
+                                className="h-24 w-auto"
+                            />
                             <p className="text-sm text-gray-400 mb-2">
                                 © 2025 Promptbook
                                 <br />
@@ -212,7 +217,7 @@ export function Footer() {
                             <img
                                 src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FCI-Technology-Incubation.6cc58993.png&w=828&q=75"
                                 alt="Technology Incubation logo"
-                                className="h-12 w-auto"
+                                className="h-24 w-auto"
                             />
                             <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
                                 This project was implemented with funding from the national budget
