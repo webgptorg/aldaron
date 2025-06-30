@@ -15,6 +15,14 @@ const platforms = [
     { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
 ];
 
+// ROT13 decoder function
+const rot13 = (str: string): string => {
+    return str.replace(/[a-zA-Z]/g, (char) => {
+        const start = char <= 'Z' ? 65 : 97;
+        return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
+    });
+};
+
 export function HeroSection() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
@@ -24,15 +32,30 @@ export function HeroSection() {
     const [progress, setProgress] = useState(0);
     const searchParams = useSearchParams();
 
-    // Get the 'you' parameter from URL
+    // Get the 'you' parameter from URL (both regular and ROT13 encoded)
     const youParam = searchParams.get('you');
+    const youRot13Param = searchParams.get('lbh'); // 'you' in ROT13
+
+    // Decode the parameter - use regular 'you' if available, otherwise decode ROT13 'lbh'
+    const decodedYouParam = youParam || (youRot13Param ? rot13(youRot13Param) : null);
 
     // Create dynamic hero text
-    const heroText = youParam
-        ? `Reclaim Your Time with AI That Thinks Like You ${youParam.charAt(0).toUpperCase() + youParam.slice(1)}`
+    const heroText = decodedYouParam
+        ? `Reclaim Your Time with AI That Thinks Like You ${
+              decodedYouParam.charAt(0).toUpperCase() + decodedYouParam.slice(1)
+          }`
         : 'Reclaim Your Time with AI That Thinks Like You';
 
-    console.log('HeroSection rendered', { isModalOpen, selectedPlatforms, isProcessing, progress, youParam, heroText });
+    console.log('HeroSection rendered', {
+        isModalOpen,
+        selectedPlatforms,
+        isProcessing,
+        progress,
+        youParam,
+        youRot13Param,
+        decodedYouParam,
+        heroText,
+    });
 
     const togglePlatform = (platform: string) => {
         console.log('Toggling platform:', platform);
@@ -86,7 +109,7 @@ export function HeroSection() {
                                     Your Personal AI Avatar
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    {youParam ? (
+                                    {decodedYouParam ? (
                                         <>
                                             Reclaim Your{' '}
                                             <span className="bg-gradient-purple bg-clip-text text-transparent">
@@ -94,7 +117,7 @@ export function HeroSection() {
                                             </span>{' '}
                                             with AI That Thinks Like{' '}
                                             <span className="bg-gradient-purple bg-clip-text text-transparent">
-                                                You {youParam.charAt(0).toUpperCase() + youParam.slice(1)}
+                                                You {decodedYouParam.charAt(0).toUpperCase() + decodedYouParam.slice(1)}
                                             </span>
                                         </>
                                     ) : (
