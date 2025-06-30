@@ -76,7 +76,7 @@ export function HeroSection() {
         const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}`;
 
         console.log('Redirecting to:', redirectUrl);
-        window.open(redirectUrl, '_blank');
+        window.location.href = redirectUrl;
 
         // Reset modal state
         setIsModalOpen(false);
