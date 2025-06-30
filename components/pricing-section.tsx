@@ -1,9 +1,9 @@
 "use client"
 
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
 import { Check, Crown, MessageSquare } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 
 const plans = [
   {
@@ -66,7 +66,7 @@ export function PricingSection() {
     <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -74,7 +74,7 @@ export function PricingSection() {
           >
             Simple, Transparent Pricing
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -93,8 +93,8 @@ export function PricingSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -5 }}
               className={`relative bg-white rounded-2xl p-8 shadow-lg border transition-all duration-300 ${
-                plan.popular 
-                  ? 'border-primary scale-105 shadow-xl' 
+                plan.popular
+                  ? 'border-primary scale-105 shadow-xl'
                   : 'border-gray-100 hover:shadow-xl'
               }`}
             >
@@ -112,10 +112,10 @@ export function PricingSection() {
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center mx-auto mb-4`}>
                   <MessageSquare className="w-8 h-8 text-white" />
                 </div>
-                
+
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                 <p className="text-gray-600 mb-4">{plan.description}</p>
-                
+
                 <div className="mb-4">
                   <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
                   <span className="text-gray-500 ml-2">/{plan.period}</span>
@@ -133,10 +133,10 @@ export function PricingSection() {
                 ))}
               </div>
 
-              <Button 
+              <Button
                 className={`w-full ${
-                  plan.popular 
-                    ? 'bg-gradient-purple hover:shadow-lg' 
+                  plan.popular
+                    ? 'bg-gradient-purple hover:shadow-lg'
                     : 'bg-gray-900 hover:bg-gray-800'
                 }`}
                 size="lg"
@@ -152,7 +152,7 @@ export function PricingSection() {
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
