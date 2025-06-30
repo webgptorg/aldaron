@@ -5,14 +5,14 @@ import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
-import { Brain, Mail, Github, Linkedin, Facebook, ArrowRight, CheckCircle } from 'lucide-react'
+import { Brain, Mail, Github, Linkedin, Facebook, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const platforms = [
-  { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600' },
-  { name: 'GitHub', icon: Github, color: 'bg-gray-800' },
-  { name: 'Facebook', icon: Facebook, color: 'bg-blue-500' },
-  { name: 'Google', icon: Mail, color: 'bg-red-500' }
+  { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'preparing' },
+  { name: 'GitHub', icon: Github, color: 'bg-gray-800', status: 'preparing' },
+  { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready' },
+  { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing' }
 ]
 
 export function HeroSection() {
@@ -211,24 +211,39 @@ export function HeroSection() {
                 {platforms.map((platform) => {
                   const Icon = platform.icon
                   const isSelected = selectedPlatforms.includes(platform.name)
+                  const isReady = platform.status === 'ready'
+                  const isPreparing = platform.status === 'preparing'
                   
                   return (
                     <motion.button
                       key={platform.name}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => togglePlatform(platform.name)}
-                      className={`p-6 rounded-lg border-2 transition-all duration-300 ${
-                        isSelected 
-                          ? 'border-primary bg-primary/5' 
-                          : 'border-gray-200 hover:border-gray-300'
+                      whileHover={isReady ? { scale: 1.02 } : {}}
+                      whileTap={isReady ? { scale: 0.98 } : {}}
+                      onClick={() => isReady && togglePlatform(platform.name)}
+                      disabled={!isReady}
+                      className={`p-6 rounded-lg border-2 transition-all duration-300 relative ${
+                        !isReady 
+                          ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' 
+                          : isSelected 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-lg ${platform.color} flex items-center justify-center`}>
+                        <div className={`w-12 h-12 rounded-lg ${platform.color} flex items-center justify-center ${!isReady ? 'opacity-60' : ''}`}>
                           <Icon className="w-6 h-6 text-white" />
                         </div>
-                        <span className="font-medium text-gray-900">{platform.name}</span>
+                        <div className="flex flex-col items-start">
+                          <span className={`font-medium ${isReady ? 'text-gray-900' : 'text-gray-500'}`}>
+                            {platform.name}
+                          </span>
+                          {isPreparing && (
+                            <div className="flex items-center gap-1 text-xs text-orange-600 mt-1">
+                              <Clock className="w-3 h-3" />
+                              Preparing...
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </motion.button>
                   )
