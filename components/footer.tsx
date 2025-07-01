@@ -57,7 +57,7 @@ export function Footer() {
                         <h3 className="text-lg font-semibold mb-6">Product</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="/" className="text-gray-400 hover:text-white transition-colors">
+                                <a href="/get-started" className="text-gray-400 hover:text-white transition-colors">
                                     Get started
                                 </a>
                             </li>
