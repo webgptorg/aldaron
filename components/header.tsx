@@ -4,11 +4,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { CreateAvatarModal } from './create-avatar-modal';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const router = useRouter();
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);
@@ -58,7 +57,7 @@ export function Header() {
 
                     {/* CTA Button */}
                     <Button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => router.push('/get-started')}
                         className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white"
                     >
                         Get Started
@@ -66,9 +65,6 @@ export function Header() {
                     </Button>
                 </div>
             </div>
-
-            {/* Create Avatar Modal */}
-            <CreateAvatarModal open={isModalOpen} onOpenChange={setIsModalOpen} />
         </header>
     );
 }
