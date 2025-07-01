@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
+import { useFirstVisit } from '@/hooks/use-first-visit';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -20,6 +21,7 @@ export function HeroSection() {
     const router = useRouter();
     const pathname = usePathname();
     const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
+    const isFirstVisit = useFirstVisit();
     
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
         platforms.filter((p) => p.isPreselected).map((p) => p.name),
@@ -40,6 +42,7 @@ export function HeroSection() {
         progress,
         you,
         heroText,
+        isFirstVisit,
     });
 
     const togglePlatform = (platform: string) => {
@@ -83,9 +86,9 @@ export function HeroSection() {
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left Column - Content */}
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
+                            initial={isFirstVisit ? { opacity: 0, x: -50 } : { opacity: 1, x: 0 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
+                            transition={isFirstVisit ? { duration: 0.8 } : { duration: 0 }}
                             className="space-y-8"
                         >
                             <div className="space-y-4">
@@ -153,9 +156,9 @@ export function HeroSection() {
 
                         {/* Right Column - 80/20 Visualization */}
                         <motion.div
-                            initial={{ opacity: 0, x: 50 }}
+                            initial={isFirstVisit ? { opacity: 0, x: 50 } : { opacity: 1, x: 0 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                            transition={isFirstVisit ? { duration: 0.8, delay: 0.2 } : { duration: 0 }}
                             className="relative"
                         >
                             <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
@@ -169,17 +172,17 @@ export function HeroSection() {
                                         <h4 className="text-lg font-semibold mb-4 text-gray-700">Before</h4>
                                         <div className="flex h-12 rounded-lg overflow-hidden">
                                             <motion.div
-                                                initial={{ width: 0 }}
+                                                initial={isFirstVisit ? { width: 0 } : { width: '80%' }}
                                                 animate={{ width: '80%' }}
-                                                transition={{ duration: 1, delay: 0.5 }}
+                                                transition={isFirstVisit ? { duration: 1, delay: 0.5 } : { duration: 0 }}
                                                 className="bg-red-400 flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 80% Unimportant
                                             </motion.div>
                                             <motion.div
-                                                initial={{ width: 0 }}
+                                                initial={isFirstVisit ? { width: 0 } : { width: '20%' }}
                                                 animate={{ width: '20%' }}
-                                                transition={{ duration: 1, delay: 0.7 }}
+                                                transition={isFirstVisit ? { duration: 1, delay: 0.7 } : { duration: 0 }}
                                                 className="bg-green-400 flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 20%
@@ -193,17 +196,17 @@ export function HeroSection() {
                                         <h4 className="text-lg font-semibold mb-4 text-gray-700">After</h4>
                                         <div className="flex h-12 rounded-lg overflow-hidden">
                                             <motion.div
-                                                initial={{ width: 0 }}
+                                                initial={isFirstVisit ? { width: 0 } : { width: '20%' }}
                                                 animate={{ width: '20%' }}
-                                                transition={{ duration: 1, delay: 1 }}
+                                                transition={isFirstVisit ? { duration: 1, delay: 1 } : { duration: 0 }}
                                                 className="bg-red-200 flex items-center justify-center text-gray-700 text-sm font-medium"
                                             >
                                                 20%
                                             </motion.div>
                                             <motion.div
-                                                initial={{ width: 0 }}
+                                                initial={isFirstVisit ? { width: 0 } : { width: '80%' }}
                                                 animate={{ width: '80%' }}
-                                                transition={{ duration: 1, delay: 1.2 }}
+                                                transition={isFirstVisit ? { duration: 1, delay: 1.2 } : { duration: 0 }}
                                                 className="bg-gradient-green flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 80% Important
