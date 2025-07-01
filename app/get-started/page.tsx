@@ -7,26 +7,16 @@ import { PricingSection } from '@/components/pricing-section';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
+// Force static generation for static export
+export const dynamic = 'force-static';
+
 type Props = {
     searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export function generateMetadata({ searchParams }: Props): Metadata {
-    // Get the 'you' parameter from URL (both regular and ROT13 encoded)
-    const youParam = searchParams.you as string;
-    const youRot13Param = searchParams.lbh as string; // 'you' in ROT13
-
-    // Decode the parameter - use regular 'you' if available, otherwise decode ROT13 'lbh'
-    const you = youParam || (youRot13Param ? rot13(youRot13Param) : null);
-
-    if (you) {
-        const You = you.charAt(0).toUpperCase() + you.slice(1);
-        return {
-            title: `✨ ${You}, Create Your AI Avatar`,
-            description: 'Create your personalized AI avatar that thinks like you ✨ Powered by Promptbook',
-        };
-    }
-
+export function generateMetadata(): Metadata {
+    // For static export, we can't use searchParams in generateMetadata
+    // The dynamic title will be handled client-side
     return {
         title: '✨ Create Your AI Avatar',
         description: 'Create your personalized AI avatar that thinks like you ✨ Powered by Promptbook',
