@@ -122,7 +122,7 @@ export function PricingSection() {
             setIsModalOpen(true);
         } else if (buttonText === 'Contact Sales') {
             // Handle contact sales differently - could open a contact form or redirect
-            window.location.href = 'mailto:sales@promptbook.studio';
+            window.location.href = 'mailto:sales@ptbk.io';
         }
     };
 
