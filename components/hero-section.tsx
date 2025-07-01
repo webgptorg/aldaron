@@ -168,11 +168,7 @@ export function HeroSection() {
 
                             {/* Powered by Promptbook */}
                             <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
-                                <img
-                                    src="/promptbook-logo-blue-256.png"
-                                    alt="Promptbook"
-                                    className="w-6 h-6"
-                                />
+                                <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
                                 <div className="text-sm">
                                     <span className="text-gray-600">Powered by </span>
                                     <a
@@ -183,7 +179,7 @@ export function HeroSection() {
                                     >
                                         Promptbook
                                     </a>
-                                    <span className="text-gray-500 ml-2">• The AI orchestration framework</span>
+                                    <span className="text-gray-500 ml-2">• Truly Your AI</span>
                                 </div>
                             </div>
                         </motion.div>

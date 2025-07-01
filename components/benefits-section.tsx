@@ -52,7 +52,7 @@ export function BenefitsSection() {
     console.log('BenefitsSection rendered');
 
     return (
-        <section className="py-20 bg-gray-50">
+        <section id="benefits" className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <motion.h2

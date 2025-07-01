@@ -4,8 +4,18 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CreateAvatarModal } from './create-avatar-modal';
+import { useState } from 'react';
 
 export function Header() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const scrollToSection = (sectionId: string) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
             <div className="container mx-auto px-4">
@@ -26,35 +36,39 @@ export function Header() {
 
                     {/* Navigation */}
                     <nav className="hidden md:flex items-center gap-8">
-                        <Link
-                            href="https://github.com/webgptorg/promptbook"
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                        <button
+                            onClick={() => scrollToSection('benefits')}
+                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                         >
-                            Documentation
-                        </Link>
-                        <Link
-                            href="https://promptbook.studio/miniapps/new"
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                            Why Our AI?
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('integrations')}
+                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                         >
-                            Playground
-                        </Link>
-                        <Link
-                            href="https://ptbk.io/blog"
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                            Integration
+                        </button>
+                        <button
+                            onClick={() => scrollToSection('pricing')}
+                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                         >
-                            Blog
-                        </Link>
+                            Pricing
+                        </button>
                     </nav>
 
                     {/* CTA Button */}
-                    <Button asChild className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white">
-                        <Link href="https://promptbook.studio">
-                            Get Started
-                            <ArrowRight className="ml-2 w-4 h-4" />
-                        </Link>
+                    <Button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white"
+                    >
+                        Get Started
+                        <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                 </div>
             </div>
+
+            {/* Create Avatar Modal */}
+            <CreateAvatarModal open={isModalOpen} onOpenChange={setIsModalOpen} />
         </header>
     );
 }
