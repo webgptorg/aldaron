@@ -203,9 +203,9 @@ export function Footer() {
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <div className="flex items-center gap-3">
                                 <img
-                                    src="/promptbook-logo-white-256.png"
+                                    src="/promptbook-logo-blue-256.png"
                                     alt="Promptbook"
-                                    className="h-8 w-8"
+                                    className="h-8 w-8 filter brightness-0 invert"
                                 />
                                 <span className="text-xl font-bold text-white">Promptbook</span>
                             </div>
