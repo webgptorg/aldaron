@@ -1,12 +1,12 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FileText, Sparkles, User } from 'lucide-react';
 import { useState } from 'react';
-import { User, FileText, Sparkles } from 'lucide-react';
 
 interface CreateAvatarModalProps {
     open: boolean;
@@ -24,7 +24,7 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
     });
 
     const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleNext = () => {
@@ -66,9 +66,7 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
                             <div key={num} className="flex items-center">
                                 <div
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                        step >= num
-                                            ? 'bg-promptbook-blue text-white'
-                                            : 'bg-gray-200 text-gray-600'
+                                        step >= num ? 'bg-promptbook-blue text-white' : 'bg-gray-200 text-gray-600'
                                     }`}
                                 >
                                     {num}
@@ -91,7 +89,7 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
                                 <User className="w-5 h-5 text-promptbook-blue" />
                                 <h3 className="text-lg font-semibold">Basic Information</h3>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <Label htmlFor="name">Avatar Name</Label>
                                 <Input
@@ -121,7 +119,7 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
                                 <FileText className="w-5 h-5 text-promptbook-blue" />
                                 <h3 className="text-lg font-semibold">Personality & Communication Style</h3>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <Label htmlFor="personality">Personality Traits</Label>
                                 <Textarea
@@ -153,7 +151,7 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
                                 <Sparkles className="w-5 h-5 text-promptbook-blue" />
                                 <h3 className="text-lg font-semibold">Goals & Purpose</h3>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <Label htmlFor="goals">Primary Goals</Label>
                                 <Textarea
@@ -168,10 +166,22 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
                             <div className="bg-blue-50 p-4 rounded-lg">
                                 <h4 className="font-medium text-promptbook-blue mb-2">Review Your Avatar</h4>
                                 <div className="text-sm space-y-1">
-                                    <p><strong>Name:</strong> {formData.name || 'Not specified'}</p>
-                                    <p><strong>Expertise:</strong> {formData.expertise || 'Not specified'}</p>
-                                    <p><strong>Personality:</strong> {formData.personality ? formData.personality.substring(0, 50) + '...' : 'Not specified'}</p>
-                                    <p><strong>Goals:</strong> {formData.goals ? formData.goals.substring(0, 50) + '...' : 'Not specified'}</p>
+                                    <p>
+                                        <strong>Name:</strong> {formData.name || 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Expertise:</strong> {formData.expertise || 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Personality:</strong>{' '}
+                                        {formData.personality
+                                            ? formData.personality.substring(0, 50) + '...'
+                                            : 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Goals:</strong>{' '}
+                                        {formData.goals ? formData.goals.substring(0, 50) + '...' : 'Not specified'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -179,26 +189,16 @@ export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps
 
                     {/* Navigation buttons */}
                     <div className="flex justify-between pt-4">
-                        <Button
-                            variant="outline"
-                            onClick={handleBack}
-                            disabled={step === 1}
-                        >
+                        <Button variant="outline" onClick={handleBack} disabled={step === 1}>
                             Back
                         </Button>
-                        
+
                         {step < 3 ? (
-                            <Button
-                                onClick={handleNext}
-                                className="bg-promptbook-blue hover:bg-promptbook-blue/90"
-                            >
+                            <Button onClick={handleNext} className="bg-promptbook-blue hover:bg-promptbook-blue/90">
                                 Next Step
                             </Button>
                         ) : (
-                            <Button
-                                onClick={handleSubmit}
-                                className="bg-promptbook-blue hover:bg-promptbook-blue/90"
-                            >
+                            <Button onClick={handleSubmit} className="bg-promptbook-blue hover:bg-promptbook-blue/90">
                                 Create Avatar
                             </Button>
                         )}

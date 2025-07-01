@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CreateAvatarModal } from './create-avatar-modal';
 import { useState } from 'react';
+import { CreateAvatarModal } from './create-avatar-modal';
 
 export function Header() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,7 +57,7 @@ export function Header() {
                     </nav>
 
                     {/* CTA Button */}
-                    <Button 
+                    <Button
                         onClick={() => setIsModalOpen(true)}
                         className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white"
                     >
