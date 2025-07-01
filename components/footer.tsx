@@ -200,16 +200,22 @@ export function Footer() {
                 {/* Bottom Section */}
                 <div className="pt-8 border-t border-gray-800">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                        <div className="flex flex-col items-center lg:items-end gap-4">
-                            <img
-                                src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo-white-transparent-1024.da2672f8.png&w=128&q=75"
-                                alt="Technology Incubation logo"
-                                className="h-24 w-auto"
-                            />
-                            <p className="text-sm text-gray-400 mb-2">
+                        <div className="flex flex-col items-center lg:items-start gap-4">
+                            <div className="flex items-center gap-3">
+                                <img
+                                    src="/promptbook-logo-white-256.png"
+                                    alt="Promptbook"
+                                    className="h-8 w-8"
+                                />
+                                <span className="text-xl font-bold text-white">Promptbook</span>
+                            </div>
+                            <p className="text-sm text-gray-400 text-center lg:text-left">
                                 © 2025 Promptbook
                                 <br />
                                 All rights reserved.
+                            </p>
+                            <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
+                                The AI orchestration framework for building intelligent applications
                             </p>
                         </div>
 

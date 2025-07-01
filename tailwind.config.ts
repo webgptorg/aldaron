@@ -64,6 +64,14 @@ const config: Config = {
                     '4': 'hsl(var(--chart-4))',
                     '5': 'hsl(var(--chart-5))',
                 },
+                // Promptbook brand colors
+                promptbook: {
+                    blue: '#00007F',
+                    'dark-gray': '#111827',
+                    'light-gray': '#f3f4f6',
+                    success: '#10b981',
+                    error: '#ef4444',
+                },
             },
             keyframes: {
                 'accordion-down': {

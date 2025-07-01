@@ -6,8 +6,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: '✨ YOUR AI Avatar',
-    description: 'Reclaim Your Time with AI That Thinks Like You',
+    title: 'Make AI that Thinks Like You',
+    description: 'Reclaim Your Time with AI That Thinks Like You ✨ Powered by Promptbook',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

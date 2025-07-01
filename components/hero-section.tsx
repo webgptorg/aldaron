@@ -87,7 +87,7 @@ export function HeroSection() {
 
     return (
         <>
-            <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+            <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
                 {/* Background Elements */}
                 <div className="absolute inset-0">
                     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-purple rounded-full blur-3xl opacity-10"></div>
@@ -163,6 +163,27 @@ export function HeroSection() {
                                 <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-green-500" />
                                     Easy Setup
+                                </div>
+                            </div>
+
+                            {/* Powered by Promptbook */}
+                            <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
+                                <img
+                                    src="/promptbook-logo-blue-256.png"
+                                    alt="Promptbook"
+                                    className="w-6 h-6"
+                                />
+                                <div className="text-sm">
+                                    <span className="text-gray-600">Powered by </span>
+                                    <a
+                                        href="https://www.ptbk.io"
+                                        className="font-semibold text-promptbook-blue hover:underline"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Promptbook
+                                    </a>
+                                    <span className="text-gray-500 ml-2">• The AI orchestration framework</span>
                                 </div>
                             </div>
                         </motion.div>
