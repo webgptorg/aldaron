@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { useYou } from '@/hooks/use-you';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 const platforms = [
@@ -15,14 +15,6 @@ const platforms = [
     { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
 ];
 
-// ROT13 decoder function
-const rot13 = (str: string): string => {
-    return str.replace(/[a-zA-Z]/g, (char) => {
-        const start = char <= 'Z' ? 65 : 97;
-        return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
-    });
-};
-
 export function HeroSection() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
@@ -30,30 +22,18 @@ export function HeroSection() {
     );
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
-    const searchParams = useSearchParams();
 
-    // Get the 'you' parameter from URL (both regular and ROT13 encoded)
-    const youParam = searchParams.get('you');
-    const youRot13Param = searchParams.get('lbh'); // 'you' in ROT13
-
-    // Decode the parameter - use regular 'you' if available, otherwise decode ROT13 'lbh'
-    const decodedYouParam = youParam || (youRot13Param ? rot13(youRot13Param) : null);
+    const you = useYou();
 
     // Create dynamic hero text
-    const heroText = decodedYouParam
-        ? `Reclaim Your Time with AI That Thinks Like You ${
-              decodedYouParam.charAt(0).toUpperCase() + decodedYouParam.slice(1)
-          }`
-        : 'Reclaim Your Time with AI That Thinks Like You';
+    const heroText = `Reclaim Your Time with AI That Thinks Like You ${you || ''}`;
 
     console.log('HeroSection rendered', {
         isModalOpen,
         selectedPlatforms,
         isProcessing,
         progress,
-        youParam,
-        youRot13Param,
-        decodedYouParam,
+        you,
         heroText,
     });
 
@@ -109,29 +89,10 @@ export function HeroSection() {
                                     Your Personal AI Avatar
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    {decodedYouParam ? (
-                                        <>
-                                            Reclaim Your{' '}
-                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
-                                                Time
-                                            </span>{' '}
-                                            with AI That Thinks Like{' '}
-                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
-                                                You {decodedYouParam.charAt(0).toUpperCase() + decodedYouParam.slice(1)}
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            Reclaim Your{' '}
-                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
-                                                Time
-                                            </span>{' '}
-                                            with AI That Thinks Like{' '}
-                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
-                                                You
-                                            </span>
-                                        </>
-                                    )}
+                                    Reclaim Your{' '}
+                                    <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with
+                                    AI That Thinks Like{' '}
+                                    <span className="bg-gradient-purple bg-clip-text text-transparent">You {you}</span>
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
                                     Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle
@@ -179,7 +140,7 @@ export function HeroSection() {
                                     >
                                         Promptbook
                                     </a>
-                                    <span className="text-gray-500 ml-2">• Truly Your AI</span>
+                                    <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
                                 </div>
                             </div>
                         </motion.div>
