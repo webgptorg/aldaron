@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 const platforms = [
@@ -16,7 +17,10 @@ const platforms = [
 ];
 
 export function HeroSection() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+    const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
+    
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
         platforms.filter((p) => p.isPreselected).map((p) => p.name),
     );
@@ -30,6 +34,7 @@ export function HeroSection() {
 
     console.log('HeroSection rendered', {
         isModalOpen,
+        pathname,
         selectedPlatforms,
         isProcessing,
         progress,
@@ -58,8 +63,8 @@ export function HeroSection() {
         console.log('Redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
 
-        // Reset modal state
-        setIsModalOpen(false);
+        // Reset modal state by navigating back to home
+        router.push('/');
         setIsProcessing(false);
         setProgress(0);
         setSelectedPlatforms([]);
@@ -103,7 +108,7 @@ export function HeroSection() {
                             <Button
                                 onClick={() => {
                                     console.log('Create avatar button clicked');
-                                    setIsModalOpen(true);
+                                    router.push('/get-started');
                                 }}
                                 size="lg"
                                 className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
@@ -216,7 +221,11 @@ export function HeroSection() {
             </section>
 
             {/* Modal */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <Dialog open={isModalOpen} onOpenChange={(open) => {
+                if (!open) {
+                    router.push('/');
+                }
+            }}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center">Create Your AI Avatar</DialogTitle>
