@@ -108,7 +108,8 @@ export function HeroSection() {
                                 size="lg"
                                 className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                             >
-                                Create Your Avatar
+                              {you?<>Create Avatar of {you}</>:<>Create Your Avatar</>}
+                       
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
 

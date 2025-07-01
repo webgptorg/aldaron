@@ -4,8 +4,8 @@ import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
-import { Suspense } from 'react';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 type Props = {
     searchParams: { [key: string]: string | string[] | undefined };
@@ -22,13 +22,13 @@ export function generateMetadata({ searchParams }: Props): Metadata {
     if (you) {
         const You = you.charAt(0).toUpperCase() + you.slice(1);
         return {
-            title: `${You}, Make AI that Thinks Like You`,
+            title: `✨ ${You}, make AI that Thinks Like You`,
             description: 'Reclaim Your Time with AI That Thinks Like You ✨ Powered by Promptbook',
         };
     }
 
     return {
-        title: 'Make AI that Thinks Like You',
+        title: '✨ Make AI that Thinks Like You',
         description: 'Reclaim Your Time with AI That Thinks Like You ✨ Powered by Promptbook',
     };
 }
