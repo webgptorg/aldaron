@@ -7,7 +7,7 @@ import { useYou } from '@/hooks/use-you';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const platforms = [
     { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
@@ -26,8 +26,18 @@ export function HeroSection() {
     );
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [shouldAnimate, setShouldAnimate] = useState(false);
 
     const you = useYou();
+
+    // Check if animations should play based on session storage
+    useEffect(() => {
+        const hasSeenAnimations = sessionStorage.getItem('hero-animations-shown');
+        if (!hasSeenAnimations) {
+            setShouldAnimate(true);
+            sessionStorage.setItem('hero-animations-shown', 'true');
+        }
+    }, []);
 
     // Create dynamic hero text
     const heroText = `Reclaim Your Time with AI That Thinks Like You ${you || ''}`;
@@ -83,8 +93,8 @@ export function HeroSection() {
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left Column - Content */}
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            animate={{ opacity: 1, x: 0 }}
+                            initial={shouldAnimate ? { opacity: 0, x: -50 } : false}
+                            animate={shouldAnimate ? { opacity: 1, x: 0 } : false}
                             transition={{ duration: 0.8 }}
                             className="space-y-8"
                         >
@@ -153,8 +163,8 @@ export function HeroSection() {
 
                         {/* Right Column - 80/20 Visualization */}
                         <motion.div
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
+                            initial={shouldAnimate ? { opacity: 0, x: 50 } : false}
+                            animate={shouldAnimate ? { opacity: 1, x: 0 } : false}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="relative"
                         >
@@ -169,17 +179,17 @@ export function HeroSection() {
                                         <h4 className="text-lg font-semibold mb-4 text-gray-700">Before</h4>
                                         <div className="flex h-12 rounded-lg overflow-hidden">
                                             <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: '80%' }}
-                                                transition={{ duration: 1, delay: 0.5 }}
+                                                initial={shouldAnimate ? { width: 0 } : false}
+                                                animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
+                                                transition={{ duration: 1, delay: shouldAnimate ? 0.5 : 0 }}
                                                 className="bg-red-400 flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 80% Unimportant
                                             </motion.div>
                                             <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: '20%' }}
-                                                transition={{ duration: 1, delay: 0.7 }}
+                                                initial={shouldAnimate ? { width: 0 } : false}
+                                                animate={shouldAnimate ? { width: '20%' } : { width: '20%' }}
+                                                transition={{ duration: 1, delay: shouldAnimate ? 0.7 : 0 }}
                                                 className="bg-green-400 flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 20%
@@ -193,17 +203,17 @@ export function HeroSection() {
                                         <h4 className="text-lg font-semibold mb-4 text-gray-700">After</h4>
                                         <div className="flex h-12 rounded-lg overflow-hidden">
                                             <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: '20%' }}
-                                                transition={{ duration: 1, delay: 1 }}
+                                                initial={shouldAnimate ? { width: 0 } : false}
+                                                animate={shouldAnimate ? { width: '20%' } : { width: '20%' }}
+                                                transition={{ duration: 1, delay: shouldAnimate ? 1 : 0 }}
                                                 className="bg-red-200 flex items-center justify-center text-gray-700 text-sm font-medium"
                                             >
                                                 20%
                                             </motion.div>
                                             <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: '80%' }}
-                                                transition={{ duration: 1, delay: 1.2 }}
+                                                initial={shouldAnimate ? { width: 0 } : false}
+                                                animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
+                                                transition={{ duration: 1, delay: shouldAnimate ? 1.2 : 0 }}
                                                 className="bg-gradient-green flex items-center justify-center text-white text-sm font-medium"
                                             >
                                                 80% Important
