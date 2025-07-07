@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
@@ -21,12 +22,13 @@ export function HeroSection() {
     const pathname = usePathname();
     const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
 
-    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-        platforms.filter((p) => p.isPreselected).map((p) => p.name),
-    );
+    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [shouldAnimate, setShouldAnimate] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [pendingDeselection, setPendingDeselection] = useState<string | null>(null);
+    const [userPreferences, setUserPreferences] = useState<Record<string, 'deselect' | 'import'>>({});
 
     const you = useYou();
 
@@ -38,6 +40,41 @@ export function HeroSection() {
             sessionStorage.setItem('hero-animations-shown', 'true');
         }
     }, []);
+
+    // Load user preferences and initialize selected platforms
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedPreferences = localStorage.getItem('platform-preferences');
+            if (savedPreferences) {
+                try {
+                    const preferences = JSON.parse(savedPreferences);
+                    setUserPreferences(preferences);
+                } catch (error) {
+                    console.error('Failed to parse saved preferences:', error);
+                }
+            }
+
+            // Initialize selected platforms based on preselected and user preferences
+            const initialSelection = platforms
+                .filter((platform) => {
+                    const savedPref = savedPreferences ? JSON.parse(savedPreferences)[platform.name] : null;
+                    if (savedPref === 'deselect') return false;
+                    if (savedPref === 'import') return true;
+                    return platform.isPreselected;
+                })
+                .map((p) => p.name);
+
+            setSelectedPlatforms(initialSelection);
+        }
+    }, []);
+
+    // Save user preferences to localStorage
+    const saveUserPreferences = (preferences: Record<string, 'deselect' | 'import'>) => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('platform-preferences', JSON.stringify(preferences));
+            setUserPreferences(preferences);
+        }
+    };
 
     // Create dynamic hero text
     const heroText = `Reclaim Your Time with AI That Thinks Like You ${you || ''}`;
@@ -54,9 +91,49 @@ export function HeroSection() {
 
     const togglePlatform = (platform: string) => {
         console.log('Toggling platform:', platform);
-        setSelectedPlatforms((prev) =>
-            prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform],
-        );
+        const isCurrentlySelected = selectedPlatforms.includes(platform);
+
+        if (isCurrentlySelected) {
+            // Check if user has a saved preference for this platform
+            const savedPreference = userPreferences[platform];
+            if (savedPreference) {
+                // User has a saved preference, apply it directly
+                if (savedPreference === 'deselect') {
+                    setSelectedPlatforms((prev) => prev.filter((p) => p !== platform));
+                } else {
+                    // savedPreference === 'import', start import process
+                    setSelectedPlatforms([platform]);
+                    startProcessing();
+                }
+            } else {
+                // No saved preference, show confirmation dialog
+                setPendingDeselection(platform);
+                setShowConfirmDialog(true);
+            }
+        } else {
+            // Adding platform - no confirmation needed
+            setSelectedPlatforms((prev) => [...prev, platform]);
+        }
+    };
+
+    const handleConfirmDeselection = (action: 'deselect' | 'import', rememberChoice: boolean) => {
+        if (!pendingDeselection) return;
+
+        if (action === 'deselect') {
+            setSelectedPlatforms((prev) => prev.filter((p) => p !== pendingDeselection));
+        } else {
+            // Start import with just this platform
+            setSelectedPlatforms([pendingDeselection]);
+            setTimeout(() => startProcessing(), 100); // Small delay to ensure state is updated
+        }
+
+        if (rememberChoice) {
+            const newPreferences = { ...userPreferences, [pendingDeselection]: action };
+            saveUserPreferences(newPreferences);
+        }
+
+        setShowConfirmDialog(false);
+        setPendingDeselection(null);
     };
 
     const startProcessing = () => {
@@ -278,6 +355,15 @@ export function HeroSection() {
                                                     : 'border-gray-200 hover:border-gray-300'
                                             }`}
                                         >
+                                            {/* Checkbox in top right corner */}
+                                            <div className="absolute top-3 right-3">
+                                                <Checkbox
+                                                    checked={isSelected}
+                                                    disabled={!isReady}
+                                                    className="pointer-events-none"
+                                                />
+                                            </div>
+
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={`w-12 h-12 rounded-lg ${
@@ -341,6 +427,78 @@ export function HeroSection() {
                             <div className="text-center text-sm text-gray-500">This may take a few moments...</div>
                         </div>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Confirmation Dialog */}
+            <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-semibold">
+                            What would you like to do with {pendingDeselection}?
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        <p className="text-gray-600">
+                            You clicked on {pendingDeselection}. Would you like to:
+                        </p>
+
+                        <div className="space-y-3">
+                            <Button
+                                onClick={() => handleConfirmDeselection('import', false)}
+                                className="w-full bg-gradient-purple hover:shadow-lg"
+                                size="lg"
+                            >
+                                Start importing from {pendingDeselection}
+                            </Button>
+
+                            <Button
+                                onClick={() => handleConfirmDeselection('deselect', false)}
+                                variant="outline"
+                                className="w-full"
+                                size="lg"
+                            >
+                                Just deselect {pendingDeselection}
+                            </Button>
+                        </div>
+
+                        <div className="pt-4 border-t">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Checkbox
+                                    id="remember-choice"
+                                    onCheckedChange={(checked) => {
+                                        // Handle remember choice state if needed
+                                    }}
+                                />
+                                <label
+                                    htmlFor="remember-choice"
+                                    className="text-sm text-gray-600 cursor-pointer"
+                                >
+                                    Remember my choice for {pendingDeselection}
+                                </label>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={() => handleConfirmDeselection('import', true)}
+                                    className="flex-1 bg-gradient-purple hover:shadow-lg"
+                                    size="sm"
+                                >
+                                    Import & Remember
+                                </Button>
+
+                                <Button
+                                    onClick={() => handleConfirmDeselection('deselect', true)}
+                                    variant="outline"
+                                    className="flex-1"
+                                    size="sm"
+                                >
+                                    Deselect & Remember
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </>
