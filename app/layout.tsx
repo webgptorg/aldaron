@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import ChatbotScript from './chatbot-script';
-import spaceTrim from 'spacetrim';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -83,18 +83,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name="msapplication-TileColor" content="#2563eb" />
                 <meta name="msapplication-config" content="/browserconfig.xml" />
                 {/* Google Analytics */}
-                <script async src="https://www.googletagmanager.com/gtag/js?id=G-LDZBXVZHT0"></script>
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: spaceTrim(`
-                            window.dataLayer = window.dataLayer || [];
-                            function gtag(){dataLayer.push(arguments);}
-                            gtag('js', new Date());
-                            gtag('config', 'G-LDZBXVZHT0');
-                        `),
-                    }}
+                <Script
+                    async
+                    src="https://www.googletagmanager.com/gtag/js?id=G-LDZBXVZHT0"
+                    strategy="afterInteractive"
                 />
-                />
+                <Script id="google-analytics" strategy="afterInteractive">
+                    {`
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
+                        gtag('config', 'G-LDZBXVZHT0');
+                    `}
+                </Script>
             </head>
             <body className={inter.className}>
                 {children}
