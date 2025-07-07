@@ -2,9 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Facebook, Github, Mail, Linkedin, Sparkles } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { FileText, Sparkles, User } from 'lucide-react';
 import { useState } from 'react';
 
 interface CreateAvatarModalProps {
@@ -12,173 +13,196 @@ interface CreateAvatarModalProps {
     onOpenChange: (open: boolean) => void;
 }
 
-interface PlatformOption {
-    id: string;
-    name: string;
-    icon: React.ReactNode;
-    available: boolean;
-    preparing?: boolean;
-}
-
 export function CreateAvatarModal({ open, onOpenChange }: CreateAvatarModalProps) {
-    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-    const [deepScrapingMode, setDeepScrapingMode] = useState(false);
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState({
+        name: '',
+        personality: '',
+        expertise: '',
+        communicationStyle: '',
+        goals: '',
+    });
 
-    const platforms: PlatformOption[] = [
-        {
-            id: 'facebook',
-            name: 'Facebook',
-            icon: <Facebook className="w-5 h-5" />,
-            available: true,
-        },
-        {
-            id: 'linkedin',
-            name: 'LinkedIn',
-            icon: <Linkedin className="w-5 h-5" />,
-            available: false,
-            preparing: true,
-        },
-        {
-            id: 'github',
-            name: 'GitHub',
-            icon: <Github className="w-5 h-5" />,
-            available: false,
-            preparing: true,
-        },
-        {
-            id: 'google',
-            name: 'Google',
-            icon: <Mail className="w-5 h-5" />,
-            available: false,
-            preparing: true,
-        },
-    ];
-
-    const handlePlatformToggle = (platformId: string) => {
-        const platform = platforms.find(p => p.id === platformId);
-        if (!platform?.available) return;
-
-        setSelectedPlatforms(prev =>
-            prev.includes(platformId)
-                ? prev.filter(id => id !== platformId)
-                : [...prev, platformId]
-        );
+    const handleInputChange = (field: string, value: string) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleImportData = () => {
-        if (selectedPlatforms.length === 0) return;
+    const handleNext = () => {
+        if (step < 3) setStep(step + 1);
+    };
 
-        const services = selectedPlatforms.join(',');
-        const scrapingMode = deepScrapingMode ? 'DEEP' : 'QUICK';
-        const url = `https://promptbook.studio/from-social?services=${services}&scrapingMode=${scrapingMode}`;
+    const handleBack = () => {
+        if (step > 1) setStep(step - 1);
+    };
 
-        // Open the URL in a new tab
-        window.open(url, '_blank');
-
-        // Close the modal
+    const handleSubmit = () => {
+        // Here you would typically send the data to your backend
+        console.log('Creating AI Avatar with data:', formData);
         onOpenChange(false);
-        setSelectedPlatforms([]);
-        setDeepScrapingMode(false);
+        setStep(1);
+        setFormData({
+            name: '',
+            personality: '',
+            expertise: '',
+            communicationStyle: '',
+            goals: '',
+        });
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold text-center">
+                    <DialogTitle className="flex items-center gap-2 text-xl">
+                        <Sparkles className="w-5 h-5 text-promptbook-blue" />
                         Create Your AI Avatar
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-4">
-                    <p className="text-center text-gray-600 text-sm">
-                        Select platforms to import your data and create your personalized AI avatar
-                    </p>
-
-                    {/* Platform Selection Grid */}
-                    <div className="grid grid-cols-2 gap-3">
-                        {platforms.map((platform) => (
-                            <div
-                                key={platform.id}
-                                className={`
-                                    relative border-2 rounded-lg p-4 cursor-pointer transition-all
-                                    ${selectedPlatforms.includes(platform.id) && platform.available
-                                        ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300'
-                                    }
-                                    ${!platform.available ? 'opacity-50 cursor-not-allowed' : ''}
-                                `}
-                                onClick={() => handlePlatformToggle(platform.id)}
-                            >
-                                <div className="flex items-center space-x-3">
-                                    <div className={`
-                                        p-2 rounded-lg
-                                        ${platform.id === 'facebook' ? 'bg-blue-100 text-blue-600' : ''}
-                                        ${platform.id === 'linkedin' ? 'bg-blue-100 text-blue-700' : ''}
-                                        ${platform.id === 'github' ? 'bg-gray-100 text-gray-700' : ''}
-                                        ${platform.id === 'google' ? 'bg-red-100 text-red-600' : ''}
-                                    `}>
-                                        {platform.icon}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-medium">{platform.name}</h3>
-                                        {platform.preparing && (
-                                            <p className="text-xs text-orange-600">⏳ Preparing</p>
-                                        )}
-                                    </div>
+                <div className="space-y-6">
+                    {/* Progress indicator */}
+                    <div className="flex items-center justify-between mb-6">
+                        {[1, 2, 3].map((num) => (
+                            <div key={num} className="flex items-center">
+                                <div
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                                        step >= num ? 'bg-promptbook-blue text-white' : 'bg-gray-200 text-gray-600'
+                                    }`}
+                                >
+                                    {num}
                                 </div>
-
-                                {selectedPlatforms.includes(platform.id) && platform.available && (
-                                    <div className="absolute top-2 right-2">
-                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    </div>
+                                {num < 3 && (
+                                    <div
+                                        className={`w-12 h-0.5 mx-2 ${
+                                            step > num ? 'bg-promptbook-blue' : 'bg-gray-200'
+                                        }`}
+                                    />
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    {/* Deep Scraping Mode Checkbox */}
-                    <div className="border-t pt-4">
-                        <div className="flex items-start space-x-3">
-                            <Checkbox
-                                id="deep-scraping"
-                                checked={deepScrapingMode}
-                                onCheckedChange={(checked) => setDeepScrapingMode(checked as boolean)}
-                            />
-                            <div className="space-y-1">
-                                <Label
-                                    htmlFor="deep-scraping"
-                                    className="text-sm font-medium cursor-pointer"
-                                >
-                                    Enable Deep Scraping Mode
-                                </Label>
-                                <p className="text-xs text-gray-600">
-                                    Deep mode provides more comprehensive data extraction but takes longer to process.
-                                    Quick mode (default) provides faster results with essential information.
-                                </p>
+                    {/* Step 1: Basic Information */}
+                    {step === 1 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-4">
+                                <User className="w-5 h-5 text-promptbook-blue" />
+                                <h3 className="text-lg font-semibold">Basic Information</h3>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Avatar Name</Label>
+                                <Input
+                                    id="name"
+                                    placeholder="e.g., Alex, My Assistant, Professional Me"
+                                    value={formData.name}
+                                    onChange={(e) => handleInputChange('name', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="expertise">Areas of Expertise</Label>
+                                <Input
+                                    id="expertise"
+                                    placeholder="e.g., Marketing, Software Development, Writing"
+                                    value={formData.expertise}
+                                    onChange={(e) => handleInputChange('expertise', e.target.value)}
+                                />
                             </div>
                         </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <Button
-                        onClick={handleImportData}
-                        disabled={selectedPlatforms.length === 0}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Import Data & Create Avatar
-                    </Button>
-
-                    {selectedPlatforms.length === 0 && (
-                        <p className="text-center text-sm text-gray-500">
-                            Please select at least one platform to continue
-                        </p>
                     )}
+
+                    {/* Step 2: Personality & Style */}
+                    {step === 2 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FileText className="w-5 h-5 text-promptbook-blue" />
+                                <h3 className="text-lg font-semibold">Personality & Communication Style</h3>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="personality">Personality Traits</Label>
+                                <Textarea
+                                    id="personality"
+                                    placeholder="Describe your personality: Are you formal or casual? Analytical or creative? Detail-oriented or big-picture focused?"
+                                    value={formData.personality}
+                                    onChange={(e) => handleInputChange('personality', e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="communicationStyle">Communication Style</Label>
+                                <Textarea
+                                    id="communicationStyle"
+                                    placeholder="How do you prefer to communicate? Professional tone? Friendly and approachable? Use specific phrases or avoid certain words?"
+                                    value={formData.communicationStyle}
+                                    onChange={(e) => handleInputChange('communicationStyle', e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 3: Goals & Finalization */}
+                    {step === 3 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Sparkles className="w-5 h-5 text-promptbook-blue" />
+                                <h3 className="text-lg font-semibold">Goals & Purpose</h3>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="goals">Primary Goals</Label>
+                                <Textarea
+                                    id="goals"
+                                    placeholder="What do you want your AI avatar to help you with? Customer support? Content creation? Personal assistance? Be specific about your main use cases."
+                                    value={formData.goals}
+                                    onChange={(e) => handleInputChange('goals', e.target.value)}
+                                    rows={4}
+                                />
+                            </div>
+
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <h4 className="font-medium text-promptbook-blue mb-2">Review Your Avatar</h4>
+                                <div className="text-sm space-y-1">
+                                    <p>
+                                        <strong>Name:</strong> {formData.name || 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Expertise:</strong> {formData.expertise || 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Personality:</strong>{' '}
+                                        {formData.personality
+                                            ? formData.personality.substring(0, 50) + '...'
+                                            : 'Not specified'}
+                                    </p>
+                                    <p>
+                                        <strong>Goals:</strong>{' '}
+                                        {formData.goals ? formData.goals.substring(0, 50) + '...' : 'Not specified'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Navigation buttons */}
+                    <div className="flex justify-between pt-4">
+                        <Button variant="outline" onClick={handleBack} disabled={step === 1}>
+                            Back
+                        </Button>
+
+                        {step < 3 ? (
+                            <Button onClick={handleNext} className="bg-promptbook-blue hover:bg-promptbook-blue/90">
+                                Next Step
+                            </Button>
+                        ) : (
+                            <Button onClick={handleSubmit} className="bg-promptbook-blue hover:bg-promptbook-blue/90">
+                                Create Avatar
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
