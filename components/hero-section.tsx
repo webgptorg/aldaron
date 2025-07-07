@@ -29,6 +29,7 @@ export function HeroSection() {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [pendingDeselection, setPendingDeselection] = useState<string | null>(null);
     const [userPreferences, setUserPreferences] = useState<Record<string, 'deselect' | 'import'>>({});
+    const [deepScrapingMode, setDeepScrapingMode] = useState(false);
 
     const you = useYou();
 
@@ -145,7 +146,8 @@ export function HeroSection() {
 
         // Convert platform names to lowercase for URL parameters
         const serviceParams = selectedPlatforms.map((platform) => platform.toLowerCase()).join(',');
-        const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}`;
+        const scrapingMode = deepScrapingMode ? 'DEEP' : 'QUICK';
+        const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}&scrapingMode=${scrapingMode}`;
 
         console.log('Redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
@@ -391,6 +393,26 @@ export function HeroSection() {
                                         </motion.button>
                                     );
                                 })}
+                            </div>
+
+                            {/* Deep Scraping Mode Option */}
+                            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border">
+                                <Checkbox
+                                    id="deep-scraping"
+                                    checked={deepScrapingMode}
+                                    onCheckedChange={(checked) => setDeepScrapingMode(checked as boolean)}
+                                />
+                                <div className="flex-1">
+                                    <label
+                                        htmlFor="deep-scraping"
+                                        className="text-sm font-medium text-gray-900 cursor-pointer"
+                                    >
+                                        Enable Deep Scraping Mode
+                                    </label>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                        Performs more thorough data analysis for better avatar accuracy (takes longer)
+                                    </p>
+                                </div>
                             </div>
 
                             <Button
