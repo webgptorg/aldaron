@@ -13,7 +13,7 @@ const nextConfig = {
     images: { unoptimized: true },
     devIndicators: false,
     allowedDevOrigins: ['*.macaly.dev', '*.macaly.app', '*.macaly-app.com', '*.macaly-user-data.dev'],
-    output: 'export',
+    // Removed 'output: export' to enable API routes
     trailingSlash: true,
     distDir: 'out',
 };
