@@ -202,6 +202,7 @@ export function Footer() {
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <div className="flex items-center gap-3">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src="/promptbook-logo-blue-256.png"
                                     alt="Promptbook"
@@ -220,6 +221,7 @@ export function Footer() {
                         </div>
 
                         <div className="flex flex-col items-center lg:items-end gap-4">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FCI-Technology-Incubation.6cc58993.png&w=828&q=75"
                                 alt="Technology Incubation logo"

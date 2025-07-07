@@ -69,8 +69,8 @@ export function BenefitsSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        More than just another AI tool - it's your digital twin that truly understands and represents
-                        you
+                        More than just another AI tool - it&apos;s your digital twin that truly understands and
+                        represents you
                     </motion.p>
                 </div>
 

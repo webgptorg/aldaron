@@ -6,12 +6,12 @@ import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const platforms = [
     { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'preparing', isPreselected: false },
+    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'ready', isPreselected: false },
     { name: 'GitHub', icon: Github, color: 'bg-gray-800', status: 'preparing', isPreselected: false },
     { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
 ];
@@ -123,7 +123,7 @@ export function HeroSection() {
                                 size="lg"
                                 className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                             >
-                              {you?<>Create Avatar of {you}</>:<>Create Your Avatar</>}
+                                {you ? <>Create Avatar of {you}</> : <>Create Your Avatar</>}
 
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
@@ -145,6 +145,7 @@ export function HeroSection() {
 
                             {/* Powered by Promptbook */}
                             <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
                                 <div className="text-sm">
                                     <span className="text-gray-600">Powered by </span>
@@ -236,11 +237,14 @@ export function HeroSection() {
             </section>
 
             {/* Modal */}
-            <Dialog open={isModalOpen} onOpenChange={(open) => {
-                if (!open) {
-                    router.push('/');
-                }
-            }}>
+            <Dialog
+                open={isModalOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        router.push('/');
+                    }
+                }}
+            >
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center">Create Your AI Avatar</DialogTitle>
