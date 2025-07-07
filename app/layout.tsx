@@ -1,13 +1,15 @@
-import { Inter } from 'next/font/google';
 import { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import ChatbotScript from './chatbot-script';
+import spaceTrim from 'spacetrim';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-    description: 'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+    description:
+        'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
     keywords: ['AI', 'prompt engineering', 'artificial intelligence', 'prompts', 'GPT', 'machine learning'],
     authors: [{ name: 'Promptbook Team' }],
     creator: 'Promptbook',
@@ -23,7 +25,8 @@ export const metadata: Metadata = {
     },
     openGraph: {
         title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description: 'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+        description:
+            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
         url: 'https://aldaron.vercel.app',
         siteName: 'Promptbook',
         images: [
@@ -40,7 +43,8 @@ export const metadata: Metadata = {
     twitter: {
         card: 'summary_large_image',
         title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description: 'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+        description:
+            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
         images: ['/promptbook-logo-blue-256.png'],
         creator: '@promptbook',
     },
@@ -50,9 +54,7 @@ export const metadata: Metadata = {
             { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
             { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
         ],
-        apple: [
-            { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-        ],
+        apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     },
     manifest: '/manifest.json',
     robots: {
@@ -80,6 +82,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name="theme-color" content="#2563eb" />
                 <meta name="msapplication-TileColor" content="#2563eb" />
                 <meta name="msapplication-config" content="/browserconfig.xml" />
+                {/* Google Analytics */}
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-LDZBXVZHT0"></script>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: spaceTrim(`
+                            window.dataLayer = window.dataLayer || [];
+                            function gtag(){dataLayer.push(arguments);}
+                            gtag('js', new Date());
+                            gtag('config', 'G-LDZBXVZHT0');
+                        `),
+                    }}
+                />
+                />
             </head>
             <body className={inter.className}>
                 {children}
