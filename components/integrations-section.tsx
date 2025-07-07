@@ -78,7 +78,7 @@ export function IntegrationsSection() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
                                 whileHover={{ y: -5, scale: 1.02 }}
-                                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+                                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 relative overflow-hidden text-center"
                             >
                                 {/* Tier Badge */}
                                 <div className="absolute top-4 right-4">
@@ -93,8 +93,10 @@ export function IntegrationsSection() {
                                 </div>
 
                                 <div className="mb-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4">
-                                        <Icon className="w-8 h-8 text-white" />
+                                    <div className="flex justify-center mb-4">
+                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                                            <Icon className="w-8 h-8 text-white" />
+                                        </div>
                                     </div>
 
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{integration.title}</h3>

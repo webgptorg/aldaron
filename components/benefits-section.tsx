@@ -85,12 +85,14 @@ export function BenefitsSection() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
                                 whileHover={{ y: -5 }}
-                                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+                                className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 text-center"
                             >
-                                <div
-                                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${benefit.gradient} flex items-center justify-center mb-6`}
-                                >
-                                    <Icon className="w-8 h-8 text-white" />
+                                <div className="flex justify-center mb-6">
+                                    <div
+                                        className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${benefit.gradient} flex items-center justify-center`}
+                                    >
+                                        <Icon className="w-8 h-8 text-white" />
+                                    </div>
                                 </div>
 
                                 <h3 className="text-xl font-bold text-gray-900 mb-4">{benefit.title}</h3>
