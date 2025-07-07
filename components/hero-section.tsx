@@ -20,7 +20,7 @@ export function HeroSection() {
     const router = useRouter();
     const pathname = usePathname();
     const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
-    
+
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
         platforms.filter((p) => p.isPreselected).map((p) => p.name),
     );
@@ -114,7 +114,7 @@ export function HeroSection() {
                                 className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                             >
                               {you?<>Create Avatar of {you}</>:<>Create Your Avatar</>}
-                       
+
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
 
@@ -209,9 +209,14 @@ export function HeroSection() {
                                                 80% Important
                                             </motion.div>
                                         </div>
-                                        <p className="text-sm text-gray-500 mt-2">
-                                            Family • Creativity • Strategic Work
-                                        </p>
+                                        <div className="flex mt-2">
+                                            <div className="w-[20%]"></div>
+                                            <div className="w-[80%]">
+                                                <p className="text-sm text-gray-500">
+                                                    Family • Creativity • Strategic Work
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
