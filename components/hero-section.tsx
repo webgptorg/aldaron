@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 
 const platforms = [
     { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'ready', isPreselected: false },
+    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'preparing', isPreselected: false },
     { name: 'GitHub', icon: Github, color: 'bg-gray-800', status: 'preparing', isPreselected: false },
     { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
 ];
@@ -462,9 +462,7 @@ export function HeroSection() {
                     </DialogHeader>
 
                     <div className="space-y-4">
-                        <p className="text-gray-600">
-                            You clicked on {pendingDeselection}. Would you like to:
-                        </p>
+                        <p className="text-gray-600">You clicked on {pendingDeselection}. Would you like to:</p>
 
                         <div className="space-y-3">
                             <Button
@@ -493,10 +491,7 @@ export function HeroSection() {
                                         // Handle remember choice state if needed
                                     }}
                                 />
-                                <label
-                                    htmlFor="remember-choice"
-                                    className="text-sm text-gray-600 cursor-pointer"
-                                >
+                                <label htmlFor="remember-choice" className="text-sm text-gray-600 cursor-pointer">
                                     Remember my choice for {pendingDeselection}
                                 </label>
                             </div>

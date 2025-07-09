@@ -216,7 +216,7 @@ export function Footer() {
                                 All rights reserved.
                             </p>
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
-                                The AI orchestration framework for building intelligent applications
+                                The AI orchestration framework for building intelligent applications 11:11
                             </p>
                         </div>
 
