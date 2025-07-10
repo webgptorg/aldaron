@@ -1,12 +1,8 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { Brain, Check, Clock, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
 
 const platforms = [
     { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
@@ -73,55 +69,9 @@ const rot13 = (str: string): string => {
 };
 
 export function PricingSection() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-        platforms.filter((p) => p.isPreselected).map((p) => p.name),
-    );
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [progress, setProgress] = useState(0);
-
-    console.log('PricingSection rendered', {
-        isModalOpen,
-        selectedPlatforms,
-        isProcessing,
-        progress,
-    });
-
-    const togglePlatform = (platform: string) => {
-        console.log('Toggling platform:', platform);
-        setSelectedPlatforms((prev) =>
-            prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform],
-        );
-    };
-
-    const startProcessing = () => {
-        console.log('Starting processing with platforms:', selectedPlatforms);
-
-        if (selectedPlatforms.length === 0) {
-            return;
-        }
-
-        // Convert platform names to lowercase for URL parameters
-        const serviceParams = selectedPlatforms.map((platform) => platform.toLowerCase()).join(',');
-        const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}`;
-
-        console.log('Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
-
-        // Reset modal state
-        setIsModalOpen(false);
-        setIsProcessing(false);
-        setProgress(0);
-        setSelectedPlatforms([]);
-    };
-
+    // No modal or platform selection for PricingSection anymore
     const handleButtonClick = (buttonText: string) => {
-        console.log('Button clicked:', buttonText);
-
-        if (buttonText === 'Get Started' || buttonText === 'Start Pro Trial') {
-            setIsModalOpen(true);
-        } else if (buttonText === 'Contact Sales') {
-            // Handle contact sales differently - could open a contact form or redirect
+        if (buttonText === 'Contact Sales') {
             window.location.href = 'mailto:sales@ptbk.io';
         }
     };
@@ -200,17 +150,26 @@ export function PricingSection() {
                                     ))}
                                 </div>
 
-                                <Button
-                                    onClick={() => handleButtonClick(plan.buttonText)}
-                                    className={`w-full ${
-                                        plan.popular
-                                            ? 'bg-gradient-purple hover:shadow-lg'
-                                            : 'bg-gray-900 hover:bg-gray-800'
-                                    }`}
-                                    size="lg"
-                                >
-                                    {plan.buttonText}
-                                </Button>
+                                {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
+                                {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
+                                    <a
+                                        href="/get-started"
+                                        className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                            plan.popular
+                                                ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                : 'bg-gray-900 text-white hover:bg-gray-800'
+                                        }`}
+                                    >
+                                        {plan.buttonText}
+                                    </a>
+                                ) : (
+                                    <button
+                                        onClick={() => handleButtonClick(plan.buttonText)}
+                                        className="w-full bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200"
+                                    >
+                                        {plan.buttonText}
+                                    </button>
+                                )}
 
                                 {/* Subtle gradient overlay for popular plan */}
                                 {plan.popular && (
@@ -232,107 +191,6 @@ export function PricingSection() {
                     </motion.div>
                 </div>
             </section>
-
-            {/* Modal */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-center">Create Your AI Avatar</DialogTitle>
-                    </DialogHeader>
-
-                    {!isProcessing ? (
-                        <div className="space-y-6">
-                            <p className="text-center text-gray-600">
-                                Select platforms to import your data and create your personalized AI avatar
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                {platforms.map((platform) => {
-                                    const Icon = platform.icon;
-                                    const isSelected = selectedPlatforms.includes(platform.name);
-                                    const isReady = platform.status === 'ready';
-                                    const isPreparing = platform.status === 'preparing';
-
-                                    return (
-                                        <motion.button
-                                            key={platform.name}
-                                            whileHover={isReady ? { scale: 1.02 } : {}}
-                                            whileTap={isReady ? { scale: 0.98 } : {}}
-                                            onClick={() => isReady && togglePlatform(platform.name)}
-                                            disabled={!isReady}
-                                            className={`p-6 rounded-lg border-2 transition-all duration-300 relative ${
-                                                !isReady
-                                                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                                                    : isSelected
-                                                    ? 'border-primary bg-primary/5'
-                                                    : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div
-                                                    className={`w-12 h-12 rounded-lg ${
-                                                        platform.color
-                                                    } flex items-center justify-center ${!isReady ? 'opacity-60' : ''}`}
-                                                >
-                                                    <Icon className="w-6 h-6 text-white" />
-                                                </div>
-                                                <div className="flex flex-col items-start">
-                                                    <span
-                                                        className={`font-medium ${
-                                                            isReady ? 'text-gray-900' : 'text-gray-500'
-                                                        }`}
-                                                    >
-                                                        {platform.name}
-                                                    </span>
-                                                    {isPreparing && (
-                                                        <div className="flex items-center gap-1 text-xs text-orange-600 mt-1">
-                                                            <Clock className="w-3 h-3" />
-                                                            Preparing...
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.button>
-                                    );
-                                })}
-                            </div>
-
-                            <Button
-                                onClick={startProcessing}
-                                disabled={selectedPlatforms.length === 0}
-                                className="w-full bg-gradient-purple hover:shadow-lg"
-                                size="lg"
-                            >
-                                Import Data & Create Avatar
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="space-y-6 py-8">
-                            <div className="text-center">
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                    className="w-16 h-16 mx-auto mb-4"
-                                >
-                                    <Brain className="w-16 h-16 text-primary" />
-                                </motion.div>
-                                <h3 className="text-xl font-semibold mb-2">Creating Your Avatar...</h3>
-                                <p className="text-gray-600">Analyzing your data and learning your style</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span>Progress</span>
-                                    <span>{progress}%</span>
-                                </div>
-                                <Progress value={progress} className="h-2" />
-                            </div>
-
-                            <div className="text-center text-sm text-gray-500">This may take a few moments...</div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
         </>
     );
 }
