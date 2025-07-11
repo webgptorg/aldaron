@@ -13,7 +13,7 @@ export function generateMetadata(): Metadata {
 export default function PricingFramePage() {
     return (
         <main className="min-h-screen bg-transparent">
-            <PricingSection />
+            <PricingSection hideHeader />
         </main>
     );
 }

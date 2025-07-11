@@ -1,8 +1,13 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
+
+export interface PricingSectionProps {
+    hideHeader?: boolean;
+}
 
 const platforms = [
     { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
@@ -68,7 +73,7 @@ const rot13 = (str: string): string => {
     });
 };
 
-export function PricingSection() {
+export function PricingSection({ hideHeader }: PricingSectionProps = {}) {
     // No modal or platform selection for PricingSection anymore
     const handleButtonClick = (buttonText: string) => {
         if (buttonText === 'Contact Sales') {
@@ -80,24 +85,26 @@ export function PricingSection() {
         <>
             <section id="pricing" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16">
-                        <motion.h2
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                            className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
-                        >
-                            Simple, Transparent Pricing
-                        </motion.h2>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.1 }}
-                            className="text-xl text-gray-600 max-w-3xl mx-auto"
-                        >
-                            Start free and scale as your AI avatar becomes an integral part of your workflow
-                        </motion.p>
-                    </div>
+                    {!hideHeader && (
+                        <div className="text-center mb-16">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                                className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
+                            >
+                                Simple, Transparent Pricing
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: 0.1 }}
+                                className="text-xl text-gray-600 max-w-3xl mx-auto"
+                            >
+                                Start free and scale as your AI avatar becomes an integral part of your workflow
+                            </motion.p>
+                        </div>
+                    )}
 
                     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {plans.map((plan, index) => (
