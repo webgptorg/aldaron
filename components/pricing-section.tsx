@@ -7,6 +7,7 @@ import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'l
 export interface PricingSectionProps {
     hideHeader?: boolean;
     isFrame?: boolean;
+    currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE';
 }
 
 const platforms = [
@@ -74,12 +75,26 @@ const rot13 = (str: string): string => {
 };
 // <- TODO: !!! Move or remove
 
-export function PricingSection({ hideHeader, isFrame }: PricingSectionProps = {}) {
+export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
     // No modal or platform selection for PricingSection anymore
     const handleButtonClick = (buttonText: string) => {
         if (buttonText === 'Contact Sales') {
             window.location.href = 'mailto:sales@ptbk.io';
         }
+    };
+
+    // Helper function to check if a plan is the current plan
+    const isCurrentPlan = (planName: string) => {
+        if (!currentPlan) return false;
+        return planName.toUpperCase() === currentPlan.toUpperCase();
+    };
+
+    // Helper function to determine if a plan should show as popular
+    const shouldShowAsPopular = (plan: any) => {
+        // If currentPlan is specified, don't show "Most Popular" for any plan
+        if (currentPlan) return false;
+        // Otherwise, use the original popular flag
+        return plan.popular;
     };
 
     return (
@@ -116,13 +131,23 @@ export function PricingSection({ hideHeader, isFrame }: PricingSectionProps = {}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
                                 whileHover={{ y: -5 }}
                                 className={`relative bg-white rounded-2xl p-8 shadow-lg border transition-all duration-300 ${
-                                    plan.popular
+                                    shouldShowAsPopular(plan) || isCurrentPlan(plan.name)
                                         ? 'border-primary scale-105 shadow-xl'
                                         : 'border-gray-100 hover:shadow-xl'
                                 }`}
                             >
+                                {/* Current Plan Badge */}
+                                {isCurrentPlan(plan.name) && (
+                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                        <Badge className="bg-green-500 text-white px-4 py-2">
+                                            <Check className="w-4 h-4 mr-1" />
+                                            Current Plan
+                                        </Badge>
+                                    </div>
+                                )}
+
                                 {/* Popular Badge */}
-                                {plan.popular && (
+                                {shouldShowAsPopular(plan) && (
                                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                         <Badge className="bg-gradient-purple text-white px-4 py-2">
                                             <Crown className="w-4 h-4 mr-1" />
@@ -158,30 +183,39 @@ export function PricingSection({ hideHeader, isFrame }: PricingSectionProps = {}
                                     ))}
                                 </div>
 
-                                {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
-                                {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
-                                    <a
-                                        href="/get-started"
-                                        className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-                                            plan.popular
-                                                ? 'bg-gradient-purple text-white hover:shadow-lg'
-                                                : 'bg-gray-900 text-white hover:bg-gray-800'
-                                        }`}
-                                    >
-                                        {plan.buttonText}
-                                    </a>
-                                ) : (
-                                    <button
-                                        onClick={() => handleButtonClick(plan.buttonText)}
-                                        className="w-full bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200"
-                                    >
-                                        {plan.buttonText}
-                                    </button>
+                                {/* Hide CTA button for current plan */}
+                                {!isCurrentPlan(plan.name) && (
+                                    <>
+                                        {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
+                                        {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
+                                            <a
+                                                href="/get-started"
+                                                className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                                    shouldShowAsPopular(plan)
+                                                        ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                        : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                }`}
+                                            >
+                                                {plan.buttonText}
+                                            </a>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleButtonClick(plan.buttonText)}
+                                                className="w-full bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200"
+                                            >
+                                                {plan.buttonText}
+                                            </button>
+                                        )}
+                                    </>
                                 )}
 
-                                {/* Subtle gradient overlay for popular plan */}
-                                {plan.popular && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-2xl pointer-events-none"></div>
+                                {/* Subtle gradient overlay for popular plan or current plan */}
+                                {(shouldShowAsPopular(plan) || isCurrentPlan(plan.name)) && (
+                                    <div className={`absolute inset-0 rounded-2xl pointer-events-none ${
+                                        isCurrentPlan(plan.name)
+                                            ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5'
+                                            : 'bg-gradient-to-r from-purple-500/5 to-blue-500/5'
+                                    }`}></div>
                                 )}
                             </motion.div>
                         ))}

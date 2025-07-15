@@ -1,19 +1,24 @@
+'use client';
+
 import { PricingSection } from '@/components/pricing-section';
-import { Metadata } from 'next';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export const dynamic = 'force-static';
+function PricingFrameContent() {
+    const searchParams = useSearchParams();
+    const currentPlan = searchParams.get('currentPlan') as 'FREE' | 'PRO' | 'ENTERPRISE' | null;
 
-export function generateMetadata(): Metadata {
-    return {
-        title: 'Pricing – Promptbook (Embed)',
-        description: 'Simple, transparent pricing for your AI avatar. Start free and scale as you grow.',
-    };
+    return (
+        <main className="min-h-screen bg-white">
+            <PricingSection hideHeader isFrame currentPlan={currentPlan || undefined} />
+        </main>
+    );
 }
 
 export default function PricingFramePage() {
     return (
-        <main className="min-h-screen bg-white">
-            <PricingSection hideHeader isFrame />
-        </main>
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
+            <PricingFrameContent />
+        </Suspense>
     );
 }
