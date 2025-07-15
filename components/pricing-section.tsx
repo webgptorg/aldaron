@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -186,16 +185,18 @@ export function PricingSection({ hideHeader }: PricingSectionProps = {}) {
                         ))}
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        className="text-center mt-12"
-                    >
-                        <p className="text-gray-600">
-                            All plans include our open-source guarantee - your data, your control, always.
-                        </p>
-                    </motion.div>
+                    {!hideHeader && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.3 }}
+                            className="text-center mt-12"
+                        >
+                            <p className="text-gray-600">
+                                All plans include our open-source guarantee - your data, your control, always.
+                            </p>
+                        </motion.div>
+                    )}
                 </div>
             </section>
         </>
