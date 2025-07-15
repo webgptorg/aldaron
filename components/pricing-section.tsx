@@ -99,8 +99,11 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
 
     return (
         <>
-            <section id="pricing" className={isFrame ? "py-8 bg-white" : "py-20 bg-gradient-to-br from-gray-50 to-blue-50"}>
-                <div className={isFrame ? "max-w-6xl mx-auto px-4" : "container mx-auto px-4"}>
+            <section
+                id="pricing"
+                className={isFrame ? 'py-8 bg-white' : 'py-20 bg-gradient-to-br from-gray-50 to-blue-50'}
+            >
+                <div className={isFrame ? 'max-w-6xl mx-auto px-4' : 'container mx-auto px-4'}>
                     {!hideHeader && (
                         <div className="text-center mb-16">
                             <motion.h2
@@ -189,7 +192,11 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                         {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
                                         {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
                                             <a
-                                                href="/get-started"
+                                                href={
+                                                    plan.buttonText === 'Start Pro Trial' && isFrame
+                                                        ? 'https://promptbook.studio/purchase?plan=PRO'
+                                                        : '/get-started'
+                                                }
                                                 className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
                                                     shouldShowAsPopular(plan)
                                                         ? 'bg-gradient-purple text-white hover:shadow-lg'
@@ -211,11 +218,13 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
 
                                 {/* Subtle gradient overlay for popular plan or current plan */}
                                 {(shouldShowAsPopular(plan) || isCurrentPlan(plan.name)) && (
-                                    <div className={`absolute inset-0 rounded-2xl pointer-events-none ${
-                                        isCurrentPlan(plan.name)
-                                            ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5'
-                                            : 'bg-gradient-to-r from-purple-500/5 to-blue-500/5'
-                                    }`}></div>
+                                    <div
+                                        className={`absolute inset-0 rounded-2xl pointer-events-none ${
+                                            isCurrentPlan(plan.name)
+                                                ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5'
+                                                : 'bg-gradient-to-r from-purple-500/5 to-blue-500/5'
+                                        }`}
+                                    ></div>
                                 )}
                             </motion.div>
                         ))}
