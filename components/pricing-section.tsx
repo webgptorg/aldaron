@@ -6,6 +6,7 @@ import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'l
 
 export interface PricingSectionProps {
     hideHeader?: boolean;
+    isFrame?: boolean;
 }
 
 const platforms = [
@@ -72,7 +73,7 @@ const rot13 = (str: string): string => {
     });
 };
 
-export function PricingSection({ hideHeader }: PricingSectionProps = {}) {
+export function PricingSection({ hideHeader, isFrame }: PricingSectionProps = {}) {
     // No modal or platform selection for PricingSection anymore
     const handleButtonClick = (buttonText: string) => {
         if (buttonText === 'Contact Sales') {
@@ -82,8 +83,8 @@ export function PricingSection({ hideHeader }: PricingSectionProps = {}) {
 
     return (
         <>
-            <section id="pricing" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
-                <div className="container mx-auto px-4">
+            <section id="pricing" className={isFrame ? "py-8 bg-white" : "py-20 bg-gradient-to-br from-gray-50 to-blue-50"}>
+                <div className={isFrame ? "max-w-6xl mx-auto px-4" : "container mx-auto px-4"}>
                     {!hideHeader && (
                         <div className="text-center mb-16">
                             <motion.h2
