@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
-import ChatbotScript from './chatbot-script';
 import './globals.css';
+import ConditionalChatbot from './conditional-chatbot';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -99,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={inter.className}>
                 {children}
-                <ChatbotScript />
+                <ConditionalChatbot />
             </body>
         </html>
     );
