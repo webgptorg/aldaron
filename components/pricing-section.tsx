@@ -72,6 +72,7 @@ const rot13 = (str: string): string => {
         return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
     });
 };
+// <- TODO: !!! Move or remove
 
 export function PricingSection({ hideHeader, isFrame }: PricingSectionProps = {}) {
     // No modal or platform selection for PricingSection anymore
