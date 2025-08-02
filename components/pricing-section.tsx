@@ -192,6 +192,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                         {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
                                         {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
                                             <a
+                                                target="_top"
                                                 href={
                                                     plan.buttonText === 'Start Pro Trial' && isFrame
                                                         ? 'https://promptbook.studio/purchase?plan=PRO'
