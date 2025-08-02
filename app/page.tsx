@@ -33,14 +33,14 @@ function rot13(str: string): string {
     });
 }
 
-export default function Home() {
+export default function Home({ searchParams }: Props) {
     console.log('Home page rendered');
 
     return (
         <main className="min-h-screen">
             <Header />
             <Suspense fallback={<div>Loading...</div>}>
-                <HeroSection />
+                <HeroSection searchParams={searchParams} />
             </Suspense>
             <BenefitsSection />
             <IntegrationsSection />

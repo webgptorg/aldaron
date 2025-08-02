@@ -5,9 +5,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
+import { getLandingBehavior, getRedirectUrl, type LandingBehavior } from '@/lib/landing-behavior';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const platforms = [
@@ -17,9 +18,14 @@ const platforms = [
     { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
 ];
 
-export function HeroSection() {
+interface HeroSectionProps {
+    searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export function HeroSection({ searchParams = {} }: HeroSectionProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const clientSearchParams = useSearchParams();
     const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
 
     const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -32,6 +38,9 @@ export function HeroSection() {
     const [deepScrapingMode, setDeepScrapingMode] = useState(false);
 
     const you = useYou();
+
+    // Determine landing behavior based on URL parameters (use client-side search params)
+    const landingBehavior = getLandingBehavior(clientSearchParams);
 
     // Check if animations should play based on session storage
     useEffect(() => {
@@ -144,10 +153,8 @@ export function HeroSection() {
             return;
         }
 
-        // Convert platform names to lowercase for URL parameters
-        const serviceParams = selectedPlatforms.map((platform) => platform.toLowerCase()).join(',');
-        const scrapingMode = deepScrapingMode ? 'DEEP' : 'QUICK';
-        const redirectUrl = `https://promptbook.studio/from-social?services=${serviceParams}&scrapingMode=${scrapingMode}`;
+        // Use the utility function to generate the redirect URL
+        const redirectUrl = getRedirectUrl('popup', selectedPlatforms, deepScrapingMode);
 
         console.log('Redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
@@ -196,8 +203,17 @@ export function HeroSection() {
 
                             <Button
                                 onClick={() => {
-                                    console.log('Create avatar button clicked');
-                                    router.push('/get-started');
+                                    console.log('Create avatar button clicked', { landingBehavior });
+
+                                    if (landingBehavior === 'direct') {
+                                        // Direct navigation to promptbook.studio/from-social-links
+                                        const redirectUrl = getRedirectUrl('direct');
+                                        console.log('Direct redirect to:', redirectUrl);
+                                        window.location.href = redirectUrl;
+                                    } else {
+                                        // Show popup for platform selection
+                                        router.push('/get-started');
+                                    }
                                 }}
                                 size="lg"
                                 className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
