@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
-import { getLandingBehavior, getRedirectUrl, type LandingBehavior } from '@/lib/landing-behavior';
+import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -87,7 +87,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
     };
 
     // Create dynamic hero text
-    const heroText = `Reclaim Your Time with AI That Thinks Like You ${you || ''}`;
+    const heroText = `${!you ? '' : `${you}, `}Reclaim Your Time with AI That Thinks Like You`;
 
     console.log('HeroSection rendered', {
         isModalOpen,
@@ -190,10 +190,18 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                     Your Personal AI Avatar
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                                    {you && (
+                                        <>
+                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
+                                                {you}
+                                            </span>
+                                            :{' '}
+                                        </>
+                                    )}
                                     Reclaim Your{' '}
                                     <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with
                                     AI That Thinks Like{' '}
-                                    <span className="bg-gradient-purple bg-clip-text text-transparent">You {you}</span>
+                                    <span className="bg-gradient-purple bg-clip-text text-transparent">You</span>
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
                                     Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle
