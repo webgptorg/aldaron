@@ -1,8 +1,10 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { motion } from 'framer-motion';
 import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export interface PricingSectionProps {
     hideHeader?: boolean;
@@ -76,10 +78,24 @@ const rot13 = (str: string): string => {
 // <- TODO: !!! Move or remove
 
 export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
-    // No modal or platform selection for PricingSection anymore
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Determine landing behavior based on URL parameters
+    const landingBehavior = getLandingBehavior(searchParams);
+
     const handleButtonClick = (buttonText: string) => {
         if (buttonText === 'Contact Sales') {
             window.location.href = 'mailto:sales@ptbk.io';
+        } else if (buttonText === 'Get Started' || buttonText === 'Start Pro Trial') {
+            if (landingBehavior === 'direct') {
+                // Direct navigation to promptbook.studio/from-social-links
+                const redirectUrl = getRedirectUrl('direct');
+                window.location.href = redirectUrl;
+            } else {
+                // Show popup for platform selection
+                router.push('/get-started');
+            }
         }
     };
 
@@ -189,15 +205,11 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                 {/* Hide CTA button for current plan */}
                                 {!isCurrentPlan(plan.name) && (
                                     <>
-                                        {/* Use a link for Get Started/Start Pro Trial, button for Contact Sales */}
-                                        {plan.buttonText === 'Get Started' || plan.buttonText === 'Start Pro Trial' ? (
+                                        {/* Handle all buttons with consistent behavior */}
+                                        {plan.buttonText === 'Start Pro Trial' && isFrame ? (
                                             <a
                                                 target="_top"
-                                                href={
-                                                    plan.buttonText === 'Start Pro Trial' && isFrame
-                                                        ? 'https://promptbook.studio/purchase?plan=PRO'
-                                                        : '/get-started'
-                                                }
+                                                href="https://promptbook.studio/purchase?plan=PRO"
                                                 className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
                                                     shouldShowAsPopular(plan)
                                                         ? 'bg-gradient-purple text-white hover:shadow-lg'
@@ -209,7 +221,13 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                         ) : (
                                             <button
                                                 onClick={() => handleButtonClick(plan.buttonText)}
-                                                className="w-full bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200"
+                                                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                                    plan.buttonText === 'Contact Sales'
+                                                        ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                                                        : shouldShowAsPopular(plan)
+                                                        ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                        : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                }`}
                                             >
                                                 {plan.buttonText}
                                             </button>

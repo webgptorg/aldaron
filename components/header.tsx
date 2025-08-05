@@ -1,18 +1,34 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export function Header() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Determine landing behavior based on URL parameters
+    const landingBehavior = getLandingBehavior(searchParams);
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleGetStartedClick = () => {
+        if (landingBehavior === 'direct') {
+            // Direct navigation to promptbook.studio/from-social-links
+            const redirectUrl = getRedirectUrl('direct');
+            window.location.href = redirectUrl;
+        } else {
+            // Show popup for platform selection
+            router.push('/get-started');
         }
     };
     return (
@@ -57,7 +73,7 @@ export function Header() {
 
                     {/* CTA Button */}
                     <Button
-                        onClick={() => router.push('/get-started')}
+                        onClick={handleGetStartedClick}
                         className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white"
                     >
                         Get Started

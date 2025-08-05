@@ -3,14 +3,33 @@
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 export function Footer() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    // Determine landing behavior based on URL parameters
+    const landingBehavior = getLandingBehavior(searchParams);
+
+    const handleGetStartedClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (landingBehavior === 'direct') {
+            // Direct navigation to promptbook.studio/from-social-links
+            const redirectUrl = getRedirectUrl('direct');
+            window.location.href = redirectUrl;
+        } else {
+            // Show popup for platform selection
+            router.push('/get-started');
+        }
+    };
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,7 +76,11 @@ export function Footer() {
                         <h3 className="text-lg font-semibold mb-6">Product</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a href="/get-started" className="text-gray-400 hover:text-white transition-colors">
+                                <a
+                                    href="/get-started"
+                                    onClick={handleGetStartedClick}
+                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+                                >
                                     Get started
                                 </a>
                             </li>
