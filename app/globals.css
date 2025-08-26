@@ -4,6 +4,8 @@
 @tailwind utilities;
 
 :root {
+    --promptbook-blue: #7aebff;
+
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 214, 219, 220;
     --background-end-rgb: 255, 255, 255;
@@ -25,8 +27,8 @@
         --card-foreground: 215 25% 27%;
         --popover: 0 0% 100%;
         --popover-foreground: 215 25% 27%;
-        --primary: 245 58% 51%;
-        --primary-foreground: 0 0% 98%;
+        --primary: 194 100% 74%;
+        --primary-foreground: 0 0% 9%;
         --secondary: 211 40% 98%;
         --secondary-foreground: 215 25% 27%;
         --muted: 211 40% 98%;
@@ -37,7 +39,7 @@
         --destructive-foreground: 0 0% 98%;
         --border: 211 20% 91%;
         --input: 211 20% 91%;
-        --ring: 245 58% 51%;
+        --ring: 194 100% 74%;
         --chart-1: 245 58% 51%;
         --chart-2: 204 100% 50%;
         --chart-3: 158 64% 52%;
@@ -85,4 +87,12 @@
 /* Hide Next.js badge and error messages */
 body > nextjs-portal {
     display: none;
+}
+
+.bg-promptbook-blue {
+    background-color: var(--promptbook-blue);
+}
+
+.text-promptbook-blue {
+    color: var(--promptbook-blue);
 }

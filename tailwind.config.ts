@@ -15,7 +15,8 @@ const config: Config = {
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-                'gradient-purple': 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+                'gradient-purple': 'linear-gradient(135deg, #7aebff 0%, #3B82F6 100%)',
+                'gradient-promptbook': 'linear-gradient(135deg, #7aebff 0%, #5dd5f0 100%)',
                 'gradient-green': 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
             },
             borderRadius: {
@@ -66,7 +67,7 @@ const config: Config = {
                 },
                 // Promptbook brand colors
                 promptbook: {
-                    blue: '#00007F',
+                    blue: '#7aebff',
                     'dark-gray': '#111827',
                     'light-gray': '#f3f4f6',
                     success: '#10b981',
