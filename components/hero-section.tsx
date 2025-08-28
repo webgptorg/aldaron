@@ -185,23 +185,27 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                             className="space-y-8"
                         >
                             <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
                                     <Brain className="w-4 h-4" />
                                     Your Personal AI Avatar
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                                     {you && (
                                         <>
-                                            <span className="bg-gradient-purple bg-clip-text text-transparent">
+                                            <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
                                                 {you}
                                             </span>
                                             :{' '}
                                         </>
                                     )}
                                     Reclaim Your{' '}
-                                    <span className="bg-gradient-purple bg-clip-text text-transparent">Time</span> with
-                                    AI That Thinks Like{' '}
-                                    <span className="bg-gradient-purple bg-clip-text text-transparent">You</span>
+                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                                        Time
+                                    </span>{' '}
+                                    with AI That Thinks Like{' '}
+                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                                        You
+                                    </span>
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
                                     Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle
@@ -224,7 +228,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                     }
                                 }}
                                 size="lg"
-                                className="bg-gradient-purple hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                             >
                                 {you ? <>Create Avatar of {you}</> : <>Create Your Avatar</>}
 
@@ -286,7 +290,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                                 initial={shouldAnimate ? { width: 0 } : false}
                                                 animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
                                                 transition={{ duration: 1, delay: shouldAnimate ? 0.5 : 0 }}
-                                                className="bg-red-400 flex items-center justify-center text-white text-sm font-medium"
+                                                className="bg-red-200 flex items-center justify-center text-sm font-medium"
                                             >
                                                 80% Unimportant
                                             </motion.div>
@@ -294,7 +298,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                                 initial={shouldAnimate ? { width: 0 } : false}
                                                 animate={shouldAnimate ? { width: '20%' } : { width: '20%' }}
                                                 transition={{ duration: 1, delay: shouldAnimate ? 0.7 : 0 }}
-                                                className="bg-green-400 flex items-center justify-center text-white text-sm font-medium"
+                                                className="bg-gradient-promptbook flex items-center justify-center  text-sm font-medium"
                                             >
                                                 20%
                                             </motion.div>
@@ -318,7 +322,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                                 initial={shouldAnimate ? { width: 0 } : false}
                                                 animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
                                                 transition={{ duration: 1, delay: shouldAnimate ? 1.2 : 0 }}
-                                                className="bg-gradient-green flex items-center justify-center text-white text-sm font-medium"
+                                                className="bg-gradient-promptbook flex items-center justify-center text-gray-700 text-sm font-medium"
                                             >
                                                 80% Important
                                             </motion.div>
@@ -326,8 +330,8 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                         <div className="flex mt-2">
                                             <div className="w-[20%]"></div>
                                             <div className="w-[80%]">
-                                                <p className="text-sm text-gray-500">
-                                                    Family • Creativity • Strategic Work
+                                                <p className="text-sm text-gray-500 text-right">
+                                                    Family • Creativity • Strategic Work{/* • Deep Focus */}
                                                 </p>
                                             </div>
                                         </div>
@@ -491,7 +495,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                         <div className="space-y-3">
                             <Button
                                 onClick={() => handleConfirmDeselection('import', false)}
-                                className="w-full bg-gradient-purple hover:shadow-lg"
+                                className="w-full bg-gradient-promptbook hover:shadow-lg"
                                 size="lg"
                             >
                                 Start importing from {pendingDeselection}

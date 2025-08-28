@@ -13,10 +13,15 @@ const config: Config = {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             backgroundImage: {
+                'gradient-promptbook':
+                    'linear-gradient(135deg, var(--promptbook-blue) 0%, var(--promptbook-green) 100%)',
+                'gradient-promptbook-dark':
+                    'linear-gradient(135deg, var(--promptbook-blue-dark) 0%, var(--promptbook-green-dark) 100%)',
+
+                // TODO: Organize these better, remove:
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
                 'gradient-purple': 'linear-gradient(135deg, #7aebff 0%, #3B82F6 100%)',
-                'gradient-promptbook': 'linear-gradient(135deg, #7aebff 0%, #5dd5f0 100%)',
                 'gradient-green': 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
             },
             borderRadius: {

@@ -74,7 +74,7 @@ export function Header() {
                     {/* CTA Button */}
                     <Button
                         onClick={handleGetStartedClick}
-                        className="bg-promptbook-blue hover:bg-promptbook-blue/90 text-white"
+                        className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90"
                     >
                         Get Started
                         <ArrowRight className="ml-2 w-4 h-4" />

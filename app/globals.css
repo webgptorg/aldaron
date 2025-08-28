@@ -5,6 +5,10 @@
 
 :root {
     --promptbook-blue: #7aebff;
+    --promptbook-blue-dark: #30a8bd;
+
+    --promptbook-green: #7affeb;
+    --promptbook-green-dark: #30bda8;
 
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 214, 219, 220;
@@ -95,4 +99,8 @@ body > nextjs-portal {
 
 .text-promptbook-blue {
     color: var(--promptbook-blue);
+}
+
+.bg-promptbook-blue-dark {
+    background-color: var(--promptbook-blue-dark);
 }
