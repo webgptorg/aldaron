@@ -19,7 +19,10 @@
             }
         ],
         "paths": {
-            "@/*": ["./*"]
+            "@/*": ["./*"],
+            "@books/*": ["../books/*.book"]
+            // <- Note: [📖] Allow books to be imported
+            // TODO: [🧵]
         }
     },
     "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-env.d.ts", "out/types/**/*.ts"],

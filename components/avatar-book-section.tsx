@@ -1,13 +1,19 @@
 'use client';
 
 import { BookEditor } from '@promptbook/components';
-import { DEFAULT_BOOK } from '@promptbook/core';
+//import { DEFAULT_BOOK } from '@promptbook/core';
 import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
+// import pavolHejnyBook from '@books/pavol-hejny'; // <- Note: [📖] Importing book
+// <- TODO: [🧵]
+import pavolHejnyBook from '../books/pavol-hejny.book'; // <- Note: [📖] Importing book
+
+console.log('pavolHejnyBook', pavolHejnyBook);
+
 export function AvatarBookSection() {
-    const [book, setBook] = useState<string_book>(DEFAULT_BOOK);
+    const [book, setBook] = useState<string_book>(/*DEFAULT_BOOK*/ pavolHejnyBook);
     const STORAGE_KEY = 'avatar_book';
 
     // Load persisted book on mount
@@ -59,7 +65,11 @@ export function AvatarBookSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        Soul of your AI agent is written in the Book.
+                        The <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">Soul</span> of
+                        your AI agent is{' '}
+                        <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                            written in the Book.
+                        </span>
                     </motion.p>
                 </div>
 

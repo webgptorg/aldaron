@@ -16,6 +16,17 @@ const nextConfig = {
     output: 'export',
     trailingSlash: true,
     distDir: 'out',
+    webpack: (config, { dev, isServer }) => {
+        // Note: [📖] Allow books to be imported:
+        config.module.rules.push({
+            test: /\.book$/,
+            use: 'raw-loader',
+        });
+
+        // TODO: [🧵]
+
+        return config;
+    },
 };
 
 module.exports = nextConfig;
