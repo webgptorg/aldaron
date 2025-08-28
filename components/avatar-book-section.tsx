@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 // <- TODO: [🧵]
 import pavolHejnyBook from '../books/pavol-hejny.book'; // <- Note: [📖] Importing book
 
-console.log('pavolHejnyBook', pavolHejnyBook);
+// console.log('pavolHejnyBook', pavolHejnyBook);
 
 export function AvatarBookSection() {
     const [book, setBook] = useState<string_book>(/*DEFAULT_BOOK*/ pavolHejnyBook);
