@@ -4,10 +4,42 @@ import { BookEditor } from '@promptbook/components';
 import { DEFAULT_BOOK } from '@promptbook/core';
 import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function AvatarBookSection() {
     const [book, setBook] = useState<string_book>(DEFAULT_BOOK);
+    const STORAGE_KEY = 'avatar_book';
+
+    // Load persisted book on mount
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            try {
+                // try parse in case the value was stored as JSON
+                const parsed = JSON.parse(raw);
+                setBook(parsed as string_book);
+            } catch {
+                // plain string
+                setBook(raw as string_book);
+            }
+        } catch (e) {
+            // ignore localStorage errors (privacy mode, etc.)
+        }
+    }, []);
+
+    // Persist book whenever it changes
+    useEffect(() => {
+        try {
+            if (typeof book === 'string') {
+                localStorage.setItem(STORAGE_KEY, book);
+            } else {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(book));
+            }
+        } catch (e) {
+            // ignore write errors
+        }
+    }, [book]);
 
     return (
         <section id="integrations" className="py-20 bg-white">
