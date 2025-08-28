@@ -1,3 +1,4 @@
+import { AvatarBookSection } from '@/components/avatar-book-section';
 import { BenefitsSection } from '@/components/benefits-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
@@ -44,6 +45,7 @@ export default function Home({ searchParams }: Props) {
             </Suspense>
             <BenefitsSection />
             <IntegrationsSection />
+            <AvatarBookSection />
             <PricingSection />
             <Footer />
         </main>
