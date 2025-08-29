@@ -1,6 +1,6 @@
 'use client';
 
-import { BookEditor } from '@promptbook/components';
+import { AvatarChipFromSource, BookEditor } from '@promptbook/components';
 //import { DEFAULT_BOOK } from '@promptbook/core';
 import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
@@ -75,6 +75,7 @@ export function AvatarBookSection() {
 
                 <div className="">
                     <BookEditor value={book} onChange={setBook} isVerbose={false} />
+                    <AvatarChipFromSource source={book} isTemplate={false} />
                 </div>
             </div>
         </section>
