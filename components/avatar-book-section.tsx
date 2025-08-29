@@ -75,6 +75,8 @@ export function AvatarBookSection() {
 
                 <div className="">
                     <BookEditor value={book} onChange={setBook} isVerbose={false} />
+                    <AvatarChipFromSource source={book} isTemplate={false} isSelected />
+                    <AvatarChipFromSource source={book} isTemplate={false} />
                     <AvatarChipFromSource source={book} isTemplate={false} />
                 </div>
             </div>
