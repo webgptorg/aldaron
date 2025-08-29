@@ -1,51 +1,42 @@
 'use client';
 
-import { AvatarChipFromSource, BookEditor } from '@promptbook/components';
-//import { DEFAULT_BOOK } from '@promptbook/core';
-import type { string_book } from '@promptbook/types';
+import { BookEditor } from '@promptbook/components';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-
-// import pavolHejnyBook from '@books/pavol-hejny'; // <- Note: [📖] Importing book
-// <- TODO: [🧵]
-import pavolHejnyBook from '../books/pavol-hejny.book'; // <- Note: [📖] Importing book
-
-// console.log('pavolHejnyBook', pavolHejnyBook);
+import { BOOK_AGENTS } from '../lib/book-registry';
+import { useSelectedAgent } from '../hooks/use-selected-agent';
+import { useBookPersistence } from '../hooks/use-book-persistence';
+import { AvatarChipManager } from './avatar-chip-manager';
 
 export function AvatarBookSection() {
-    const [book, setBook] = useState<string_book>(/*DEFAULT_BOOK*/ pavolHejnyBook);
-    const STORAGE_KEY = 'avatar_book';
+    const { selectedAgent, selectAgent, isLoaded: agentLoaded } = useSelectedAgent();
+    const { book, setBook, isLoaded: bookLoaded } = useBookPersistence({
+        storageKey: `avatar_book_${selectedAgent.id}`,
+        defaultBook: selectedAgent.book
+    });
 
-    // Load persisted book on mount
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return;
-            try {
-                // try parse in case the value was stored as JSON
-                const parsed = JSON.parse(raw);
-                setBook(parsed as string_book);
-            } catch {
-                // plain string
-                setBook(raw as string_book);
-            }
-        } catch (e) {
-            // ignore localStorage errors (privacy mode, etc.)
-        }
-    }, []);
-
-    // Persist book whenever it changes
-    useEffect(() => {
-        try {
-            if (typeof book === 'string') {
-                localStorage.setItem(STORAGE_KEY, book);
-            } else {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(book));
-            }
-        } catch (e) {
-            // ignore write errors
-        }
-    }, [book]);
+    // Don't render until both agent and book are loaded
+    if (!agentLoaded || !bookLoaded) {
+        return (
+            <section id="integrations" className="py-20 bg-white">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-16">
+                        <div className="animate-pulse">
+                            <div className="h-12 bg-gray-200 rounded mb-4 max-w-2xl mx-auto"></div>
+                            <div className="h-6 bg-gray-200 rounded max-w-3xl mx-auto"></div>
+                        </div>
+                    </div>
+                    <div className="animate-pulse">
+                        <div className="h-64 bg-gray-200 rounded mb-4"></div>
+                        <div className="flex gap-4 justify-center">
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className="h-12 w-24 bg-gray-200 rounded"></div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="integrations" className="py-20 bg-white">
@@ -73,11 +64,39 @@ export function AvatarBookSection() {
                     </motion.p>
                 </div>
 
-                <div className="">
-                    <BookEditor value={book} onChange={setBook} isVerbose={false} />
-                    <AvatarChipFromSource source={book} isTemplate={false} isSelected />
-                    <AvatarChipFromSource source={book} isTemplate={false} />
-                    <AvatarChipFromSource source={book} isTemplate={false} />
+                <div className="space-y-8">
+                    {/* Book Editor for the selected agent */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                Editing: {selectedAgent.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                                {selectedAgent.description}
+                            </p>
+                        </div>
+                        <BookEditor value={book} onChange={setBook} isVerbose={false} />
+                    </div>
+
+                    {/* Agent Selection */}
+                    <div className="text-center">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                            Choose Your AI Agent
+                        </h3>
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            {BOOK_AGENTS.map((agent) => (
+                                <AvatarChipManager
+                                    key={agent.id}
+                                    agent={agent}
+                                    isSelected={selectedAgent.id === agent.id}
+                                    onSelect={() => selectAgent(agent)}
+                                />
+                            ))}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-4">
+                            Click on any agent to switch and customize their personality
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
