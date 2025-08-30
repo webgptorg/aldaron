@@ -1,17 +1,21 @@
 'use client';
 
-import { BookEditor } from '@promptbook/components';
+import { BookEditor, Chat } from '@promptbook/components';
 import { motion } from 'framer-motion';
-import { BOOK_AGENTS } from '../lib/book-registry';
-import { useSelectedAgent } from '../hooks/use-selected-agent';
 import { useBookPersistence } from '../hooks/use-book-persistence';
+import { useSelectedAgent } from '../hooks/use-selected-agent';
+import { BOOK_AGENTS } from '../lib/book-registry';
 import { AvatarChipManager } from './avatar-chip-manager';
 
 export function AvatarBookSection() {
     const { selectedAgent, selectAgent, isLoaded: agentLoaded } = useSelectedAgent();
-    const { book, setBook, isLoaded: bookLoaded } = useBookPersistence({
+    const {
+        book,
+        setBook,
+        isLoaded: bookLoaded,
+    } = useBookPersistence({
         storageKey: `avatar_book_${selectedAgent.id}`,
-        defaultBook: selectedAgent.book
+        defaultBook: selectedAgent.book,
     });
 
     // Don't render until both agent and book are loaded
@@ -28,7 +32,7 @@ export function AvatarBookSection() {
                     <div className="animate-pulse">
                         <div className="h-64 bg-gray-200 rounded mb-4"></div>
                         <div className="flex gap-4 justify-center">
-                            {[1, 2, 3, 4, 5].map(i => (
+                            {[1, 2, 3, 4, 5].map((i) => (
                                 <div key={i} className="h-12 w-24 bg-gray-200 rounded"></div>
                             ))}
                         </div>
@@ -68,21 +72,15 @@ export function AvatarBookSection() {
                     {/* Book Editor for the selected agent */}
                     <div className="bg-gray-50 rounded-lg p-6">
                         <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                Editing: {selectedAgent.name}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                                {selectedAgent.description}
-                            </p>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Editing: {selectedAgent.name}</h3>
+                            <p className="text-sm text-gray-600">{selectedAgent.description}</p>
                         </div>
                         <BookEditor value={book} onChange={setBook} isVerbose={false} />
                     </div>
 
                     {/* Agent Selection */}
                     <div className="text-center">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                            Choose Your AI Agent
-                        </h3>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Choose Your AI Agent</h3>
                         <div className="flex flex-wrap gap-4 justify-center">
                             {BOOK_AGENTS.map((agent) => (
                                 <AvatarChipManager
@@ -96,6 +94,36 @@ export function AvatarBookSection() {
                         <p className="text-sm text-gray-500 mt-4">
                             Click on any agent to switch and customize their personality
                         </p>
+                    </div>
+
+                    {/* Agent Selection */}
+                    <div className="text-center">
+                        <Chat
+                            messages={[
+                                {
+                                    id: '1',
+                                    from: 'PROMPTBOOK_PERSONA',
+                                    date: new Date('2023-03-01T10:00:00Z'),
+                                    isComplete: true,
+                                    content: 'Hello! How can I help you today?',
+                                },
+                                {
+                                    id: '2',
+                                    from: 'USER',
+                                    date: new Date('2023-03-01T10:00:00Z'),
+                                    isComplete: true,
+                                    content: 'Can you tell me about your features?',
+                                },
+                            ]}
+                            onMessage={(msg) => console.log('Mock message sent:', msg)}
+                            avatars={
+                                {
+                                    // agent: { name: 'Aldaron', image: '/icon-192x192.png' },
+                                    // user: { name: 'You', image: '/favicon.svg' },
+                                }
+                            }
+                            placeholderMessageContent="Write a message"
+                        />
                     </div>
                 </div>
             </div>
