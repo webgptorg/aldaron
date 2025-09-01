@@ -102,26 +102,31 @@ export function AvatarBookSection() {
                             messages={[
                                 {
                                     id: '1',
-                                    from: 'PROMPTBOOK_PERSONA',
+                                    from: 'avatar',
                                     date: new Date('2023-03-01T10:00:00Z'),
                                     isComplete: true,
                                     content: 'Hello! How can I help you today?',
                                 },
                                 {
                                     id: '2',
-                                    from: 'USER',
+                                    from: 'user',
                                     date: new Date('2023-03-01T10:00:00Z'),
                                     isComplete: true,
                                     content: 'Can you tell me about your features?',
                                 },
                             ]}
                             onMessage={(msg) => console.log('Mock message sent:', msg)}
-                            avatars={
+                            participants={[
+                                { name: 'avatar', fullname: 'AI Avatar', avatarSrc: '', color: '#ff8800' },
                                 {
-                                    // agent: { name: 'Aldaron', image: '/icon-192x192.png' },
-                                    // user: { name: 'You', image: '/favicon.svg' },
-                                }
-                            }
+                                    name: 'user',
+                                    isMe: true,
+                                    fullname: 'You',
+                                    avatarSrc:
+                                        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+                                    color: '#008866',
+                                },
+                            ]}
                             placeholderMessageContent="Write a message"
                         />
                     </div>
