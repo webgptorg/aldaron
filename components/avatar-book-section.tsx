@@ -128,6 +128,7 @@ export function AvatarBookSection() {
                                 },
                             ]}
                             placeholderMessageContent="Write a message"
+                            isFocusedOnLoad={false}
                         />
                     </div>
                 </div>
