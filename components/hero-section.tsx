@@ -57,7 +57,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
             const savedPreferences = localStorage.getItem('platform-preferences');
             if (savedPreferences) {
                 try {
-                    const preferences = JSON.parse(savedPreferences);
+                    const preferences = JSON.parse(savedPreferences) as any;
                     setUserPreferences(preferences);
                 } catch (error) {
                     console.error('Failed to parse saved preferences:', error);
@@ -67,7 +67,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
             // Initialize selected platforms based on preselected and user preferences
             const initialSelection = platforms
                 .filter((platform) => {
-                    const savedPref = savedPreferences ? JSON.parse(savedPreferences)[platform.name] : null;
+                    const savedPref = savedPreferences ? (JSON.parse(savedPreferences) as any)[platform.name] : null;
                     if (savedPref === 'deselect') return false;
                     if (savedPref === 'import') return true;
                     return platform.isPreselected;
