@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Progress } from '@/components/ui/progress';
 import { useYou } from '@/hooks/use-you';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { shouldShowWaitlist } from '@/lib/waitlist';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -36,6 +38,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
     const [pendingDeselection, setPendingDeselection] = useState<string | null>(null);
     const [userPreferences, setUserPreferences] = useState<Record<string, 'deselect' | 'import'>>({});
     const [deepScrapingMode, setDeepScrapingMode] = useState(false);
+    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
 
     const you = useYou();
 
@@ -216,6 +219,12 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                             <Button
                                 onClick={() => {
                                     console.log('Create avatar button clicked', { landingBehavior });
+
+                                    // Check if waitlist should be shown
+                                    if (shouldShowWaitlist(clientSearchParams)) {
+                                        setShowWaitlistPopup(true);
+                                        return;
+                                    }
 
                                     if (landingBehavior === 'direct') {
                                         // Direct navigation to promptbook.studio/from-social-links
@@ -546,6 +555,12 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Waitlist Popup */}
+            <WaitlistPopup
+                isOpen={showWaitlistPopup}
+                onClose={() => setShowWaitlistPopup(false)}
+            />
         </>
     );
 }

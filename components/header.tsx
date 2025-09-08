@@ -2,14 +2,18 @@
 
 import { Button } from '@/components/ui/button';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { shouldShowWaitlist } from '@/lib/waitlist';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 
 export function Header() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
 
     // Determine landing behavior based on URL parameters
     const landingBehavior = getLandingBehavior(searchParams);
@@ -22,6 +26,12 @@ export function Header() {
     };
 
     const handleGetStartedClick = () => {
+        // Check if waitlist should be shown
+        if (shouldShowWaitlist(searchParams)) {
+            setShowWaitlistPopup(true);
+            return;
+        }
+
         if (landingBehavior === 'direct') {
             // Direct navigation to promptbook.studio/from-social-links
             const redirectUrl = getRedirectUrl('direct');
@@ -81,6 +91,12 @@ export function Header() {
                     </Button>
                 </div>
             </div>
+
+            {/* Waitlist Popup */}
+            <WaitlistPopup
+                isOpen={showWaitlistPopup}
+                onClose={() => setShowWaitlistPopup(false)}
+            />
         </header>
     );
 }

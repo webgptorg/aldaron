@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { shouldShowWaitlist } from '@/lib/waitlist';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -15,12 +17,20 @@ export function Footer() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
 
     // Determine landing behavior based on URL parameters
     const landingBehavior = getLandingBehavior(searchParams);
 
     const handleGetStartedClick = (e: React.MouseEvent) => {
         e.preventDefault();
+
+        // Check if waitlist should be shown
+        if (shouldShowWaitlist(searchParams)) {
+            setShowWaitlistPopup(true);
+            return;
+        }
+
         if (landingBehavior === 'direct') {
             // Direct navigation to promptbook.studio/from-social-links
             const redirectUrl = getRedirectUrl('direct');
@@ -260,6 +270,12 @@ export function Footer() {
                     </div>
                 </div>
             </div>
+
+            {/* Waitlist Popup */}
+            <WaitlistPopup
+                isOpen={showWaitlistPopup}
+                onClose={() => setShowWaitlistPopup(false)}
+            />
         </footer>
     );
 }
