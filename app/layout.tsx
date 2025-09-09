@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
-import './globals.css';
 import ConditionalChatbot from './conditional-chatbot';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -79,8 +79,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <meta name="theme-color" content="#2563eb" />
-                <meta name="msapplication-TileColor" content="#2563eb" />
+                <meta name="theme-color" content="#79EAFD" />
+                <meta name="msapplication-TileColor" content="#79EAFD" />
                 <meta name="msapplication-config" content="/browserconfig.xml" />
                 {/* Google Analytics */}
                 <Script
