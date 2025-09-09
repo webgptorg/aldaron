@@ -1,47 +1,61 @@
-name: Deploy to Github Pages
+name: 🔼 Deploy to Github Pages
 
 on:
-  push:
-    branches: main
+    push:
+        branches: main
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    group: 'pages'
+    cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build with Next.js
-        run: npm run build
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          static_site_generator: next
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 🔽 Checkout
+              uses: actions/checkout@v4
+
+            - name: 🔽 Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: 🔽 Install dependencies
+              run: npm ci
+
+            - name: 🧪 Test lint
+              run: npm run lint
+
+            - name: 🧪 Test types
+              run: npm run test-types
+
+            - name: 🏭 Build
+              run: npm run build
+
+            - name: 🧪 Check build output
+              run: |
+                  if [ ! -d "out" ]; then
+                    echo "Build output directory 'out' not found!"
+                    exit 1
+                  fi
+                  echo "Build successful - output directory exists"
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+              with:
+                  static_site_generator: next
+
+            - name: 🔼 Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: ./out
+
+            - name: 🔼 Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
