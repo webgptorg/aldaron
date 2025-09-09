@@ -2,9 +2,12 @@
 
 import { Badge } from '@/components/ui/badge';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { shouldShowWaitlist } from '@/lib/waitlist';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { motion } from 'framer-motion';
 import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 
 export interface PricingSectionProps {
     hideHeader?: boolean;
@@ -80,6 +83,7 @@ const rot13 = (str: string): string => {
 export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
 
     // Determine landing behavior based on URL parameters
     const landingBehavior = getLandingBehavior(searchParams);
@@ -88,6 +92,12 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
         if (buttonText === 'Contact Sales') {
             window.location.href = 'mailto:sales@ptbk.io';
         } else if (buttonText === 'Get Started' || buttonText === 'Start Pro Trial') {
+            // Check if waitlist should be shown
+            if (shouldShowWaitlist(searchParams)) {
+                setShowWaitlistPopup(true);
+                return;
+            }
+
             if (landingBehavior === 'direct') {
                 // Direct navigation to promptbook.studio/from-social-links
                 const redirectUrl = getRedirectUrl('direct');
@@ -263,6 +273,12 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                     )}
                 </div>
             </section>
+
+            {/* Waitlist Popup */}
+            <WaitlistPopup
+                isOpen={showWaitlistPopup}
+                onClose={() => setShowWaitlistPopup(false)}
+            />
         </>
     );
 }
