@@ -1,4 +1,4 @@
-# 🆎 Alderon landing page
+# 🆎 Alderon Landing Page
 
 Reclaim Your Time with AI That Thinks Like You
 
@@ -6,4 +6,4 @@ Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle e
 
 Build on [Promptbook Engine](https://ptbk.io)
 
-For more information, look at [landing pages sheet](https://docs.google.com/spreadsheets/d/1X26iMQqubsxftqD1EJNSlzPYFS94QjCFPXyKdHHDeVs/edit?usp=sharing)
+For more information, [check out the landing page sheet](https://docs.google.com/spreadsheets/d/1X26iMQqubsxftqD1EJNSlzPYFS94QjCFPXyKdHHDeVs/edit?usp=sharing)
