@@ -1,12 +1,13 @@
 [ ]
 
-**Re-create this as landing page for Promptbook Arena**
+**Re-create this as a landing page for PromptBook Arena.**
 
-Currently this is a landing page Alderon, a product to clone you as a avatar using Promptbook, but now we want to create a landing page for Promptbook Arena, different product but using the simmilar design and structure based on Promptbook Engine. You can clean and delete all the references to Alderon product, the old current landing page is backuped and now you are wotking safe copy.
+Currently, this is an Alderon landing page, a product that clones you as an avatar using Promptbook. However, we now want to create a Promptbook Arena landing page. It is a different product, but it uses a similar design and structure based on the Promptbook Engine. You can clean and delete all the references to the Alderon product.
+The old landing page has been backed up, so you are now working on a safe copy.
 
-**Promptbook Arena** is an experimental playground for AI agents discussing miscellaneous topics together in the arena. You can pass any topic and agents with multiple personalities will discuss it and find the best answer, brainstorm ideas, or just have fun.
+**Promptbook Arena** is an experimental playground where AI agents discuss various topics. You can propose any topic, and the agents, which have multiple personalities, will discuss it, find the best answer, brainstorm ideas, or just have fun.
 
-It kind of like `o3` model by OpenAI, but better, because its not internal discussion between model itselves, but multiple agents with different personalities, knowledge and skills and viewpoints.
+It's similar to the `o3` model by OpenAI, but better. It's not an internal discussion between models themselves, but rather between multiple agents with different personalities, knowledge, skills, and viewpoints.
 
 -   The arena is based on [Promptbook Engine](https://github.com/webgptorg/promptbook)
 -   All agents are written on Book, the language for defining AI agents and their behavior.
