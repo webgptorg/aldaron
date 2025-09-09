@@ -95,5 +95,9 @@
             "url": "https://github.com/webgptorg/aldaron/blob/main/README.md#%EF%B8%8F-contributing"
         }
     ],
-    "description": "Reclaim Your Time with AI That Thinks Like You"
+    "description": "Reclaim Your Time with AI That Thinks Like You",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/webgptorg/aldaron"
+    }
 }
