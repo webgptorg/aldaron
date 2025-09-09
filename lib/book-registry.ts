@@ -1,11 +1,11 @@
 import type { string_book } from '@promptbook/types';
 
 // Import all book files
-import pavolHejnyBook from '../books/pavol-hejny.book';
 import creativeWriterBook from '../books/creative-writer.book';
 import dataScientistBook from '../books/data-scientist.book';
-import marketingExpertBook from '../books/marketing-expert.book';
 import developerMentorBook from '../books/developer-mentor.book';
+import marketingExpertBook from '../books/marketing-expert.book';
+import pavolHejnyBook from '../books/pavol-hejny.book';
 
 export interface BookAgent {
     id: string;
