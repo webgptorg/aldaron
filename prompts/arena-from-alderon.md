@@ -36,3 +36,11 @@ It's similar to the `o3` model by OpenAI, but better. It's not an internal discu
         -   As `<Chat/>` `participants` pass `participants={[{name:'user',isMe:true,fullname:'Me',color: '#30A8BD'},{name:'assistant',isMe:false,fullname:'Agent',color: '...'},...]}`
 -   The application is on `https://promptbook.studio/arena`, but keep the functionality waitlist and `skipWaitlist`
 -   Use our brand color #79EAFD
+
+---
+
+[x]
+
+In [arena-preview.tsx](components/arena-preview.tsx) use imported chat component `<Chat/>` from `@promptbook/components` not your own implementation.
+
+As `<Chat/>` `participants` pass `participants={[{name:'user',isMe:true,fullname:'Me',color: '#30A8BD'},{name:'assistant',isMe:false,fullname:'Agent',color: '...'},...]}`
