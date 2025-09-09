@@ -23,6 +23,11 @@
             "execute": false
         },
         {
+            "name": "🧪 Test build",
+            "command": "npm run build",
+            "execute": false
+        },
+        {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,
