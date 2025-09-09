@@ -37,7 +37,13 @@ jobs:
 
             - name: 🏭 Build
               run: npm run build
-
+              env:
+                  NEXT_PUBLIC_SKIP_WAITLIST_TOKEN: ${{ secrets.NEXT_PUBLIC_SKIP_WAITLIST_TOKEN }}
+                  # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+                  # <- Note: This is only needed to successfully run the build
+                  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY}}
+                  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
             - name: 🧪 Check build output
               run: |
                   if [ ! -d "out" ]; then
