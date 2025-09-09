@@ -1,7 +1,7 @@
 /**
  * Name of the application
  */
-export const APP_NAME = 'Aldaron';
+export const APP_NAME = 'PromptBook Arena';
 
 /**
  * ID of the Google Analytics

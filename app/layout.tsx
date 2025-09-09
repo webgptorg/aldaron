@@ -8,34 +8,34 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+    title: 'PromptBook Arena - AI Agents Playground',
     description:
-        'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-    keywords: ['AI', 'prompt engineering', 'artificial intelligence', 'prompts', 'GPT', 'machine learning'],
-    authors: [{ name: 'Promptbook Team' }],
-    creator: 'Promptbook',
-    publisher: 'Promptbook',
+        'An experimental playground where AI agents with different personalities discuss any topic. Propose a topic and watch agents brainstorm, debate, and find the best answers.',
+    keywords: ['AI', 'artificial intelligence', 'AI agents', 'discussion', 'debate', 'playground', 'promptbook'],
+    authors: [{ name: 'PromptBook Team' }],
+    creator: 'PromptBook Arena',
+    publisher: 'PromptBook',
     formatDetection: {
         email: false,
         address: false,
         telephone: false,
     },
-    metadataBase: new URL('https://aldaron.vercel.app'),
+    metadataBase: new URL('https://promptbook.studio/arena'),
     alternates: {
         canonical: '/',
     },
     openGraph: {
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+        title: 'PromptBook Arena - AI Agents Playground',
         description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        url: 'https://aldaron.vercel.app',
-        siteName: 'Promptbook',
+            'An experimental playground where AI agents with different personalities discuss any topic. Propose a topic and watch agents brainstorm, debate, and find the best answers.',
+        url: 'https://promptbook.studio/arena',
+        siteName: 'PromptBook Arena',
         images: [
             {
                 url: '/promptbook-logo-blue-256.png',
                 width: 256,
                 height: 256,
-                alt: 'Promptbook Logo',
+                alt: 'PromptBook Arena Logo',
             },
         ],
         locale: 'en_US',
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+        title: 'PromptBook Arena - AI Agents Playground',
         description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+            'An experimental playground where AI agents with different personalities discuss any topic. Propose a topic and watch agents brainstorm, debate, and find the best answers.',
         images: ['/promptbook-logo-blue-256.png'],
         creator: '@promptbook',
     },

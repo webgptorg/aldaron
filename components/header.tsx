@@ -49,13 +49,13 @@ export function Header() {
                     <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                         <Image
                             src="/promptbook-logo-blue-256.png"
-                            alt="Promptbook"
+                            alt="PromptBook Arena"
                             width={32}
                             height={32}
                             className="w-8 h-8"
                         />
                         <span className="text-xl text-gray-900">
-                            Prompt<b>book</b>
+                            PromptBook <span className="bg-gradient-to-r from-[#79EAFD] to-[#30A8BD] bg-clip-text text-transparent font-bold">Arena</span>
                         </span>
                     </Link>
 
@@ -65,13 +65,13 @@ export function Header() {
                             onClick={() => scrollToSection('benefits')}
                             className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                         >
-                            Why Our AI?
+                            Why Arena?
                         </button>
                         <button
                             onClick={() => scrollToSection('integrations')}
                             className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                         >
-                            Integration
+                            Your Agents
                         </button>
                         <button
                             onClick={() => scrollToSection('pricing')}
@@ -84,9 +84,9 @@ export function Header() {
                     {/* CTA Button */}
                     <Button
                         onClick={handleGetStartedClick}
-                        className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90"
+                        className="bg-gradient-to-r from-[#79EAFD] to-[#30A8BD] text-white hover:shadow-lg"
                     >
-                        Get Started
+                        Join Arena
                         <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                 </div>

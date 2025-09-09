@@ -1,50 +1,50 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Brain, FileText, Globe, Shield, Users, Zap } from 'lucide-react';
+import { Brain, MessageSquare, Sparkles, Target, Users, Zap } from 'lucide-react';
 
 const benefits = [
     {
-        icon: Brain,
-        title: 'Truly YOUR AI Agent',
+        icon: Users,
+        title: 'Multiple AI Personalities',
         description:
-            'Speaks your language, has your voice, your style, your way of thinking, and your decision-making process. Not vanilla generic content.',
+            'Each agent has unique knowledge, perspectives, and reasoning styles. Watch diverse viewpoints collide and create breakthrough insights.',
+        gradient: 'from-[#79EAFD] to-[#30A8BD]',
+    },
+    {
+        icon: MessageSquare,
+        title: 'Real-time Discussions',
+        description:
+            'Agents discuss topics in real-time, building on each other\'s ideas, challenging assumptions, and reaching deeper understanding.',
         gradient: 'from-purple-500 to-pink-500',
     },
     {
-        icon: Globe,
-        title: 'Universal Integration',
+        icon: Brain,
+        title: 'Better than o3 Model',
         description:
-            'Use everywhere - emails, social media, programming tools, video calls. Runs in background performing tasks and providing reports.',
+            'Unlike internal model discussions, our agents have distinct personalities and expertise, creating more diverse and creative solutions.',
         gradient: 'from-blue-500 to-cyan-500',
     },
     {
-        icon: Shield,
-        title: 'Full Control & Transparency',
+        icon: Target,
+        title: 'Any Topic, Any Depth',
         description:
-            'See all interactions, all data. Fine-tune to your liking. Create, control, and adjust behavior as needed.',
+            'From technical debates to philosophical discussions, from creative brainstorming to problem-solving - agents adapt to any subject.',
         gradient: 'from-green-500 to-emerald-500',
     },
     {
-        icon: FileText,
-        title: '100% Human Language',
+        icon: Sparkles,
+        title: 'Powered by PromptBook',
         description:
-            "Everything based on plain human language, not JSONs or complex configurations. Built with our special 'Book' technology and PromptBook Engine.",
+            'Built on the PromptBook Engine with agents written in Book language - the most advanced AI orchestration platform.',
         gradient: 'from-orange-500 to-red-500',
     },
     {
         icon: Zap,
-        title: 'Extremely Easy Start',
+        title: 'Instant Insights',
         description:
-            'Import your data from LinkedIn, Facebook, Google, or GitHub. Or create manually by filling out a simple form.',
+            'Get immediate access to multi-perspective analysis, creative solutions, and comprehensive discussions on any topic you propose.',
         gradient: 'from-yellow-500 to-orange-500',
-    },
-    {
-        icon: Users,
-        title: 'Open Source Freedom',
-        description:
-            'Everything is open source and in plain text. Run it on your own server or take your data anywhere you want.',
-        gradient: 'from-indigo-500 to-purple-500',
     },
 ];
 
@@ -61,7 +61,7 @@ export function BenefitsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
                     >
-                        Why Choose Our AI Avatar?
+                        Why Choose Our <span className="bg-gradient-to-r from-[#79EAFD] to-[#30A8BD] bg-clip-text text-transparent">Arena</span>?
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -69,8 +69,7 @@ export function BenefitsSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        More than just another AI tool - it&apos;s your digital twin that truly understands and
-                        represents you
+                        Experience the future of AI collaboration where multiple intelligent agents work together to explore ideas, solve problems, and generate insights
                     </motion.p>
                 </div>
 

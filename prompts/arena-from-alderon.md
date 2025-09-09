@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 **Re-create this as a landing page for PromptBook Arena.**
 

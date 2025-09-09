@@ -24,46 +24,46 @@ const platforms = [
 
 const plans = [
     {
-        name: 'Free',
+        name: 'Explorer',
         price: '$0',
         period: 'forever',
-        description: 'Perfect for trying out your AI avatar',
-        features: ['Website chatbot integration', 'Basic avatar training', 'Community support', 'Open source access'],
-        buttonText: 'Get Started',
+        description: 'Perfect for trying out the Arena',
+        features: ['3 discussions per day', 'Access to public conversations', 'Basic agent personalities', 'Community support'],
+        buttonText: 'Join Free',
         popular: false,
         gradient: 'from-gray-500 to-gray-600',
     },
     {
-        name: 'Pro',
-        price: '$20',
+        name: 'Arena Pro',
+        price: '$15',
         period: 'per month',
-        description: 'Complete AI avatar solution for professionals',
+        description: 'Unlimited access to AI agent discussions',
         features: [
-            'Everything in Free',
-            'Email integration',
-            'Social media management',
-            'Audio/video agent',
-            'Agentic background mode',
-            'Priority support',
+            'Unlimited discussions',
+            'Premium agent personalities',
+            'Custom topic proposals',
+            'Export conversations',
+            'Priority processing',
             'Advanced analytics',
+            'Private discussions',
         ],
         buttonText: 'Start Pro Trial',
         popular: true,
-        gradient: 'from-purple-500 to-blue-500',
+        gradient: 'from-[#79EAFD] to-[#30A8BD]',
     },
     {
         name: 'Enterprise',
         price: 'Custom',
         period: 'contact us',
-        description: 'Custom solutions for organizations',
+        description: 'Custom Arena solutions for organizations',
         features: [
-            'Everything in Pro',
-            'Custom integrations',
+            'Everything in Arena Pro',
+            'Custom agent personalities',
+            'White-label solution',
+            'API access',
             'Dedicated support',
             'On-premise deployment',
-            'SLA guarantees',
             'Team management',
-            'Custom training',
         ],
         buttonText: 'Contact Sales',
         popular: false,
@@ -146,7 +146,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                 transition={{ duration: 0.6, delay: 0.1 }}
                                 className="text-xl text-gray-600 max-w-3xl mx-auto"
                             >
-                                Start free and scale as your AI avatar becomes an integral part of your workflow
+                                Start free and scale as the Arena becomes your go-to platform for AI-powered discussions and insights
                             </motion.p>
                         </div>
                     )}
