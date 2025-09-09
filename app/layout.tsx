@@ -1,3 +1,4 @@
+import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
@@ -85,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {/* Google Analytics */}
                 <Script
                     async
-                    src="https://www.googletagmanager.com/gtag/js?id=G-LDZBXVZHT0"
+                    src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
                     strategy="afterInteractive"
                 />
                 <Script id="google-analytics" strategy="afterInteractive">
@@ -93,7 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         window.dataLayer = window.dataLayer || [];
                         function gtag(){dataLayer.push(arguments);}
                         gtag('js', new Date());
-                        gtag('config', 'G-LDZBXVZHT0');
+                        gtag('config', '${GOOGLE_ANALYTICS_ID}');
                     `}
                 </Script>
             </head>
