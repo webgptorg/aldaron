@@ -6,5 +6,8 @@
         "babelOptions": {
             "presets": ["next/babel"]
         }
+    },
+    "rules": {
+        "react/no-unescaped-entities": "off"
     }
 }
