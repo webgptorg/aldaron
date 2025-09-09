@@ -8,6 +8,6 @@
         }
     },
     "rules": {
-        "react/no-unescaped-entities": "off"
+        "react/no-unescaped-entities": "off" // <- Note: this rule is disabled because Cline often uses unescaped entities in JSX (despite of all the instructions) and its annoying to fix it all the time manually    }
     }
 }
