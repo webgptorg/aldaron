@@ -1,11 +1,13 @@
 'use client';
 
+import { subscribeToNewsletter } from '@/app/subscription/subscribeToNewsletter';
+import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
-import { WaitlistPopup } from '@/components/waitlist-popup';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -53,19 +55,7 @@ export function Footer() {
         setError(null);
 
         try {
-            const response = await fetch('https://promptbook.studio/api/newsletter/subscribe', {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-            });
-
-            const data = (await response.json()) as { message?: string };
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to subscribe');
-            }
+            await Promise.all([subscribeToNewsletter(email), subscribeToWaitlist(email, 'newsletter-footer')]);
 
             setSuccess(true);
             setEmail('');
@@ -272,10 +262,7 @@ export function Footer() {
             </div>
 
             {/* Waitlist Popup */}
-            <WaitlistPopup
-                isOpen={showWaitlistPopup}
-                onClose={() => setShowWaitlistPopup(false)}
-            />
+            <WaitlistPopup placeName="footer" isOpen={showWaitlistPopup} onClose={() => setShowWaitlistPopup(false)} />
         </footer>
     );
 }

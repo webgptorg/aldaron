@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { useYou } from '@/hooks/use-you';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
-import { WaitlistPopup } from '@/components/waitlist-popup';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -558,6 +558,7 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
 
             {/* Waitlist Popup */}
             <WaitlistPopup
+                placeName="hero-section"
                 isOpen={showWaitlistPopup}
                 onClose={() => setShowWaitlistPopup(false)}
             />

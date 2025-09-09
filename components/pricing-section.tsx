@@ -1,9 +1,9 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
-import { WaitlistPopup } from '@/components/waitlist-popup';
 import { motion } from 'framer-motion';
 import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -276,6 +276,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
 
             {/* Waitlist Popup */}
             <WaitlistPopup
+                placeName="pricing-section"
                 isOpen={showWaitlistPopup}
                 onClose={() => setShowWaitlistPopup(false)}
             />

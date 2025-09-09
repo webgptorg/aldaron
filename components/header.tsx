@@ -1,9 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { WaitlistPopup } from '@/components/waitlist-popup';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
-import { WaitlistPopup } from '@/components/waitlist-popup';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -93,10 +93,7 @@ export function Header() {
             </div>
 
             {/* Waitlist Popup */}
-            <WaitlistPopup
-                isOpen={showWaitlistPopup}
-                onClose={() => setShowWaitlistPopup(false)}
-            />
+            <WaitlistPopup placeName="header" isOpen={showWaitlistPopup} onClose={() => setShowWaitlistPopup(false)} />
         </header>
     );
 }
