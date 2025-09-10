@@ -21,6 +21,7 @@ export async function subscribeToWaitlist(email: string, placeName: string) {
 
             appName: APP_NAME,
             placeName,
+            url: window.location.href,
         },
     ]);
 
