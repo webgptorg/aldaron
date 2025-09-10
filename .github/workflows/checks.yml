@@ -1,4 +1,4 @@
-name: 🔼 Deploy to Github Pages
+name: 🧪 Checks
 
 on:
     push:
@@ -51,17 +51,3 @@ jobs:
                     exit 1
                   fi
                   echo "Build successful - output directory exists"
-
-            - name: Setup Pages
-              uses: actions/configure-pages@v4
-              with:
-                  static_site_generator: next
-
-            - name: 🔼 Upload artifact
-              uses: actions/upload-pages-artifact@v3
-              with:
-                  path: ./out
-
-            - name: 🔼 Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v4
