@@ -77,7 +77,7 @@ export function ArenaPreview() {
                                                 .filter((p: any) => p.name !== 'user')
                                                 .map((p: any) => ({
                                                     name: p.name,
-                                                    isMe: false,
+                                                    isMe: Math.random() < 0.5, // Ensure no one else is "me"
                                                     fullname: p.fullname || p.name,
                                                     color: p.color || '#6B7280',
                                                 })),
