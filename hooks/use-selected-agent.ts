@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getDefaultAgent, getAgentById, type BookAgent } from '../lib/book-registry';
+import { getAgentById, getDefaultAgent, type BookAgent } from '../lib/book-registry';
 
 const SELECTED_AGENT_KEY = 'selected_agent_id';
 

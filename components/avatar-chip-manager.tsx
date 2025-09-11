@@ -1,8 +1,8 @@
 'use client';
 
 import { AvatarChipFromSource } from '@promptbook/components';
-import type { BookAgent } from '../lib/book-registry';
 import { useBookPersistence } from '../hooks/use-book-persistence';
+import type { BookAgent } from '../lib/book-registry';
 
 interface AvatarChipManagerProps {
     agent: BookAgent;
