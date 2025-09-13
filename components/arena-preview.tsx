@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AVAILABLE_CONVERSATIONS, convertToChat, getConversation, type ConversationId } from '@/lib/conversations-data';
@@ -104,9 +103,6 @@ export function ArenaPreview() {
                     This is just a preview. In the full arena, you can propose any topic and watch agents discuss it in
                     real-time.
                 </p>
-                <Button size="lg" className="bg-gradient-to-r from-[#79EAFD] to-[#30A8BD] text-white hover:shadow-lg">
-                    Join the Arena
-                </Button>
             </div>
         </div>
     );
