@@ -70,27 +70,29 @@ export function ArenaPreview() {
                         (conversation) =>
                             conversation && (
                                 <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
-                                    <Chat
-                                        participants={[
-                                            { name: 'user', isMe: true, fullname: 'Me', color: '#30A8BD' },
-                                            ...conversation.participants
-                                                .filter((p: any) => p.name !== 'user')
-                                                .map((p: any) => ({
-                                                    name: p.name,
-                                                    isMe: Math.random() < 0.5, // Ensure no one else is "me"
-                                                    fullname: p.fullname || p.name,
-                                                    color: p.color || '#6B7280',
-                                                })),
-                                        ]}
-                                        messages={conversation.messages.map((msg: any) => ({
-                                            id: msg.id,
-                                            from: msg.author,
-                                            content: msg.content,
-                                            date: msg.timestamp,
-                                        }))}
-                                        isFocusedOnLoad={false}
-                                        onMessage={() => {}}
-                                    />
+                                    <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                        <Chat
+                                            participants={[
+                                                { name: 'user', isMe: true, fullname: 'Me', color: '#30A8BD' },
+                                                ...conversation.participants
+                                                    .filter((p: any) => p.name !== 'user')
+                                                    .map((p: any) => ({
+                                                        name: p.name,
+                                                        isMe: Math.random() < 0.5, // Ensure no one else is "me"
+                                                        fullname: p.fullname || p.name,
+                                                        color: p.color || '#6B7280',
+                                                    })),
+                                            ]}
+                                            messages={conversation.messages.map((msg: any) => ({
+                                                id: msg.id,
+                                                from: msg.author,
+                                                content: msg.content,
+                                                date: msg.timestamp,
+                                            }))}
+                                            isFocusedOnLoad={false}
+                                            onMessage={() => {}}
+                                        />
+                                    </div>
                                 </TabsContent>
                             ),
                     )}
