@@ -44,3 +44,17 @@ It's similar to the `o3` model by OpenAI, but better. It's not an internal discu
 In [arena-preview.tsx](components/arena-preview.tsx) use imported chat component `<Chat/>` from `@promptbook/components` not your own implementation.
 
 As `<Chat/>` `participants` pass `participants={[{name:'user',isMe:true,fullname:'Me',color: '#30A8BD'},{name:'assistant',isMe:false,fullname:'Agent',color: '...'},...]}`
+
+---
+
+[ ]
+
+Each participant of the arena-preview should have its own `avatarSrc` with different profile picture.
+
+---
+
+[ ]
+
+Discussion in arena-preview should be emulated that is happening in real time, so each message should appear with some delay, not all at once.
+
+When user loads the page, the first message should appear after 1 second, then the next message some random time between 1 and 3 seconds, then the next message some random time between 1 and 3 seconds, etc.
