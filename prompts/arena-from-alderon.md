@@ -47,7 +47,7 @@ As `<Chat/>` `participants` pass `participants={[{name:'user',isMe:true,fullname
 
 ---
 
-[ ]
+[x]
 
 Each participant of the arena-preview should have its own `avatarSrc` with different profile picture.
 

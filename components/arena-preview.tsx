@@ -7,6 +7,31 @@ import { Chat } from '@promptbook/components';
 import { MessageCircle, Zap } from 'lucide-react';
 import { useState } from 'react';
 
+// Generate unique avatar source for each participant
+function generateAvatarSrc(name: string, fullname: string): string {
+    // Create different avatar styles based on participant name
+    const avatarStyles = [
+        'avataaars',
+        'big-smile',
+        'bottts',
+        'fun-emoji',
+        'micah',
+        'personas'
+    ];
+
+    // Use name hash to consistently assign avatar style
+    const nameHash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const styleIndex = nameHash % avatarStyles.length;
+    const style = avatarStyles[styleIndex];
+
+    // Extract color from participant data or generate based on name
+    const colorHash = fullname.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = ['FF6B6B', '4ECDC4', '45B7D1', '9B59B6', 'E67E22', '8E44AD', '00D2FF', 'FF0080', '00FF88'];
+    const backgroundColor = colors[colorHash % colors.length];
+
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(name)}&backgroundColor=${backgroundColor}`;
+}
+
 export function ArenaPreview() {
     const [selectedConversation, setSelectedConversation] = useState<ConversationId>('ai-healthcare-future');
 
@@ -72,14 +97,21 @@ export function ArenaPreview() {
                                     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                                         <Chat
                                             participants={[
-                                                { name: 'user', isMe: true, fullname: 'Me', color: '#30A8BD' },
+                                                {
+                                                    name: 'user',
+                                                    isMe: true,
+                                                    fullname: 'Me',
+                                                    color: '#30A8BD',
+                                                    avatarSrc: `https://api.dicebear.com/7.x/avataaars/svg?seed=user&backgroundColor=30A8BD`
+                                                },
                                                 ...conversation.participants
                                                     .filter((p: any) => p.name !== 'user')
                                                     .map((p: any) => ({
                                                         name: p.name,
-                                                        isMe: Math.random() < 0.5, // Ensure no one else is "me"
+                                                        isMe: false, // Ensure no one else is "me"
                                                         fullname: p.fullname || p.name,
                                                         color: p.color || '#6B7280',
+                                                        avatarSrc: generateAvatarSrc(p.name, p.fullname),
                                                     })),
                                             ]}
                                             messages={conversation.messages.map((msg: any) => ({
