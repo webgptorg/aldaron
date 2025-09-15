@@ -69,7 +69,7 @@ export function ArenaPreview() {
                             Discuss
                         </span>
                     </h2>
-                    <p className="text-gray-600 max-w-2xl mx-auto">Loading conversations...</p>
+                    <p className="text-gray-600 max-w-2xl mx-auto">🔼 Agents are waking up...</p>
                 </div>
             </div>
         );
