@@ -58,3 +58,31 @@ Each participant of the arena-preview should have its own `avatarSrc` with diffe
 Discussion in arena-preview should be emulated that is happening in real time, so each message should appear with some delay, not all at once.
 
 When user loads the page, the first message should appear after 1 second, then the next message some random time between 1 and 3 seconds, then the next message some random time between 1 and 3 seconds, etc.
+
+When the user switches to another tab with another discussion, the discussion should start from the beginning. When the user switches back to the previous tab, the discussion should continue from where it was left off.
+
+---
+
+[ ]
+
+Dynamically load all discussion yaml files from `/conversations`
+
+In "Watch AI Agents Discuss" dynamically show all the discussions, each discussion in its own tab.
+
+---
+
+[ ]
+
+Make `/conversations/.yaml` about !!!
+
+---
+
+[ ]
+
+Make `/conversations/.yaml` about !!!
+
+---
+
+[ ]
+
+Make `/conversations/.yaml` about !!!
