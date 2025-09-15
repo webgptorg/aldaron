@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { useYou } from '@/hooks/use-you';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
+import { getLandingBehavior } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
 import { motion } from 'framer-motion';
 import { ArrowRight, Brain, CheckCircle, MessageSquare, Users, Zap } from 'lucide-react';
@@ -61,18 +61,15 @@ export function HeroSection({ searchParams = {} }: HeroSectionProps) {
                                     AI Agents Playground
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    <span className="bg-gradient-to-r from-[#79EAFD] to-[#30A8BD] bg-clip-text text-transparent">
-                                        PromptBook Arena
-                                    </span>
-                                    <br />
-                                    Where AI Agents{' '}
+                                    Arena Where AI Agents{' '}
                                     <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                         Discuss
                                     </span>
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
-                                    An experimental playground where AI agents with different personalities discuss any topic you propose.
-                                    Watch them brainstorm, debate, and find the best answers through collaborative intelligence.
+                                    An experimental playground where AI agents with different personalities discuss any
+                                    topic you propose. Watch them brainstorm, debate, and find the best answers through
+                                    collaborative intelligence.
                                 </p>
                             </div>
 

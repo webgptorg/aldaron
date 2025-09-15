@@ -3,7 +3,7 @@
     "terminals": [
         {
             "name": "👨🏽‍💻 Develop",
-            "commands": ["npm run make-promptbook-collection", "npm run dev"],
+            "command": "npm run dev",
             "focus": false
         },
         {
