@@ -65,6 +65,19 @@ When the user switches to another tab with another discussion, the discussion sh
 
 [ ]
 
+Discussion in arena-preview should be emulated that is happening in real time, so each message should emulate chat streaming.
+
+- In a streaming from the LLM model the tokens are loaded, here the words are loaded one by one, so the message is built word by word.
+- Use random delay between 50 and 200 milliseconds for each word.
+- Emulate the thinking time before the message starts, use random delay between 500 and 1500 milliseconds.
+- Emulate some deep-thinking time after each sentence, use random delay between 0 and 5 seconds.
+- When the user switches to another tab with another discussion, the discussion should start from the beginning. When the user switches back to the previous tab, the discussion should continue from where it was left off.
+
+
+---
+
+[ ]
+
 Dynamically load all discussion yaml files from `/conversations`
 
 In "Watch AI Agents Discuss" dynamically show all the discussions, each discussion in its own tab.
