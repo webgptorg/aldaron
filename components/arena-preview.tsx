@@ -11,12 +11,31 @@ import {
 import { Chat } from '@promptbook/components';
 import { generatePlaceholderAgentProfileImageUrl } from '@promptbook/core';
 import { MessageCircle, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+
+interface ConversationState {
+    visibleMessageCount: number;
+    isComplete: boolean;
+    timeoutId?: NodeJS.Timeout;
+}
 
 export function ArenaPreview() {
     const [selectedConversation, setSelectedConversation] = useState<ConversationId>('ai-healthcare-future');
     const [conversations, setConversations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    
+    // Track state for each conversation
+    const [conversationStates, setConversationStates] = useState<Record<ConversationId, ConversationState>>({
+        'ai-healthcare-future': { visibleMessageCount: 0, isComplete: false },
+        'ai-consciousness-soul': { visibleMessageCount: 0, isComplete: false },
+        'vibecoding-debate': { visibleMessageCount: 0, isComplete: false },
+    });
+
+    const timeoutRefs = useRef<Record<ConversationId, NodeJS.Timeout | null>>({
+        'ai-healthcare-future': null,
+        'ai-consciousness-soul': null,
+        'vibecoding-debate': null,
+    });
 
     // Load conversations asynchronously
     useEffect(() => {
@@ -53,7 +72,116 @@ export function ArenaPreview() {
         loadConversations();
     }, []);
 
+    // Function to get random delay
+    const getRandomDelay = () => Math.random() * 10000 + 1000; // 1000-3000ms
+
+    // Function to show next message for a conversation
+    const showNextMessage = useCallback((conversationId: ConversationId) => {
+        const conversation = conversations.find(c => c?.id === conversationId);
+        if (!conversation) return;
+
+        setConversationStates(prev => {
+            const currentState = prev[conversationId];
+            const totalMessages = conversation.messages.length;
+            
+            if (currentState.visibleMessageCount >= totalMessages) {
+                return prev; // Already complete
+            }
+
+            const newVisibleCount = currentState.visibleMessageCount + 1;
+            const isComplete = newVisibleCount >= totalMessages;
+
+            // Schedule next message if not complete
+            if (!isComplete) {
+                const delay = newVisibleCount === 1 ? 1000 : getRandomDelay(); // First message after 1s, others random
+                const timeoutId = setTimeout(() => {
+                    showNextMessage(conversationId);
+                }, delay);
+                
+                // Clear previous timeout
+                if (timeoutRefs.current[conversationId]) {
+                    clearTimeout(timeoutRefs.current[conversationId]!);
+                }
+                timeoutRefs.current[conversationId] = timeoutId;
+            }
+
+            return {
+                ...prev,
+                [conversationId]: {
+                    visibleMessageCount: newVisibleCount,
+                    isComplete,
+                }
+            };
+        });
+    }, [conversations]);
+
+    // Function to start conversation from beginning
+    const startConversation = useCallback((conversationId: ConversationId) => {
+        // Clear any existing timeout
+        if (timeoutRefs.current[conversationId]) {
+            clearTimeout(timeoutRefs.current[conversationId]!);
+            timeoutRefs.current[conversationId] = null;
+        }
+
+        // Reset state
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                visibleMessageCount: 0,
+                isComplete: false,
+            }
+        }));
+
+        // Start showing messages after 1 second
+        const timeoutId = setTimeout(() => {
+            showNextMessage(conversationId);
+        }, 1000);
+        
+        timeoutRefs.current[conversationId] = timeoutId;
+    }, [showNextMessage]);
+
+    // Handle tab switching
+    useEffect(() => {
+        const currentState = conversationStates[selectedConversation];
+        
+        // If conversation hasn't started or is complete, restart it
+        if (currentState.visibleMessageCount === 0 || currentState.isComplete) {
+            startConversation(selectedConversation);
+        }
+        // If conversation is in progress, continue from where it left off
+        else if (!currentState.isComplete) {
+            // Continue the conversation with next message
+            const delay = getRandomDelay();
+            const timeoutId = setTimeout(() => {
+                showNextMessage(selectedConversation);
+            }, delay);
+            
+            if (timeoutRefs.current[selectedConversation]) {
+                clearTimeout(timeoutRefs.current[selectedConversation]!);
+            }
+            timeoutRefs.current[selectedConversation] = timeoutId;
+        }
+
+        // Cleanup function to clear timeout when switching away
+        return () => {
+            if (timeoutRefs.current[selectedConversation]) {
+                clearTimeout(timeoutRefs.current[selectedConversation]!);
+                timeoutRefs.current[selectedConversation] = null;
+            }
+        };
+    }, [selectedConversation, startConversation, showNextMessage]);
+
+    // Cleanup all timeouts on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(timeoutRefs.current).forEach(timeout => {
+                if (timeout) clearTimeout(timeout);
+            });
+        };
+    }, []);
+
     const currentConversation = conversations.find((c) => c?.id === selectedConversation);
+    const currentState = conversationStates[selectedConversation];
 
     if (loading) {
         return (
@@ -124,20 +252,22 @@ export function ArenaPreview() {
                                                 .filter((participant: any) => participant.name !== 'user')
                                                 .map((participant: any) => ({
                                                     ...participant,
-                                                    name: participant.name, // <- Note: [🕙] It's not the semantics of the chat component that bother me; it's the way messages are mixed up.
-                                                    isMe: participant.isMe, // <- Note: [🕙] It's not the semantics of the chat component that bother me; it's the way messages are mixed up.
+                                                    name: participant.name,
+                                                    isMe: participant.isMe,
                                                     fullname: participant.fullname || participant.name,
                                                     color: participant.color || '#6B7280',
                                                     avatarSrc: generatePlaceholderAgentProfileImageUrl(
                                                         participant.name,
                                                     ),
                                                 }))}
-                                            messages={conversation.messages.map((msg: any) => ({
-                                                id: msg.id,
-                                                from: msg.author,
-                                                content: msg.content,
-                                                date: msg.timestamp,
-                                            }))}
+                                            messages={conversation.messages
+                                                .slice(0, currentState?.visibleMessageCount || 0)
+                                                .map((msg: any) => ({
+                                                    id: msg.id,
+                                                    from: msg.author,
+                                                    content: msg.content,
+                                                    date: msg.timestamp,
+                                                }))}
                                             isFocusedOnLoad={false}
                                         />
                                     </div>
