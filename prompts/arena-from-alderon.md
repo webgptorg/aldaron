@@ -63,7 +63,7 @@ When the user switches to another tab with another discussion, the discussion sh
 
 ---
 
-[ ]
+[x]
 
 Discussion in arena-preview should be emulated that is happening in real time, so each message should emulate chat streaming.
 

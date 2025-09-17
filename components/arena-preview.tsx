@@ -13,10 +13,21 @@ import { generatePlaceholderAgentProfileImageUrl } from '@promptbook/core';
 import { MessageCircle, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-interface ConversationState {
-    visibleMessageCount: number;
+interface StreamingMessage {
+    id: string;
+    author: string;
+    content: string;
+    timestamp: Date;
+    streamedContent: string;
+    isStreaming: boolean;
     isComplete: boolean;
-    timeoutId?: NodeJS.Timeout;
+}
+
+interface ConversationState {
+    currentMessageIndex: number;
+    messages: StreamingMessage[];
+    isComplete: boolean;
+    isThinking: boolean;
 }
 
 export function ArenaPreview() {
@@ -26,15 +37,27 @@ export function ArenaPreview() {
 
     // Track state for each conversation
     const [conversationStates, setConversationStates] = useState<Record<ConversationId, ConversationState>>({
-        'ai-healthcare-future': { visibleMessageCount: 0, isComplete: false },
-        'ai-consciousness-soul': { visibleMessageCount: 0, isComplete: false },
-        'vibecoding-debate': { visibleMessageCount: 0, isComplete: false },
+        'ai-healthcare-future': { currentMessageIndex: -1, messages: [], isComplete: false, isThinking: false },
+        'ai-consciousness-soul': { currentMessageIndex: -1, messages: [], isComplete: false, isThinking: false },
+        'vibecoding-debate': { currentMessageIndex: -1, messages: [], isComplete: false, isThinking: false },
     });
 
     const timeoutRefs = useRef<Record<ConversationId, NodeJS.Timeout | null>>({
         'ai-healthcare-future': null,
         'ai-consciousness-soul': null,
         'vibecoding-debate': null,
+    });
+
+    const streamingRefs = useRef<Record<ConversationId, NodeJS.Timeout | null>>({
+        'ai-healthcare-future': null,
+        'ai-consciousness-soul': null,
+        'vibecoding-debate': null,
+    });
+
+    const hasStartedRef = useRef<Record<ConversationId, boolean>>({
+        'ai-healthcare-future': false,
+        'ai-consciousness-soul': false,
+        'vibecoding-debate': false,
     });
 
     // Load conversations asynchronously
@@ -62,6 +85,32 @@ export function ArenaPreview() {
                 }).filter(Boolean);
 
                 setConversations(loadedConversations);
+
+                // Initialize conversation states with proper message structure
+                const initialStates: Record<ConversationId, ConversationState> = {};
+                AVAILABLE_CONVERSATIONS.forEach((id) => {
+                    const conversation = loadedConversations.find(c => c?.id === id);
+                    if (conversation) {
+                        const streamingMessages: StreamingMessage[] = conversation.messages.map((msg: any) => ({
+                            id: msg.id,
+                            author: msg.author,
+                            content: msg.content,
+                            timestamp: msg.timestamp,
+                            streamedContent: '',
+                            isStreaming: false,
+                            isComplete: false,
+                        }));
+
+                        initialStates[id as ConversationId] = {
+                            currentMessageIndex: -1,
+                            messages: streamingMessages,
+                            isComplete: false,
+                            isThinking: false,
+                        };
+                    }
+                });
+
+                setConversationStates(initialStates);
             } catch (error) {
                 console.error('Failed to load conversations:', error);
             } finally {
@@ -72,115 +121,187 @@ export function ArenaPreview() {
         loadConversations();
     }, []);
 
-    // Function to get random delay
-    const getRandomDelay = () => Math.random() * 10_000 + 1000; // 1000-3000ms
+    // Utility functions for random delays
+    const getWordDelay = () => Math.random() * 150 + 50; // 50-200ms
+    const getThinkingDelay = () => Math.random() * 1000 + 500; // 500-1500ms
+    const getDeepThinkingDelay = () => Math.random() * 5000; // 0-5000ms
 
-    // Function to show next message for a conversation
-    const showNextMessage = useCallback(
-        (conversationId: ConversationId) => {
-            const conversation = conversations.find((c) => c?.id === conversationId);
-            if (!conversation) return;
+    // Function to stream a single word
+    const streamWord = useCallback((conversationId: ConversationId, messageIndex: number, words: string[], wordIndex: number) => {
+        if (wordIndex >= words.length) {
+            // Message complete, check for sentence ending and add deep thinking delay
+            setConversationStates(prev => {
+                const message = prev[conversationId]?.messages[messageIndex];
+                if (message) {
+                    const content = message.content;
+                    const endsWithSentence = /[.!?]$/.test(content.trim());
 
-            setConversationStates((prev) => {
-                const currentState = prev[conversationId];
-                const totalMessages = conversation.messages.length;
+                    // Schedule next message with appropriate delay
+                    const delay = endsWithSentence ? getDeepThinkingDelay() + getThinkingDelay() : getThinkingDelay();
 
-                if (currentState.visibleMessageCount >= totalMessages) {
-                    return prev; // Already complete
-                }
-
-                const newVisibleCount = currentState.visibleMessageCount + 1;
-                const isComplete = newVisibleCount >= totalMessages;
-
-                // Schedule next message if not complete
-                if (!isComplete) {
-                    const delay = newVisibleCount === 1 ? 1000 : getRandomDelay(); // First message after 1s, others random
                     const timeoutId = setTimeout(() => {
-                        showNextMessage(conversationId);
+                        startNextMessage(conversationId);
                     }, delay);
 
-                    // Clear previous timeout
-                    if (timeoutRefs.current[conversationId]) {
-                        clearTimeout(timeoutRefs.current[conversationId]!);
-                    }
                     timeoutRefs.current[conversationId] = timeoutId;
-                }
 
+                    return {
+                        ...prev,
+                        [conversationId]: {
+                            ...prev[conversationId],
+                            messages: prev[conversationId].messages.map((msg, idx) =>
+                                idx === messageIndex
+                                    ? { ...msg, isStreaming: false, isComplete: true }
+                                    : msg
+                            ),
+                        }
+                    };
+                }
+                return prev;
+            });
+            return;
+        }
+
+        // Add current word to streamed content
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                ...prev[conversationId],
+                messages: prev[conversationId].messages.map((msg, idx) =>
+                    idx === messageIndex
+                        ? {
+                            ...msg,
+                            streamedContent: words.slice(0, wordIndex + 1).join(' '),
+                            isStreaming: true
+                        }
+                        : msg
+                ),
+            }
+        }));
+
+        // Schedule next word
+        const delay = getWordDelay();
+        const timeoutId = setTimeout(() => {
+            streamWord(conversationId, messageIndex, words, wordIndex + 1);
+        }, delay);
+
+        streamingRefs.current[conversationId] = timeoutId;
+    }, []);
+
+    // Function to start streaming the next message
+    const startNextMessage = useCallback((conversationId: ConversationId) => {
+        setConversationStates(prev => {
+            const state = prev[conversationId];
+            if (!state) return prev;
+
+            const nextIndex = state.currentMessageIndex + 1;
+            if (nextIndex >= state.messages.length) {
+                // Conversation complete
                 return {
                     ...prev,
                     [conversationId]: {
-                        visibleMessageCount: newVisibleCount,
-                        isComplete,
-                    },
+                        ...prev[conversationId],
+                        isComplete: true,
+                        isThinking: false,
+                    }
                 };
-            });
-        },
-        [conversations],
-    );
-
-    // Function to start conversation from beginning
-    const startConversation = useCallback(
-        (conversationId: ConversationId) => {
-            // Clear any existing timeout
-            if (timeoutRefs.current[conversationId]) {
-                clearTimeout(timeoutRefs.current[conversationId]!);
-                timeoutRefs.current[conversationId] = null;
             }
 
-            // Reset state
-            setConversationStates((prev) => ({
-                ...prev,
-                [conversationId]: {
-                    visibleMessageCount: 0,
-                    isComplete: false,
-                },
-            }));
-
-            // Start showing messages after 1 second
+            // Set thinking state and schedule streaming
+            const thinkingDelay = getThinkingDelay();
             const timeoutId = setTimeout(() => {
-                showNextMessage(conversationId);
-            }, 1000);
+                setConversationStates(prevInner => ({
+                    ...prevInner,
+                    [conversationId]: {
+                        ...prevInner[conversationId],
+                        isThinking: false,
+                    }
+                }));
+
+                // Start streaming words
+                const message = state.messages[nextIndex];
+                if (message) {
+                    const words = message.content.split(' ');
+                    streamWord(conversationId, nextIndex, words, 0);
+                }
+            }, thinkingDelay);
 
             timeoutRefs.current[conversationId] = timeoutId;
-        },
-        [showNextMessage],
-    );
+
+            return {
+                ...prev,
+                [conversationId]: {
+                    ...prev[conversationId],
+                    currentMessageIndex: nextIndex,
+                    isThinking: true,
+                }
+            };
+        });
+    }, [streamWord]);
+
+    // Function to start conversation from beginning
+    const startConversation = useCallback((conversationId: ConversationId) => {
+        // Clear any existing timeouts
+        if (timeoutRefs.current[conversationId]) {
+            clearTimeout(timeoutRefs.current[conversationId]!);
+            timeoutRefs.current[conversationId] = null;
+        }
+        if (streamingRefs.current[conversationId]) {
+            clearTimeout(streamingRefs.current[conversationId]!);
+            streamingRefs.current[conversationId] = null;
+        }
+
+        // Reset conversation state
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                ...prev[conversationId],
+                currentMessageIndex: -1,
+                isComplete: false,
+                isThinking: false,
+                messages: prev[conversationId].messages.map(msg => ({
+                    ...msg,
+                    streamedContent: '',
+                    isStreaming: false,
+                    isComplete: false,
+                })),
+            }
+        }));
+
+        // Start first message after a short delay
+        const timeoutId = setTimeout(() => {
+            startNextMessage(conversationId);
+        }, 1000);
+
+        timeoutRefs.current[conversationId] = timeoutId;
+    }, [startNextMessage]);
 
     // Handle tab switching
     useEffect(() => {
-        const currentState = conversationStates[selectedConversation];
+        // Always start the conversation when switching tabs
+        startConversation(selectedConversation);
+        hasStartedRef.current[selectedConversation] = true;
 
-        // If conversation hasn't started or is complete, restart it
-        if (currentState.visibleMessageCount === 0 || currentState.isComplete) {
-            startConversation(selectedConversation);
-        }
-        // If conversation is in progress, continue from where it left off
-        else if (!currentState.isComplete) {
-            // Continue the conversation with next message
-            const delay = getRandomDelay();
-            const timeoutId = setTimeout(() => {
-                showNextMessage(selectedConversation);
-            }, delay);
-
-            if (timeoutRefs.current[selectedConversation]) {
-                clearTimeout(timeoutRefs.current[selectedConversation]!);
-            }
-            timeoutRefs.current[selectedConversation] = timeoutId;
-        }
-
-        // Cleanup function to clear timeout when switching away
+        // Cleanup function to clear timeouts when switching away
         return () => {
             if (timeoutRefs.current[selectedConversation]) {
                 clearTimeout(timeoutRefs.current[selectedConversation]!);
                 timeoutRefs.current[selectedConversation] = null;
             }
+            if (streamingRefs.current[selectedConversation]) {
+                clearTimeout(streamingRefs.current[selectedConversation]!);
+                streamingRefs.current[selectedConversation] = null;
+            }
         };
-    }, [selectedConversation, startConversation, showNextMessage]);
+    }, [selectedConversation, startConversation]);
 
     // Cleanup all timeouts on unmount
     useEffect(() => {
         return () => {
             Object.values(timeoutRefs.current).forEach((timeout) => {
+                if (timeout) clearTimeout(timeout);
+            });
+            Object.values(streamingRefs.current).forEach((timeout) => {
                 if (timeout) clearTimeout(timeout);
             });
         };
@@ -208,6 +329,37 @@ export function ArenaPreview() {
             </div>
         );
     }
+
+    // Prepare messages for Chat component
+    const getDisplayMessages = () => {
+        if (!currentState) return [];
+
+        return currentState.messages
+            .slice(0, currentState.currentMessageIndex + 1)
+            .map((msg, index) => {
+                // Show full content for completed messages
+                if (index < currentState.currentMessageIndex) {
+                    return {
+                        id: msg.id,
+                        from: msg.author,
+                        content: msg.content,
+                        date: msg.timestamp,
+                    };
+                }
+                // Show streaming content for current message
+                else if (index === currentState.currentMessageIndex) {
+                    return {
+                        id: msg.id,
+                        from: msg.author,
+                        content: msg.isStreaming ? msg.streamedContent : msg.content,
+                        date: msg.timestamp,
+                    };
+                }
+                // Don't show future messages
+                return null;
+            })
+            .filter((msg): msg is NonNullable<typeof msg> => msg !== null && msg.content.length > 0);
+    };
 
     return (
         <div className="space-y-6">
@@ -266,16 +418,19 @@ export function ArenaPreview() {
                                                         participant.name,
                                                     ),
                                                 }))}
-                                            messages={conversation.messages
-                                                .slice(0, currentState?.visibleMessageCount || 0)
-                                                .map((msg: any) => ({
-                                                    id: msg.id,
-                                                    from: msg.author,
-                                                    content: msg.content,
-                                                    date: msg.timestamp,
-                                                }))}
+                                            messages={getDisplayMessages()}
                                             isFocusedOnLoad={false}
                                         />
+                                        {currentState?.isThinking && (
+                                            <div className="flex items-center gap-2 p-4 text-gray-500 text-sm">
+                                                <div className="flex gap-1">
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                </div>
+                                                <span>Agent is thinking...</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </TabsContent>
                             ),
