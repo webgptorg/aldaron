@@ -53,7 +53,7 @@ Each participant of the arena-preview should have its own `avatarSrc` with diffe
 
 ---
 
-[x]
+[ ]
 
 Discussion in arena-preview should be emulated that is happening in real time, so each message should appear with some delay, not all at once.
 
