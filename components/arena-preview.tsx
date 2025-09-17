@@ -11,7 +11,7 @@ import {
 import { Chat } from '@promptbook/components';
 import { generatePlaceholderAgentProfileImageUrl } from '@promptbook/core';
 import { MessageCircle, Zap } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface ConversationState {
     visibleMessageCount: number;
@@ -23,7 +23,7 @@ export function ArenaPreview() {
     const [selectedConversation, setSelectedConversation] = useState<ConversationId>('ai-healthcare-future');
     const [conversations, setConversations] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
+    
     // Track state for each conversation
     const [conversationStates, setConversationStates] = useState<Record<ConversationId, ConversationState>>({
         'ai-healthcare-future': { visibleMessageCount: 0, isComplete: false },
@@ -73,83 +73,77 @@ export function ArenaPreview() {
     }, []);
 
     // Function to get random delay
-    const getRandomDelay = () => Math.random() * 10_000 + 1000; // 1000-3000ms
+    const getRandomDelay = () => Math.random() * 10000 + 1000; // 1000-3000ms
 
     // Function to show next message for a conversation
-    const showNextMessage = useCallback(
-        (conversationId: ConversationId) => {
-            const conversation = conversations.find((c) => c?.id === conversationId);
-            if (!conversation) return;
+    const showNextMessage = useCallback((conversationId: ConversationId) => {
+        const conversation = conversations.find(c => c?.id === conversationId);
+        if (!conversation) return;
 
-            setConversationStates((prev) => {
-                const currentState = prev[conversationId];
-                const totalMessages = conversation.messages.length;
-
-                if (currentState.visibleMessageCount >= totalMessages) {
-                    return prev; // Already complete
-                }
-
-                const newVisibleCount = currentState.visibleMessageCount + 1;
-                const isComplete = newVisibleCount >= totalMessages;
-
-                // Schedule next message if not complete
-                if (!isComplete) {
-                    const delay = newVisibleCount === 1 ? 1000 : getRandomDelay(); // First message after 1s, others random
-                    const timeoutId = setTimeout(() => {
-                        showNextMessage(conversationId);
-                    }, delay);
-
-                    // Clear previous timeout
-                    if (timeoutRefs.current[conversationId]) {
-                        clearTimeout(timeoutRefs.current[conversationId]!);
-                    }
-                    timeoutRefs.current[conversationId] = timeoutId;
-                }
-
-                return {
-                    ...prev,
-                    [conversationId]: {
-                        visibleMessageCount: newVisibleCount,
-                        isComplete,
-                    },
-                };
-            });
-        },
-        [conversations],
-    );
-
-    // Function to start conversation from beginning
-    const startConversation = useCallback(
-        (conversationId: ConversationId) => {
-            // Clear any existing timeout
-            if (timeoutRefs.current[conversationId]) {
-                clearTimeout(timeoutRefs.current[conversationId]!);
-                timeoutRefs.current[conversationId] = null;
+        setConversationStates(prev => {
+            const currentState = prev[conversationId];
+            const totalMessages = conversation.messages.length;
+            
+            if (currentState.visibleMessageCount >= totalMessages) {
+                return prev; // Already complete
             }
 
-            // Reset state
-            setConversationStates((prev) => ({
+            const newVisibleCount = currentState.visibleMessageCount + 1;
+            const isComplete = newVisibleCount >= totalMessages;
+
+            // Schedule next message if not complete
+            if (!isComplete) {
+                const delay = newVisibleCount === 1 ? 1000 : getRandomDelay(); // First message after 1s, others random
+                const timeoutId = setTimeout(() => {
+                    showNextMessage(conversationId);
+                }, delay);
+                
+                // Clear previous timeout
+                if (timeoutRefs.current[conversationId]) {
+                    clearTimeout(timeoutRefs.current[conversationId]!);
+                }
+                timeoutRefs.current[conversationId] = timeoutId;
+            }
+
+            return {
                 ...prev,
                 [conversationId]: {
-                    visibleMessageCount: 0,
-                    isComplete: false,
-                },
-            }));
+                    visibleMessageCount: newVisibleCount,
+                    isComplete,
+                }
+            };
+        });
+    }, [conversations]);
 
-            // Start showing messages after 1 second
-            const timeoutId = setTimeout(() => {
-                showNextMessage(conversationId);
-            }, 1000);
+    // Function to start conversation from beginning
+    const startConversation = useCallback((conversationId: ConversationId) => {
+        // Clear any existing timeout
+        if (timeoutRefs.current[conversationId]) {
+            clearTimeout(timeoutRefs.current[conversationId]!);
+            timeoutRefs.current[conversationId] = null;
+        }
 
-            timeoutRefs.current[conversationId] = timeoutId;
-        },
-        [showNextMessage],
-    );
+        // Reset state
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                visibleMessageCount: 0,
+                isComplete: false,
+            }
+        }));
+
+        // Start showing messages after 1 second
+        const timeoutId = setTimeout(() => {
+            showNextMessage(conversationId);
+        }, 1000);
+        
+        timeoutRefs.current[conversationId] = timeoutId;
+    }, [showNextMessage]);
 
     // Handle tab switching
     useEffect(() => {
         const currentState = conversationStates[selectedConversation];
-
+        
         // If conversation hasn't started or is complete, restart it
         if (currentState.visibleMessageCount === 0 || currentState.isComplete) {
             startConversation(selectedConversation);
@@ -161,7 +155,7 @@ export function ArenaPreview() {
             const timeoutId = setTimeout(() => {
                 showNextMessage(selectedConversation);
             }, delay);
-
+            
             if (timeoutRefs.current[selectedConversation]) {
                 clearTimeout(timeoutRefs.current[selectedConversation]!);
             }
@@ -180,7 +174,7 @@ export function ArenaPreview() {
     // Cleanup all timeouts on unmount
     useEffect(() => {
         return () => {
-            Object.values(timeoutRefs.current).forEach((timeout) => {
+            Object.values(timeoutRefs.current).forEach(timeout => {
                 if (timeout) clearTimeout(timeout);
             });
         };
