@@ -13,10 +13,21 @@ import { generatePlaceholderAgentProfileImageUrl } from '@promptbook/core';
 import { MessageCircle, Zap } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-interface ConversationState {
-    visibleMessageCount: number;
+interface StreamingMessage {
+    id: string;
+    author: string;
+    fullContent: string;
+    timestamp: Date;
+    streamedContent: string;
+    isStreaming: boolean;
     isComplete: boolean;
-    timeoutId?: NodeJS.Timeout;
+}
+
+interface ConversationState {
+    messages: StreamingMessage[];
+    currentMessageIndex: number;
+    isComplete: boolean;
+    isThinking: boolean;
 }
 
 export function ArenaPreview() {
@@ -26,16 +37,18 @@ export function ArenaPreview() {
 
     // Track state for each conversation
     const [conversationStates, setConversationStates] = useState<Record<ConversationId, ConversationState>>({
-        'ai-healthcare-future': { visibleMessageCount: 0, isComplete: false },
-        'ai-consciousness-soul': { visibleMessageCount: 0, isComplete: false },
-        'vibecoding-debate': { visibleMessageCount: 0, isComplete: false },
+        'ai-healthcare-future': { messages: [], currentMessageIndex: -1, isComplete: false, isThinking: false },
+        'ai-consciousness-soul': { messages: [], currentMessageIndex: -1, isComplete: false, isThinking: false },
+        'vibecoding-debate': { messages: [], currentMessageIndex: -1, isComplete: false, isThinking: false },
     });
 
-    const timeoutRefs = useRef<Record<ConversationId, NodeJS.Timeout | null>>({
-        'ai-healthcare-future': null,
-        'ai-consciousness-soul': null,
-        'vibecoding-debate': null,
+    const timeoutRefs = useRef<Record<ConversationId, NodeJS.Timeout[]>>({
+        'ai-healthcare-future': [],
+        'ai-consciousness-soul': [],
+        'vibecoding-debate': [],
     });
+
+    const conversationsRef = useRef<any[]>([]);
 
     // Load conversations asynchronously
     useEffect(() => {
@@ -61,6 +74,7 @@ export function ArenaPreview() {
                     }
                 }).filter(Boolean);
 
+                conversationsRef.current = loadedConversations;
                 setConversations(loadedConversations);
             } catch (error) {
                 console.error('Failed to load conversations:', error);
@@ -72,122 +86,241 @@ export function ArenaPreview() {
         loadConversations();
     }, []);
 
-    // Function to get random delay
-    const getRandomDelay = () => Math.random() * 10_000 + 1000; // 1000-3000ms
+    // Utility functions for random delays
+    const getWordDelay = () => Math.random() * 150 + 50; // 50-200ms
+    const getThinkingDelay = () => Math.random() * 1000 + 500; // 500-1500ms
+    const getDeepThinkingDelay = () => Math.random() * 5000; // 0-5000ms
 
-    // Function to show next message for a conversation
-    const showNextMessage = useCallback(
-        (conversationId: ConversationId) => {
-            const conversation = conversations.find((c) => c?.id === conversationId);
-            if (!conversation) return;
+    // Clear all timeouts for a conversation
+    const clearTimeouts = useCallback((conversationId: ConversationId) => {
+        timeoutRefs.current[conversationId].forEach(timeout => clearTimeout(timeout));
+        timeoutRefs.current[conversationId] = [];
+    }, []);
 
-            setConversationStates((prev) => {
-                const currentState = prev[conversationId];
-                const totalMessages = conversation.messages.length;
-
-                if (currentState.visibleMessageCount >= totalMessages) {
-                    return prev; // Already complete
+    // Stream a single word to a message
+    const streamWord = useCallback((
+        conversationId: ConversationId,
+        messageIndex: number,
+        words: string[],
+        wordIndex: number
+    ) => {
+        if (wordIndex >= words.length) {
+            // Message is complete
+            setConversationStates(prev => ({
+                ...prev,
+                [conversationId]: {
+                    ...prev[conversationId],
+                    messages: prev[conversationId].messages.map((msg, idx) =>
+                        idx === messageIndex
+                            ? { ...msg, isStreaming: false, isComplete: true }
+                            : msg
+                    )
                 }
+            }));
 
-                const newVisibleCount = currentState.visibleMessageCount + 1;
-                const isComplete = newVisibleCount >= totalMessages;
+            // Check if this was the last sentence and add deep thinking delay
+            const currentWord = words[wordIndex - 1];
+            const isEndOfSentence = currentWord && /[.!?]$/.test(currentWord);
 
-                // Schedule next message if not complete
-                if (!isComplete) {
-                    const delay = newVisibleCount === 1 ? 1000 : getRandomDelay(); // First message after 1s, others random
-                    const timeoutId = setTimeout(() => {
-                        showNextMessage(conversationId);
-                    }, delay);
+            if (isEndOfSentence) {
+                const deepThinkingDelay = getDeepThinkingDelay();
+                const timeout = setTimeout(() => {
+                    startNextMessage(conversationId);
+                }, deepThinkingDelay);
+                timeoutRefs.current[conversationId].push(timeout);
+            } else {
+                startNextMessage(conversationId);
+            }
+            return;
+        }
 
-                    // Clear previous timeout
-                    if (timeoutRefs.current[conversationId]) {
-                        clearTimeout(timeoutRefs.current[conversationId]!);
-                    }
-                    timeoutRefs.current[conversationId] = timeoutId;
+        // Add the next word
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                ...prev[conversationId],
+                messages: prev[conversationId].messages.map((msg, idx) =>
+                    idx === messageIndex
+                        ? {
+                            ...msg,
+                            streamedContent: words.slice(0, wordIndex + 1).join(' ')
+                        }
+                        : msg
+                )
+            }
+        }));
+
+        // Check if this word ends a sentence for deep thinking pause
+        const currentWord = words[wordIndex];
+        const isEndOfSentence = /[.!?]$/.test(currentWord);
+
+        let nextDelay = getWordDelay();
+        if (isEndOfSentence && wordIndex < words.length - 1) {
+            nextDelay += getDeepThinkingDelay();
+        }
+
+        // Schedule next word
+        const timeout = setTimeout(() => {
+            streamWord(conversationId, messageIndex, words, wordIndex + 1);
+        }, nextDelay);
+
+        timeoutRefs.current[conversationId].push(timeout);
+    }, [getWordDelay, getDeepThinkingDelay]);
+
+    // Start streaming a message
+    const startMessageStreaming = useCallback((
+        conversationId: ConversationId,
+        messageIndex: number
+    ) => {
+        setConversationStates(prev => {
+            const state = prev[conversationId];
+            const message = state.messages[messageIndex];
+
+            if (!message) return prev;
+
+            // Split content into words
+            const words = message.fullContent.split(' ').filter(word => word.length > 0);
+
+            // Mark message as streaming and start streaming words
+            const newState = {
+                ...prev,
+                [conversationId]: {
+                    ...prev[conversationId],
+                    messages: prev[conversationId].messages.map((msg, idx) =>
+                        idx === messageIndex
+                            ? { ...msg, isStreaming: true, streamedContent: '' }
+                            : msg
+                    ),
+                    isThinking: false
                 }
+            };
 
+            // Start streaming words after state update
+            setTimeout(() => {
+                streamWord(conversationId, messageIndex, words, 0);
+            }, 0);
+
+            return newState;
+        });
+    }, [streamWord]);
+
+    // Start the next message
+    const startNextMessage = useCallback((conversationId: ConversationId) => {
+        setConversationStates(prev => {
+            const conversation = conversationsRef.current.find(c => c?.id === conversationId);
+            if (!conversation) return prev;
+
+            const state = prev[conversationId];
+            const nextMessageIndex = state.currentMessageIndex + 1;
+
+            if (nextMessageIndex >= conversation.messages.length) {
+                // Conversation is complete
                 return {
                     ...prev,
                     [conversationId]: {
-                        visibleMessageCount: newVisibleCount,
-                        isComplete,
-                    },
+                        ...prev[conversationId],
+                        isComplete: true,
+                        isThinking: false
+                    }
                 };
-            });
-        },
-        [conversations],
-    );
-
-    // Function to start conversation from beginning
-    const startConversation = useCallback(
-        (conversationId: ConversationId) => {
-            // Clear any existing timeout
-            if (timeoutRefs.current[conversationId]) {
-                clearTimeout(timeoutRefs.current[conversationId]!);
-                timeoutRefs.current[conversationId] = null;
             }
 
-            // Reset state
-            setConversationStates((prev) => ({
+            // Set thinking state and schedule message streaming
+            const thinkingDelay = getThinkingDelay();
+            const timeout = setTimeout(() => {
+                startMessageStreaming(conversationId, nextMessageIndex);
+            }, thinkingDelay);
+
+            timeoutRefs.current[conversationId].push(timeout);
+
+            return {
                 ...prev,
                 [conversationId]: {
-                    visibleMessageCount: 0,
-                    isComplete: false,
-                },
-            }));
+                    ...prev[conversationId],
+                    currentMessageIndex: nextMessageIndex,
+                    isThinking: true
+                }
+            };
+        });
+    }, [startMessageStreaming, getThinkingDelay]);
 
-            // Start showing messages after 1 second
-            const timeoutId = setTimeout(() => {
-                showNextMessage(conversationId);
-            }, 1000);
+    // Initialize conversation state
+    const initializeConversation = useCallback((conversationId: ConversationId) => {
+        const conversation = conversationsRef.current.find(c => c?.id === conversationId);
+        if (!conversation) return;
 
-            timeoutRefs.current[conversationId] = timeoutId;
-        },
-        [showNextMessage],
-    );
+        // Clear any existing timeouts
+        clearTimeouts(conversationId);
+
+        // Convert messages to streaming format
+        const streamingMessages: StreamingMessage[] = conversation.messages.map((msg: any) => ({
+            id: msg.id,
+            author: msg.author,
+            fullContent: msg.content,
+            timestamp: msg.timestamp,
+            streamedContent: '',
+            isStreaming: false,
+            isComplete: false
+        }));
+
+        // Reset state
+        setConversationStates(prev => ({
+            ...prev,
+            [conversationId]: {
+                messages: streamingMessages,
+                currentMessageIndex: -1,
+                isComplete: false,
+                isThinking: false
+            }
+        }));
+
+        // Start the first message after a brief delay
+        const timeout = setTimeout(() => {
+            startNextMessage(conversationId);
+        }, 1000);
+
+        timeoutRefs.current[conversationId].push(timeout);
+    }, [clearTimeouts, startNextMessage]);
 
     // Handle tab switching
     useEffect(() => {
+        if (conversations.length === 0) return;
+
         const currentState = conversationStates[selectedConversation];
 
         // If conversation hasn't started or is complete, restart it
-        if (currentState.visibleMessageCount === 0 || currentState.isComplete) {
-            startConversation(selectedConversation);
-        }
-        // If conversation is in progress, continue from where it left off
-        else if (!currentState.isComplete) {
-            // Continue the conversation with next message
-            const delay = getRandomDelay();
-            const timeoutId = setTimeout(() => {
-                showNextMessage(selectedConversation);
-            }, delay);
-
-            if (timeoutRefs.current[selectedConversation]) {
-                clearTimeout(timeoutRefs.current[selectedConversation]!);
-            }
-            timeoutRefs.current[selectedConversation] = timeoutId;
+        if (currentState.currentMessageIndex === -1 || currentState.isComplete) {
+            initializeConversation(selectedConversation);
         }
 
-        // Cleanup function to clear timeout when switching away
+        // Cleanup function to clear timeouts when switching away
         return () => {
-            if (timeoutRefs.current[selectedConversation]) {
-                clearTimeout(timeoutRefs.current[selectedConversation]!);
-                timeoutRefs.current[selectedConversation] = null;
-            }
+            clearTimeouts(selectedConversation);
         };
-    }, [selectedConversation, startConversation, showNextMessage]);
+    }, [selectedConversation, conversations.length, initializeConversation, clearTimeouts]);
 
     // Cleanup all timeouts on unmount
     useEffect(() => {
         return () => {
-            Object.values(timeoutRefs.current).forEach((timeout) => {
-                if (timeout) clearTimeout(timeout);
+            Object.keys(timeoutRefs.current).forEach(conversationId => {
+                clearTimeouts(conversationId as ConversationId);
             });
         };
-    }, []);
+    }, [clearTimeouts]);
 
+    // Get current conversation and state
     const currentConversation = conversations.find((c) => c?.id === selectedConversation);
     const currentState = conversationStates[selectedConversation];
+
+    // Prepare messages for Chat component
+    const displayMessages = currentState?.messages
+        .slice(0, currentState.currentMessageIndex + 1)
+        .map(msg => ({
+            id: msg.id,
+            from: msg.author,
+            content: msg.streamedContent || msg.fullContent,
+            date: msg.timestamp,
+        })) || [];
 
     if (loading) {
         return (
@@ -253,6 +386,16 @@ export function ArenaPreview() {
                             conversation && (
                                 <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
                                     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                        {currentState?.isThinking && displayMessages.length > 0 && (
+                                            <div className="flex items-center gap-2 text-gray-500 text-sm mb-4 animate-pulse">
+                                                <div className="flex gap-1">
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                                </div>
+                                                <span>Thinking...</span>
+                                            </div>
+                                        )}
                                         <Chat
                                             participants={conversation.participants
                                                 .filter((participant: any) => participant.name !== 'user')
@@ -266,14 +409,7 @@ export function ArenaPreview() {
                                                         participant.name,
                                                     ),
                                                 }))}
-                                            messages={conversation.messages
-                                                .slice(0, currentState?.visibleMessageCount || 0)
-                                                .map((msg: any) => ({
-                                                    id: msg.id,
-                                                    from: msg.author,
-                                                    content: msg.content,
-                                                    date: msg.timestamp,
-                                                }))}
+                                            messages={displayMessages}
                                             isFocusedOnLoad={false}
                                         />
                                     </div>
