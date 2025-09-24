@@ -53,7 +53,7 @@ Each participant of the arena-preview should have its own `avatarSrc` with diffe
 
 ---
 
-[ ]
+[ ] <- Note: Not implementing, using <MockedChat /> instead
 
 Discussion in arena-preview should be emulated that is happening in real time, so each message should appear with some delay, not all at once.
 
@@ -63,7 +63,7 @@ When the user switches to another tab with another discussion, the discussion sh
 
 ---
 
-[ ]
+[.] <- Note: Not implementing, using <MockedChat /> instead
 
 Discussion in arena-preview should be emulated that is happening in real time, so each message should emulate chat streaming.
 
