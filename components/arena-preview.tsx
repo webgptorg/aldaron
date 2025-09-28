@@ -8,7 +8,7 @@ import {
     getConversationsData,
     type ConversationId,
 } from '@/lib/conversations-data';
-import { Chat } from '@promptbook/components';
+import { MockedChat } from '@promptbook/components';
 import { generatePlaceholderAgentProfileImageUrl } from '@promptbook/core';
 import { MessageCircle, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -119,7 +119,7 @@ export function ArenaPreview() {
                             conversation && (
                                 <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
                                     <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                        <Chat
+                                        <MockedChat
                                             participants={conversation.participants
                                                 .filter((participant: any) => participant.name !== 'user')
                                                 .map((participant: any) => ({
