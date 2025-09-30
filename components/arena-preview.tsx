@@ -139,25 +139,6 @@ export function ArenaPreview() {
                                                 date: msg.timestamp,
                                             }))}
                                             isFocusedOnLoad={false}
-                                            delayConfig={{
-                                                /**
-                                                 * Delay before showing the first message (in milliseconds)
-                                                 */
-                                                beforeFirstMessage: 1000,
-                                                /**
-                                                 * Emulated thinking time between messages (in milliseconds)
-                                                 */
-                                                thinkingBetweenMessages: 2000,
-                                                /**
-                                                 * Wait time after each written word (in milliseconds)
-                                                 */
-                                                waitAfterWord: 100,
-
-                                                /**
-                                                 * Extra delay on top of the word waiting (in milliseconds)
-                                                 */
-                                                extraWordDelay: 50,
-                                            }}
                                         />
                                     </div>
                                 </TabsContent>
