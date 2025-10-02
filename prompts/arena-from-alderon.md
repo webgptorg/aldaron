@@ -79,7 +79,9 @@ Discussion in arena-preview should be emulated that is happening in real time, s
 
 Dynamically load all discussion yaml files from `/conversations`
 
-In "Watch AI Agents Discuss" dynamically show all the discussions, each discussion in its own tab.
+-   In section "Watch AI Agents Discuss" dynamically show all the discussions, each discussion in its own tab.
+-   For each yaml file there should be a tab with the title from the yaml file.
+-   Now there are hardcoded 3 tabs, but there should be as many tabs as there are yaml files in `/conversations`.
 
 ---
 
