@@ -22,26 +22,38 @@ export interface Conversation {
 
 import * as yaml from 'js-yaml';
 
+// Configuration for all available conversations
+const CONVERSATION_CONFIG = [
+    { id: 'ai-healthcare-future', file: 'ai-healthcare-future.yaml' },
+    { id: 'ai-healthcare-future-copy', file: 'ai-healthcare-future-copy.yaml' },
+    { id: 'ai-consciousness-soul', file: 'ai-consciousness-soul.yaml' },
+    { id: 'vibecoding-debate', file: 'vibecoding-debate.yaml' },
+] as const;
+
 // Dynamic imports for YAML files
 async function loadConversationData(): Promise<Record<string, Conversation>> {
     const conversations: Record<string, Conversation> = {};
 
     try {
-        // Import YAML files dynamically as raw text
-        const [
-            aiHealthcareFutureRaw,
-            aiConsciousnessSoulRaw,
-            vibecodingDebateRaw
-        ] = await Promise.all([
-            import('../conversations/ai-healthcare-future.yaml'),
-            import('../conversations/ai-consciousness-soul.yaml'),
-            import('../conversations/vibecoding-debate.yaml')
-        ]);
+        // Dynamically import all conversation files
+        const importPromises = CONVERSATION_CONFIG.map(async (config) => {
+            try {
+                const module = await import(`../conversations/${config.file}`);
+                return { id: config.id, content: yaml.load(module.default) as Conversation };
+            } catch (error) {
+                console.error(`Failed to load conversation ${config.id}:`, error);
+                return null;
+            }
+        });
 
-        // Parse YAML content
-        conversations['ai-healthcare-future'] = yaml.load(aiHealthcareFutureRaw.default) as Conversation;
-        conversations['ai-consciousness-soul'] = yaml.load(aiConsciousnessSoulRaw.default) as Conversation;
-        conversations['vibecoding-debate'] = yaml.load(vibecodingDebateRaw.default) as Conversation;
+        const results = await Promise.all(importPromises);
+
+        // Add successfully loaded conversations to the map
+        results.forEach((result) => {
+            if (result) {
+                conversations[result.id] = result.content;
+            }
+        });
 
         return conversations;
     } catch (error) {
@@ -63,14 +75,10 @@ export async function getConversationsData(): Promise<Record<string, Conversatio
     return conversationsCache;
 }
 
-// Available conversation IDs
-export const AVAILABLE_CONVERSATIONS: string[] = [
-    'ai-healthcare-future',
-    'ai-consciousness-soul',
-    'vibecoding-debate'
-];
+// Available conversation IDs (generated from config)
+export const AVAILABLE_CONVERSATIONS: string[] = CONVERSATION_CONFIG.map((config) => config.id);
 
-export type ConversationId = typeof AVAILABLE_CONVERSATIONS[number];
+export type ConversationId = (typeof AVAILABLE_CONVERSATIONS)[number];
 
 // Get conversation data
 export async function getConversation(id: ConversationId): Promise<Conversation> {
@@ -101,7 +109,7 @@ export function getConversationSync(id: ConversationId): Conversation {
 // Convert conversation to Chat component format
 export function convertToChat(conversation: Conversation) {
     // Create participants map for Chat component
-    const participants = conversation.participants.map(p => ({
+    const participants = conversation.participants.map((p) => ({
         name: p.name,
         isMe: p.isMe || false,
         fullname: p.fullname,
@@ -110,7 +118,7 @@ export function convertToChat(conversation: Conversation) {
     }));
 
     // Convert messages to Chat component format
-    const messages = conversation.messages.map(msg => ({
+    const messages = conversation.messages.map((msg) => ({
         id: `${msg.author}-${msg.timestamp}`,
         author: msg.author,
         content: msg.content,
@@ -158,7 +166,7 @@ export const CONVERSATIONS_DATA = new Proxy({} as Record<string, Conversation>, 
         return {
             enumerable: true,
             configurable: true,
-            value: conversationsCache[prop]
+            value: conversationsCache[prop],
         };
-    }
+    },
 });

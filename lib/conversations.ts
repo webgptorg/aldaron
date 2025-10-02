@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
 import yaml from 'js-yaml';
+import { join } from 'path';
 
 export interface ConversationParticipant {
     name: string;
@@ -23,19 +23,28 @@ export interface Conversation {
     messages: ConversationMessage[];
 }
 
-// List of available conversations
-export const AVAILABLE_CONVERSATIONS = [
-    'ai-healthcare-future',
-    'ai-consciousness-soul',
-    'vibecoding-debate',
+// Configuration for all available conversations
+const CONVERSATION_CONFIG = [
+    { id: 'ai-healthcare-future', file: 'ai-healthcare-future.yaml' },
+    { id: 'ai-healthcare-future-copy', file: 'ai-healthcare-future-copy.yaml' },
+    { id: 'ai-consciousness-soul', file: 'ai-consciousness-soul.yaml' },
+    { id: 'vibecoding-debate', file: 'vibecoding-debate.yaml' },
 ] as const;
 
-export type ConversationId = typeof AVAILABLE_CONVERSATIONS[number];
+// List of available conversations (generated from config)
+export const AVAILABLE_CONVERSATIONS = CONVERSATION_CONFIG.map((config) => config.id);
+
+export type ConversationId = (typeof AVAILABLE_CONVERSATIONS)[number];
 
 // Load a conversation from YAML file
 export function loadConversation(id: ConversationId): Conversation {
     try {
-        const filePath = join(process.cwd(), 'conversations', `${id}.yaml`);
+        const config = CONVERSATION_CONFIG.find((c) => c.id === id);
+        if (!config) {
+            throw new Error(`Conversation configuration for ${id} not found`);
+        }
+
+        const filePath = join(process.cwd(), 'conversations', config.file);
         const fileContent = readFileSync(filePath, 'utf8');
         const conversation = yaml.load(fileContent) as Conversation;
         return conversation;
@@ -65,7 +74,7 @@ export function getAllConversationMetadata() {
 // Convert conversation to Chat component format
 export function convertToChat(conversation: Conversation) {
     // Create participants map for Chat component
-    const participants = conversation.participants.map(p => ({
+    const participants = conversation.participants.map((p) => ({
         name: p.name,
         isMe: false,
         fullname: p.fullname,
@@ -74,7 +83,7 @@ export function convertToChat(conversation: Conversation) {
     }));
 
     // Convert messages to Chat component format
-    const messages = conversation.messages.map(msg => ({
+    const messages = conversation.messages.map((msg) => ({
         id: `${msg.author}-${msg.timestamp}`,
         author: msg.author,
         content: msg.content,
