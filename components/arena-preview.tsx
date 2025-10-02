@@ -118,7 +118,7 @@ export function ArenaPreview() {
                         (conversation) =>
                             conversation && (
                                 <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
-                                    <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                                    <div style={{ height: '400px', overflowY: 'auto' }}>
                                         <MockedChat
                                             participants={conversation.participants
                                                 .filter((participant: any) => participant.name !== 'user')
@@ -138,7 +138,6 @@ export function ArenaPreview() {
                                                 content: msg.content,
                                                 date: msg.timestamp,
                                             }))}
-                                            isFocusedOnLoad={false}
                                         />
                                     </div>
                                 </TabsContent>
