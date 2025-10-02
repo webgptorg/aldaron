@@ -75,7 +75,7 @@ Discussion in arena-preview should be emulated that is happening in real time, s
 
 ---
 
-[ ]
+[x]
 
 Dynamically load all discussion yaml files from `/conversations`
 

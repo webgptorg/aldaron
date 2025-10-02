@@ -99,20 +99,14 @@ export function ArenaPreview() {
                     value={selectedConversation}
                     onValueChange={(value) => setSelectedConversation(value as ConversationId)}
                 >
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="ai-healthcare-future" className="text-xs">
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            Healthcare AI
-                        </TabsTrigger>
-                        <TabsTrigger value="ai-consciousness-soul" className="text-xs">
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            AI Consciousness
-                        </TabsTrigger>
-                        <TabsTrigger value="vibecoding-debate" className="text-xs">
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            Vibecoding
-                        </TabsTrigger>
-                    </TabsList>
+<TabsList className={`grid w-full grid-cols-${conversations.length}`}>
+    {conversations.map((conversation) => (
+        <TabsTrigger key={conversation.id} value={conversation.id} className="text-xs">
+            <MessageCircle className="w-4 h-4 mr-1" />
+            {conversation.title}
+        </TabsTrigger>
+    ))}
+</TabsList>
 
                     {conversations.map(
                         (conversation) =>
