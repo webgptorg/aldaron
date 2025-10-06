@@ -117,6 +117,7 @@ export function ArenaPreview() {
                                 <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
                                     <div style={{ height: '400px', overflowY: 'auto' }}>
                                         <MockedChat
+                                            isSaveButtonEnabled={false}
                                             participants={conversation.participants
                                                 .filter((participant: any) => participant.name !== 'user')
                                                 .map((participant: any) => ({
