@@ -1,11 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useYou } from '@/hooks/use-you';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export function HeroSection() {
+    const you = useYou();
+
     return (
         <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
             {/* Background Elements */}
@@ -29,26 +32,62 @@ export function HeroSection() {
                                 AI Transformation for Your Business
                             </div>
                             <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                Create AI Agents that{' '}
+                                Create AI that{' '}
                                 <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                    Truly Understand
+                                    Truly&nbsp;Understand
                                 </span>{' '}
-                                Your Company
+                                {you || <>Your Company</>}
                             </h1>
                             <p className="text-xl text-gray-600 leading-relaxed">
-                                With Promptbook, you can capture your company's context, rules, and knowledge into simple "books" to build AI agents that align perfectly with your business needs.
+                                With Promptbook, you can capture your company's context, rules, and knowledge into
+                                simple <b>Books</b> to build AI agents that align perfectly with your business needs.
                             </p>
                         </div>
+
+                        <br />
 
                         <Link href="/get-started" passHref>
                             <Button
                                 size="lg"
                                 className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                             >
-                                Get Started with Promptbook
+                                Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
                         </Link>
+
+                        <div className="flex items-center gap-8 text-sm text-gray-500">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                Open Source
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                Your Data, Your Control
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                Easy Setup
+                            </div>
+                        </div>
+
+                        {/* Powered by Promptbook */}
+                        <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
+                            <div className="text-sm">
+                                <span className="text-gray-600">Powered by </span>
+                                <a
+                                    href="https://www.ptbk.io"
+                                    className="font-semibold text-promptbook-blue hover:underline"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Promptbook
+                                </a>
+                                <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
+                            </div>
+                        </div>
                     </motion.div>
 
                     {/* Right Column - Book Example */}
@@ -67,11 +106,14 @@ export function HeroSection() {
                                     {`\n`}
                                     Your job is to provide legal advice and support to the company and its employees.
                                     {`\n\n`}
-                                    <span className="text-pink-400">RULE</span> Always ensure compliance with laws and regulations.
+                                    <span className="text-pink-400">RULE</span> Always ensure compliance with laws and
+                                    regulations.
                                     {`\n`}
-                                    <span className="text-pink-400">RULE</span> Never provide legal advice outside your area of expertise.
+                                    <span className="text-pink-400">RULE</span> Never provide legal advice outside your
+                                    area of expertise.
                                     {`\n\n`}
-                                    <span className="text-pink-400">KNOWLEDGE</span> https://company.com/company-policies.pdf
+                                    <span className="text-pink-400">KNOWLEDGE</span>{' '}
+                                    https://company.com/company-policies.pdf
                                 </code>
                             </pre>
                         </div>
