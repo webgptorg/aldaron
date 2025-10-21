@@ -100,7 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={inter.className}>
                 {children}
-                <ConditionalChatbot />
+                {/* <ConditionalChatbot /> */}
             </body>
         </html>
     );

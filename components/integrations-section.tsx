@@ -1,44 +1,32 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Bot, Crown, Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
+import { Bot, Code, Mail, MessageSquare } from 'lucide-react';
 
 const integrations = [
     {
         icon: MessageSquare,
-        title: 'Website Chatbot',
-        description: 'Embed on your website to answer customer questions 24/7',
-        tier: 'free',
-        features: ['24/7 availability', 'Custom responses', 'Easy integration'],
+        title: 'Chat Apps',
+        description: 'Create a chat shopping assistant for your eShop or a customer support bot.',
+        features: ['24/7 availability', 'Personalized recommendations', 'Tightly controlled responses'],
     },
     {
         icon: Mail,
-        title: 'Email Integration',
-        description: 'Handle email replies and interactions automatically',
-        tier: 'pro',
-        features: ['Auto-replies', 'Context awareness', 'Email scheduling'],
+        title: 'Reply Agent',
+        description: 'Automatically analyze and reply to emails, or create drafts for your review.',
+        features: ['Auto-replies', 'Context awareness', 'Draft generation'],
     },
     {
-        icon: Share2,
-        title: 'Social Media Manager',
-        description: 'Manage posts and interactions across all platforms',
-        tier: 'pro',
-        features: ['Multi-platform', 'Auto-posting', 'Engagement tracking'],
-    },
-    {
-        icon: Phone,
-        title: 'Audio/Video Agent',
-        description: 'Clients can call and interact with your AI avatar',
-        tier: 'pro',
-        features: ['Voice cloning', 'Video calls', 'Real-time responses'],
+        icon: Code,
+        title: 'Coding Agent',
+        description: 'Enforce your coding style and architecture rules in any vibecoding platform.',
+        features: ['Custom coding standards', 'Architecture alignment', 'Security enforcement'],
     },
     {
         icon: Bot,
-        title: 'Agentic Mode',
-        description: 'Background automation with task execution and reporting',
-        tier: 'pro',
-        features: ['Autonomous tasks', 'Activity reports', 'Client outreach'],
+        title: 'Internal Expertise',
+        description: 'Integrate AI into your internal apps for data analysis, sentiment analysis, and more.',
+        features: ['Custom automations', 'Data analysis', 'Sentiment classification'],
     },
 ];
 
@@ -55,7 +43,7 @@ export function IntegrationsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
                     >
-                        Integration Options
+                        Where to Use Your AI Agent
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -63,11 +51,11 @@ export function IntegrationsSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        Deploy your AI avatar across all your communication channels
+                        Deploy your book-defined AI agents across a wide range of applications and scenarios.
                     </motion.p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     {integrations.map((integration, index) => {
                         const Icon = integration.icon;
 
@@ -80,18 +68,6 @@ export function IntegrationsSection() {
                                 whileHover={{ y: -5, scale: 1.02 }}
                                 className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 relative overflow-hidden text-center"
                             >
-                                {/* Tier Badge */}
-                                <div className="absolute top-4 right-4">
-                                    {integration.tier === 'pro' ? (
-                                        <Badge className="bg-gradient-purple text-white">
-                                            <Crown className="w-3 h-3 mr-1" />
-                                            Pro
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="secondary">Free</Badge>
-                                    )}
-                                </div>
-
                                 <div className="mb-6">
                                     <div className="flex justify-center mb-4">
                                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">

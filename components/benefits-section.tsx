@@ -1,49 +1,49 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Brain, FileText, Globe, Shield, Users, Zap } from 'lucide-react';
+import { Book, Briefcase, Code, Shield, Zap, Users } from 'lucide-react';
 
 const benefits = [
     {
-        icon: Brain,
-        title: 'Truly YOUR AI Agent',
+        icon: Briefcase,
+        title: 'Capture Company Context',
         description:
-            'Speaks your language, has your voice, your style, your way of thinking, and your decision-making process. Not vanilla generic content.',
+            'Easily define AI agents with specific knowledge, rules, and personalities that align with your company values.',
         gradient: 'from-purple-500 to-pink-500',
     },
     {
-        icon: Globe,
-        title: 'Universal Integration',
+        icon: Shield,
+        title: 'Reliable and Portable',
         description:
-            'Use everywhere - emails, social media, programming tools, video calls. Runs in background performing tasks and providing reports.',
+            'Books are explicit and easy to understand, ensuring your AI behaves predictably and consistently across all applications.',
         gradient: 'from-blue-500 to-cyan-500',
     },
     {
-        icon: Shield,
-        title: 'Full Control & Transparency',
+        icon: Zap,
+        title: 'Simple and Powerful',
         description:
-            'See all interactions, all data. Fine-tune to your liking. Create, control, and adjust behavior as needed.',
+            'Get the best of both worlds: the simplicity of no-code platforms and the deep control of heavy frameworks.',
         gradient: 'from-green-500 to-emerald-500',
     },
     {
-        icon: FileText,
-        title: '100% Human Language',
+        icon: Book,
+        title: 'Commitments-Based Language',
         description:
-            "Everything based on plain human language, not JSONs or complex configurations. Built with our special 'Book' technology and PromptBook Engine.",
+            'Use Persona, Knowledge, Rule, and Action commitments to precisely define your AI agent\'s behavior.',
         gradient: 'from-orange-500 to-red-500',
     },
     {
-        icon: Zap,
-        title: 'Extremely Easy Start',
+        icon: Code,
+        title: 'Integrate Anywhere',
         description:
-            'Import your data from LinkedIn, Facebook, Google, or GitHub. Or create manually by filling out a simple form.',
+            'Use your book-defined AI agents in chat apps, reply agents, coding assistants, and internal applications.',
         gradient: 'from-yellow-500 to-orange-500',
     },
     {
         icon: Users,
-        title: 'Open Source Freedom',
+        title: 'Tailored to Your Needs',
         description:
-            'Everything is open source and in plain text. Run it on your own server or take your data anywhere you want.',
+            'Create AI agents for any role, from customer support and marketing to legal and HR, ensuring they meet your specific requirements.',
         gradient: 'from-indigo-500 to-purple-500',
     },
 ];
@@ -61,7 +61,7 @@ export function BenefitsSection() {
                         transition={{ duration: 0.6 }}
                         className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
                     >
-                        Why Choose Our AI Avatar?
+                        Transform Your Business with AI That Understands You
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -69,8 +69,7 @@ export function BenefitsSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        More than just another AI tool - it&apos;s your digital twin that truly understands and
-                        represents you
+                        Promptbook empowers you to build AI agents that are a true extension of your company's expertise and values.
                     </motion.p>
                 </div>
 

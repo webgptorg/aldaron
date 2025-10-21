@@ -5,7 +5,7 @@ import { WaitlistPopup } from '@/components/waitlist-popup';
 import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
 import { shouldShowWaitlist } from '@/lib/waitlist';
 import { motion } from 'framer-motion';
-import { Check, Crown, Facebook, Github, Linkedin, Mail, MessageSquare } from 'lucide-react';
+import { Check, Crown, MessageSquare } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -15,35 +15,27 @@ export interface PricingSectionProps {
     currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE';
 }
 
-const platforms = [
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'preparing', isPreselected: false },
-    { name: 'GitHub', icon: Github, color: 'bg-gray-800', status: 'preparing', isPreselected: false },
-    { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
-];
-
 const plans = [
     {
         name: 'Free',
         price: '$0',
         period: 'forever',
-        description: 'Perfect for trying out your AI avatar',
-        features: ['Website chatbot integration', 'Basic avatar training', 'Community support', 'Open source access'],
+        description: 'Perfect for getting started with Promptbook',
+        features: ['Create 1 AI Agent', 'Basic Knowledge and Rules', 'Community support', 'Open source access'],
         buttonText: 'Get Started',
         popular: false,
         gradient: 'from-gray-500 to-gray-600',
     },
     {
         name: 'Pro',
-        price: '$20',
+        price: '$49',
         period: 'per month',
-        description: 'Complete AI avatar solution for professionals',
+        description: 'For businesses building custom AI solutions',
         features: [
             'Everything in Free',
-            'Email integration',
-            'Social media management',
-            'Audio/video agent',
-            'Agentic background mode',
+            'Up to 10 AI Agents',
+            'Advanced Knowledge and Rules',
+            'Action Commitments',
             'Priority support',
             'Advanced analytics',
         ],
@@ -55,30 +47,21 @@ const plans = [
         name: 'Enterprise',
         price: 'Custom',
         period: 'contact us',
-        description: 'Custom solutions for organizations',
+        description: 'Custom solutions for large organizations',
         features: [
             'Everything in Pro',
+            'Unlimited AI Agents',
             'Custom integrations',
             'Dedicated support',
             'On-premise deployment',
             'SLA guarantees',
             'Team management',
-            'Custom training',
         ],
         buttonText: 'Contact Sales',
         popular: false,
         gradient: 'from-emerald-500 to-cyan-500',
     },
 ];
-
-// ROT13 decoder function
-const rot13 = (str: string): string => {
-    return str.replace(/[a-zA-Z]/g, (char) => {
-        const start = char <= 'Z' ? 65 : 97;
-        return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
-    });
-};
-// <- TODO: !!! Move or remove
 
 export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
     const router = useRouter();
@@ -146,7 +129,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                 transition={{ duration: 0.6, delay: 0.1 }}
                                 className="text-xl text-gray-600 max-w-3xl mx-auto"
                             >
-                                Start free and scale as your AI avatar becomes an integral part of your workflow
+                                Choose the plan that fits your business needs.
                             </motion.p>
                         </div>
                     )}

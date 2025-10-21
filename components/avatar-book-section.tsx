@@ -14,14 +14,14 @@ export function AvatarBookSection() {
         setBook,
         isLoaded: bookLoaded,
     } = useBookPersistence({
-        storageKey: `avatar_book_${selectedAgent.id}`,
+        storageKey: `company_agent_book_${selectedAgent.id}`,
         defaultBook: selectedAgent.book,
     });
 
     // Don't render until both agent and book are loaded
     if (!agentLoaded || !bookLoaded) {
         return (
-            <section id="integrations" className="py-20 bg-white">
+            <section id="book-section" className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <div className="animate-pulse">
@@ -43,7 +43,7 @@ export function AvatarBookSection() {
     }
 
     return (
-        <section id="integrations" className="py-20 bg-white">
+        <section id="book-section" className="py-20 bg-white">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <motion.h2
@@ -52,7 +52,7 @@ export function AvatarBookSection() {
                         transition={{ duration: 0.6 }}
                         className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
                     >
-                        Your Avatar, Your control
+                        Your Company's AI, Your Control
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -60,7 +60,7 @@ export function AvatarBookSection() {
                         transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-xl text-gray-600 max-w-3xl mx-auto"
                     >
-                        The <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">Soul</span> of
+                        The <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">Core</span> of
                         your AI agent is{' '}
                         <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
                             written in the Book.
@@ -80,7 +80,7 @@ export function AvatarBookSection() {
 
                     {/* Agent Selection */}
                     <div className="text-center">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Choose Your AI Agent</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6">Choose an AI Agent to Customize</h3>
                         <div className="flex flex-wrap gap-4 justify-center">
                             {BOOK_AGENTS.map((agent) => (
                                 <AvatarChipManager
@@ -92,32 +92,32 @@ export function AvatarBookSection() {
                             ))}
                         </div>
                         <p className="text-sm text-gray-500 mt-4">
-                            Click on any agent to switch and customize their personality
+                            Click on any agent to switch and customize their behavior
                         </p>
                     </div>
 
-                    {/* Agent Selection */}
+                    {/* Chat with the agent */}
                     <div className="text-center">
                         <Chat
                             messages={[
                                 {
                                     id: '1',
-                                    from: 'avatar',
+                                    from: 'agent',
                                     date: new Date('2023-03-01T10:00:00Z'),
                                     isComplete: true,
-                                    content: 'Hello! How can I help you today?',
+                                    content: 'Hello! How can I assist your company today?',
                                 },
                                 {
                                     id: '2',
                                     from: 'user',
                                     date: new Date('2023-03-01T10:00:00Z'),
                                     isComplete: true,
-                                    content: 'Can you tell me about your features?',
+                                    content: 'What are our company policies on remote work?',
                                 },
                             ]}
                             onMessage={(msg) => console.log('Mock message sent:', msg)}
                             participants={[
-                                { name: 'avatar', fullname: 'AI Avatar', avatarSrc: '', color: '#ff8800' },
+                                { name: 'agent', fullname: 'Company AI', avatarSrc: '', color: '#ff8800' },
                                 {
                                     name: 'user',
                                     isMe: true,

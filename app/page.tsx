@@ -16,22 +16,10 @@ type Props = {
 };
 
 export function generateMetadata(): Metadata {
-    // For static export, we can't use searchParams in generateMetadata
-    // The dynamic title will be handled client-side
     return {
-        title: '✨ Make AI that Thinks Like You',
-        description: 'Reclaim Your Time with AI That Thinks Like You ✨ Powered by Promptbook',
+        title: '✨ AI Transformation for Your Business | Promptbook',
+        description: 'Create AI agents that truly understand your company with Promptbook.',
     };
-}
-
-/**
- * ROT13 decoder function
- */
-function rot13(str: string): string {
-    return str.replace(/[a-zA-Z]/g, (char) => {
-        const start = char <= 'Z' ? 65 : 97;
-        return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
-    });
 }
 
 export default function Home({ searchParams }: Props) {
@@ -41,7 +29,7 @@ export default function Home({ searchParams }: Props) {
         <main className="min-h-screen">
             <Header />
             <Suspense fallback={<div>Loading...</div>}>
-                <HeroSection searchParams={searchParams} />
+                <HeroSection />
             </Suspense>
             <BenefitsSection />
             <IntegrationsSection />
