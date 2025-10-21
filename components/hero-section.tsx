@@ -2,6 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { useYou } from '@/hooks/use-you';
+import { BookEditor } from '@promptbook/components';
+import { book } from '@promptbook/core';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -97,26 +99,19 @@ export function HeroSection() {
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="relative"
                     >
-                        <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 text-white font-mono text-sm">
-                            <pre>
-                                <code>
-                                    <span className="text-purple-400">Paul Smith & Associés</span>
-                                    {`\n\n`}
-                                    <span className="text-pink-400">PERSONA</span> You are a company lawyer.
-                                    {`\n`}
+                        <BookEditor
+                            agentSource={book`
+                                    Paul Smith & Associés
+
+                                    PERSONA You are a company lawyer.
                                     Your job is to provide legal advice and support to the company and its employees.
-                                    {`\n\n`}
-                                    <span className="text-pink-400">RULE</span> Always ensure compliance with laws and
-                                    regulations.
-                                    {`\n`}
-                                    <span className="text-pink-400">RULE</span> Never provide legal advice outside your
-                                    area of expertise.
-                                    {`\n\n`}
-                                    <span className="text-pink-400">KNOWLEDGE</span>{' '}
-                                    https://company.com/company-policies.pdf
-                                </code>
-                            </pre>
-                        </div>
+
+                                    RULE Always ensure compliance with laws and regulations.
+                                    RULE Never provide legal advice outside your area of expertise.
+
+                                    KNOWLEDGE https://company.com/company-policies.pdf
+                                `}
+                        />
                     </motion.div>
                 </div>
             </div>
