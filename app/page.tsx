@@ -5,6 +5,7 @@ import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
+import { UrlShortener } from '@/components/url-shortener';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -35,6 +36,7 @@ export default function Home({ searchParams }: Props) {
             <IntegrationsSection />
             <AvatarBookSection />
             <PricingSection />
+            <UrlShortener />
             <Footer />
         </main>
     );
