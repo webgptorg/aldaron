@@ -1,11 +1,11 @@
 'use client';
 
+import { useUserSession } from '@/hooks/use-user-session';
+import { classNames } from '@/lib/classNames';
+import { getSupabaseForBrowser } from '@/lib/supabase';
 import { titleToName } from '@promptbook/utils';
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
-import { classNames } from '@/lib/utils';
-import { useUserSession } from '@/hooks/use-user-session';
-import { getSupabaseForBrowser } from '@/lib/supabase';
 import { QrCode } from 'react-qr-code';
 
 type UrlShortenerProps = {
@@ -284,8 +284,8 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                         {urls.length > 1 && (
                             <div className="info-box">
                                 <p>
-                                    <strong>Multiple URLs detected:</strong> When someone visits your short link,
-                                    they will be randomly redirected to one of these URLs.
+                                    <strong>Multiple URLs detected:</strong> When someone visits your short link, they
+                                    will be randomly redirected to one of these URLs.
                                 </p>
                             </div>
                         )}
@@ -337,9 +337,7 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                                 </button>
                             </div>
                             {selectedShortcode && (
-                                <p className="preview-url">
-                                    Preview URL: https://ptbk.io/{selectedShortcode}
-                                </p>
+                                <p className="preview-url">Preview URL: https://ptbk.io/{selectedShortcode}</p>
                             )}
                         </div>
                     )}
@@ -415,11 +413,10 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                         <div className="format-notice">
                             <p>
                                 <small>
-                                    Note: The "Copy Rich Hyperlink" button attempts to copy the link with
-                                    its formatting intact. This works best when pasting into applications that
-                                    support rich text (like Word, Google Docs, email composers, and some web forms).
-                                    If the destination only supports plain text, you'll need to use the code
-                                    below.
+                                    Note: The "Copy Rich Hyperlink" button attempts to copy the link with its formatting
+                                    intact. This works best when pasting into applications that support rich text (like
+                                    Word, Google Docs, email composers, and some web forms). If the destination only
+                                    supports plain text, you'll need to use the code below.
                                 </small>
                             </p>
                         </div>
@@ -428,9 +425,7 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                             <div className="qr-section">
                                 <h3>QR Code:</h3>
                                 <div className="qr-container">
-                                    <QrCode
-                                        value={`https://ptbk.io/${shortCode}`}
-                                    />
+                                    <QrCode value={`https://ptbk.io/${shortCode}`} />
                                 </div>
                             </div>
                         )}

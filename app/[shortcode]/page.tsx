@@ -1,12 +1,12 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { supabase } from '@/lib/supabase';
+import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import Script from 'next/script';
 import { spaceTrim } from 'spacetrim';
-import { Metadata } from 'next';
 
 interface PageProps {
     params: { shortcode: string };
@@ -40,7 +40,7 @@ function getLandingPageMetadata(landingPage: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { shortcode } = params;
+    const { shortcode } = await params;
     const data = await getShortcodeLink(shortcode);
 
     if (!data || !data.landingPage) {
@@ -69,7 +69,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-    const { shortcode } = params;
+    const { shortcode } = await params;
+
+    console.log('!!! shortcode', shortcode);
 
     if (!shortcode) {
         notFound();
@@ -78,11 +80,13 @@ export default async function Page({ params }: PageProps) {
     try {
         const data = await getShortcodeLink(shortcode);
 
+        console.log('!!! getShortcodeLink', data);
+
         if (!data || !data.url || data.url.length === 0) {
             notFound();
         }
 
-        const headerList = headers();
+        const headerList = await headers();
         const userAgent = headerList.get('user-agent') ?? '';
         const referer = headerList.get('referer') ?? '';
         const ipHeader = headerList.get('x-forwarded-for') ?? '';
