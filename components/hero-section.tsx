@@ -9,7 +9,9 @@ import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { getAgentById } from '@/lib/book-registry';
 
 export function HeroSection() {
     const you = useYou();
@@ -25,6 +27,17 @@ export function HeroSection() {
         KNOWLEDGE https://company.com/company-policies.pdf
     `;
     const [bookSource, setBookSource] = useState<string_book>(initialBook as string_book);
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const bookId = searchParams.get('book');
+        if (bookId) {
+            const agent = getAgentById(bookId);
+            if (agent) {
+                setBookSource(agent.book);
+            }
+        }
+    }, [searchParams]);
 
     return (
         <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
