@@ -4,12 +4,27 @@ import { Button } from '@/components/ui/button';
 import { useYou } from '@/hooks/use-you';
 import { BookEditor } from '@promptbook/components';
 import { book } from '@promptbook/core';
+
+import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export function HeroSection() {
     const you = useYou();
+    const initialBook = book`
+        Paul Smith & Associés
+
+        PERSONA You are a company lawyer.
+        Your job is to provide legal advice and support to the company and its employees.
+
+        RULE Always ensure compliance with laws and regulations.
+        RULE Never provide legal advice outside your area of expertise.
+
+        KNOWLEDGE https://company.com/company-policies.pdf
+    `;
+    const [bookSource, setBookSource] = useState<string_book>(initialBook as string_book);
 
     return (
         <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
@@ -99,19 +114,7 @@ export function HeroSection() {
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="relative"
                     >
-                        <BookEditor
-                            agentSource={book`
-                                    Paul Smith & Associés
-
-                                    PERSONA You are a company lawyer.
-                                    Your job is to provide legal advice and support to the company and its employees.
-
-                                    RULE Always ensure compliance with laws and regulations.
-                                    RULE Never provide legal advice outside your area of expertise.
-
-                                    KNOWLEDGE https://company.com/company-policies.pdf
-                                `}
-                        />
+                        <BookEditor value={bookSource} onChange={setBookSource} />
                     </motion.div>
                 </div>
             </div>
