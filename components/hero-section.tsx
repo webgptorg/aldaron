@@ -4,17 +4,19 @@ import { Button } from '@/components/ui/button';
 import { useYou } from '@/hooks/use-you';
 import { BookEditor } from '@promptbook/components';
 import { book } from '@promptbook/core';
-
 import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
-export function HeroSection() {
-    const you = useYou();
-    const initialBook = book`
+interface HeroSectionProps {
+    initialBook?: string_book;
+}
+
+export const HeroSection: FC<HeroSectionProps> = ({
+    initialBook = book`
         Paul Smith & Associés
 
         PERSONA You are a company lawyer.
@@ -24,18 +26,18 @@ export function HeroSection() {
         RULE Never provide legal advice outside your area of expertise.
 
         KNOWLEDGE https://company.com/company-policies.pdf
-    `;
+    `,
+}) => {
+    const you = useYou();
     const [bookSource, setBookSource] = useState<string_book>(initialBook as string_book);
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        const book = searchParams.get('book');
+        const bookParam = searchParams.get('book');
 
-        if (!book) {
-            return;
+        if (bookParam) {
+            setBookSource(bookParam as string_book);
         }
-
-        setBookSource(book as string_book);
 
         /*
         if (book) {
@@ -151,4 +153,4 @@ export function HeroSection() {
             </div>
         </section>
     );
-}
+};
