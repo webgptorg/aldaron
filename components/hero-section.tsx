@@ -11,7 +11,6 @@ import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getAgentById } from '@/lib/book-registry';
 
 export function HeroSection() {
     const you = useYou();
@@ -30,13 +29,26 @@ export function HeroSection() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        const bookId = searchParams.get('book');
-        if (bookId) {
-            const agent = getAgentById(bookId);
-            if (agent) {
-                setBookSource(agent.book);
-            }
+        const book = searchParams.get('book');
+        setBookSource(book as string_book);
+        /*
+        if (book) {
+            fetch(book)
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then((bookContent) => {
+                    setBookSource(bookContent as string_book);
+                })
+                .catch((error) => {
+                    console.error('Failed to fetch book:', error);
+                    // Note: We could show an error to the user here
+                });
         }
+        */
     }, [searchParams]);
 
     return (
