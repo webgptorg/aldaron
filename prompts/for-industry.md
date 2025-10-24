@@ -3,6 +3,7 @@
 Create a subpage that looks simmilar to the landing page `/` but is focused and narrowed down to engineering and industry use case. It should be on `/for-industry` path.
 
 -   Reuse components from the main landing page where possible
+-   The `BookEditor` in the hero section should be prefilled with a book about engineering / industry _(create a new book for this use case)_
 -   Reuse the sections, you can add a props to the sections components if needed to customize them for this use case, in ideal case for the main page thheese props will stay optional and for the narrowed down use case they will be filled with custom content
 -   Keep in mind DRY principle, don't repeat yourself, reuse components where possible
 
