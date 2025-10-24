@@ -30,7 +30,13 @@ export function HeroSection() {
 
     useEffect(() => {
         const book = searchParams.get('book');
+
+        if (!book) {
+            return;
+        }
+
         setBookSource(book as string_book);
+
         /*
         if (book) {
             fetch(book)
