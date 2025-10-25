@@ -5,9 +5,7 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { WaitlistPopup } from '@/components/waitlist-popup';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
-import { shouldShowWaitlist } from '@/lib/waitlist';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -20,28 +18,6 @@ export function Footer() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
-
-    // Determine landing behavior based on URL parameters
-    const landingBehavior = getLandingBehavior(searchParams);
-
-    const handleGetStartedClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-
-        // Check if waitlist should be shown
-        if (shouldShowWaitlist(searchParams)) {
-            setShowWaitlistPopup(true);
-            return;
-        }
-
-        if (landingBehavior === 'direct') {
-            // Direct navigation to promptbook.studio/from-social-links
-            const redirectUrl = getRedirectUrl('direct');
-            window.location.href = redirectUrl;
-        } else {
-            // Show popup for platform selection
-            router.push('/get-started');
-        }
-    };
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -76,37 +52,36 @@ export function Footer() {
                         <h3 className="text-lg font-semibold mb-6">Product</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a
-                                    href="/get-started"
-                                    onClick={handleGetStartedClick}
+                                <Link
+                                    href="?modal=get-started"
                                     className="text-gray-400 hover:text-white transition-colors cursor-pointer"
                                 >
                                     Get started
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://ptbk.io/manifest"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     Manifest
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://github.com/webgptorg/promptbook"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     Documentation
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://promptbook.studio/miniapps/new"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     Playground
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -116,28 +91,28 @@ export function Footer() {
                         <h3 className="text-lg font-semibold mb-6">Company</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a
+                                <Link
                                     href="https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     AI Web, LLC
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://ptbk.io/about"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     About Us
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://ptbk.io/blog"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     Blog
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -147,33 +122,33 @@ export function Footer() {
                         <h3 className="text-lg font-semibold mb-6">Connect</h3>
                         <ul className="space-y-3">
                             <li>
-                                <a
+                                <Link
                                     href="https://github.com/webgptorg/promptbook"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     GitHub
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://linkedin.com/company/promptbook"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     LinkedIn
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://discord.gg/x3QWNaa89N"
                                     className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     Discord
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="/contact" className="text-gray-400 hover:text-white transition-colors">
+                                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
                                     More
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -260,9 +235,6 @@ export function Footer() {
                     </div>
                 </div>
             </div>
-
-            {/* Waitlist Popup */}
-            <WaitlistPopup placeName="footer" isOpen={showWaitlistPopup} onClose={() => setShowWaitlistPopup(false)} />
         </footer>
     );
 }

@@ -71,8 +71,7 @@ export function HeroSection(props: HeroSectionProps) {
                         </div>
 
                         <br />
-
-                        <Link href="/get-started" passHref>
+                        <Link href="?modal=get-started">
                             <Button
                                 size="lg"
                                 className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
@@ -103,14 +102,14 @@ export function HeroSection(props: HeroSectionProps) {
                             <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
                             <div className="text-sm">
                                 <span className="text-gray-600">Powered by </span>
-                                <a
+                                <Link
                                     href="https://www.ptbk.io"
                                     className="font-semibold text-promptbook-blue hover:underline"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
                                     Promptbook
-                                </a>
+                                </Link>
                                 <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
                             </div>
                         </div>
