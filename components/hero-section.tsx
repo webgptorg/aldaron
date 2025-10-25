@@ -44,13 +44,13 @@ export function HeroSection(props: HeroSectionProps) {
             </div>
 
             <div className="container mx-auto px-4 py-20 relative z-10">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="grid lg:grid-cols-5 gap-12 items-center">
                     {/* Left Column - Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="space-y-8"
+                        className="space-y-8 lg:col-span-3"
                     >
                         <div className="space-y-4">
                             <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
@@ -117,10 +117,10 @@ export function HeroSection(props: HeroSectionProps) {
 
                     {/* Right Column - Book Example */}
                     <motion.div
+                        className="lg:col-span-2"
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="relative"
                     >
                         <BookEditor value={bookSource || undefined} onChange={setBookSource} />
                     </motion.div>
