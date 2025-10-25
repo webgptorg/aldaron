@@ -1,63 +1,39 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useYou } from '@/hooks/use-you';
+import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
+import { useYou } from '@/hooks/useYou';
 import { BookEditor } from '@promptbook/components';
 import { book } from '@promptbook/core';
 import type { string_book } from '@promptbook/types';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { FC, useEffect, useState } from 'react';
 
-interface HeroSectionProps {
+type HeroSectionProps = {
     initialBook?: string_book;
-}
+};
 
-export const HeroSection: FC<HeroSectionProps> = ({
-    initialBook = book`
-        Paul Smith & Associés
+export function HeroSection(props: HeroSectionProps) {
+    const { initialBook } = props;
+    const [bookSource, setBookSource] = useOptionalGetParam<string_book>(
+        'book',
+        () =>
+            initialBook ||
+            book`
+            Paul Smith & Associés
 
-        PERSONA You are a company lawyer.
-        Your job is to provide legal advice and support to the company and its employees.
+            PERSONA You are a company lawyer.
+            Your job is to provide legal advice and support to the company and its employees.
 
-        RULE Always ensure compliance with laws and regulations.
-        RULE Never provide legal advice outside your area of expertise.
+            RULE Always ensure compliance with laws and regulations.
+            RULE Never provide legal advice outside your area of expertise.
 
-        KNOWLEDGE https://company.com/company-policies.pdf
-    `,
-}) => {
+            KNOWLEDGE https://company.com/company-policies.pdf
+        `,
+    );
+
     const you = useYou();
-    const [bookSource, setBookSource] = useState<string_book>(initialBook as string_book);
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const bookParam = searchParams.get('book');
-
-        if (bookParam) {
-            setBookSource(bookParam as string_book);
-        }
-
-        /*
-        if (book) {
-            fetch(book)
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then((bookContent) => {
-                    setBookSource(bookContent as string_book);
-                })
-                .catch((error) => {
-                    console.error('Failed to fetch book:', error);
-                    // Note: We could show an error to the user here
-                });
-        }
-        */
-    }, [searchParams]);
 
     return (
         <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
@@ -147,10 +123,10 @@ export const HeroSection: FC<HeroSectionProps> = ({
                         transition={{ duration: 0.8, delay: 0.2 }}
                         className="relative"
                     >
-                        <BookEditor value={bookSource} onChange={setBookSource} />
+                        <BookEditor value={bookSource || undefined} onChange={setBookSource} />
                     </motion.div>
                 </div>
             </div>
         </section>
     );
-};
+}

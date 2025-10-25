@@ -2,8 +2,8 @@
 
 import { BookEditor, Chat } from '@promptbook/components';
 import { motion } from 'framer-motion';
-import { useBookPersistence } from '../hooks/use-book-persistence';
 import { useSelectedAgent } from '../hooks/use-selected-agent';
+import { useBookPersistence } from '../hooks/useBookPersistence';
 import { BOOK_AGENTS } from '../lib/book-registry';
 import { AvatarChipManager } from './avatar-chip-manager';
 

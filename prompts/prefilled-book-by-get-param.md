@@ -4,7 +4,7 @@ The `BookEditor` in the `/components/hero-section.tsx` should be able to be pref
 
 ---
 
-[ ]
+[.] _<- Note: Implementing manually_
 
 When the `book` get param is present in the URL, the `BookEditor` should load the book from that GET param (already implemented) and also propagate the changes into the GET param so that the URL is always in sync with the current book being edited.
 
