@@ -122,7 +122,11 @@ export function HeroSection(props: HeroSectionProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        <BookEditor value={bookSource || undefined} onChange={setBookSource} />
+                        <BookEditor
+                            value={bookSource || undefined}
+                            onChange={setBookSource}
+                            isDownloadButtonShown={false}
+                        />
                     </motion.div>
                 </div>
             </div>
