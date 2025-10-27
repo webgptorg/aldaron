@@ -176,115 +176,122 @@ export function HeroSection(props: HeroSectionProps) {
                     </p>
                 </div>
                 <div className="mt-12 grid grid-cols-2 h-[600px] gap-8">
-                    <BookEditor
-                        className="lg:col-span-1"
-                        value={bookSource || undefined}
-                        onChange={setBookSource}
-                        isDownloadButtonShown={false}
-                        isAboutButtonShown={false}
-                    />
-                    <LlmChat
-                        className="lg:col-span-1"
-                        title={'Chat with Pavol Hejný'}
-                        persistenceKey="chat-with-pavol-hejny"
-                        isSaveButtonEnabled={false}
-                        userParticipantName="USER"
-                        llmParticipantName="AVATAR"
-                        initialMessages={[
-                            {
-                                from: 'USER',
-                                content: spaceTrim(`
-                                    Can you help me?
-                                `),
-                                isComplete: true,
-                            },
-                            {
-                                from: 'AVATAR',
-                                content: spaceTrim(`
-                                    I'm the company's lawyer from ${parsedAgent.agentName}.
-                                    I provide legal advice and support to the company and its employees, focusing on compliance with laws and company policies. How can I help?
+                    {/* Book editor column: ensure full-height and prevent overflow */}
+                    <div className="lg:col-span-1 h-full min-h-0 flex flex-col overflow-hidden">
+                        <BookEditor
+                            className="h-full min-h-0"
+                            value={bookSource || undefined}
+                            onChange={setBookSource}
+                            isDownloadButtonShown={false}
+                            isAboutButtonShown={false}
+                        />
+                    </div>
 
-                                    [Tell me more](?message=Tell me more)
-                                `),
-                                isComplete: true,
-                            },
-                        ]}
-                        participants={[
-                            {
-                                name: 'AVATAR',
-                                fullname: 'Pavol Hejný',
-                                avatarSrc:
-                                    'https://www.pavolhejny.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpavol-hejny-transparent.56d4a7a5.png&w=1080&q=100',
-                                color: '#79EAFD',
-                                isMe: false,
-                                agentSource: bookSource || undefined,
-                            },
-                            // <- TODO: !!! Create chat participant from `bookSource`
-                            {
-                                name: 'USER',
-                                fullname: 'User',
-                                color: '#115EB6',
-                                isMe: true,
-                            },
-                        ]}
-                        // <- TODO: !!! Auto create chat participant from `llmTools` when `llmParticipantName` not defined
-                        {...{ llmTools, sendMessage }}
-                        onChange={(chatMessages) => {
-                            setInitialWelcomeVisible(chatMessages.length === 0);
-                        }}
-                    >
-                        {false && isInitialWelcomeVisible && (
-                            <div className="h-full w-full">
-                                <div className="persona-container bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[var(--accent)] max-w-2xl w-full mx-4 sm:mx-auto pointer-events-auto flex flex-col items-center">
-                                    <img
-                                        src="https://www.pavolhejny.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpavol-hejny-transparent.56d4a7a5.png&w=1080&q=100"
-                                        alt="Pavol Hejný"
-                                        className="persona-photo"
-                                    />
-                                    <h1 className="persona-title text-3xl md:text-4xl font-bold text-white mb-3 text-center">
-                                        Hi! I'm Pavol
-                                    </h1>
-                                    <p className="persona-subtitle text-gray-300 text-base md:text-lg leading-relaxed text-center max-w-xl">
-                                        Welcome to my AI-powered workspace. I'm here to help transform your business
-                                        with practical AI integration. Ask me about workshops, pricing, implementation
-                                        strategies, or anything else you're curious about.
-                                    </p>
-                                    <div className="persona-buttons">
-                                        <button
-                                            type="button"
-                                            className="persona-button"
-                                            onClick={() => void sendMessage('Tell me about your workshops!')}
-                                        >
-                                            Workshop Design
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="persona-button"
-                                            onClick={() => void sendMessage('Tell me about your AI strategy!')}
-                                        >
-                                            AI Strategy
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="persona-button"
-                                            onClick={() => void sendMessage('Tell me about your team training!')}
-                                        >
-                                            Team Training
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="persona-button"
-                                            onClick={() =>
-                                                void sendMessage('Tell me about your implementation process!')
-                                            }
-                                        >
-                                            Implementation
-                                        </button>
+                    {/* Chat column: ensure full-height and allow internal scrolling */}
+                    <div className="lg:col-span-1 h-full min-h-0 flex flex-col overflow-hidden">
+                        <LlmChat
+                            className="h-full min-h-0"
+                            title={'Chat with Pavol Hejný'}
+                            persistenceKey="chat-with-pavol-hejny"
+                            isSaveButtonEnabled={false}
+                            userParticipantName="USER"
+                            llmParticipantName="AVATAR"
+                            initialMessages={[
+                                {
+                                    from: 'USER',
+                                    content: spaceTrim(`
+                                        Can you help me?
+                                    `),
+                                    isComplete: true,
+                                },
+                                {
+                                    from: 'AVATAR',
+                                    content: spaceTrim(`
+                                        I'm the company's lawyer from ${parsedAgent.agentName}.
+                                        I provide legal advice and support to the company and its employees, focusing on compliance with laws and company policies. How can I help?
+
+                                        [Tell me more](?message=Tell me more)
+                                    `),
+                                    isComplete: true,
+                                },
+                            ]}
+                            participants={[
+                                {
+                                    name: 'AVATAR',
+                                    fullname: 'Pavol Hejný',
+                                    avatarSrc:
+                                        'https://www.pavolhejny.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpavol-hejny-transparent.56d4a7a5.png&w=1080&q=100',
+                                    color: '#79EAFD',
+                                    isMe: false,
+                                    agentSource: bookSource || undefined,
+                                },
+                                // <- TODO: !!! Create chat participant from `bookSource`
+                                {
+                                    name: 'USER',
+                                    fullname: 'User',
+                                    color: '#115EB6',
+                                    isMe: true,
+                                },
+                            ]}
+                            // <- TODO: !!! Auto create chat participant from `llmTools` when `llmParticipantName` not defined
+                            {...{ llmTools, sendMessage }}
+                            onChange={(chatMessages) => {
+                                setInitialWelcomeVisible(chatMessages.length === 0);
+                            }}
+                        >
+                            {false && isInitialWelcomeVisible && (
+                                <div className="h-full w-full">
+                                    <div className="persona-container bg-black/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-[var(--accent)] max-w-2xl w-full mx-4 sm:mx-auto pointer-events-auto flex flex-col items-center">
+                                        <img
+                                            src="https://www.pavolhejny.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpavol-hejny-transparent.56d4a7a5.png&w=1080&q=100"
+                                            alt="Pavol Hejný"
+                                            className="persona-photo"
+                                        />
+                                        <h1 className="persona-title text-3xl md:text-4xl font-bold text-white mb-3 text-center">
+                                            Hi! I'm Pavol
+                                        </h1>
+                                        <p className="persona-subtitle text-gray-300 text-base md:text-lg leading-relaxed text-center max-w-xl">
+                                            Welcome to my AI-powered workspace. I'm here to help transform your business
+                                            with practical AI integration. Ask me about workshops, pricing,
+                                            implementation strategies, or anything else you're curious about.
+                                        </p>
+                                        <div className="persona-buttons">
+                                            <button
+                                                type="button"
+                                                className="persona-button"
+                                                onClick={() => void sendMessage('Tell me about your workshops!')}
+                                            >
+                                                Workshop Design
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="persona-button"
+                                                onClick={() => void sendMessage('Tell me about your AI strategy!')}
+                                            >
+                                                AI Strategy
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="persona-button"
+                                                onClick={() => void sendMessage('Tell me about your team training!')}
+                                            >
+                                                Team Training
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="persona-button"
+                                                onClick={() =>
+                                                    void sendMessage('Tell me about your implementation process!')
+                                                }
+                                            >
+                                                Implementation
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-                    </LlmChat>
+                            )}
+                        </LlmChat>
+                    </div>
                 </div>
             </section>
         </>
