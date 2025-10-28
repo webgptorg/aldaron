@@ -13,11 +13,15 @@ interface PageProps {
 }
 
 async function getShortcodeLink(shortcode: string) {
-    const { data, error } = await supabase
+    const result = await supabase
         .from('ShortcodeLink')
         .select('id, url, landingPage')
         .eq('shortcode', shortcode)
         .single();
+
+    console.log('!!! result', result);
+
+    const { data, error } = result;
 
     if (error || !data) {
         return null;
