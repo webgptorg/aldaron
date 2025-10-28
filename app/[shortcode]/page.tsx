@@ -1,6 +1,7 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { supabase } from '@/lib/supabase';
+import { MarkdownContent } from '@promptbook/components';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
@@ -178,7 +179,7 @@ export default async function Page({ params }: PageProps) {
             if (isBarePage) {
                 return (
                     <div className="flex items-center justify-center min-h-screen">
-                        <div dangerouslySetInnerHTML={{ __html: landingContent }} />
+                        <MarkdownContent content={landingContent} />
                         <Script id="tracking-script">{trackingScript}</Script>
                     </div>
                 );
@@ -188,7 +189,7 @@ export default async function Page({ params }: PageProps) {
                 <div className="min-h-screen">
                     <Header />
                     <main className="container mx-auto px-6 py-8">
-                        <div dangerouslySetInnerHTML={{ __html: landingContent }} />
+                        <MarkdownContent content={landingContent} />
                         <Footer />
                     </main>
                     <Script id="tracking-script">{trackingScript}</Script>
