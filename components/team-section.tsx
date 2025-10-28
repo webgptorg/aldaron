@@ -18,7 +18,7 @@ export const TeamSection = () => {
                             className="object-cover mx-auto"
                             src={jiriJahn}
                             alt="Jiri Jahn"
-                            width={300}
+
                             height={300}
                         />
                         <div className="text-left">
@@ -42,9 +42,9 @@ export const TeamSection = () => {
                         </div>
                         <Image
                             className="object-cover mx-auto"
-                            src=
+                            src={pavolHejny}
                             alt="Pavol Hejný"
-                            width={300}
+       
                             height={300}
                         />
                     </div>
