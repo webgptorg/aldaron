@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import jiriJahn from '../public/people/jiri-jahn-transparent.png';
+import pavolHejny from '../public/people/pavol-hejny-transparent.png';
 
 export const TeamSection = () => {
     return (
@@ -14,7 +16,7 @@ export const TeamSection = () => {
                     <div className="grid grid-cols-2 gap-x-4 items-center">
                         <Image
                             className="object-cover mx-auto"
-                            src="https://github.com/webgptorg/promptbook/blob/main/design/people/jiri-jahn-transparent.png?raw=true"
+                            src={jiriJahn}
                             alt="Jiri Jahn"
                             width={300}
                             height={300}
@@ -40,7 +42,7 @@ export const TeamSection = () => {
                         </div>
                         <Image
                             className="object-cover mx-auto"
-                            src="https://github.com/webgptorg/promptbook/blob/main/design/people/pavol-hejny-transparent.png?raw=true"
+                            src=
                             alt="Pavol Hejný"
                             width={300}
                             height={300}
