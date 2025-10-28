@@ -2,21 +2,16 @@
 
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
-import { shouldShowWaitlist } from '@/lib/waitlist';
+import { useGetParam } from '@/hooks/useGetParam';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 
 export function Header() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
-
-    // Determine landing behavior based on URL parameters
-    const landingBehavior = getLandingBehavior(searchParams);
+    const [modal, setModal] = useGetParam('modal');
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);
@@ -25,22 +20,6 @@ export function Header() {
         }
     };
 
-    const handleGetStartedClick = () => {
-        // Check if waitlist should be shown
-        if (shouldShowWaitlist(searchParams)) {
-            setShowWaitlistPopup(true);
-            return;
-        }
-
-        if (landingBehavior === 'direct') {
-            // Direct navigation to promptbook.studio/from-social-links
-            const redirectUrl = getRedirectUrl('direct');
-            window.location.href = redirectUrl;
-        } else {
-            // Show popup for platform selection
-            router.push('/get-started');
-        }
-    };
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
             <div className="container mx-auto px-4">
@@ -82,18 +61,17 @@ export function Header() {
                     </nav>
 
                     {/* CTA Button */}
-                    <Button
-                        onClick={handleGetStartedClick}
-                        className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90"
-                    >
-                        Get Started
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
+                    <Link href="?modal=get-started">
+                        <Button className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90">
+                            Get Started
+                            <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
             {/* Waitlist Popup */}
-            <WaitlistPopup placeName="header" isOpen={showWaitlistPopup} onClose={() => setShowWaitlistPopup(false)} />
+            <WaitlistPopup placeName="header" isOpen={modal === 'get-started'} onClose={() => setModal(null)} />
         </header>
     );
 }

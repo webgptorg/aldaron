@@ -1,13 +1,9 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { WaitlistPopup } from '@/components/waitlist-popup';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
-import { shouldShowWaitlist } from '@/lib/waitlist';
 import { motion } from 'framer-motion';
 import { Check, Crown, MessageSquare } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import Link from 'next/link';
 
 export interface PricingSectionProps {
     hideHeader?: boolean;
@@ -64,34 +60,6 @@ const plans = [
 ];
 
 export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
-
-    // Determine landing behavior based on URL parameters
-    const landingBehavior = getLandingBehavior(searchParams);
-
-    const handleButtonClick = (buttonText: string) => {
-        if (buttonText === 'Contact Sales') {
-            window.location.href = 'mailto:sales@ptbk.io';
-        } else if (buttonText === 'Get Started' || buttonText === 'Start Pro Trial') {
-            // Check if waitlist should be shown
-            if (shouldShowWaitlist(searchParams)) {
-                setShowWaitlistPopup(true);
-                return;
-            }
-
-            if (landingBehavior === 'direct') {
-                // Direct navigation to promptbook.studio/from-social-links
-                const redirectUrl = getRedirectUrl('direct');
-                window.location.href = redirectUrl;
-            } else {
-                // Show popup for platform selection
-                router.push('/get-started');
-            }
-        }
-    };
-
     // Helper function to check if a plan is the current plan
     const isCurrentPlan = (planName: string) => {
         if (!currentPlan) return false;
@@ -200,7 +168,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                     <>
                                         {/* Handle all buttons with consistent behavior */}
                                         {plan.buttonText === 'Start Pro Trial' && isFrame ? (
-                                            <a
+                                            <Link
                                                 target="_top"
                                                 href="https://promptbook.studio/purchase?plan=PRO"
                                                 className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
@@ -210,7 +178,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                                                 }`}
                                             >
                                                 {plan.buttonText}
-                                            </a>
+                                            </Link>
                                         ) : (
                                             <button
                                                 onClick={() => handleButtonClick(plan.buttonText)}
@@ -257,12 +225,7 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                 </div>
             </section>
 
-            {/* Waitlist Popup */}
-            <WaitlistPopup
-                placeName="pricing-section"
-                isOpen={showWaitlistPopup}
-                onClose={() => setShowWaitlistPopup(false)}
-            />
+
         </>
     );
 }

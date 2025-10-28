@@ -1,8 +1,8 @@
 'use client';
 
 import { AvatarChipFromSource } from '@promptbook/components';
+import { useBookPersistence } from '../hooks/useBookPersistence';
 import type { BookAgent } from '../lib/book-registry';
-import { useBookPersistence } from '../hooks/use-book-persistence';
 
 interface AvatarChipManagerProps {
     agent: BookAgent;
@@ -13,7 +13,7 @@ interface AvatarChipManagerProps {
 export function AvatarChipManager({ agent, isSelected, onSelect }: AvatarChipManagerProps) {
     const { book, setBook, isLoaded } = useBookPersistence({
         storageKey: `avatar_book_${agent.id}`,
-        defaultBook: agent.book
+        defaultBook: agent.book,
     });
 
     // Don't render until the book is loaded from localStorage
@@ -28,18 +28,12 @@ export function AvatarChipManager({ agent, isSelected, onSelect }: AvatarChipMan
     return (
         <div
             className={`cursor-pointer transition-all duration-200 ${
-                isSelected
-                    ? 'ring-2 ring-blue-500 ring-offset-2 scale-105'
-                    : 'hover:scale-102 hover:shadow-md'
+                isSelected ? 'ring-2 ring-blue-500 ring-offset-2 scale-105' : 'hover:scale-102 hover:shadow-md'
             }`}
             onClick={onSelect}
             title={`${agent.name} - ${agent.description}`}
         >
-            <AvatarChipFromSource
-                source={book}
-                isTemplate={false}
-                isSelected={isSelected}
-            />
+            <AvatarChipFromSource source={book} isTemplate={false} isSelected={isSelected} />
         </div>
     );
 }
