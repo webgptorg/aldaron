@@ -36,7 +36,6 @@ function ForIndustryPageContent() {
                     benefits={industryBenefits}
                 />
                 <IntegrationsSection />
-                {/* <AvatarBookSection /> */}
                 <TestimonialsSection />
                 <PricingSection plans={industryPricing} />
                 <Footer />

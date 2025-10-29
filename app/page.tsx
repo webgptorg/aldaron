@@ -26,7 +26,6 @@ function HomePageContent() {
                 </Suspense>
                 <BenefitsSection />
                 <IntegrationsSection />
-                {/* <AvatarBookSection /> */}
                 <TestimonialsSection />
                 <TeamSection />
                 <PricingSection plans={defaultPricing} />
