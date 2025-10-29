@@ -194,6 +194,7 @@ export function HeroSection(props: HeroSectionProps) {
                             title={'Chat with Pavol Hejný'}
                             persistenceKey="chat-with-pavol-hejny"
                             isSaveButtonEnabled={false}
+                            isFocusedOnLoad={false}
                             userParticipantName="USER"
                             llmParticipantName="AVATAR"
                             initialMessages={[
