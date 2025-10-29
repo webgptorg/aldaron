@@ -75,6 +75,13 @@ Shortened links with Landing pages should have nice Open Graph metadata for bett
     -   Use first image as `og:image` (if any), otherwise don't set `og:image`
 -   Shortener logic is in `/src/app/[shortcode]/page.tsx` using Supabase table `ShortcodeLink`
 
+
+---
+
+[ ] 
+
+Make design of `/shortener` component `UrlShortener`
+
 ---
 
 [ ]
