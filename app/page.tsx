@@ -6,7 +6,6 @@ import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
-import { UrlShortener } from '@/components/url-shortener';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -24,7 +23,7 @@ export function generateMetadata(): Metadata {
     };
 }
 
-export default function Home({ searchParams }: Props) {
+export default function HomePage({ searchParams }: Props) {
     console.log('Home page rendered');
 
     return (
@@ -39,7 +38,6 @@ export default function Home({ searchParams }: Props) {
             <TestimonialsSection />
             <TeamSection />
             <PricingSection />
-            <UrlShortener />
             <Footer />
         </main>
     );
