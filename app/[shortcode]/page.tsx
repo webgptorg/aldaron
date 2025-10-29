@@ -187,9 +187,11 @@ export default async function Page({ params }: PageProps) {
 
             return (
                 <div className="min-h-screen">
-                    <Header />
-                    <main className="container mx-auto px-6 py-8">
-                        <MarkdownContent content={landingContent} />
+                    <main className="min-h-screen">
+                        <Header />
+                        <div className="container min-h-screen flex items-center justify-center px-4 mx-auto">
+                            <MarkdownContent content={landingContent} />
+                        </div>
                         <Footer />
                     </main>
                     <Script id="tracking-script">{trackingScript}</Script>
@@ -212,9 +214,9 @@ export default async function Page({ params }: PageProps) {
             } finally {
                 return (
                     <div className="min-h-screen">
-                        <Header />
-                        <main className="container mx-auto px-6 py-8">
-                            <div className="text-center">
+                        <main className="min-h-screen">
+                            <Header />
+                            <div className="container min-h-screen flex items-center justify-center px-4 mx-auto">
                                 Redirecting to: <Link href={selectedUrl}>{selectedUrl}</Link>
                             </div>
                             <Footer />
