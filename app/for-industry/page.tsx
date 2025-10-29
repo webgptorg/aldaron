@@ -8,27 +8,19 @@ import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
+import forIndustryBook from '@/config/for-industry/for-industry.book';
 import { industryPricing } from '@/config/for-industry/industryPricing';
-import type { string_book } from '@promptbook/types';
 import { Suspense } from 'react';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
 
 function ForIndustryPageContent() {
-    // Note: The book is not loaded in this client component.
-    // If it's needed, it should be passed as a prop from a server component.
-    const engineeringBook = `
-      # Engineering Manual
-
-      ...
-    ` as string_book;
-
     return (
         <>
             <BusinessGetStartedModal placeName="ForIndustryPage" />
             <main className="min-h-screen">
                 <Header />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <HeroSection initialBook={engineeringBook} />
+                    <HeroSection initialBook={forIndustryBook} />
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered Solutions for the Engineering Industry"
