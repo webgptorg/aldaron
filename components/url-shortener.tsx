@@ -18,7 +18,7 @@ type UrlShortenerProps = {
 /**
  * Renders a URL Shortener app
  */
-export function UrlShortener(props: UrlShortenerProps): JSX.Element {
+export function UrlShortener(props: UrlShortenerProps) {
     const { className } = props;
 
     const generateShortCode = () => {
