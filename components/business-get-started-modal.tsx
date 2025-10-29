@@ -115,7 +115,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="Enter your email address"
+                                        placeholder="john@awesome-company.com"
                                         className="w-full"
                                         disabled={isSubmitting}
                                     />
@@ -125,7 +125,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                                         type="tel"
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="Enter your phone number"
+                                        placeholder="314-159-265"
                                         className="w-full"
                                         disabled={isSubmitting}
                                     />

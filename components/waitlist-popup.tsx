@@ -95,7 +95,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your email address"
+                                    placeholder="john@awesome-company.com"
                                     className="w-full"
                                     disabled={isSubmitting}
                                     required
