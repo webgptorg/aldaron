@@ -8,27 +8,24 @@ export const TeamSection = () => {
         <section className="py-12 bg-white sm:py-16 lg:py-20">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl xl:text-5xl font-pj">
-                        Meet the team behind Promptbook
-                    </h2>
+                    <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl xl:text-5xl font-pj">Who we are?</h2>
                 </div>
 
                 <div className="grid grid-cols-1 mt-12 sm:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-12 lg:mt-16 items-center">
                     <div className="grid grid-cols-2 gap-x-4 items-center">
-                        <Image
-                            className="object-cover mx-auto"
-                            src={jiriJahn}
-                            alt="Jiri Jahn"
-
-                            height={300}
-                        />
+                        <Image className="object-cover mx-auto" src={jiriJahn} alt="Jiri Jahn" height={300} />
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">CEO | Jiří Jahn</p>
                             <p className="mt-4 text-base text-gray-500">
-                                Ph.D. in Mathematics, former researcher at <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
+                                Ph.D. in Mathematics, former researcher at{' '}
+                                <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
                             </p>
-                            <p className="mt-4 text-base text-gray-500"><Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link></p>
-                            <p className="mt-1 text-base text-gray-500"><Link href="tel:+420777090067">+420 777 090 067</Link></p>
+                            <p className="mt-4 text-base text-gray-500">
+                                <Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link>
+                            </p>
+                            <p className="mt-1 text-base text-gray-500">
+                                <Link href="tel:+420777090067">+420 777 090 067</Link>
+                            </p>
                         </div>
                     </div>
 
@@ -36,18 +33,17 @@ export const TeamSection = () => {
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">Pavol Hejný | CTO</p>
                             <p className="mt-4 text-base text-gray-500">
-                                Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE. Developer with 15+ years of experience.
+                                Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE.
+                                Developer with 15+ years of experience.
                             </p>
-                            <p className="mt-4 text-base text-gray-500"><Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link></p>
-                            <p className="mt-1 text-base text-gray-500"><Link href="tel:+420777759767">+420 777 759 767</Link></p>
+                            <p className="mt-4 text-base text-gray-500">
+                                <Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link>
+                            </p>
+                            <p className="mt-1 text-base text-gray-500">
+                                <Link href="tel:+420777759767">+420 777 759 767</Link>
+                            </p>
                         </div>
-                        <Image
-                            className="object-cover mx-auto"
-                            src={pavolHejny}
-                            alt="Pavol Hejný"
-
-                            height={300}
-                        />
+                        <Image className="object-cover mx-auto" src={pavolHejny} alt="Pavol Hejný" height={300} />
                     </div>
                 </div>
             </div>
