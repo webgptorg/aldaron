@@ -12,14 +12,28 @@ import { spaceTrim } from '@promptbook/utils';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { JSX, useMemo, useState } from 'react';
 
 type HeroSectionProps = {
     initialBook?: string_book;
+
+    /**
+     * Function to customize the heading text.
+     */
+    getHeadingText?: (params: { you: string | null }) => JSX.Element;
 };
 
 export function HeroSection(props: HeroSectionProps) {
-    const { initialBook } = props;
+    const {
+        initialBook,
+        getHeadingText = ({ you }) => (
+            <>
+                Create AI that{' '}
+                <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">Truly&nbsp;Understand</span>{' '}
+                {you || <>Your Company</>}
+            </>
+        ),
+    } = props;
 
     const you = useYou();
 
@@ -80,11 +94,7 @@ export function HeroSection(props: HeroSectionProps) {
                                     AI Transformation for Your Business
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    Create AI that{' '}
-                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                        Truly&nbsp;Understand
-                                    </span>{' '}
-                                    {you || <>Your Company</>}
+                                    {getHeadingText({ you })}
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
                                     With Promptbook, you can capture your company's context, rules, and knowledge into

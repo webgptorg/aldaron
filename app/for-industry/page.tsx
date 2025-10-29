@@ -20,7 +20,18 @@ function ForIndustryPageContent() {
             <main className="min-h-screen">
                 <Header />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <HeroSection initialBook={forIndustryBook} />
+                    <HeroSection
+                        initialBook={forIndustryBook}
+                        getHeadingText={({ you }) => (
+                            <>
+                                Create AI that{' '}
+                                <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                                    Truly&nbsp;Understand
+                                </span>{' '}
+                                {you || <>The Industry</>}
+                            </>
+                        )}
+                    />
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered Solutions for the Engineering Industry"

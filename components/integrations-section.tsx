@@ -3,6 +3,12 @@
 import { motion } from 'framer-motion';
 import { Bot, Code, Mail, MessageSquare } from 'lucide-react';
 
+
+type Integration = {
+  
+};
+
+
 const integrations = [
     {
         icon: MessageSquare,
