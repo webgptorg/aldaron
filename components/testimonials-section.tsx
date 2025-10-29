@@ -30,7 +30,7 @@ export function TestimonialsSection(props: TestimonialsSectionProps) {
                     <Card key={testimonial.name}>
                         <CardContent className="pt-6">
                             <div className="flex items-start">
-                                <Avatar>
+                                <Avatar className="h-16 w-16">
                                     <AvatarImage src={testimonial.avatar.src} alt={testimonial.name} />
                                     <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
