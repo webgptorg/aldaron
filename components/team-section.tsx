@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import jiriJahn from '../public/people/jiri-jahn-transparent.png';
 import pavolHejny from '../public/people/pavol-hejny-transparent.png';
 
@@ -24,10 +25,10 @@ export const TeamSection = () => {
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">CEO | Jiří Jahn</p>
                             <p className="mt-4 text-base text-gray-500">
-                                Ph.D. in Mathematics, former researcher at IT4I National Supercomputing Centre.
+                                Ph.D. in Mathematics, former researcher at <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
                             </p>
-                            <p className="mt-4 text-base text-gray-500">jiri@ptbk.io</p>
-                            <p className="mt-1 text-base text-gray-500">+420 777 090 067</p>
+                            <p className="mt-4 text-base text-gray-500"><Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link></p>
+                            <p className="mt-1 text-base text-gray-500"><Link href="tel:+420777090067">+420 777 090 067</Link></p>
                         </div>
                     </div>
 
@@ -35,16 +36,16 @@ export const TeamSection = () => {
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">Pavol Hejný | CTO</p>
                             <p className="mt-4 text-base text-gray-500">
-                                Top open-source contributor in CZE. Developer with 15+ years of experience.
+                                Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE. Developer with 15+ years of experience.
                             </p>
-                            <p className="mt-4 text-base text-gray-500">pavol@ptbk.io</p>
-                            <p className="mt-1 text-base text-gray-500">+420 777 759 767</p>
+                            <p className="mt-4 text-base text-gray-500"><Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link></p>
+                            <p className="mt-1 text-base text-gray-500"><Link href="tel:+420777759767">+420 777 759 767</Link></p>
                         </div>
                         <Image
                             className="object-cover mx-auto"
                             src={pavolHejny}
                             alt="Pavol Hejný"
-       
+
                             height={300}
                         />
                     </div>
