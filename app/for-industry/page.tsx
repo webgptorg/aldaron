@@ -22,7 +22,6 @@ function ForIndustryPageContent() {
             <BusinessGetStartedModal placeName="ForIndustryPage" />
             <main className="min-h-screen">
                 <Header />
-
                 <HeroSection
                     initialBook={forIndustryBook}
                     getHeroText={({ you }) => `AI Transformation for ${you || 'the industry'}`}

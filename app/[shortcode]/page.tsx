@@ -188,7 +188,7 @@ export default async function Page({ params }: PageProps) {
             return (
                 <div className="min-h-screen">
                     <main className="min-h-screen">
-                        <Header />
+                        <Header isBare />
                         <div className="container min-h-screen flex items-center justify-center px-4 mx-auto">
                             <MarkdownContent content={landingContent} />
                         </div>
@@ -215,7 +215,7 @@ export default async function Page({ params }: PageProps) {
                 return (
                     <div className="min-h-screen">
                         <main className="min-h-screen">
-                            <Header />
+                            <Header isBare />
                             <div className="container min-h-screen flex items-center justify-center px-4 mx-auto">
                                 Redirecting to: <Link href={selectedUrl}>{selectedUrl}</Link>
                             </div>

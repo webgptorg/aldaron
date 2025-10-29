@@ -6,7 +6,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export function Header() {
+type HeaderProps = {
+    /**
+     * Is bare header without navigation and CTA button
+     */
+    isBare?: boolean;
+};
+
+export function Header(props: HeaderProps) {
+    const { isBare = false } = props;
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -36,34 +44,38 @@ export function Header() {
                     </Link>
 
                     {/* Navigation */}
-                    <nav className="hidden md:flex items-center gap-8">
-                        <button
-                            onClick={() => scrollToSection('benefits')}
-                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
-                        >
-                            Why Our AI?
-                        </button>
-                        <button
-                            onClick={() => scrollToSection('integrations')}
-                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
-                        >
-                            Integration
-                        </button>
-                        <button
-                            onClick={() => scrollToSection('pricing')}
-                            className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
-                        >
-                            Pricing
-                        </button>
-                    </nav>
+                    {!isBare && (
+                        <nav className="hidden md:flex items-center gap-8">
+                            <button
+                                onClick={() => scrollToSection('benefits')}
+                                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                            >
+                                Why Our AI?
+                            </button>
+                            <button
+                                onClick={() => scrollToSection('integrations')}
+                                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                            >
+                                Integration
+                            </button>
+                            <button
+                                onClick={() => scrollToSection('pricing')}
+                                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                            >
+                                Pricing
+                            </button>
+                        </nav>
+                    )}
 
                     {/* CTA Button */}
-                    <Link href="?modal=get-started">
-                        <Button className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90">
-                            Get Started
-                            <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                    </Link>
+                    {!isBare && (
+                        <Link href="?modal=get-started">
+                            <Button className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90">
+                                Get Started
+                                <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </div>
         </header>

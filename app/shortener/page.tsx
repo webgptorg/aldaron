@@ -1,5 +1,3 @@
-import { Footer } from '@/components/footer';
-import { Header } from '@/components/header';
 import { UrlShortener } from '@/components/url-shortener';
 import { Metadata } from 'next';
 
@@ -14,13 +12,7 @@ export function generateMetadata(): Metadata {
 }
 
 export default function ShortenerPage() {
-    return (
-        <main className="min-h-screen">
-            <Header />
-            <UrlShortener />
-            <Footer />
-        </main>
-    );
+    return <UrlShortener />;
 }
 
 /**
