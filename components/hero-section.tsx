@@ -175,9 +175,9 @@ export function HeroSection(props: HeroSectionProps) {
                         Try chatting with {parsedAgent.agentName} yourself:
                     </p>
                 </div>
-                <div className="mt-12 grid grid-cols-2 h-[600px] gap-8">
+                <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Book editor column: ensure full-height and prevent overflow */}
-                    <div className="lg:col-span-1 h-full min-h-0 flex flex-col overflow-hidden">
+                    <div className="lg:col-span-1 h-[400px] lg:h-[600px] min-h-0 flex flex-col overflow-hidden">
                         <BookEditor
                             className="h-full min-h-0"
                             value={bookSource || undefined}
@@ -188,7 +188,7 @@ export function HeroSection(props: HeroSectionProps) {
                     </div>
 
                     {/* Chat column: ensure full-height and allow internal scrolling */}
-                    <div className="lg:col-span-1 h-full min-h-0 flex flex-col overflow-hidden">
+                    <div className="lg:col-span-1 h-[600px] min-h-0 flex flex-col overflow-hidden">
                         <LlmChat
                             className="h-full min-h-0"
                             title={'Chat with Pavol Hejný'}
