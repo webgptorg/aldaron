@@ -8,6 +8,7 @@ import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
+import { industryPricing } from '@/config/pricing';
 import type { string_book } from '@promptbook/types';
 import { Suspense } from 'react';
 
@@ -61,7 +62,7 @@ function ForIndustryPageContent() {
                 <IntegrationsSection />
                 {/* <AvatarBookSection /> */}
                 <TestimonialsSection />
-                <PricingSection />
+                <PricingSection plans={industryPricing} />
                 <Footer />
             </main>
         </>

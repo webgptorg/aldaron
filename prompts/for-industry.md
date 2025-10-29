@@ -27,7 +27,7 @@ Případy využití:
 
 ---
 
-[ ]
+[x]
 
 `PricingSection` should have different pricing for `/` and `/for-industry` use case.
 

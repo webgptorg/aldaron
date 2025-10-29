@@ -5,61 +5,25 @@ import { motion } from 'framer-motion';
 import { Check, Crown, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
+export interface PricingPlan {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: string[];
+    buttonText: string;
+    popular: boolean;
+    gradient: string;
+}
+
 export interface PricingSectionProps {
     hideHeader?: boolean;
     isFrame?: boolean;
-    currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE';
+    currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE' | 'STANDARD' | 'ADVANCED';
+    plans: PricingPlan[];
 }
 
-const plans = [
-    {
-        name: 'Free',
-        price: '$0',
-        period: 'forever',
-        description: 'Perfect for getting started with Promptbook',
-        features: ['Create 1 AI Agent', 'Basic Knowledge and Rules', 'Community support', 'Open source access'],
-        buttonText: 'Get Started',
-        popular: false,
-        gradient: 'from-gray-500 to-gray-600',
-    },
-    {
-        name: 'Pro',
-        price: '$49',
-        period: 'per month',
-        description: 'For businesses building custom AI solutions',
-        features: [
-            'Everything in Free',
-            'Up to 10 AI Agents',
-            'Advanced Knowledge and Rules',
-            'Action Commitments',
-            'Priority support',
-            'Advanced analytics',
-        ],
-        buttonText: 'Start Pro Trial',
-        popular: true,
-        gradient: 'from-purple-500 to-blue-500',
-    },
-    {
-        name: 'Enterprise',
-        price: 'Custom',
-        period: 'contact us',
-        description: 'Custom solutions for large organizations',
-        features: [
-            'Everything in Pro',
-            'Unlimited AI Agents',
-            'Custom integrations',
-            'Dedicated support',
-            'On-premise deployment',
-            'SLA guarantees',
-            'Team management',
-        ],
-        buttonText: 'Contact Sales',
-        popular: false,
-        gradient: 'from-emerald-500 to-cyan-500',
-    },
-];
-
-export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSectionProps = {}) {
+export function PricingSection({ hideHeader, isFrame, currentPlan, plans }: PricingSectionProps) {
     // Helper function to check if a plan is the current plan
     const isCurrentPlan = (planName: string) => {
         if (!currentPlan) return false;
@@ -72,6 +36,11 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
         if (currentPlan) return false;
         // Otherwise, use the original popular flag
         return plan.popular;
+    };
+
+    const handleButtonClick = (buttonText: string) => {
+        // TODO: Implement actual logic for buttons
+        console.log(`${buttonText} clicked`);
     };
 
     return (
@@ -224,8 +193,6 @@ export function PricingSection({ hideHeader, isFrame, currentPlan }: PricingSect
                     )}
                 </div>
             </section>
-
-
         </>
     );
 }
