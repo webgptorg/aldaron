@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import defaultBook from '@/config/_generic/default.book';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import { useYou } from '@/hooks/useYou';
 import { BookEditor, LlmChat, useSendMessageToLlmChat } from '@promptbook/components';
-import { book, createAgentLlmExecutionTools, parseAgentSource } from '@promptbook/core';
+import { createAgentLlmExecutionTools, parseAgentSource } from '@promptbook/core';
 import { RemoteLlmExecutionTools } from '@promptbook/remote-client';
 import type { string_book } from '@promptbook/types';
 import { spaceTrim } from '@promptbook/utils';
@@ -22,19 +23,7 @@ export function HeroSection(props: HeroSectionProps) {
 
     const you = useYou();
 
-    const initialBookDefined =
-        initialBook ||
-        book`
-            Paul Smith & Associés
-
-            PERSONA You are a company lawyer.
-            Your job is to provide legal advice and support to the company and its employees.
-
-            RULE Always ensure compliance with laws and regulations.
-            RULE Never provide legal advice outside your area of expertise.
-
-            KNOWLEDGE https://company.com/company-policies.pdf
-        `;
+    const initialBookDefined = initialBook || defaultBook;
 
     const [bookSource, setBookSource] = useOptionalGetParam<string_book>('book', () => initialBookDefined);
 
