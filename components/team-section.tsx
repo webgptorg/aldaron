@@ -18,7 +18,13 @@ export const TeamSection = () => {
 
                 <div className="mt-12  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-12 lg:mt-16 items-center">
                     <div className="grid grid-cols-2 gap-x-4 items-center">
-                        <Image className="object-cover mx-auto" src={jiriJahn} alt="Jiri Jahn" height={350} />
+                        <Image
+                            className="object-cover mx-auto"
+                            src={jiriJahn}
+                            alt="Jiri Jahn"
+                            height={350}
+                            style={{ transform: 'translateY(80px)' }}
+                        />
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">CEO | Jiří Jahn</p>
                             <p className="mt-4 text-base text-gray-500">
@@ -52,7 +58,13 @@ export const TeamSection = () => {
                                 <Link href="tel:+420777759767">+420 777 759 767</Link>
                             </p>
                         </div>
-                        <Image className="object-cover mx-auto" src={pavolHejny} alt="Pavol Hejný" height={350} />
+                        <Image
+                            className="object-cover mx-auto"
+                            src={pavolHejny}
+                            alt="Pavol Hejný"
+                            height={350}
+                            style={{ transform: 'translateY(80px)' }}
+                        />
                     </div>
                 </div>
             </div>
