@@ -75,7 +75,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
-                        Get a Call from Our Specialist
+                        Ready to Transform Your Business with AI?
                     </DialogTitle>
                 </DialogHeader>
 
@@ -89,26 +89,16 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                     </div>
                 ) : (
                     <div>
-                        <div className="grid grid-cols-2 gap-x-4 items-center mb-6">
-                            <Image className="object-cover mx-auto" src={jiriJahn} alt="Jiri Jahn" height={150} />
-                            <div className="text-left">
-                                <p className="text-xl font-bold text-gray-900 font-pj">Jiří Jahn</p>
-                                <p className="mt-2 text-base text-gray-500">CEO</p>
-                                <p className="mt-4 text-base text-gray-500">
-                                    <Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link>
-                                </p>
-                                <p className="mt-1 text-base text-gray-500">
-                                    <Link href="tel:+420777090067">+420 777 090 067</Link>
-                                </p>
-                            </div>
+                        <div className="flex flex-col items-center text-center mb-6">
+                            <Image className="object-cover mx-auto mb-4" src={jiriJahn} alt="Jiri Jahn" height={150} />
+                            <p className="text-xl font-bold text-gray-900 font-pj">Jiří Jahn</p>
+                            <p className="text-base text-gray-500">CEO of Promptbook</p>
+                            <p className="mt-4 text-gray-600 max-w-sm mx-auto">
+                                Schedule a free, no-obligation call to explore how Promptbook can revolutionize your
+                                company's knowledge and empower your team.
+                            </p>
                         </div>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="text-center space-y-2">
-                                <p className="text-gray-600">
-                                    Leave your email or phone number and our specialist will get back to you.
-                                </p>
-                            </div>
-
                             <div className="space-y-4">
                                 <div>
                                     <Input
@@ -139,7 +129,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                                     className="w-full bg-promptbook-blue-dark hover:bg-promptbook-blue-dark/90"
                                     size="lg"
                                 >
-                                    {isSubmitting ? 'Sending...' : 'Request a Call'}
+                                    {isSubmitting ? 'Sending...' : 'Schedule a Call'}
                                 </Button>
                             </div>
                         </form>
