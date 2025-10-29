@@ -1,12 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { StaticImageData } from 'next/image';
 import { defaultTestimonials } from '../config/_generic/defaultTestimonials';
 
 export type Testimonial = {
     name: string;
     role: string;
     testimonial: string;
-    avatar: string;
+    avatar: StaticImageData;
 };
 
 type TestimonialsSectionProps = {
@@ -19,9 +20,9 @@ export function TestimonialsSection(props: TestimonialsSectionProps) {
     return (
         <section className="container mx-auto py-12 md:py-24">
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">What Our Users Say</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">What People Says</h2>
                 <p className="mt-4 text-lg text-muted-foreground">
-                    Discover how Promptbook is making a difference for professionals and students alike.
+                    Discover how Promptbook is making a difference for professionals worldwide:
                 </p>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -30,7 +31,7 @@ export function TestimonialsSection(props: TestimonialsSectionProps) {
                         <CardContent className="pt-6">
                             <div className="flex items-start">
                                 <Avatar>
-                                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                                    <AvatarImage src={testimonial.avatar.src} alt={testimonial.name} />
                                     <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="ml-4">

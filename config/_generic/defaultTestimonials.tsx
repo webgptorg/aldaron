@@ -1,6 +1,31 @@
 import { Testimonial } from '../../components/testimonials-section';
+import dariaHvizdalova from '../../public/people/daria-hvizdalova.jpeg';
+import tomasStudenik from '../../public/people/tomas-studenik.jpg';
+
+export const DARIA_HVIZDALOVA_TESTIMONIAL: Testimonial = {
+    name: 'Daria Hvizdalova',
+    role: 'Director, AI & Learning, 42 London',
+    testimonial:
+        'By enabling programming in your native language, tools like Promptbook are bridging the gap between technology and people.',
+    // <- TODO: Maybe update the testimonial text according to our new Book 2.0 vision
+    avatar: dariaHvizdalova,
+};
+
+export const TOMAS_STUDENIK_TESTIMONIAL: Testimonial = {
+    name: 'Tomas Studenik',
+    role: 'Product Manager, Innovative Tech',
+    testimonial:
+        'Promptbook transforms programming into a creative process accessible to everyone. As someone passionate about innovation, I see this as a game-changer.',
+    // <- TODO: Maybe update the testimonial text according to our new Book 2.0 vision
+    avatar: tomasStudenik,
+};
+
+// <- TODO: More testimonials needed
 
 export const defaultTestimonials: Array<Testimonial> = [
+    DARIA_HVIZDALOVA_TESTIMONIAL,
+    TOMAS_STUDENIK_TESTIMONIAL,
+    /*
     {
         name: 'John Doe',
         role: 'CEO, Example Inc.',
@@ -43,4 +68,5 @@ export const defaultTestimonials: Array<Testimonial> = [
             'Promptbook has been an invaluable tool for my studies. It helps me organize my research and write better essays.',
         avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d',
     },
+    */
 ];
