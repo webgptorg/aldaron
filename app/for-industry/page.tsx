@@ -9,7 +9,9 @@ import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import forIndustryBook from '@/config/for-industry/for-industry.book';
+import { industryIntegrations } from '@/config/for-industry/industryIntegrations';
 import { industryPricing } from '@/config/for-industry/industryPricing';
+import { industryTestimonials } from '@/config/for-industry/industryTestimonials';
 import { Suspense } from 'react';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
 
@@ -38,8 +40,8 @@ function ForIndustryPageContent() {
                     description="Streamline operations, reduce downtime, and enhance support with AI agents tailored for your industrial needs."
                     benefits={industryBenefits}
                 />
-                <IntegrationsSection />
-                <TestimonialsSection />
+                <IntegrationsSection integrations={industryIntegrations} />
+                <TestimonialsSection testimonials={industryTestimonials} />
                 <PricingSection plans={industryPricing} />
                 <Footer />
             </main>
