@@ -1,3 +1,4 @@
+import { Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import jiriJahn from '../public/people/jiri-jahn-transparent.png';
@@ -24,10 +25,12 @@ export const TeamSection = () => {
                                 Ph.D. in Mathematics, former researcher at{' '}
                                 <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
                             </p>
-                            <p className="mt-4 text-base text-gray-500">
+                            <p className="mt-4 text-base text-gray-500 flex items-center gap-2">
+                                <Mail className="inline-block w-5 h-5" />
                                 <Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link>
                             </p>
-                            <p className="mt-1 text-base text-gray-500">
+                            <p className="mt-1 text-base text-gray-500 flex items-center gap-2">
+                                <Phone className="inline-block w-5 h-5" />
                                 <Link href="tel:+420777090067">+420 777 090 067</Link>
                             </p>
                         </div>
@@ -40,10 +43,12 @@ export const TeamSection = () => {
                                 Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE.
                                 Developer with 15+ years of experience.
                             </p>
-                            <p className="mt-4 text-base text-gray-500">
+                            <p className="mt-4 text-base text-gray-500 flex items-center gap-2">
+                                <Mail className="inline-block w-5 h-5" />
                                 <Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link>
                             </p>
-                            <p className="mt-1 text-base text-gray-500">
+                            <p className="mt-1 text-base text-gray-500 flex items-center gap-2">
+                                <Phone className="inline-block w-5 h-5" />
                                 <Link href="tel:+420777759767">+420 777 759 767</Link>
                             </p>
                         </div>
