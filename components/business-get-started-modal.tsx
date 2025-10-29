@@ -22,6 +22,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
     const { placeName } = props;
     const [modal, setModal] = useGetParam('modal');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -29,8 +30,8 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!email) {
-            setError('Please enter your email address');
+        if (!email && !phone) {
+            setError('Please enter your email or phone number');
             return;
         }
 
@@ -38,10 +39,11 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         setError(null);
 
         try {
-            await subscribeToWaitlist(email, placeName);
+            await subscribeToWaitlist(email, placeName, phone);
 
             setSuccess(true);
             setEmail('');
+            setPhone('');
 
             // Auto-close after success
             setTimeout(() => {
@@ -61,6 +63,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
             // Reset form state when closing
             setTimeout(() => {
                 setEmail('');
+                setPhone('');
                 setError(null);
                 setSuccess(false);
             }, 300);
@@ -102,7 +105,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="text-center space-y-2">
                                 <p className="text-gray-600">
-                                    Leave your email and our specialist will get back to you.
+                                    Leave your email or phone number and our specialist will get back to you.
                                 </p>
                             </div>
 
@@ -115,7 +118,16 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                                         placeholder="Enter your email address"
                                         className="w-full"
                                         disabled={isSubmitting}
-                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="Enter your phone number"
+                                        className="w-full"
+                                        disabled={isSubmitting}
                                     />
                                 </div>
 
@@ -123,7 +135,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
 
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting || !email}
+                                    disabled={isSubmitting || (!email && !phone)}
                                     className="w-full bg-promptbook-blue-dark hover:bg-promptbook-blue-dark/90"
                                     size="lg"
                                 >
