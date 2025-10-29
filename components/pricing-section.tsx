@@ -51,27 +51,17 @@ export function PricingSection({ hideHeader, isFrame, currentPlan, plans }: Pric
             >
                 <div className={isFrame ? 'max-w-6xl mx-auto px-4' : 'container mx-auto px-4'}>
                     {!hideHeader && (
-                        <div className="text-center mb-16">
-                            <motion.h2
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6 }}
-                                className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
-                            >
+                        <div className="text-center">
+                            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                                 Simple, Transparent Pricing
-                            </motion.h2>
-                            <motion.p
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.1 }}
-                                className="text-xl text-gray-600 max-w-3xl mx-auto"
-                            >
+                            </h2>
+                            <p className="mt-4 text-lg text-muted-foreground">
                                 Choose the plan that fits your business needs.
-                            </motion.p>
+                            </p>
                         </div>
                     )}
 
-                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {plans.map((plan, index) => (
                             <motion.div
                                 key={index}

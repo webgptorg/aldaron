@@ -25,6 +25,7 @@ export function TestimonialsSection(props: TestimonialsSectionProps) {
                     Discover how Promptbook is making a difference for professionals worldwide:
                 </p>
             </div>
+
             <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {testimonials.map((testimonial) => (
                     <Card key={testimonial.name}>

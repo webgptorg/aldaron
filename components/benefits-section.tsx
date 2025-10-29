@@ -37,26 +37,12 @@ export const BenefitsSection: FC<BenefitsSectionProps> = ({
     return (
         <section id="benefits" className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
-                    >
-                        {title}
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-xl text-gray-600 max-w-3xl mx-auto"
-                    >
-                        {description}
-                    </motion.p>
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">{description}</p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {benefits.map((benefit, index) => {
                         const Icon = iconMap[benefit.iconName];
 

@@ -22,26 +22,14 @@ export function IntegrationsSection(props: IntegrationsSectionProps) {
     return (
         <section id="integrations" className="py-20 bg-white">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
-                    >
-                        Where to Use Your AI Agent
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-xl text-gray-600 max-w-3xl mx-auto"
-                    >
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Where to Use Your AI Agent</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
                         Deploy your book-defined AI agents across a wide range of applications and scenarios.
-                    </motion.p>
+                    </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     {integrations.map((integration, index) => {
                         const Icon = integration.icon;
 
