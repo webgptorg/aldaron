@@ -1,3 +1,5 @@
+'use client';
+
 import { BenefitsSection } from '@/components/benefits-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
@@ -6,39 +8,40 @@ import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
-import { Metadata } from 'next';
+import { WaitlistPopup } from '@/components/waitlist-popup';
+import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-// Force static generation for static export
-export const dynamic = 'force-static';
+function HomePageContent() {
+    const searchParams = useSearchParams();
 
-type Props = {
-    searchParams: { [key: string]: string | string[] | undefined };
-};
-
-export function generateMetadata(): Metadata {
-    return {
-        title: '✨ AI Transformation for Your Business | Promptbook',
-        description: 'Create AI agents that truly understand your company with Promptbook.',
-    };
-}
-
-export default function HomePage({ searchParams }: Props) {
-    console.log('Home page rendered');
 
     return (
-        <main className="min-h-screen">
-            <Header />
-            <Suspense fallback={<div>Loading...</div>}>
-                <HeroSection />
-            </Suspense>
-            <BenefitsSection />
-            <IntegrationsSection />
-            {/* <AvatarBookSection /> */}
-            <TestimonialsSection />
-            <TeamSection />
-            <PricingSection />
-            <Footer />
-        </main>
+        <>
+            <WaitlistPopup
+                placeName="HomePage"
+            />
+            <main className="min-h-screen">
+                <Header />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <HeroSection />
+                </Suspense>
+                <BenefitsSection />
+                <IntegrationsSection />
+                {/* <AvatarBookSection /> */}
+                <TestimonialsSection />
+                <TeamSection />
+                <PricingSection />
+                <Footer />
+            </main>
+        </>
+    );
+}
+
+export default function HomePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <HomePageContent />
+        </Suspense>
     );
 }

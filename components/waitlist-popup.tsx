@@ -4,6 +4,7 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useGetParam } from '@/hooks/useGetParam';
 import { Mail } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,20 +13,11 @@ interface WaitlistPopupProps {
      * Name of the place where the popup is triggered (to measure effectiveness)
      */
     placeName: string;
-
-    /**
-     * Whether the popup is open or not
-     */
-    isOpen: boolean;
-
-    /**
-     * Callback when the popup is closed
-     */
-    onClose: () => void;
 }
 
 export function WaitlistPopup(props: WaitlistPopupProps) {
-    const { placeName, isOpen, onClose } = props;
+    const { placeName } = props;
+    const [modal, setModal] = useGetParam('modal');
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -50,7 +42,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
 
             // Auto-close after success
             setTimeout(() => {
-                onClose();
+                setModal(null);
                 setSuccess(false);
             }, 2000);
         } catch (err) {
@@ -62,7 +54,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
 
     const handleClose = () => {
         if (!isSubmitting) {
-            onClose();
+            setModal(null);
             // Reset form state when closing
             setTimeout(() => {
                 setEmail('');
@@ -73,7 +65,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={handleClose}>
+        <Dialog open={modal === 'get-started'} onOpenChange={handleClose}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">

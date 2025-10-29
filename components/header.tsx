@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { WaitlistPopup } from '@/components/waitlist-popup';
 import { useGetParam } from '@/hooks/useGetParam';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
@@ -69,9 +68,6 @@ export function Header() {
                     </Link>
                 </div>
             </div>
-
-            {/* Waitlist Popup */}
-            <WaitlistPopup placeName="header" isOpen={modal === 'get-started'} onClose={() => setModal(null)} />
         </header>
     );
 }
