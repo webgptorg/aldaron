@@ -13,11 +13,9 @@ const nextConfig = {
     images: { unoptimized: true },
     devIndicators: false,
     allowedDevOrigins: ['*.macaly.dev', '*.macaly.app', '*.macaly-app.com', '*.macaly-user-data.dev'],
-    /*
     output: 'standalone',
     trailingSlash: true,
     distDir: 'out',
-    */
     webpack: (config, { dev, isServer }) => {
         // Note: [📖] Allow books to be imported:
         config.module.rules.push({
