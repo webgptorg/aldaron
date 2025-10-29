@@ -6,7 +6,7 @@ import { getSupabaseForBrowser } from '@/lib/supabase';
 import { titleToName } from '@promptbook/utils';
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
-import { QrCode } from 'react-qr-code';
+import QrCode from 'react-qr-code';
 
 type UrlShortenerProps = {
     /**
@@ -235,55 +235,68 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
 
     return (
         <div className={classNames('url-shortener', className)}>
-            <div className="container">
+            <div className="container mx-auto my-12 max-w-4xl space-y-12">
                 <Head>
                     <title>URL Shortener</title>
                     <meta name="description" content="Create short URLs and track clicks" />
                 </Head>
 
-                <h1>🔗 URL Shortener</h1>
-                <p>Create a custom text link that wraps any URL or generate a short URL.</p>
+                <div className="space-y-2">
+                    <h1>🔗 URL Shortener</h1>
+                    <p>Create a custom text link that wraps any URL or generate a short URL.</p>
+                </div>
 
-                <div className="form">
-                    <div className="toggle-container">
-                        <label className="toggle-label">
-                            <input
-                                type="checkbox"
-                                checked={isShortener}
-                                onChange={(e) => setIsShortener(e.target.checked)}
-                            />
-                            <span className="toggle-text">Using URL shortener</span>
-                        </label>
+                <div className="space-y-6">
+                    <div className="rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-medium text-gray-900">Using URL shortener</span>
+                            <label className="relative inline-flex cursor-pointer items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={isShortener}
+                                    onChange={(e) => setIsShortener(e.target.checked)}
+                                    className="peer sr-only"
+                                />
+                                <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:content-[''] after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+                            </label>
+                        </div>
                     </div>
 
-                    <div className="field-box">
-                        <label>URLs:</label>
-                        {urls.map((url, index) => (
-                            <div key={index} className="url-input-container">
-                                <input
-                                    type="url"
-                                    placeholder="https://example.com/with/parameters?key=value"
-                                    value={url}
-                                    onChange={(e) => updateUrl(index, e.target.value)}
-                                    required
-                                />
-                                {urls.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeUrlField(index)}
-                                        className="remove-url-btn"
-                                    >
-                                        Remove
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addUrlField} className="add-url-btn">
+                    <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                        <label className="block text-lg font-medium text-gray-900">URLs</label>
+                        <div className="space-y-2">
+                            {urls.map((url, index) => (
+                                <div key={index} className="flex items-center space-x-2">
+                                    <input
+                                        type="url"
+                                        placeholder="https://example.com/with/parameters?key=value"
+                                        value={url}
+                                        onChange={(e) => updateUrl(index, e.target.value)}
+                                        required
+                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                    />
+                                    {urls.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeUrlField(index)}
+                                            className="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addUrlField}
+                            className="rounded-md bg-gray-50 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                        >
                             Add Another URL
                         </button>
                         {urls.length > 1 && (
-                            <div className="info-box">
-                                <p>
+                            <div className="rounded-md bg-blue-50 p-4">
+                                <p className="text-sm text-blue-700">
                                     <strong>Multiple URLs detected:</strong> When someone visits your short link, they
                                     will be randomly redirected to one of these URLs.
                                 </p>
@@ -291,35 +304,37 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                         )}
                     </div>
 
-                    <div className="field-box">
-                        <label htmlFor="display-text">Display Text (optional):</label>
+                    <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                        <label htmlFor="display-text" className="block text-lg font-medium text-gray-900">
+                            Display Text (optional)
+                        </label>
                         <input
                             type="text"
                             id="display-text"
                             placeholder="Will use URL path or domain if left empty"
                             value={displayText}
                             onChange={(e) => setDisplayText(e.target.value)}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                         />
                     </div>
 
                     {isShortener && (
-                        <div className="field-box">
-                            <div className="shortcode-header">
-                                <label>Select Shortcode:</label>
-                                <div className="prefix-input">
-                                    <input
-                                        type="text"
-                                        placeholder="Custom prefix (optional)"
-                                        value={customPrefix}
-                                        onChange={(e) => setCustomPrefix(e.target.value)}
-                                    />
-                                </div>
+                        <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-lg font-medium text-gray-900">Select Shortcode</label>
+                                <input
+                                    type="text"
+                                    placeholder="Custom prefix (optional)"
+                                    value={customPrefix}
+                                    onChange={(e) => setCustomPrefix(e.target.value)}
+                                    className="w-1/3 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                />
                             </div>
-                            <div className="shortcode-controls">
+                            <div className="flex items-center space-x-2">
                                 <select
                                     value={selectedShortcode}
                                     onChange={(e) => setSelectedShortcode(e.target.value)}
-                                    className="shortcode-select"
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                 >
                                     {previewShortcodes.map((code) => (
                                         <option key={code} value={code}>
@@ -330,120 +345,177 @@ export function UrlShortener(props: UrlShortenerProps): JSX.Element {
                                 <button
                                     type="button"
                                     onClick={regenerateShortcodes}
-                                    className="refresh-button"
+                                    className="rounded-md bg-gray-50 p-2 text-gray-600 hover:bg-gray-100"
                                     title="Refresh shortcodes"
                                 >
-                                    🔄
+                                    <svg
+                                        className="h-5 w-5"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M4 4v5h5M20 20v-5h-5M4 4l16 16"
+                                        />
+                                    </svg>
                                 </button>
                             </div>
                             {selectedShortcode && (
-                                <p className="preview-url">Preview URL: https://ptbk.io/{selectedShortcode}</p>
+                                <p className="text-sm text-gray-500">
+                                    Preview URL: https://ptbk.io/{selectedShortcode}
+                                </p>
                             )}
                         </div>
                     )}
 
-                    <div className="field-box">
-                        <label className="toggle-label">
-                            <input type="checkbox" checked={useUtm} onChange={(e) => setUseUtm(e.target.checked)} />
-                            <span className="toggle-text">Add UTM Parameters</span>
-                        </label>
+                    <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-medium text-gray-900">Add UTM Parameters</span>
+                            <label className="relative inline-flex cursor-pointer items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={useUtm}
+                                    onChange={(e) => setUseUtm(e.target.checked)}
+                                    className="peer sr-only"
+                                />
+                                <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:content-[''] after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
+                            </label>
+                        </div>
 
                         {useUtm && (
-                            <div className="utm-fields">
-                                <div className="utm-field">
-                                    <label htmlFor="utm-source">Source:</label>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label htmlFor="utm-source" className="block text-sm font-medium text-gray-700">
+                                        Source
+                                    </label>
                                     <input
                                         type="text"
                                         id="utm-source"
                                         placeholder="google, facebook"
                                         value={utmParams.source}
                                         onChange={(e) => updateUtmParam('source', e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     />
                                 </div>
-                                <div className="utm-field">
-                                    <label htmlFor="utm-medium">Medium:</label>
+                                <div>
+                                    <label htmlFor="utm-medium" className="block text-sm font-medium text-gray-700">
+                                        Medium
+                                    </label>
                                     <input
                                         type="text"
                                         id="utm-medium"
-                                        placeholder="social, display, cpm, ppc, cpc, organic, affiliate, email, referral,..."
+                                        placeholder="cpc, organic, social"
                                         value={utmParams.medium}
                                         onChange={(e) => updateUtmParam('medium', e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     />
                                 </div>
-                                <div className="utm-field">
-                                    <label htmlFor="utm-content">Content:</label>
+                                <div>
+                                    <label htmlFor="utm-content" className="block text-sm font-medium text-gray-700">
+                                        Content
+                                    </label>
                                     <input
                                         type="text"
                                         id="utm-content"
-                                        placeholder="post-2025-05-05-001"
+                                        placeholder="promo, banner"
                                         value={utmParams.content}
                                         onChange={(e) => updateUtmParam('content', e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                     />
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {error && <div className="error">{error}</div>}
+                    {error && <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
                     <button
                         onClick={handleCreateLink}
                         disabled={isLoading}
-                        className={classNames('primary-button', isLoading ? 'loading-button' : '')}
+                        className={classNames(
+                            'w-full rounded-md bg-blue-600 py-3 px-4 text-lg font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                            isLoading ? 'cursor-not-allowed opacity-50' : '',
+                        )}
                     >
                         {isLoading ? 'Creating...' : isShortener ? 'Create Short URL' : 'Create Link'}
                     </button>
                 </div>
 
                 {showResult && (
-                    <div className="result">
-                        <p>
-                            <strong>Your {isShortener ? 'shortened' : 'wrapped'} link:</strong>
-                        </p>
-                        <div className="link-container">
-                            <p dangerouslySetInnerHTML={{ __html: linkHtml }} />
-                            <button onClick={handleCopyLink} className="copy-btn">
-                                Copy Rich Hyperlink
+                    <div className="space-y-6 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
+                        <h2 className="text-xl font-bold">
+                            Your {isShortener ? 'shortened' : 'wrapped'} link is ready!
+                        </h2>
+                        <div className="flex items-center justify-between rounded-md bg-gray-50 p-4">
+                            <p
+                                className="overflow-hidden text-ellipsis whitespace-nowrap text-blue-600"
+                                dangerouslySetInnerHTML={{ __html: linkHtml }}
+                            />
+                            <button
+                                onClick={handleCopyLink}
+                                className="ml-4 rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
+                            >
+                                Copy
                             </button>
                         </div>
-                        <p>
-                            <em>Click the link above to test it</em>
-                        </p>
 
-                        <div className="format-notice">
-                            <p>
-                                <small>
-                                    Note: The "Copy Rich Hyperlink" button attempts to copy the link with its formatting
-                                    intact. This works best when pasting into applications that support rich text (like
-                                    Word, Google Docs, email composers, and some web forms). If the destination only
-                                    supports plain text, you'll need to use the code below.
-                                </small>
-                            </p>
+                        <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-600">
+                            Note: The "Copy" button attempts to copy the link with its formatting intact. This works
+                            best when pasting into applications that support rich text (like Word, Google Docs, email
+                            composers, and some web forms). If the destination only supports plain text, you'll need to
+                            use the code below.
                         </div>
 
                         {isShortener && (
-                            <div className="qr-section">
-                                <h3>QR Code:</h3>
-                                <div className="qr-container">
+                            <div className="text-center">
+                                <h3 className="text-lg font-medium">QR Code</h3>
+                                {/* <- TODO: !!! Use Promptbook QR code */}
+                                <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
                                     <QrCode value={`https://ptbk.io/${shortCode}`} />
                                 </div>
                             </div>
                         )}
 
-                        <div className="code-section">
-                            <h3>HTML Code:</h3>
-                            <button onClick={handleCopyHtml} className="copy-btn">
-                                Copy HTML
-                            </button>
-                            <textarea id="html-code" rows={3} readOnly value={linkHtml} />
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-medium">HTML Code</h3>
+                            <div className="flex items-center">
+                                <textarea
+                                    id="html-code"
+                                    rows={3}
+                                    readOnly
+                                    value={linkHtml}
+                                    className="w-full rounded-l-md border-gray-300 font-mono text-sm shadow-sm"
+                                />
+                                <button
+                                    onClick={handleCopyHtml}
+                                    className="rounded-r-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="code-section">
-                            <h3>Markdown Code:</h3>
-                            <button onClick={handleCopyMarkdown} className="copy-btn">
-                                Copy Markdown
-                            </button>
-                            <textarea id="markdown-code" rows={3} readOnly value={linkMarkdown} />
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-medium">Markdown Code</h3>
+                            <div className="flex items-center">
+                                <textarea
+                                    id="markdown-code"
+                                    rows={3}
+                                    readOnly
+                                    value={linkMarkdown}
+                                    className="w-full rounded-l-md border-gray-300 font-mono text-sm shadow-sm"
+                                />
+                                <button
+                                    onClick={handleCopyMarkdown}
+                                    className="rounded-r-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
