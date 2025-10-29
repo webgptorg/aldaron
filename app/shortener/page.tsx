@@ -1,7 +1,7 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
-import { Metadata } from 'next';
 import { UrlShortener } from '@/components/url-shortener';
+import { Metadata } from 'next';
 
 // Force static generation for static export
 export const dynamic = 'force-static';
@@ -17,8 +17,12 @@ export default function ShortenerPage() {
     return (
         <main className="min-h-screen">
             <Header />
-               <UrlShortener />
+            <UrlShortener />
             <Footer />
         </main>
     );
 }
+
+/**
+ * TODO: Prompt: Shortener page should make metadata dynamic based on the landing page content stored in Supabase or the linked URL.
+ */

@@ -24,6 +24,7 @@ function ForIndustryPageContent() {
                 <Suspense fallback={<div>Loading...</div>}>
                     <HeroSection
                         initialBook={forIndustryBook}
+                        getHeroText={({ you }) => `AI Transformation for ${you || 'the industry'}`}
                         getHeadingText={({ you }) => (
                             <>
                                 Create AI that{' '}

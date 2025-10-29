@@ -20,12 +20,18 @@ type HeroSectionProps = {
     /**
      * Function to customize the heading text.
      */
-    getHeadingText?: (params: { you: string | null }) => JSX.Element;
+    getHeroText?: (params: { you: string | null }) => JSX.Element | string;
+
+    /**
+     * Function to customize the heading text.
+     */
+    getHeadingText?: (params: { you: string | null }) => JSX.Element | string;
 };
 
 export function HeroSection(props: HeroSectionProps) {
     const {
         initialBook,
+        getHeroText = ({ you }) => `AI Transformation for  ${you || 'Your business'}`,
         getHeadingText = ({ you }) => (
             <>
                 Create AI that{' '}
@@ -91,7 +97,7 @@ export function HeroSection(props: HeroSectionProps) {
                             <div className="space-y-4">
                                 <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
                                     <BookOpen className="w-4 h-4" />
-                                    AI Transformation for Your Business
+                                    {getHeroText({ you })}
                                 </div>
                                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                                     {getHeadingText({ you })}
