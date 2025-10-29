@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useGetParam } from '@/hooks/useGetParam';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,7 +9,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export function Header() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [modal, setModal] = useGetParam('modal');
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);

@@ -7,21 +7,18 @@ import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
-import { defaultPricing } from '@/config/pricing';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { WaitlistPopup } from '@/components/waitlist-popup';
+import { defaultPricing } from '@/config/_generic/defaultPricing';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function HomePageContent() {
     const searchParams = useSearchParams();
 
-
     return (
         <>
-            <WaitlistPopup
-                placeName="HomePage"
-            />
+            <WaitlistPopup placeName="HomePage" />
             <main className="min-h-screen">
                 <Header />
                 <Suspense fallback={<div>Loading...</div>}>
