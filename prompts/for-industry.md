@@ -24,3 +24,13 @@ Případy využití:
 
 
 ```
+
+---
+
+[ ]
+
+`PricingSection` should have different pricing for `/` and `/for-industry` use case.
+
+-   Create a new prop for `PricingSection` component to accept custom pricing plans.
+-   Make some common abstraction to pass pricing plan
+-   Keep in mind DRY principle, don't repeat yourself, reuse components where possible
