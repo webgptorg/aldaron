@@ -13,65 +13,65 @@ import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-function HomePageContent() {
-    const searchParams = useSearchParams();
-
+export default function HomePage() {
     return (
         <>
-            <WaitlistPopup placeName="HomePage" />
+            <Suspense>
+                <WaitlistPopup placeName="HomePage" />
+            </Suspense>
             <main className="min-h-screen">
                 <Header />
-                <HeroSection
-                    getHero={({ you }) => (
-                        <>
-                            {' '}
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium text-gray-900">
-                                    <BookOpen className="w-4 h-4" />
-                                    {`AI Transformation for  ${you || 'Your business'}`}
+                <Suspense>
+                    <HeroSection
+                        getHero={({ you }) => (
+                            <>
+                                {' '}
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium text-gray-900">
+                                        <BookOpen className="w-4 h-4" />
+                                        {`AI Transformation for  ${you || 'Your business'}`}
+                                    </div>
+                                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                                        Create AI that{' '}
+                                        <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                                            Truly&nbsp;Understand
+                                        </span>{' '}
+                                        {you || <>Your Company</>}
+                                    </h1>
+                                    <p className="text-xl text-gray-600 leading-relaxed">
+                                        With Promptbook, you can capture your company's context, rules, and knowledge
+                                        into simple <b>Books</b> to build AI agents that align perfectly with your
+                                        business needs.
+                                    </p>
                                 </div>
-                                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    Create AI that{' '}
-                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                        Truly&nbsp;Understand
-                                    </span>{' '}
-                                    {you || <>Your Company</>}
-                                </h1>
-                                <p className="text-xl text-gray-600 leading-relaxed">
-                                    With Promptbook, you can capture your company's context, rules, and knowledge into
-                                    simple <b>Books</b> to build AI agents that align perfectly with your business
-                                    needs.
-                                </p>
-                            </div>
-                            <br />
-                            <Link href="?modal=get-started">
-                                <Button
-                                    size="lg"
-                                    className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
-                                >
-                                    Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
-                                    <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                            </Link>
-                            <div className="flex items-center gap-8 text-sm text-gray-500">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Open Source
+                                <br />
+                                <Link href="?modal=get-started">
+                                    <Button
+                                        size="lg"
+                                        className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                    >
+                                        Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
+                                        <ArrowRight className="ml-2 w-5 h-5" />
+                                    </Button>
+                                </Link>
+                                <div className="flex items-center gap-8 text-sm text-gray-500">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                        Open Source
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                        Your Data, Your Control
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                        Easy Setup
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Your Data, Your Control
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Easy Setup
-                                </div>
-                            </div>
-                            {/* Powered by Promptbook */}
-                            {/*
+                                {/* Powered by Promptbook */}
+                                {/*
                             <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
                                 {/* eslint-disable-next-line @next/next/no-img-element * /}
                                 <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
@@ -89,10 +89,10 @@ function HomePageContent() {
                                 </div>
                             </div>
                             */}
-                        </>
-                    )}
-                />
-                {/* <- TODO: Should be here <Suspense> */}
+                            </>
+                        )}
+                    />
+                </Suspense>
                 <BenefitsSection />
                 <IntegrationsSection />
                 <TestimonialsSection />
@@ -101,13 +101,5 @@ function HomePageContent() {
                 <Footer />
             </main>
         </>
-    );
-}
-
-export default function HomePage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <HomePageContent />
-        </Suspense>
     );
 }

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 type HeaderProps = {
     /**
@@ -15,8 +14,6 @@ type HeaderProps = {
 
 export function Header(props: HeaderProps) {
     const { isBare = false } = props;
-    const router = useRouter();
-    const searchParams = useSearchParams();
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);

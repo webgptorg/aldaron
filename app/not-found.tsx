@@ -2,11 +2,14 @@ import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export default function NotFound() {
     return (
         <main className="min-h-screen">
-            <WaitlistPopup placeName="NotFound" />
+            <Suspense>
+                <WaitlistPopup placeName="NotFound" />
+            </Suspense>
             <Header isBare />
             <div className="min-h-screen flex-grow container mx-auto px-6 py-8 flex flex-col justify-center items-center text-center">
                 <h1 className="text-6xl font-bold text-foreground">404</h1>

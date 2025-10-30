@@ -19,65 +19,68 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
 
-function ForIndustryPageContent() {
+export default function ForIndustryPage() {
     return (
         <>
-            <BusinessGetStartedModal placeName="ForIndustryPage" />
+            <Suspense>
+                <BusinessGetStartedModal placeName="ForIndustryPage" />
+            </Suspense>
             <main className="min-h-screen">
                 <Header />
-                <HeroSection
-                    initialBook={forIndustryBook}
-                    backgroundImage="/backgrounds/for-industry.svg"
-                    getHero={({ you }) => (
-                        <>
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
-                                    <BookOpen className="w-4 h-4" />
-                                    AI Transformation for {you || 'the industry'}
+                <Suspense>
+                    <HeroSection
+                        initialBook={forIndustryBook}
+                        backgroundImage="/backgrounds/for-industry.svg"
+                        getHero={({ you }) => (
+                            <>
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
+                                        <BookOpen className="w-4 h-4" />
+                                        AI Transformation for {you || 'the industry'}
+                                    </div>
+                                    <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                                        Create AI that{' '}
+                                        <span className="bg-gradient-promptbook bg-clip-text text-transparent">
+                                            Truly&nbsp;Understand
+                                        </span>{' '}
+                                        {you || <>The Industry</>}
+                                    </h1>
+                                    <p className="text-xl text-white leading-relaxed">
+                                        With Promptbook, you can capture your company's context, rules, and knowledge
+                                        into simple <b>Books</b> to build AI agents that align perfectly with your
+                                        business needs.
+                                    </p>
                                 </div>
-                                <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
-                                    Create AI that{' '}
-                                    <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                        Truly&nbsp;Understand
-                                    </span>{' '}
-                                    {you || <>The Industry</>}
-                                </h1>
-                                <p className="text-xl text-white leading-relaxed">
-                                    With Promptbook, you can capture your company's context, rules, and knowledge into
-                                    simple <b>Books</b> to build AI agents that align perfectly with your business
-                                    needs.
-                                </p>
-                            </div>
 
-                            <br />
-                            <Link href="?modal=get-started">
-                                <Button
-                                    size="lg"
-                                    className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
-                                >
-                                    Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
-                                    <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                            </Link>
+                                <br />
+                                <Link href="?modal=get-started">
+                                    <Button
+                                        size="lg"
+                                        className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                    >
+                                        Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
+                                        <ArrowRight className="ml-2 w-5 h-5" />
+                                    </Button>
+                                </Link>
 
-                            <div className="flex items-center gap-8 text-sm opacity-80">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4" />
-                                    Open Source
+                                <div className="flex items-center gap-8 text-sm opacity-80">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Open Source
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Your Data, Your Control
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Easy Setup
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4" />
-                                    Your Data, Your Control
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4" />
-                                    Easy Setup
-                                </div>
-                            </div>
-                        </>
-                    )}
-                />
-                {/* <- TODO: Should be here <Suspense> */}
+                            </>
+                        )}
+                    />
+                </Suspense>
                 <BenefitsSection
                     title="AI-Powered Solutions for the Engineering Industry"
                     description="Streamline operations, reduce downtime, and enhance support with AI agents tailored for your industrial needs."
@@ -90,13 +93,5 @@ function ForIndustryPageContent() {
                 <Footer />
             </main>
         </>
-    );
-}
-
-export default function ForIndustryPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <ForIndustryPageContent />
-        </Suspense>
     );
 }
