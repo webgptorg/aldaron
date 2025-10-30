@@ -4,7 +4,7 @@ import defaultBook from '@/config/_generic/default.book';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import { useYou } from '@/hooks/useYou';
 import { BookEditor, LlmChat, useSendMessageToLlmChat } from '@promptbook/components';
-import { createAgentLlmExecutionTools, parseAgentSource } from '@promptbook/core';
+import { createAgentLlmExecutionTools, filterModels, parseAgentSource } from '@promptbook/core';
 import { RemoteLlmExecutionTools } from '@promptbook/remote-client';
 import type { string_book } from '@promptbook/types';
 import { spaceTrim } from '@promptbook/utils';
@@ -38,7 +38,7 @@ export function HeroSection(props: HeroSectionProps) {
     const llmTools = useMemo(() => {
         // new MockedFackedLlmExecutionTools();
 
-        const baseLlmTools = new RemoteLlmExecutionTools({
+        const remoteLlmExecutionTools = new RemoteLlmExecutionTools({
             remoteServerUrl: 'https://promptbook.s5.ptbk.io/',
             identification: {
                 isAnonymous: false,
@@ -46,8 +46,12 @@ export function HeroSection(props: HeroSectionProps) {
             },
         });
 
+        const filteredRemoteLlmExecutionTools = filterModels(remoteLlmExecutionTools, (model) => {
+            return model.modelName.startsWith('gemini-');
+        });
+
         const agentLlmTools = createAgentLlmExecutionTools({
-            llmTools: baseLlmTools,
+            llmTools: filteredRemoteLlmExecutionTools,
             agentSource: bookSourceDefined,
         });
 
