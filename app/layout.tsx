@@ -2,12 +2,12 @@ import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
-import ConditionalChatbot from './conditional-chatbot';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+    // TODO: !!! Update metadata for Promptbook Book 2.0:
     title: 'Promptbook - AI-Powered Prompt Engineering Platform',
     description:
         'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
         address: false,
         telephone: false,
     },
-    metadataBase: new URL('https://aldaron.vercel.app'),
+    metadataBase: new URL('https://ptbk.io'),
     alternates: {
         canonical: '/',
     },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         title: 'Promptbook - AI-Powered Prompt Engineering Platform',
         description:
             'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        url: 'https://aldaron.vercel.app',
+        url: 'https://ptbk.io',
         siteName: 'Promptbook',
         images: [
             {

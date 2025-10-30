@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aldaron.vercel.app/sitemap.xml
+Sitemap: https://ptbk.io/sitemap.xml
