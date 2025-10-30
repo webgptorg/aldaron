@@ -22,19 +22,17 @@
     <!-- White top fade -->
     <linearGradient id="whiteTopGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-      <stop offset="30%" stop-color="#ffffff" stop-opacity="0.85" />
-      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.2" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7" />
     </linearGradient>
 
     <!-- Strong grain -->
     <filter id="grain" x="-10%" y="-10%" width="120%" height="120%">
-      <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="1" seed="8" result="noise" />
+      <feTurbulence type="fractalNoise" baseFrequency="3.5" numOctaves="3" seed="8" result="noise" />
       <feComponentTransfer>
         <feFuncR type="linear" slope="3.5" intercept="-1.2" />
         <feFuncG type="linear" slope="3.5" intercept="-1.2" />
         <feFuncB type="linear" slope="3.5" intercept="-1.2" />
-        <feFuncA type="table" tableValues="0 0.6" />
+        <feFuncA type="table" tableValues="0 0.8" />
       </feComponentTransfer>
     </filter>
   </defs>
@@ -50,5 +48,6 @@
   <rect width="100%" height="100%" fill="url(#whiteTopGrad)" />
 
   <!-- Strong visible noise -->
-  <rect width="100%" height="100%" filter="url(#grain)" style="mix-blend-mode:soft-light; opacity:0.9" />
+  <rect width="100%" height="100%" filter="url(#grain)"
+    style="mix-blend-mode:soft-light; opacity:1.2" />
 </svg>

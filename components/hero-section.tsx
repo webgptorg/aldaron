@@ -78,12 +78,19 @@ export function HeroSection(props: HeroSectionProps) {
 
     return (
         <>
-            <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
+            <section
+                className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+                style={{
+                    backgroundImage: `url(/backgrounds/generic.svg)`,
+                }}
+            >
                 {/* Background Elements */}
+                {/*
                 <div className="absolute inset-0">
                     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-purple rounded-full blur-3xl opacity-10"></div>
                     <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-green rounded-full blur-3xl opacity-10"></div>
                 </div>
+                */}
 
                 <div className="container mx-auto px-4 py-20 relative z-10">
                     <div className="grid lg:grid-cols-5 gap-12 items-center">
@@ -173,7 +180,7 @@ export function HeroSection(props: HeroSectionProps) {
                 </div>
             </section>
 
-            <section className="container mx-auto py-24">
+            <section className="relative  mx-0 py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Try it yourself</h2>
                     <p className="mt-4 text-lg text-muted-foreground">
@@ -197,8 +204,13 @@ export function HeroSection(props: HeroSectionProps) {
                     <div className="lg:col-span-1 h-[600px] min-h-0 flex flex-col overflow-hidden">
                         <LlmChat
                             className="h-full min-h-0"
-                            title={'Chat with Pavol Hejný'}
-                            persistenceKey="chat-with-pavol-hejny"
+                            style={{
+                                backgroundImage: `url(/backgrounds/generic.svg)`,
+                                borderRadius: 20,
+                                overflow: 'hidden',
+                            }}
+                            title={`Chat with ${parsedAgent.agentName}`}
+                            persistenceKey="chat-on-landing-page"
                             isSaveButtonEnabled={false}
                             isFocusedOnLoad={false}
                             userParticipantName="USER"
