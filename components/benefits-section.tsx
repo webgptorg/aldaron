@@ -18,7 +18,6 @@ export interface Benefit {
     iconName: keyof typeof iconMap;
     title: string;
     description: string;
-    gradient: string;
 }
 
 interface BenefitsSectionProps {
@@ -57,7 +56,7 @@ export const BenefitsSection: FC<BenefitsSectionProps> = ({
                             >
                                 <div className="flex justify-center mb-6">
                                     <div
-                                        className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${benefit.gradient} flex items-center justify-center`}
+                                        className={`w-16 h-16 rounded-2xl bg-promptbook-blue flex items-center justify-center`}
                                     >
                                         <Icon className="w-8 h-8 text-white" />
                                     </div>
