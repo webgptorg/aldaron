@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import defaultBook from '@/config/_generic/default.book';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import { useYou } from '@/hooks/useYou';
@@ -10,36 +9,21 @@ import { RemoteLlmExecutionTools } from '@promptbook/remote-client';
 import type { string_book } from '@promptbook/types';
 import { spaceTrim } from '@promptbook/utils';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
 import { JSX, useMemo, useState } from 'react';
 
 type HeroSectionProps = {
     initialBook?: string_book;
 
-    /**
-     * Function to customize the heading text.
-     */
-    getHeroText?: (params: { you: string | null }) => JSX.Element | string;
+    backgroundImage?: string;
 
     /**
      * Function to customize the heading text.
      */
-    getHeadingText?: (params: { you: string | null }) => JSX.Element | string;
+    getHero: (params: { you: string | null }) => JSX.Element;
 };
 
 export function HeroSection(props: HeroSectionProps) {
-    const {
-        initialBook,
-        getHeroText = ({ you }) => `AI Transformation for  ${you || 'Your business'}`,
-        getHeadingText = ({ you }) => (
-            <>
-                Create AI that{' '}
-                <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">Truly&nbsp;Understand</span>{' '}
-                {you || <>Your Company</>}
-            </>
-        ),
-    } = props;
+    const { initialBook, backgroundImage = `/backgrounds/generic.svg`, getHero } = props;
 
     const you = useYou();
 
@@ -81,7 +65,7 @@ export function HeroSection(props: HeroSectionProps) {
             <section
                 className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
                 style={{
-                    backgroundImage: `url(/backgrounds/generic.svg)`,
+                    backgroundImage: `url(${backgroundImage})`,
                 }}
             >
                 {/* Background Elements */}
@@ -92,7 +76,7 @@ export function HeroSection(props: HeroSectionProps) {
                 </div>
                 */}
 
-                <div className="container mx-auto px-4 py-20 relative z-10">
+                <div className="container mx-auto px-4 py-20 relative z-10 text-white">
                     <div className="grid lg:grid-cols-5 gap-12 items-center">
                         {/* Left Column - Content */}
                         <motion.div
@@ -101,64 +85,7 @@ export function HeroSection(props: HeroSectionProps) {
                             transition={{ duration: 0.8 }}
                             className="space-y-8 lg:col-span-3"
                         >
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
-                                    <BookOpen className="w-4 h-4" />
-                                    {getHeroText({ you })}
-                                </div>
-                                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    {getHeadingText({ you })}
-                                </h1>
-                                <p className="text-xl text-gray-600 leading-relaxed">
-                                    With Promptbook, you can capture your company's context, rules, and knowledge into
-                                    simple <b>Books</b> to build AI agents that align perfectly with your business
-                                    needs.
-                                </p>
-                            </div>
-
-                            <br />
-                            <Link href="?modal=get-started">
-                                <Button
-                                    size="lg"
-                                    className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
-                                >
-                                    Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
-                                    <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                            </Link>
-
-                            <div className="flex items-center gap-8 text-sm text-gray-500">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Open Source
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Your Data, Your Control
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Easy Setup
-                                </div>
-                            </div>
-
-                            {/* Powered by Promptbook */}
-                            <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
-                                <div className="text-sm">
-                                    <span className="text-gray-600">Powered by </span>
-                                    <Link
-                                        href="https://www.ptbk.io"
-                                        className="font-semibold text-promptbook-blue hover:underline"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Promptbook
-                                    </Link>
-                                    <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
-                                </div>
-                            </div>
+                            {getHero({ you })}
                         </motion.div>
 
                         {/* Right Column - Book Example */}
@@ -205,7 +132,7 @@ export function HeroSection(props: HeroSectionProps) {
                         <LlmChat
                             className="h-full min-h-0"
                             style={{
-                                backgroundImage: `url(/backgrounds/generic.svg)`,
+                                backgroundImage: `url(/backgrounds/chat.svg)`,
                                 borderRadius: 20,
                                 overflow: 'hidden',
                             }}
