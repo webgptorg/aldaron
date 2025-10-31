@@ -104,6 +104,7 @@ export function HeroSection(props: HeroSectionProps) {
                                 onChange={setBookSource}
                                 isDownloadButtonShown={false}
                                 isAboutButtonShown={false}
+                                isFullscreenButtonShown={false} // <- !!! Show fullscreen button
                                 className="lg:h-[600px] h-[400px] border border-gray-300 shadow-lg"
                             />
                         </motion.div>

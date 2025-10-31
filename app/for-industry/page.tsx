@@ -41,7 +41,7 @@ export default function ForIndustryPage() {
                                     <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
                                         Create AI that{' '}
                                         <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                            Truly&nbsp;Understand
+                                            Truly&nbsp;Understands
                                         </span>{' '}
                                         {you || <>The Industry</>}
                                     </h1>
