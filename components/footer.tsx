@@ -8,7 +8,63 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useState } from 'react';
 
-export function Footer() {
+interface FooterProps {
+    productHeader?: string;
+    productLinks?: { href: string; text: string }[];
+    companyHeader?: string;
+    companyLinks?: { href: string; text: string }[];
+    connectHeader?: string;
+    connectLinks?: { href: string; text: string }[];
+    stayUpdatedHeader?: string;
+    emailLabel?: string;
+    consentLabel?: string;
+    subscribeButtonText?: string;
+    subscribingButtonText?: string;
+    successMessage?: string;
+    rightsReservedText?: string;
+    projectFundingText?: React.ReactNode;
+}
+
+export function Footer({
+    productHeader = 'Product',
+    productLinks = [
+        { href: '?modal=get-started', text: 'Get started' },
+        { href: 'https://ptbk.io/manifest', text: 'Manifest' },
+        { href: 'https://github.com/webgptorg/promptbook', text: 'Documentation' },
+        { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+    ],
+    companyHeader = 'Company',
+    companyLinks = [
+        {
+            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+            text: 'AI Web, LLC',
+        },
+        { href: 'https://ptbk.io/about', text: 'About Us' },
+        { href: 'https://ptbk.io/blog', text: 'Blog' },
+    ],
+    connectHeader = 'Connect',
+    connectLinks = [
+        { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
+        { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
+        { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
+        { href: '/contact', text: 'More' },
+    ],
+    stayUpdatedHeader = 'Stay Updated',
+    emailLabel = 'Email *',
+    consentLabel = 'I consent to receive news and updates via email *',
+    subscribeButtonText = 'Subscribe',
+    subscribingButtonText = 'Subscribing...',
+    successMessage = 'Successfully subscribed!',
+    rightsReservedText = 'All rights reserved.',
+    projectFundingText = (
+        <>
+            This project was implemented with funding from the national budget
+            <br />
+            via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest Technology Incubation
+            programme.
+        </>
+    ),
+}: FooterProps) {
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,116 +101,61 @@ export function Footer() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     {/* Product */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Product</h3>
+                        <h3 className="text-lg font-semibold mb-6">{productHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <Link
-                                    href="?modal=get-started"
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    Get started
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://ptbk.io/manifest"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Manifest
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://github.com/webgptorg/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Documentation
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://promptbook.studio/miniapps/new"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Playground
-                                </Link>
-                            </li>
+                            {productLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Company */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Company</h3>
+                        <h3 className="text-lg font-semibold mb-6">{companyHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <Link
-                                    href="https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    AI Web, LLC
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://ptbk.io/about"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    About Us
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://ptbk.io/blog"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Blog
-                                </Link>
-                            </li>
+                            {companyLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Connect */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Connect</h3>
+                        <h3 className="text-lg font-semibold mb-6">{connectHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <Link
-                                    href="https://github.com/webgptorg/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    GitHub
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://linkedin.com/company/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    LinkedIn
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    href="https://discord.gg/x3QWNaa89N"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Discord
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
-                                    More
-                                </Link>
-                            </li>
+                            {connectLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Stay Updated */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Stay Updated</h3>
+                        <h3 className="text-lg font-semibold mb-6">{stayUpdatedHeader}</h3>
                         <form onSubmit={handleSubscribe} className="space-y-4">
                             <div>
-                                <label className="text-sm text-gray-400 mb-2 block">Email *</label>
+                                <label className="text-sm text-gray-400 mb-2 block">{emailLabel}</label>
                                 <Input
                                     type="email"
                                     value={email}
@@ -173,19 +174,19 @@ export function Footer() {
                                     className="mt-0.5"
                                 />
                                 <label htmlFor="consent" className="text-sm text-gray-400 leading-relaxed">
-                                    I consent to receive news and updates via email *
+                                    {consentLabel}
                                 </label>
                             </div>
 
                             {error && <p className="text-sm text-red-500">{error}</p>}
-                            {success && <p className="text-sm text-green-500">Successfully subscribed!</p>}
+                            {success && <p className="text-sm text-green-500">{successMessage}</p>}
 
                             <Button
                                 type="submit"
                                 disabled={!email || !consent || isSubmitting}
                                 className="w-full bg-primary hover:bg-primary/90"
                             >
-                                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                                {isSubmitting ? subscribingButtonText : subscribeButtonText}
                             </Button>
                         </form>
                     </div>
@@ -207,7 +208,7 @@ export function Footer() {
                             <p className="text-sm text-gray-400 text-center lg:text-left">
                                 © 2025 Promptbook
                                 <br />
-                                All rights reserved.
+                                {rightsReservedText}
                             </p>
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
                                 The AI orchestration framework for building intelligent applications 11:11
@@ -222,10 +223,7 @@ export function Footer() {
                                 className="h-24 w-auto"
                             />
                             <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
-                                This project was implemented with funding from the national budget
-                                <br />
-                                via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest
-                                Technology Incubation programme.
+                                {projectFundingText}
                             </p>
                         </div>
                     </div>

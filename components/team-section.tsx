@@ -4,16 +4,40 @@ import Link from 'next/link';
 import jiriJahn from '../public/people/jiri-jahn-transparent.png';
 import pavolHejny from '../public/people/pavol-hejny-transparent.png';
 
-export const TeamSection = () => {
+interface TeamSectionProps {
+    title?: string;
+    description?: React.ReactNode;
+    jiriDescription?: React.ReactNode;
+    pavolDescription?: React.ReactNode;
+}
+
+export const TeamSection = ({
+    title = 'Meet Our Team',
+    description = (
+        <>
+            We are a dedicated group of professionals committed to leveraging AI to transform businesses. With diverse
+            backgrounds in technology, research, and entrepreneurship:
+        </>
+    ),
+    jiriDescription = (
+        <>
+            Ph.D. in Mathematics, former researcher at{' '}
+            <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
+        </>
+    ),
+    pavolDescription = (
+        <>
+            Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE. Developer with 15+ years
+            of experience.
+        </>
+    ),
+}: TeamSectionProps) => {
     return (
         <section className="py-12 bg-white sm:py-16 lg:py-20">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Meet Our Team</h2>
-                    <p className="mt-4 text-lg text-muted-foreground">
-                        We are a dedicated group of professionals committed to leveraging AI to transform businesses.
-                        With diverse backgrounds in technology, research, and entrepreneurship:
-                    </p>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">{description}</p>
                 </div>
 
                 <div className="mt-12  grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-12 lg:mt-16 items-center">
@@ -27,10 +51,7 @@ export const TeamSection = () => {
                         />
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">CEO | Jiří Jahn</p>
-                            <p className="mt-4 text-base text-gray-500">
-                                Ph.D. in Mathematics, former researcher at{' '}
-                                <Link href="https://www.it4i.cz/">IT4I National Supercomputing Centre</Link>.
-                            </p>
+                            <p className="mt-4 text-base text-gray-500">{jiriDescription}</p>
                             <p className="mt-4 text-base text-gray-500 flex items-center gap-2">
                                 <Mail className="inline-block w-5 h-5" />
                                 <Link href="mailto:jiri@ptbk.io">jiri@ptbk.io</Link>
@@ -45,10 +66,7 @@ export const TeamSection = () => {
                     <div className="grid grid-cols-2 gap-x-4 items-center">
                         <div className="text-left">
                             <p className="text-xl font-bold text-gray-900 font-pj">Pavol Hejný | CTO</p>
-                            <p className="mt-4 text-base text-gray-500">
-                                Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in CZE.
-                                Developer with 15+ years of experience.
-                            </p>
+                            <p className="mt-4 text-base text-gray-500">{pavolDescription}</p>
                             <p className="mt-4 text-base text-gray-500 flex items-center gap-2">
                                 <Mail className="inline-block w-5 h-5" />
                                 <Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link>
