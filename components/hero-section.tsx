@@ -6,6 +6,7 @@ import { useYou } from '@/hooks/useYou';
 import { BookEditor, LlmChat, useSendMessageToLlmChat } from '@promptbook/components';
 import { createAgentLlmExecutionTools, filterModels, parseAgentSource } from '@promptbook/core';
 import { createGoogleExecutionTools } from '@promptbook/google';
+import { MockedChatSection } from './mocked-chat-section';
 import { createOpenAiExecutionTools } from '@promptbook/openai';
 import { RemoteLlmExecutionTools } from '@promptbook/remote-client';
 import type { string_book } from '@promptbook/types';
@@ -109,14 +110,7 @@ export function HeroSection(props: HeroSectionProps) {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                         >
-                            <BookEditor
-                                value={bookSource || undefined}
-                                onChange={setBookSource}
-                                isDownloadButtonShown={false}
-                                isAboutButtonShown={false}
-                                isFullscreenButtonShown={false} // <- !!! Show fullscreen button
-                                className="lg:h-[600px] h-[400px] border border-gray-300 shadow-lg"
-                            />
+                            <MockedChatSection />
                         </motion.div>
                     </div>
                 </div>

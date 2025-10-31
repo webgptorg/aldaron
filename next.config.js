@@ -20,6 +20,12 @@ const nextConfig = {
             use: 'raw-loader',
         });
 
+        // Allow YAML files to be imported
+        config.module.rules.push({
+            test: /\.ya?ml$/,
+            use: 'raw-loader',
+        });
+
         // TODO: [🧵]
 
         return config;

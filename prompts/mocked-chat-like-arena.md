@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 Instead of `BookEditor` show `MockedChat`
 
