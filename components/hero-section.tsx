@@ -5,6 +5,8 @@ import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import { useYou } from '@/hooks/useYou';
 import { BookEditor, LlmChat, useSendMessageToLlmChat } from '@promptbook/components';
 import { createAgentLlmExecutionTools, filterModels, parseAgentSource } from '@promptbook/core';
+import { createGoogleExecutionTools } from '@promptbook/google';
+import { createOpenAiExecutionTools } from '@promptbook/openai';
 import { RemoteLlmExecutionTools } from '@promptbook/remote-client';
 import type { string_book } from '@promptbook/types';
 import { spaceTrim } from '@promptbook/utils';
@@ -50,8 +52,16 @@ export function HeroSection(props: HeroSectionProps) {
             return model.modelName.startsWith('gemini-');
         });
 
+        const openAiLlmExecutionTools = createOpenAiExecutionTools({
+            apiKey: '...',
+        });
+
+        const googleLlmExecutionTools = createGoogleExecutionTools({
+            apiKey: '...',
+        });
+
         const agentLlmTools = createAgentLlmExecutionTools({
-            llmTools: filteredRemoteLlmExecutionTools,
+            llmTools: googleLlmExecutionTools, //filteredRemoteLlmExecutionTools,
             agentSource: bookSourceDefined,
         });
 
@@ -129,6 +139,7 @@ export function HeroSection(props: HeroSectionProps) {
                             onChange={setBookSource}
                             isDownloadButtonShown={false}
                             isAboutButtonShown={false}
+                            isFullscreenButtonShown={false} // <- !!! Show fullscreen button
                         />
                     </div>
 
