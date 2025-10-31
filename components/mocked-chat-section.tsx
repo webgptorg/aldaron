@@ -62,7 +62,17 @@ export function MockedChatSection() {
     }
 
     return (
-        <Tabs value={selectedConversation} onValueChange={(value) => setSelectedConversation(value as ConversationId)}>
+        <>
+            <style>{`
+              .no-scrollbar::-webkit-scrollbar {
+                  display: none;
+              }
+              .no-scrollbar {
+                  -ms-overflow-style: none;
+                  scrollbar-width: none;
+              }
+          `}</style>
+            <Tabs value={selectedConversation} onValueChange={(value) => setSelectedConversation(value as ConversationId)}>
             {/*
             <TabsList
                 className="grid w-full"
@@ -80,8 +90,11 @@ export function MockedChatSection() {
             {conversations.map(
                 (conversation) =>
                     conversation && (
-                        <TabsContent key={conversation.id} value={conversation.id} className="mt-6">
-                            <div style={{ height: '400px', overflowY: 'auto' }}>
+                        <TabsContent key={conversation.id} value={conversation.id}>
+                            <div
+                                className="no-scrollbar"
+                                style={{ height: 'calc(100vh - 200px)', overflowY: 'auto', width: '450px' }}
+                            >
                                 <MockedChat
                                     title={conversation.title}
                                     isSaveButtonEnabled={false}
@@ -107,5 +120,6 @@ export function MockedChatSection() {
                     ),
             )}
         </Tabs>
+        </>
     );
 }
