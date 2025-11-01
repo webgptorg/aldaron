@@ -8,6 +8,7 @@ import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
+import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
@@ -92,6 +93,9 @@ export default function HomePage() {
                             </>
                         )}
                     />
+                </Suspense>
+                <Suspense>
+                    <TryItYourselfSection />
                 </Suspense>
                 <BenefitsSection />
                 <IntegrationsSection />

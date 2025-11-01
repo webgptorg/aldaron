@@ -9,6 +9,7 @@ import { IntegrationsSection } from '@/components/integrations-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
+import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import forIndustryBook from '@/config/for-industry/for-industry.book';
 import { industryIntegrations } from '@/config/for-industry/industryIntegrations';
@@ -29,7 +30,6 @@ export default function ForIndustryPage() {
                 <Header />
                 <Suspense>
                     <HeroSection
-                        initialBook={forIndustryBook}
                         backgroundImage="/backgrounds/for-industry.svg"
                         getHero={({ you }) => (
                             <>
@@ -80,6 +80,9 @@ export default function ForIndustryPage() {
                             </>
                         )}
                     />
+                </Suspense>
+                <Suspense>
+                    <TryItYourselfSection initialBook={forIndustryBook} />
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered Solutions for the Engineering Industry"

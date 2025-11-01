@@ -1,7 +1,7 @@
 'use client';
 import { Benefit } from '../../components/benefits-section';
 
-export const proMestaBenefits: Array<Benefit> = [
+export const citiesCsBenefits: Array<Benefit> = [
     {
         iconName: 'Briefcase',
         title: 'Zachyťte kontext města',

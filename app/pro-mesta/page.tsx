@@ -5,10 +5,17 @@ import { BusinessGetStartedModal } from '@/components/business-get-started-modal
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
+import { IntegrationsSection } from '@/components/integrations-section';
+import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
+import { TestimonialsSection } from '@/components/testimonials-section';
+import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
+import { citiesCsIntegrations } from '@/config/pro-mesta/industryIntegrations';
+import { citiesCsPricing } from '@/config/pro-mesta/industryPricing';
+import { citiesCsTestimonials } from '@/config/pro-mesta/industryTestimonials';
 import proMestaBook from '@/config/pro-mesta/pro-mesta.book';
-import { proMestaBenefits } from '@/config/pro-mesta/proMestaBenefits';
+import { citiesCsBenefits } from '@/config/pro-mesta/proMestaBenefits';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -23,7 +30,6 @@ export default function ProMestaPage() {
                 <Header />
                 <Suspense>
                     <HeroSection
-                        initialBook={proMestaBook}
                         backgroundImage="/backgrounds/for-industry.svg"
                         getHero={({ you }) => (
                             <>
@@ -75,11 +81,16 @@ export default function ProMestaPage() {
                         )}
                     />
                 </Suspense>
+                <Suspense>
+                    <TryItYourselfSection initialBook={proMestaBook} />
+                </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
                     description="Zefektivněte operace, snižte zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
-                    benefits={proMestaBenefits}
+                    benefits={citiesCsBenefits}
                 />
+                <IntegrationsSection integrations={citiesCsIntegrations} />
+                <TestimonialsSection testimonials={citiesCsTestimonials} />
                 <TeamSection
                     title="Náš tým"
                     description="Jsme oddaná skupina profesionálů, kteří se zavázali využívat AI k transformaci podniků. S různými zkušenostmi v oblasti technologií, výzkumu a podnikání:"
@@ -96,6 +107,7 @@ export default function ProMestaPage() {
                         </>
                     }
                 />
+                <PricingSection plans={citiesCsPricing} />
                 <Footer
                     productHeader="Produkt"
                     productLinks={[
