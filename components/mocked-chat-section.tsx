@@ -94,7 +94,10 @@ export function MockedChatSection() {
                     (conversation) =>
                         conversation && (
                             <TabsContent key={conversation.id} value={conversation.id}>
-                                <div className="no-scrollbar" style={{ overflowY: 'auto', width: '100%' }}>
+                                <div
+                                    className="no-scrollbar lg:max-h-[90vh] max-h-none w-full"
+                                    style={{ overflowY: 'auto' }}
+                                >
                                     <MockedChat
                                         className="debug"
                                         title={conversation.title}

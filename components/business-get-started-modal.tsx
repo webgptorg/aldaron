@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useGetParam } from '@/hooks/useGetParam';
+import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
 import { Mail } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
-import jiriJahn from '../public/people/jiri-jahn-transparent.png';
 
 interface BusinessGetStartedModalProps {
     /**

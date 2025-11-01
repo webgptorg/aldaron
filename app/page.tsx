@@ -72,23 +72,23 @@ export default function HomePage() {
                                 </div>
                                 {/* Powered by Promptbook */}
                                 {/*
-                            <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
-                                {/* eslint-disable-next-line @next/next/no-img-element * /}
-                                <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
-                                <div className="text-sm">
-                                    <span className="text-gray-600">Powered by </span>
-                                    <Link
-                                        href="https://www.ptbk.io"
-                                        className="font-semibold text-promptbook-blue hover:underline"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Promptbook
-                                    </Link>
-                                    <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
+                                <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
+                                    {/* eslint-disable-next-line @next/next/no-img-element * /}
+                                    <img src="/logo/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
+                                    <div className="text-sm">
+                                        <span className="text-gray-600">Powered by </span>
+                                        <Link
+                                            href="https://www.ptbk.io"
+                                            className="font-semibold text-promptbook-blue hover:underline"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Promptbook
+                                        </Link>
+                                        <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            */}
+                                */}
                             </>
                         )}
                     />

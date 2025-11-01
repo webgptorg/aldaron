@@ -32,7 +32,7 @@ export const metadata: Metadata = {
         siteName: 'Promptbook',
         images: [
             {
-                url: '/promptbook-logo-blue-256.png',
+                url: '/logo/promptbook-logo-blue-256.png',
                 width: 256,
                 height: 256,
                 alt: 'Promptbook Logo',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
         title: 'Promptbook - AI-Powered Prompt Engineering Platform',
         description:
             'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        images: ['/promptbook-logo-blue-256.png'],
+        images: ['/logo/promptbook-logo-blue-256.png'],
         creator: '@promptbook',
     },
     icons: {

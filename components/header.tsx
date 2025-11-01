@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -29,7 +30,7 @@ export function Header(props: HeaderProps) {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                         <Image
-                            src="/promptbook-logo-blue-256.png"
+                            src={promptbookLogoBlueTransparent}
                             alt="Promptbook"
                             width={32}
                             height={32}

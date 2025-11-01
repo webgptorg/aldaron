@@ -108,7 +108,7 @@ export default function ProMestaPage() {
                     companyLinks={[
                         {
                             href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
-                            text: 'AI Web, LLC',
+                            text: '	AI Web s.r.o.',
                         },
                         { href: 'https://ptbk.io/about', text: 'O nás' },
                         { href: 'https://ptbk.io/blog', text: 'Blog' },

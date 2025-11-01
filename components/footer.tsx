@@ -5,6 +5,9 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
+import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -37,7 +40,7 @@ export function Footer({
     companyLinks = [
         {
             href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
-            text: 'AI Web, LLC',
+            text: 'AI Web s.r.o.',
         },
         { href: 'https://ptbk.io/about', text: 'About Us' },
         { href: 'https://ptbk.io/blog', text: 'Blog' },
@@ -105,10 +108,7 @@ export function Footer({
                         <ul className="space-y-3">
                             {productLinks.map((link) => (
                                 <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
                                         {link.text}
                                     </Link>
                                 </li>
@@ -122,10 +122,7 @@ export function Footer({
                         <ul className="space-y-3">
                             {companyLinks.map((link) => (
                                 <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
                                         {link.text}
                                     </Link>
                                 </li>
@@ -139,10 +136,7 @@ export function Footer({
                         <ul className="space-y-3">
                             {connectLinks.map((link) => (
                                 <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-white transition-colors"
-                                    >
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
                                         {link.text}
                                     </Link>
                                 </li>
@@ -197,10 +191,11 @@ export function Footer({
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <div className="flex items-center gap-3">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src="/promptbook-logo-blue-256.png"
+                                <Image
+                                    src={promptbookLogoBlueTransparent}
                                     alt="Promptbook"
+                                    width={32}
+                                    height={32}
                                     className="h-8 w-8 filter brightness-0 invert"
                                 />
                                 <span className="text-xl font-bold text-white">Promptbook</span>
@@ -216,12 +211,7 @@ export function Footer({
                         </div>
 
                         <div className="flex flex-col items-center lg:items-end gap-4">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FCI-Technology-Incubation.6cc58993.png&w=828&q=75"
-                                alt="Technology Incubation logo"
-                                className="h-24 w-auto"
-                            />
+                            <Image src={technologyIncubationSponsor} alt="Our Sponsor" className="h-32 w-auto" />
                             <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
                                 {projectFundingText}
                             </p>

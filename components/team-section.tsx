@@ -1,8 +1,8 @@
+import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
+import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import jiriJahn from '../public/people/jiri-jahn-transparent.png';
-import pavolHejny from '../public/people/pavol-hejny-transparent.png';
 
 interface TeamSectionProps {
     title?: string;
