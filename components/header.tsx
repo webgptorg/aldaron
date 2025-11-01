@@ -45,16 +45,22 @@ export function Header(props: HeaderProps) {
                     {!isBare && (
                         <nav className="hidden md:flex items-center gap-8">
                             <button
+                                onClick={() => scrollToSection('try-it-yourself')}
+                                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                            >
+                                Try it Yourself!
+                            </button>
+                            <button
                                 onClick={() => scrollToSection('benefits')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Why Our AI?
+                                Why Promptbook?
                             </button>
                             <button
                                 onClick={() => scrollToSection('integrations')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Integration
+                                Integrations
                             </button>
                             <button
                                 onClick={() => scrollToSection('pricing')}
