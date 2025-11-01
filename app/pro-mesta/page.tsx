@@ -30,7 +30,7 @@ export default function ProMestaPage() {
                 <Header />
                 <Suspense>
                     <HeroSection
-                        backgroundImage="/backgrounds/for-industry.svg"
+                        backgroundImage="/backgrounds/pro-mesta.svg"
                         getHero={({ you }) => (
                             <>
                                 <div className="space-y-4">
