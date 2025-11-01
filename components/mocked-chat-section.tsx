@@ -72,8 +72,11 @@ export function MockedChatSection() {
                   scrollbar-width: none;
               }
           `}</style>
-            <Tabs value={selectedConversation} onValueChange={(value) => setSelectedConversation(value as ConversationId)}>
-            {/*
+            <Tabs
+                value={selectedConversation}
+                onValueChange={(value) => setSelectedConversation(value as ConversationId)}
+            >
+                {/*
             <TabsList
                 className="grid w-full"
                 style={{ gridTemplateColumns: `repeat(${conversations.length}, minmax(0, 1fr))` }}
@@ -87,39 +90,44 @@ export function MockedChatSection() {
             </TabsList>
             */}
 
-            {conversations.map(
-                (conversation) =>
-                    conversation && (
-                        <TabsContent key={conversation.id} value={conversation.id}>
-                            <div
-                                className="no-scrollbar"
-                                style={{ height: 'calc(100vh - 200px)', overflowY: 'auto', width: '450px' }}
-                            >
-                                <MockedChat
-                                    title={conversation.title}
-                                    isSaveButtonEnabled={false}
-                                    participants={conversation.participants
-                                        .filter((participant: any) => participant.name !== 'user')
-                                        .map((participant: any) => ({
-                                            ...participant,
-                                            name: participant.name,
-                                            isMe: participant.isMe,
-                                            fullname: participant.fullname || participant.name,
-                                            color: participant.color || '#6B7280',
-                                            avatarSrc: generatePlaceholderAgentProfileImageUrl(participant.name),
+                {conversations.map(
+                    (conversation) =>
+                        conversation && (
+                            <TabsContent key={conversation.id} value={conversation.id}>
+                                <div className="no-scrollbar" style={{ overflowY: 'auto', width: '100%' }}>
+                                    <MockedChat
+                                        className="debug"
+                                        title={conversation.title}
+                                        isFocusedOnLoad={false}
+                                        isSaveButtonEnabled={false}
+                                        isCopyButtonEnabled={false}
+                                        isResettable={false}
+                                        isPausable={false}
+                                        delayConfig={{
+                                            showIntermediateMessages: 1,
+                                        }}
+                                        participants={conversation.participants
+                                            .filter((participant: any) => participant.name !== 'user')
+                                            .map((participant: any) => ({
+                                                ...participant,
+                                                name: participant.name,
+                                                isMe: participant.isMe,
+                                                fullname: participant.fullname || participant.name,
+                                                color: participant.color || '#6B7280',
+                                                avatarSrc: generatePlaceholderAgentProfileImageUrl(participant.name),
+                                            }))}
+                                        messages={conversation.messages.map((msg: any) => ({
+                                            id: msg.id,
+                                            from: msg.author,
+                                            content: msg.content,
+                                            date: msg.timestamp,
                                         }))}
-                                    messages={conversation.messages.map((msg: any) => ({
-                                        id: msg.id,
-                                        from: msg.author,
-                                        content: msg.content,
-                                        date: msg.timestamp,
-                                    }))}
-                                />
-                            </div>
-                        </TabsContent>
-                    ),
-            )}
-        </Tabs>
+                                    />
+                                </div>
+                            </TabsContent>
+                        ),
+                )}
+            </Tabs>
         </>
     );
 }
