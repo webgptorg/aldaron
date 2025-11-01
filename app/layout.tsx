@@ -7,7 +7,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    // TODO: !!! Update metadata for Promptbook Book 2.0:
+    // TODO: !!! Prompt: Update metadata for Promptbook Book 2.0:
     title: 'Promptbook - AI-Powered Prompt Engineering Platform',
     description:
         'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
