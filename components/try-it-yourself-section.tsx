@@ -64,7 +64,10 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
     const sendMessage = useSendMessageToLlmChat();
 
     return (
-        <section id="try-it-yourself" className="relative  mx-0 py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <section
+            id="try-it-yourself"
+            className="relative  mx-0 py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+        >
             <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Try it yourself</h2>
                 <p className="mt-4 text-lg text-muted-foreground">

@@ -20,7 +20,6 @@ async function getShortcodeLink(shortcode: string) {
         .eq('shortcode', shortcode)
         .single();
 
-    // console.log('!!! result', result);
 
     const { data, error } = result;
 
@@ -76,7 +75,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
     const { shortcode } = await params;
 
-    //  console.log('!!! shortcode', shortcode);
 
     if (!shortcode) {
         notFound();
@@ -85,8 +83,7 @@ export default async function Page({ params }: PageProps) {
     try {
         const data = await getShortcodeLink(shortcode);
 
-        //  console.log('!!! getShortcodeLink', data);
-
+   
         if (!data || !data.url || data.url.length === 0) {
             notFound();
         }
