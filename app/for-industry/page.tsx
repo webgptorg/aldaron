@@ -15,6 +15,7 @@ import forIndustryBook from '@/config/for-industry/for-industry.book';
 import { industryIntegrations } from '@/config/for-industry/industryIntegrations';
 import { industryPricing } from '@/config/for-industry/industryPricing';
 import { industryTestimonials } from '@/config/for-industry/industryTestimonials';
+import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -30,6 +31,7 @@ export default function ForIndustryPage() {
                 <Header />
                 <Suspense>
                     <HeroSection
+                        conversation={citiesCsConversation /* <- TODO: !!! Change */}
                         backgroundImage="/backgrounds/for-industry.svg"
                         getHero={({ you }) => (
                             <>

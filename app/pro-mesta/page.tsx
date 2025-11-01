@@ -11,11 +11,12 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
-import { citiesCsIntegrations } from '@/config/pro-mesta/industryIntegrations';
-import { citiesCsPricing } from '@/config/pro-mesta/industryPricing';
-import { citiesCsTestimonials } from '@/config/pro-mesta/industryTestimonials';
-import proMestaBook from '@/config/pro-mesta/pro-mesta.book';
-import { citiesCsBenefits } from '@/config/pro-mesta/proMestaBenefits';
+import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
+import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
+import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
+import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
+import { citiesCsPricing } from '@/config/pro-mesta/citiesCsPricing';
+import { citiesCsTestimonials } from '@/config/pro-mesta/citiesCsTestimonials';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -30,6 +31,7 @@ export default function ProMestaPage() {
                 <Header />
                 <Suspense>
                     <HeroSection
+                        conversation={citiesCsConversation /* <- TODO: !!! Change */}
                         backgroundImage="/backgrounds/pro-mesta.svg"
                         getHero={({ you }) => (
                             <>
@@ -82,7 +84,7 @@ export default function ProMestaPage() {
                     />
                 </Suspense>
                 <Suspense>
-                    <TryItYourselfSection initialBook={proMestaBook} />
+                    <TryItYourselfSection initialBook={citiesCsBook} />
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"

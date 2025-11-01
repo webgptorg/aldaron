@@ -12,6 +12,7 @@ import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
+import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -26,6 +27,7 @@ export default function HomePage() {
                 <Header />
                 <Suspense>
                     <HeroSection
+                        conversation={citiesCsConversation /* <- TODO: !!! Change */}
                         getHero={({ you }) => (
                             <>
                                 {' '}

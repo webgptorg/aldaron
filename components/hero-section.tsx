@@ -1,6 +1,7 @@
 'use client';
 
 import { useYou } from '@/hooks/useYou';
+import { Conversation } from '@/lib/conversations-data';
 import { motion } from 'framer-motion';
 import { JSX } from 'react';
 import { MockedChatSection } from './mocked-chat-section';
@@ -12,10 +13,12 @@ type HeroSectionProps = {
      * Function to customize the heading text.
      */
     getHero: (params: { you: string | null }) => JSX.Element;
+
+    conversation: Conversation;
 };
 
 export function HeroSection(props: HeroSectionProps) {
-    const { backgroundImage = `/backgrounds/generic.svg`, getHero } = props;
+    const { backgroundImage = `/backgrounds/generic.svg`, getHero, conversation } = props;
 
     const you = useYou();
 
@@ -54,7 +57,7 @@ export function HeroSection(props: HeroSectionProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
                     >
-                        <MockedChatSection />
+                        <MockedChatSection conversation={conversation} />
                     </motion.div>
                 </div>
             </div>
