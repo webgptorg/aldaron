@@ -7,7 +7,7 @@ Page `/pro-mesta` should be fully translated to Czech language.
 
 ---
 
-[ ]
+[x]
 
 Page `/pro-mesta` should be fully translated to Czech language.
 

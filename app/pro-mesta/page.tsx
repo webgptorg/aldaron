@@ -33,14 +33,20 @@ export default function ProMestaPage() {
                     ceoOf="CEO společnosti Promptbook"
                     description="Naplánujte si bezplatný a nezávazný hovor, abyste zjistili, jak může Promptbook revolučně změnit znalosti vaší společnosti a posílit váš tým."
                     emailPlaceholder="jmeno@uzasna-spolecnost.com"
-                    phonePlaceholder="123-456-789"
+                    phonePlaceholder="+420 123 456 789"
                     errorNoEmailOrPhone="Zadejte prosím svůj e-mail nebo telefonní číslo"
                     sending="Odesílání..."
                     scheduleCall="Naplánovat hovor"
                 />
             </Suspense>
             <main className="min-h-screen">
-                <Header />
+                <Header
+                    tryItYourselfText="Vyzkoušejte si to!"
+                    whyPromptbookText="Proč Promptbook?"
+                    integrationsText="Integrace"
+                    pricingText="Ceník"
+                    getStartedText="Začít"
+                />
                 <Suspense>
                     <HeroSection
                         conversation={citiesCsConversation /* <- TODO: !!! Change */}
@@ -111,8 +117,16 @@ export default function ProMestaPage() {
                     description="Zefektivněte operace, snižte zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
                     benefits={citiesCsBenefits}
                 />
-                <IntegrationsSection integrations={citiesCsIntegrations} />
-                <TestimonialsSection testimonials={citiesCsTestimonials} />
+                <IntegrationsSection
+                    title="Kde využít svého AI agenta"
+                    description="Nasaďte své AI agenty definované v booku v široké škále aplikací a scénářů."
+                    integrations={citiesCsIntegrations}
+                />
+                <TestimonialsSection
+                    title="Co říkají lidé"
+                    description="Zjistěte, jak Promptbook mění život profesionálů po celém světě:"
+                    testimonials={citiesCsTestimonials}
+                />
                 <TeamSection
                     title="Náš tým"
                     description="Jsme oddaná skupina profesionálů, kteří se zavázali využívat AI k transformaci podniků. S různými zkušenostmi v oblasti technologií, výzkumu a podnikání:"
@@ -129,7 +143,11 @@ export default function ProMestaPage() {
                         </>
                     }
                 />
-                <PricingSection plans={citiesCsPricing} />
+                <PricingSection
+                    title="Jednoduché a transparentní ceny"
+                    description="Vyberte si plán, který vyhovuje vašim obchodním potřebám."
+                    plans={citiesCsPricing}
+                />
                 <Footer
                     productHeader="Produkt"
                     productLinks={[

@@ -12,18 +12,22 @@ export type Testimonial = {
 
 type TestimonialsSectionProps = {
     testimonials?: Array<Testimonial>;
+    title?: string;
+    description?: string;
 };
 
 export function TestimonialsSection(props: TestimonialsSectionProps) {
-    const { testimonials = defaultTestimonials } = props;
+    const {
+        testimonials = defaultTestimonials,
+        title = 'What People Says',
+        description = 'Discover how Promptbook is making a difference for professionals worldwide:',
+    } = props;
 
     return (
         <section className="container mx-auto py-12 md:py-24">
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">What People Says</h2>
-                <p className="mt-4 text-lg text-muted-foreground">
-                    Discover how Promptbook is making a difference for professionals worldwide:
-                </p>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                <p className="mt-4 text-lg text-muted-foreground">{description}</p>
             </div>
 
             <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

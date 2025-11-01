@@ -12,10 +12,16 @@ export type Integration = {
 
 type IntegrationsSectionProps = {
     integrations?: Array<Integration>;
+    title?: string;
+    description?: string;
 };
 
 export function IntegrationsSection(props: IntegrationsSectionProps) {
-    const { integrations = defaultIntegrations } = props;
+    const {
+        integrations = defaultIntegrations,
+        title = 'Where to Use Your AI Agent',
+        description = 'Deploy your book-defined AI agents across a wide range of applications and scenarios.',
+    } = props;
 
     console.log('IntegrationsSection rendered');
 
@@ -23,10 +29,8 @@ export function IntegrationsSection(props: IntegrationsSectionProps) {
         <section id="integrations" className="py-20 bg-white">
             <div className="container mx-auto px-4">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Where to Use Your AI Agent</h2>
-                    <p className="mt-4 text-lg text-muted-foreground">
-                        Deploy your book-defined AI agents across a wide range of applications and scenarios.
-                    </p>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">{description}</p>
                 </div>
 
                 <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-2 gap-8">

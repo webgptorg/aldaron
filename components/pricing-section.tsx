@@ -21,9 +21,18 @@ export interface PricingSectionProps {
     isFrame?: boolean;
     currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE' | 'STANDARD' | 'ADVANCED';
     plans: PricingPlan[];
+    title?: string;
+    description?: string;
 }
 
-export function PricingSection({ hideHeader, isFrame, currentPlan, plans }: PricingSectionProps) {
+export function PricingSection({
+    hideHeader,
+    isFrame,
+    currentPlan,
+    plans,
+    title = 'Simple, Transparent Pricing',
+    description = 'Choose the plan that fits your business needs.',
+}: PricingSectionProps) {
     // Helper function to check if a plan is the current plan
     const isCurrentPlan = (planName: string) => {
         if (!currentPlan) return false;
@@ -52,12 +61,8 @@ export function PricingSection({ hideHeader, isFrame, currentPlan, plans }: Pric
                 <div className={isFrame ? 'max-w-6xl mx-auto px-4' : 'container mx-auto px-4'}>
                     {!hideHeader && (
                         <div className="text-center">
-                            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                                Simple, Transparent Pricing
-                            </h2>
-                            <p className="mt-4 text-lg text-muted-foreground">
-                                Choose the plan that fits your business needs.
-                            </p>
+                            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                            <p className="mt-4 text-lg text-muted-foreground">{description}</p>
                         </div>
                     )}
 

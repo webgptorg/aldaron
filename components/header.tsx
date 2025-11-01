@@ -11,10 +11,22 @@ type HeaderProps = {
      * Is bare header without navigation and CTA button
      */
     isBare?: boolean;
+    tryItYourselfText?: string;
+    whyPromptbookText?: string;
+    integrationsText?: string;
+    pricingText?: string;
+    getStartedText?: string;
 };
 
 export function Header(props: HeaderProps) {
-    const { isBare = false } = props;
+    const {
+        isBare = false,
+        tryItYourselfText = 'Try it Yourself!',
+        whyPromptbookText = 'Why Promptbook?',
+        integrationsText = 'Integrations',
+        pricingText = 'Pricing',
+        getStartedText = 'Get Started',
+    } = props;
 
     const scrollToSection = (sectionId: string) => {
         const element = document.getElementById(sectionId);
@@ -48,25 +60,25 @@ export function Header(props: HeaderProps) {
                                 onClick={() => scrollToSection('try-it-yourself')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Try it Yourself!
+                                {tryItYourselfText}
                             </button>
                             <button
                                 onClick={() => scrollToSection('benefits')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Why Promptbook?
+                                {whyPromptbookText}
                             </button>
                             <button
                                 onClick={() => scrollToSection('integrations')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Integrations
+                                {integrationsText}
                             </button>
                             <button
                                 onClick={() => scrollToSection('pricing')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                             >
-                                Pricing
+                                {pricingText}
                             </button>
                         </nav>
                     )}
@@ -75,7 +87,7 @@ export function Header(props: HeaderProps) {
                     {!isBare && (
                         <Link href="?modal=get-started">
                             <Button className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90">
-                                Get Started
+                                {getStartedText}
                                 <ArrowRight className="ml-2 w-4 h-4" />
                             </Button>
                         </Link>
