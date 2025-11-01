@@ -1,6 +1,8 @@
 [ ]
 
-Create a subpage that is simmilar concept as `/for-industry` and `/for-municipalities` to the new landing page `/for-agro` but is will be focused and narrowed down to agronomy use case.
+Create a subpage that is simmilar concept as `/for-industry` and `/pro-mesta` to the new landing page `/for-agro` but is will be focused and narrowed down to agronomy use case.
+
+This is the reasoning why agronomy companies can be a good fit for Promptbook:
 
 ```markdown
 ## Zemědělské společnosti
