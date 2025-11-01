@@ -12,7 +12,7 @@ export function MockedChatSection(props: MockedChatSectionProps) {
     const { conversation } = props;
 
     return (
-        <div className="no-scrollbar h-screen w-full debug">
+        <div className="no-scrollbar lg:h-[80vh] w-full">
             <MockedChat
                 // className="debug"
                 title={conversation.title}
@@ -22,7 +22,7 @@ export function MockedChatSection(props: MockedChatSectionProps) {
                 isResettable={false}
                 isPausable={false}
                 delayConfig={{
-                    showIntermediateMessages: 10,
+                    showIntermediateMessages: 1,
                 }}
                 participants={conversation.participants
                     .filter((participant: any) => participant.name !== 'user')
