@@ -13,10 +13,21 @@ import { useMemo, useState } from 'react';
 
 type TryItYourselfSectionProps = {
     initialBook?: string_book;
+    tryItYourself?: string;
+    tryChatting?: string;
+    helpMessage?: string;
+    welcomeMessage?: (agentName: string) => string;
 };
 
 export function TryItYourselfSection(props: TryItYourselfSectionProps) {
-    const { initialBook } = props;
+    const {
+        initialBook,
+        tryItYourself = 'Try it yourself',
+        tryChatting = 'Try chatting with {agentName} yourself:',
+        helpMessage = 'Can you help me?',
+        welcomeMessage = (agentName: string) =>
+            `I'm the company's lawyer from ${agentName}. I provide legal advice and support to the company and its employees, focusing on compliance with laws and company policies. How can I help?`,
+    } = props;
 
     const initialBookDefined = initialBook || defaultBook;
 
@@ -69,9 +80,9 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
             className="relative  mx-0 py-24 bg-gradient-to-br from-blue-50 via-white to-purple-50"
         >
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Try it yourself</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{tryItYourself}</h2>
                 <p className="mt-4 text-lg text-muted-foreground">
-                    Try chatting with {parsedAgent.agentName} yourself:
+                    {tryChatting.replace('{agentName}', parsedAgent.agentName)}
                 </p>
             </div>
 
@@ -81,7 +92,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                     <BookEditor
                         className="h-full min-h-0"
                         value={bookSource || undefined}
-                        onChange={setBookSource}
+                        onChange={(value) => setBookSource(value)}
                         isDownloadButtonShown={false}
                         isAboutButtonShown={false}
                         isFullscreenButtonShown={false} // <- !!! Show fullscreen button
@@ -106,19 +117,16 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                         initialMessages={[
                             {
                                 from: 'USER',
-                                content: spaceTrim(`
-                                        Can you help me?
-                                    `),
+                                content: spaceTrim(helpMessage),
                                 isComplete: true,
                             },
                             {
                                 from: 'AVATAR',
-                                content: spaceTrim(`
-                                        I'm the company's lawyer from ${parsedAgent.agentName}.
-                                        I provide legal advice and support to the company and its employees, focusing on compliance with laws and company policies. How can I help?
-
-                                        [Tell me more](?message=Tell me more)
-                                    `),
+                                content: spaceTrim(
+                                    `${welcomeMessage(
+                                        parsedAgent.agentName,
+                                    )}\n\n[Tell me more](?message=Tell me more)`,
+                                ),
                                 isComplete: true,
                             },
                         ]}

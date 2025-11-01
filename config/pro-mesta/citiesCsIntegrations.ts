@@ -4,30 +4,26 @@ import { Integration } from '../../components/integrations-section';
 export const citiesCsIntegrations: Array<Integration> = [
     {
         icon: MessageSquare,
-        title: 'Chat Apps',
-        description: 'Create a chat shopping assistant for your eShop or a customer support bot.',
-        features: ['24/7 availability', 'Personalized recommendations', 'Tightly controlled responses'],
+        title: 'Chatovací aplikace',
+        description: 'Vytvořte chatovacího asistenta pro komunikaci s občany nebo pro turistické informační centrum.',
+        features: ['Dostupnost 24/7', 'Personalizované informace', 'Přesně řízené odpovědi'],
     },
     {
         icon: Mail,
-        title: 'Reply Agent',
-        description: 'Automatically analyze and reply to emails, or create drafts for your review.',
-        features: ['Auto-replies', 'Context awareness', 'Draft generation'],
+        title: 'Agent pro odpovědi',
+        description: 'Automaticky analyzujte a odpovídejte na e-maily občanů, nebo vytvářejte návrhy odpovědí.',
+        features: ['Automatické odpovědi', 'Povědomí o kontextu', 'Generování návrhů'],
     },
     {
         icon: Code,
-        title: 'Coding Agent',
-        description: 'Enforce your coding style and architecture rules in any vibecoding platform.',
-        features: ['Custom coding standards', 'Architecture alignment', 'Security enforcement'],
+        title: 'Asistent pro úředníky',
+        description: 'Pomozte úředníkům s přípravou dokumentů a dodržováním interních předpisů.',
+        features: ['Vlastní standardy pro dokumenty', 'Soulad s předpisy', 'Vynucování bezpečnosti'],
     },
     {
         icon: Bot,
-        title: 'Internal Expertise',
-        description: 'Integrate AI into your internal apps for data analysis, sentiment analysis, and more.',
-        features: ['Custom automations', 'Data analysis', 'Sentiment classification'],
+        title: 'Interní expertíza',
+        description: 'Integrujte AI do interních aplikací pro analýzu dat, sentimentu a další.',
+        features: ['Vlastní automatizace', 'Analýza dat', 'Klasifikace sentimentu'],
     },
 ];
-
-/**
- * TODO: !!! Cutomize for cities
- */

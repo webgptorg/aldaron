@@ -25,7 +25,19 @@ export default function ProMestaPage() {
     return (
         <>
             <Suspense>
-                <BusinessGetStartedModal placeName="ProMestaPage" />
+                <BusinessGetStartedModal
+                    placeName="ProMestaPage"
+                    title="Jste připraveni transformovat své město s AI?"
+                    requestSent="Požadavek odeslán!"
+                    specialistContact="Náš specialista vás bude brzy kontaktovat."
+                    ceoOf="CEO společnosti Promptbook"
+                    description="Naplánujte si bezplatný a nezávazný hovor, abyste zjistili, jak může Promptbook revolučně změnit znalosti vaší společnosti a posílit váš tým."
+                    emailPlaceholder="jmeno@uzasna-spolecnost.com"
+                    phonePlaceholder="123-456-789"
+                    errorNoEmailOrPhone="Zadejte prosím svůj e-mail nebo telefonní číslo"
+                    sending="Odesílání..."
+                    scheduleCall="Naplánovat hovor"
+                />
             </Suspense>
             <main className="min-h-screen">
                 <Header />
@@ -84,7 +96,15 @@ export default function ProMestaPage() {
                     />
                 </Suspense>
                 <Suspense>
-                    <TryItYourselfSection initialBook={citiesCsBook} />
+                    <TryItYourselfSection
+                        initialBook={citiesCsBook}
+                        tryItYourself="Vyzkoušejte si to sami"
+                        tryChatting="Zkuste si popovídat s {agentName} sami:"
+                        helpMessage="Můžete mi pomoci?"
+                        welcomeMessage={(agentName: string) =>
+                            `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
+                        }
+                    />
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
