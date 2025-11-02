@@ -4,12 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Check, Crown, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { ElementType } from 'react';
 
 export interface PricingPlan {
     name: string;
     price: string;
     period: string;
     description: string;
+    icon: ElementType;
     features: string[];
     buttonText: string;
     popular: boolean;
@@ -104,7 +106,7 @@ export function PricingSection({
                                     <div
                                         className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center mx-auto mb-4`}
                                     >
-                                        <MessageSquare className="w-8 h-8 text-white" />
+                                        <plan.icon className="w-8 h-8 text-white" />
                                     </div>
 
                                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>

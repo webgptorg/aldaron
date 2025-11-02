@@ -1,9 +1,12 @@
+import { Building, Rocket, Shield } from 'lucide-react';
+
 export const citiesCsPricing = [
     {
         name: 'Standard',
         price: '2 299 Kč',
         period: 'měsíčně',
         description: 'Ideální pro malá a středně velká města a obce.',
+        icon: Building,
         features: [
             'Až 20 AI agentů',
             'Znalostní báze specifická pro město',
@@ -19,6 +22,7 @@ export const citiesCsPricing = [
         price: '5 799 Kč',
         period: 'měsíčně',
         description: 'Pro města vyžadující pokročilejší funkce a podporu.',
+        icon: Rocket,
         features: [
             'Vše ve Standardu',
             'Až 50 AI agentů',
@@ -35,6 +39,7 @@ export const citiesCsPricing = [
         price: 'Vlastní',
         period: 'kontaktujte nás',
         description: 'Řešení na míru pro rozsáhlé městské aplikace.',
+        icon: Shield,
         features: [
             'Vše v Pokročilém',
             'Neomezený počet AI agentů',

@@ -1,9 +1,12 @@
+import { Building, Rocket, Shield } from 'lucide-react';
+
 export const industryPricing = [
     {
         name: 'Standard',
         price: '$99',
         period: 'per month',
         description: 'Ideal for small to medium-sized businesses in the industry.',
+        icon: Building,
         features: ['Up to 20 AI Agents', 'Industry-specific knowledge base', 'Priority support', 'Advanced analytics'],
         buttonText: 'Get Started',
         popular: false,
@@ -14,6 +17,7 @@ export const industryPricing = [
         price: '$249',
         period: 'per month',
         description: 'For businesses requiring more advanced features and support.',
+        icon: Rocket,
         features: [
             'Everything in Standard',
             'Up to 50 AI Agents',
@@ -30,6 +34,7 @@ export const industryPricing = [
         price: 'Custom',
         period: 'contact us',
         description: 'Tailored solutions for large-scale industry applications.',
+        icon: Shield,
         features: [
             'Everything in Advanced',
             'Unlimited AI Agents',
