@@ -103,7 +103,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                         onChange={(value) => setBookSource(value)}
                         isDownloadButtonShown={false}
                         isAboutButtonShown={false}
-                        isFullscreenButtonShown={false} // <- !!! Show fullscreen button
+                        isFullscreenButtonShown={true}
                     />
                 </div>
 
