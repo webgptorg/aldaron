@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
+import { CLAIM } from '@promptbook/core';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -206,7 +207,7 @@ export function Footer({
                                 {rightsReservedText}
                             </p>
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
-                                The AI orchestration framework for building intelligent applications 11:11
+                                {CLAIM} <i style={{ visibility: 'hidden' }}>11:11</i>
                             </p>
                         </div>
 
