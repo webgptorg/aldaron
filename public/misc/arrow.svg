@@ -15,7 +15,27 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="RoundedArrow"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Rounded arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="m -0.21114562,-4.1055728 6.42229122,3.21114561 a 1,1 90 0 1 0,1.78885438 L -0.21114562,4.1055728 A 1.236068,1.236068 31.717474 0 1 -2,3 v -6 a 1.236068,1.236068 148.28253 0 1 1.78885438,-1.1055728 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path8" />
+    </marker>
+  </defs>
   <sodipodi:namedview
      id="namedview2"
      pagecolor="#ffffff"
@@ -27,7 +47,7 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="3.3583333"
      inkscape:cx="120"
-     inkscape:cy="83.82134"
+     inkscape:cy="83.821341"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -36,19 +56,12 @@
      inkscape:current-layer="svg2" />
   <!-- Curved arrow pointing from left (editor) to right (chat) -->
   <path
-     d="M 12,92 C 82.345979,-10.333777 152.95825,32.72949 212.23573,85.265509"
+     d="m 42.238198,52.834997 c 0,0 54.094133,-24.814435 65.384762,-6.062785 5.94156,9.867819 -7.627722,31.202248 -18.917339,28.91742 -15.939028,-3.225791 -19.362427,-35.692824 -8.73133,-47.998844 20.992909,-24.3003338 96.281129,3.28962 96.281129,3.28962"
      stroke="#ef4444"
-     stroke-width="6"
+     stroke-width="3.94538"
      stroke-linecap="round"
      fill="none"
      id="path1"
-     sodipodi:nodetypes="cc" />
-  <path
-     d="M 212.23573,85.265509 205.23077,60 m 7.00496,25.265509 -26.5732,0.005"
-     stroke="#ef4444"
-     stroke-width="6"
-     stroke-linecap="round"
-     stroke-linejoin="round"
-     id="path2"
-     sodipodi:nodetypes="cccc" />
+     sodipodi:nodetypes="caaac"
+     style="stroke:#30a8bd;stroke-opacity:1;marker-end:url(#RoundedArrow);stroke-width:7;stroke-dasharray:none" />
 </svg>
