@@ -101,16 +101,16 @@ export function PricingSection({
                             return (
                                 <motion.div
                                     key={index}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: index * 0.1 }}
-                                whileHover={{ y: -5 }}
-                                className={`relative bg-white rounded-2xl p-8 shadow-lg border transition-all duration-300 ${
-                                    shouldShowAsPopular(plan) || isCurrentPlan(plan.name)
-                                        ? 'border-primary scale-105 shadow-xl'
-                                        : 'border-gray-100 hover:shadow-xl'
-                                }`}
-                            >
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                                    whileHover={{ y: -5 }}
+                                    className={`relative flex flex-col bg-white rounded-2xl p-8 shadow-lg border transition-all duration-300 ${
+                                        shouldShowAsPopular(plan) || isCurrentPlan(plan.name)
+                                            ? 'border-primary scale-105 shadow-xl'
+                                            : 'border-gray-100 hover:shadow-xl'
+                                    }`}
+                                >
                                 {/* Current Plan Badge */}
                                 {isCurrentPlan(plan.name) && (
                                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -155,7 +155,7 @@ export function PricingSection({
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 mb-8">
+                                <div className="flex-grow space-y-4 mb-8">
                                     {plan.features.map((feature, featureIndex) => (
                                         <div key={featureIndex} className="flex items-center gap-3">
                                             <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
