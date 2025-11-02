@@ -82,11 +82,11 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
             <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{tryItYourself}</h2>
                 <p className="mt-4 text-lg text-muted-foreground">
-                    {tryChatting.replace('{agentName}', parsedAgent.agentName)}
+                    {tryChatting.replace('{agentName}', parsedAgent.agentName || 'this assistant')}
                 </p>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="relative mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Book editor column: ensure full-height and prevent overflow */}
                 <div className="lg:col-span-1 h-[400px] lg:h-[600px] min-h-0 flex flex-col overflow-hidden">
                     <BookEditor
@@ -99,6 +99,15 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                     />
                 </div>
 
+                {/* Floating Arrow */}
+                <div className="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <img
+                        src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='100'%20height='60'%20viewBox='0%200%20100%2060'%3E%3Cpath%20d='M5,5%20C40,60%2060,60%2095,5'%20fill='none'%20stroke='%23a0a0a0'%20stroke-width='2'%20stroke-dasharray='5,5'/%3E%3Cpolygon%20points='90,10%2095,5%20100,10'%20fill='%23a0a0a0'/%3E%3C/svg%3E"
+                        alt="Arrow"
+                        className="w-24 h-auto"
+                    />
+                </div>
+
                 {/* Chat column: ensure full-height and allow internal scrolling */}
                 <div className="lg:col-span-1 h-[600px] min-h-0 flex flex-col overflow-hidden">
                     <LlmChat
@@ -108,7 +117,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                             borderRadius: 20,
                             overflow: 'hidden',
                         }}
-                        title={`Chat with ${parsedAgent.agentName}`}
+                        title={`Chat with ${parsedAgent.agentName || 'this assistant'}`}
                         persistenceKey="chat-on-landing-page"
                         isSaveButtonEnabled={false}
                         isFocusedOnLoad={false}
@@ -124,7 +133,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                                 from: 'AVATAR',
                                 content: spaceTrim(
                                     `${welcomeMessage(
-                                        parsedAgent.agentName,
+                                        parsedAgent.agentName || 'this assistant',
                                     )}\n\n[Tell me more](?message=Tell me more)`,
                                 ),
                                 isComplete: true,
