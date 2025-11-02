@@ -28,25 +28,25 @@ export default function ProMestaPage() {
             <Suspense>
                 <BusinessGetStartedModal
                     placeName="ProMestaPage"
-                    title="Jste připraveni transformovat své město s AI?"
+                    title="Jste připraveni na transformaci vašeho města s pomocí AI?"
                     requestSent="Požadavek odeslán!"
                     specialistContact="Náš specialista vás bude brzy kontaktovat."
                     ceoOf="CEO společnosti Promptbook"
-                    description="Naplánujte si bezplatný a nezávazný hovor, abyste zjistili, jak může Promptbook revolučně změnit znalosti vaší společnosti a posílit váš tým."
+                    description="Naplánujte si bezplatnou a nezávaznou konzultaci a zjistěte, jak může Promptbook revolučně změnit znalosti vaší společnosti a posílit váš tým."
                     emailPlaceholder="jmeno@uzasna-spolecnost.com"
                     phonePlaceholder="+420 123 456 789"
-                    errorNoEmailOrPhone="Zadejte prosím svůj e-mail nebo telefonní číslo"
+                    errorNoEmailOrPhone="Zadejte prosím e-mail nebo telefonní číslo"
                     sending="Odesílání..."
-                    scheduleCall="Naplánovat hovor"
+                    scheduleCall="Naplánovat konzultaci"
                 />
             </Suspense>
             <main className="min-h-screen">
                 <Header
-                    tryItYourselfText="Vyzkoušejte si to!"
+                    tryItYourselfText="Vyzkoušejte si to sami"
                     whyPromptbookText="Proč Promptbook?"
                     integrationsText="Integrace"
                     pricingText="Ceník"
-                    getStartedText="Začít"
+                    getStartedText="Začněte"
                 />
                 <Suspense>
                     <HeroSection
@@ -115,22 +115,22 @@ export default function ProMestaPage() {
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
-                    description="Zefektivněte operace, snižte zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
+                    description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
                     benefits={citiesCsBenefits}
                 />
                 <IntegrationsSection
-                    title="Kde využít svého AI agenta"
-                    description="Nasaďte své AI agenty definované v booku v široké škále aplikací a scénářů."
+                    title="Kde využít vašeho AI agenta"
+                    description="Nasaďte vaše AI agenty definované v Promptbooku v široké škále aplikací a scénářů."
                     integrations={citiesCsIntegrations}
                 />
                 <TestimonialsSection
-                    title="Co říkají lidé"
-                    description="Zjistěte, jak Promptbook mění život profesionálů po celém světě:"
+                    title="Co o nás říkají"
+                    description="Zjistěte, jak Promptbook usnadňuje práci profesionálů po celém světě:"
                     testimonials={citiesCsTestimonials}
                 />
                 <TeamSection
                     title="Náš tým"
-                    description="Jsme oddaná skupina profesionálů, kteří se zavázali využívat AI k transformaci podniků. S různými zkušenostmi v oblasti technologií, výzkumu a podnikání:"
+                    description="Jsme oddaná skupina profesionálů, kteří se věnují využití AI k transformaci podniků. Naše zkušenosti pokrývají oblast technologií, výzkumu a podnikání:"
                     jiriDescription={
                         <>
                             Ph.D. v matematice, bývalý výzkumník v{' '}
@@ -139,18 +139,18 @@ export default function ProMestaPage() {
                     }
                     pavolDescription={
                         <>
-                            Přední <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v ČR. Vývojář
-                            s více než 15 lety zkušeností.
+                            Přední <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v ČR s více než 15 lety vývojářských zkušeností.
                         </>
                     }
                 />
                 <PricingSection
                     title="Jednoduché a transparentní ceny"
-                    description="Vyberte si plán, který vyhovuje vašim obchodním potřebám."
+                    description="Vyberte si plán, který nejlépe vyhovuje vašim obchodním potřebám."
                     plans={citiesCsPricing}
                     monthlyText="Měsíčně"
                     yearlyText="Ročně"
-                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku - vaše data, vaše kontrola, vždy."
+                    saveText="Ušetřete"
+                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku: Vaše data, vaše kontrola, a to vždy."
                 />
                 <PlaygroundSection />
                 <Footer
@@ -170,7 +170,7 @@ export default function ProMestaPage() {
                         { href: 'https://ptbk.io/about', text: 'O nás' },
                         { href: 'https://ptbk.io/blog', text: 'Blog' },
                     ]}
-                    connectHeader="Spojení"
+                    connectHeader="Spojte se s námi"
                     connectLinks={[
                         { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
                         { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
@@ -179,7 +179,7 @@ export default function ProMestaPage() {
                     ]}
                     stayUpdatedHeader="Zůstaňte v obraze"
                     emailLabel="E-mail *"
-                    consentLabel="Souhlasím se zasíláním novinek a aktualizací e-mailem *"
+                    consentLabel="Souhlasím se zasíláním novinek e-mailem *"
                     subscribeButtonText="Odebírat"
                     subscribingButtonText="Odebírám..."
                     successMessage="Úspěšně přihlášeno!"

@@ -40,6 +40,7 @@ export interface PricingSectionProps {
     monthlyText?: string;
     yearlyText?: string;
     openSourceGuaranteeText?: string;
+    saveText?: string;
 }
 
 export function PricingSection({
@@ -52,6 +53,7 @@ export function PricingSection({
     monthlyText = 'Monthly',
     yearlyText = 'Yearly',
     openSourceGuaranteeText = 'All plans include our open-source guarantee - your data, your control, always.',
+    saveText = 'Save',
 }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
@@ -157,15 +159,15 @@ export function PricingSection({
 
                                         <div className="mb-4">
                                             <span className="text-4xl font-bold text-gray-900">
-                                                {plan.currency}
                                                 {price}
+                                                {plan.currency && ` ${plan.currency}`}
                                             </span>
                                             <span className="text-gray-500 ml-2">
-                                                /{billingCycle === 'yearly' ? 'year' : 'month'}
+                                                / {billingCycle === 'yearly' ? yearlyText : monthlyText}
                                             </span>
                                             {billingCycle === 'yearly' && discount > 0 && (
                                                 <Badge variant="secondary" className="ml-2">
-                                                    Save {discount}%
+                                                    {saveText} {discount}%
                                                 </Badge>
                                             )}
                                         </div>

@@ -16,7 +16,7 @@ export const citiesCsPricing = [
             'Prioritní podpora',
             'Pokročilá analytika',
         ],
-        buttonText: 'Začít',
+        buttonText: 'Začněte',
         popular: false,
     },
     {
@@ -25,7 +25,7 @@ export const citiesCsPricing = [
         priceYearly: '57 999',
         currency: 'Kč',
         period: 'měsíčně',
-        description: 'Pro města vyžadující pokročilejší funkce a podporu.',
+        description: 'Pro města, která vyžadují pokročilejší funkce a podporu.',
         icon: Rocket,
         iconName: 'Rocket',
         features: [
@@ -35,7 +35,7 @@ export const citiesCsPricing = [
             'Dedikovaný manažer účtu',
             'Podpora 24/7',
         ],
-        buttonText: 'Spustit pokročilou zkušební verzi',
+        buttonText: 'Vyzkoušet pokročilou verzi',
         popular: true,
     },
     {
@@ -43,7 +43,7 @@ export const citiesCsPricing = [
         priceMonthly: 'Vlastní',
         priceYearly: 'Vlastní',
         currency: '',
-        period: 'kontaktujte nás',
+        period: 'na vyžádání',
         description: 'Řešení na míru pro rozsáhlé městské aplikace.',
         icon: Shield,
         iconName: 'Shield',
@@ -54,7 +54,7 @@ export const citiesCsPricing = [
             'Vlastní SLA',
             'Prémiové zaškolení',
         ],
-        buttonText: 'Kontaktovat prodej',
+        buttonText: 'Kontaktujte prodej',
         popular: false,
     },
 ];
