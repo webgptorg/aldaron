@@ -3,7 +3,9 @@ import { Building, Rocket, Shield } from 'lucide-react';
 export const industryPricing = [
     {
         name: 'Standard',
-        price: '$99',
+        priceMonthly: '99',
+        priceYearly: '999',
+        currency: '$',
         period: 'per month',
         description: 'Ideal for small to medium-sized businesses in the industry.',
         icon: Building,
@@ -14,7 +16,9 @@ export const industryPricing = [
     },
     {
         name: 'Advanced',
-        price: '$249',
+        priceMonthly: '249',
+        priceYearly: '2499',
+        currency: '$',
         period: 'per month',
         description: 'For businesses requiring more advanced features and support.',
         icon: Rocket,
@@ -31,7 +35,9 @@ export const industryPricing = [
     },
     {
         name: 'Enterprise',
-        price: 'Custom',
+        priceMonthly: 'Custom',
+        priceYearly: 'Custom',
+        currency: '',
         period: 'contact us',
         description: 'Tailored solutions for large-scale industry applications.',
         icon: Shield,

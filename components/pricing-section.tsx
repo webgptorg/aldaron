@@ -4,11 +4,15 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Check, Crown, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
-import { ElementType } from 'react';
+import { ElementType, useState } from 'react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export interface PricingPlan {
     name: string;
-    price: string;
+    priceMonthly: string;
+    priceYearly: string;
+    currency: string;
     period: string;
     description: string;
     icon: ElementType;
@@ -35,6 +39,8 @@ export function PricingSection({
     title = 'Simple, Transparent Pricing',
     description = 'Choose the plan that fits your business needs.',
 }: PricingSectionProps) {
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+
     // Helper function to check if a plan is the current plan
     const isCurrentPlan = (planName: string) => {
         if (!currentPlan) return false;
@@ -68,10 +74,33 @@ export function PricingSection({
                         </div>
                     )}
 
+                    <div className="flex justify-center items-center space-x-4 mt-8">
+                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                            Monthly
+                        </Label>
+                        <Switch
+                            id="billing-cycle"
+                            checked={billingCycle === 'yearly'}
+                            onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+                        />
+                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                            Yearly
+                        </Label>
+                    </div>
+
                     <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {plans.map((plan, index) => (
-                            <motion.div
-                                key={index}
+                        {plans.map((plan, index) => {
+                            const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+                            const monthlyPrice = parseFloat(plan.priceMonthly.replace(/[^0-9.]/g, ''));
+                            const yearlyPrice = parseFloat(plan.priceYearly.replace(/[^0-9.]/g, ''));
+                            const discount =
+                                monthlyPrice && yearlyPrice
+                                    ? Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100)
+                                    : 0;
+
+                            return (
+                                <motion.div
+                                    key={index}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -113,8 +142,16 @@ export function PricingSection({
                                     <p className="text-gray-600 mb-4">{plan.description}</p>
 
                                     <div className="mb-4">
-                                        <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                                        <span className="text-gray-500 ml-2">/{plan.period}</span>
+                                        <span className="text-4xl font-bold text-gray-900">
+                                            {plan.currency}
+                                            {price}
+                                        </span>
+                                        <span className="text-gray-500 ml-2">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                                        {billingCycle === 'yearly' && discount > 0 && (
+                                            <Badge variant="secondary" className="ml-2">
+                                                Save {discount}%
+                                            </Badge>
+                                        )}
                                     </div>
                                 </div>
 
@@ -172,8 +209,9 @@ export function PricingSection({
                                         }`}
                                     ></div>
                                 )}
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            );
+                        })}
                     </div>
 
                     {!hideHeader && (

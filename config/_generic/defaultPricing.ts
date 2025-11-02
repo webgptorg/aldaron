@@ -1,7 +1,9 @@
 export const defaultPricing = [
     {
         name: 'Free',
-        price: '$0',
+        priceMonthly: '0',
+        priceYearly: '0',
+        currency: '$',
         period: 'forever',
         description: 'Perfect for getting started with Promptbook',
         features: ['Create 1 AI Agent', 'Basic Knowledge and Rules', 'Community support', 'Open source access'],
@@ -11,7 +13,9 @@ export const defaultPricing = [
     },
     {
         name: 'Pro',
-        price: '$49',
+        priceMonthly: '49',
+        priceYearly: '499',
+        currency: '$',
         period: 'per month',
         description: 'For businesses building custom AI solutions',
         features: [
@@ -28,7 +32,9 @@ export const defaultPricing = [
     },
     {
         name: 'Enterprise',
-        price: 'Custom',
+        priceMonthly: 'Custom',
+        priceYearly: 'Custom',
+        currency: '',
         period: 'contact us',
         description: 'Custom solutions for large organizations',
         features: [

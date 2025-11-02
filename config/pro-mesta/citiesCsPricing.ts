@@ -3,7 +3,9 @@ import { Building, Rocket, Shield } from 'lucide-react';
 export const citiesCsPricing = [
     {
         name: 'Standard',
-        price: '2 299 Kč',
+        priceMonthly: '2 299',
+        priceYearly: '22 999',
+        currency: 'Kč',
         period: 'měsíčně',
         description: 'Ideální pro malá a středně velká města a obce.',
         icon: Building,
@@ -19,7 +21,9 @@ export const citiesCsPricing = [
     },
     {
         name: 'Pokročilý',
-        price: '5 799 Kč',
+        priceMonthly: '5 799',
+        priceYearly: '57 999',
+        currency: 'Kč',
         period: 'měsíčně',
         description: 'Pro města vyžadující pokročilejší funkce a podporu.',
         icon: Rocket,
@@ -36,7 +40,9 @@ export const citiesCsPricing = [
     },
     {
         name: 'Enterprise',
-        price: 'Vlastní',
+        priceMonthly: 'Vlastní',
+        priceYearly: 'Vlastní',
+        currency: '',
         period: 'kontaktujte nás',
         description: 'Řešení na míru pro rozsáhlé městské aplikace.',
         icon: Shield,
