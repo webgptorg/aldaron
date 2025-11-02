@@ -6,6 +6,7 @@ import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
+import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
@@ -148,6 +149,7 @@ export default function ProMestaPage() {
                     description="Vyberte si plán, který vyhovuje vašim obchodním potřebám."
                     plans={citiesCsPricing}
                 />
+                <PlaygroundSection />
                 <Footer
                     productHeader="Produkt"
                     productLinks={[

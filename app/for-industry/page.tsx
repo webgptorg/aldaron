@@ -20,6 +20,7 @@ import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
+import { PlaygroundSection } from '@/components/playground-section';
 
 export default function ForIndustryPage() {
     return (
@@ -95,6 +96,7 @@ export default function ForIndustryPage() {
                 <TestimonialsSection testimonials={industryTestimonials} />
                 <TeamSection />
                 <PricingSection plans={industryPricing} />
+                <PlaygroundSection />
                 <Footer />
             </main>
         </>
