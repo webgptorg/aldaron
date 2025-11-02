@@ -91,8 +91,9 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                 {/* Floating arrow between columns (hidden on mobile) */}
                 <img
                     src="/misc/arrow.svg"
-                    alt=""
-                    className="hidden lg:block pointer-events-none select-none absolute z-10000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 md:w-40"
+                    alt="Arrow pointing from book editor to chat"
+                    style={{ zIndex: 10000 }}
+                    className="hidden lg:block pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 md:w-40"
                 />
                 {/* Book editor column: ensure full-height and prevent overflow */}
                 <div className="lg:col-span-1 h-[400px] lg:h-[600px] min-h-0 flex flex-col overflow-hidden">
