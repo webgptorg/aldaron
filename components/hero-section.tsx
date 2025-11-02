@@ -40,14 +40,14 @@ export function HeroSection(props: HeroSectionProps) {
                 </div>
                 */}
 
-            <div className="py-20 relative z-10 text-white">
+            <div className="container mx-auto px-4 py-20 relative z-10 text-white">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Left Column - Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="space-y-8 lg:col-span-1 pl-12"
+                        className="space-y-8 lg:col-span-1"
                     >
                         {getHero({ you })}
                     </motion.div>
