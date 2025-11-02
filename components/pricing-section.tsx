@@ -29,6 +29,9 @@ export interface PricingSectionProps {
     plans: PricingPlan[];
     title?: string;
     description?: string;
+    monthlyText?: string;
+    yearlyText?: string;
+    openSourceGuaranteeText?: string;
 }
 
 export function PricingSection({
@@ -38,6 +41,9 @@ export function PricingSection({
     plans,
     title = 'Simple, Transparent Pricing',
     description = 'Choose the plan that fits your business needs.',
+    monthlyText = 'Monthly',
+    yearlyText = 'Yearly',
+    openSourceGuaranteeText = 'All plans include our open-source guarantee - your data, your control, always.',
 }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
@@ -76,7 +82,7 @@ export function PricingSection({
 
                     <div className="flex justify-center items-center space-x-4 mt-8">
                         <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            Monthly
+                            {monthlyText}
                         </Label>
                         <Switch
                             id="billing-cycle"
@@ -84,7 +90,7 @@ export function PricingSection({
                             onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
                         />
                         <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            Yearly
+                            {yearlyText}
                         </Label>
                     </div>
 
@@ -111,104 +117,106 @@ export function PricingSection({
                                             : 'border-gray-100 hover:shadow-xl'
                                     }`}
                                 >
-                                {/* Current Plan Badge */}
-                                {isCurrentPlan(plan.name) && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <Badge className="bg-green-500 text-white px-4 py-2">
-                                            <Check className="w-4 h-4 mr-1" />
-                                            Current Plan
-                                        </Badge>
-                                    </div>
-                                )}
-
-                                {/* Popular Badge */}
-                                {shouldShowAsPopular(plan) && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <Badge className="bg-gradient-purple text-white px-4 py-2">
-                                            <Crown className="w-4 h-4 mr-1" />
-                                            Most Popular
-                                        </Badge>
-                                    </div>
-                                )}
-
-                                <div className="text-center mb-8">
-                                    <div
-                                        className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center mx-auto mb-4`}
-                                    >
-                                        <plan.icon className="w-8 h-8 text-white" />
-                                    </div>
-
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                                    <p className="text-gray-600 mb-4">{plan.description}</p>
-
-                                    <div className="mb-4">
-                                        <span className="text-4xl font-bold text-gray-900">
-                                            {plan.currency}
-                                            {price}
-                                        </span>
-                                        <span className="text-gray-500 ml-2">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
-                                        {billingCycle === 'yearly' && discount > 0 && (
-                                            <Badge variant="secondary" className="ml-2">
-                                                Save {discount}%
+                                    {/* Current Plan Badge */}
+                                    {isCurrentPlan(plan.name) && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                            <Badge className="bg-green-500 text-white px-4 py-2">
+                                                <Check className="w-4 h-4 mr-1" />
+                                                Current Plan
                                             </Badge>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex-grow space-y-4 mb-8">
-                                    {plan.features.map((feature, featureIndex) => (
-                                        <div key={featureIndex} className="flex items-center gap-3">
-                                            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                                <Check className="w-3 h-3 text-green-600" />
-                                            </div>
-                                            <span className="text-gray-700">{feature}</span>
                                         </div>
-                                    ))}
-                                </div>
+                                    )}
 
-                                {/* Hide CTA button for current plan */}
-                                {!isCurrentPlan(plan.name) && (
-                                    <>
-                                        {/* Handle all buttons with consistent behavior */}
-                                        {plan.buttonText === 'Start Pro Trial' && isFrame ? (
-                                            <Link
-                                                target="_top"
-                                                href="https://promptbook.studio/purchase?plan=PRO"
-                                                className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-                                                    shouldShowAsPopular(plan)
-                                                        ? 'bg-gradient-purple text-white hover:shadow-lg'
-                                                        : 'bg-gray-900 text-white hover:bg-gray-800'
-                                                }`}
-                                            >
-                                                {plan.buttonText}
-                                            </Link>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleButtonClick(plan.buttonText)}
-                                                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-                                                    plan.buttonText === 'Contact Sales'
-                                                        ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                                                        : shouldShowAsPopular(plan)
-                                                        ? 'bg-gradient-purple text-white hover:shadow-lg'
-                                                        : 'bg-gray-900 text-white hover:bg-gray-800'
-                                                }`}
-                                            >
-                                                {plan.buttonText}
-                                            </button>
-                                        )}
-                                    </>
-                                )}
+                                    {/* Popular Badge */}
+                                    {shouldShowAsPopular(plan) && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                            <Badge className="bg-gradient-purple text-white px-4 py-2">
+                                                <Crown className="w-4 h-4 mr-1" />
+                                                Most Popular
+                                            </Badge>
+                                        </div>
+                                    )}
 
-                                {/* Subtle gradient overlay for popular plan or current plan */}
-                                {(shouldShowAsPopular(plan) || isCurrentPlan(plan.name)) && (
-                                    <div
-                                        className={`absolute inset-0 rounded-2xl pointer-events-none ${
-                                            isCurrentPlan(plan.name)
-                                                ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5'
-                                                : 'bg-gradient-to-r from-purple-500/5 to-blue-500/5'
-                                        }`}
-                                    ></div>
-                                )}
+                                    <div className="text-center mb-8">
+                                        <div
+                                            className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center mx-auto mb-4`}
+                                        >
+                                            <plan.icon className="w-8 h-8 text-white" />
+                                        </div>
+
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                                        <p className="text-gray-600 mb-4">{plan.description}</p>
+
+                                        <div className="mb-4">
+                                            <span className="text-4xl font-bold text-gray-900">
+                                                {plan.currency}
+                                                {price}
+                                            </span>
+                                            <span className="text-gray-500 ml-2">
+                                                /{billingCycle === 'yearly' ? 'year' : 'month'}
+                                            </span>
+                                            {billingCycle === 'yearly' && discount > 0 && (
+                                                <Badge variant="secondary" className="ml-2">
+                                                    Save {discount}%
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-grow space-y-4 mb-8">
+                                        {plan.features.map((feature, featureIndex) => (
+                                            <div key={featureIndex} className="flex items-center gap-3">
+                                                <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                    <Check className="w-3 h-3 text-green-600" />
+                                                </div>
+                                                <span className="text-gray-700">{feature}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Hide CTA button for current plan */}
+                                    {!isCurrentPlan(plan.name) && (
+                                        <>
+                                            {/* Handle all buttons with consistent behavior */}
+                                            {plan.buttonText === 'Start Pro Trial' && isFrame ? (
+                                                <Link
+                                                    target="_top"
+                                                    href="https://promptbook.studio/purchase?plan=PRO"
+                                                    className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                                        shouldShowAsPopular(plan)
+                                                            ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                    }`}
+                                                >
+                                                    {plan.buttonText}
+                                                </Link>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleButtonClick(plan.buttonText)}
+                                                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                                        plan.buttonText === 'Contact Sales'
+                                                            ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                                                            : shouldShowAsPopular(plan)
+                                                            ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                    }`}
+                                                >
+                                                    {plan.buttonText}
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {/* Subtle gradient overlay for popular plan or current plan */}
+                                    {(shouldShowAsPopular(plan) || isCurrentPlan(plan.name)) && (
+                                        <div
+                                            className={`absolute inset-0 rounded-2xl pointer-events-none ${
+                                                isCurrentPlan(plan.name)
+                                                    ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5'
+                                                    : 'bg-gradient-to-r from-purple-500/5 to-blue-500/5'
+                                            }`}
+                                        ></div>
+                                    )}
                                 </motion.div>
                             );
                         })}
@@ -221,9 +229,7 @@ export function PricingSection({
                             transition={{ duration: 0.6, delay: 0.3 }}
                             className="text-center mt-12"
                         >
-                            <p className="text-gray-600">
-                                All plans include our open-source guarantee - your data, your control, always.
-                            </p>
+                            <p className="text-gray-600">{openSourceGuaranteeText}</p>
                         </motion.div>
                     )}
                 </div>

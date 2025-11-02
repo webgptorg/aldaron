@@ -148,6 +148,9 @@ export default function ProMestaPage() {
                     title="Jednoduché a transparentní ceny"
                     description="Vyberte si plán, který vyhovuje vašim obchodním potřebám."
                     plans={citiesCsPricing}
+                    monthlyText="Měsíčně"
+                    yearlyText="Ročně"
+                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku - vaše data, vaše kontrola, vždy."
                 />
                 <PlaygroundSection />
                 <Footer
