@@ -1,3 +1,5 @@
+import { Gift, Shield, Zap } from 'lucide-react';
+
 export const defaultPricing = [
     {
         name: 'Free',
@@ -6,10 +8,11 @@ export const defaultPricing = [
         currency: '$',
         period: 'forever',
         description: 'Perfect for getting started with Promptbook',
+        icon: Gift,
+        iconName: 'Gift',
         features: ['Create 1 AI Agent', 'Basic Knowledge and Rules', 'Community support', 'Open source access'],
         buttonText: 'Get Started',
         popular: false,
-        gradient: 'from-gray-500 to-gray-600',
     },
     {
         name: 'Pro',
@@ -18,6 +21,8 @@ export const defaultPricing = [
         currency: '$',
         period: 'per month',
         description: 'For businesses building custom AI solutions',
+        icon: Zap,
+        iconName: 'Zap',
         features: [
             'Everything in Free',
             'Up to 10 AI Agents',
@@ -28,7 +33,6 @@ export const defaultPricing = [
         ],
         buttonText: 'Start Pro Trial',
         popular: true,
-        gradient: 'from-purple-500 to-blue-500',
     },
     {
         name: 'Enterprise',
@@ -37,6 +41,8 @@ export const defaultPricing = [
         currency: '',
         period: 'contact us',
         description: 'Custom solutions for large organizations',
+        icon: Shield,
+        iconName: 'Shield',
         features: [
             'Everything in Pro',
             'Unlimited AI Agents',
@@ -48,6 +54,5 @@ export const defaultPricing = [
         ],
         buttonText: 'Contact Sales',
         popular: false,
-        gradient: 'from-emerald-500 to-cyan-500',
     },
 ];

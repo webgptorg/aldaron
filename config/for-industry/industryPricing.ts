@@ -9,10 +9,10 @@ export const industryPricing = [
         period: 'per month',
         description: 'Ideal for small to medium-sized businesses in the industry.',
         icon: Building,
+        iconName: 'Building',
         features: ['Up to 20 AI Agents', 'Industry-specific knowledge base', 'Priority support', 'Advanced analytics'],
         buttonText: 'Get Started',
         popular: false,
-        gradient: 'from-gray-500 to-gray-600',
     },
     {
         name: 'Advanced',
@@ -22,6 +22,7 @@ export const industryPricing = [
         period: 'per month',
         description: 'For businesses requiring more advanced features and support.',
         icon: Rocket,
+        iconName: 'Rocket',
         features: [
             'Everything in Standard',
             'Up to 50 AI Agents',
@@ -31,7 +32,6 @@ export const industryPricing = [
         ],
         buttonText: 'Start Advanced Trial',
         popular: true,
-        gradient: 'from-purple-500 to-blue-500',
     },
     {
         name: 'Enterprise',
@@ -41,6 +41,7 @@ export const industryPricing = [
         period: 'contact us',
         description: 'Tailored solutions for large-scale industry applications.',
         icon: Shield,
+        iconName: 'Shield',
         features: [
             'Everything in Advanced',
             'Unlimited AI Agents',
@@ -50,6 +51,5 @@ export const industryPricing = [
         ],
         buttonText: 'Contact Sales',
         popular: false,
-        gradient: 'from-emerald-500 to-cyan-500',
     },
 ];

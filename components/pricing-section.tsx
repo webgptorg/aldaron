@@ -16,11 +16,19 @@ export interface PricingPlan {
     period: string;
     description: string;
     icon: ElementType;
+    iconName: string;
     features: string[];
     buttonText: string;
     popular: boolean;
-    gradient: string;
 }
+
+const iconColorMap: Record<string, string> = {
+    Gift: 'bg-green-500',
+    Zap: 'bg-yellow-500',
+    Shield: 'bg-blue-500',
+    Building: 'bg-purple-500',
+    Rocket: 'bg-pink-500',
+};
 
 export interface PricingSectionProps {
     hideHeader?: boolean;
@@ -139,7 +147,7 @@ export function PricingSection({
 
                                     <div className="text-center mb-8">
                                         <div
-                                            className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center mx-auto mb-4`}
+                                            className={`w-16 h-16 rounded-2xl ${iconColorMap[plan.iconName] || 'bg-gray-500'} flex items-center justify-center mx-auto mb-4`}
                                         >
                                             <plan.icon className="w-8 h-8 text-white" />
                                         </div>

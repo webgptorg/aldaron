@@ -14,6 +14,16 @@ const iconMap = {
     Users,
 };
 
+const iconColorMap: Record<keyof typeof iconMap, string> = {
+    Briefcase: 'bg-blue-500',
+    Shield: 'bg-green-500',
+    Zap: 'bg-yellow-500',
+    Book: 'bg-purple-500',
+    Code: 'bg-pink-500',
+    Users: 'bg-indigo-500',
+};
+
+
 export interface Benefit {
     iconName: keyof typeof iconMap;
     title: string;
@@ -44,6 +54,7 @@ export const BenefitsSection: FC<BenefitsSectionProps> = ({
                 <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {benefits.map((benefit, index) => {
                         const Icon = iconMap[benefit.iconName];
+                        const iconColor = iconColorMap[benefit.iconName];
 
                         return (
                             <motion.div
@@ -56,7 +67,7 @@ export const BenefitsSection: FC<BenefitsSectionProps> = ({
                             >
                                 <div className="flex justify-center mb-6">
                                     <div
-                                        className={`w-16 h-16 rounded-2xl bg-promptbook-blue flex items-center justify-center`}
+                                        className={`w-16 h-16 rounded-2xl ${iconColor} flex items-center justify-center`}
                                     >
                                         <Icon className="w-8 h-8 text-white" />
                                     </div>
