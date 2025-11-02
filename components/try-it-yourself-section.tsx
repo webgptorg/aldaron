@@ -96,7 +96,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                     className="hidden lg:block pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 md:w-40"
                 />
                 {/* Book editor column: ensure full-height and prevent overflow */}
-                <div className="lg:col-span-1 h-[400px] lg:h-[600px] min-h-0 flex flex-col overflow-hidden">
+                <div className="lg:col-span-1 min-h-0 flex flex-col overflow-hidden">
                     <BookEditor
                         className="h-full min-h-0"
                         value={bookSource || undefined}
@@ -108,7 +108,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                 </div>
 
                 {/* Chat column: ensure full-height and allow internal scrolling */}
-                <div className="lg:col-span-1 h-[600px] min-h-0 flex flex-col overflow-hidden">
+                <div className="lg:col-span-1 min-h-0 flex flex-col overflow-hidden">
                     <LlmChat
                         className="h-full min-h-0"
                         style={{

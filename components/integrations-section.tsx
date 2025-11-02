@@ -1,10 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image, { StaticImageData } from 'next/image';
 import { defaultIntegrations } from '../config/_generic/defaultIntegrations';
 
 export type Integration = {
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    preview: StaticImageData;
     title: string;
     description: string;
     features: string[];
@@ -35,8 +36,6 @@ export function IntegrationsSection(props: IntegrationsSectionProps) {
 
                 <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     {integrations.map((integration, index) => {
-                        const Icon = integration.icon;
-
                         return (
                             <motion.div
                                 key={index}
@@ -48,9 +47,11 @@ export function IntegrationsSection(props: IntegrationsSectionProps) {
                             >
                                 <div className="mb-6">
                                     <div className="flex justify-center mb-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                            <Icon className="w-8 h-8 text-white" />
-                                        </div>
+                                        <Image
+                                            src={integration.preview}
+                                            alt={integration.title}
+                                            className="w-full h-48 object-cover rounded-2xl"
+                                        />
                                     </div>
 
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{integration.title}</h3>
