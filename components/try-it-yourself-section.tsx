@@ -72,6 +72,9 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
         return parseAgentSource(bookSourceDefined);
     }, [bookSourceDefined]);
 
+    // Ensure we always have a non-null agent name for UI strings
+    const agentName = parsedAgent.agentName || 'your agent';
+
     const sendMessage = useSendMessageToLlmChat();
 
     return (
@@ -81,12 +84,16 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
         >
             <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{tryItYourself}</h2>
-                <p className="mt-4 text-lg text-muted-foreground">
-                    {tryChatting.replace('{agentName}', parsedAgent.agentName)}
-                </p>
+                <p className="mt-4 text-lg text-muted-foreground">{tryChatting.replace('{agentName}', agentName)}</p>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
+                {/* Floating arrow between columns (hidden on mobile) */}
+                <img
+                    src="/misc/arrow.svg"
+                    alt=""
+                    className="hidden lg:block pointer-events-none select-none absolute z-10000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 md:w-40"
+                />
                 {/* Book editor column: ensure full-height and prevent overflow */}
                 <div className="lg:col-span-1 h-[400px] lg:h-[600px] min-h-0 flex flex-col overflow-hidden">
                     <BookEditor
@@ -108,7 +115,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                             borderRadius: 20,
                             overflow: 'hidden',
                         }}
-                        title={`Chat with ${parsedAgent.agentName}`}
+                        title={`Chat with ${agentName}`}
                         persistenceKey="chat-on-landing-page"
                         isSaveButtonEnabled={false}
                         isFocusedOnLoad={false}
@@ -123,9 +130,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
                             {
                                 from: 'AVATAR',
                                 content: spaceTrim(
-                                    `${welcomeMessage(
-                                        parsedAgent.agentName,
-                                    )}\n\n[Tell me more](?message=Tell me more)`,
+                                    `${welcomeMessage(agentName)}\n\n[Tell me more](?message=Tell me more)`,
                                 ),
                                 isComplete: true,
                             },

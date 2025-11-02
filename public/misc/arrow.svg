@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="120" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+    role="img" aria-label="arrow from left to right">
+    <!-- Curved arrow pointing from left (editor) to right (chat) -->
+    <path d="M12 92 C 90 68, 150 64, 214 54" stroke="#EF4444" stroke-width="6"
+        stroke-linecap="round" fill="none" />
+    <path d="M214 54 L196 42 M214 54 L194 68" stroke="#EF4444" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round" />
+</svg>
