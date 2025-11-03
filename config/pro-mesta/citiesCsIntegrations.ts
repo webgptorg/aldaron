@@ -3,6 +3,8 @@ import gmailAsset from '@/public/integrations/gmail.png';
 import graphAsset from '@/public/integrations/graph.png';
 import { Integration } from '../../components/integrations-section';
 
+// [🌆]
+
 export const citiesCsIntegrations: Array<Integration> = [
     {
         preview: chatAsset,

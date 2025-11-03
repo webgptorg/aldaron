@@ -61,7 +61,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
         });
 
         const agentLlmTools = createAgentLlmExecutionTools({
-            llmTools: googleLlmExecutionTools, //filteredRemoteLlmExecutionTools,
+            llmTools: remoteLlmExecutionTools, // googleLlmExecutionTools, //filteredRemoteLlmExecutionTools,
             agentSource: bookSourceDefined,
         });
 

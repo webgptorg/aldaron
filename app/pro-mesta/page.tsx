@@ -50,7 +50,7 @@ export default function ProMestaPage() {
                 />
                 <Suspense>
                     <HeroSection
-                        conversation={citiesCsConversation /* <- TODO: !!! Change */}
+                        conversation={citiesCsConversation /* <- TODO: !!! [🌆] Change */}
                         backgroundImage="/backgrounds/pro-mesta.svg"
                         getHero={({ you }) => (
                             <>
@@ -139,7 +139,8 @@ export default function ProMestaPage() {
                     }
                     pavolDescription={
                         <>
-                            Přední <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v ČR s více než 15 lety vývojářských zkušeností.
+                            Přední <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v ČR s více
+                            než 15 lety vývojářských zkušeností.
                         </>
                     }
                 />
