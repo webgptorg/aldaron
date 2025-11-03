@@ -20,7 +20,6 @@ async function getShortcodeLink(shortcode: string) {
         .eq('shortcode', shortcode)
         .single();
 
-
     const { data, error } = result;
 
     if (error || !data) {
@@ -75,7 +74,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
     const { shortcode } = await params;
 
-
     if (!shortcode) {
         notFound();
     }
@@ -83,7 +81,6 @@ export default async function Page({ params }: PageProps) {
     try {
         const data = await getShortcodeLink(shortcode);
 
-   
         if (!data || !data.url || data.url.length === 0) {
             notFound();
         }
@@ -103,7 +100,9 @@ export default async function Page({ params }: PageProps) {
             notFound();
         }
 
-        if (data.landingPage) {
+        const isLocalhost = /^https?:\/\/localhost(:[0-9]+)?/.test(selectedUrl);
+
+        if (data.landingPage || (isLocalhost && !data.landingPage)) {
             const { data: clickData, error: clickError } = await supabase
                 .from('ShortcodeLinkClick')
                 .insert({
@@ -126,12 +125,24 @@ export default async function Page({ params }: PageProps) {
 
             const clickId = clickData?.id;
 
+            let landingContent;
+            if (isLocalhost && !data.landingPage) {
+                landingContent = spaceTrim(`
+                    # localhost Link
+                    > This link points to a localhost address, which is only accessible on your local machine.
+                    > You can continue to the link below, but it may not be accessible to others.
+                    - Your URL: ${selectedUrl}
+                `);
+            } else {
+                landingContent = data.landingPage;
+            }
+
             // Replace #url header with selectedUrl
-            let landingContent = data.landingPage.replace(/^#url.*$/m, `# ${selectedUrl}`);
+            landingContent = landingContent.replace(/^#url.*$/m, `# ${selectedUrl}`);
 
             // Check for existing link/button to selectedUrl or #url
             const linkRegex = new RegExp(
-                `(\\[.*?\\]\\((?:${selectedUrl}|#url)\\))|(<a\\s+[^>]*href=["'](?:${selectedUrl}|#url)["'][^>]*>)|(<button[^>]*>(.|\\n)*?<\\/button>)`,
+                `(\\\\[.*?\\\\]\\\\((?:${selectedUrl}|#url)\\\\))|(<a\\\\s+[^>]*href=[\"'](?:${selectedUrl}|#url)[\"'][^>]*>)|(<button[^>]*>(.|\\\\n)*?<\\\\/button>)`,
                 'i',
             );
             if (!linkRegex.test(landingContent)) {
@@ -144,9 +155,9 @@ export default async function Page({ params }: PageProps) {
                 `);
             }
 
-            const isBareHtml = data.landingPage.includes('<!DOCTYPE html>');
+            const isBareHtml = landingContent.includes('<!DOCTYPE html>');
 
-            const isBarePage = data.landingPage.includes('<!--no-template-->') || isBareHtml;
+            const isBarePage = landingContent.includes('<!--no-template-->') || isBareHtml;
 
             const trackingScript = clickId
                 ? `

@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 When the shortened link is `localhost` show the warning about localhost that the link is not accessible to others.
 
