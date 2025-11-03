@@ -3,10 +3,10 @@
 import { useUserSession } from '@/hooks/use-user-session';
 import { classNames } from '@/lib/classNames';
 import { getSupabaseForBrowser } from '@/lib/supabase';
+import { PromptbookQrCode } from '@promptbook/components';
 import { titleToName } from '@promptbook/utils';
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
-import QrCode from 'react-qr-code';
 
 type UrlShortenerProps = {
     /**
@@ -473,9 +473,8 @@ export function UrlShortener(props: UrlShortenerProps) {
                         {isShortener && (
                             <div className="text-center">
                                 <h3 className="text-lg font-medium">QR Code</h3>
-                                {/* <- TODO: !!! Use Promptbook QR code */}
                                 <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
-                                    <QrCode value={`https://ptbk.io/${shortCode}`} />
+                                    <PromptbookQrCode value={`https://ptbk.io/${shortCode}`} />
                                 </div>
                             </div>
                         )}
