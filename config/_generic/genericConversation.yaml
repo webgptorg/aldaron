@@ -1,16 +1,16 @@
 title: 'Company Knowledge Base'
-description: 'Three participants discuss the company's internal knowledge base.'
+description: 'Three participants discuss the companys internal knowledge base.'
 participants:
     - name: 'employee_anna'
       fullname: 'Anna Smith'
       color: '#FF6B6B'
-      personality: 'A new employee trying to find information about the company's policies.'
+      personality: 'A new employee trying to find information about the companys policies.'
       avatar: '👩‍💻'
       isMe: true
     - name: 'manager_david'
       fullname: 'David Jones'
       color: '#4ECDC4'
-      personality: 'A manager who is responsible for the company's knowledge base.'
+      personality: 'A manager who is responsible for the companys knowledge base.'
       avatar: '👨‍💼'
     - name: 'it_support_lisa'
       fullname: 'Lisa Williams'
@@ -19,7 +19,7 @@ participants:
       avatar: '👩‍🔧'
 messages:
     - author: 'employee_anna'
-      content: 'Hi, I am a new employee and I am trying to find information about the company's vacation policy. Can anyone help me?'
+      content: 'Hi, I am a new employee and I am trying to find information about the companys vacation policy. Can anyone help me?'
       timestamp: '2024-01-15T10:00:00Z'
     - author: 'manager_david'
       content: 'Welcome to the company, Anna! You can find all the information about our policies in our internal knowledge base.'
