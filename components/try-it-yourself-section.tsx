@@ -28,6 +28,7 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
         welcomeMessage = (agentName: string) =>
             `I'm the company's lawyer from ${agentName}. I provide legal advice and support to the company and its employees, focusing on compliance with laws and company policies. How can I help?`,
     } = props;
+    // <- TODO: !!! passable initial message
 
     const initialBookDefined = initialBook || defaultBook;
 

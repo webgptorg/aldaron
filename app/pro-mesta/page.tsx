@@ -105,6 +105,7 @@ export default function ProMestaPage() {
                 <Suspense>
                     <TryItYourselfSection
                         initialBook={citiesCsBook}
+                        // <- TODO: [🌆] Pass the initial message
                         tryItYourself="Vyzkoušejte si to sami"
                         tryChatting="Zkuste si popovídat s {agentName} sami:"
                         helpMessage="Můžete mi pomoci?"
@@ -112,6 +113,8 @@ export default function ProMestaPage() {
                             `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
                         }
                     />
+                    {/* <- TODO: [🌆] Maybe move bellow  */}
+                    {/* <- TODO: [🌆] !!! Fix the mobile behavior */}
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
