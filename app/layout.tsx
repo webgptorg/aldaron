@@ -29,9 +29,9 @@ export const metadata: Metadata = {
         siteName: 'Promptbook',
         images: [
             {
-                url: '/logo/promptbook-og.png',
-                width: 1200,
-                height: 630,
+                url: '/logo/og-image.png',
+                width: 1860,
+                height: 992,
                 alt: 'Promptbook',
             },
         ],
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Promptbook',
         description: 'Create AI that truly understands your business.',
-        images: ['/logo/promptbook-og.png'],
+        images: ['/logo/og-image.png'],
         creator: '@promptbook',
     },
     icons: {
