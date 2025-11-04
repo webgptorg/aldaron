@@ -8,3 +8,14 @@ All the metadata should be filled in correctly.
     -   `/pro-mesta`
 -   It should look good at Facebook, Linkedin, Twitter, etc. when shared.
 -   Corrent information should be crawled by Google and other search engines.
+
+---
+
+[ ]
+
+The preview image on social media when sharing the page should be relevant and look good.
+
+-   Use relevant information for each page.
+    -   `/`
+    -   `/pro-mesta`
+-   It should look good at Facebook, Linkedin, Twitter, etc. when shared.
