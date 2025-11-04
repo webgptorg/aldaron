@@ -50,7 +50,7 @@ export default function ProMestaPage() {
                 />
                 <Suspense>
                     <HeroSection
-                        conversation={citiesCsConversation /* <- TODO: !!! [🌆] Change */}
+                        conversation={citiesCsConversation}
                         backgroundImage="/backgrounds/pro-mesta.svg"
                         getHero={({ you }) => (
                             <>
@@ -105,7 +105,7 @@ export default function ProMestaPage() {
                 <Suspense>
                     <TryItYourselfSection
                         initialBook={citiesCsBook}
-                        // <- TODO: [🌆] Pass the initial message
+                        // <- TODO: [🌆] Pass the initial message to `TryItYourselfSection`
                         tryItYourself="Vyzkoušejte si to sami"
                         tryChatting="Zkuste si popovídat s {agentName} sami:"
                         helpMessage="Můžete mi pomoci?"
@@ -113,8 +113,8 @@ export default function ProMestaPage() {
                             `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
                         }
                     />
-                    {/* <- TODO: [🌆] Maybe move bellow  */}
-                    {/* <- TODO: [🌆] !!! Fix the mobile behavior */}
+                    {/* <- TODO: [🌆] Maybe move to lower section  */}
+                    {/* <- TODO: [🌆] !!! Fix the mobile behavior of `<BookEditor/>` */}
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"

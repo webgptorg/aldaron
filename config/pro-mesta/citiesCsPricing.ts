@@ -1,5 +1,8 @@
 import { Building, Rocket, Shield } from 'lucide-react';
 
+// TODO: !!! [🌆] `/pro-mesta` Figure out best pricing
+// TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsPricing`
+
 export const citiesCsPricing = [
     {
         name: 'Standard',

@@ -3,7 +3,8 @@ import gmailAsset from '@/public/integrations/gmail.png';
 import graphAsset from '@/public/integrations/graph.png';
 import { Integration } from '../../components/integrations-section';
 
-// [🌆]
+// TODO: !!! [🌆] `/pro-mesta` Figure out best integrations
+// TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsIntegrations`
 
 export const citiesCsIntegrations: Array<Integration> = [
     {

@@ -1,6 +1,9 @@
-import { Testimonial } from '../../components/testimonials-section';
 import dariaHvizdalova from '@/public/people/daria-hvizdalova.jpeg';
 import tomasStudenik from '@/public/people/tomas-studenik.jpg';
+import { Testimonial } from '../../components/testimonials-section';
+
+// TODO: !!! [🌆] `/pro-mesta` Testimonials for `citiesCsTestimonials`
+// TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsTestimonials`
 
 export const citiesCsTestimonials: Array<Testimonial> = [
     {

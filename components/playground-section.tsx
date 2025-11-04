@@ -15,5 +15,5 @@ export function PlaygroundSection() {
     );
 }
 /**
- * TODO: !!! [🌆] Show only on localhost
+ * TODO: !!! [🌆] Show `PlaygroundSection` only on localhost
  */
