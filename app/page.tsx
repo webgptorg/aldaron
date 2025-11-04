@@ -1,3 +1,25 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Promptbook - Create AI that Truly Understands Your Business',
+    description:
+        "With Promptbook, you can capture your company's context, rules, and knowledge into simple Books to build AI agents that align perfectly with your business needs.",
+    alternates: {
+        canonical: '/',
+    },
+    openGraph: {
+        title: 'Promptbook - Create AI that Truly Understands Your Business',
+        description:
+            "With Promptbook, you can capture your company's context, rules, and knowledge into simple Books to build AI agents that align perfectly with your business needs.",
+        url: 'https://ptbk.io',
+    },
+    twitter: {
+        title: 'Promptbook - Create AI that Truly Understands Your Business',
+        description:
+            "With Promptbook, you can capture your company's context, rules, and knowledge into simple Books to build AI agents that align perfectly with your business needs.",
+    },
+};
+
 'use client';
 
 import { BenefitsSection } from '@/components/benefits-section';
@@ -13,9 +35,7 @@ import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
-import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
-import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
+import { genericConversation } from '@/config/_generic/genericConversation';
 import { Suspense } from 'react';
 
 export default function HomePage() {
@@ -28,7 +48,7 @@ export default function HomePage() {
                 <Header />
                 <Suspense>
                     <HeroSection
-                        conversation={citiesCsConversation /* <- TODO: !!! Change */}
+                        conversation={genericConversation}
                         getHero={({ you }) => (
                             <>
                                 {' '}

@@ -7,10 +7,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    // TODO: !!! Prompt: Update metadata for Promptbook Book 2.0:
-    title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-    description:
-        'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+    title: 'Promptbook',
+    description: 'Create AI that truly understands your business.',
     keywords: ['AI', 'prompt engineering', 'artificial intelligence', 'prompts', 'GPT', 'machine learning'],
     authors: [{ name: 'Promptbook Team' }],
     creator: 'Promptbook',
@@ -25,17 +23,16 @@ export const metadata: Metadata = {
         canonical: '/',
     },
     openGraph: {
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+        title: 'Promptbook',
+        description: 'Create AI that truly understands your business.',
         url: 'https://ptbk.io',
         siteName: 'Promptbook',
         images: [
             {
-                url: '/logo/promptbook-logo-blue-256.png',
-                width: 256,
-                height: 256,
-                alt: 'Promptbook Logo',
+                url: '/logo/promptbook-og.png',
+                width: 1200,
+                height: 630,
+                alt: 'Promptbook',
             },
         ],
         locale: 'en_US',
@@ -43,10 +40,9 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        images: ['/logo/promptbook-logo-blue-256.png'],
+        title: 'Promptbook',
+        description: 'Create AI that truly understands your business.',
+        images: ['/logo/promptbook-og.png'],
         creator: '@promptbook',
     },
     icons: {
