@@ -1,3 +1,5 @@
+[ ]
+
 All the metadata should be filled in correctly.
 
 -   Title, description, keywords, authors, open graph, twitter card, etc.
