@@ -19,10 +19,12 @@ import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
 import { PlaygroundSection } from '@/components/playground-section';
 
 export default function ForIndustryPage() {
+    const isLocalhost = useIsLocalhost();
     return (
         <>
             <Suspense>
@@ -96,7 +98,7 @@ export default function ForIndustryPage() {
                 <TestimonialsSection testimonials={industryTestimonials} />
                 <TeamSection />
                 <PricingSection plans={industryPricing} />
-                <PlaygroundSection />
+                {isLocalhost && <PlaygroundSection />}
                 <Footer />
             </main>
         </>

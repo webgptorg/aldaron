@@ -13,6 +13,7 @@ import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { genericConversation } from '@/config/_generic/genericConversation';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 // import { Metadata } from 'next';
@@ -43,6 +44,8 @@ export const metadata: Metadata = {
 */
 
 export function HomePageComponent() {
+    const isLocalhost = useIsLocalhost();
+
     return (
         <>
             <Suspense>
@@ -129,7 +132,7 @@ export function HomePageComponent() {
                 <TestimonialsSection />
                 <TeamSection />
                 <PricingSection plans={defaultPricing} />
-                <PlaygroundSection />
+                {isLocalhost && <PlaygroundSection />}
                 <Footer />
             </main>
         </>

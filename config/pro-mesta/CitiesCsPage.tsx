@@ -12,6 +12,7 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
 import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
@@ -23,6 +24,8 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 export function CitiesCsPage() {
+    const isLocalhost = useIsLocalhost();
+
     return (
         <>
             <Suspense>
@@ -156,7 +159,7 @@ export function CitiesCsPage() {
                     saveText="Ušetřete"
                     openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku: Vaše data, vaše kontrola, a to vždy."
                 />
-                <PlaygroundSection />
+                {isLocalhost && <PlaygroundSection />}
                 <Footer
                     productHeader="Produkt"
                     productLinks={[
