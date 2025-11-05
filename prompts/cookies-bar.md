@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 Add a cookies bar to the website to comply with GDPR regulations.
 
