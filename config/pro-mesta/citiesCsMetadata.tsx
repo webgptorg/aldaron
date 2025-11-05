@@ -9,6 +9,7 @@ export const citiesCsMetadata: Metadata = {
         canonical: '/pro-mesta',
     },
     openGraph: {
+        type: 'website',
         title: 'AI Transformation for Cities and Municipalities - Promptbook',
         description:
             'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
