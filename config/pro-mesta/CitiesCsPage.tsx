@@ -19,32 +19,8 @@ import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
 import { citiesCsPricing } from '@/config/pro-mesta/citiesCsPricing';
 import { citiesCsTestimonials } from '@/config/pro-mesta/citiesCsTestimonials';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
-// import { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
-
-/*
-TODO: !!! Use
-export const metadata: Metadata = {
-    title: 'AI Transformation for Cities and Municipalities - Promptbook',
-    description:
-        'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
-    alternates: {
-        canonical: '/pro-mesta',
-    },
-    openGraph: {
-        title: 'AI Transformation for Cities and Municipalities - Promptbook',
-        description:
-            'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
-        url: 'https://ptbk.io/pro-mesta',
-    },
-    twitter: {
-        title: 'AI Transformation for Cities and Municipalities - Promptbook',
-        description:
-            'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
-    },
-};
-*/
 
 export function CitiesCsPage() {
     return (
