@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from './ui/button';
 import { CookieSettingsModal } from './cookie-settings-modal';
+import { Button } from './ui/button';
 
 export function CookiesBar() {
     const [isVisible, setIsVisible] = useState(false);
@@ -38,9 +38,7 @@ export function CookiesBar() {
                         </p>
                     </div>
                     <div className="flex justify-end gap-4">
-                        <Button variant="outline" onClick={() => setIsModalOpen(true)}>
-                            Customize
-                        </Button>
+                        <Button onClick={() => setIsModalOpen(true)}>Customize</Button>
                         <Button onClick={handleAccept}>Accept All</Button>
                     </div>
                 </div>
