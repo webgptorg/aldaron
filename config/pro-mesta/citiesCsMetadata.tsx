@@ -1,4 +1,4 @@
-import ogImage from '@public/logo/og-image.png';
+import ogImage from '@/public/logo/og-image.png';
 import { Metadata } from 'next';
 
 export const citiesCsMetadata: Metadata = {
