@@ -66,7 +66,7 @@ export function HomePageComponent() {
                                     </div>
                                     <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                                         Create AI that{' '}
-                                        <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
+                                        <span className="bg-promptbook-blue-dark bg-clip-text text-transparent">
                                             Truly&nbsp;Understands
                                         </span>{' '}
                                         {you || <>Your Company</>}
@@ -138,7 +138,6 @@ export function HomePageComponent() {
         </>
     );
 }
-
 
 /**
  * TODO: !!! Zig-zag the bg of the sections

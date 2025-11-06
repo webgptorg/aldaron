@@ -63,16 +63,15 @@ export function CitiesCsPage() {
                                         AI Transformace pro {you || 'města a obce'}
                                     </div>
                                     <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
-                                        Vytvořte AI, která{' '}
+                                        AI, která{' '}
                                         <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                            skutečně rozumí
+                                            mluví jazykem
                                         </span>{' '}
-                                        {you || <>městům a obcím</>}
+                                        {you || <>Vaší obce</>}
                                     </h1>
                                     <p className="text-xl text-white leading-relaxed">
-                                        S Promptbookem můžete zachytit kontext, pravidla a znalosti vaší organizace do
-                                        jednoduchých dokumentů a vytvořit tak AI agenty, kteří dokonale odpovídají vašim
-                                        potřebám.
+                                        Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že
+                                        umělá inteligence opravdu rozumí místním specifikům.
                                     </p>
                                 </div>
 
