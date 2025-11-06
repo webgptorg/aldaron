@@ -12,13 +12,13 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
-import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
 import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
 import { citiesCsPricing } from '@/config/pro-mesta/citiesCsPricing';
 import { citiesCsTestimonials } from '@/config/pro-mesta/citiesCsTestimonials';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -116,8 +116,7 @@ export function CitiesCsPage() {
                             `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
                         }
                     />
-                    {/* <- TODO: [🌆] Maybe move to lower section  */}
-                    {/* <- TODO: [🌆] !!! Fix the mobile behavior of `<BookEditor/>` */}
+                    {/* <- TODO: [🌆] `/pro-mesta` move `<TryItYourselfSection/>` lower section  */}
                 </Suspense>
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
@@ -206,5 +205,6 @@ export function CitiesCsPage() {
 }
 
 /**
- * TODO: !!! [🌆] Better copy of hero section
+ * TODO: !!! [🌆] `/pro-mesta` Better copy of hero section
+ * TODO: !!! [🌆] `/pro-mesta` Fix the footer
  */
