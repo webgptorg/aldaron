@@ -1,13 +1,14 @@
 import { Building, Rocket, Shield } from 'lucide-react';
 
 // TODO: !!! [🌆] `/pro-mesta` Figure out best pricing
+// TODO: !!! [🌆] `/pro-mesta` Figure out the features
 // TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsPricing`
 
 export const citiesCsPricing = [
     {
         name: 'Standard',
-        priceMonthly: '2 299',
-        priceYearly: '22 999',
+        priceMonthly: '2 000',
+        priceYearly: '20 000',
         currency: 'Kč',
         period: 'měsíčně',
         description: 'Ideální pro malá a středně velká města a obce.',
@@ -24,8 +25,8 @@ export const citiesCsPricing = [
     },
     {
         name: 'Pokročilý',
-        priceMonthly: '5 799',
-        priceYearly: '57 999',
+        priceMonthly: '5 000',
+        priceYearly: '45 000',
         currency: 'Kč',
         period: 'měsíčně',
         description: 'Pro města, která vyžadují pokročilejší funkce a podporu.',
