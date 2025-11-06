@@ -105,19 +105,7 @@ export function CitiesCsPage() {
                         )}
                     />
                 </Suspense>
-                <Suspense>
-                    <TryItYourselfSection
-                        initialBook={citiesCsBook}
-                        // <- TODO: [🌆] Pass the initial message to `TryItYourselfSection`
-                        tryItYourself="Vyzkoušejte si to sami"
-                        tryChatting="Zkuste si popovídat s {agentName} sami:"
-                        helpMessage="Můžete mi pomoci?"
-                        welcomeMessage={(agentName: string) =>
-                            `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
-                        }
-                    />
-                    {/* <- TODO: [🌆] `/pro-mesta` move `<TryItYourselfSection/>` lower section  */}
-                </Suspense>
+
                 <BenefitsSection
                     title="AI-Powered řešení pro města a obce"
                     description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
@@ -133,6 +121,29 @@ export function CitiesCsPage() {
                     description="Zjistěte, jak Promptbook usnadňuje práci profesionálů po celém světě:"
                     testimonials={citiesCsTestimonials}
                 />
+
+                <Suspense>
+                    <TryItYourselfSection
+                        initialBook={citiesCsBook}
+                        // <- TODO: [🌆] Pass the initial message to `TryItYourselfSection`
+                        tryItYourself="Vyzkoušejte si to sami"
+                        tryChatting="Zkuste si popovídat s {agentName} sami:"
+                        helpMessage="Můžete mi pomoci?"
+                        welcomeMessage={(agentName: string) =>
+                            `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
+                        }
+                    />
+                </Suspense>
+                <PricingSection
+                    title="Jednoduché a transparentní ceny"
+                    description="Vyberte si plán, který nejlépe vyhovuje vašim obchodním potřebám."
+                    plans={citiesCsPricing}
+                    monthlyText="Měsíčně"
+                    yearlyText="Ročně"
+                    saveText="Ušetřete"
+                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku: Vaše data, vaše kontrola, a to vždy."
+                />
+                {isLocalhost && <PlaygroundSection />}
                 <TeamSection
                     title="Náš tým"
                     description="Jsme oddaná skupina profesionálů, kteří se věnují využití AI k transformaci podniků. Naše zkušenosti pokrývají oblast technologií, výzkumu a podnikání:"
@@ -149,16 +160,6 @@ export function CitiesCsPage() {
                         </>
                     }
                 />
-                <PricingSection
-                    title="Jednoduché a transparentní ceny"
-                    description="Vyberte si plán, který nejlépe vyhovuje vašim obchodním potřebám."
-                    plans={citiesCsPricing}
-                    monthlyText="Měsíčně"
-                    yearlyText="Ročně"
-                    saveText="Ušetřete"
-                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku: Vaše data, vaše kontrola, a to vždy."
-                />
-                {isLocalhost && <PlaygroundSection />}
                 <Footer
                     productHeader="Produkt"
                     productLinks={[
@@ -207,4 +208,5 @@ export function CitiesCsPage() {
 /**
  * TODO: !!! [🌆] `/pro-mesta` Better copy of hero section
  * TODO: !!! [🌆] `/pro-mesta` Fix the footer
+ * TODO: !!! Zig-zag the bg of the sections
  */

@@ -13,8 +13,8 @@ import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
 import { defaultPricing } from '@/config/_generic/defaultPricing';
-import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { genericConversation } from '@/config/_generic/genericConversation';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 // import { Metadata } from 'next';
 import Link from 'next/link';
@@ -130,11 +130,16 @@ export function HomePageComponent() {
                 <BenefitsSection />
                 <IntegrationsSection />
                 <TestimonialsSection />
-                <TeamSection />
                 <PricingSection plans={defaultPricing} />
                 {isLocalhost && <PlaygroundSection />}
+                <TeamSection />
                 <Footer />
             </main>
         </>
     );
 }
+
+
+/**
+ * TODO: !!! Zig-zag the bg of the sections
+ */
