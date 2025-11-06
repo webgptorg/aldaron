@@ -1,4 +1,4 @@
-import { HomePageComponent } from '@/config/_generic/HomePage';
+import { HomePageComponent } from '@/config/_generic/_HomePage';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
