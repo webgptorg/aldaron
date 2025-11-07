@@ -81,7 +81,7 @@ export function CitiesCsPage() {
                                         size="lg"
                                         className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                                     >
-                                        Začít {you ? <>s AI ve vašem městě</> : <>s Promptbook AI</>}
+                                        Začít
                                         <ArrowRight className="ml-2 w-5 h-5" />
                                     </Button>
                                 </Link>
@@ -163,9 +163,9 @@ export function CitiesCsPage() {
                     productHeader="Produkt"
                     productLinks={[
                         { href: '?modal=get-started', text: 'Začít' },
-                        { href: 'https://ptbk.io/manifest', text: 'Manifest' },
+                        { href: 'https://ptbk.io/', text: 'Promptbook' },
                         { href: 'https://github.com/webgptorg/promptbook', text: 'Dokumentace' },
-                        { href: 'https://promptbook.studio/miniapps/new', text: 'Hřiště' },
+                        // { href: 'https://promptbook.studio/miniapps/new', text: 'Hřiště' },
                     ]}
                     companyHeader="Společnost"
                     companyLinks={[
