@@ -7,7 +7,7 @@ import { Benefit } from '../../components/benefits-section';
 export const citiesCsBenefits: Array<Benefit> = [
     {
         iconName: 'Briefcase',
-        title: 'Zachyťte kontext města',
+        title: 'Kontext',
         description:
             'Snadno definujte AI agenty se specifickými znalostmi, pravidly a osobnostmi, které odpovídají hodnotám vaší organizace.',
     },
@@ -19,13 +19,13 @@ export const citiesCsBenefits: Array<Benefit> = [
     },
     {
         iconName: 'Zap',
-        title: 'Jednoduché a výkonné',
+        title: 'Jednoduché použití',
         description:
             'Získejte to nejlepší z obou světů: jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.',
     },
     {
         iconName: 'Book',
-        title: 'Jazyk založený na závazcích',
+        title: 'Pevná pravidla',
         description:
             'Použijte závazky Persona, Knowledge, Rule a Action k přesnému definování chování vašeho AI agenta.',
     },
