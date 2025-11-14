@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import { useGetParam } from '@/hooks/useGetParam';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 export default function AdminContactsComponent() {
@@ -89,7 +90,7 @@ export default function AdminContactsComponent() {
                     <TableBody>
                         {contacts.map((c: any) => (
                             <TableRow key={c.id}>
-                                <TableCell>{c.createdAt}</TableCell>
+                                <TableCell>{moment(c.createdAt).calendar()}</TableCell>
                                 <TableCell>{c.fullname}</TableCell>
                                 <TableCell>{c.email}</TableCell>
                                 <TableCell>{c.phone}</TableCell>
@@ -121,7 +122,8 @@ export default function AdminContactsComponent() {
                                     />
                                 </TableCell>
                                 <TableCell>
-                                    <Input
+                                    <Textarea
+                                        className="min-w-[200px] h-full min-h-[100px]"
                                         value={c.ourNote ?? ''}
                                         onChange={async (e) => {
                                             const val = e.target.value;
