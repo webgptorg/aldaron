@@ -2,11 +2,11 @@ import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import Link from 'next/link';
 
-export default function DataDeletion() {
+export default function DataDeletionPage() {
     return (
-        <main className="min-h-screen">
+        <div className="min-h-screen">
             <Header />
-            <div className="mt-24 max-w-4xl mx-auto">
+            <main className="mt-24 max-w-4xl mx-auto">
                 <h1 className="text-4xl font-bold mb-8">Data Deletion Instructions</h1>
 
                 <div className="prose prose-lg max-w-none">
@@ -246,8 +246,8 @@ export default function DataDeletion() {
                         </div>
                     </section>
                 </div>
-            </div>
+            </main>
             <Footer />
-        </main>
+        </div>
     );
 }
