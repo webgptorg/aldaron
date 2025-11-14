@@ -6,39 +6,40 @@ import { Benefit } from '../../components/benefits-section';
 
 export const citiesCsBenefits: Array<Benefit> = [
     {
+        iconName: 'Zap',
+        title: 'Jednoduchost',
+        description:
+            'Získejte to nejlepší z obou světů: jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.',
+    },
+    {
+        iconName: 'Zap',
+        title: 'Skutečně Vaše AI',
+        description:
+            'Vytvořte AI agenty pro jakoukoli roli, od zákaznické podpory a marketingu po právní a personální oddělení, a zajistěte, aby splňovali vaše specifické požadavky.',
+    },
+    {
         iconName: 'Briefcase',
-        title: 'Kontext',
+        title: 'Práce s dokumenty',
         description:
             'Snadno definujte AI agenty se specifickými znalostmi, pravidly a osobnostmi, které odpovídají hodnotám vaší organizace.',
     },
     {
         iconName: 'Shield',
-        title: 'Spolehlivé a přenositelné',
+        title: 'Bezpečnost',
         description:
             'Knihy jsou explicitní a snadno srozumitelné, což zajišťuje, že se vaše AI chová předvídatelně a konzistentně ve všech aplikacích.',
     },
-    {
-        iconName: 'Zap',
-        title: 'Jednoduché použití',
-        description:
-            'Získejte to nejlepší z obou světů: jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.',
-    },
+
     {
         iconName: 'Book',
-        title: 'Pevná pravidla',
+        title: 'Chování pod kontrolou',
         description:
             'Použijte závazky Persona, Knowledge, Rule a Action k přesnému definování chování vašeho AI agenta.',
     },
     {
         iconName: 'Code',
-        title: 'Integrace kdekoli',
+        title: 'Široké možnosti integrace',
         description:
             'Používejte své AI agenty definované v knihách v chatovacích aplikacích, odpovídacích agentech, kódovacích asistentech a interních aplikacích.',
-    },
-    {
-        iconName: 'Users',
-        title: 'Přizpůsobeno vašim potřebám',
-        description:
-            'Vytvořte AI agenty pro jakoukoli roli, od zákaznické podpory a marketingu po právní a personální oddělení, a zajistěte, aby splňovali vaše specifické požadavky.',
     },
 ];
