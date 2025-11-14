@@ -12,10 +12,11 @@ export async function subscribeToWaitlist(email: string, placeName: string, phon
     const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : undefined;
     const referrer = typeof window !== 'undefined' ? document.referrer : undefined;
 
-    const { error: supabaseError } = await supabase.from('WaitlistContact').insert([
+    const { error: supabaseError } = await supabase.from('Contact').insert([
         {
             email: email || null,
             phone: phone || null,
+
             userAgent,
             referrer,
             // Note: ipAddress would need to be handled server-side for security
@@ -23,6 +24,8 @@ export async function subscribeToWaitlist(email: string, placeName: string, phon
             appName: APP_NAME,
             placeName,
             url: window.location.href,
+
+            isContacted: false,
         },
     ]);
 
