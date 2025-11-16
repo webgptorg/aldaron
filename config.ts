@@ -1,7 +1,7 @@
 /**
  * Name of the application
  */
-export const APP_NAME = 'Aldaron landing pa';
+export const APP_NAME = 'New landing page';
 
 /**
  * ID of the Google Analytics
