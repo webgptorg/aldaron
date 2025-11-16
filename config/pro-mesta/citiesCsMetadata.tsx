@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import ogImage from './cities-cs-og-image.png';
+// <- TODO: !!! [🌆] `/pro-mesta` OG image specific for cities
 
 // TODO: !!! [🌆] `/pro-mesta` Translate
 
