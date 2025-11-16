@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import ogImage from './cities-cs-og-image.png';
 
+// TODO: !!! [🌆] `/pro-mesta` Translate
+
 export const citiesCsMetadata: Metadata = {
     title: 'AI Transformation for Cities and Municipalities - Promptbook',
     description:
