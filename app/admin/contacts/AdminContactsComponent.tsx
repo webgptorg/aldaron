@@ -57,7 +57,7 @@ export default function AdminContactsComponent() {
 
     return (
         <div className="p-8">
-            <h1 className="text-2xl font-bold mb-4">Contacts Dashboard</h1>
+            <h1 className="text-2xl font-bold mb-4">Contacts & Leads Dashboard</h1>
             <div className="flex items-center mb-4 gap-2">
                 <Switch checked={showAll} onCheckedChange={setShowAll} />
                 <span>{showAll ? 'Show all contacts' : 'Showing only not contacted'}</span>
@@ -161,96 +161,108 @@ export default function AdminContactsComponent() {
             {loading ? (
                 <div>Loading...</div>
             ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableCell>Created At</TableCell>
-                            <TableCell>Full Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Phone</TableCell>
-                            <TableCell>User Note</TableCell>
-                            <TableCell>Is Contacted</TableCell>
-                            <TableCell>Our Note</TableCell>
-                            <TableCell>User Agent</TableCell>
-                            <TableCell>IP Address</TableCell>
-                            <TableCell>Referrer</TableCell>
-                            <TableCell>App Name</TableCell>
-                            <TableCell>Place Name</TableCell>
-                            <TableCell>URL</TableCell>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {contacts.map((c: any) => (
-                            <TableRow key={c.id}>
-                                <TableCell>{moment(c.createdAt).calendar()}</TableCell>
-                                <TableCell>{c.fullname}</TableCell>
-                                <TableCell>{c.email}</TableCell>
-                                <TableCell>{c.phone}</TableCell>
-                                <TableCell>{c.userNote}</TableCell>
-                                <TableCell>
-                                    <Switch
-                                        checked={!!c.isContacted}
-                                        onCheckedChange={async (val) => {
-                                            const res = await fetch(
-                                                `/api/contacts?token=${encodeURIComponent(token || '')}`,
-                                                {
-                                                    method: 'PATCH',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        id: c.id,
-                                                        isContacted: val,
-                                                        ourNote: c.ourNote,
-                                                    }),
-                                                },
-                                            );
-                                            if (res.ok) {
-                                                setContacts((prev) =>
-                                                    prev.map((row) =>
-                                                        row.id === c.id ? { ...row, isContacted: val } : row,
-                                                    ),
-                                                );
-                                            }
-                                        }}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    <Textarea
-                                        className="min-w-[200px] h-full min-h-[100px]"
-                                        value={c.ourNote ?? ''}
-                                        onChange={async (e) => {
-                                            const val = e.target.value;
-                                            const res = await fetch(
-                                                `/api/contacts?token=${encodeURIComponent(token || '')}`,
-                                                {
-                                                    method: 'PATCH',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        id: c.id,
-                                                        ourNote: val,
-                                                        isContacted: c.isContacted,
-                                                    }),
-                                                },
-                                            );
-                                            if (res.ok) {
-                                                setContacts((prev) =>
-                                                    prev.map((row) =>
-                                                        row.id === c.id ? { ...row, ourNote: val } : row,
-                                                    ),
-                                                );
-                                            }
-                                        }}
-                                    />
-                                </TableCell>
-                                <TableCell>{c.userAgent}</TableCell>
-                                <TableCell>{c.ipAddress}</TableCell>
-                                <TableCell>{c.referrer}</TableCell>
-                                <TableCell>{c.appName}</TableCell>
-                                <TableCell>{c.placeName}</TableCell>
-                                <TableCell>{c.url}</TableCell>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableCell className="max-w-[120px]">Created At</TableCell>
+                                <TableCell className="max-w-[150px]">Full Name</TableCell>
+                                <TableCell className="max-w-[200px]">Email</TableCell>
+                                <TableCell className="max-w-[120px]">Phone</TableCell>
+                                <TableCell className="max-w-[200px]">User Note</TableCell>
+                                <TableCell className="max-w-[100px]">Is Contacted</TableCell>
+                                <TableCell className="min-w-[200px] max-w-[250px]">Our Note</TableCell>
+                                <TableCell className="max-w-[300px]">User Agent</TableCell>
+                                <TableCell className="max-w-[120px]">IP Address</TableCell>
+                                <TableCell className="max-w-[200px]">Referrer</TableCell>
+                                <TableCell className="max-w-[120px]">App Name</TableCell>
+                                <TableCell className="max-w-[120px]">Place Name</TableCell>
+                                <TableCell className="max-w-[200px]">URL</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {contacts.map((c: any) => (
+                                <TableRow key={c.id}>
+                                    <TableCell className="max-w-[120px] truncate">
+                                        {moment(c.createdAt).calendar()}
+                                    </TableCell>
+                                    <TableCell className="max-w-[150px] truncate">{c.fullname}</TableCell>
+                                    <TableCell className="max-w-[200px] truncate">{c.email}</TableCell>
+                                    <TableCell className="max-w-[120px] truncate">{c.phone}</TableCell>
+                                    <TableCell className="max-w-[200px]">
+                                        <div className="line-clamp-3">{c.userNote}</div>
+                                    </TableCell>
+                                    <TableCell className="max-w-[100px]">
+                                        <Switch
+                                            checked={!!c.isContacted}
+                                            onCheckedChange={async (val) => {
+                                                const res = await fetch(
+                                                    `/api/contacts?token=${encodeURIComponent(token || '')}`,
+                                                    {
+                                                        method: 'PATCH',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            id: c.id,
+                                                            isContacted: val,
+                                                            ourNote: c.ourNote,
+                                                        }),
+                                                    },
+                                                );
+                                                if (res.ok) {
+                                                    setContacts((prev) =>
+                                                        prev.map((row) =>
+                                                            row.id === c.id ? { ...row, isContacted: val } : row,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="max-w-[250px]">
+                                        <Textarea
+                                            className="w-full h-full min-h-[100px]"
+                                            value={c.ourNote ?? ''}
+                                            onChange={async (e) => {
+                                                const val = e.target.value;
+                                                const res = await fetch(
+                                                    `/api/contacts?token=${encodeURIComponent(token || '')}`,
+                                                    {
+                                                        method: 'PATCH',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            id: c.id,
+                                                            ourNote: val,
+                                                            isContacted: c.isContacted,
+                                                        }),
+                                                    },
+                                                );
+                                                if (res.ok) {
+                                                    setContacts((prev) =>
+                                                        prev.map((row) =>
+                                                            row.id === c.id ? { ...row, ourNote: val } : row,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="max-w-[300px]">
+                                        <div className="whitespace-normal break-words">{c.userAgent}</div>
+                                    </TableCell>
+                                    <TableCell className="max-w-[120px] truncate">{c.ipAddress}</TableCell>
+                                    <TableCell className="max-w-[200px] truncate" title={c.referrer}>
+                                        {c.referrer}
+                                    </TableCell>
+                                    <TableCell className="max-w-[120px] truncate">{c.appName}</TableCell>
+                                    <TableCell className="max-w-[120px] truncate">{c.placeName}</TableCell>
+                                    <TableCell className="max-w-[200px] truncate" title={c.url}>
+                                        {c.url}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
         </div>
     );
