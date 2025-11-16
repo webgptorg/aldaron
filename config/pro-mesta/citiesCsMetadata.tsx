@@ -1,5 +1,5 @@
-import ogImage from '@/public/logo/og-image.png';
 import { Metadata } from 'next';
+import ogImage from './cities-cs-og-image.png';
 
 export const citiesCsMetadata: Metadata = {
     title: 'AI Transformation for Cities and Municipalities - Promptbook',
