@@ -2,6 +2,7 @@ import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import { Chatbot } from '../components/chatbot';
 import { CookiesBar } from '../components/cookies-bar';
 import './globals.css';
 
@@ -97,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={inter.className}>
                 {children}
-                {/* <ConditionalChatbot /> */}
+                <Chatbot />
                 <CookiesBar />
             </body>
         </html>
