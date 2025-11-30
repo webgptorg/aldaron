@@ -10,8 +10,14 @@ export function Chatbot() {
 
     return (
         <>
-            xxx
-            <PromptbookAgent agentUrl="https://s6.ptbk.io/pavol-hejny" />
+            <PromptbookAgent
+                agentUrl="https://s6.ptbk.io/pavol-hejny"
+                meta={{
+                    image: 'https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/f9/e590c/pavol-hejny-transparent-3.png',
+                    color: `#ffff00`,
+                    // < TODO: !!!!
+                }}
+            />
         </>
     );
 }
