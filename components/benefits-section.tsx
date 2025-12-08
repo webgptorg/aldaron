@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Book, Briefcase, Code, Shield, Users, Zap } from 'lucide-react';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { defaultBenefits } from '../config/_generic/defaultBenefits';
 
 const iconMap = {
@@ -23,11 +23,10 @@ const iconColorMap: Record<keyof typeof iconMap, string> = {
     Users: 'bg-indigo-500',
 };
 
-
 export interface Benefit {
     iconName: keyof typeof iconMap;
     title: string;
-    description: string;
+    description: ReactNode;
 }
 
 interface BenefitsSectionProps {
