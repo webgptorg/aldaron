@@ -8,8 +8,13 @@ export const citiesCsBenefits: Array<Benefit> = [
     {
         iconName: 'Zap',
         title: 'Jednoduchost',
-        description:
-            'Získejte to nejlepší z obou světů: jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.',
+        description: (
+            <>
+                Získejte to nejlepší z obou světů:
+                <br />
+                jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.
+            </>
+        ),
     },
     {
         iconName: 'Zap',
