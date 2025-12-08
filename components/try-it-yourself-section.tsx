@@ -220,5 +220,5 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
 }
 
 /**
- * TODO: !!! [🌆] Make `TryItYourselfSection` working
+ * TODO: !!! [🌆] Make `TryItYourselfSection` working, use <PromptbookAgent formfactor="book" /> and <PromptbookAgent formfactor="chat" />
  */
