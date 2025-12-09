@@ -45,7 +45,7 @@ export function CitiesCsPage() {
             </Suspense>
             <main className="min-h-screen">
                 <Header
-                    tryItYourselfText="Vyzkoušejte si to sami"
+                    tryItYourselfText={null} // "Vyzkoušejte si to sami"
                     whyPromptbookText="Proč Promptbook?"
                     integrationsText="Integrace"
                     pricingText="Ceník"
@@ -63,7 +63,7 @@ export function CitiesCsPage() {
                                         AI Transformace pro {you || 'města a obce'}
                                     </div>
                                     <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
-                                        AI, která{' '}
+                                        AI odborník, který{' '}
                                         <span className="bg-gradient-promptbook bg-clip-text text-transparent">
                                             mluví jazykem
                                         </span>{' '}
@@ -89,15 +89,15 @@ export function CitiesCsPage() {
                                 <div className="flex items-center gap-8 text-sm opacity-80">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-4 h-4" />
-                                        Otevřený software
+                                        Open-source řešení
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-4 h-4" />
-                                        Vaše data, vaše kontrola
+                                        Vaše data, Vaše kontrola
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-4 h-4" />
-                                        Snadné nastavení
+                                        Jednoduché nasazení
                                     </div>
                                 </div>
                             </>
@@ -107,17 +107,17 @@ export function CitiesCsPage() {
 
                 <BenefitsSection
                     title="AI řešení pro města a obce"
-                    description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI agenty přizpůsobenými vašim potřebám."
+                    description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI odborníkem který skutečně rozumí Vašemu městu."
                     benefits={citiesCsBenefits}
                 />
                 <IntegrationsSection
-                    title="Kde využít vašeho AI agenta"
-                    description="Nasaďte vaše AI agenty definované v Promptbooku v široké škále aplikací a scénářů."
+                    title="Kde využít vašeho AI odborníka"
+                    description="Váš AI odborník není jen chat na webu. Může být integrován do různých kanálů a systémů."
                     integrations={citiesCsIntegrations}
                 />
                 <TestimonialsSection
                     title="Co o nás říkají"
-                    description="Zjistěte, jak Promptbook usnadňuje práci profesionálů po celém světě:"
+                    description="Už jsme pomohli mnoha městům a obcím."
                     testimonials={citiesCsTestimonials}
                 />
 
@@ -135,27 +135,27 @@ export function CitiesCsPage() {
                 </Suspense>
                 <PricingSection
                     title="Jednoduché a transparentní ceny"
-                    description="Vyberte si plán, který nejlépe vyhovuje vašim obchodním potřebám."
+                    description="Nabízíme plány od malých obcí až po velká města. Žádné skryté poplatky, žádné složité smlouvy."
                     plans={citiesCsPricing}
                     monthlyText="Měsíčně"
                     yearlyText="Ročně"
                     saveText="Ušetřete"
-                    openSourceGuaranteeText="Všechny plány zahrnují naši open-source záruku: Vaše data, vaše kontrola, a to vždy."
+                    openSourceGuaranteeText={' '}
                 />
                 {isLocalhost && <PlaygroundSection />}
                 <TeamSection
                     title="Náš tým"
-                    description="Jsme oddaná skupina profesionálů, kteří se věnují využití AI k transformaci podniků. Naše zkušenosti pokrývají oblast technologií, výzkumu a podnikání:"
+                    description="Jsme tým zkušených profesionálů, kteří pomáhají obcím a městům využívat umělou inteligenci."
                     jiriDescription={
                         <>
-                            Ph.D. v matematice, bývalý výzkumník v{' '}
-                            <Link href="https://www.it4i.cz/">IT4I Národním superpočítačovém centru</Link>.
+                            Ph.D. v oboru matematika, bývalý výzkumník v{' '}
+                            <Link href="https://www.it4i.cz/">Národním superpočítačovém centru IT4I</Link>.
                         </>
                     }
                     pavolDescription={
                         <>
-                            Přední <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v ČR s více
-                            než 15 lety vývojářských zkušeností.
+                            Významný <Link href="https://www.pavolhejny.com/">open-source přispěvatel</Link> v České
+                            republice s více než 15 lety zkušeností ve vývoji softwaru.
                         </>
                     }
                 />
@@ -205,7 +205,6 @@ export function CitiesCsPage() {
 }
 
 /**
- * TODO: !!! [🌆] `/pro-mesta` Better copy of hero section
  * TODO: !!! [🌆] `/pro-mesta` Fix the footer
  * TODO: !!! Zig-zag the bg of the sections
  */

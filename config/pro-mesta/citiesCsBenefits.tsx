@@ -10,58 +10,38 @@ export const citiesCsBenefits: Array<Benefit> = [
         title: 'Jednoduchost',
         description: (
             <>
-                Získejte to nejlepší z obou světů:
-                <br />
-                jednoduchost no-code platforem a hlubokou kontrolu nad frameworky.
+                S námi vytvoříte svého AI <b>virtuálního odborníka</b> rychle v rámci jednoduché konverzace.
             </>
         ),
     },
     {
-        iconName: 'Zap',
-        title: 'Skutečně Vaše AI',
+        iconName: 'UserRound',
+        title: 'Virtuální odborník',
         description: (
             <>
-                Vytvořte AI agenty pro jakoukoli roli, od zákaznické podpory a marketingu po právní a personální
-                oddělení, a zajistěte, aby splňovali vaše specifické požadavky.
+                Díky nám získáte AI, která <b>skutečně rozumí</b> specifikům vašeho města.
             </>
         ),
     },
     {
-        iconName: 'Briefcase',
+        iconName: 'FileStack',
         title: 'Práce s dokumenty',
-        description: (
-            <>
-                Snadno definujte AI agenty se specifickými znalostmi, pravidly a osobnostmi, které odpovídají hodnotám
-                vaší organizace.
-            </>
-        ),
+        description: <>Snadno nahrajete specifické znalosti, vyhlášky, pravidla a další dokumenty.</>,
     },
     {
         iconName: 'Shield',
         title: 'Bezpečnost',
-        description: (
-            <>
-                Knihy jsou explicitní a snadno srozumitelné, což zajišťuje, že se vaše AI chová předvídatelně a
-                konzistentně ve všech aplikacích.
-            </>
-        ),
+        description: <>Mějte jistotu, že vaše data a informace jsou v bezpečí pod Vaší kontrolou.</>,
     },
 
     {
-        iconName: 'Book',
-        title: 'Chování pod kontrolou',
-        description: (
-            <>Použijte závazky Persona, Knowledge, Rule a Action k přesnému definování chování vašeho AI agenta.</>
-        ),
+        iconName: 'Mail',
+        title: 'Email',
+        description: <>Komunikujte se svým virtuálním odborníkem přes jakýkoliv kanál, web, email, WhatsApp,...</>,
     },
     {
         iconName: 'Code',
         title: 'Široké možnosti integrace',
-        description: (
-            <>
-                Používejte své AI agenty definované v knihách v chatovacích aplikacích, odpovídacích agentech,
-                kódovacích asistentech a interních aplikacích.
-            </>
-        ),
+        description: <>Napojte své AI do dalších systémů a platforem, rádi vám pomůžeme s integrací.</>,
     },
 ];

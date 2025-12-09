@@ -11,7 +11,7 @@ type HeaderProps = {
      * Is bare header without navigation and CTA button
      */
     isBare?: boolean;
-    tryItYourselfText?: string;
+    tryItYourselfText?: string | null;
     whyPromptbookText?: string;
     integrationsText?: string;
     pricingText?: string;
@@ -56,12 +56,14 @@ export function Header(props: HeaderProps) {
                     {/* Navigation */}
                     {!isBare && (
                         <nav className="hidden md:flex items-center gap-8">
-                            <button
-                                onClick={() => scrollToSection('try-it-yourself')}
-                                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
-                            >
-                                {tryItYourselfText}
-                            </button>
+                            {tryItYourselfText && (
+                                <button
+                                    onClick={() => scrollToSection('try-it-yourself')}
+                                    className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                                >
+                                    {tryItYourselfText}
+                                </button>
+                            )}
                             <button
                                 onClick={() => scrollToSection('benefits')}
                                 className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"

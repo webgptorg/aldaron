@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Book, Briefcase, Code, Shield, Users, Zap } from 'lucide-react';
+import { Book, Briefcase, Code, FileStack, Mail, Shield, UserRound, Users, Zap } from 'lucide-react';
 import { FC, ReactNode } from 'react';
 import { defaultBenefits } from '../config/_generic/defaultBenefits';
 
@@ -12,6 +12,11 @@ const iconMap = {
     Book,
     Code,
     Users,
+    Mail,
+    UserRound,
+    FileStack,
+
+    // <- Note: To add new icons @see https://lucide.dev/icons/
 };
 
 const iconColorMap: Record<keyof typeof iconMap, string> = {
@@ -21,6 +26,9 @@ const iconColorMap: Record<keyof typeof iconMap, string> = {
     Book: 'bg-purple-500',
     Code: 'bg-pink-500',
     Users: 'bg-indigo-500',
+    Mail: 'bg-red-500',
+    UserRound: 'bg-teal-500',
+    FileStack: 'bg-orange-500',
 };
 
 export interface Benefit {
