@@ -1,4 +1,6 @@
-const LONG_URL = `https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/`;
+// const LONG_URL = `https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/`;
+const LONG_URL = `https://uhxrtukoehjtukzd.public.blob.vercel-storage.com/ptbk-agents/user/files/`;
+
 // const SHORT_URL = `https://ptbk.io/k/`;
 
 /*
