@@ -1,8 +1,6 @@
 'use client';
 import { Benefit } from '../../components/benefits-section';
 
-// TODO: !!! [🌆] `/pro-mesta` Figure out best benefits
-// TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsBenefits`
 
 export const citiesCsBenefits: Array<Benefit> = [
     {

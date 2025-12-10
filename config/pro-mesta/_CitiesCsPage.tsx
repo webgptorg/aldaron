@@ -174,8 +174,14 @@ export function CitiesCsPage() {
                             href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
                             text: '	AI Web s.r.o.',
                         },
-                        { href: 'https://ptbk.io/about', text: 'O nás' },
-                        { href: 'https://ptbk.io/blog', text: 'Blog' },
+                        {
+                            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+                            text: '	IČO: 21012288',
+                        },
+                        {
+                            href: 'https://info.mojedatovaschranka.cz/info/cs/',
+                            text: 'Datová schránka:	hzuu4yn',
+                        },
                     ]}
                     connectHeader="Spojte se s námi"
                     connectLinks={[
@@ -206,6 +212,5 @@ export function CitiesCsPage() {
 }
 
 /**
- * TODO: !!! [🌆] `/pro-mesta` Fix the footer
- * TODO: !!! Zig-zag the bg of the sections
+ * TODO: Zig-zag the bg of the sections
  */

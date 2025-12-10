@@ -32,7 +32,7 @@ export function MockedChatSection(props: MockedChatSectionProps) {
                         isMe: participant.isMe,
                         fullname: participant.fullname || participant.name,
                         color: participant.color || '#6B7280',
-                        avatarSrc: generatePlaceholderAgentProfileImageUrl(participant.name),
+                        avatarSrc: participant.avatar || generatePlaceholderAgentProfileImageUrl(participant.name),
                     }))}
                 messages={conversation.messages.map((msg: any) => ({
                     id: msg.id,
