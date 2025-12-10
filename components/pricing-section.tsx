@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { motion } from 'framer-motion';
 import { Check, Crown } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ElementType, useState } from 'react';
 
 export interface PricingFootnote {
@@ -63,6 +64,7 @@ export function PricingSection({
     saveText = 'Save',
 }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+    const router = useRouter();
 
     // Helper function to check if a plan is the current plan
     const isCurrentPlan = (planName: string) => {
@@ -78,9 +80,9 @@ export function PricingSection({
         return plan.popular;
     };
 
-    const handleButtonClick = (buttonText: string) => {
-        // TODO: Implement actual logic for buttons
-        console.log(`${buttonText} clicked`);
+    const handleButtonClick = (planName: string) => {
+        const planSlug = planName.toLowerCase().replace(/\s+/g, '-');
+        router.push(`?modal=get-started&plan=${encodeURIComponent(planSlug)}`, { scroll: false });
     };
 
     return (
@@ -211,7 +213,7 @@ export function PricingSection({
                                                 </Link>
                                             ) : (
                                                 <button
-                                                    onClick={() => handleButtonClick(plan.buttonText)}
+                                                    onClick={() => handleButtonClick(plan.name)}
                                                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
                                                         plan.buttonText === 'Contact Sales'
                                                             ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'

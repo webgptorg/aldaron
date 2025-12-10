@@ -21,8 +21,9 @@ async function fetchIpAddress(): Promise<string | null> {
  * @param email - The email address to subscribe to the waitlist
  * @param placeName - Name of the place where the popup is triggered (to measure effectiveness)
  * @param phone - Optional phone number
+ * @param note - Optional notes (e.g., selected plan)
  */
-export async function subscribeToWaitlist(email: string, placeName: string, phone?: string) {
+export async function subscribeToWaitlist(email: string, placeName: string, phone?: string, note?: string) {
     // Get additional data for tracking
     const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : undefined;
     const referrer = typeof window !== 'undefined' ? document.referrer : undefined;
@@ -42,6 +43,7 @@ export async function subscribeToWaitlist(email: string, placeName: string, phon
             appName: APP_NAME,
             placeName,
             url: window.location.href,
+            userNote: note || null,
 
             isContacted: false,
         },

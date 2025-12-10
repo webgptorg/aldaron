@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useGetParam } from '@/hooks/useGetParam';
+import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
 import { Mail } from 'lucide-react';
 import Image from 'next/image';
@@ -42,6 +43,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         scheduleCall = 'Schedule a Call',
     } = props;
     const [modal, setModal] = useGetParam('modal');
+    const [plan] = useOptionalGetParam('plan');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +62,8 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         setError(null);
 
         try {
-            await subscribeToWaitlist(email, placeName, phone);
+            const note = plan ? `Selected plan: ${plan}` : undefined;
+            await subscribeToWaitlist(email, placeName, phone, note);
 
             setSuccess(true);
             setEmail('');

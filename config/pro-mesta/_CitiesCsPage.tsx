@@ -36,11 +36,11 @@ export function CitiesCsPage() {
                     specialistContact="Náš specialista vás bude brzy kontaktovat."
                     ceoOf="CEO společnosti Promptbook"
                     description="Naplánujte si bezplatnou a nezávaznou konzultaci a zjistěte, jak může Promptbook revolučně změnit znalosti vaší společnosti a posílit váš tým."
-                    emailPlaceholder="jmeno@uzasna-spolecnost.com"
-                    phonePlaceholder="+420 123 456 789"
+                    emailPlaceholder="jmeno@mesto.cz"
+                    phonePlaceholder="+420 777 000 000"
                     errorNoEmailOrPhone="Zadejte prosím e-mail nebo telefonní číslo"
                     sending="Odesílání..."
-                    scheduleCall="Naplánovat konzultaci"
+                    scheduleCall="Nezávazně poptat"
                 />
             </Suspense>
             <main className="min-h-screen">
