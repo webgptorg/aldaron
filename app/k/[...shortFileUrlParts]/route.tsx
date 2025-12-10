@@ -1,5 +1,7 @@
-// const LONG_URL = `https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/`;
-const LONG_URL = `https://uhxrtukoehjtukzd.public.blob.vercel-storage.com/ptbk-agents/user/files/`;
+const LONG_URLS = [
+    `https://uhxrtukoehjtukzd.public.blob.vercel-storage.com/ptbk-agents/user/files/`,
+    `https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/`,
+];
 
 // const SHORT_URL = `https://ptbk.io/k/`;
 
@@ -33,17 +35,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ shor
     let { shortFileUrlParts } = await params;
 
     const shortFileUrl = shortFileUrlParts.join('/');
-    const longFileUrl = `${LONG_URL}${shortFileUrl}`;
 
     try {
-        /*
-        return new Response(JSON.stringify({ shortFileUrlParts, shortFileUrl, longFileUrl }, null, 4), {
-            status: 200,
-            headers: { 'Content-Type': 'text/plain' },
-        });
-        */
+        // Try each URL until one works
+        for (const baseUrl of LONG_URLS) {
+            const longFileUrl = `${baseUrl}${shortFileUrl}`;
+            const response = await fetch(longFileUrl, { method: 'HEAD' });
+            if (response.ok) {
+                return Response.redirect(longFileUrl, 302);
+            }
+        }
 
-        return Response.redirect(longFileUrl, 302);
+        // If none of the URLs work, return 404
+        return new Response(JSON.stringify({ message: 'File not found' }, null, 4), {
+            status: 404,
+            headers: { 'Content-Type': 'application/json' },
+        });
     } catch (error) {
         console.error(error);
         return new Response(JSON.stringify({ message: (error as Error).message }, null, 4), {
