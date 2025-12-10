@@ -16,7 +16,7 @@ import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
 import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
-import { citiesCsPricing } from '@/config/pro-mesta/citiesCsPricing';
+import { citiesCsPricing, citiesCsPricingFootnotes } from '@/config/pro-mesta/citiesCsPricing';
 import { citiesCsTestimonials } from '@/config/pro-mesta/citiesCsTestimonials';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
@@ -137,6 +137,7 @@ export function CitiesCsPage() {
                     title="Jednoduché a transparentní ceny"
                     description="Nabízíme plány od malých obcí až po velká města. Žádné skryté poplatky, žádné složité smlouvy."
                     plans={citiesCsPricing}
+                    footnotes={citiesCsPricingFootnotes}
                     monthlyText="Měsíčně"
                     yearlyText="Ročně"
                     saveText="Ušetřete"

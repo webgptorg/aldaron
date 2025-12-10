@@ -1,12 +1,17 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { motion } from 'framer-motion';
-import { Check, Crown, MessageSquare } from 'lucide-react';
+import { Check, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { ElementType, useState } from 'react';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+
+export interface PricingFootnote {
+    id: string;
+    text: string;
+}
 
 export interface PricingPlan {
     name: string;
@@ -35,6 +40,7 @@ export interface PricingSectionProps {
     isFrame?: boolean;
     currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE' | 'STANDARD' | 'ADVANCED';
     plans: PricingPlan[];
+    footnotes?: PricingFootnote[];
     title?: string;
     description?: string;
     monthlyText?: string;
@@ -48,6 +54,7 @@ export function PricingSection({
     isFrame,
     currentPlan,
     plans,
+    footnotes = [],
     title = 'Simple, Transparent Pricing',
     description = 'Choose the plan that fits your business needs.',
     monthlyText = 'Monthly',
@@ -149,7 +156,9 @@ export function PricingSection({
 
                                     <div className="text-center mb-8">
                                         <div
-                                            className={`w-16 h-16 rounded-2xl ${iconColorMap[plan.iconName] || 'bg-gray-500'} flex items-center justify-center mx-auto mb-4`}
+                                            className={`w-16 h-16 rounded-2xl ${
+                                                iconColorMap[plan.iconName] || 'bg-gray-500'
+                                            } flex items-center justify-center mx-auto mb-4`}
                                         >
                                             <plan.icon className="w-8 h-8 text-white" />
                                         </div>
@@ -231,6 +240,23 @@ export function PricingSection({
                             );
                         })}
                     </div>
+
+                    {footnotes.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="mt-8 max-w-4xl mx-auto"
+                        >
+                            <div className="text-sm text-gray-500 space-y-1">
+                                {footnotes.map((footnote) => (
+                                    <p key={footnote.id}>
+                                        <span className="font-medium">{footnote.id}</span> {footnote.text}
+                                    </p>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
 
                     {!hideHeader && (
                         <motion.div

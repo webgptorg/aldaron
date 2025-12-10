@@ -1,8 +1,16 @@
+import { PricingFootnote } from '@/components/pricing-section';
 import { Building, Rocket, Shield } from 'lucide-react';
 
 // TODO: !!! [🌆] `/pro-mesta` Figure out best pricing
 // TODO: !!! [🌆] `/pro-mesta` Figure out the features
 // TODO: !!! [🌆] `/pro-mesta` Better copy of `citiesCsPricing`
+
+export const citiesCsPricingFootnotes: PricingFootnote[] = [
+    {
+        id: '*',
+        text: 'AI úvazek znamená, že agent vykoná ekvivalent 1 člověka na plný úvazek.',
+    },
+];
 
 export const citiesCsPricing = [
     {
