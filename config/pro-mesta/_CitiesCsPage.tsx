@@ -124,13 +124,8 @@ export function CitiesCsPage() {
                 <Suspense>
                     <TryItYourselfSection
                         initialBook={citiesCsBook}
-                        // <- TODO: [🌆] Pass the initial message to `TryItYourselfSection`
                         tryItYourself="Vyzkoušejte si to sami"
                         tryChatting="Zkuste si popovídat s {agentName} sami:"
-                        helpMessage="Můžete mi pomoci?"
-                        welcomeMessage={(agentName: string) =>
-                            `Jsem právník společnosti ${agentName}. Poskytuji právní poradenství a podporu společnosti a jejím zaměstnancům se zaměřením na dodržování zákonů a firemních zásad. Jak vám mohu pomoci?`
-                        }
                     />
                 </Suspense>
                 <PricingSection

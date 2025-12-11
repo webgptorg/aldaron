@@ -6,6 +6,7 @@ import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
+import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
@@ -16,12 +17,11 @@ import { industryIntegrations } from '@/config/for-industry/industryIntegrations
 import { industryPricing } from '@/config/for-industry/industryPricing';
 import { industryTestimonials } from '@/config/for-industry/industryTestimonials';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
+import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { industryBenefits } from '../../config/for-industry/industryBenefits';
-import { PlaygroundSection } from '@/components/playground-section';
 
 export default function ForIndustryPage() {
     const isLocalhost = useIsLocalhost();

@@ -1,6 +1,6 @@
 'use client';
 
-import { PromptbookAgent } from '@promptbook/components';
+import { PromptbookAgentIntegration } from '@promptbook/components';
 import { useEffect } from 'react';
 
 export function Chatbot() {
@@ -10,12 +10,12 @@ export function Chatbot() {
 
     return (
         <>
-            <PromptbookAgent
-                agentUrl="https://s6.ptbk.io/pavol-hejny"
+            <PromptbookAgentIntegration
+                agentUrl="https://landing-pages.ptbk.io/agents/benjamin-green"
                 meta={{
                     image: 'https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/f9/e590c/pavol-hejny-transparent-3.png',
                     color: `#ffff00`,
-                    // < TODO: !!!!
+                    // !!!! + Make one place
                 }}
             />
         </>
