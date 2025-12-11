@@ -21,7 +21,3 @@ export function Chatbot() {
         </>
     );
 }
-
-/**
- * TODO: !!! [🌆] Make PromptbookAgent working better
- */
