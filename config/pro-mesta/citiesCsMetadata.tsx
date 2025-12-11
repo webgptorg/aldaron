@@ -2,33 +2,31 @@ import { Metadata } from 'next';
 import ogImage from './cities-cs-og-image.png';
 // <- TODO: !!! [🌆] `/pro-mesta` OG image specific for cities
 
-// TODO: !!! [🌆] `/pro-mesta` Translate
-
 export const citiesCsMetadata: Metadata = {
-    title: 'AI Transformation for Cities and Municipalities - Promptbook',
+    title: 'AI odborník, který mluví jazykem Vaší obce',
     description:
-        'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
+        'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
     alternates: {
         canonical: '/pro-mesta',
     },
     openGraph: {
         type: 'website',
-        title: 'AI Transformation for Cities and Municipalities - Promptbook',
+        title: 'AI odborník, který mluví jazykem Vaší obce',
         description:
-            'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
+            'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
         url: 'https://ptbk.io/pro-mesta',
         images: [
             {
                 url: ogImage.src,
                 width: 1860,
                 height: 992,
-                alt: 'AI Transformation for Cities and Municipalities - Promptbook',
+                alt: 'AI odborník, který mluví jazykem Vaší obce - Promptbook',
             },
         ],
     },
     twitter: {
-        title: 'AI Transformation for Cities and Municipalities - Promptbook',
+        title: 'AI odborník, který mluví jazykem Vaší obce',
         description:
-            'With Promptbook, you can capture the context, rules, and knowledge of your organization into simple documents and create AI agents that perfectly match your needs.',
+            'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
     },
 };
