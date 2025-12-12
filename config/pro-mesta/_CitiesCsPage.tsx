@@ -70,8 +70,7 @@ export function CitiesCsPage() {
                                         {you || <>Vaší obce</>}
                                     </h1>
                                     <p className="text-xl text-white leading-relaxed">
-                                        Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že
-                                        umělá inteligence opravdu rozumí místním specifikům.
+                                        Pomáháme samosprávám vytvářet kontext pro AI.
                                     </p>
                                 </div>
 

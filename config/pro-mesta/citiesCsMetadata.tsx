@@ -4,16 +4,14 @@ import ogImage from './cities-cs-og-image.png';
 
 export const citiesCsMetadata: Metadata = {
     title: 'AI odborník, který mluví jazykem Vaší obce',
-    description:
-        'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
+    description: 'Pomáháme samosprávám vytvářet kontext pro AI.',
     alternates: {
         canonical: '/pro-mesta',
     },
     openGraph: {
         type: 'website',
         title: 'AI odborník, který mluví jazykem Vaší obce',
-        description:
-            'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
+        description: 'Pomáháme samosprávám vytvářet kontext pro AI',
         url: 'https://ptbk.io/pro-mesta',
         images: [
             {
@@ -26,7 +24,6 @@ export const citiesCsMetadata: Metadata = {
     },
     twitter: {
         title: 'AI odborník, který mluví jazykem Vaší obce',
-        description:
-            'Promptbook pomáhá samosprávám vytvářet kontext a znalosti, které zajišťují, že umělá inteligence opravdu rozumí místním specifikům.',
+        description: 'Pomáháme samosprávám vytvářet kontext pro AI',
     },
 };
