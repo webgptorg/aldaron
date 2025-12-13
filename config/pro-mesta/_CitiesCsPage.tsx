@@ -106,7 +106,7 @@ export function CitiesCsPage() {
 
                 <BenefitsSection
                     title="AI řešení pro města a obce"
-                    description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI odborníkem který skutečně rozumí Vašemu městu."
+                    description="Zefektivněte provoz, snižte administrativní zátěž a vylepšete služby s AI odborníkem, který skutečně rozumí Vašemu městu."
                     benefits={citiesCsBenefits}
                 />
                 <IntegrationsSection

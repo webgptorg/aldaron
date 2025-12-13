@@ -1,14 +1,13 @@
 'use client';
 import { Benefit } from '../../components/benefits-section';
 
-
 export const citiesCsBenefits: Array<Benefit> = [
     {
         iconName: 'Zap',
         title: 'Jednoduchost',
         description: (
             <>
-                S námi vytvoříte svého AI <b>virtuálního odborníka</b> rychle v rámci jednoduché konverzace.
+                <b>Virtuální AI odborník</b> vytvořený rychle v rámci jednoduché konverzace.
             </>
         ),
     },
