@@ -21,7 +21,7 @@ type HeaderProps = {
 export function Header(props: HeaderProps) {
     const {
         isBare = false,
-        tryItYourselfText = 'Try it Yourself!',
+        tryItYourselfText = null, // 'Try it Yourself!',
         whyPromptbookText = 'Why Promptbook?',
         integrationsText = 'Integrations',
         pricingText = 'Pricing',

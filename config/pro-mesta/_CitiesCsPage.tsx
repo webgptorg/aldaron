@@ -120,6 +120,7 @@ export function CitiesCsPage() {
                     testimonials={citiesCsTestimonials}
                 />
 
+                {/*
                 <Suspense>
                     <TryItYourselfSection
                         initialBook={citiesCsBook}
@@ -127,6 +128,7 @@ export function CitiesCsPage() {
                         tryChatting="Zkuste si popovídat s {agentName} sami:"
                     />
                 </Suspense>
+                */}
                 <PricingSection
                     title="Jednoduché a transparentní ceny"
                     description="Nabízíme plány od malých obcí až po velká města. Žádné skryté poplatky, žádné složité smlouvy."

@@ -124,9 +124,11 @@ export function HomePageComponent() {
                         )}
                     />
                 </Suspense>
+                {/*
                 <Suspense>
                     <TryItYourselfSection />
                 </Suspense>
+                */}
                 <BenefitsSection />
                 <IntegrationsSection />
                 <TestimonialsSection />
