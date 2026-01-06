@@ -1,7 +1,7 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { MarkdownContent } from '@/components/markdown-content';
 import { supabase } from '@/lib/supabase';
-import { MarkdownContent } from '@promptbook/components';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Link from 'next/link';
