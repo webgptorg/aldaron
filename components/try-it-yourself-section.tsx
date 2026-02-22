@@ -1,8 +1,17 @@
 'use client';
 
 import defaultBook from '@/config/_generic/default.book';
-import { BookEditor, PromptbookAgentIntegration } from '@promptbook/components';
 import type { string_book } from '@promptbook/types';
+import dynamic from 'next/dynamic';
+
+const BookEditor = dynamic(() => import('@promptbook/components').then((module) => module.BookEditor), {
+    ssr: false,
+});
+
+const PromptbookAgentIntegration = dynamic(
+    () => import('@promptbook/components').then((module) => module.PromptbookAgentIntegration),
+    { ssr: false },
+);
 
 type TryItYourselfSectionProps = {
     initialBook?: string_book;

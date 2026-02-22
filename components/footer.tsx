@@ -7,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
-import { CLAIM } from '@promptbook/core';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -69,6 +68,7 @@ export function Footer({
         </>
     ),
 }: FooterProps) {
+    const claim = 'Create AI that truly understands your business.';
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -207,7 +207,7 @@ export function Footer({
                                 {rightsReservedText}
                             </p>
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
-                                {CLAIM} <i style={{ visibility: 'hidden' }}>11:11</i>
+                                {claim} <i style={{ visibility: 'hidden' }}>11:11</i>
                             </p>
                         </div>
 

@@ -1,7 +1,11 @@
 'use client';
 
 import { Conversation } from '@/lib/conversations-data';
-import { MockedChat } from '@promptbook/components';
+import dynamic from 'next/dynamic';
+
+const MockedChat = dynamic(() => import('@promptbook/components').then((module) => module.MockedChat), {
+    ssr: false,
+});
 
 type MockedChatSectionProps = {
     conversation: Conversation;

@@ -1,8 +1,12 @@
 'use client';
 
-import { MarkdownContent as PromptbookMarkdownContent } from '@promptbook/components';
-import { ComponentProps } from 'react';
+import dynamic from 'next/dynamic';
 
-export function MarkdownContent(props: ComponentProps<typeof PromptbookMarkdownContent>) {
+const PromptbookMarkdownContent = dynamic(
+    () => import('@promptbook/components').then((module) => module.MarkdownContent),
+    { ssr: false },
+);
+
+export function MarkdownContent(props: Record<string, unknown>) {
     return <PromptbookMarkdownContent {...props} />;
 }

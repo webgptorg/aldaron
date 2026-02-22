@@ -3,10 +3,14 @@
 import { useUserSession } from '@/hooks/use-user-session';
 import { classNames } from '@/lib/classNames';
 import { getSupabaseForBrowser } from '@/lib/supabase';
-import { PromptbookQrCode } from '@promptbook/components';
 import { titleToName } from '@promptbook/utils';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
+
+const PromptbookQrCode = dynamic(() => import('@promptbook/components').then((module) => module.PromptbookQrCode), {
+    ssr: false,
+});
 
 type UrlShortenerProps = {
     /**

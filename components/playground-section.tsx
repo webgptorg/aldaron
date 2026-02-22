@@ -1,4 +1,11 @@
-import { AboutPromptbookInformation } from '@promptbook/components';
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const AboutPromptbookInformation = dynamic(
+    () => import('@promptbook/components').then((module) => module.AboutPromptbookInformation),
+    { ssr: false },
+);
 
 export function PlaygroundSection() {
     return (
