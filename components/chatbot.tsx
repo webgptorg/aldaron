@@ -18,8 +18,10 @@ export function Chatbot() {
             <PromptbookAgentIntegration
                 agentUrl="https://landing-pages.ptbk.io/agents/benjamin-green"
                 meta={{
+                    title: 'Benjamin Green !!!!!',
+
                     image: 'https://collboard.fra1.cdn.digitaloceanspaces.com/ptbk-agents/user/files/f9/e590c/pavol-hejny-transparent-3.png',
-                    color: `#ffff00`,
+                    color: `#30A8BD`,
                     // !!!! + Make one place
                 }}
             />
