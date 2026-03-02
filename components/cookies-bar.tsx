@@ -28,7 +28,7 @@ export function CookiesBar() {
 
     return (
         <>
-            <div className="fixed bottom-4 right-4 w-full max-w-md p-4 bg-promptbook-dark-gray text-white rounded-lg shadow-lg z-50">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md p-4 bg-promptbook-dark-gray text-white rounded-lg shadow-lg z-50">
                 <div className="flex flex-col gap-4">
                     <div>
                         <h3 className="font-bold text-lg">Cookie Settings</h3>
