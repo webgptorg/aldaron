@@ -48,6 +48,9 @@ export interface PricingSectionProps {
     yearlyText?: string;
     openSourceGuaranteeText?: string;
     saveText?: string;
+    showBillingToggle?: boolean;
+    popularBadgeText?: string;
+    currentPlanBadgeText?: string;
 }
 
 export function PricingSection({
@@ -62,6 +65,9 @@ export function PricingSection({
     yearlyText = 'Yearly',
     openSourceGuaranteeText = 'All plans include our open-source guarantee - your data, your control, always.',
     saveText = 'Save',
+    showBillingToggle = true,
+    popularBadgeText = 'Most Popular',
+    currentPlanBadgeText = 'Current Plan',
 }: PricingSectionProps) {
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
     const router = useRouter();
@@ -99,27 +105,33 @@ export function PricingSection({
                         </div>
                     )}
 
-                    <div className="flex justify-center items-center space-x-4 mt-8">
-                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            {monthlyText}
-                        </Label>
-                        <Switch
-                            id="billing-cycle"
-                            checked={billingCycle === 'yearly'}
-                            onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
-                        />
-                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            {yearlyText}
-                        </Label>
-                    </div>
+                    {showBillingToggle && (
+                        <div className="flex justify-center items-center space-x-4 mt-8">
+                            <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                                {monthlyText}
+                            </Label>
+                            <Switch
+                                id="billing-cycle"
+                                checked={billingCycle === 'yearly'}
+                                onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+                            />
+                            <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                                {yearlyText}
+                            </Label>
+                        </div>
+                    )}
 
                     <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {plans.map((plan, index) => {
-                            const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+                            const price = showBillingToggle
+                                ? billingCycle === 'yearly'
+                                    ? plan.priceYearly
+                                    : plan.priceMonthly
+                                : plan.priceMonthly;
                             const monthlyPrice = parseFloat(plan.priceMonthly.replace(/[^0-9.]/g, ''));
                             const yearlyPrice = parseFloat(plan.priceYearly.replace(/[^0-9.]/g, ''));
                             const discount =
-                                monthlyPrice && yearlyPrice
+                                showBillingToggle && monthlyPrice && yearlyPrice
                                     ? Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100)
                                     : 0;
 
@@ -141,7 +153,7 @@ export function PricingSection({
                                         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                             <Badge className="bg-green-500 text-white px-4 py-2">
                                                 <Check className="w-4 h-4 mr-1" />
-                                                Current Plan
+                                                {currentPlanBadgeText}
                                             </Badge>
                                         </div>
                                     )}
@@ -151,7 +163,7 @@ export function PricingSection({
                                         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                             <Badge className="bg-gradient-purple text-white px-4 py-2">
                                                 <Crown className="w-4 h-4 mr-1" />
-                                                Most Popular
+                                                {popularBadgeText}
                                             </Badge>
                                         </div>
                                     )}
@@ -174,9 +186,14 @@ export function PricingSection({
                                                 {plan.currency && ` ${plan.currency}`}
                                             </span>
                                             <span className="text-gray-500 ml-2">
-                                                / {billingCycle === 'yearly' ? yearlyText : monthlyText}
+                                                /{' '}
+                                                {showBillingToggle
+                                                    ? billingCycle === 'yearly'
+                                                        ? yearlyText
+                                                        : monthlyText
+                                                    : plan.period}
                                             </span>
-                                            {billingCycle === 'yearly' && discount > 0 && (
+                                            {showBillingToggle && billingCycle === 'yearly' && discount > 0 && (
                                                 <Badge variant="secondary" className="ml-2">
                                                     {saveText} {discount}%
                                                 </Badge>
