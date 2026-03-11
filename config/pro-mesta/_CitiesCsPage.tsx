@@ -12,6 +12,7 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
+import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
 import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
 import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
@@ -156,52 +157,7 @@ export function CitiesCsPage() {
                         </>
                     }
                 />
-                <Footer
-                    productHeader="Produkt"
-                    productLinks={[
-                        { href: '?modal=get-started', text: 'Začít' },
-                        { href: 'https://ptbk.io/', text: 'Promptbook' },
-                        { href: 'https://github.com/webgptorg/promptbook', text: 'Dokumentace' },
-                        // { href: 'https://promptbook.studio/miniapps/new', text: 'Hřiště' },
-                    ]}
-                    companyHeader="Společnost"
-                    companyLinks={[
-                        {
-                            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
-                            text: '	AI Web s.r.o.',
-                        },
-                        {
-                            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
-                            text: '	IČO: 21012288',
-                        },
-                        {
-                            href: 'https://info.mojedatovaschranka.cz/info/cs/',
-                            text: 'Datová schránka:	hzuu4yn',
-                        },
-                    ]}
-                    connectHeader="Spojte se s námi"
-                    connectLinks={[
-                        { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
-                        { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
-                        { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
-                        { href: '/contact', text: 'Více' },
-                    ]}
-                    stayUpdatedHeader="Zůstaňte v obraze"
-                    emailLabel="E-mail *"
-                    consentLabel="Souhlasím se zasíláním novinek e-mailem *"
-                    subscribeButtonText="Odebírat"
-                    subscribingButtonText="Odebírám..."
-                    successMessage="Úspěšně přihlášeno!"
-                    rightsReservedText="Všechna práva vyhrazena."
-                    projectFundingText={
-                        <>
-                            Tento projekt byl realizován za finanční podpory z národního rozpočtu
-                            <br />
-                            prostřednictvím Ministerstva průmyslu a obchodu České republiky v rámci programu CzechInvest
-                            Technologická inkubace.
-                        </>
-                    }
-                />
+                <Footer {...czechBusinessFooterProps} />
             </main>
         </>
     );

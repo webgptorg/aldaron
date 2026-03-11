@@ -20,10 +20,13 @@ interface FooterProps {
     connectLinks?: { href: string; text: string }[];
     stayUpdatedHeader?: string;
     emailLabel?: string;
+    emailPlaceholder?: string;
     consentLabel?: string;
+    consentErrorMessage?: string;
     subscribeButtonText?: string;
     subscribingButtonText?: string;
     successMessage?: string;
+    genericErrorMessage?: string;
     rightsReservedText?: string;
     projectFundingText?: React.ReactNode;
 }
@@ -54,10 +57,13 @@ export function Footer({
     ],
     stayUpdatedHeader = 'Stay Updated',
     emailLabel = 'Email *',
+    emailPlaceholder = 'you@example.com',
     consentLabel = 'I consent to receive news and updates via email *',
+    consentErrorMessage = 'Please consent to receive news and updates',
     subscribeButtonText = 'Subscribe',
     subscribingButtonText = 'Subscribing...',
     successMessage = 'Successfully subscribed!',
+    genericErrorMessage = 'An error occurred',
     rightsReservedText = 'All rights reserved.',
     projectFundingText = (
         <>
@@ -79,7 +85,7 @@ export function Footer({
         e.preventDefault();
 
         if (!consent) {
-            setError('Please consent to receive news and updates');
+            setError(consentErrorMessage);
             return;
         }
 
@@ -93,7 +99,7 @@ export function Footer({
             setEmail('');
             setConsent(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            setError(err instanceof Error ? err.message : genericErrorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -155,7 +161,7 @@ export function Footer({
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="you@example.com"
+                                    placeholder={emailPlaceholder}
                                     className="bg-gray-800 border-gray-700 text-white placeholder-gray-500"
                                     required
                                 />

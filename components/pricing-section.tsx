@@ -39,6 +39,7 @@ const iconColorMap: Record<string, string> = {
 export interface PricingSectionProps {
     hideHeader?: boolean;
     isFrame?: boolean;
+    showBillingToggle?: boolean;
     currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE' | 'STANDARD' | 'ADVANCED';
     plans: PricingPlan[];
     footnotes?: PricingFootnote[];
@@ -53,6 +54,7 @@ export interface PricingSectionProps {
 export function PricingSection({
     hideHeader,
     isFrame,
+    showBillingToggle = true,
     currentPlan,
     plans,
     footnotes = [],
@@ -99,27 +101,33 @@ export function PricingSection({
                         </div>
                     )}
 
-                    <div className="flex justify-center items-center space-x-4 mt-8">
-                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            {monthlyText}
-                        </Label>
-                        <Switch
-                            id="billing-cycle"
-                            checked={billingCycle === 'yearly'}
-                            onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
-                        />
-                        <Label htmlFor="billing-cycle" className="text-muted-foreground">
-                            {yearlyText}
-                        </Label>
-                    </div>
+                    {showBillingToggle && (
+                        <div className="flex justify-center items-center space-x-4 mt-8">
+                            <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                                {monthlyText}
+                            </Label>
+                            <Switch
+                                id="billing-cycle"
+                                checked={billingCycle === 'yearly'}
+                                onCheckedChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
+                            />
+                            <Label htmlFor="billing-cycle" className="text-muted-foreground">
+                                {yearlyText}
+                            </Label>
+                        </div>
+                    )}
 
                     <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {plans.map((plan, index) => {
-                            const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+                            const price = showBillingToggle
+                                ? billingCycle === 'yearly'
+                                    ? plan.priceYearly
+                                    : plan.priceMonthly
+                                : plan.priceMonthly;
                             const monthlyPrice = parseFloat(plan.priceMonthly.replace(/[^0-9.]/g, ''));
                             const yearlyPrice = parseFloat(plan.priceYearly.replace(/[^0-9.]/g, ''));
                             const discount =
-                                monthlyPrice && yearlyPrice
+                                showBillingToggle && monthlyPrice && yearlyPrice
                                     ? Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100)
                                     : 0;
 
@@ -173,10 +181,14 @@ export function PricingSection({
                                                 {price}
                                                 {plan.currency && ` ${plan.currency}`}
                                             </span>
-                                            <span className="text-gray-500 ml-2">
-                                                / {billingCycle === 'yearly' ? yearlyText : monthlyText}
-                                            </span>
-                                            {billingCycle === 'yearly' && discount > 0 && (
+                                            {showBillingToggle ? (
+                                                <span className="text-gray-500 ml-2">
+                                                    / {billingCycle === 'yearly' ? yearlyText : monthlyText}
+                                                </span>
+                                            ) : (
+                                                plan.period && <span className="text-gray-500 ml-2">/ {plan.period}</span>
+                                            )}
+                                            {showBillingToggle && billingCycle === 'yearly' && discount > 0 && (
                                                 <Badge variant="secondary" className="ml-2">
                                                     {saveText} {discount}%
                                                 </Badge>

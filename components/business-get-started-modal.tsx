@@ -26,6 +26,7 @@ interface BusinessGetStartedModalProps {
     errorNoEmailOrPhone?: string;
     sending?: string;
     scheduleCall?: string;
+    genericErrorMessage?: string;
 }
 
 export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
@@ -41,6 +42,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         errorNoEmailOrPhone = 'Please enter your email or phone number',
         sending = 'Sending...',
         scheduleCall = 'Schedule a Call',
+        genericErrorMessage = 'An error occurred',
     } = props;
     const [modal, setModal] = useGetParam('modal');
     const [plan] = useOptionalGetParam('plan');
@@ -75,7 +77,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                 setSuccess(false);
             }, 2000);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            setError(err instanceof Error ? err.message : genericErrorMessage);
         } finally {
             setIsSubmitting(false);
         }
