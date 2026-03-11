@@ -30,7 +30,7 @@ export function CookieSettingsModal({ open, onOpenChange }: { open: boolean; onO
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open && false /* <- TODO: !!!! Re-enable cookies bar */} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Customize Cookie Settings</DialogTitle>
