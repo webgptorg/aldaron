@@ -6,7 +6,7 @@ codex \
   exec --model gpt-5.3-codex \
   --local-provider none \
   --sandbox danger-full-access \
-  -C /c/Users/me/work/ai/promptbook \
+  -C /c/Users/me/work/promptbook-experiments-and-landing-pages/aldaron \
   <<'CODEX_PROMPT'
 
 Create a subpage `/ai-supervize` that technically fits into system of landing pages _(for example the `/` and `/pro-mesta`)_ but is will be focused and narrowed down to AI Supervision in Czech language.
