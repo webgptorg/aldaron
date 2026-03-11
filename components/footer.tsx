@@ -26,7 +26,6 @@ interface FooterProps {
     successMessage?: string;
     rightsReservedText?: string;
     projectFundingText?: React.ReactNode;
-    claim?: React.ReactNode;
 }
 
 export function Footer({
@@ -60,7 +59,6 @@ export function Footer({
     subscribingButtonText = 'Subscribing...',
     successMessage = 'Successfully subscribed!',
     rightsReservedText = 'All rights reserved.',
-    claim = 'Create AI that truly understands your business.',
     projectFundingText = (
         <>
             This project was implemented with funding from the national budget
@@ -70,6 +68,7 @@ export function Footer({
         </>
     ),
 }: FooterProps) {
+    const claim = 'Create AI that truly understands your business.';
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
