@@ -73,7 +73,7 @@ export function AiSupervizePage() {
 
                                     <h1 className="text-5xl font-bold leading-tight text-white lg:text-6xl">
                                         Zaveďte AI do vývoje jako{' '}
-                                        <span className="bg-gradient-to-r from-cyan-300 via-white to-amber-200 bg-clip-text text-transparent">
+                                        <span className="bg-gradient-promptbook bg-clip-text text-transparent">
                                             kontrolovaný výkon
                                         </span>
                                         , ne náhodnou loterii
@@ -84,21 +84,21 @@ export function AiSupervizePage() {
                                         tak, aby AI zkracovala time-to-merge, snižovala rework a nezvyšovala chaos.
                                     </p>
 
-                                    <div className="rounded-3xl border border-white/15 bg-white/8 p-5 text-white/90 shadow-2xl backdrop-blur-sm">
+                                    {/*<div className="rounded-3xl border border-white/15 bg-white/8 p-5 text-white/90 shadow-2xl backdrop-blur-sm">
                                         <p className="text-sm uppercase tracking-[0.28em] text-cyan-200">Výsledek</p>
                                         <p className="mt-3 text-lg leading-relaxed">
                                             Není to přednáška o AI. Je to{' '}
                                             <strong>rozhodnutí + plán + playbook + šablony + měřitelné metriky</strong>{' '}
                                             pro váš konkrétní produkt a tým.
                                         </p>
-                                    </div>
+                                    </div>*/}
                                 </div>
 
                                 <div className="flex flex-col gap-4 sm:flex-row">
                                     <Link href="?modal=get-started">
                                         <Button
                                             size="lg"
-                                            className="rounded-full bg-white px-8 py-6 text-lg text-slate-950 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:bg-white/95"
+                                            className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                                         >
                                             Domluvit discovery workshop
                                             <ArrowRight className="ml-2 h-5 w-5" />
