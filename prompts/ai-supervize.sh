@@ -4,7 +4,7 @@ codex \
     -c forced_login_method=chatgpt \
     -c model_reasoning_effort='"xhigh"' \
   --ask-for-approval never \
-  exec 
+  exec \
   --model gpt-5.4 \
   --local-provider none \
   --sandbox danger-full-access \
