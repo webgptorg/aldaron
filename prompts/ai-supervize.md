@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 Create a subpage `/ai-supervize` that technically fits into system of landing pages _(for example the `/` and `/pro-mesta`)_ but is will be focused and narrowed down to AI Supervision in Czech language.
 
