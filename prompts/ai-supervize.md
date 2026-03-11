@@ -1,9 +1,23 @@
-[x]
+[ ]
 
-Create a subpage `/ai-supervize` that technically fits into system of landing pages _(for example the `/` and `/pro-mesta`)_ but is will be focused and narrowed down to AI Supervision in Czech language.
+Create a subpage `/ai-supervize` that will be focused and narrowed down to AI Supervision
 
 - Website is in Czech language targeting Czech companies
 - Customer is CTO, CEO or Tech Lead of a software development team
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of page variants before you start implementing.
+    - subpage `/ai-supervize` should technically fit into the system of landing pages _(for example the `/` and `/pro-mesta`)_
+    - Look at `config` folder on the root of the project
+
+**This is how the `ai-supervize` variant should look like:**
+
+1. Chat sample should contain some AI Coding (Vibecoding) in TypeScript example
+2. Following sections should look great from UI and UX perspective, and the content should be focused on AI Supervision _(not on AI Agents or AI in general)_
+3. Base it on the leaflet content below
+4. Pricing should be visually in same component as other (sub)pages but with price from given leaflet
+5. There should be some simple explanation why Pavol and Jirka are the best people to do this (based on their experience and background) and also explain in one sentence what is Promptbook and how it is related to AI Supervision
+    - People that will be funneled to this page shouldn’t know anything about Promptbook, but explaining that Promptbook is a product of AI Web s.r.o. and that we have deep experience with AI in software development will help to build trust and credibility
+6. Lead (recording of the contact from user) should be same as in other pages
 
 **This is the business leaflet for AI Supervision:**
 
