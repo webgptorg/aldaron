@@ -22,7 +22,7 @@ Create a subpage `/ai-supervize` that will be focused and narrowed down to AI Su
 
 **This is how the `ai-supervize` variant should look like:**
 
-1. Chat sample should contain some AI Coding (Vibecoding) in TypeScript example
+1. Chat sample should contain some PRD creation
 2. Following sections should look great from UI and UX perspective, and the content should be focused on AI Supervision _(not on AI Agents or AI in general)_
 3. Base it on the leaflet content below
 4. Pricing should be visually in same component as other (sub)pages but with price from given leaflet
