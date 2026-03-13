@@ -5,7 +5,6 @@ import { BusinessGetStartedModal } from '@/components/business-get-started-modal
 import { FeatureCardsSection } from '@/components/feature-cards-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
@@ -21,12 +20,23 @@ import {
     aiSupervizeSituationsNote,
     aiSupervizeSymptoms,
 } from '@/config/ai-supervize/aiSupervizeContent';
-import { aiSupervizeConversation } from '@/config/ai-supervize/aiSupervizeConversation';
 import { aiSupervizePricing, aiSupervizePricingFootnotes } from '@/config/ai-supervize/aiSupervizePricing';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
+import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    LabelList,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 export function AiSupervizePage() {
     const isLocalhost = useIsLocalhost();
@@ -59,12 +69,25 @@ export function AiSupervizePage() {
                     getStartedText="Domluvit workshop"
                 />
 
-                <Suspense>
-                    <HeroSection
-                        conversation={aiSupervizeConversation}
-                        backgroundImage="/backgrounds/ai-supervize.svg"
-                        getHero={() => (
-                            <>
+                {/* ── Hero Section ── */}
+                <section
+                    id="hero"
+                    className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
+                    style={{
+                        backgroundImage: `url(/backgrounds/ai-supervize.svg)`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: '50% 100%',
+                    }}
+                >
+                    <div className="container mx-auto px-4 py-20 relative z-10 text-white">
+                        <div className="grid lg:grid-cols-2 gap-12 items-center">
+                            {/* Left Column – copy */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.8 }}
+                                className="space-y-8"
+                            >
                                 <div className="space-y-5">
                                     <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
                                         <BookOpen className="h-4 w-4" />
@@ -83,15 +106,6 @@ export function AiSupervizePage() {
                                         Pomáháme CTO, CEO a Tech Leadům nastavit workflow, pravidla, nástroje a měření
                                         tak, aby AI zkracovala time-to-merge, snižovala rework a nezvyšovala chaos.
                                     </p>
-
-                                    {/*<div className="rounded-3xl border border-white/15 bg-white/8 p-5 text-white/90 shadow-2xl backdrop-blur-sm">
-                                        <p className="text-sm uppercase tracking-[0.28em] text-cyan-200">Výsledek</p>
-                                        <p className="mt-3 text-lg leading-relaxed">
-                                            Není to přednáška o AI. Je to{' '}
-                                            <strong>rozhodnutí + plán + playbook + šablony + měřitelné metriky</strong>{' '}
-                                            pro váš konkrétní produkt a tým.
-                                        </p>
-                                    </div>*/}
                                 </div>
 
                                 <div className="flex flex-col gap-4 sm:flex-row">
@@ -123,10 +137,38 @@ export function AiSupervizePage() {
                                         Měřitelný dopad do 30 / 60 / 90 dní
                                     </div>
                                 </div>
-                            </>
-                        )}
-                    />
-                </Suspense>
+                            </motion.div>
+
+                            {/* Right Column – benefit chart */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                className="rounded-3xl border border-white/15 bg-white/8 p-6 shadow-2xl backdrop-blur-sm"
+                            >
+                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">
+                                    Průměrný dopad AI Supervize
+                                </p>
+                                <p className="mb-6 text-sm text-white/70">
+                                    Porovnání klíčových metrik vývojového týmu před a po zavedení
+                                </p>
+
+                                <SupervizeImpactChart />
+
+                                <div className="mt-5 flex items-center justify-center gap-6 text-xs text-white/60">
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="inline-block h-2.5 w-2.5 rounded-sm bg-white/30" />
+                                        Před AI Supervizí
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="inline-block h-2.5 w-2.5 rounded-sm bg-cyan-400" />
+                                        Po AI Supervizi
+                                    </span>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                </section>
 
                 <BenefitsSection
                     title="Co má AI Supervize změnit ve vašem týmu"
@@ -224,5 +266,89 @@ export function AiSupervizePage() {
                 <Footer {...czechBusinessFooterProps} />
             </main>
         </>
+    );
+}
+
+// ── Benefit chart ──────────────────────────────────────────────────────────────
+
+const chartData = [
+    { metric: 'Čas do merge', before: 5.2, after: 3.1, unit: ' dny' },
+    { metric: 'Rework kódu', before: 28, after: 15, unit: ' %' },
+    { metric: 'Code review', before: 3.8, after: 2.2, unit: ' hod' },
+    { metric: 'Bugy / sprint', before: 8, after: 4, unit: '' },
+];
+
+type TooltipPayloadItem = {
+    name: string;
+    value: number;
+    dataKey: string;
+};
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) {
+    if (!active || !payload?.length) return null;
+    const row = chartData.find((d) => d.metric === label);
+    return (
+        <div className="rounded-xl border border-white/20 bg-slate-900/90 px-4 py-3 text-sm shadow-xl backdrop-blur-sm">
+            <p className="mb-2 font-semibold text-white">{label}</p>
+            {payload.map((p) => (
+                <p key={p.dataKey} style={{ color: p.dataKey === 'after' ? '#22d3ee' : 'rgba(255,255,255,0.55)' }}>
+                    {p.dataKey === 'before' ? 'Před' : 'Po'}: <strong>{p.value}{row?.unit}</strong>
+                </p>
+            ))}
+            {row && (
+                <p className="mt-1.5 text-xs text-emerald-400">
+                    Zlepšení: −{Math.round((1 - row.after / row.before) * 100)} %
+                </p>
+            )}
+        </div>
+    );
+}
+
+function SupervizeImpactChart() {
+    return (
+        <ResponsiveContainer width="100%" height={260}>
+            <BarChart
+                data={chartData}
+                layout="vertical"
+                barCategoryGap="28%"
+                barGap={4}
+                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
+            >
+                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <XAxis type="number" hide />
+                <YAxis
+                    type="category"
+                    dataKey="metric"
+                    width={96}
+                    tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+
+                {/* Before bar */}
+                <Bar dataKey="before" radius={[0, 4, 4, 0]} maxBarSize={14}>
+                    {chartData.map((entry) => (
+                        <Cell key={entry.metric} fill="rgba(255,255,255,0.25)" />
+                    ))}
+                </Bar>
+
+                {/* After bar */}
+                <Bar dataKey="after" radius={[0, 4, 4, 0]} maxBarSize={14}>
+                    {chartData.map((entry) => (
+                        <Cell key={entry.metric} fill="#22d3ee" />
+                    ))}
+                    <LabelList
+                        dataKey="after"
+                        position="right"
+                        formatter={(value: number) => {
+                            const row = chartData.find((d) => d.after === value);
+                            return row ? `−${Math.round((1 - row.after / row.before) * 100)} %` : '';
+                        }}
+                        style={{ fill: '#6ee7b7', fontSize: 11, fontWeight: 600 }}
+                    />
+                </Bar>
+            </BarChart>
+        </ResponsiveContainer>
     );
 }
