@@ -26,17 +26,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    LabelList,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export function AiSupervizePage() {
     const isLocalhost = useIsLocalhost();
@@ -119,22 +109,22 @@ export function AiSupervizePage() {
                                         </Button>
                                     </Link>
                                     <div className="rounded-full border border-white/15 bg-white/8 px-5 py-3 text-sm text-white/80 backdrop-blur-sm">
-                                        Full-Stack / TypeScript / JavaScript / Next.js i další stacky
+                                        Ideální pro TypeScript / Next.js týmy
                                     </div>
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-5 text-sm text-white/75">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
                                         NDA a pravidla pro data
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
-                                        Playbook a šablony do repa
+                                        Playbook a konkrétní pravidla
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
-                                        Měřitelný dopad do 30 / 60 / 90 dní
+                                        Měřitelný dopad{/* do 30 / 60 / 90 dní */}
                                     </div>
                                 </div>
                             </motion.div>
@@ -284,7 +274,15 @@ type TooltipPayloadItem = {
     dataKey: string;
 };
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) {
+function CustomTooltip({
+    active,
+    payload,
+    label,
+}: {
+    active?: boolean;
+    payload?: TooltipPayloadItem[];
+    label?: string;
+}) {
     if (!active || !payload?.length) return null;
     const row = chartData.find((d) => d.metric === label);
     return (
@@ -292,7 +290,11 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
             <p className="mb-2 font-semibold text-white">{label}</p>
             {payload.map((p) => (
                 <p key={p.dataKey} style={{ color: p.dataKey === 'after' ? '#22d3ee' : 'rgba(255,255,255,0.55)' }}>
-                    {p.dataKey === 'before' ? 'Před' : 'Po'}: <strong>{p.value}{row?.unit}</strong>
+                    {p.dataKey === 'before' ? 'Před' : 'Po'}:{' '}
+                    <strong>
+                        {p.value}
+                        {row?.unit}
+                    </strong>
                 </p>
             ))}
             {row && (
