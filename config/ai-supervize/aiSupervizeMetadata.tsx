@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 export const aiSupervizeMetadata: Metadata = {
     title: 'AI Supervize pro software týmy | Promptbook',
     description:
-        'Pomáháme CTO, CEO a Tech Leadům zavést AI do vývoje jako kontrolovaný výkon: workflow, playbook, šablony a metriky pro váš tým.',
+        'Pomáháme firmám nastavit workflow, pravidla, nástroje a měření tak, aby AI opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.',
     alternates: {
         canonical: '/ai-supervize',
     },

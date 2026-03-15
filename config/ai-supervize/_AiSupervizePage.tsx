@@ -92,8 +92,8 @@ export function AiSupervizePage() {
                                     </h1>
 
                                     <p className="max-w-2xl text-xl leading-relaxed text-white/85">
-                                        Pomáháme CTO, CEO a Tech Leadům nastavit workflow, pravidla, nástroje a měření
-                                        tak, aby AI zkracovala time-to-merge, snižovala rework a nezvyšovala chaos.
+                                        Pomáháme firmám nastavit workflow, pravidla, nástroje a měření
+                                        tak, aby AI opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.
                                     </p>
                                 </div>
 
