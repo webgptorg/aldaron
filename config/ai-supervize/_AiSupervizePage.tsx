@@ -449,7 +449,7 @@ function TerminalMetrics() {
     }, [step]);
 
     return (
-        <div className="max-h-[420px] overflow-y-auto font-mono text-xs leading-[1.65] scrollbar-none">
+        <div style={{ height: '420px' }} className="overflow-y-auto font-mono text-xs leading-[1.65] scrollbar-none">
             {LINES.slice(0, step).map((line) => (
                 <div key={line.key}>{line.node(barFill)}</div>
             ))}
