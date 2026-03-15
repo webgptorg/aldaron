@@ -129,31 +129,78 @@ export function AiSupervizePage() {
                                 </div>
                             </motion.div>
 
-                            {/* Right Column – benefit chart */}
+                            {/* Right Column – terminal chart */}
                             <motion.div
                                 initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
-                                className="rounded-3xl border border-white/15 bg-white/8 p-6 shadow-2xl backdrop-blur-sm"
+                                className="overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 shadow-2xl"
                             >
-                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">
-                                    Průměrný dopad AI Supervize
-                                </p>
-                                <p className="mb-6 text-sm text-white/70">
-                                    Porovnání klíčových metrik vývojového týmu před a po zavedení
-                                </p>
-
-                                <SupervizeImpactChart />
-
-                                <div className="mt-5 flex items-center justify-center gap-6 text-xs text-white/60">
-                                    <span className="flex items-center gap-1.5">
-                                        <span className="inline-block h-2.5 w-2.5 rounded-sm bg-white/30" />
-                                        Před AI Supervizí
+                                {/* ── Terminal title bar ── */}
+                                <div className="flex items-center gap-3 border-b border-slate-700/60 bg-slate-900 px-4 py-3">
+                                    <span className="h-3 w-3 rounded-full bg-red-500/80" />
+                                    <span className="h-3 w-3 rounded-full bg-yellow-400/80" />
+                                    <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                                    <span className="ml-2 flex-1 text-center font-mono text-xs text-slate-400">
+                                        ai-supervize — metrics
                                     </span>
-                                    <span className="flex items-center gap-1.5">
-                                        <span className="inline-block h-2.5 w-2.5 rounded-sm bg-cyan-400" />
-                                        Po AI Supervizi
-                                    </span>
+                                </div>
+
+                                {/* ── Terminal body ── */}
+                                <div className="space-y-4 p-5 font-mono">
+                                    {/* command line */}
+                                    <p className="text-xs">
+                                        <span className="text-emerald-400">❯ </span>
+                                        <span className="text-slate-300">ai-supervize analyze</span>
+                                        <span className="text-cyan-400"> --sprint 12 --compare baseline</span>
+                                    </p>
+
+                                    {/* output header */}
+                                    <p className="text-xs text-slate-500">
+                                        # Průměrný dopad · před vs. po zavedení AI Supervize
+                                    </p>
+
+                                    <SupervizeImpactChart />
+
+                                    {/* legend */}
+                                    <div className="flex items-center gap-6 text-xs text-slate-500">
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="inline-block h-2 w-2 rounded-sm bg-slate-600" />
+                                            before
+                                        </span>
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="inline-block h-2 w-2 rounded-sm bg-cyan-400" />
+                                            after
+                                        </span>
+                                    </div>
+
+                                    {/* summary rows */}
+                                    <div className="space-y-1 border-t border-slate-800 pt-3 text-xs">
+                                        {chartData.map((row) => (
+                                            <div key={row.metric} className="flex items-center gap-2">
+                                                <span className="text-emerald-400">✓</span>
+                                                <span className="w-28 text-slate-400">{row.metric}</span>
+                                                <span className="text-slate-500">
+                                                    {row.before}
+                                                    {row.unit}
+                                                </span>
+                                                <span className="text-slate-600">→</span>
+                                                <span className="text-cyan-300">
+                                                    {row.after}
+                                                    {row.unit}
+                                                </span>
+                                                <span className="ml-auto text-emerald-400">
+                                                    −{Math.round((1 - row.after / row.before) * 100)}&nbsp;%
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* cursor prompt */}
+                                    <p className="flex items-center gap-1 text-xs text-slate-500">
+                                        <span className="text-emerald-400">❯</span>
+                                        <span className="inline-block h-3.5 w-1.5 animate-pulse bg-slate-400" />
+                                    </p>
                                 </div>
                             </motion.div>
                         </div>
@@ -286,21 +333,22 @@ function CustomTooltip({
     if (!active || !payload?.length) return null;
     const row = chartData.find((d) => d.metric === label);
     return (
-        <div className="rounded-xl border border-white/20 bg-slate-900/90 px-4 py-3 text-sm shadow-xl backdrop-blur-sm">
-            <p className="mb-2 font-semibold text-white">{label}</p>
+        <div className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-xs shadow-xl font-mono">
+            <p className="mb-2 text-slate-300">
+                <span className="text-emerald-400">✓ </span>
+                {label}
+            </p>
             {payload.map((p) => (
-                <p key={p.dataKey} style={{ color: p.dataKey === 'after' ? '#22d3ee' : 'rgba(255,255,255,0.55)' }}>
-                    {p.dataKey === 'before' ? 'Před' : 'Po'}:{' '}
-                    <strong>
+                <p key={p.dataKey} className="flex gap-2">
+                    <span className="text-slate-500">{p.dataKey === 'before' ? 'before' : 'after '}:</span>
+                    <span style={{ color: p.dataKey === 'after' ? '#22d3ee' : 'rgba(255,255,255,0.45)' }}>
                         {p.value}
                         {row?.unit}
-                    </strong>
+                    </span>
                 </p>
             ))}
             {row && (
-                <p className="mt-1.5 text-xs text-emerald-400">
-                    Zlepšení: −{Math.round((1 - row.after / row.before) * 100)} %
-                </p>
+                <p className="mt-1.5 text-emerald-400">diff: −{Math.round((1 - row.after / row.before) * 100)} %</p>
             )}
         </div>
     );
@@ -308,35 +356,35 @@ function CustomTooltip({
 
 function SupervizeImpactChart() {
     return (
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={200}>
             <BarChart
                 data={chartData}
                 layout="vertical"
-                barCategoryGap="28%"
-                barGap={4}
-                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
+                barCategoryGap="30%"
+                barGap={3}
+                margin={{ top: 0, right: 48, left: 0, bottom: 0 }}
             >
-                <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <CartesianGrid horizontal={false} strokeDasharray="2 4" stroke="rgba(100,116,139,0.15)" />
                 <XAxis type="number" hide />
                 <YAxis
                     type="category"
                     dataKey="metric"
                     width={96}
-                    tick={{ fill: 'rgba(255,255,255,0.75)', fontSize: 12 }}
+                    tick={{ fill: '#94a3b8', fontSize: 11, fontFamily: 'monospace' }}
                     axisLine={false}
                     tickLine={false}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(148,163,184,0.05)' }} />
 
                 {/* Before bar */}
-                <Bar dataKey="before" radius={[0, 4, 4, 0]} maxBarSize={14}>
+                <Bar dataKey="before" radius={[0, 3, 3, 0]} maxBarSize={11}>
                     {chartData.map((entry) => (
-                        <Cell key={entry.metric} fill="rgba(255,255,255,0.25)" />
+                        <Cell key={entry.metric} fill="rgba(100,116,139,0.35)" />
                     ))}
                 </Bar>
 
                 {/* After bar */}
-                <Bar dataKey="after" radius={[0, 4, 4, 0]} maxBarSize={14}>
+                <Bar dataKey="after" radius={[0, 3, 3, 0]} maxBarSize={11}>
                     {chartData.map((entry) => (
                         <Cell key={entry.metric} fill="#22d3ee" />
                     ))}
@@ -345,9 +393,9 @@ function SupervizeImpactChart() {
                         position="right"
                         formatter={(value: number) => {
                             const row = chartData.find((d) => d.after === value);
-                            return row ? `−${Math.round((1 - row.after / row.before) * 100)} %` : '';
+                            return row ? `−${Math.round((1 - row.after / row.before) * 100)}%` : '';
                         }}
-                        style={{ fill: '#6ee7b7', fontSize: 11, fontWeight: 600 }}
+                        style={{ fill: '#34d399', fontSize: 10, fontWeight: 700, fontFamily: 'monospace' }}
                     />
                 </Bar>
             </BarChart>
