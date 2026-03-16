@@ -1,18 +1,23 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 
+/*
 const PromptbookAgentIntegration = dynamic(
     () => import('@promptbook/components').then((module) => module.PromptbookAgentIntegration),
     { ssr: false },
 );
+*/
 
 export function Chatbot() {
     useEffect(() => {
         console.log('Chatbot component mounted');
     });
 
+    return <></>;
+
+    /*
     return (
         <>
             <PromptbookAgentIntegration
@@ -27,4 +32,5 @@ export function Chatbot() {
             />
         </>
     );
+    */
 }
