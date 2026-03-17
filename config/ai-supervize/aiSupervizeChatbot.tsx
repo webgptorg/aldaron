@@ -8,7 +8,11 @@ const PromptbookAgentIntegration = dynamic(
 );
 
 export function AiSupervizeChatbot() {
- return <></>;
+    return (
+        <>
+            {/* Note: [🕔] Chatbots embedded on page aren't working very well for now, so we are temporarly not showing them. */}
+        </>
+    );
 
     return (
         <PromptbookAgentIntegration
