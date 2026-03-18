@@ -92,8 +92,8 @@ export function AiSupervizePage() {
                                     </h1>
 
                                     <p className="max-w-2xl text-xl leading-relaxed text-white/85">
-                                        Pomáháme firmám nastavit workflow, pravidla, nástroje a měření
-                                        tak, aby AI opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.
+                                        Pomáháme firmám nastavit workflow, pravidla, nástroje a měření tak, aby AI
+                                        opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.
                                     </p>
                                 </div>
 
@@ -424,32 +424,65 @@ const LINES = buildLines();
 const BAR_START_STEP = LINES.findIndex((l) => l.key === 'm0-before');
 
 function TerminalMetrics() {
+    const [started, setStarted] = useState(false);
     const [step, setStep] = useState(0);
     const [barFill, setBarFill] = useState(0);
-    const bottomRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    // reveal lines one by one
+    // Start animation only when the terminal scrolls into view.
+    // On desktop the right-column terminal is immediately visible so it
+    // fires straight away; on mobile it waits until the user scrolls down.
     useEffect(() => {
-        if (step >= LINES.length) return;
+        const el = containerRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry?.isIntersecting) {
+                    setStarted(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.25 },
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    // Reveal lines one by one – only after the terminal is visible.
+    useEffect(() => {
+        if (!started || step >= LINES.length) return;
         const id = setTimeout(() => setStep((s) => s + 1), LINES[step]!.delay);
         return () => clearTimeout(id);
-    }, [step]);
+    }, [started, step]);
 
-    // animate bar fill once we reach the bars section
+    // Animate bar fill once we reach the bars section.
     useEffect(() => {
-        if (step < BAR_START_STEP) return;
-        if (barFill >= 1) return;
+        if (step < BAR_START_STEP || barFill >= 1) return;
         const id = setInterval(() => setBarFill((f) => Math.min(1, f + 1 / BAR_W)), 38);
         return () => clearInterval(id);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [step >= BAR_START_STEP, barFill]);
 
-    // auto-scroll inside terminal
+    // Scroll inside the terminal box only – never touch the page scroll.
+    // Using scrollTop directly avoids the page-level scroll that
+    // scrollIntoView() triggers on mobile when the element is off-screen.
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const el = containerRef.current;
+        if (!el) return;
+        el.scrollTop = el.scrollHeight;
     }, [step]);
 
     return (
-        <div style={{ height: '420px' }} className="overflow-y-auto font-mono text-xs leading-[1.65] scrollbar-none">
+        <div
+            ref={containerRef}
+            style={{
+                height: '420px',
+                // Prevent the browser from propagating scroll momentum to the
+                // page when the terminal content reaches its top/bottom edge.
+                overscrollBehavior: 'contain',
+            }}
+            className="overflow-y-auto font-mono text-xs leading-[1.65] scrollbar-none"
+        >
             {LINES.slice(0, step).map((line) => (
                 <div key={line.key}>{line.node(barFill)}</div>
             ))}
@@ -458,7 +491,6 @@ function TerminalMetrics() {
                 {step >= LINES.length && <span className="text-emerald-400 mr-1">❯ </span>}
                 <span className="inline-block w-[7px] h-[13px] bg-slate-400 animate-pulse" />
             </div>
-            <div ref={bottomRef} />
         </div>
     );
 }
