@@ -9,12 +9,6 @@ const PromptbookAgentIntegration = dynamic(
 
 export function CitiesCsChatbot() {
     return (
-        <>
-            {/* Note: [🕔] Chatbots embedded on page aren't working very well for now, so we are temporarly not showing them. */}
-        </>
-    );
-
-    return (
         <PromptbookAgentIntegration
             agentUrl="https://landing-pages.ptbk.io/agents/TODO_PRO_MESTA" // TODO: fill in real agent URL
             meta={{

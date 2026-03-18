@@ -9,12 +9,6 @@ const PromptbookAgentIntegration = dynamic(
 
 export function GenericChatbot() {
     return (
-        <>
-            {/* Note: [🕔] Chatbots embedded on page aren't working very well for now, so we are temporarly not showing them. */}
-        </>
-    );
-
-    return (
         <PromptbookAgentIntegration
             agentUrl="https://landing-pages.ptbk.io/agents/sZ3jP5osQuxHJ7"
             meta={{

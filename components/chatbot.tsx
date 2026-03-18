@@ -3,10 +3,20 @@
 import { GenericChatbot } from '@/config/_generic/genericChatbot';
 import { AiSupervizeChatbot } from '@/config/ai-supervize/aiSupervizeChatbot';
 import { CitiesCsChatbot } from '@/config/pro-mesta/citiesCsChatbot';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export function Chatbot() {
+function ChatbotInner() {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    if (searchParams.get('chatbot') === null) {
+        return (
+            <>
+                {/* Note: [🕔] Chatbots embedded on page aren't working very well for now, so we are temporarly not showing them. */}
+            </>
+        );
+    }
 
     if (pathname.startsWith('/pro-mesta')) {
         return <CitiesCsChatbot />;
@@ -17,4 +27,12 @@ export function Chatbot() {
     }
 
     return <GenericChatbot />;
+}
+
+export function Chatbot() {
+    return (
+        <Suspense>
+            <ChatbotInner />
+        </Suspense>
+    );
 }
