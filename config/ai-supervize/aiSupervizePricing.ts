@@ -59,7 +59,7 @@ export const aiSupervizePricing: PricingPlan[] = [
         icon: Shield,
         iconName: 'Shield',
         features: [
-            '1x měsíční review v délce 60-90 minut',
+            '1x měsíční review v délce 1-3 hodiny',
             'Průběžné konzultace v domluveném kanálu',
             'Úpravy playbooku a šablon podle reality týmu',
             'Vyhodnocování nových nástrojů, workflow a dopadu',
