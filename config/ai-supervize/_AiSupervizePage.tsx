@@ -2,7 +2,6 @@
 
 import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
-import { CaseStudySection } from '@/components/case-study-section';
 import { FeatureCardsSection } from '@/components/feature-cards-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
@@ -12,7 +11,6 @@ import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
 import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
 import { aiSupervizeBenefits } from '@/config/ai-supervize/aiSupervizeBenefits';
-import { aiSupervizeCaseStudy } from '@/config/ai-supervize/aiSupervizeCaseStudy';
 import {
     aiSupervizeDeliverables,
     aiSupervizeFocusAreas,
@@ -187,8 +185,6 @@ export function AiSupervizePage() {
                     columns={3}
                     tone="muted"
                 />
-
-                <CaseStudySection id="case-study" {...aiSupervizeCaseStudy} />
 
                 <FeatureCardsSection
                     title="Na co se u vás díváme prakticky"
