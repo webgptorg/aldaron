@@ -237,11 +237,12 @@ export function AiSupervizePage() {
                 />
 
                 <PricingSection
-                    title="Ceník AI Supervize"
-                    description="Začít můžete discovery workshopem. Pokud dává smysl pokračovat, navážeme návrhem, nastavením a případným follow-up režimem."
+                    title="Jak AI Supervize probíhá krok za krokem"
+                    description="Nejde o výběr plánu – projdete postupně všemi třemi fázemi. Začínáte discovery workshopem a dle výsledků pokračujete dál."
                     plans={aiSupervizePricing}
                     footnotes={aiSupervizePricingFootnotes}
                     showBillingToggle={false}
+                    stepsMode={true}
                     openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, kde má AI ve vašem vývoji skutečně fungovat."
                 />
 
