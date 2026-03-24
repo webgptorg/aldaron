@@ -4,7 +4,6 @@ import { MarkdownContent } from '@/components/markdown-content';
 import { supabase } from '@/lib/supabase';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import Script from 'next/script';
 import { spaceTrim } from 'spacetrim';
@@ -217,26 +216,7 @@ export default async function Page({ params }: PageProps) {
                 clickedAt: new Date().toISOString(),
             });
 
-            try {
-                redirect(selectedUrl);
-            } finally {
-                return (
-                    <div className="min-h-screen">
-                        <main className="min-h-screen">
-                            <Header isBare />
-                            <div className="container min-h-screen flex items-center justify-center px-4 mx-auto">
-                                Redirecting to: <Link href={selectedUrl}>{selectedUrl}</Link>
-                            </div>
-                            <Footer />
-                            <Script id="redirect-script" strategy="beforeInteractive">
-                                {`
-                                window.location.href = "${selectedUrl}";
-                            `}
-                            </Script>
-                        </main>
-                    </div>
-                );
-            }
+            redirect(selectedUrl);
         }
     } catch (err) {
         console.error('Error processing shortcode:', err);
