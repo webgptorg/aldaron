@@ -219,6 +219,10 @@ export default async function Page({ params }: PageProps) {
             redirect(selectedUrl);
         }
     } catch (err) {
+        // Next.js uses thrown errors internally for redirect() and notFound() — must re-throw them
+        if ((err as { digest?: string })?.digest?.startsWith('NEXT_')) {
+            throw err;
+        }
         console.error('Error processing shortcode:', err);
         notFound();
     }
