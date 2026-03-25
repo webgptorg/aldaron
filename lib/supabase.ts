@@ -8,14 +8,36 @@ if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl!, supabaseKey!);
+// console.log('⚡ Supabase connection...');
+// export const supabase = createClient(supabaseUrl!, supabaseKey!);
 
 export function createSupabaseClient() {
-    return createClient(supabaseUrl!, supabaseKey!);
+    const client = createClient(supabaseUrl!, supabaseKey!);
+    /* not await */ testSupabaseConnection(client);
+    return client;
 }
 
 export function getSupabaseForBrowser() {
-    return createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const client = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    /* not await */ testSupabaseConnection(client);
+    return client;
+}
+
+export async function testSupabaseConnection(client: ReturnType<typeof createSupabaseClient>) {
+    console.info('⚡ Testing Supabase connection...');
+    const result = await client.from('pg_catalog.pg_tables').select('tablename');
+
+    if (result.error) {
+        console.error('⚡ Error connecting to Supabase:', result.error);
+        return;
+    }
+
+    console.groupCollapsed('⚡ Supabase connection successful');
+    console.log('Tables in pg_catalog.pg_tables:', result.data);
+    console.groupEnd();
 }
 
 /*
