@@ -8,8 +8,9 @@ if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables');
 }
 
-// console.log('⚡ Supabase connection...');
-// export const supabase = createClient(supabaseUrl!, supabaseKey!);
+console.log('⚡ Supabase connection...');
+ export const supabase = createClient(supabaseUrl!, supabaseKey!);
+ /* not await */ testSupabaseConnection(supabase);
 
 export function createSupabaseClient() {
     const client = createClient(supabaseUrl!, supabaseKey!);
