@@ -26,11 +26,15 @@ export function HeroSection(props: HeroSectionProps) {
         <section
             id="hero"
             className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
-            style={backgroundImage ? {
-                backgroundImage: `url(${backgroundImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: '50% 100%',
-            } : undefined}
+            style={
+                backgroundImage
+                    ? {
+                          backgroundImage: `url(${backgroundImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: '50% 100%',
+                      }
+                    : undefined
+            }
         >
             {/* Background Elements */}
             {/*

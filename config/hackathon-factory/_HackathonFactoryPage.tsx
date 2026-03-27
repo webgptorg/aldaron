@@ -79,7 +79,7 @@ export function HackathonFactoryPage() {
                         conversation={hackathonFactoryConversation}
                         backgroundImage={null}
                         getHero={() => (
-                            <>  
+                            <>
                                 <div className="space-y-5">
                                     <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200">
                                         <HackathonFactoryLogo
@@ -91,11 +91,8 @@ export function HackathonFactoryPage() {
                                     </div>
 
                                     <h1 className="text-5xl font-bold leading-tight text-slate-900 lg:text-6xl">
-                                        Spojujeme{' '}
-                                        <span className="text-amber-500">
-                                            reálné problémy
-                                        </span>{' '}
-                                        s vývojáři, kteří je umí dotáhnout do výsledku
+                                        Spojujeme <span className="text-amber-500">reálné problémy</span> s vývojáři,
+                                        kteří je umí dotáhnout do výsledku
                                     </h1>
 
                                     <p className="max-w-2xl text-xl leading-relaxed text-slate-600">
