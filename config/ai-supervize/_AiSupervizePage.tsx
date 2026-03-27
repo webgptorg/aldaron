@@ -210,6 +210,14 @@ export function AiSupervizePage() {
                     tone="contrast"
                 />
 
+                {/*
+                <TestimonialsSection
+                    title="Co o Promptbooku říkají"
+                    description="Přístup, na kterém stojí AI Supervize, už pomáhá propojovat technologie, lidi a reálné firemní workflow."
+                    testimonials={aiSupervizeTestimonials}
+                />
+                */}
+
                 <TeamSection
                     title="Kdo vás provede"
                     description={
