@@ -1,4 +1,4 @@
-[ ]
+[x]
 
 Create a subpage `/ai-supervize` that will be focused and narrowed down to AI Supervision
 
