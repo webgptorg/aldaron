@@ -1,0 +1,217 @@
+unset OPENAI_API_KEY && unset OPENAI_BASE_URL && 
+
+codex \
+    -c forced_login_method=chatgpt \
+    -c model_reasoning_effort='"xhigh"' \
+  --ask-for-approval never \
+  exec \
+  --model gpt-5.4 \
+  --local-provider none \
+  --sandbox danger-full-access \
+  -C /c/Users/me/work/promptbook-experiments-and-landing-pages/aldaron \
+  <<'CODEX_PROMPT'
+
+Create a subpage `/hackathon-factory` that will be focused on the Hackathon Factory initiative
+
+- Website is in Czech language targeting Czech developers, CTOs, and innovators
+- Customer is a developer, startup founder, CTO, or anyone with a real-world problem they want solved
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of page variants before you start implementing.
+    - subpage `/hackathon-factory` should technically fit into the system of landing pages _(for example the `/` and `/pro-mesta`)_
+    - Look at `config` folder on the root of the project
+
+**This is how the `hackathon-factory` variant should look like:**
+
+1. Chat sample should contain a participant submitting a real problem / challenge brief for a hackathon sprint
+2. Following sections should look great from UI and UX perspective, and the content should be focused on
+   Hackathon Factory _(not on AI Agents or AI in general)_
+3. Base it on the leaflet content below
+4. Pricing / participation info should be visually in same component as other (sub)pages
+5. There should be a short explanation of who is behind this (Pavol and Jirka / AI Web s.r.o.)
+   and one sentence on what Promptbook is and why it gives the team credibility for running this
+   — visitors arriving at this page may not know Promptbook at all
+6. Lead (recording of the contact from user) should be same as in other pages
+
+# Hackathon Factory
+
+Tržiště, které spojuje **lidi s reálnými problémy** a **vývojáře, kteří je umí řešit**.
+Cílem není hackovat pro hackování — cílem je přinést **měřitelný výsledek** přímo do vašeho produktu nebo procesu.
+
+> **Výsledek není "soutěž o tričko".**
+> Výsledek je **funkční prototyp, rozhodnutí nebo plán**, který hned druhý den použijete.
+
+## Co je Hackathon Factory?
+
+Hackathon Factory je série krátkých, cílených sprintů, kde se setkávají:
+
+- **Firmy a organizace**, které mají konkrétní problém (technický, produktový, procesní),
+- **vývojáři a technologové**, kteří chtějí ten problém opravdu vyřešit — ne jen přednášet.
+
+Každý hackathon má zadání z praxe. Žádné umělé výzvy. Žádné teoretické scénáře.
+Jen skutečné problémy, skutečná řešení, skutečný dopad.
+
+## Pro koho je Hackathon Factory?
+
+### Pokud máte problém k řešení:
+
+- Máte produkt nebo proces, u kterého tušíte, že by šel zlepšit (AI, automatizace, tooling…),
+- chcete rychle otestovat hypotézu bez toho, abyste najímali extra lidi,
+- nebo prostě nevíte, kde začít — a chcete to zjistit levně a rychle.
+
+### Pokud chcete řešit problémy:
+
+- Jste vývojář, designér nebo technolog s chutí stavět věci, které mají smysl,
+- bavíte se spíš aplikací než teorií,
+- chcete portfolio projektů, které fungují v reálném světě.
+
+## Typické situace, které Hackathon Factory řeší
+
+- "Nevíme, jestli se nám AI v procesu vůbec vyplatí — chceme to otestovat."
+- "Máme nápad, ale nemáme kapacitu to prototypovat interně."
+- "Chceme zjistit, jaká řešení existují, aniž bychom se upísali k drahému projektu."
+- "Chceme najít vývojáře, se kterými bychom pak rádi spolupracovali déle."
+- "Chceme přidat AI do X, ale nevíme jak — a chceme vidět víc možností najednou."
+
+## Jak Hackathon Factory funguje
+
+### 1) Zadání problému _(do 2 týdnů před hackathon)_
+
+Přihlásíte svůj problém přes krátký formulář.
+Projdeme ho s vámi a ujistíme se, že je dostatečně konkrétní, aby ho šlo za 1-2 dny opravdu řešit.
+
+**Výstup:** schválené zadání + briefing pro účastníky.
+
+### 2) Hackathon sprint _(1–2 dny, online nebo prezenčně)_
+
+Týmy vývojářů pracují na vašem zadání v reálném čase.
+Na konci prezentují výsledky — funkční demo, prototyp nebo rozhodovací podklad.
+
+**Výstup:** funkční prototyp nebo jasné doporučení + dokumentace.
+
+### 3) Výběr a navázání spolupráce _(volitelné)_
+
+Pokud najdete tým nebo vývojáře, se kterými chcete pokračovat, pomůžeme vám to dotáhnout.
+Žádná provize. Žádná vazba. Jen férové doporučení.
+
+## Proč to nebude soutěž bez výsledku
+
+Projekty navrhujeme tak, aby byly:
+
+- **iterativní** — na výsledky hackathonu se dá navázat,
+- **udržitelné** — zadání musí dávat smysl po hackathonu, ne jen během něj,
+- **reálné** — odmítáme zadání, která jsou příliš vágní nebo nerealizovatelná.
+
+Pokud zjistíme, že zadání pro Hackathon Factory není vhodné, řekneme to rovnou a doporučíme alternativu.
+
+## Kdo za tím stojí
+
+Jsme **AI Web s.r.o.** a vyvíjíme **Promptbook** — platformu pro nasazování AI agentů v reálném provozu (municipality, univerzity, firmy a další organizace).
+AI používáme **denně** — v reálném vývoji i nasazování — takže víme, co funguje a co je jen buzzword.
+
+Hackathon Factory stavíme proto, že věříme, že nejlepší způsob, jak pochopit novou technologii, je ji použít na skutečný problém.
+
+**Jiří Jahn**
+Ph.D. in Mathematics, former researcher at IT4I National Supercomputing Centre
+jiri@ptbk.io | +420 777 090 067
+
+**Pavol Hejný**
+Developer (15+ let praxe), aktivní open-source contributor
+pavol@ptbk.io | +420 777 759 767
+
+## Cena & účast
+
+### Pro firmy s problémem (zadavatelé)
+
+**Zveřejnění zadání — zdarma**
+
+> Chceme nejprve zjistit, jestli je zadání vhodné. Úvodní konzultace (30 min) je bez závazků a zdarma.
+
+**Partnerství na hackathonu — cena dle rozsahu (od 10 000 Kč)**
+
+Zahrnuje:
+
+- přípravu a vyladění zadání,
+- prezentaci problému účastníkům,
+- moderování a mentoring během sprintu,
+- přístup ke všem výstupům a prezentacím.
+
+### Pro vývojáře (účastníci)
+
+**Účast na hackathonu — zdarma**
+
+> Registrujte se, vyberte si zadání, která vás baví, a přijďte stavět.
+
+## Logo
+
+Použij tohle logo (můžeš změnit barvy a další vlastnosti, ale použij shape polygonu):
+
+```svg
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="92.000000pt" height="92.000000pt" viewBox="0 0 92.000000 92.000000"
+ preserveAspectRatio="xMidYMid meet">
+<g transform="translate(0.000000,92.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M295 705 c-8 -29 -15 -60 -15 -69 0 -16 -25 -21 -82 -17 -26 2 -28
+-1 -28 -33 0 -25 6 -38 20 -46 14 -7 20 -21 20 -43 0 -18 6 -39 13 -46 10 -10
+7 -16 -12 -30 -23 -17 -23 -21 -11 -50 7 -17 14 -31 15 -31 15 0 77 34 68 37
+-7 2 -22 -1 -34 -7 -17 -10 -24 -9 -38 5 -15 15 -15 17 3 30 10 8 23 16 29 18
+6 2 3 15 -8 30 -10 16 -15 38 -12 53 3 20 -1 28 -19 36 -15 7 -24 20 -24 33 0
+19 7 23 42 28 24 3 44 5 45 4 1 -2 -3 -21 -9 -44 -9 -39 -7 -52 35 -165 25
+-68 47 -134 50 -148 4 -25 4 -25 6 2 0 15 -19 82 -43 148 l-44 120 28 108 c19
+74 31 107 41 106 8 -1 73 -18 145 -38 l130 -38 22 -66 22 -67 -60 -108 c-46
+-83 -60 -117 -60 -149 0 -51 9 -45 14 9 3 24 27 80 62 142 l57 103 -23 74
+c-23 72 -25 74 -64 85 -23 6 -91 25 -153 44 l-112 33 -16 -53z"/>
+<path d="M525 750 c-4 -6 1 -7 11 -3 13 5 15 3 9 -7 -5 -9 -4 -11 4 -6 6 4 9
+12 6 17 -8 12 -22 12 -30 -1z"/>
+<path d="M241 733 c-1 -17 16 -25 25 -12 4 7 3 9 -4 5 -5 -3 -13 0 -15 6 -4 9
+-6 10 -6 1z"/>
+<path d="M178 673 c6 -2 9 -10 6 -15 -4 -7 -2 -8 5 -4 13 9 5 26 -12 25 -9 0
+-8 -2 1 -6z"/>
+<path d="M668 675 c-10 -11 36 -74 55 -75 23 0 25 -75 2 -84 -8 -3 -15 -18
+-15 -34 0 -15 -5 -33 -10 -38 -8 -8 -7 -19 1 -38 11 -23 10 -29 -5 -44 -17
+-17 -26 -12 -39 23 -3 6 -7 8 -10 5 -3 -3 2 -18 11 -32 l18 -27 29 23 c24 19
+27 26 17 38 -16 20 -4 118 14 118 10 0 14 14 14 50 0 41 -3 50 -17 50 -10 0
+-27 16 -38 36 -11 19 -23 32 -27 29z"/>
+<path d="M780 671 c0 -6 4 -13 10 -16 6 -3 7 1 4 9 -7 18 -14 21 -14 7z"/>
+<path d="M496 648 c3 -5 10 -6 15 -3 13 9 11 12 -6 12 -8 0 -12 -4 -9 -9z"/>
+<path d="M433 598 c3 -13 11 -78 18 -145 7 -68 17 -123 22 -123 5 0 6 12 3 28
+-3 15 -11 80 -17 145 -7 64 -16 117 -22 117 -5 0 -7 -10 -4 -22z"/>
+<path d="M534 594 c-21 -31 -39 -183 -23 -199 5 -5 9 23 9 74 0 68 4 88 21
+113 12 16 19 32 16 34 -3 3 -14 -7 -23 -22z"/>
+<path d="M320 534 c0 -3 13 -10 29 -15 26 -9 30 -16 36 -66 7 -55 23 -111 24
+-85 1 7 -4 44 -10 82 -11 64 -14 70 -42 80 -35 12 -37 12 -37 4z"/>
+<path d="M765 460 c-3 -5 -1 -10 4 -10 6 0 11 5 11 10 0 6 -2 10 -4 10 -3 0
+-8 -4 -11 -10z"/>
+<path d="M760 416 c0 -2 8 -10 18 -17 15 -13 16 -12 3 4 -13 16 -21 21 -21 13z"/>
+<path d="M604 348 c-4 -7 -4 -10 1 -6 4 4 15 2 24 -5 14 -11 14 -10 2 6 -16
+20 -18 21 -27 5z"/>
+<path d="M174 333 c2 -10 6 -17 10 -16 15 3 16 11 2 22 -12 10 -14 9 -12 -6z"/>
+<path d="M624 298 c-4 -7 -4 -10 1 -6 4 4 15 2 24 -5 14 -11 14 -10 2 6 -16
+20 -18 21 -27 5z"/>
+<path d="M190 290 c-12 -7 -10 -9 8 -7 12 0 22 5 22 9 0 11 -12 10 -30 -2z"/>
+<path d="M300 216 c-3 -57 -1 -90 6 -93 5 -2 71 -2 145 -1 l134 3 1 85 0 85
+-3 -77 -4 -78 -134 0 -134 0 -3 83 -3 82 -5 -89z"/>
+<path d="M626 267 c3 -10 9 -15 12 -12 3 3 0 11 -7 18 -10 9 -11 8 -5 -6z"/>
+<path d="M384 213 c10 -10 146 -10 146 -1 0 5 -34 8 -77 8 -42 0 -73 -3 -69
+-7z"/>
+<path d="M400 180 c0 -5 25 -10 55 -10 30 0 55 5 55 10 0 6 -25 10 -55 10 -30
+0 -55 -4 -55 -10z"/>
+<path d="M245 150 c-3 -6 1 -7 9 -4 18 7 21 14 7 14 -6 0 -13 -4 -16 -10z"/>
+</g>
+</svg>
+```
+
+![Logo](hackathon-logo.png)
+
+## Jak začít
+
+Napište nám na jiri@ptbk.io nebo pavol@ptbk.io.
+Řeknete nám svůj problém nebo zájem o účast — a my se ozveme do 24 hodin.
+
+
+
+
+CODEX_PROMPT
