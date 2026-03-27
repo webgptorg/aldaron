@@ -7,7 +7,7 @@ import { JSX } from 'react';
 import { MockedChatSection } from './mocked-chat-section';
 
 type HeroSectionProps = {
-    backgroundImage?: string;
+    backgroundImage?: string | null;
 
     /**
      * Function to customize the heading text.
@@ -26,11 +26,11 @@ export function HeroSection(props: HeroSectionProps) {
         <section
             id="hero"
             className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
-            style={{
+            style={backgroundImage ? {
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: '50% 100%',
-            }}
+            } : undefined}
         >
             {/* Background Elements */}
             {/*
@@ -40,7 +40,7 @@ export function HeroSection(props: HeroSectionProps) {
                 </div>
                 */}
 
-            <div className="container mx-auto px-4 py-20 relative z-10 text-white">
+            <div className="container mx-auto px-4 py-20 relative z-10">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Left Column - Content */}
                     <motion.div

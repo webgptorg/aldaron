@@ -64,12 +64,12 @@ export function HackathonFactoryPage() {
                         <HackathonFactoryLogo
                             showWordmark={false}
                             className="gap-0"
-                            markClassName="h-8 w-8 text-amber-400"
+                            markClassName="h-8 w-8 text-slate-900"
                         />
                     }
                     brandName={
                         <span className="text-xl font-bold text-gray-900">
-                            Hackathon <span className="text-amber-500">Factory</span>
+                            Hackathon <span className="text-slate-900">Factory</span>
                         </span>
                     }
                 />
@@ -77,28 +77,28 @@ export function HackathonFactoryPage() {
                 <Suspense>
                     <HeroSection
                         conversation={hackathonFactoryConversation}
-                        backgroundImage="/backgrounds/hackathon-factory.svg"
+                        backgroundImage={null}
                         getHero={() => (
-                            <>
+                            <>  
                                 <div className="space-y-5">
-                                    <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/10 backdrop-blur-sm">
+                                    <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200">
                                         <HackathonFactoryLogo
                                             showWordmark={false}
                                             className="gap-0"
-                                            markClassName="h-7 w-7 text-amber-300"
+                                            markClassName="h-7 w-7 text-slate-800"
                                         />
                                         Hackathon Factory – nezávislá platforma pro builděry
                                     </div>
 
-                                    <h1 className="text-5xl font-bold leading-tight text-white lg:text-6xl">
+                                    <h1 className="text-5xl font-bold leading-tight text-slate-900 lg:text-6xl">
                                         Spojujeme{' '}
-                                        <span className="bg-[linear-gradient(135deg,#fde68a_0%,#67e8f9_55%,#f8fafc_100%)] bg-clip-text text-transparent">
+                                        <span className="text-amber-500">
                                             reálné problémy
                                         </span>{' '}
                                         s vývojáři, kteří je umí dotáhnout do výsledku
                                     </h1>
 
-                                    <p className="max-w-2xl text-xl leading-relaxed text-white/85">
+                                    <p className="max-w-2xl text-xl leading-relaxed text-slate-600">
                                         Krátké hackathon sprinty pro CTO, startupy, inovátory i developery. Cílem není
                                         hackovat pro hackování, ale dodat prototyp, rozhodnutí nebo plán, který
                                         použijete hned další den.
@@ -109,34 +109,34 @@ export function HackathonFactoryPage() {
                                     <Link href="?modal=get-started">
                                         <Button
                                             size="lg"
-                                            className="bg-amber-400 text-slate-950 hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-400/20 text-lg px-8 py-6 rounded-full"
+                                            className="bg-slate-900 text-white hover:bg-slate-700 text-lg px-8 py-6 rounded-full"
                                         >
                                             Přihlásit problém nebo zájem
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
-                                    <div className="rounded-full border border-white/15 bg-white/8 px-5 py-3 text-sm text-white/80 backdrop-blur-sm">
+                                    <div className="rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm text-slate-600">
                                         Ozveme se do 24 hodin
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-5 text-sm text-white/75">
+                                <div className="flex flex-wrap items-center gap-5 text-sm text-slate-600">
                                     <div className="flex items-center gap-2 px-3">
-                                        <CheckCircle className="h-4 w-4 text-cyan-300" />
+                                        <CheckCircle className="h-4 w-4 text-amber-500" />
                                         1-2 dny intenzivního sprintu
                                     </div>
                                     <div className="flex items-center gap-2 px-3">
-                                        <CheckCircle className="h-4 w-4 text-cyan-300" />
+                                        <CheckCircle className="h-4 w-4 text-amber-500" />
                                         Online i prezenčně
                                     </div>
                                     <div className="flex items-center gap-2 px-3">
-                                        <CheckCircle className="h-4 w-4 text-cyan-300" />
+                                        <CheckCircle className="h-4 w-4 text-amber-500" />
                                         Prototyp, rozhodnutí nebo plán
                                     </div>
                                 </div>
 
-                                <div className="max-w-2xl rounded-3xl border border-white/15 bg-slate-950/35 p-5 text-sm leading-relaxed text-white/85 shadow-[0_24px_60px_rgba(2,6,23,0.25)] backdrop-blur-md">
-                                    <p className="font-semibold text-amber-200">Nejde o soutěž pro efekt.</p>
+                                <div className="max-w-2xl rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm leading-relaxed text-slate-700 shadow-sm">
+                                    <p className="font-semibold text-slate-900">Nejde o soutěž pro efekt.</p>
                                     <p className="mt-2">
                                         Hackathon Factory je tržiště, které propojuje lidi s konkrétním problémem a
                                         týmy, které chtějí opravdu stavět. Když brief není dostatečně konkrétní nebo
