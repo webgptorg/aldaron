@@ -4,7 +4,7 @@ import { Building, Gift, Rocket } from 'lucide-react';
 export const hackathonFactoryPricingFootnotes: PricingFootnote[] = [
     {
         id: '*',
-        text: 'Partnerství na hackathonu se odvíjí od rozsahu přípravy, délky sprintu a formátu akce.',
+        text: 'Organizační podpora pokrývá reálné náklady na přípravu, moderování a dokumentaci. Není to zisk, je to sdílení nákladů.',
     },
 ];
 
@@ -28,12 +28,13 @@ export const hackathonFactoryPricing: PricingPlan[] = [
         popular: false,
     },
     {
-        name: 'Partnerství hackathonu',
-        priceMonthly: 'od 10 000',
-        priceYearly: 'od 10 000',
-        currency: 'Kč',
-        period: 'za hackathon*',
-        description: 'Když chcete mít své zadání připravené, odmoderované a získat všechny výstupy ze sprintu.',
+        name: 'Organizační podpora',
+        priceMonthly: 'Sdílení',
+        priceYearly: 'Sdílení',
+        currency: 'nákladů',
+        period: 'dle rozsahu*',
+        description:
+            'Pro firmy, které chtějí mít své zadání plně připravené, odmoderované a zdokumentované. Pokrýváme reálné náklady, ne zisk.',
         icon: Rocket,
         iconName: 'Rocket',
         features: [

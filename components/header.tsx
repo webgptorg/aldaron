@@ -5,6 +5,7 @@ import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-2
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ReactNode } from 'react';
 
 type HeaderProps = {
     /**
@@ -16,6 +17,14 @@ type HeaderProps = {
     integrationsText?: string;
     pricingText?: string;
     getStartedText?: string;
+    /**
+     * Override the default Promptbook logo with a custom element (e.g. for sub-brands like Hackathon Factory)
+     */
+    brandLogo?: ReactNode;
+    /**
+     * Override the default "Promptbook" brand name shown next to the logo
+     */
+    brandName?: ReactNode;
 };
 
 export function Header(props: HeaderProps) {
@@ -26,6 +35,8 @@ export function Header(props: HeaderProps) {
         integrationsText = 'Integrations',
         pricingText = 'Pricing',
         getStartedText = 'Get Started',
+        brandLogo,
+        brandName,
     } = props;
 
     const scrollToSection = (sectionId: string) => {
@@ -41,15 +52,21 @@ export function Header(props: HeaderProps) {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                        <Image
-                            src={promptbookLogoBlueTransparent}
-                            alt="Promptbook"
-                            width={32}
-                            height={32}
-                            className="w-8 h-8"
-                        />
+                        {brandLogo ?? (
+                            <Image
+                                src={promptbookLogoBlueTransparent}
+                                alt="Promptbook"
+                                width={32}
+                                height={32}
+                                className="w-8 h-8"
+                            />
+                        )}
                         <span className="text-xl text-gray-900">
-                            Prompt<b>book</b>
+                            {brandName ?? (
+                                <>
+                                    Prompt<b>book</b>
+                                </>
+                            )}
                         </span>
                     </Link>
 

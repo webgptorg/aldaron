@@ -11,7 +11,6 @@ import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
 import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import { hackathonFactoryConversation } from '@/config/hackathon-factory/hackathonFactoryConversation';
 import {
     hackathonFactoryAudience,
     hackathonFactoryHighlights,
@@ -21,6 +20,7 @@ import {
     hackathonFactoryProcessNote,
     hackathonFactorySituations,
 } from '@/config/hackathon-factory/hackathonFactoryContent';
+import { hackathonFactoryConversation } from '@/config/hackathon-factory/hackathonFactoryConversation';
 import {
     hackathonFactoryPricing,
     hackathonFactoryPricingFootnotes,
@@ -58,8 +58,20 @@ export function HackathonFactoryPage() {
                     tryItYourselfText={null}
                     whyPromptbookText="Jak to funguje"
                     integrationsText="Pro koho"
-                    pricingText="Cena a účast"
+                    pricingText="Zapojení"
                     getStartedText="Ozvat se"
+                    brandLogo={
+                        <HackathonFactoryLogo
+                            showWordmark={false}
+                            className="gap-0"
+                            markClassName="h-8 w-8 text-amber-400"
+                        />
+                    }
+                    brandName={
+                        <span className="text-xl font-bold text-gray-900">
+                            Hackathon <span className="text-amber-500">Factory</span>
+                        </span>
+                    }
                 />
 
                 <Suspense>
@@ -75,7 +87,7 @@ export function HackathonFactoryPage() {
                                             className="gap-0"
                                             markClassName="h-7 w-7 text-amber-300"
                                         />
-                                        Hackathon Factory od AI Web s.r.o.
+                                        Hackathon Factory – nezávislá platforma pro builděry
                                     </div>
 
                                     <h1 className="text-5xl font-bold leading-tight text-white lg:text-6xl">
@@ -127,8 +139,8 @@ export function HackathonFactoryPage() {
                                     <p className="font-semibold text-amber-200">Nejde o soutěž pro efekt.</p>
                                     <p className="mt-2">
                                         Hackathon Factory je tržiště, které propojuje lidi s konkrétním problémem a
-                                        týmy, které chtějí opravdu stavět. Když brief není dostatečně konkrétní nebo realizovatelný,
-                                        řekneme to rovnou.
+                                        týmy, které chtějí opravdu stavět. Když brief není dostatečně konkrétní nebo
+                                        realizovatelný, řekneme to rovnou.
                                     </p>
                                 </div>
                             </>
@@ -153,7 +165,9 @@ export function HackathonFactoryPage() {
                                     <div className="mt-3 text-3xl font-black tracking-tight text-slate-950">
                                         {highlight.value}
                                     </div>
-                                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{highlight.description}</p>
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                                        {highlight.description}
+                                    </p>
                                 </motion.div>
                             ))}
                         </div>
@@ -201,10 +215,10 @@ export function HackathonFactoryPage() {
                     title="Kdo za tím stojí"
                     description={
                         <>
-                            Hackathon Factory organizuje <strong>AI Web s.r.o.</strong>, za kterou stojí Jiří Jahn a
-                            Pavol Hejný. <strong>Promptbook</strong> je naše platforma pro nasazování AI agentů v
-                            reálném provozu, takže do hackathonů přinášíme zkušenost z produkčních integrací,
-                            prototypování i doručování technických řešení mimo teoretické workshopy.
+                            Hackathon Factory je <strong>nezávislá platforma</strong> pro lidi, kteří chtějí řešit
+                            reálné problémy. Za jejím vznikem stojí <strong>AI Web s.r.o.</strong> – Jiří Jahn a Pavol
+                            Hejný –, ale do organizace a mentoringu se zapojuje čím dál víc dalších lidí a partnerů.
+                            Pokud chcete spoluorganizovat, mentorovat nebo pomoci se zadáním, dejte nám vědět.
                         </>
                     }
                     jiriDescription={
@@ -224,12 +238,12 @@ export function HackathonFactoryPage() {
                 />
 
                 <PricingSection
-                    title="Cena a účast"
-                    description="Jste zadavatel problému, partner hackathonu nebo vývojář, který chce stavět? Zapojení držíme jednoduché a transparentní."
+                    title="Jak se zapojit"
+                    description="Hackathon Factory není komerční produkt. Zadání zadáváte zdarma, účast je zdarma. Jedinou výjimkou je organizační podpora pro firmy, které chtějí mít své zadání plně připravené a odmoderované – tam sdílíme reálné náklady."
                     plans={hackathonFactoryPricing}
                     footnotes={hackathonFactoryPricingFootnotes}
                     showBillingToggle={false}
-                    openSourceGuaranteeText="Každé zadání nejdřív projde krátkou úvodní konzultací. Pokud pro Hackathon Factory nebude vhodné, řekneme to rovnou a doporučíme jiný postup."
+                    openSourceGuaranteeText="Každé zadání nejdřív projde krátkou úvodní konzultací. Pokud pro Hackathon Factory nebude vhodné, řekneme to rovnou a doporučíme jiný postup. Žádné skryté poplatky, žádné provize."
                 />
 
                 {isLocalhost && <PlaygroundSection />}
