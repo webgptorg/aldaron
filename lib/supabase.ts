@@ -9,8 +9,8 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 console.log('⚡ Supabase connection...');
- export const supabase = createClient(supabaseUrl!, supabaseKey!);
- /* not await */ testSupabaseConnection(supabase);
+export const supabase = createClient(supabaseUrl!, supabaseKey!);
+/* not await */ testSupabaseConnection(supabase);
 
 export function createSupabaseClient() {
     const client = createClient(supabaseUrl!, supabaseKey!);
@@ -29,7 +29,9 @@ export function getSupabaseForBrowser() {
 
 export async function testSupabaseConnection(client: ReturnType<typeof createSupabaseClient>) {
     console.info('⚡ Testing Supabase connection...');
-    const result = await client.from('pg_catalog.pg_tables').select('tablename');
+
+    /*
+    const result = await client.rpc('list_tables');
 
     if (result.error) {
         console.error('⚡ Error connecting to Supabase:', result.error);
@@ -37,8 +39,9 @@ export async function testSupabaseConnection(client: ReturnType<typeof createSup
     }
 
     console.groupCollapsed('⚡ Supabase connection successful');
-    console.log('Tables in pg_catalog.pg_tables:', result.data);
+    console.log('Tables:', result.data);
     console.groupEnd();
+    */
 }
 
 /*
