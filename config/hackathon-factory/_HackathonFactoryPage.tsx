@@ -8,7 +8,6 @@ import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
-import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
 import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
 import {
@@ -208,6 +207,7 @@ export function HackathonFactoryPage() {
                     tone="muted"
                 />
 
+                {/*
                 <TeamSection
                     title="Kdo za tím stojí"
                     description={
@@ -232,7 +232,7 @@ export function HackathonFactoryPage() {
                             pohled na vývoj, tooling, prototypování a to, co je po hackathonu skutečně udržitelné.
                         </>
                     }
-                />
+                /> */}
 
                 <PricingSection
                     title="Jak se zapojit"
