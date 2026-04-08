@@ -1,17 +1,18 @@
 import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import Script from 'next/script';
-import ConditionalChatbot from './conditional-chatbot';
+// ConditionalChatbot removed — distraction from conversion CTA
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter' });
+const outfit = Outfit({ subsets: ['latin', 'latin-ext'], variable: '--font-outfit', weight: ['400', '500', '600', '700', '800'] });
 
 export const metadata: Metadata = {
-    title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+    title: 'Promptbook — AI paměť vaší firmy',
     description:
-        'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-    keywords: ['AI', 'prompt engineering', 'artificial intelligence', 'prompts', 'GPT', 'machine learning'],
+        'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR.',
+    keywords: ['AI', 'firemní data', 'znalostní báze', 'RAG', 'virtuální zaměstnanec', 'GDPR', 'promptbook'],
     authors: [{ name: 'Promptbook Team' }],
     creator: 'Promptbook',
     publisher: 'Promptbook',
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
         canonical: '/',
     },
     openGraph: {
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+        title: 'Promptbook — AI paměť vaší firmy',
         description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+            'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací.',
         url: 'https://aldaron.vercel.app',
         siteName: 'Promptbook',
         images: [
@@ -38,14 +39,14 @@ export const metadata: Metadata = {
                 alt: 'Promptbook Logo',
             },
         ],
-        locale: 'en_US',
+        locale: 'cs_CZ',
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
+        title: 'Promptbook — AI paměť vaší firmy',
         description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+            'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou.',
         images: ['/promptbook-logo-blue-256.png'],
         creator: '@promptbook',
     },
@@ -76,7 +77,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
+        <html lang="cs">
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -98,9 +99,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     `}
                 </Script>
             </head>
-            <body className={inter.className}>
+            <body className={`${inter.variable} ${outfit.variable} font-sans`}>
                 {children}
-                <ConditionalChatbot />
+                {/* ConditionalChatbot removed for conversion LP */}
             </body>
         </html>
     );

@@ -1,567 +1,331 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
-import { WaitlistPopup } from '@/components/waitlist-popup';
-import { useYou } from '@/hooks/use-you';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
-import { shouldShowWaitlist } from '@/lib/waitlist';
-import { motion } from 'framer-motion';
-import { ArrowRight, Brain, CheckCircle, Clock, Facebook, Github, Linkedin, Mail } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Shield, FileText, Sparkles } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
 
-const platforms = [
-    { name: 'Facebook', icon: Facebook, color: 'bg-blue-500', status: 'ready', isPreselected: true },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600', status: 'preparing', isPreselected: false },
-    { name: 'GitHub', icon: Github, color: 'bg-gray-800', status: 'preparing', isPreselected: false },
-    { name: 'Google', icon: Mail, color: 'bg-red-500', status: 'preparing', isPreselected: false },
+const chatMessages = [
+    {
+        id: 1,
+        type: 'user' as const,
+        text: 'Ahoj, jsem nová zaměstnankyně a potřebuju najít informace o dovolenkové politice firmy. Může mi někdo pomoct?',
+        startDelay: 0,
+        static: true,
+    },
+    {
+        id: 2,
+        type: 'bot' as const,
+        text: 'Vítejte ve firmě, Anno! Všechny informace o dovolenkové politice najdete v naší interní znalostní bázi. Máte nárok na 25 dní dovolené ročně.',
+        startDelay: 2000, // 2s po loadu — bot "přemýšlí"
+        static: false,
+    },
+    {
+        id: 3,
+        type: 'bot' as const,
+        text: 'Pošlu vám shrnutí přímo na e-mail, ať to máte po ruce. Potřebujete ještě s něčím pomoct?',
+        startDelay: 1200,
+        static: false,
+    },
+    {
+        id: 4,
+        type: 'user' as const,
+        text: 'Super, děkuji moc! To je přesně to, co jsem potřebovala. 🙌',
+        startDelay: 1000,
+        static: false,
+    },
 ];
 
-interface HeroSectionProps {
-    searchParams?: { [key: string]: string | string[] | undefined };
+// Speed: ms per character
+const CHAR_SPEED_USER = 25;
+const CHAR_SPEED_BOT = 18;
+
+function TypewriterBubble({ text, type, onComplete }: { text: string; type: 'user' | 'bot'; onComplete: () => void }) {
+    const [displayedText, setDisplayedText] = useState('');
+    const charSpeed = type === 'user' ? CHAR_SPEED_USER : CHAR_SPEED_BOT;
+
+    useEffect(() => {
+        let i = 0;
+        const interval = setInterval(() => {
+            i++;
+            setDisplayedText(text.slice(0, i));
+            if (i >= text.length) {
+                clearInterval(interval);
+                onComplete();
+            }
+        }, charSpeed);
+        return () => clearInterval(interval);
+    }, [text, charSpeed, onComplete]);
+
+    return (
+        <div
+            className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed ${
+                type === 'user'
+                    ? 'bg-red-100 text-gray-800 rounded-br-md'
+                    : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
+            }`}
+        >
+            {displayedText}
+            <span className="inline-block w-[2px] h-[14px] bg-gray-400 ml-[1px] align-middle animate-pulse" />
+        </div>
+    );
 }
 
-export function HeroSection({ searchParams = {} }: HeroSectionProps) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const clientSearchParams = useSearchParams();
-    const isModalOpen = pathname === '/get-started' || pathname === '/get-started/';
+function CompletedBubble({ text, type }: { text: string; type: 'user' | 'bot' }) {
+    return (
+        <div
+            className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed ${
+                type === 'user'
+                    ? 'bg-red-100 text-gray-800 rounded-br-md'
+                    : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
+            }`}
+        >
+            {text}
+        </div>
+    );
+}
 
-    const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const [shouldAnimate, setShouldAnimate] = useState(false);
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-    const [pendingDeselection, setPendingDeselection] = useState<string | null>(null);
-    const [userPreferences, setUserPreferences] = useState<Record<string, 'deselect' | 'import'>>({});
-    const [deepScrapingMode, setDeepScrapingMode] = useState(false);
-    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
+export function HeroSection() {
+    const [mounted, setMounted] = useState(false);
+    // Which message is currently typing
+    const [currentMessageIndex, setCurrentMessageIndex] = useState(-1);
+    // Which messages have finished typing
+    const [completedMessages, setCompletedMessages] = useState<number[]>([]);
+    // Whether we're showing typing indicator (between messages)
+    const [showTypingIndicator, setShowTypingIndicator] = useState(false);
 
-    const you = useYou();
-
-    // Determine landing behavior based on URL parameters (use client-side search params)
-    const landingBehavior = getLandingBehavior(clientSearchParams);
-
-    // Check if animations should play based on session storage
+    // Client-only: set static messages + start animation sequence
     useEffect(() => {
-        const hasSeenAnimations = sessionStorage.getItem('hero-animations-shown');
-        if (!hasSeenAnimations) {
-            setShouldAnimate(true);
-            sessionStorage.setItem('hero-animations-shown', 'true');
-        }
+        // Mark static messages as completed immediately
+        const staticIndices = chatMessages.reduce<number[]>((acc, m, i) => (m.static ? [...acc, i] : acc), []);
+        setCompletedMessages(staticIndices);
+        setMounted(true);
+
+        const firstAnimatedIndex = chatMessages.findIndex((m) => !m.static);
+        if (firstAnimatedIndex === -1) return;
+
+        // Show typing indicator after 800ms
+        const indicatorTimer = setTimeout(() => {
+            setShowTypingIndicator(true);
+        }, 800);
+
+        // Start typewriter after full delay (800ms + startDelay)
+        const typingTimer = setTimeout(() => {
+            setShowTypingIndicator(false);
+            setCurrentMessageIndex(firstAnimatedIndex);
+        }, 800 + chatMessages[firstAnimatedIndex].startDelay);
+
+        return () => {
+            clearTimeout(indicatorTimer);
+            clearTimeout(typingTimer);
+        };
     }, []);
 
-    // Load user preferences and initialize selected platforms
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedPreferences = localStorage.getItem('platform-preferences');
-            if (savedPreferences) {
-                try {
-                    const preferences = JSON.parse(savedPreferences) as any;
-                    setUserPreferences(preferences);
-                } catch (error) {
-                    console.error('Failed to parse saved preferences:', error);
-                }
-            }
+    const handleMessageComplete = useCallback(() => {
+        setCompletedMessages((prev) => [...prev, currentMessageIndex]);
 
-            // Initialize selected platforms based on preselected and user preferences
-            const initialSelection = platforms
-                .filter((platform) => {
-                    const savedPref = savedPreferences ? (JSON.parse(savedPreferences) as any)[platform.name] : null;
-                    if (savedPref === 'deselect') return false;
-                    if (savedPref === 'import') return true;
-                    return platform.isPreselected;
-                })
-                .map((p) => p.name);
-
-            setSelectedPlatforms(initialSelection);
+        // Find next non-static message to animate
+        let nextIndex = currentMessageIndex + 1;
+        while (nextIndex < chatMessages.length && chatMessages[nextIndex].static) {
+            nextIndex++;
         }
-    }, []);
 
-    // Save user preferences to localStorage
-    const saveUserPreferences = (preferences: Record<string, 'deselect' | 'import'>) => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('platform-preferences', JSON.stringify(preferences));
-            setUserPreferences(preferences);
-        }
-    };
-
-    // Create dynamic hero text
-    const heroText = `${!you ? '' : `${you}, `}Reclaim Your Time with AI That Thinks Like You`;
-
-    console.log('HeroSection rendered', {
-        isModalOpen,
-        pathname,
-        selectedPlatforms,
-        isProcessing,
-        progress,
-        you,
-        heroText,
-    });
-
-    const togglePlatform = (platform: string) => {
-        console.log('Toggling platform:', platform);
-        const isCurrentlySelected = selectedPlatforms.includes(platform);
-
-        if (isCurrentlySelected) {
-            // Check if user has a saved preference for this platform
-            const savedPreference = userPreferences[platform];
-            if (savedPreference) {
-                // User has a saved preference, apply it directly
-                if (savedPreference === 'deselect') {
-                    setSelectedPlatforms((prev) => prev.filter((p) => p !== platform));
-                } else {
-                    // savedPreference === 'import', start import process
-                    setSelectedPlatforms([platform]);
-                    startProcessing();
-                }
+        if (nextIndex < chatMessages.length) {
+            const nextMsg = chatMessages[nextIndex];
+            if (nextMsg.type === 'bot') {
+                // Bot message: show typing indicator first
+                setShowTypingIndicator(true);
+                const timer = setTimeout(() => {
+                    setShowTypingIndicator(false);
+                    setCurrentMessageIndex(nextIndex);
+                }, nextMsg.startDelay);
+                return () => clearTimeout(timer);
             } else {
-                // No saved preference, show confirmation dialog
-                setPendingDeselection(platform);
-                setShowConfirmDialog(true);
+                // User message: no typing indicator, just a pause
+                const timer = setTimeout(() => {
+                    setCurrentMessageIndex(nextIndex);
+                }, nextMsg.startDelay);
+                return () => clearTimeout(timer);
             }
-        } else {
-            // Adding platform - no confirmation needed
-            setSelectedPlatforms((prev) => [...prev, platform]);
         }
-    };
+    }, [currentMessageIndex]);
 
-    const handleConfirmDeselection = (action: 'deselect' | 'import', rememberChoice: boolean) => {
-        if (!pendingDeselection) return;
-
-        if (action === 'deselect') {
-            setSelectedPlatforms((prev) => prev.filter((p) => p !== pendingDeselection));
-        } else {
-            // Start import with just this platform
-            setSelectedPlatforms([pendingDeselection]);
-            setTimeout(() => startProcessing(), 100); // Small delay to ensure state is updated
-        }
-
-        if (rememberChoice) {
-            const newPreferences = { ...userPreferences, [pendingDeselection]: action };
-            saveUserPreferences(newPreferences);
-        }
-
-        setShowConfirmDialog(false);
-        setPendingDeselection(null);
-    };
-
-    const startProcessing = () => {
-        console.log('Starting processing with platforms:', selectedPlatforms);
-
-        if (selectedPlatforms.length === 0) {
-            return;
-        }
-
-        // Use the utility function to generate the redirect URL
-        const redirectUrl = getRedirectUrl('popup', selectedPlatforms, deepScrapingMode);
-
-        console.log('Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
-
-        // Reset modal state by navigating back to home
-        router.push('/');
-        setIsProcessing(false);
-        setProgress(0);
-        setSelectedPlatforms([]);
+    const handleCTAClick = () => {
+        window.dispatchEvent(new CustomEvent('open-qualification-popup'));
     };
 
     return (
-        <>
-            <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-16">
-                {/* Background Elements */}
-                <div className="absolute inset-0">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-purple rounded-full blur-3xl opacity-10"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-green rounded-full blur-3xl opacity-10"></div>
-                </div>
+        <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden pt-20">
+            {/* Background Elements */}
+            <div className="absolute inset-0">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-promptbook-blue rounded-full blur-3xl opacity-[0.07]"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-promptbook-green rounded-full blur-3xl opacity-[0.07]"></div>
+            </div>
 
-                <div className="container mx-auto px-4 py-20 relative z-10">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        {/* Left Column - Content */}
-                        <motion.div
-                            initial={shouldAnimate ? { opacity: 0, x: -50 } : false}
-                            animate={shouldAnimate ? { opacity: 1, x: 0 } : false}
-                            transition={{ duration: 0.8 }}
-                            className="space-y-8"
-                        >
-                            <div className="space-y-4">
-                                <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium">
-                                    <Brain className="w-4 h-4" />
-                                    Your Personal AI Avatar
-                                </div>
-                                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    {you && (
-                                        <>
-                                            <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                                {you}
-                                            </span>
-                                            :{' '}
-                                        </>
-                                    )}
-                                    Reclaim Your{' '}
-                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                        Time
-                                    </span>{' '}
-                                    with AI That Thinks Like{' '}
-                                    <span className="bg-gradient-promptbook-dark bg-clip-text text-transparent">
-                                        You
-                                    </span>
-                                </h1>
-                                <p className="text-xl text-gray-600 leading-relaxed">
-                                    Stop spending 80% of your time on unimportant tasks. Let your AI avatar handle
-                                    emails, meetings, and routine work while you focus on what <b>truly matters</b>.
-                                </p>
+            <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
+                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                    {/* Left Column - Content */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7 }}
+                        className="space-y-8"
+                    >
+                        <div className="space-y-7">
+                            <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-gray-200/60 px-4 py-2 rounded-full text-[13px] font-medium text-gray-500 tracking-wide uppercase">
+                                <Sparkles className="w-3.5 h-3.5 text-promptbook-blue-dark" />
+                                Česká AI platforma pro firemní data
                             </div>
 
+                            <h1 className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold text-[#0f172a] tracking-tight" style={{ lineHeight: 1 }}>
+                                Co kdyby každý váš<br />
+                                zaměstnanec měl{' '}
+                                <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
+                                    okamžitý<br />přístup
+                                </span>{' '}
+                                ke všemu, co vaše<br />
+                                firma kdy napsala?
+                            </h1>
+
+                            <p className="text-[17px] sm:text-lg text-gray-500 leading-[1.7] max-w-lg tracking-[0.01em]">
+                                Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
+                            </p>
+                        </div>
+
+                        <div className="space-y-4">
                             <Button
-                                onClick={() => {
-                                    console.log('Create avatar button clicked', { landingBehavior });
-
-                                    // Check if waitlist should be shown
-                                    if (shouldShowWaitlist(clientSearchParams)) {
-                                        setShowWaitlistPopup(true);
-                                        return;
-                                    }
-
-                                    if (landingBehavior === 'direct') {
-                                        // Direct navigation to promptbook.studio/from-social-links
-                                        const redirectUrl = getRedirectUrl('direct');
-                                        console.log('Direct redirect to:', redirectUrl);
-                                        window.location.href = redirectUrl;
-                                    } else {
-                                        // Show popup for platform selection
-                                        router.push('/get-started');
-                                    }
-                                }}
+                                onClick={handleCTAClick}
                                 size="lg"
-                                className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                className="bg-gradient-to-r from-[#0e7490] to-[#0891b2] text-white hover:shadow-xl hover:shadow-cyan-500/15 transform hover:scale-[1.03] transition-all duration-300 text-[16px] font-semibold px-8 py-6 rounded-full border border-white/20"
+                                id="hero-cta"
                             >
-                                {you ? <>Create Avatar of {you}</> : <>Create Your Avatar</>}
-
+                                Chci strategický hovor zdarma
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
 
-                            <div className="flex items-center gap-8 text-sm text-gray-500">
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Open Source
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Your Data, Your Control
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                    Easy Setup
+                        </div>
+
+                        {/* Trust Badges */}
+                        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-y-2 gap-x-5 text-[13px] text-gray-400 tracking-wide">
+                            <div className="flex items-center gap-1.5">
+                                <Shield className="w-4 h-4 text-gray-300" />
+                                <span>100% GDPR</span>
+                            </div>
+                            <span className="text-gray-200 hidden sm:inline">|</span>
+                            <div className="flex items-center gap-1.5">
+                                <FileText className="w-4 h-4 text-gray-300" />
+                                <span>Až 1 000 000 normostran</span>
+                            </div>
+                            <span className="text-gray-200 hidden sm:inline">|</span>
+                            <div className="flex items-center gap-1.5">
+                                <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M3 21V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v16l-4-3-4 3-4-3-4 3z" />
+                                </svg>
+                                <span>Česká platforma</span>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Right Column - Chat Animation */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="relative"
+                    >
+                        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                            {/* Chat Header */}
+                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                                    <span className="ml-3 text-sm font-medium text-gray-600">
+                                        Promptbook — HR Asistent
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Powered by Promptbook */}
-                            <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src="/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
-                                <div className="text-sm">
-                                    <span className="text-gray-600">Powered by </span>
-                                    <a
-                                        href="https://www.ptbk.io"
-                                        className="font-semibold text-promptbook-blue hover:underline"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                            {/* Chat Messages */}
+                            <div className="p-6 space-y-4 min-h-[320px]">
+                                <AnimatePresence>
+                                    {chatMessages.map((msg, index) => {
+                                        const isCompleted = completedMessages.includes(index);
+                                        const isCurrentlyTyping = currentMessageIndex === index && !isCompleted;
+
+                                        if (!isCompleted && !isCurrentlyTyping) return null;
+
+                                        return (
+                                            <motion.div
+                                                key={msg.id}
+                                                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                transition={{ duration: 0.3, ease: 'easeOut' }}
+                                                className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                            >
+                                                {isCurrentlyTyping ? (
+                                                    <TypewriterBubble
+                                                        text={msg.text}
+                                                        type={msg.type}
+                                                        onComplete={handleMessageComplete}
+                                                    />
+                                                ) : (
+                                                    <CompletedBubble text={msg.text} type={msg.type} />
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
+
+                                {/* Typing indicator - show between messages */}
+                                {showTypingIndicator && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="flex justify-start"
                                     >
-                                        Promptbook
-                                    </a>
-                                    <span className="text-gray-500 ml-2">• Truly Your AI{you && <>, {you}</>}</span>
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* Right Column - 80/20 Visualization */}
-                        <motion.div
-                            initial={shouldAnimate ? { opacity: 0, x: 50 } : false}
-                            animate={shouldAnimate ? { opacity: 1, x: 0 } : false}
-                            transition={{ duration: 0.8, delay: 0.2 }}
-                            className="relative"
-                        >
-                            <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-                                <h3 className="text-2xl font-bold text-center mb-8 text-gray-900">
-                                    Time Allocation Shift
-                                </h3>
-
-                                <div className="space-y-8">
-                                    {/* Before */}
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-4 text-gray-700">Before</h4>
-                                        <div className="flex h-12 rounded-lg overflow-hidden">
-                                            <motion.div
-                                                initial={shouldAnimate ? { width: 0 } : false}
-                                                animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
-                                                transition={{ duration: 1, delay: shouldAnimate ? 0.5 : 0 }}
-                                                className="bg-red-200 flex items-center justify-center text-sm font-medium"
-                                            >
-                                                80% Unimportant
-                                            </motion.div>
-                                            <motion.div
-                                                initial={shouldAnimate ? { width: 0 } : false}
-                                                animate={shouldAnimate ? { width: '20%' } : { width: '20%' }}
-                                                transition={{ duration: 1, delay: shouldAnimate ? 0.7 : 0 }}
-                                                className="bg-gradient-promptbook flex items-center justify-center  text-sm font-medium"
-                                            >
-                                                20%
-                                            </motion.div>
-                                        </div>
-                                        <p className="text-sm text-gray-500 mt-2">Emails • Meetings • Routine Tasks</p>
-                                    </div>
-
-                                    {/* After */}
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-4 text-gray-700">After</h4>
-                                        <div className="flex h-12 rounded-lg overflow-hidden">
-                                            <motion.div
-                                                initial={shouldAnimate ? { width: 0 } : false}
-                                                animate={shouldAnimate ? { width: '20%' } : { width: '20%' }}
-                                                transition={{ duration: 1, delay: shouldAnimate ? 1 : 0 }}
-                                                className="bg-red-200 flex items-center justify-center text-gray-700 text-sm font-medium"
-                                            >
-                                                20%
-                                            </motion.div>
-                                            <motion.div
-                                                initial={shouldAnimate ? { width: 0 } : false}
-                                                animate={shouldAnimate ? { width: '80%' } : { width: '80%' }}
-                                                transition={{ duration: 1, delay: shouldAnimate ? 1.2 : 0 }}
-                                                className="bg-gradient-promptbook flex items-center justify-center text-gray-700 text-sm font-medium"
-                                            >
-                                                80% Important
-                                            </motion.div>
-                                        </div>
-                                        <div className="flex mt-2">
-                                            <div className="w-[20%]"></div>
-                                            <div className="w-[80%]">
-                                                <p className="text-sm text-gray-500 text-right">
-                                                    Family • Creativity • Strategic Work{/* • Deep Focus */}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Modal */}
-            <Dialog
-                open={isModalOpen}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        router.push('/');
-                    }
-                }}
-            >
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-center">Create Your AI Avatar</DialogTitle>
-                    </DialogHeader>
-
-                    {!isProcessing ? (
-                        <div className="space-y-6">
-                            <p className="text-center text-gray-600">
-                                Select platforms to import your data and create your personalized AI avatar
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                {platforms.map((platform) => {
-                                    const Icon = platform.icon;
-                                    const isSelected = selectedPlatforms.includes(platform.name);
-                                    const isReady = platform.status === 'ready';
-                                    const isPreparing = platform.status === 'preparing';
-
-                                    return (
-                                        <motion.button
-                                            key={platform.name}
-                                            whileHover={isReady ? { scale: 1.02 } : {}}
-                                            whileTap={isReady ? { scale: 0.98 } : {}}
-                                            onClick={() => isReady && togglePlatform(platform.name)}
-                                            disabled={!isReady}
-                                            className={`p-6 rounded-lg border-2 transition-all duration-300 relative ${
-                                                !isReady
-                                                    ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
-                                                    : isSelected
-                                                    ? 'border-primary bg-primary/5'
-                                                    : 'border-gray-200 hover:border-gray-300'
-                                            }`}
-                                        >
-                                            {/* Checkbox in top right corner */}
-                                            <div className="absolute top-3 right-3">
-                                                <Checkbox
-                                                    checked={isSelected}
-                                                    disabled={!isReady}
-                                                    className="pointer-events-none"
+                                        <div className="bg-promptbook-blue/20 rounded-2xl rounded-bl-md px-5 py-3">
+                                            <div className="flex gap-1.5">
+                                                <motion.div
+                                                    animate={{ y: [0, -4, 0] }}
+                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                                                    className="w-2 h-2 bg-gray-400 rounded-full"
+                                                />
+                                                <motion.div
+                                                    animate={{ y: [0, -4, 0] }}
+                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+                                                    className="w-2 h-2 bg-gray-400 rounded-full"
+                                                />
+                                                <motion.div
+                                                    animate={{ y: [0, -4, 0] }}
+                                                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+                                                    className="w-2 h-2 bg-gray-400 rounded-full"
                                                 />
                                             </div>
-
-                                            <div className="flex items-center gap-3">
-                                                <div
-                                                    className={`w-12 h-12 rounded-lg ${
-                                                        platform.color
-                                                    } flex items-center justify-center ${!isReady ? 'opacity-60' : ''}`}
-                                                >
-                                                    <Icon className="w-6 h-6 text-white" />
-                                                </div>
-                                                <div className="flex flex-col items-start">
-                                                    <span
-                                                        className={`font-medium ${
-                                                            isReady ? 'text-gray-900' : 'text-gray-500'
-                                                        }`}
-                                                    >
-                                                        {platform.name}
-                                                    </span>
-                                                    {isPreparing && (
-                                                        <div className="flex items-center gap-1 text-xs text-orange-600 mt-1">
-                                                            <Clock className="w-3 h-3" />
-                                                            Preparing...
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.button>
-                                    );
-                                })}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
 
-                            {/* Deep Scraping Mode Option */}
-                            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border">
-                                <Checkbox
-                                    id="deep-scraping"
-                                    checked={deepScrapingMode}
-                                    onCheckedChange={(checked) => setDeepScrapingMode(checked as boolean)}
-                                />
-                                <div className="flex-1">
-                                    <label
-                                        htmlFor="deep-scraping"
-                                        className="text-sm font-medium text-gray-900 cursor-pointer"
-                                    >
-                                        Enable Deep Scraping Mode
-                                    </label>
-                                    <p className="text-xs text-gray-600 mt-1">
-                                        Performs more thorough data analysis for better avatar accuracy (takes longer)
-                                    </p>
+                            {/* Chat Input */}
+                            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-1 bg-white rounded-full px-4 py-2.5 text-sm text-gray-400 border border-gray-200">
+                                        Napište dotaz...
+                                    </div>
+                                    <div className="w-9 h-9 rounded-full bg-promptbook-blue-dark flex items-center justify-center">
+                                        <ArrowRight className="w-4 h-4 text-white" />
+                                    </div>
                                 </div>
                             </div>
-
-                            <Button
-                                onClick={startProcessing}
-                                disabled={selectedPlatforms.length === 0}
-                                className="w-full bg-gradient-purple hover:shadow-lg"
-                                size="lg"
-                            >
-                                Import Data & Create Avatar
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="space-y-6 py-8">
-                            <div className="text-center">
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                                    className="w-16 h-16 mx-auto mb-4"
-                                >
-                                    <Brain className="w-16 h-16 text-primary" />
-                                </motion.div>
-                                <h3 className="text-xl font-semibold mb-2">Creating Your Avatar...</h3>
-                                <p className="text-gray-600">Analyzing your data and learning your style</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span>Progress</span>
-                                    <span>{progress}%</span>
-                                </div>
-                                <Progress value={progress} className="h-2" />
-                            </div>
-
-                            <div className="text-center text-sm text-gray-500">This may take a few moments...</div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
-
-            {/* Confirmation Dialog */}
-            <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-semibold">
-                            What would you like to do with {pendingDeselection}?
-                        </DialogTitle>
-                    </DialogHeader>
-
-                    <div className="space-y-4">
-                        <p className="text-gray-600">You clicked on {pendingDeselection}. Would you like to:</p>
-
-                        <div className="space-y-3">
-                            <Button
-                                onClick={() => handleConfirmDeselection('import', false)}
-                                className="w-full bg-gradient-promptbook hover:shadow-lg"
-                                size="lg"
-                            >
-                                Start importing from {pendingDeselection}
-                            </Button>
-
-                            <Button
-                                onClick={() => handleConfirmDeselection('deselect', false)}
-                                variant="outline"
-                                className="w-full"
-                                size="lg"
-                            >
-                                Just deselect {pendingDeselection}
-                            </Button>
                         </div>
 
-                        <div className="pt-4 border-t">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Checkbox
-                                    id="remember-choice"
-                                    onCheckedChange={(checked) => {
-                                        // Handle remember choice state if needed
-                                    }}
-                                />
-                                <label htmlFor="remember-choice" className="text-sm text-gray-600 cursor-pointer">
-                                    Remember my choice for {pendingDeselection}
-                                </label>
-                            </div>
-
-                            <div className="flex gap-2">
-                                <Button
-                                    onClick={() => handleConfirmDeselection('import', true)}
-                                    className="flex-1 bg-gradient-purple hover:shadow-lg"
-                                    size="sm"
-                                >
-                                    Import & Remember
-                                </Button>
-
-                                <Button
-                                    onClick={() => handleConfirmDeselection('deselect', true)}
-                                    variant="outline"
-                                    className="flex-1"
-                                    size="sm"
-                                >
-                                    Deselect & Remember
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Waitlist Popup */}
-            <WaitlistPopup
-                placeName="hero-section"
-                isOpen={showWaitlistPopup}
-                onClose={() => setShowWaitlistPopup(false)}
-            />
-        </>
+                        {/* Decorative elements */}
+                        <div className="absolute -top-4 -right-4 w-24 h-24 bg-promptbook-blue rounded-full blur-2xl opacity-20"></div>
+                        <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-promptbook-green rounded-full blur-2xl opacity-15"></div>
+                    </motion.div>
+                </div>
+            </div>
+        </section>
     );
 }
