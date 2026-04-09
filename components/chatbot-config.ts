@@ -40,8 +40,8 @@ export const chatbotConfigs: Array<{ path: string; config: ChatbotConfig }> = [
                 fullname: 'AI Supervize – asistent',
                 title: 'AI Supervize – asistent',
                 description:
-                    'Pomáhá firmám pochopit, co AI Supervize obnáší, jaké jsou přínosy a jestli začít školením, workshopem nebo rovnou AI Supervizí.',
-                inputPlaceholder: 'Zeptejte se na supervizi, ceník školení nebo termíny workshopu...',
+                    'Pomáhá firmám pochopit, co AI Supervize obnáší, jaké jsou přínosy a jak si domluvit discovery workshop.',
+                inputPlaceholder: 'Zeptejte se na průběh supervize, ceník nebo termíny workshopu...',
             },
         },
     },

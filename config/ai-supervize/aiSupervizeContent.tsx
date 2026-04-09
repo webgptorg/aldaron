@@ -215,20 +215,19 @@ export const aiSupervizeProcess: FeatureCard[] = [
     {
         icon: Search,
         eyebrow: '1',
-        title: 'Školení nebo workshop',
-        description:
-            'Na začátku zvolíme formát podle velikosti týmu a toho, jestli potřebujete společný základ nebo řešit konkrétní workflow.',
+        title: 'Discovery workshop',
+        description: 'Online blok na 2-3 hodiny s CTO, CEO nebo Tech Leadem.',
         items: [
-            'Školení u vás ve firmě: 3 hodiny za 40 000 Kč.',
-            'Online workshop: 500 Kč za účastníka a hodinu.',
-            'Obě varianty se při pokračování započítávají do ceny AI Supervize.',
+            'Zmapujeme současný proces od požadavku po merge.',
+            'Projdeme cíle, omezení, bezpečnost i rozpočet.',
+            'Najdeme místa, kde AI pomůže nejvíc a kde naopak ne.',
         ],
-        highlight: 'Výstup: společný rámec + další doporučení',
+        highlight: 'Výstup: shrnutí + doporučení',
     },
     {
         icon: Wrench,
         eyebrow: '2',
-        title: 'AI Supervize a nastavení',
+        title: 'Návrh a nastavení',
         description: 'Připravíme konkrétní výstupy a doladíme je do reality vašeho týmu.',
         items: [
             'Adoption Plan + Playbook + Tool Matrix.',
