@@ -1,27 +1,27 @@
 import { Conversation } from '@/lib/conversations-data';
+import dariaHvizdalova from '@/public/people/daria-hvizdalova.jpeg';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
-import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
 import spaceTrim from 'spacetrim';
 
 export const hackathonFactoryConversation = {
-    title: 'Brief k hackathon sprintu',
+    title: 'Ukázka přihlášky do sprintu',
     description:
-        'Ukázka zadání, ve kterém CTO posílá konkrétní problém do Hackathon Factory a organizátor ho převádí do realizovatelného sprint briefu.',
+        'CTO posílá konkrétní problém do Hackathon Factory a během pár zpráv z něj vzniká realizovatelný sprint brief.',
     participants: [
         {
             name: 'USER',
             fullname: 'Lucie, CTO SaaS startupu',
             color: '#1c6981ff',
             personality: '',
-            avatar: jiriJahn.src,
+            avatar: dariaHvizdalova.src,
             isMe: true,
         },
         {
             name: 'AGENT',
-            fullname: 'Hackathon Factory',
+            fullname: 'Jirka, Hackathon Factory',
             color: '#5df1e8ff',
             personality: '',
-            avatar: pavolHejny.src,
+            avatar: jiriJahn.src,
         },
     ],
     messages: [

@@ -4,7 +4,7 @@ import { Building, Gift, Rocket } from 'lucide-react';
 export const hackathonFactoryPricingFootnotes: PricingFootnote[] = [
     {
         id: '*',
-        text: 'Organizační podpora pokrývá reálné náklady na přípravu, moderování a dokumentaci. Není to zisk, je to sdílení nákladů.',
+        text: 'Cena partnerství se odvíjí od rozsahu podpory, formátu akce a náročnosti briefu. Úvodní konzultace je vždy zdarma.',
     },
 ];
 
@@ -24,17 +24,17 @@ export const hackathonFactoryPricing: PricingPlan[] = [
             'Zpřesnění scope a očekávaného výstupu',
             'Schválený brief pro účastníky',
         ],
-        buttonText: 'Poslat zadání',
+        buttonText: 'Poslat problém',
         popular: false,
     },
     {
-        name: 'Organizační podpora',
-        priceMonthly: 'Sdílení',
-        priceYearly: 'Sdílení',
-        currency: 'nákladů',
+        name: 'Partnerství na hackathonu',
+        priceMonthly: 'od 10 000',
+        priceYearly: 'od 10 000',
+        currency: 'Kč',
         period: 'dle rozsahu*',
         description:
-            'Pro firmy, které chtějí mít své zadání plně připravené, odmoderované a zdokumentované. Pokrýváme reálné náklady, ne zisk.',
+            'Pro firmy, které chtějí mít své zadání plně připravené, odmoderované a zdokumentované.',
         icon: Rocket,
         iconName: 'Rocket',
         features: [
@@ -43,11 +43,11 @@ export const hackathonFactoryPricing: PricingPlan[] = [
             'Moderování a mentoring během sprintu',
             'Přístup ke všem výstupům a prezentacím',
         ],
-        buttonText: 'Domluvit rozsah',
+        buttonText: 'Domluvit partnerství',
         popular: true,
     },
     {
-        name: 'Účast pro vývojáře',
+        name: 'Účast na hackathonu',
         priceMonthly: 'Zdarma',
         priceYearly: 'Zdarma',
         currency: '',
@@ -61,7 +61,7 @@ export const hackathonFactoryPricing: PricingPlan[] = [
             'Možnost ukázat práci na funkčním výstupu',
             'Potenciál navazující spolupráce',
         ],
-        buttonText: 'Chci se zapojit',
+        buttonText: 'Registrovat se',
         popular: false,
     },
 ];

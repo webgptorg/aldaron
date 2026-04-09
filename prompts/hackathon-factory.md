@@ -1,4 +1,4 @@
-[ ]
+[x] ~$0.00 9 minutes by GitHub Copilot `gpt-5.4`
 
 [👨‍💻💡] Create a subpage `/hackathon-factory` that will be focused on the Hackathon Factory initiative
 
@@ -199,3 +199,4 @@ c-23 72 -25 74 -64 85 -23 6 -91 25 -153 44 l-112 33 -16 -53z"/>
 
 Napište nám na jiri@ptbk.io nebo pavol@ptbk.io.
 Řeknete nám svůj problém nebo zájem o účast — a my se ozveme do 24 hodin.
+

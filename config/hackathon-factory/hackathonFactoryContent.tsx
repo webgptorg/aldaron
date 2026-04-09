@@ -16,12 +16,12 @@ export const hackathonFactoryHighlights: HackathonFactoryHighlight[] = [
     {
         value: '0 Kč',
         label: 'zveřejnění zadání',
-        description: 'Úvodní konzultace i posouzení vhodnosti bez závazků.',
+        description: 'Úvodní konzultace i posouzení vhodnosti briefu bez závazků.',
     },
     {
         value: 'Prototyp / plán / rozhodnutí',
         label: 'výstup',
-        description: 'Výsledek, který druhý den použijete ve firmě nebo produktu.',
+        description: 'Výsledek, který druhý den použijete ve firmě, produktu nebo interním procesu.',
     },
 ];
 
@@ -78,13 +78,14 @@ export const hackathonFactoryAudience: FeatureCard[] = [
     {
         icon: Briefcase,
         eyebrow: 'Máte problém k řešení',
-        title: 'Pro firmy, startupy, CTO i inovátory',
+        title: 'Pro firmy, startupy, CTO i lidi se zadáním',
         description:
-            'Když potřebujete rychle zjistit, co je reálně možné, bez nabírání lidí a bez velkého projektu naslepo.',
+            'Když potřebujete rychle a levně zjistit, co je reálně možné, bez náboru dalších lidí a bez velkého projektu naslepo.',
         items: [
-            'Máte produkt nebo proces, který by šel zlepšit.',
+            'Máte produkt, proces nebo interní tooling, který by šel zlepšit.',
             'Chcete rychle otestovat hypotézu nebo nový směr.',
             'Potřebujete vidět funkční výsledek dřív, než investujete víc.',
+            'Nevíte přesně, kde začít, ale chcete z problému udělat konkrétní brief.',
             'Hledáte lidi, se kterými případně navážete další spolupráci.',
         ],
         highlight: 'Reálné zadání z vaší praxe',
@@ -108,8 +109,8 @@ export const hackathonFactoryAudience: FeatureCard[] = [
 export const hackathonFactorySituations: FeatureCard[] = [
     {
         icon: Search,
-        title: '„Nevíme, jestli se nám tahle automatizace vůbec vyplatí.“',
-        description: 'Ověříte hypotézu na konkrétním procesu bez nákupu drahého projektu naslepo.',
+        title: '„Nevíme, jestli se nám tahle automatizace nebo AI ve workflow vůbec vyplatí.“',
+        description: 'Hackathon rychle ukáže, co má smysl otestovat a podle čeho se rozhodnout dál.',
     },
     {
         icon: Code,
@@ -118,18 +119,23 @@ export const hackathonFactorySituations: FeatureCard[] = [
     },
     {
         icon: Gauge,
-        title: '„Chceme vidět víc řešení najednou, ne jen jednu cestu.“',
-        description: 'Různé týmy mohou ukázat odlišné přístupy, které pak srovnáte podle výsledku.',
+        title: '„Chceme zjistit, jaká řešení existují, aniž bychom se upsali k drahému projektu.“',
+        description: 'Nejdřív si necháte ukázat reálné možnosti a teprve pak rozhodnete o větší investici.',
     },
     {
         icon: Users,
-        title: '„Chceme najít vývojáře, se kterými bychom pokračovali dál.“',
+        title: '„Chceme najít vývojáře nebo tým, se kterými bychom pokračovali dál.“',
         description: 'Hackathon ukáže nejen technické řešení, ale i to, s kým se vám dobře spolupracuje.',
     },
     {
         icon: GitBranch,
-        title: '„Potřebujeme rozhodnutí dřív, než se upíšeme většímu rozpočtu.“',
-        description: 'Na konci dostanete doporučení a další kroky, ne jen pocit, že se něco dělo.',
+        title: '„Chceme přidat novou technologii do produktu, ale nevíme jak a chceme vidět víc přístupů najednou.“',
+        description: 'Různé týmy mohou ukázat odlišné cesty a vy si je srovnáte podle výsledku, ne podle slibů.',
+    },
+    {
+        icon: ClipboardList,
+        title: '„Nevíme, kde začít, a potřebujeme z problému udělat konkrétní brief.“',
+        description: 'Společně zadání zúžíme tak, aby během 1-2 dnů vedlo k použitelnému prototypu nebo rozhodnutí.',
     },
 ];
 

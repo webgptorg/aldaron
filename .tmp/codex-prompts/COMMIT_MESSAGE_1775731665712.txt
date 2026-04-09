@@ -1,17 +1,4 @@
-unset OPENAI_API_KEY && unset OPENAI_BASE_URL && 
-
-codex \
-    -c forced_login_method=chatgpt \
-    -c model_reasoning_effort='"xhigh"' \
-  --ask-for-approval never \
-  exec \
-  --model gpt-5.4 \
-  --local-provider none \
-  --sandbox danger-full-access \
-  -C /c/Users/me/work/promptbook-experiments-and-landing-pages/aldaron \
-  <<'CODEX_PROMPT'
-
-Create a subpage `/hackathon-factory` that will be focused on the Hackathon Factory initiative
+[👨‍💻💡] Create a subpage `/hackathon-factory` that will be focused on the Hackathon Factory initiative
 
 - Website is in Czech language targeting Czech developers, CTOs, and innovators
 - Customer is a developer, startup founder, CTO, or anyone with a real-world problem they want solved
@@ -210,8 +197,3 @@ c-23 72 -25 74 -64 85 -23 6 -91 25 -153 44 l-112 33 -16 -53z"/>
 
 Napište nám na jiri@ptbk.io nebo pavol@ptbk.io.
 Řeknete nám svůj problém nebo zájem o účast — a my se ozveme do 24 hodin.
-
-
-
-
-CODEX_PROMPT

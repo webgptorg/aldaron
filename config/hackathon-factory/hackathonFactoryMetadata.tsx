@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 export const hackathonFactoryMetadata: Metadata = {
     title: 'Hackathon Factory | Reálné problémy, funkční výstupy',
     description:
-        'Hackathon Factory spojuje firmy s konkrétními problémy a developery, kteří je umí během krátkého sprintu dotáhnout do prototypu, rozhodnutí nebo plánu.',
+        'Hackathon Factory propojuje lidi s reálnými problémy a developery, kteří je během krátkého sprintu dotáhnou do prototypu, rozhodnutí nebo plánu.',
     alternates: {
         canonical: '/hackathon-factory',
     },
@@ -19,7 +19,7 @@ export const hackathonFactoryMetadata: Metadata = {
                 url: ogImage.src,
                 width: 1860,
                 height: 992,
-                alt: 'Hackathon Factory - Promptbook',
+                alt: 'Hackathon Factory',
             },
         ],
     },
