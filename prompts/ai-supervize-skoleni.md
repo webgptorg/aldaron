@@ -1,4 +1,4 @@
-[ ]
+[x] ~$0.00 9 minutes by GitHub Copilot `gpt-5.4`
 
 Možnost školení a workshopu k AI Supervizi
 
@@ -18,3 +18,4 @@ Oboje by se pak započítalo do ceny supervize, pokud by dále týmy pokračoval
 ```
 
 The price of the first step is deductable from the total price of the AI Supervize.
+
