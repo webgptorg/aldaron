@@ -90,6 +90,8 @@ export function PricingSection({
         router.push(`?modal=get-started&plan=${encodeURIComponent(planSlug)}`, { scroll: false });
     };
 
+    const gridColumnsClass = plans.length >= 4 ? 'md:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-3';
+
     return (
         <>
             <section
@@ -212,7 +214,7 @@ export function PricingSection({
 
                     {/* ── Default grid mode ── */}
                     {!stepsMode && (
-                        <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        <div className={`mt-12 grid gap-8 max-w-6xl mx-auto ${gridColumnsClass}`}>
                             {plans.map((plan, index) => {
                                 const price = showBillingToggle
                                     ? billingCycle === 'yearly'

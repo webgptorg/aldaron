@@ -35,17 +35,17 @@ export function AiSupervizePage() {
             <Suspense>
                 <BusinessGetStartedModal
                     placeName="AiSupervizePage"
-                    title="Domluvme si AI Supervizi pro váš tým"
+                    title="Domluvme pro váš tým vstup do AI Supervize"
                     requestSent="Poptávka odeslána!"
                     specialistContact="Ozveme se vám co nejdříve s návrhem dalšího kroku."
                     ceoOf="CEO AI Web s.r.o."
-                    description="Stačí e-mail nebo telefon. Během krátkého discovery workshopu zjistíte, jestli AI Supervize vašemu týmu skutečně přinese hodnotu."
+                    description="Stačí e-mail nebo telefon. Navrhneme, jestli je pro vás lepší školení ve firmě, online workshop, nebo rovnou plnohodnotná AI Supervize."
                     emailPlaceholder="jmeno@firma.cz"
                     phonePlaceholder="+420 777 000 000"
                     errorNoEmailOrPhone="Zadejte prosím e-mail nebo telefonní číslo."
                     genericErrorMessage="Nastala chyba. Zkuste to prosím znovu."
                     sending="Odesílání..."
-                    scheduleCall="Domluvit workshop"
+                    scheduleCall="Domluvit úvod"
                 />
             </Suspense>
 
@@ -55,7 +55,7 @@ export function AiSupervizePage() {
                     whyPromptbookText="Přínosy"
                     integrationsText="Výstupy"
                     pricingText="Ceník"
-                    getStartedText="Domluvit workshop"
+                    getStartedText="Domluvit úvod"
                 />
 
                 {/* ── Hero Section ── */}
@@ -103,7 +103,7 @@ export function AiSupervizePage() {
                                             size="lg"
                                             className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                                         >
-                                            Domluvit discovery workshop
+                                            Domluvit školení nebo workshop
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
@@ -196,7 +196,7 @@ export function AiSupervizePage() {
 
                 <FeatureCardsSection
                     title="Jak AI Supervize probíhá"
-                    description="Spolupráce je navržená tak, aby vedla k rozhodnutí, zavedení i průběžnému vyhodnocování, ne jen k jednorázovému workshopu."
+                    description="Spolupráce může začít školením nebo workshopem a pokračovat do plné supervize i průběžného follow-upu."
                     cards={aiSupervizeProcess}
                     columns={3}
                     tone="muted"
@@ -245,13 +245,12 @@ export function AiSupervizePage() {
                 />
 
                 <PricingSection
-                    title="Jak AI Supervize probíhá krok za krokem"
-                    description="Nejde o výběr plánu – projdete postupně všemi třemi fázemi. Začínáte discovery workshopem a dle výsledků pokračujete dál."
+                    title="Možnosti, jak začít s AI Supervizí"
+                    description="Můžete začít školením ve firmě, online workshopem nebo rovnou AI Supervizí. Cena školení i workshopu se při pokračování započítává do ceny supervize."
                     plans={aiSupervizePricing}
                     footnotes={aiSupervizePricingFootnotes}
                     showBillingToggle={false}
-                    stepsMode={true}
-                    openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, kde má AI ve vašem vývoji skutečně fungovat."
+                    openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte formátem, který sedí vašemu týmu a realitě vašeho delivery."
                 />
 
                 {isLocalhost && <PlaygroundSection />}

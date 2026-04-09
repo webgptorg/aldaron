@@ -1,10 +1,10 @@
 import { PricingFootnote, PricingPlan } from '@/components/pricing-section';
-import { Building, Rocket, Shield } from 'lucide-react';
+import { Building, Rocket, Shield, Zap } from 'lucide-react';
 
 export const aiSupervizePricingFootnotes: PricingFootnote[] = [
     {
         id: '*',
-        text: 'Pokud zjistíme, že pro vás AI Supervize není vhodná, discovery workshop neúčtujeme. Pokud pokračujeme, započteme ho do balíčku AI Supervize.',
+        text: 'Cena školení ve firmě i online workshopu se při navazující AI Supervizi započítává do ceny supervize.',
     },
     {
         id: '**',
@@ -14,20 +14,39 @@ export const aiSupervizePricingFootnotes: PricingFootnote[] = [
 
 export const aiSupervizePricing: PricingPlan[] = [
     {
-        name: 'Discovery workshop',
-        priceMonthly: '5 000',
-        priceYearly: '5 000',
+        name: 'Školení ve firmě',
+        priceMonthly: '40 000',
+        priceYearly: '40 000',
         currency: 'Kč',
-        period: 'za workshop',
-        description: '2-3 hodiny online s CTO, CEO nebo Tech Leadem.',
+        period: '3 hodiny',
+        description: 'Přijedeme k vám a srovnáme v týmu očekávání, pravidla i praktické použití AI.',
         icon: Building,
         iconName: 'Building',
         features: [
-            'Mapování současného delivery workflow a use-caseů pro AI',
-            'Identifikace rizik, bezpečnosti a omezení',
-            'Doporučení dalšího postupu a rozhodnutí, zda pokračovat',
+            'Tříhodinové školení přímo u vás ve firmě',
+            'Společný základ pro vývojáře, leady i management',
+            'Praktické příklady nad vaším stackem, workflow a riziky',
+            'Při pokračování se cena započítá do AI Supervize*',
         ],
-        buttonText: 'Domluvit workshop',
+        buttonText: 'Chci školení',
+        popular: false,
+    },
+    {
+        name: 'Online workshop',
+        priceMonthly: '500',
+        priceYearly: '500',
+        currency: 'Kč',
+        period: 'účastník / hodina',
+        description: 'Lehčí vstup pro tým, který chce řešit konkrétní use-casy a rychle si srovnat další krok.',
+        icon: Zap,
+        iconName: 'Zap',
+        features: [
+            'Online formát podle velikosti a seniority týmu',
+            'Práce nad konkrétními situacemi, které ve vývoji řešíte',
+            'Vhodné jako první krok před plnou AI Supervizí',
+            'Při pokračování se cena započítá do AI Supervize*',
+        ],
+        buttonText: 'Chci workshop',
         popular: false,
     },
     {
@@ -40,13 +59,13 @@ export const aiSupervizePricing: PricingPlan[] = [
         icon: Rocket,
         iconName: 'Rocket',
         features: [
-            'Discovery workshop, pokud nebyl zvlášť fakturován',
+            'Započtení předchozího školení nebo workshopu*',
             'Adoption Plan + Playbook + Tool & Model Matrix',
             'Repo/PR šablony a 30/60/90 implementační plán',
             'Workshop nad výsledky a doladění do reality týmu',
             'Krátká async podpora během zavádění',
         ],
-        buttonText: 'Chci návrh Supervize',
+        buttonText: 'Chci AI Supervizi',
         popular: true,
     },
     {
