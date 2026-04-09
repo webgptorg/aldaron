@@ -2,6 +2,7 @@
 
 import { GenericChatbot } from '@/config/_generic/genericChatbot';
 import { AiSupervizeChatbot } from '@/config/ai-supervize/aiSupervizeChatbot';
+import { ForAgroChatbot } from '@/config/for-agro/forAgroChatbot';
 import { CitiesCsChatbot } from '@/config/pro-mesta/citiesCsChatbot';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -20,6 +21,10 @@ function ChatbotInner() {
 
     if (pathname.startsWith('/pro-mesta')) {
         return <CitiesCsChatbot />;
+    }
+
+    if (pathname.startsWith('/for-agro')) {
+        return <ForAgroChatbot />;
     }
 
     if (pathname.startsWith('/ai-supervize')) {

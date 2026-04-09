@@ -32,6 +32,15 @@
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,
             "focus": true
+        },
+        {
+            "name": "⚡🚀 Promptbook coder `GitHub Copilot with gpt-5.4` (💸)(⏳)",
+            "commands": [
+                "ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --context AGENTS.md --no-wait"
+            ],
+            "execute": true,
+            "onlySingle": true,
+            "focus": true
         }
     ]
 }
