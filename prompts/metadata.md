@@ -11,7 +11,7 @@ All the metadata should be filled in correctly.
 
 ---
 
-[ ]
+[x] ~$0.00 10 minutes by GitHub Copilot `gpt-5.4`
 
 The preview image on social media when sharing the page should be relevant and look good.
 
@@ -19,3 +19,4 @@ The preview image on social media when sharing the page should be relevant and l
     -   `/`
     -   `/pro-mesta`
 -   It should look good at Facebook, Linkedin, Twitter, etc. when shared.
+

@@ -1,0 +1,6 @@
+The preview image on social media when sharing the page should be relevant and look good.
+
+-   Use relevant information for each page.
+    -   `/`
+    -   `/pro-mesta`
+-   It should look good at Facebook, Linkedin, Twitter, etc. when shared.
