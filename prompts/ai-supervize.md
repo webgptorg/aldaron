@@ -229,3 +229,5 @@ _(Zatím nejsme plátci DPH, cena je tedy konečná.)_
 
 Napište nám na jiri@ptbk.io nebo pavol@ptbk.io a domluvíme si úvodní schůzku.  
 Během 2-3 hodin budete vědět, **jestli vám to přinese hodnotu** a co přesně bude další krok.
+
+
