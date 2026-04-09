@@ -1,4 +1,4 @@
-[x] ~$0.1978 10 minutes by OpenAI Codex `gpt-5.3-codex`
+[ ]
 
 [🚜🌾] Create a subpage that is simmilar concept as `/for-industry` and `/pro-mesta` to the new landing page `/for-agro` but is will be focused and narrowed down to agronomy use case.
 
@@ -19,4 +19,3 @@ Případy použití:
 - Bot pro regulatorní compliance: navigace napříč složitými zemědělskými předpisy
 - Agent pro dodavatelský řetězec: logistika, inventář, protokoly dodavatelů
 ```
-
