@@ -245,8 +245,8 @@ export function AiSupervizePage() {
                 />
 
                 <AiSupervizeJourneySection
-                    title="Jak AI Supervize probíhá krok za krokem"
-                    description="První krok může být různý podle typu týmu a cíle. Jakmile navážeme AI Supervizí, cenu vstupního kroku od ní odečteme."
+                    title="Jak může AI Supervize začít a na co navazuje"
+                    description="Začít můžete školením ve firmě, online workshopem nebo discovery blokem s CTO či Tech Leadem. Pokud pak navážeme AI Supervizí, cenu prvního kroku od ní odečteme."
                     plans={aiSupervizePricing}
                     footnotes={aiSupervizePricingFootnotes}
                     entryStepNote="Cena zvoleného prvního kroku se při pokračování odečítá z ceny AI Supervize 80 000 Kč."

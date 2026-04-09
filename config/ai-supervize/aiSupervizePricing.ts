@@ -8,7 +8,7 @@ export interface AiSupervizeJourneyPlan extends PricingPlan {
 export const aiSupervizePricingFootnotes: PricingFootnote[] = [
     {
         id: '*',
-        text: 'Cena prvního kroku (školení ve firmě, online workshop nebo discovery workshop) se při pokračování odečítá z ceny AI Supervize 80 000 Kč.',
+        text: 'Cena školení ve firmě, online workshopu i discovery workshopu se při pokračování odečítá z ceny AI Supervize 80 000 Kč.',
     },
     {
         id: '**',
@@ -33,7 +33,7 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         features: [
             'Společný kick-off pro tým přímo ve firmě',
             'Praktický úvod do workflow, bezpečnosti a práce s AI nástroji',
-            'Vhodné jako první krok před navazující AI Supervizí',
+            'Při pokračování cenu odečítáme z AI Supervize 80 000 Kč',
         ],
         buttonText: 'Chci školení ve firmě',
         popular: false,
@@ -51,7 +51,8 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         features: [
             'Hands-on práce nad reálnými scénáři vašeho týmu',
             'Vhodné pro společné nastavení promptů, review a delegace na AI',
-            'Cena se při pokračování odečítá z AI Supervize',
+            '500 Kč za hodinu online workshopu za účastníka',
+            'Při pokračování cenu odečítáme z AI Supervize 80 000 Kč',
         ],
         buttonText: 'Chci online workshop',
         popular: false,
@@ -62,7 +63,7 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         priceMonthly: '5 000',
         priceYearly: '5 000',
         currency: 'Kč',
-        period: 'za workshop',
+        period: 'za 2-3 hodiny online',
         description: '2-3 hodiny online s CTO nebo Tech Leadem pro rozhodnutí, jak má AI Supervize začít.',
         icon: Search,
         iconName: 'Search',
@@ -70,6 +71,7 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
             'Mapování současného delivery workflow a use-caseů pro AI',
             'Identifikace rizik, bezpečnosti a omezení',
             'Doporučení dalšího postupu a rozhodnutí, zda pokračovat',
+            'Při pokračování cenu odečítáme z AI Supervize 80 000 Kč',
         ],
         buttonText: 'Chci discovery workshop',
         popular: false,

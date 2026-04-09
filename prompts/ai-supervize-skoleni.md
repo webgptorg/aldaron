@@ -2,7 +2,7 @@
 
 ---
 
-[ ]
+[x] ~$0.00 10 minutes by GitHub Copilot `gpt-5.4`
 
 Možnost školení a workshopu k AI Supervizi
 
@@ -26,3 +26,4 @@ The price of the first step is deductable from the total price of the AI Supervi
 Make it visually better:
 ![alt text](image.png)
 ![alt text](image-1.png)
+
