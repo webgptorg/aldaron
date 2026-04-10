@@ -1,12 +1,17 @@
 import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import Script from 'next/script';
 import { Chatbot } from '../components/chatbot';
 import { CookiesBar } from '../components/cookies-bar';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter' });
+const outfit = Outfit({
+    subsets: ['latin', 'latin-ext'],
+    variable: '--font-outfit',
+    weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
     title: 'Promptbook',
@@ -96,7 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     `}
                 </Script>
             </head>
-            <body className={inter.className}>
+            <body className={`${inter.variable} ${outfit.variable} font-sans`}>
                 {children}
                 <Chatbot />
                 <CookiesBar />
