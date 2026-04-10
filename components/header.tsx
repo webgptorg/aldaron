@@ -49,9 +49,9 @@ export function Header(props: HeaderProps) {
     return (
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
             <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex h-16 min-w-0 items-center justify-between gap-3">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                    <Link href="/" className="flex min-w-0 items-center gap-2 transition-opacity hover:opacity-80 sm:gap-3">
                         {brandLogo ?? (
                             <Image
                                 src={promptbookLogoBlueTransparent}
@@ -61,7 +61,7 @@ export function Header(props: HeaderProps) {
                                 className="w-8 h-8"
                             />
                         )}
-                        <span className="text-xl text-gray-900">
+                        <span className="max-w-[9rem] truncate text-base text-gray-900 sm:max-w-none sm:text-xl">
                             {brandName ?? (
                                 <>
                                     Prompt<b>book</b>
@@ -104,10 +104,10 @@ export function Header(props: HeaderProps) {
 
                     {/* CTA Button */}
                     {!isBare && (
-                        <Link href="?modal=get-started">
-                            <Button className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90">
-                                {getStartedText}
-                                <ArrowRight className="ml-2 w-4 h-4" />
+                        <Link href="?modal=get-started" className="shrink-0">
+                            <Button className="max-w-[11rem] gap-1 bg-promptbook-blue-dark px-3 text-xs text-white hover:bg-promptbook-blue-dark/90 sm:max-w-none sm:px-4 sm:text-sm">
+                                <span className="truncate">{getStartedText}</span>
+                                <ArrowRight className="h-4 w-4 shrink-0" />
                             </Button>
                         </Link>
                     )}

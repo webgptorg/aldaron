@@ -4,6 +4,7 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
 import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
@@ -44,13 +45,15 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         scheduleCall = 'Schedule a Call',
         genericErrorMessage = 'An error occurred',
     } = props;
-    const [modal, setModal] = useGetParam('modal');
+    const [modal] = useGetParam('modal');
     const [plan] = useOptionalGetParam('plan');
+    const closeGetStartedModal = useCloseGetStartedModal();
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const selectedPlanLabel = plan ? plan.replace(/-/g, ' ') : null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -64,7 +67,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         setError(null);
 
         try {
-            const note = plan ? `Selected plan: ${plan}` : undefined;
+            const note = selectedPlanLabel ? `Selected plan: ${selectedPlanLabel}` : undefined;
             await subscribeToWaitlist(email, placeName, phone, note);
 
             setSuccess(true);
@@ -73,7 +76,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
 
             // Auto-close after success
             setTimeout(() => {
-                setModal(null);
+                closeGetStartedModal();
                 setSuccess(false);
             }, 2000);
         } catch (err) {
@@ -85,7 +88,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
 
     const handleClose = () => {
         if (!isSubmitting) {
-            setModal(null);
+            closeGetStartedModal();
             // Reset form state when closing
             setTimeout(() => {
                 setEmail('');
@@ -97,7 +100,14 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
     };
 
     return (
-        <Dialog open={modal === 'get-started'} onOpenChange={handleClose}>
+        <Dialog
+            open={modal === 'get-started'}
+            onOpenChange={(open) => {
+                if (!open) {
+                    handleClose();
+                }
+            }}
+        >
             <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
@@ -116,6 +126,11 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                 ) : (
                     <div>
                         <div className="flex flex-col items-center text-center mb-6">
+                            {selectedPlanLabel && (
+                                <div className="mb-3 inline-flex max-w-full rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                                    {selectedPlanLabel}
+                                </div>
+                            )}
                             <Image className="object-cover mx-auto mb-4" src={jiriJahn} alt="Jiri Jahn" height={150} />
                             <p className="text-xl font-bold text-gray-900 font-pj">Jiří Jahn</p>
                             <p className="text-base text-gray-500">{ceoOf}</p>

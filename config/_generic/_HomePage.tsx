@@ -60,18 +60,18 @@ export function HomePageComponent() {
                             <>
                                 {' '}
                                 <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full text-sm font-medium text-gray-900">
+                                    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-gray-900">
                                         <BookOpen className="w-4 h-4" />
                                         {`AI Transformation for  ${you || 'Your business'}`}
                                     </div>
-                                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                                    <h1 className="text-4xl font-bold leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
                                         Create AI that{' '}
                                         <span className="bg-promptbook-blue-dark bg-clip-text text-transparent">
                                             Truly&nbsp;Understands
                                         </span>{' '}
                                         {you || <>Your Company</>}
                                     </h1>
-                                    <p className="text-xl text-gray-600 leading-relaxed">
+                                    <p className="max-w-2xl text-lg leading-relaxed text-gray-600 sm:text-xl">
                                         With Promptbook, you can capture your company's context, rules, and knowledge
                                         into simple <b>Books</b> to build AI agents that align perfectly with your
                                         business needs.
@@ -81,13 +81,13 @@ export function HomePageComponent() {
                                 <Link href="?modal=get-started">
                                     <Button
                                         size="lg"
-                                        className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                        className="rounded-full bg-promptbook-blue-dark px-8 py-6 text-center text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                                     >
                                         Get Started {you ? <>with AI in {you}</> : <>with Promptbook AI</>}
                                         <ArrowRight className="ml-2 w-5 h-5" />
                                     </Button>
                                 </Link>
-                                <div className="flex items-center gap-8 text-sm text-gray-500">
+                                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 sm:gap-8">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="w-4 h-4 text-green-500" />
                                         Open Source

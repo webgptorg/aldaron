@@ -12,7 +12,15 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useState } from 'react';
 
-export function CookieSettingsModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function CookieSettingsModal({
+    open,
+    onOpenChange,
+    onSave,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSave?: () => void;
+}) {
     const [preferences, setPreferences] = useState({
         necessary: true,
         analytics: false,
@@ -27,10 +35,11 @@ export function CookieSettingsModal({ open, onOpenChange }: { open: boolean; onO
         localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
         localStorage.setItem('cookiesAccepted', 'true');
         onOpenChange(false);
+        onSave?.();
     };
 
     return (
-        <Dialog open={open && false /* <- TODO: !!!! Re-enable cookies bar */} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Customize Cookie Settings</DialogTitle>

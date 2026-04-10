@@ -68,22 +68,22 @@ export function AiSupervizePage() {
                         backgroundPosition: '50% 100%',
                     }}
                 >
-                    <div className="container mx-auto px-4 py-20 relative z-10 text-white">
+                    <div className="container mx-auto relative z-10 overflow-hidden px-4 py-20 text-white">
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
                             {/* Left Column – copy */}
                             <motion.div
                                 initial={{ opacity: 0, x: -50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.8 }}
-                                className="space-y-8"
+                                className="min-w-0 space-y-8"
                             >
                                 <div className="space-y-5">
-                                    <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
+                                    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
                                         <BookOpen className="h-4 w-4" />
                                         AI Supervize pro software týmy
                                     </div>
 
-                                    <h1 className="text-5xl font-bold leading-tight text-white lg:text-6xl">
+                                    <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
                                         Zaveďte AI do vývoje jako{' '}
                                         <span className="bg-gradient-promptbook bg-clip-text text-transparent">
                                             kontrolovaný výkon
@@ -91,7 +91,7 @@ export function AiSupervizePage() {
                                         , ne náhodnou loterii
                                     </h1>
 
-                                    <p className="max-w-2xl text-xl leading-relaxed text-white/85">
+                                    <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
                                         Pomáháme firmám nastavit workflow, pravidla, nástroje a měření tak, aby AI
                                         opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.
                                     </p>
@@ -101,18 +101,18 @@ export function AiSupervizePage() {
                                     <Link href="?modal=get-started">
                                         <Button
                                             size="lg"
-                                            className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
+                                            className="rounded-full bg-promptbook-blue-dark px-8 py-6 text-center text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                                         >
                                             Domluvit první krok
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
-                                    <div className="rounded-full border border-white/15 bg-white/8 px-5 py-3 text-sm text-white/80 backdrop-blur-sm">
+                                    <div className="w-fit max-w-full rounded-full border border-white/15 bg-white/8 px-5 py-3 text-sm text-white/80 backdrop-blur-sm">
                                         Ideální pro TypeScript / Next.js týmy
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-5 text-sm text-white/75">
+                                <div className="flex flex-wrap items-center gap-4 text-sm text-white/75 sm:gap-5">
                                     <div className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
                                         NDA a pravidla pro data
@@ -133,14 +133,14 @@ export function AiSupervizePage() {
                                 initial={{ opacity: 0, x: 50 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
-                                className="overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 shadow-2xl"
+                                className="min-w-0 overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 shadow-2xl"
                             >
                                 {/* ── Terminal title bar ── */}
                                 <div className="flex items-center gap-3 border-b border-slate-700/60 bg-slate-900 px-4 py-2.5">
                                     <span className="h-3 w-3 rounded-full bg-red-500" />
                                     <span className="h-3 w-3 rounded-full bg-yellow-400" />
                                     <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                                    <span className="ml-3 flex-1 text-center font-mono text-xs text-slate-500 select-none">
+                                    <span className="ml-3 flex-1 truncate text-center font-mono text-xs text-slate-500 select-none">
                                         promptbook-supervize — bash — 80×24
                                     </span>
                                 </div>
@@ -496,7 +496,7 @@ function TerminalMetrics() {
                 // page when the terminal content reaches its top/bottom edge.
                 overscrollBehavior: 'contain',
             }}
-            className="overflow-y-auto font-mono text-xs leading-[1.65] scrollbar-none"
+            className="scrollbar-none max-w-full overflow-x-auto overflow-y-auto font-mono text-[11px] leading-[1.65] sm:text-xs"
         >
             {LINES.slice(0, step).map((line) => (
                 <div key={line.key}>{line.node(barFill)}</div>

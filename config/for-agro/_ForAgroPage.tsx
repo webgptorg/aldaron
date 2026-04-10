@@ -60,18 +60,18 @@ export function ForAgroPage() {
                         getHero={({ you }) => (
                             <>
                                 <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium">
+                                    <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium">
                                         <BookOpen className="h-4 w-4" />
                                         AI pro {you || 'agronomii a zemědělské provozy'}
                                     </div>
-                                    <h1 className="text-5xl font-bold leading-tight text-white lg:text-6xl">
+                                    <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
                                         Vytvořte AI, která{' '}
                                         <span className="bg-gradient-promptbook bg-clip-text text-transparent">
                                             skutečně rozumí
                                         </span>{' '}
                                         {you || <>agronomii vašeho podniku</>}
                                     </h1>
-                                    <p className="text-xl leading-relaxed text-white">
+                                    <p className="max-w-2xl text-lg leading-relaxed text-white sm:text-xl">
                                         S Promptbookem zachytíte agronomické know-how, regulatorní pravidla i provozní
                                         postupy do AI agentů, kteří pomáhají týmům napříč regiony.
                                     </p>
@@ -81,14 +81,14 @@ export function ForAgroPage() {
                                 <Link href="?modal=get-started">
                                     <Button
                                         size="lg"
-                                        className="rounded-full bg-promptbook-blue-dark px-8 py-6 text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                                        className="rounded-full bg-promptbook-blue-dark px-8 py-6 text-center text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                                     >
                                         Začít
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Button>
                                 </Link>
 
-                                <div className="flex items-center gap-8 text-sm opacity-80">
+                                <div className="flex flex-wrap items-center gap-4 text-sm opacity-80 sm:gap-8">
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="h-4 w-4" />
                                         Open-source řešení

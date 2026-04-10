@@ -18,6 +18,14 @@ export function CookiesBar() {
 
     const handleAccept = () => {
         // Store the user's choice in localStorage
+        localStorage.setItem(
+            'cookiePreferences',
+            JSON.stringify({
+                necessary: true,
+                analytics: true,
+                marketing: true,
+            }),
+        );
         localStorage.setItem('cookiesAccepted', 'true');
         setIsVisible(false);
     };
@@ -43,7 +51,7 @@ export function CookiesBar() {
                     </div>
                 </div>
             </div>
-            <CookieSettingsModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+            <CookieSettingsModal open={isModalOpen} onOpenChange={setIsModalOpen} onSave={() => setIsVisible(false)} />
         </>
     );
 }

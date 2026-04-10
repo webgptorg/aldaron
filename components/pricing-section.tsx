@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { motion } from 'framer-motion';
 import { ArrowDown, Check, Crown } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ElementType, useState } from 'react';
 
@@ -96,8 +95,13 @@ export function PricingSection({
         return plan.popular;
     };
 
-    const handleButtonClick = (planName: string) => {
-        const planSlug = planName.toLowerCase().replace(/\s+/g, '-');
+    const handleButtonClick = (plan: PricingPlan) => {
+        if (plan.buttonText === 'Start Pro Trial') {
+            window.open('https://promptbook.studio/purchase?plan=PRO', isFrame ? '_top' : '_self');
+            return;
+        }
+
+        const planSlug = plan.name.toLowerCase().replace(/\s+/g, '-');
         router.push(`?modal=get-started&plan=${encodeURIComponent(planSlug)}`, { scroll: false });
     };
 
@@ -163,7 +167,7 @@ export function PricingSection({
                     </ul>
 
                     <button
-                        onClick={() => handleButtonClick(plan.name)}
+                        onClick={() => handleButtonClick(plan)}
                         className={`mt-6 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
                             shouldShowAsPopular(plan)
                                 ? 'bg-gradient-purple text-white hover:shadow-lg'
@@ -344,7 +348,7 @@ export function PricingSection({
                                             </ul>
 
                                             <button
-                                                onClick={() => handleButtonClick(plan.name)}
+                                                onClick={() => handleButtonClick(plan)}
                                                 className={`py-2.5 px-5 rounded-lg font-semibold text-sm transition-colors duration-200 ${
                                                     index === 0
                                                         ? 'bg-gray-900 text-white hover:bg-gray-800'
@@ -456,35 +460,18 @@ export function PricingSection({
 
                                         {/* Hide CTA button for current plan */}
                                         {!isCurrentPlan(plan.name) && (
-                                            <>
-                                                {/* Handle all buttons with consistent behavior */}
-                                                {plan.buttonText === 'Start Pro Trial' && isFrame ? (
-                                                    <Link
-                                                        target="_top"
-                                                        href="https://promptbook.studio/purchase?plan=PRO"
-                                                        className={`w-full inline-block text-center py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-                                                            shouldShowAsPopular(plan)
-                                                                ? 'bg-gradient-purple text-white hover:shadow-lg'
-                                                                : 'bg-gray-900 text-white hover:bg-gray-800'
-                                                        }`}
-                                                    >
-                                                        {plan.buttonText}
-                                                    </Link>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleButtonClick(plan.name)}
-                                                        className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
-                                                            plan.buttonText === 'Contact Sales'
-                                                                ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'
-                                                                : shouldShowAsPopular(plan)
-                                                                  ? 'bg-gradient-purple text-white hover:shadow-lg'
-                                                                  : 'bg-gray-900 text-white hover:bg-gray-800'
-                                                        }`}
-                                                    >
-                                                        {plan.buttonText}
-                                                    </button>
-                                                )}
-                                            </>
+                                            <button
+                                                onClick={() => handleButtonClick(plan)}
+                                                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 ${
+                                                    plan.buttonText === 'Contact Sales'
+                                                        ? 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+                                                        : shouldShowAsPopular(plan)
+                                                          ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                                          : 'bg-gray-900 text-white hover:bg-gray-800'
+                                                }`}
+                                            >
+                                                {plan.buttonText}
+                                            </button>
                                         )}
 
                                         {/* Subtle gradient overlay for popular plan or current plan */}

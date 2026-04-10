@@ -15,7 +15,7 @@ export function MockedChatSection(props: MockedChatSectionProps) {
     const { conversation } = props;
 
     return (
-        <div className="no-scrollbar lg:h-[80vh] w-full">
+        <div className="no-scrollbar w-full max-w-full overflow-hidden lg:h-[80vh] [&>*]:max-w-full">
             <MockedChat
                 // className="debug"
                 title={conversation.title}
