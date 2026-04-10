@@ -22,8 +22,8 @@ import {
 export const aiSupervizeSituationsNote = (
     <>
         Typicky pro týmy s vlastní codebase a pravidelným delivery flow, často ve stacku{' '}
-        <strong>Full-Stack / TypeScript / JavaScript / Next.js</strong>. Když zjistíme, že pro vás AI Supervize
-        vhodná není, řekneme to rovnou a doporučíme jiný postup.
+        <strong>Full-Stack / TypeScript / JavaScript / Next.js</strong>. Když zjistíme, že pro vás AI Supervize vhodná
+        není, řekneme to rovnou a doporučíme jiný postup.
     </>
 );
 
@@ -172,10 +172,7 @@ export const aiSupervizeFocusAreas: FeatureCard[] = [
     {
         icon: Wrench,
         title: 'Editory a prostředí',
-        items: [
-            'VS Code, JetBrains, AI IDE a jejich nastavení.',
-            'Agenti, oprávnění, bezpečnost a lokální workflow.',
-        ],
+        items: ['VS Code, JetBrains, AI IDE a jejich nastavení.', 'Agenti, oprávnění, bezpečnost a lokální workflow.'],
     },
     {
         icon: GitPullRequest,
