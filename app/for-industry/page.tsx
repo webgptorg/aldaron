@@ -4,7 +4,7 @@ import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
+import { HeroSection } from '@/components/hero-section-pro-firmy';
 import { IntegrationsSection } from '@/components/integrations-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
