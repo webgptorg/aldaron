@@ -1,79 +1,34 @@
-import type { PricingFootnote, PricingPlan } from '@/components/pricing-section';
-import { Building, Rocket, Search, Shield, Users } from 'lucide-react';
-
-export interface AiSupervizeJourneyPlan extends PricingPlan {
-    stage: 1 | 2 | 3;
-}
+import { PricingFootnote, PricingPlan } from '@/components/pricing-section';
+import { Building, Rocket, Shield } from 'lucide-react';
 
 export const aiSupervizePricingFootnotes: PricingFootnote[] = [
     {
         id: '*',
-        text: 'Cena prvního kroku (školení ve firmě, online workshop nebo discovery workshop) se při pokračování odečítá z ceny AI Supervize 80 000 Kč.',
+        text: 'Pokud zjistíme, že pro vás AI Supervize není vhodná, discovery workshop neúčtujeme. Pokud pokračujeme, započteme ho do balíčku AI Supervize.',
     },
     {
         id: '**',
-        text: 'Pokud zjistíme, že pro vás AI Supervize není vhodná, discovery workshop neúčtujeme.',
-    },
-    {
-        id: '***',
         text: 'Zatím nejsme plátci DPH, uvedené ceny jsou konečné.',
     },
 ];
 
-export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
-    {
-        name: 'Školení ve firmě',
-        priceMonthly: '40 000',
-        priceYearly: '40 000',
-        currency: 'Kč',
-        period: 'za 3 hodiny',
-        description: 'Tříhodinový blok přímo u vás pro tým, který chce společný základ a bezpečný start s AI.',
-        icon: Building,
-        iconName: 'Building',
-        features: [
-            'Společný kick-off pro tým přímo ve firmě',
-            'Praktický úvod do workflow, bezpečnosti a práce s AI nástroji',
-            'Vhodné jako první krok před navazující AI Supervizí',
-        ],
-        buttonText: 'Chci školení ve firmě',
-        popular: false,
-        stage: 1,
-    },
-    {
-        name: 'Online workshop',
-        priceMonthly: '500',
-        priceYearly: '500',
-        currency: 'Kč',
-        period: 'za hodinu / účastníka',
-        description: 'Online workshop pro tým nebo vybranou skupinu nad konkrétními use-casy a workflow.',
-        icon: Users,
-        iconName: 'Users',
-        features: [
-            'Hands-on práce nad reálnými scénáři vašeho týmu',
-            'Vhodné pro společné nastavení promptů, review a delegace na AI',
-            'Cena se při pokračování odečítá z AI Supervize',
-        ],
-        buttonText: 'Chci online workshop',
-        popular: false,
-        stage: 1,
-    },
+export const aiSupervizePricing: PricingPlan[] = [
     {
         name: 'Discovery workshop',
         priceMonthly: '5 000',
         priceYearly: '5 000',
         currency: 'Kč',
         period: 'za workshop',
-        description: '2-3 hodiny online s CTO nebo Tech Leadem pro rozhodnutí, jak má AI Supervize začít.',
-        icon: Search,
-        iconName: 'Search',
+        description: '2-3 hodiny online s CTO, CEO nebo Tech Leadem.',
+        icon: Building,
+        iconName: 'Building',
         features: [
             'Mapování současného delivery workflow a use-caseů pro AI',
             'Identifikace rizik, bezpečnosti a omezení',
             'Doporučení dalšího postupu a rozhodnutí, zda pokračovat',
         ],
-        buttonText: 'Chci discovery workshop',
+        buttonText: 'Domluvit workshop',
         popular: false,
-        stage: 1,
     },
     {
         name: 'AI Supervize',
@@ -85,7 +40,7 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         icon: Rocket,
         iconName: 'Rocket',
         features: [
-            'Na míru navazuje na zvolený první krok a jeho výstupy',
+            'Discovery workshop, pokud nebyl zvlášť fakturován',
             'Adoption Plan + Playbook + Tool & Model Matrix',
             'Repo/PR šablony a 30/60/90 implementační plán',
             'Workshop nad výsledky a doladění do reality týmu',
@@ -93,7 +48,6 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         ],
         buttonText: 'Chci návrh Supervize',
         popular: true,
-        stage: 2,
     },
     {
         name: 'Follow-up',
@@ -112,6 +66,5 @@ export const aiSupervizePricing: AiSupervizeJourneyPlan[] = [
         ],
         buttonText: 'Chci follow-up',
         popular: false,
-        stage: 3,
     },
 ];

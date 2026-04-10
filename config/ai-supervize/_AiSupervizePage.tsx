@@ -6,7 +6,7 @@ import { FeatureCardsSection } from '@/components/feature-cards-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { PlaygroundSection } from '@/components/playground-section';
-import { AiSupervizeJourneySection } from '@/config/ai-supervize/AiSupervizeJourneySection';
+import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
 import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
@@ -35,17 +35,17 @@ export function AiSupervizePage() {
             <Suspense>
                 <BusinessGetStartedModal
                     placeName="AiSupervizePage"
-                    title="Domluvme první krok k AI Supervizi"
+                    title="Domluvme si AI Supervizi pro váš tým"
                     requestSent="Poptávka odeslána!"
-                    specialistContact="Ozveme se vám co nejdříve s návrhem nejvhodnějšího startu."
+                    specialistContact="Ozveme se vám co nejdříve s návrhem dalšího kroku."
                     ceoOf="CEO AI Web s.r.o."
-                    description="Stačí e-mail nebo telefon. Společně vybereme, jestli má váš tým začít školením ve firmě, online workshopem nebo discovery workshopem."
+                    description="Stačí e-mail nebo telefon. Během krátkého discovery workshopu zjistíte, jestli AI Supervize vašemu týmu skutečně přinese hodnotu."
                     emailPlaceholder="jmeno@firma.cz"
                     phonePlaceholder="+420 777 000 000"
                     errorNoEmailOrPhone="Zadejte prosím e-mail nebo telefonní číslo."
                     genericErrorMessage="Nastala chyba. Zkuste to prosím znovu."
                     sending="Odesílání..."
-                    scheduleCall="Domluvit první krok"
+                    scheduleCall="Domluvit workshop"
                 />
             </Suspense>
 
@@ -55,7 +55,7 @@ export function AiSupervizePage() {
                     whyPromptbookText="Přínosy"
                     integrationsText="Výstupy"
                     pricingText="Ceník"
-                    getStartedText="Domluvit první krok"
+                    getStartedText="Domluvit workshop"
                 />
 
                 {/* ── Hero Section ── */}
@@ -103,7 +103,7 @@ export function AiSupervizePage() {
                                             size="lg"
                                             className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                                         >
-                                            Domluvit první krok
+                                            Domluvit discovery workshop
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
@@ -195,8 +195,8 @@ export function AiSupervizePage() {
                 />
 
                 <FeatureCardsSection
-                    title="Jak spolupráce funguje"
-                    description="Můžete začít školením, týmovým workshopem nebo discovery workshopem, ale všechny cesty vedou k jedné AI Supervizi a navazujícímu follow-upu."
+                    title="Jak AI Supervize probíhá"
+                    description="Spolupráce je navržená tak, aby vedla k rozhodnutí, zavedení i průběžnému vyhodnocování, ne jen k jednorázovému workshopu."
                     cards={aiSupervizeProcess}
                     columns={3}
                     tone="muted"
@@ -244,14 +244,14 @@ export function AiSupervizePage() {
                     }
                 />
 
-                <AiSupervizeJourneySection
+                <PricingSection
                     title="Jak AI Supervize probíhá krok za krokem"
-                    description="První krok může být různý podle typu týmu a cíle. Jakmile navážeme AI Supervizí, cenu vstupního kroku od ní odečteme."
+                    description="Nejde o výběr plánu – projdete postupně všemi třemi fázemi. Začínáte discovery workshopem a dle výsledků pokračujete dál."
                     plans={aiSupervizePricing}
                     footnotes={aiSupervizePricingFootnotes}
-                    entryStepNote="Cena zvoleného prvního kroku se při pokračování odečítá z ceny AI Supervize 80 000 Kč."
-                    followUpNote="Po zavedení AI Supervize pokračujeme měsíčním follow-upem, vyhodnocováním dopadu a úpravami workflow."
-                    closingText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, kde má AI ve vašem vývoji skutečně fungovat."
+                    showBillingToggle={false}
+                    stepsMode={true}
+                    openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, kde má AI ve vašem vývoji skutečně fungovat."
                 />
 
                 {isLocalhost && <PlaygroundSection />}
