@@ -1,4 +1,4 @@
-[ ]
+[x] ~$0.00 9 minutes by GitHub Copilot `gpt-5.4`
 
 [✨🥣] Možnost školení a workshopu k AI Supervizi
 

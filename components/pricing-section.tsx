@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { motion } from 'framer-motion';
-import { Check, Crown } from 'lucide-react';
+import { ArrowDown, Check, Crown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ElementType, useState } from 'react';
@@ -33,6 +33,8 @@ const iconColorMap: Record<string, string> = {
     Zap: 'bg-yellow-500',
     Shield: 'bg-blue-500',
     Building: 'bg-purple-500',
+    Users: 'bg-cyan-500',
+    Search: 'bg-amber-500',
     Rocket: 'bg-pink-500',
 };
 
@@ -42,6 +44,12 @@ export interface PricingSectionProps {
     showBillingToggle?: boolean;
     /** Render plans as sequential stages instead of selectable side-by-side cards */
     stepsMode?: boolean;
+    /** Group step plans into stages, e.g. [[0,1,2],[3],[4]] */
+    stepsGroups?: number[][];
+    /** Optional labels shown above grouped stages */
+    stepsGroupLabels?: string[];
+    /** Optional helper copy shown between grouped stages */
+    stepsGroupTransitions?: string[];
     currentPlan?: 'FREE' | 'PRO' | 'ENTERPRISE' | 'STANDARD' | 'ADVANCED';
     plans: PricingPlan[];
     footnotes?: PricingFootnote[];
@@ -58,6 +66,9 @@ export function PricingSection({
     isFrame,
     showBillingToggle = true,
     stepsMode = false,
+    stepsGroups,
+    stepsGroupLabels = [],
+    stepsGroupTransitions = [],
     currentPlan,
     plans,
     footnotes = [],
@@ -78,7 +89,7 @@ export function PricingSection({
     };
 
     // Helper function to determine if a plan should show as popular
-    const shouldShowAsPopular = (plan: any) => {
+    const shouldShowAsPopular = (plan: PricingPlan) => {
         // If currentPlan is specified, don't show "Most Popular" for any plan
         if (currentPlan) return false;
         // Otherwise, use the original popular flag
@@ -88,6 +99,82 @@ export function PricingSection({
     const handleButtonClick = (planName: string) => {
         const planSlug = planName.toLowerCase().replace(/\s+/g, '-');
         router.push(`?modal=get-started&plan=${encodeURIComponent(planSlug)}`, { scroll: false });
+    };
+
+    const groupedStepPlans =
+        stepsGroups?.map((group) =>
+            group
+                .map((planIndex) => plans[planIndex])
+                .filter((plan): plan is PricingPlan => Boolean(plan)),
+        ) ?? [];
+
+    const hasGroupedSteps = stepsMode && groupedStepPlans.length > 0;
+
+    const renderStepsCard = (plan: PricingPlan) => {
+        const isHighlighted = shouldShowAsPopular(plan) || isCurrentPlan(plan.name);
+
+        return (
+            <div
+                className={`relative flex h-full flex-col overflow-hidden rounded-3xl border bg-white p-6 transition-all duration-300 ${
+                    isHighlighted
+                        ? 'border-primary shadow-xl ring-1 ring-primary/10'
+                        : 'border-gray-100 shadow-md hover:-translate-y-1 hover:shadow-xl'
+                }`}
+            >
+                {isHighlighted && (
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
+                )}
+
+                <div className="relative flex h-full flex-col">
+                    <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex items-center gap-3">
+                            <div
+                                className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl ${
+                                    iconColorMap[plan.iconName] || 'bg-gray-500'
+                                }`}
+                            >
+                                <plan.icon className="h-5 w-5 text-white" />
+                            </div>
+
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
+                                <p className="text-sm leading-relaxed text-gray-500">{plan.description}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex-shrink-0 text-left sm:text-right">
+                            <div className="text-2xl font-bold text-gray-900">
+                                {plan.priceMonthly}
+                                {plan.currency && ` ${plan.currency}`}
+                            </div>
+                            {plan.period && <div className="text-sm text-gray-500">{plan.period}</div>}
+                        </div>
+                    </div>
+
+                    <ul className="mt-5 flex-grow space-y-3">
+                        {plan.features.map((feature, featureIndex) => (
+                            <li key={featureIndex} className="flex items-start gap-3">
+                                <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100">
+                                    <Check className="h-3 w-3 text-green-600" />
+                                </div>
+                                <span className="text-sm leading-relaxed text-gray-700">{feature}</span>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <button
+                        onClick={() => handleButtonClick(plan.name)}
+                        className={`mt-6 w-full rounded-xl px-5 py-3 text-sm font-semibold transition-colors duration-200 ${
+                            shouldShowAsPopular(plan)
+                                ? 'bg-gradient-purple text-white hover:shadow-lg'
+                                : 'bg-gray-900 text-white hover:bg-gray-800'
+                        }`}
+                    >
+                        {plan.buttonText}
+                    </button>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -121,7 +208,70 @@ export function PricingSection({
                     )}
 
                     {/* ── Steps mode: sequential stages ── */}
-                    {stepsMode && (
+                    {hasGroupedSteps && (
+                        <div className="mt-12 mx-auto max-w-6xl">
+                            {groupedStepPlans.map((group, stageIndex) => {
+                                const isLastStage = stageIndex === groupedStepPlans.length - 1;
+                                const stageLabel = stepsGroupLabels[stageIndex];
+                                const transitionText = stepsGroupTransitions[stageIndex];
+
+                                return (
+                                    <div key={`stage-${stageIndex}`} className="relative">
+                                        <div className="mb-6 flex flex-col items-center text-center">
+                                            <div
+                                                className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white shadow-lg ${
+                                                    stageIndex === 0
+                                                        ? 'bg-blue-500'
+                                                        : stageIndex === 1
+                                                          ? 'bg-indigo-600'
+                                                          : 'bg-purple-600'
+                                                }`}
+                                            >
+                                                {stageIndex + 1}
+                                            </div>
+
+                                            {stageLabel && (
+                                                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-indigo-700">
+                                                    {stageLabel}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className={group.length === 1 ? 'mx-auto w-full max-w-2xl' : 'grid gap-6 md:grid-cols-2 xl:grid-cols-3'}>
+                                            {group.map((plan, planIndex) => (
+                                                <motion.div
+                                                    key={`${plan.name}-${stageIndex}-${planIndex}`}
+                                                    initial={{ opacity: 0, y: 24 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.5, delay: stageIndex * 0.12 + planIndex * 0.08 }}
+                                                    className={group.length === 1 ? 'w-full' : undefined}
+                                                >
+                                                    {renderStepsCard(plan)}
+                                                </motion.div>
+                                            ))}
+                                        </div>
+
+                                        {!isLastStage && (
+                                            <div className="my-8 flex flex-col items-center gap-3 text-center">
+                                                {transitionText && (
+                                                    <p className="max-w-2xl rounded-full border border-indigo-100 bg-white/90 px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+                                                        {transitionText}
+                                                    </p>
+                                                )}
+
+                                                <div className="flex flex-col items-center">
+                                                    <div className="h-12 w-px bg-gradient-to-b from-cyan-300 via-indigo-300 to-purple-400" />
+                                                    <ArrowDown className="h-5 w-5 text-indigo-500" />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {stepsMode && !hasGroupedSteps && (
                         <div className="mt-12 max-w-3xl mx-auto space-y-0">
                             {plans.map((plan, index) => {
                                 const isLast = index === plans.length - 1;

@@ -35,17 +35,17 @@ export function AiSupervizePage() {
             <Suspense>
                 <BusinessGetStartedModal
                     placeName="AiSupervizePage"
-                    title="Domluvme si AI Supervizi pro váš tým"
+                    title="Domluvme první krok k AI Supervizi"
                     requestSent="Poptávka odeslána!"
                     specialistContact="Ozveme se vám co nejdříve s návrhem dalšího kroku."
                     ceoOf="CEO AI Web s.r.o."
-                    description="Stačí e-mail nebo telefon. Během krátkého discovery workshopu zjistíte, jestli AI Supervize vašemu týmu skutečně přinese hodnotu."
+                    description="Stačí e-mail nebo telefon. Vybereme, jestli je pro váš tým nejlepší školení ve firmě, online workshop, nebo discovery s CTO či Tech Leadem."
                     emailPlaceholder="jmeno@firma.cz"
                     phonePlaceholder="+420 777 000 000"
                     errorNoEmailOrPhone="Zadejte prosím e-mail nebo telefonní číslo."
                     genericErrorMessage="Nastala chyba. Zkuste to prosím znovu."
                     sending="Odesílání..."
-                    scheduleCall="Domluvit workshop"
+                    scheduleCall="Domluvit první krok"
                 />
             </Suspense>
 
@@ -55,7 +55,7 @@ export function AiSupervizePage() {
                     whyPromptbookText="Přínosy"
                     integrationsText="Výstupy"
                     pricingText="Ceník"
-                    getStartedText="Domluvit workshop"
+                    getStartedText="Domluvit první krok"
                 />
 
                 {/* ── Hero Section ── */}
@@ -103,7 +103,7 @@ export function AiSupervizePage() {
                                             size="lg"
                                             className="bg-promptbook-blue-dark text-white hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-lg px-8 py-6 rounded-full"
                                         >
-                                            Domluvit discovery workshop
+                                            Domluvit první krok
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
@@ -196,7 +196,7 @@ export function AiSupervizePage() {
 
                 <FeatureCardsSection
                     title="Jak AI Supervize probíhá"
-                    description="Spolupráce je navržená tak, aby vedla k rozhodnutí, zavedení i průběžnému vyhodnocování, ne jen k jednorázovému workshopu."
+                    description="Spolupráce může začít školením ve firmě, online workshopem nebo discovery blokem a pak pokračuje do konkrétní AI Supervize i follow-upu."
                     cards={aiSupervizeProcess}
                     columns={3}
                     tone="muted"
@@ -245,13 +245,19 @@ export function AiSupervizePage() {
                 />
 
                 <PricingSection
-                    title="Jak AI Supervize probíhá krok za krokem"
-                    description="Nejde o výběr plánu – projdete postupně všemi třemi fázemi. Začínáte discovery workshopem a dle výsledků pokračujete dál."
+                    title="Možnosti startu a další spolupráce"
+                    description="Začít můžete školením ve firmě, online workshopem nebo discovery workshopem. Pokud pak navážete AI Supervizí, cenu prvního kroku odečteme z balíčku 80 000 Kč."
                     plans={aiSupervizePricing}
                     footnotes={aiSupervizePricingFootnotes}
                     showBillingToggle={false}
                     stepsMode={true}
-                    openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, kde má AI ve vašem vývoji skutečně fungovat."
+                    stepsGroups={[[0, 1, 2], [3], [4]]}
+                    stepsGroupLabels={['Start AI Supervize', 'AI Supervize', 'Follow-up']}
+                    stepsGroupTransitions={[
+                        'Zvolíme nejvhodnější vstup pro váš tým. Pokud navážete AI Supervizí, cenu prvního kroku odečteme z balíčku.',
+                        'Jakmile jsou pravidla, playbook a šablony zavedené, můžete pokračovat lehčím měsíčním follow-upem.',
+                    ]}
+                    openSourceGuaranteeText="Nezačínáte nákupem dalšího AI toolu. Začínáte rozhodnutím, jaký první krok dává vašemu týmu největší smysl."
                 />
 
                 {isLocalhost && <PlaygroundSection />}
