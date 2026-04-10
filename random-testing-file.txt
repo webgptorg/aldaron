@@ -1,2 +1,0 @@
-This is a random testing file in the repository root.
-It is intentionally not used by the application.
