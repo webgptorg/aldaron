@@ -25,6 +25,19 @@ type HeaderProps = {
      * Override the default "Promptbook" brand name shown next to the logo
      */
     brandName?: ReactNode;
+    /**
+     * Optional FOMO / urgency text shown in the center of the header (hidden on mobile).
+     * Example: "🔥 Zbývá 7 míst z 10 pro strategický hovor zdarma"
+     */
+    fomoText?: ReactNode;
+    /**
+     * Override the CTA href (defaults to "?modal=get-started")
+     */
+    ctaHref?: string;
+    /**
+     * Short CTA label for mobile (defaults to getStartedText)
+     */
+    ctaShortText?: string;
 };
 
 export function Header(props: HeaderProps) {
@@ -37,6 +50,9 @@ export function Header(props: HeaderProps) {
         getStartedText = 'Get Started',
         brandLogo,
         brandName,
+        fomoText,
+        ctaHref = '?modal=get-started',
+        ctaShortText,
     } = props;
 
     const scrollToSection = (sectionId: string) => {
@@ -51,7 +67,10 @@ export function Header(props: HeaderProps) {
             <div className="container mx-auto px-4">
                 <div className="flex h-16 min-w-0 items-center justify-between gap-3">
                     {/* Logo */}
-                    <Link href="/" className="flex min-w-0 items-center gap-2 transition-opacity hover:opacity-80 sm:gap-3">
+                    <Link
+                        href="/"
+                        className="flex min-w-0 items-center gap-2 transition-opacity hover:opacity-80 sm:gap-3"
+                    >
                         {brandLogo ?? (
                             <Image
                                 src={promptbookLogoBlueTransparent}
@@ -71,7 +90,7 @@ export function Header(props: HeaderProps) {
                     </Link>
 
                     {/* Navigation */}
-                    {!isBare && (
+                    {!isBare && !fomoText && (
                         <nav className="hidden md:flex items-center gap-8">
                             {tryItYourselfText && (
                                 <button
@@ -102,11 +121,19 @@ export function Header(props: HeaderProps) {
                         </nav>
                     )}
 
+                    {/* FOMO / urgency text — replaces nav when provided */}
+                    {fomoText && (
+                        <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">{fomoText}</div>
+                    )}
+
                     {/* CTA Button */}
                     {!isBare && (
-                        <Link href="?modal=get-started" className="shrink-0">
+                        <Link href={ctaHref} className="shrink-0">
                             <Button className="max-w-[11rem] gap-1 bg-promptbook-blue-dark px-3 text-xs text-white hover:bg-promptbook-blue-dark/90 sm:max-w-none sm:px-4 sm:text-sm">
-                                <span className="truncate">{getStartedText}</span>
+                                {ctaShortText && <span className="truncate sm:hidden">{ctaShortText}</span>}
+                                <span className={ctaShortText ? 'hidden truncate sm:inline' : 'truncate'}>
+                                    {getStartedText}
+                                </span>
                                 <ArrowRight className="h-4 w-4 shrink-0" />
                             </Button>
                         </Link>
