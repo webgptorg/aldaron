@@ -8,7 +8,11 @@
         "start": "next start",
         "lint": "next lint",
         "test-types": "tsc",
-        "export": "next build"
+        "export": "next build",
+        "coder:generate-boilerplates": "npx ptbk coder generate-boilerplates",
+        "coder:run": "npx ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --context AGENTS.md --no-wait",
+        "coder:find-refactor-candidates": "npx ptbk coder find-refactor-candidates",
+        "coder:verify": "npx ptbk coder verify"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.0.1",
