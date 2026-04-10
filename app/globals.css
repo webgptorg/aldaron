@@ -108,3 +108,10 @@ body > nextjs-portal {
 .debug {
     border: 1px dotted red !important;
 }
+
+/* Disable MockedChat internal animations (slide-in, fade, pulse) to prevent blinking */
+.no-chat-animations * {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+}
