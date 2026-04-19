@@ -1,5 +1,6 @@
 'use client';
 
+import { TODO_any } from '@promptbook/types';
 import dynamic from 'next/dynamic';
 
 const PromptbookMarkdownContent = dynamic(
@@ -8,5 +9,5 @@ const PromptbookMarkdownContent = dynamic(
 );
 
 export function MarkdownContent(props: Record<string, unknown>) {
-    return <PromptbookMarkdownContent {...props} />;
+    return <PromptbookMarkdownContent {...(props as TODO_any)} />;
 }

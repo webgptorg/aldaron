@@ -56,6 +56,8 @@ export function MockedChatSection(props: MockedChatSectionProps) {
                 }}
                 participants={participants}
                 messages={messages}
+                visual="STANDALONE"
+                CHAT_VISUAL_MODE="BUBBLE_MODE"
             />
         </div>
     );
