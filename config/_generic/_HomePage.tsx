@@ -42,6 +42,10 @@ export const metadata: Metadata = {
 };
 */
 
+
+/**
+ * @deprecated using new page from Neonmedia
+ */
 export function OldHomePageComponent() {
     const isLocalhost = useIsLocalhost();
 

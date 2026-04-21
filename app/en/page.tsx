@@ -5,5 +5,5 @@ import { Metadata } from 'next';
 export const metadata: Metadata = proFirmyMetadata;
 
 export default function HomePage() {
-    return <ProFirmyPage />; // <- TODO: Redirect to cs/en based on browser language
+    return <ProFirmyPage />; // <- TODO: Make in english
 }
