@@ -13,6 +13,7 @@ interface PageProps {
 }
 
 async function getShortcodeLink(shortcode: string) {
+    if (!supabase) return null;
     const result = await supabase
         .from('ShortcodeLink')
         .select('id, url, landingPage')
@@ -102,7 +103,7 @@ export default async function Page({ params }: PageProps) {
         const isLocalhost = /^https?:\/\/localhost(:[0-9]+)?/.test(selectedUrl);
 
         if (data.landingPage || (isLocalhost && !data.landingPage)) {
-            const { data: clickData, error: clickError } = await supabase
+            const { data: clickData, error: clickError } = supabase ? await supabase
                 .from('ShortcodeLinkClick')
                 .insert({
                     shortcodeLinkId: data.id,
@@ -115,7 +116,7 @@ export default async function Page({ params }: PageProps) {
                     clickedAt: null,
                 })
                 .select('id')
-                .single();
+                .single() : { data: null, error: null };
 
             if (clickError) {
                 console.error('Error creating click record:', clickError);
@@ -205,7 +206,7 @@ export default async function Page({ params }: PageProps) {
                 </div>
             );
         } else {
-            await supabase.from('ShortcodeLinkClick').insert({
+            if (supabase) await supabase.from('ShortcodeLinkClick').insert({
                 shortcodeLinkId: data.id,
                 userAgent,
                 referer,

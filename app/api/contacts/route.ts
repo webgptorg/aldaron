@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = createSupabaseClient();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     let query = supabase.from('Contact').select('*').order('createdAt', { ascending: false });
     if (!showAll) {
         query = query.eq('isContacted', false);
@@ -35,6 +36,7 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
     const supabase = createSupabaseClient();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     const { error } = await supabase.from('Contact').update({ ourNote, isContacted }).eq('id', id);
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -52,6 +54,7 @@ export async function POST(req: NextRequest) {
     const { fullname, email, phone, userNote, appName, placeName } = body as any;
 
     const supabase = createSupabaseClient();
+    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     const { data, error } = await supabase
         .from('Contact')
         .insert({
