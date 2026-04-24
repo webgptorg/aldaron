@@ -3,8 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
+html, body {
     overflow-x: hidden;
 }
 
@@ -92,12 +91,7 @@ body {
         @apply bg-background text-foreground;
         font-family: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
     }
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
+    h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-outfit), 'Outfit', ui-sans-serif, system-ui, sans-serif;
     }
 }
@@ -119,13 +113,18 @@ body > nextjs-portal {
     background-color: var(--promptbook-blue-dark);
 }
 
-.debug {
-    border: 1px dotted red !important;
+@keyframes gridScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
 }
 
-/* Disable MockedChat internal animations (slide-in, fade, pulse) to prevent blinking */
-.no-chat-animations * {
-    animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
+@keyframes lightSweep {
+    0% { transform: translateX(-30%) rotate(-45deg); }
+    50% { transform: translateX(80%) rotate(-45deg); }
+    100% { transform: translateX(-30%) rotate(-45deg); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.15); }
 }

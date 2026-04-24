@@ -7,7 +7,7 @@ import { useState } from 'react';
 const faqs = [
     {
         question: 'Nevymýšlí si to odpovědi? Jak můžu věřit AI?',
-        answer: 'Promptbook funguje na principu RAG — čerpá výhradně z dokumentů, které do něj sami nahrajete. Když odpověď ve vašich datech není, narovinu to přizná. Žádné halucinace, žádné sebevědomé vymýšlení. A každá odpověď obsahuje odkaz na zdrojový dokument, takže si ji snadno ověříte.',
+        answer: 'Promptbook čerpá výhradně z dokumentů, které do něj sami nahrajete. Když odpověď ve vašich datech není, narovinu to přizná. Žádné halucinace, žádné sebevědomé vymýšlení. A každá odpověď obsahuje odkaz na zdrojový dokument, takže si ji snadno ověříte.',
     },
     {
         question: 'Je to bezpečné pro citlivá firemní data?',
@@ -15,7 +15,7 @@ const faqs = [
     },
     {
         question: 'Musím školit zaměstnance?',
-        answer: 'Ne. To je celý princip Zero-Prompt. Vaši lidé jsou experti na svůj obor, ne ajťáci. Zeptají se normální češtinou — písemně nebo hlasovkou — jako by psali zprávu kolegovi. Žádné prompty, žádné školení.',
+        answer: 'Ne. Vaši lidé jsou experti na svůj obor, ne ajťáci. Zeptají se normální češtinou - písemně nebo hlasovkou - jako by psali zprávu kolegovi. Žádné prompty, žádné školení.',
     },
     {
         question: 'Jak dlouho trvá nasazení?',
@@ -23,11 +23,11 @@ const faqs = [
     },
     {
         question: 'Nahradí to lidi ve firmě?',
-        answer: 'Ne. Promptbook automatizuje tu „pěnu dní" — rutinní dotazy, hledání PDFek, opakované odpovídání na to samé dokola. Vaši lidé díky tomu mají čas na smysluplnou práci a skutečnou spolupráci. Nenahrazujeme lidskou komunikaci — odstraňujeme tu její část, která všechny štve.',
+        answer: 'Ne. Promptbook automatizuje tu pěnu dní - rutinní dotazy, hledání PDFek, opakované odpovídání na to samé dokola. Vaši lidé díky tomu mají čas na smysluplnou práci a skutečnou spolupráci. Nenahrazujeme lidskou komunikaci - odstraňujeme tu její část, která všechny štve.',
     },
     {
         question: 'Kolik to stojí?',
-        answer: 'Na strategickém hovoru vám připravíme nabídku přesně na míru vaší firmě. Hovor je zdarma a nezávazný — i kdybyste se rozhodli Promptbook nepoužívat, odnesete si konkrétní strategii, jak vyřešit chaos ve firemních datech.',
+        answer: 'Na strategickém hovoru vám připravíme nabídku přesně na míru vaší firmě. Hovor je zdarma a nezávazný - i kdybyste se rozhodli Promptbook nepoužívat, odnesete si konkrétní strategii, jak vyřešit chaos ve firemních datech.',
     },
 ];
 
@@ -68,7 +68,7 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
 
 export function FAQSection() {
     return (
-        <section className="relative py-24 bg-white overflow-hidden">
+        <section className="relative pt-[50px] pb-24 bg-white overflow-hidden">
             <div className="max-w-3xl mx-auto px-6 relative z-10">
                 {/* Header */}
                 <motion.div
@@ -82,7 +82,7 @@ export function FAQSection() {
                         Časté otázky
                     </p>
                     <h2
-                        className="text-2xl sm:text-3xl lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight"
+                        className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight"
                         style={{ lineHeight: 1.2 }}
                     >
                         Máte otázky?{' '}
