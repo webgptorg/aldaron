@@ -9,6 +9,10 @@ export async function POST(request: Request) {
             return new NextResponse('clickId is required and must be a number', { status: 400 });
         }
 
+        if (!supabase) {
+            return new NextResponse('Database not configured', { status: 503 });
+        }
+
         const { error } = await supabase
             .from('ShortcodeLinkClick')
             .update({ clickedAt: new Date().toISOString() })

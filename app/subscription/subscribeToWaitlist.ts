@@ -31,6 +31,11 @@ export async function subscribeToWaitlist(email: string, placeName: string, phon
     // Fetch IP address
     const ipAddress = await fetchIpAddress();
 
+    if (!supabase) {
+        console.warn('Supabase not configured - subscription skipped');
+        return;
+    }
+
     const { error: supabaseError } = await supabase.from('Contact').insert([
         {
             email: email || null,

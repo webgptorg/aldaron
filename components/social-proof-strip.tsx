@@ -1,7 +1,23 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Building2, GraduationCap, HardHat, Landmark, Scale, Stethoscope } from 'lucide-react';
+import {
+    Building2,
+    Scale,
+    HardHat,
+    Landmark,
+    Stethoscope,
+    GraduationCap,
+    Truck,
+    Zap,
+    Monitor,
+    ShieldCheck,
+    FlaskConical,
+    ShoppingCart,
+    Calculator,
+    Radio,
+} from 'lucide-react';
+import { InfiniteSlider } from '@/components/ui/infinite-slider';
 
 const industries = [
     { icon: Building2, label: 'Výrobní firmy' },
@@ -10,11 +26,19 @@ const industries = [
     { icon: Landmark, label: 'Veřejná správa' },
     { icon: Stethoscope, label: 'Zdravotnictví' },
     { icon: GraduationCap, label: 'Vzdělávání' },
+    { icon: Truck, label: 'Logistika' },
+    { icon: Zap, label: 'Energetika' },
+    { icon: Monitor, label: 'IT firmy' },
+    { icon: ShieldCheck, label: 'Pojišťovnictví' },
+    { icon: FlaskConical, label: 'Farmaceutický průmysl' },
+    { icon: ShoppingCart, label: 'E-commerce' },
+    { icon: Calculator, label: 'Účetní kanceláře' },
+    { icon: Radio, label: 'Telekomunikace' },
 ];
 
 export function SocialProofStrip() {
     return (
-        <section className="relative py-16 bg-white border-y border-gray-100">
+        <section className="relative py-14 bg-white border-y border-gray-100">
             <div className="max-w-6xl mx-auto px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -23,30 +47,39 @@ export function SocialProofStrip() {
                     transition={{ duration: 0.6 }}
                     className="text-center"
                 >
-                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-10">
+                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-8">
                         Navrženo pro firmy, které berou svá data vážně
                     </p>
-
-                    <div className="flex flex-wrap justify-center gap-x-10 gap-y-6">
-                        {industries.map((industry, i) => (
-                            <motion.div
-                                key={industry.label}
-                                initial={{ opacity: 0, y: 10 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: i * 0.08 }}
-                                className="flex items-center gap-2.5 group"
-                            >
-                                <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-cyan-50 group-hover:to-blue-50 group-hover:border-cyan-200/50 transition-all duration-300">
-                                    <industry.icon className="w-4 h-4 text-gray-400 group-hover:text-[#0891b2] transition-colors duration-300" />
-                                </div>
-                                <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300">
-                                    {industry.label}
-                                </span>
-                            </motion.div>
-                        ))}
-                    </div>
                 </motion.div>
+            </div>
+
+            {/* Marquee container – full width with edge blur */}
+            <div className="relative">
+                {/* Left progressive blur */}
+                <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-[120px] bg-gradient-to-r from-white to-transparent" />
+                {/* Right progressive blur */}
+                <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-[120px] bg-gradient-to-l from-white to-transparent" />
+
+                <InfiniteSlider
+                    gap={48}
+                    duration={80}
+                    durationOnHover={160}
+                    className="py-2"
+                >
+                    {industries.map((industry) => (
+                        <div
+                            key={industry.label}
+                            className="flex items-center gap-2.5 group shrink-0 select-none"
+                        >
+                            <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-cyan-50 group-hover:to-blue-50 group-hover:border-cyan-200/50 transition-all duration-300">
+                                <industry.icon className="w-4 h-4 text-gray-400 group-hover:text-[#0891b2] transition-colors duration-300" />
+                            </div>
+                            <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300 whitespace-nowrap">
+                                {industry.label}
+                            </span>
+                        </div>
+                    ))}
+                </InfiniteSlider>
             </div>
         </section>
     );
