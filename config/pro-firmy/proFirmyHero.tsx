@@ -1,5 +1,6 @@
 'use client';
 
+import { MarkdownContent } from '@/components/markdown-content';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, FileText, Shield, Sparkles } from 'lucide-react';
@@ -10,14 +11,14 @@ const chatMessages = [
     {
         id: 1,
         type: 'user' as const,
-        text: 'Ahoj, jsem nová zaměstnankyně a potřebuju najít informace o dovolenkové politice firmy. Může mi někdo pomoct?',
+        text: 'Ahoj, jsem tu nová zaměstnankyně a potřebuju najít informace o dovolenkové politice firmy. Může mi někdo pomoct?',
         startDelay: 0,
         static: true,
     },
     {
         id: 2,
         type: 'bot' as const,
-        text: 'Vítejte ve firmě, Anno! Všechny informace o dovolenkové politice najdete v naší interní znalostní bázi. Máte nárok na 25 dní dovolené ročně.',
+        text: 'Vítejte ve firmě, Anno! Všechny informace o dovolenkové politice najdete v naší interní znalostní bázi. Máte nárok na **25 dní dovolené ročně**.',
         startDelay: 2000,
         static: false,
     },
@@ -65,7 +66,7 @@ function TypewriterBubble({ text, type, onComplete }: { text: string; type: 'use
                     : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
             }`}
         >
-            {displayedText}
+            <MarkdownContent content={displayedText} />
             <span className="inline-block w-[2px] h-[14px] bg-gray-400 ml-[1px] align-middle animate-pulse" />
         </div>
     );
@@ -80,7 +81,7 @@ function CompletedBubble({ text, type }: { text: string; type: 'user' | 'bot' })
                     : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
             }`}
         >
-            {text}
+            <MarkdownContent content={text} />
         </div>
     );
 }
@@ -179,8 +180,8 @@ export function ProFirmyHeroSection() {
                             </h1>
 
                             <p className="text-[17px] sm:text-lg text-gray-500 leading-[1.7] max-w-lg tracking-[0.01em]">
-                                Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový
-                                zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
+                                Promptbook přečte stovky tisíc normostran vašich dokumentů a&nbsp;odpoví na cokoliv.
+                                Nový zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
                             </p>
                         </div>
 

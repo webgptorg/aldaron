@@ -11,7 +11,7 @@ const steps = [
         icon: Upload,
         title: 'Nahrajete dokumenty',
         description:
-            'Směrnice, smlouvy, manuály, NDAčka, zápisy z porad — cokoliv, co dnes leží rozházené po SharePointu, Google Disku nebo v šuplíku. Promptbook pojme až milion normostran.',
+            'Směrnice, smlouvy, manuály, NDAčka, zápisy z porad — cokoliv, co dnes leží rozházené po SharePointu, Google Disku nebo v šuplíku. Promptbook pojme stovky tisíc normostran textu.',
         gradient: 'from-cyan-500 to-blue-500',
     },
     {

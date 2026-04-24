@@ -54,7 +54,7 @@ const questions: Question[] = [
     },
     {
         id: 'name',
-        question: 'Jak vám říkáte?',
+        question: 'Jak vám budeme říkat?',
         type: 'text',
         placeholder: 'Vaše jméno',
         required: true,
