@@ -1,8 +1,6 @@
-//import type { string_book } from '@promptbook/types';
-
 // Note: [📖] Allow books to be imported:
 declare module '*.book' {
-    const content: string_book;
+    const content: import('@promptbook/types').string_book;
     export default content;
 }
 

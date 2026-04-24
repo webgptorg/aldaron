@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="cyanGlow" cx="18%" cy="24%" r="70%">
+      <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.9" />
+      <stop offset="45%" stop-color="#0f766e" stop-opacity="0.42" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="amberGlow" cx="84%" cy="72%" r="78%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.55" />
+      <stop offset="48%" stop-color="#7c2d12" stop-opacity="0.24" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="52%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+
+    <pattern id="grid" width="84" height="84" patternUnits="userSpaceOnUse">
+      <path d="M 84 0 L 0 0 0 84" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1" />
+    </pattern>
+
+    <filter id="grain" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="3" seed="7" result="noise" />
+      <feColorMatrix in="noise" type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.18" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#base)" />
+  <rect width="1920" height="1080" fill="url(#cyanGlow)" />
+  <rect width="1920" height="1080" fill="url(#amberGlow)" />
+  <rect width="1920" height="1080" fill="url(#grid)" />
+
+  <g opacity="0.22">
+    <circle cx="340" cy="280" r="190" fill="none" stroke="#67e8f9" stroke-width="1.5" />
+    <circle cx="1480" cy="760" r="240" fill="none" stroke="#fbbf24" stroke-width="1.5" />
+    <path d="M230 780 C 430 640, 590 610, 880 680 S 1420 860, 1710 710" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2" />
+    <path d="M1110 190 C 1280 250, 1440 250, 1630 170" fill="none" stroke="#67e8f9" stroke-opacity="0.28" stroke-width="2" />
+  </g>
+
+  <rect width="1920" height="1080" filter="url(#grain)" opacity="0.9" />
+</svg>

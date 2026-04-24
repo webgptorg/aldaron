@@ -5,49 +5,87 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { WaitlistPopup } from '@/components/waitlist-popup';
-import { getLandingBehavior, getRedirectUrl } from '@/lib/landing-behavior';
-import { shouldShowWaitlist } from '@/lib/waitlist';
-import { useRouter, useSearchParams } from 'next/navigation';
+import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
+import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
-export function Footer() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+interface FooterProps {
+    productHeader?: string;
+    productLinks?: { href: string; text: string }[];
+    companyHeader?: string;
+    companyLinks?: { href: string; text: string }[];
+    connectHeader?: string;
+    connectLinks?: { href: string; text: string }[];
+    stayUpdatedHeader?: string;
+    emailLabel?: string;
+    emailPlaceholder?: string;
+    consentLabel?: string;
+    consentErrorMessage?: string;
+    subscribeButtonText?: string;
+    subscribingButtonText?: string;
+    successMessage?: string;
+    genericErrorMessage?: string;
+    rightsReservedText?: string;
+    projectFundingText?: React.ReactNode;
+}
+
+export function Footer({
+    productHeader = 'Product',
+    productLinks = [
+        { href: '?modal=get-started', text: 'Get started' },
+        { href: 'https://ptbk.io/manifest', text: 'Manifest' },
+        { href: 'https://github.com/webgptorg/promptbook', text: 'Documentation' },
+        { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+    ],
+    companyHeader = 'Company',
+    companyLinks = [
+        {
+            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+            text: 'AI Web s.r.o.',
+        },
+        { href: 'https://ptbk.io/about', text: 'About Us' },
+        { href: 'https://ptbk.io/blog', text: 'Blog' },
+    ],
+    connectHeader = 'Connect',
+    connectLinks = [
+        { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
+        { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
+        { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
+        { href: '/contact', text: 'More' },
+    ],
+    stayUpdatedHeader = 'Stay Updated',
+    emailLabel = 'Email *',
+    emailPlaceholder = 'you@example.com',
+    consentLabel = 'I consent to receive news and updates via email *',
+    consentErrorMessage = 'Please consent to receive news and updates',
+    subscribeButtonText = 'Subscribe',
+    subscribingButtonText = 'Subscribing...',
+    successMessage = 'Successfully subscribed!',
+    genericErrorMessage = 'An error occurred',
+    rightsReservedText = 'All rights reserved.',
+    projectFundingText = (
+        <>
+            This project was implemented with funding from the national budget
+            <br />
+            via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest Technology Incubation
+            programme.
+        </>
+    ),
+}: FooterProps) {
+    const claim = 'Create AI that truly understands your business.';
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
-    const [showWaitlistPopup, setShowWaitlistPopup] = useState(false);
-
-    // Determine landing behavior based on URL parameters
-    const landingBehavior = getLandingBehavior(searchParams);
-
-    const handleGetStartedClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-
-        // Check if waitlist should be shown
-        if (shouldShowWaitlist(searchParams)) {
-            setShowWaitlistPopup(true);
-            return;
-        }
-
-        if (landingBehavior === 'direct') {
-            // Direct navigation to promptbook.studio/from-social-links
-            const redirectUrl = getRedirectUrl('direct');
-            window.location.href = redirectUrl;
-        } else {
-            // Show popup for platform selection
-            router.push('/get-started');
-        }
-    };
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!consent) {
-            setError('Please consent to receive news and updates');
+            setError(consentErrorMessage);
             return;
         }
 
@@ -61,7 +99,7 @@ export function Footer() {
             setEmail('');
             setConsent(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
+            setError(err instanceof Error ? err.message : genericErrorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -73,122 +111,57 @@ export function Footer() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                     {/* Product */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Product</h3>
+                        <h3 className="text-lg font-semibold mb-6">{productHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <a
-                                    href="/get-started"
-                                    onClick={handleGetStartedClick}
-                                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    Get started
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://ptbk.io/manifest"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Manifest
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://github.com/webgptorg/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Documentation
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://promptbook.studio/miniapps/new"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Playground
-                                </a>
-                            </li>
+                            {productLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Company */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Company</h3>
+                        <h3 className="text-lg font-semibold mb-6">{companyHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <a
-                                    href="https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    AI Web, LLC
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://ptbk.io/about"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    About Us
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://ptbk.io/blog"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Blog
-                                </a>
-                            </li>
+                            {companyLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Connect */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Connect</h3>
+                        <h3 className="text-lg font-semibold mb-6">{connectHeader}</h3>
                         <ul className="space-y-3">
-                            <li>
-                                <a
-                                    href="https://github.com/webgptorg/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    GitHub
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://linkedin.com/company/promptbook"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    LinkedIn
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="https://discord.gg/x3QWNaa89N"
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Discord
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/contact" className="text-gray-400 hover:text-white transition-colors">
-                                    More
-                                </a>
-                            </li>
+                            {connectLinks.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="text-gray-400 hover:text-white transition-colors">
+                                        {link.text}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     {/* Stay Updated */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-6">Stay Updated</h3>
+                        <h3 className="text-lg font-semibold mb-6">{stayUpdatedHeader}</h3>
                         <form onSubmit={handleSubscribe} className="space-y-4">
                             <div>
-                                <label className="text-sm text-gray-400 mb-2 block">Email *</label>
+                                <label className="text-sm text-gray-400 mb-2 block">{emailLabel}</label>
                                 <Input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="you@example.com"
+                                    placeholder={emailPlaceholder}
                                     className="bg-gray-800 border-gray-700 text-white placeholder-gray-500"
                                     required
                                 />
@@ -202,19 +175,19 @@ export function Footer() {
                                     className="mt-0.5"
                                 />
                                 <label htmlFor="consent" className="text-sm text-gray-400 leading-relaxed">
-                                    I consent to receive news and updates via email *
+                                    {consentLabel}
                                 </label>
                             </div>
 
                             {error && <p className="text-sm text-red-500">{error}</p>}
-                            {success && <p className="text-sm text-green-500">Successfully subscribed!</p>}
+                            {success && <p className="text-sm text-green-500">{successMessage}</p>}
 
                             <Button
                                 type="submit"
                                 disabled={!email || !consent || isSubmitting}
                                 className="w-full bg-primary hover:bg-primary/90"
                             >
-                                {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                                {isSubmitting ? subscribingButtonText : subscribeButtonText}
                             </Button>
                         </form>
                     </div>
@@ -225,10 +198,11 @@ export function Footer() {
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <div className="flex items-center gap-3">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src="/promptbook-logo-blue-256.png"
+                                <Image
+                                    src={promptbookLogoBlueTransparent}
                                     alt="Promptbook"
+                                    width={32}
+                                    height={32}
                                     className="h-8 w-8 filter brightness-0 invert"
                                 />
                                 <span className="text-xl font-bold text-white">Promptbook</span>
@@ -236,33 +210,22 @@ export function Footer() {
                             <p className="text-sm text-gray-400 text-center lg:text-left">
                                 © 2025 Promptbook
                                 <br />
-                                All rights reserved.
+                                {rightsReservedText}
                             </p>
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
-                                The AI orchestration framework for building intelligent applications 11:11
+                                {claim} <i style={{ visibility: 'hidden' }}>11:11</i>
                             </p>
                         </div>
 
                         <div className="flex flex-col items-center lg:items-end gap-4">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src="https://www.ptbk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FCI-Technology-Incubation.6cc58993.png&w=828&q=75"
-                                alt="Technology Incubation logo"
-                                className="h-24 w-auto"
-                            />
+                            <Image src={technologyIncubationSponsor} alt="Our Sponsor" className="h-32 w-auto" />
                             <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
-                                This project was implemented with funding from the national budget
-                                <br />
-                                via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest
-                                Technology Incubation programme.
+                                {projectFundingText}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Waitlist Popup */}
-            <WaitlistPopup placeName="footer" isOpen={showWaitlistPopup} onClose={() => setShowWaitlistPopup(false)} />
         </footer>
     );
 }

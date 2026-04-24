@@ -1,76 +1,41 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
-import { Bot, Crown, Mail, MessageSquare, Phone, Share2 } from 'lucide-react';
+import Image, { StaticImageData } from 'next/image';
+import { defaultIntegrations } from '../config/_generic/defaultIntegrations';
 
-const integrations = [
-    {
-        icon: MessageSquare,
-        title: 'Website Chatbot',
-        description: 'Embed on your website to answer customer questions 24/7',
-        tier: 'free',
-        features: ['24/7 availability', 'Custom responses', 'Easy integration'],
-    },
-    {
-        icon: Mail,
-        title: 'Email Integration',
-        description: 'Handle email replies and interactions automatically',
-        tier: 'pro',
-        features: ['Auto-replies', 'Context awareness', 'Email scheduling'],
-    },
-    {
-        icon: Share2,
-        title: 'Social Media Manager',
-        description: 'Manage posts and interactions across all platforms',
-        tier: 'pro',
-        features: ['Multi-platform', 'Auto-posting', 'Engagement tracking'],
-    },
-    {
-        icon: Phone,
-        title: 'Audio/Video Agent',
-        description: 'Clients can call and interact with your AI avatar',
-        tier: 'pro',
-        features: ['Voice cloning', 'Video calls', 'Real-time responses'],
-    },
-    {
-        icon: Bot,
-        title: 'Agentic Mode',
-        description: 'Background automation with task execution and reporting',
-        tier: 'pro',
-        features: ['Autonomous tasks', 'Activity reports', 'Client outreach'],
-    },
-];
+export type Integration = {
+    preview: StaticImageData;
+    title: string;
+    description: string;
+    features: string[];
+};
 
-export function IntegrationsSection() {
+type IntegrationsSectionProps = {
+    integrations?: Array<Integration>;
+    title?: string;
+    description?: string;
+};
+
+export function IntegrationsSection(props: IntegrationsSectionProps) {
+    const {
+        integrations = defaultIntegrations,
+        title = 'Where to Use Your AI Agent',
+        description = 'Deploy your book-defined AI agents across a wide range of applications and scenarios.',
+    } = props;
+
     console.log('IntegrationsSection rendered');
 
     return (
         <section id="integrations" className="py-20 bg-white">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
-                    >
-                        Integration Options
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-xl text-gray-600 max-w-3xl mx-auto"
-                    >
-                        Deploy your AI avatar across all your communication channels
-                    </motion.p>
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">{description}</p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-2 gap-8">
                     {integrations.map((integration, index) => {
-                        const Icon = integration.icon;
-
                         return (
                             <motion.div
                                 key={index}
@@ -80,23 +45,13 @@ export function IntegrationsSection() {
                                 whileHover={{ y: -5, scale: 1.02 }}
                                 className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 relative overflow-hidden text-center"
                             >
-                                {/* Tier Badge */}
-                                <div className="absolute top-4 right-4">
-                                    {integration.tier === 'pro' ? (
-                                        <Badge className="bg-gradient-purple text-white">
-                                            <Crown className="w-3 h-3 mr-1" />
-                                            Pro
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="secondary">Free</Badge>
-                                    )}
-                                </div>
-
                                 <div className="mb-6">
                                     <div className="flex justify-center mb-4">
-                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                                            <Icon className="w-8 h-8 text-white" />
-                                        </div>
+                                        <Image
+                                            src={integration.preview}
+                                            alt={integration.title}
+                                            className="w-full h-48 object-cover rounded-2xl"
+                                        />
                                     </div>
 
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">{integration.title}</h3>

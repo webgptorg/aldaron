@@ -1,7 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+    overflow-x: hidden;
+}
 
 :root {
     --promptbook-blue: #7aebff;
@@ -85,6 +90,15 @@
     }
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-outfit), 'Outfit', ui-sans-serif, system-ui, sans-serif;
     }
 }
 
@@ -103,4 +117,15 @@ body > nextjs-portal {
 
 .bg-promptbook-blue-dark {
     background-color: var(--promptbook-blue-dark);
+}
+
+.debug {
+    border: 1px dotted red !important;
+}
+
+/* Disable MockedChat internal animations (slide-in, fade, pulse) to prevent blinking */
+.no-chat-animations * {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
 }

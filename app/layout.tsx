@@ -1,16 +1,21 @@
 import { GOOGLE_ANALYTICS_ID } from '@/config';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import Script from 'next/script';
-import ConditionalChatbot from './conditional-chatbot';
+import { Chatbot } from '../components/chatbot';
+import { CookiesBar } from '../components/cookies-bar';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'latin-ext'], variable: '--font-inter' });
+const outfit = Outfit({
+    subsets: ['latin', 'latin-ext'],
+    variable: '--font-outfit',
+    weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
-    title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-    description:
-        'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
+    title: 'Promptbook',
+    description: 'Create AI that truly understands your business.',
     keywords: ['AI', 'prompt engineering', 'artificial intelligence', 'prompts', 'GPT', 'machine learning'],
     authors: [{ name: 'Promptbook Team' }],
     creator: 'Promptbook',
@@ -20,22 +25,21 @@ export const metadata: Metadata = {
         address: false,
         telephone: false,
     },
-    metadataBase: new URL('https://aldaron.vercel.app'),
+    metadataBase: new URL('https://ptbk.io'),
     alternates: {
         canonical: '/',
     },
     openGraph: {
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        url: 'https://aldaron.vercel.app',
+        title: 'Promptbook',
+        description: 'Create AI that truly understands your business.',
+        url: 'https://ptbk.io',
         siteName: 'Promptbook',
         images: [
             {
-                url: '/promptbook-logo-blue-256.png',
-                width: 256,
-                height: 256,
-                alt: 'Promptbook Logo',
+                url: '/logo/og-image.png',
+                width: 1860,
+                height: 992,
+                alt: 'Promptbook',
             },
         ],
         locale: 'en_US',
@@ -43,10 +47,9 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Promptbook - AI-Powered Prompt Engineering Platform',
-        description:
-            'Create, manage, and optimize AI prompts with Promptbook. The ultimate platform for prompt engineering, testing, and collaboration.',
-        images: ['/promptbook-logo-blue-256.png'],
+        title: 'Promptbook',
+        description: 'Create AI that truly understands your business.',
+        images: ['/logo/og-image.png'],
         creator: '@promptbook',
     },
     icons: {
@@ -98,9 +101,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     `}
                 </Script>
             </head>
-            <body className={inter.className}>
+            <body className={`${inter.variable} ${outfit.variable} font-sans`}>
                 {children}
-                <ConditionalChatbot />
+                <Chatbot />
+                <CookiesBar />
             </body>
         </html>
     );

@@ -1,0 +1,8 @@
+- [ ] Analyze requirements and data model
+- [ ] Implement backend API to fetch/update contacts (with key security)
+- [ ] Create `/contacts` page with table UI
+- [ ] Add CSV export functionality
+- [ ] Enable inline editing for `ourNote` and `isContacted`
+- [ ] Add filter toggle for contacted/uncontacted
+- [ ] Order table by `createdAt`
+- [ ] Test and verify all features

@@ -2,25 +2,50 @@ import { APP_NAME } from '@/config';
 import { supabase } from '@/lib/supabase';
 
 /**
+ * Fetch the user's IP address from a public API
+ */
+async function fetchIpAddress(): Promise<string | null> {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = (await response.json()) as { ip: string };
+        return data.ip || null;
+    } catch (error) {
+        console.error('Failed to fetch IP address:', error);
+        return null;
+    }
+}
+
+/**
  * Subscribe an email address to the waitlist
  *
  * @param email - The email address to subscribe to the waitlist
  * @param placeName - Name of the place where the popup is triggered (to measure effectiveness)
+ * @param phone - Optional phone number
+ * @param note - Optional notes (e.g., selected plan)
  */
-export async function subscribeToWaitlist(email: string, placeName: string) {
+export async function subscribeToWaitlist(email: string, placeName: string, phone?: string, note?: string) {
     // Get additional data for tracking
     const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : undefined;
     const referrer = typeof window !== 'undefined' ? document.referrer : undefined;
 
-    const { error: supabaseError } = await supabase.from('WaitlistContact').insert([
+    // Fetch IP address
+    const ipAddress = await fetchIpAddress();
+
+    const { error: supabaseError } = await supabase.from('Contact').insert([
         {
-            email,
+            email: email || null,
+            phone: phone || null,
+
             userAgent,
             referrer,
-            // Note: ipAddress would need to be handled server-side for security
+            ipAddress,
 
             appName: APP_NAME,
             placeName,
+            url: window.location.href,
+            userNote: note || null,
+
+            isContacted: false,
         },
     ]);
 

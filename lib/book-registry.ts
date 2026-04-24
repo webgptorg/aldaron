@@ -17,11 +17,11 @@ export interface BookAgent {
 
 export const BOOK_AGENTS: BookAgent[] = [
     {
-        id: 'pavol-hejny',
-        name: 'Pavol Hejný',
-        description: 'Tech entrepreneur interested in AI, coding, and machine learning',
-        book: pavolHejnyBook,
-        category: 'Technology'
+        id: 'marketing-expert',
+        name: 'Sarah Martinez',
+        description: 'Marketing strategist focused on brand building and growth',
+        book: marketingExpertBook,
+        category: 'Business'
     },
     {
         id: 'creative-writer',
@@ -36,13 +36,6 @@ export const BOOK_AGENTS: BookAgent[] = [
         description: 'Data scientist specializing in statistical analysis and ML',
         book: dataScientistBook,
         category: 'Analytics'
-    },
-    {
-        id: 'marketing-expert',
-        name: 'Sarah Martinez',
-        description: 'Marketing strategist focused on brand building and growth',
-        book: marketingExpertBook,
-        category: 'Business'
     },
     {
         id: 'developer-mentor',
@@ -66,5 +59,5 @@ export const getAllCategories = (): string[] => {
 };
 
 export const getDefaultAgent = (): BookAgent => {
-    return BOOK_AGENTS[0]; // Pavol Hejný as default
+    return BOOK_AGENTS[0]; // Marketing Expert as default
 };

@@ -1,0 +1,43 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111F" />
+      <stop offset="0.55" stop-color="#0F172A" />
+      <stop offset="1" stop-color="#10273A" />
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1250 220) rotate(90) scale(320)">
+      <stop stop-color="#F59E0B" />
+      <stop offset="1" stop-color="#F59E0B" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(360 980) rotate(90) scale(360)">
+      <stop stop-color="#06B6D4" />
+      <stop offset="1" stop-color="#06B6D4" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowC" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 760) rotate(90) scale(240)">
+      <stop stop-color="#14B8A6" />
+      <stop offset="1" stop-color="#14B8A6" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+      <path d="M72 0H0V72" stroke="white" stroke-opacity="0.08" />
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#bg)" />
+  <rect width="1600" height="1200" fill="url(#grid)" />
+
+  <circle cx="1250" cy="220" r="320" fill="url(#glowA)" />
+  <circle cx="360" cy="980" r="360" fill="url(#glowB)" />
+  <circle cx="980" cy="760" r="240" fill="url(#glowC)" />
+
+  <g opacity="0.16" fill="#F8FAFC">
+    <path d="M1120 150L1250 90L1340 210L1235 260L1120 150Z" />
+    <path d="M1180 820L1305 760L1395 885L1265 945L1180 820Z" />
+    <path d="M220 230L360 170L460 300L320 365L220 230Z" />
+  </g>
+
+  <g opacity="0.22" stroke="#F8FAFC">
+    <path d="M100 315C245 275 360 285 520 375C675 462 770 474 955 430C1100 396 1250 315 1500 348" />
+    <path d="M55 680C210 630 355 635 510 710C665 785 815 820 1010 770C1160 732 1310 638 1545 680" />
+    <path d="M150 1010C330 930 515 920 690 980C850 1035 1015 1060 1200 1012C1320 980 1425 930 1510 882" />
+  </g>
+</svg>

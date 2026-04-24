@@ -1,6 +1,6 @@
 {
-    "name": "aldaron-landing-page",
-    "version": "0.1.1",
+    "name": "promptbook-landing-page",
+    "version": "0.1.0",
     "private": true,
     "scripts": {
         "dev": "npx kill-port 4009 && next dev -p 4009",
@@ -8,7 +8,11 @@
         "start": "next start",
         "lint": "next lint",
         "test-types": "tsc",
-        "export": "next build"
+        "export": "next build",
+        "coder:generate-boilerplates": "npx ptbk coder generate-boilerplates",
+        "coder:run": "npx ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --context AGENTS.md --no-wait",
+        "coder:find-refactor-candidates": "npx ptbk coder find-refactor-candidates",
+        "coder:verify": "npx ptbk coder verify"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.0.1",
@@ -39,6 +43,7 @@
         "@radix-ui/react-toggle": "^1.1.2",
         "@radix-ui/react-toggle-group": "^1.1.2",
         "@radix-ui/react-tooltip": "^1.1.8",
+        "@supabase/ssr": "^0.7.0",
         "@supabase/supabase-js": "^2.57.2",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -47,16 +52,21 @@
         "embla-carousel-react": "^8.5.2",
         "framer-motion": "^12.6.3",
         "input-otp": "^1.4.2",
+        "js-yaml": "^4.1.0",
+        "leaflet": "^1.9.4",
         "lucide-react": "^0.487.0",
-        "next": "15.2.4",
+        "moment": "^2.30.1",
+        "next": "15.2.6",
         "next-themes": "^0.4.6",
-        "ptbk": "0.100.2",
+        "ptbk": "0.112.0-49",
         "react": "^18.3.1",
         "react-day-picker": "^8.10.1",
         "react-dom": "^18.3.1",
         "react-hook-form": "^7.55.0",
+        "react-qr-code": "^2.0.18",
         "react-resizable-panels": "^2.1.7",
         "recharts": "^2.15.1",
+        "sharp": "^0.34.4",
         "sonner": "^2.0.3",
         "spacetrim": "^0.11.60",
         "tailwind-merge": "^3.1.0",
@@ -70,6 +80,8 @@
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.3.0",
         "@total-typescript/ts-reset": "^0.6.1",
+        "@types/js-yaml": "^4.0.9",
+        "@types/lodash": "^4.17.20",
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
@@ -83,21 +95,5 @@
         "tailwindcss-animate": "^1.0.7",
         "typescript": "^5",
         "vitest": "^3.1.1"
-    },
-    "license": "Apache-2.0",
-    "funding": [
-        {
-            "type": "individual",
-            "url": "https://buymeacoffee.com/hejny"
-        },
-        {
-            "type": "github",
-            "url": "https://github.com/webgptorg/aldaron/blob/main/README.md#%EF%B8%8F-contributing"
-        }
-    ],
-    "description": "Reclaim Your Time with AI That Thinks Like You",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/webgptorg/aldaron"
     }
 }
