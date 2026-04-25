@@ -6,7 +6,15 @@ import { Quote } from 'lucide-react';
 /* Custom SVG icons */
 function UniversityIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Roof / pediment */}
             <path d="M2 10L12 3l10 7" />
             {/* Columns */}
@@ -24,7 +32,15 @@ function UniversityIcon({ className }: { className?: string }) {
 
 function CityHallIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Main building */}
             <rect x="4" y="8" width="16" height="13" rx="1" />
             {/* Tower */}
@@ -56,7 +72,7 @@ const testimonials = [
 ];
 
 const metrics = [
-    { value: '1 000 000', label: 'normostran kapacity', suffix: '' },
+    { value: '1 000 000' /* <- !!!!!! */, label: 'normostran kapacity', suffix: '' },
     { value: '100%', label: 'GDPR compliance', suffix: '' },
     { value: '0', label: 'halucinací', suffix: '' },
 ];
@@ -73,9 +89,7 @@ export function TestimonialsSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-14"
                 >
-                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Reference
-                    </p>
+                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">Reference</p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-3xl mx-auto"
                         style={{ lineHeight: 1.2 }}

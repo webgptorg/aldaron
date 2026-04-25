@@ -159,7 +159,7 @@ export function ProFirmyHeroSection() {
                             <span className="text-gray-200 hidden sm:inline">|</span>
                             <div className="flex items-center gap-1.5">
                                 <FileText className="w-4 h-4 text-gray-300" />
-                                <span>Až 1 000 000 normostran</span>
+                                <span>Až 1 000 000 normostran {/* <- !!!!!! */}</span>
                             </div>
                             <span className="text-gray-200 hidden sm:inline">|</span>
                             <div className="flex items-center gap-1.5">

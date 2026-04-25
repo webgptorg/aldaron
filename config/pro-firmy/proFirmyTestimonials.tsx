@@ -30,7 +30,7 @@ const testimonials: ProFirmyTestimonial[] = [
 ];
 
 const metrics = [
-    { value: '1 000 000', label: 'normostran kapacity' },
+    { value: '1 000 000', label: 'normostran kapacity' /* <- !!!!!! */ },
     { value: '100%', label: 'GDPR compliance' },
     { value: '0', label: 'halucinací' },
 ];
