@@ -1,3 +1,4 @@
+const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,7 +10,7 @@ export function MinimalFooter() {
                     {/* Logo + Copyright */}
                     <div className="flex items-center gap-3">
                         <Image
-                            src="/promptbook-logo-blue-256.png"
+                            src={promptbookLogo}
                             alt="Promptbook"
                             width={38}
                             height={38}
@@ -18,9 +19,7 @@ export function MinimalFooter() {
                         <span className="text-xl text-gray-900">
                             Prompt<b>book</b>
                         </span>
-                        <span className="text-[14px] text-gray-400 ml-2">
-                            © 2026 Všechna práva vyhrazena.
-                        </span>
+                        <span className="text-[14px] text-gray-400 ml-2">© 2026 Všechna práva vyhrazena.</span>
                     </div>
 
                     {/* Links */}

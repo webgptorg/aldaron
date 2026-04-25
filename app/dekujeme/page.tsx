@@ -1,10 +1,11 @@
 'use client';
 
-import Image from 'next/image';
-import { Mail, Phone, CheckCircle2, PhoneCall, Video, Handshake } from 'lucide-react';
 import { MinimalFooter } from '@/components/minimal-footer';
+import { CheckCircle2, Handshake, Mail, Phone, PhoneCall, Video } from 'lucide-react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
 
 function ThankYouContent() {
     const searchParams = useSearchParams();
@@ -17,13 +18,7 @@ function ThankYouContent() {
             <header className="py-6 px-6">
                 <div className="max-w-4xl mx-auto">
                     <a href="/" className="flex items-center gap-2.5 w-fit">
-                        <Image
-                            src="/promptbook-logo-blue-256.png"
-                            alt="Promptbook"
-                            width={36}
-                            height={36}
-                            className="w-9 h-9"
-                        />
+                        <Image src={promptbookLogo} alt="Promptbook" width={36} height={36} className="w-9 h-9" />
                         <span className="text-xl text-gray-900">
                             Prompt<b>book</b>
                         </span>
@@ -65,7 +60,8 @@ function ThankYouContent() {
                                     Jirka vám zavolá do 24 hodin
                                 </h3>
                                 <p className="text-[14px] text-gray-500 leading-relaxed">
-                                    Probereme vaše konkrétní potřeby a odpovíme na vaše otázky. Žádný prodejní tlak - jen upřímný rozhovor.
+                                    Probereme vaše konkrétní potřeby a odpovíme na vaše otázky. Žádný prodejní tlak -
+                                    jen upřímný rozhovor.
                                 </p>
                             </div>
                         </div>
@@ -79,17 +75,11 @@ function ThankYouContent() {
                                 <div className="w-px h-full bg-gray-200 my-1" />
                             </div>
                             <div className="pb-8">
-                                <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">
-                                    Domluvíme videohovor
-                                </h3>
+                                <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">Domluvíme videohovor</h3>
                                 <p className="text-[14px] text-gray-500 leading-relaxed">
                                     Odkaz na videohovor vám zašleme na{' '}
-                                    {email ? (
-                                        <strong className="text-[#0f172a]">{email}</strong>
-                                    ) : (
-                                        'váš e-mail'
-                                    )}
-                                    . Ukážeme vám Promptbook na vašich reálných datech.
+                                    {email ? <strong className="text-[#0f172a]">{email}</strong> : 'váš e-mail'}.
+                                    Ukážeme vám Promptbook na vašich reálných datech.
                                 </p>
                             </div>
                         </div>
@@ -128,9 +118,7 @@ function ThankYouContent() {
                                         className="w-full h-full object-cover object-top"
                                     />
                                 </div>
-                                <h3 className="text-[15px] font-bold text-[#0f172a]">
-                                    Jiří Jahn
-                                </h3>
+                                <h3 className="text-[15px] font-bold text-[#0f172a]">Jiří Jahn</h3>
                                 <p className="text-[13px] text-gray-400 mb-2">CEO</p>
                                 <div className="space-y-1">
                                     <a
@@ -159,9 +147,7 @@ function ThankYouContent() {
                                         className="w-full h-full object-cover object-top"
                                     />
                                 </div>
-                                <h3 className="text-[15px] font-bold text-[#0f172a]">
-                                    Pavol Hejný
-                                </h3>
+                                <h3 className="text-[15px] font-bold text-[#0f172a]">Pavol Hejný</h3>
                                 <p className="text-[13px] text-gray-400 mb-2">CTO</p>
                                 <div className="space-y-1">
                                     <a
@@ -201,11 +187,13 @@ function ThankYouContent() {
 
 export default function DekujemePage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-8 h-8 border-2 border-cyan-200 border-t-cyan-600 rounded-full animate-spin" />
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center bg-white">
+                    <div className="w-8 h-8 border-2 border-cyan-200 border-t-cyan-600 rounded-full animate-spin" />
+                </div>
+            }
+        >
             <ThankYouContent />
         </Suspense>
     );

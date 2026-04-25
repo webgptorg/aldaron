@@ -5,11 +5,11 @@ import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import promptbookLogoBlueTransparent from '@/public/logo/logo-blue-transparent-256.png';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+const promptbookLogo = '/logo/promptbook-logo-blue-transparent-256.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-256.png';
 
 interface FooterProps {
     productHeader?: string;
@@ -199,7 +199,7 @@ export function Footer({
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <div className="flex items-center gap-3">
                                 <Image
-                                    src={promptbookLogoBlueTransparent}
+                                    src={promptbookLogo}
                                     alt="Promptbook"
                                     width={32}
                                     height={32}

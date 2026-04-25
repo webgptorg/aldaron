@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
 
 export function Header() {
     const [scrolled, setScrolled] = useState(false);
@@ -34,13 +35,7 @@ export function Header() {
                 <div className="flex items-center justify-between h-14">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
-                        <Image
-                            src="/promptbook-logo-blue-256.png"
-                            alt="Promptbook"
-                            width={32}
-                            height={32}
-                            className="w-8 h-8"
-                        />
+                        <Image src={promptbookLogo} alt="Promptbook" width={32} height={32} className="w-8 h-8" />
                         <span className="text-xl text-gray-900">
                             Prompt<b>book</b>
                         </span>
@@ -49,7 +44,9 @@ export function Header() {
                     {/* FOMO text — centered, hidden on small screens */}
                     <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
                         <span>🔥</span>
-                        <span>Zbývá <strong className="text-gray-900">7 míst z 10</strong> pro strategický hovor zdarma</span>
+                        <span>
+                            Zbývá <strong className="text-gray-900">7 míst z 10</strong> pro strategický hovor zdarma
+                        </span>
                     </div>
 
                     {/* CTA Button */}

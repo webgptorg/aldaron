@@ -108,7 +108,7 @@ export function OldHomePageComponent() {
                                 {/*
                                 <div className="flex items-center gap-3 p-4 bg-white/50 backdrop-blur-sm rounded-lg border border-gray-200">
                                     {/* eslint-disable-next-line @next/next/no-img-element * /}
-                                    <img src="/logo/promptbook-logo-blue-256.png" alt="Promptbook" className="w-6 h-6" />
+                                    <Image src={promptbookLogo} alt="Promptbook" className="w-6 h-6" />
                                     <div className="text-sm">
                                         <span className="text-gray-600">Powered by </span>
                                         <Link
