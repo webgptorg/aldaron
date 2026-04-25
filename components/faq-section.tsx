@@ -11,7 +11,8 @@ const faqs = [
     },
     {
         question: 'Je to bezpečné pro citlivá firemní data?',
-        answer: 'Vaše data nikdy neopustí vaši infrastrukturu. Nepoužíváme je k trénování žádných AI modelů. Jsme plně v souladu s GDPR a připravujeme certifikaci s AWS pro zpracování dat ve správné jurisdikci.',
+        // answer: 'Vaše data nikdy neopustí vaši infrastrukturu. Nepoužíváme je k trénování žádných AI modelů. Jsme plně v souladu s GDPR a připravujeme certifikaci s AWS pro zpracování dat ve správné jurisdikci.',
+        answer: 'Vaše data nikdy neopustí vámi definovanou infrastrukturu. Nepoužíváme je k trénování žádných AI modelů.',
     },
     {
         question: 'Musím školit zaměstnance?',
