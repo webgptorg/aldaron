@@ -1,89 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Shield, FileText, Sparkles } from 'lucide-react';
-import { useEffect, useState, useCallback, useRef } from 'react';
-
-const chatMessages = [
-    {
-        id: 1,
-        type: 'user' as const,
-        text: 'Ahoj, jsem nová zaměstnankyně a potřebuju najít informace o dovolenkové politice firmy. Může mi někdo pomoct?',
-        startDelay: 0,
-        static: true,
-    },
-    {
-        id: 2,
-        type: 'bot' as const,
-        text: 'Vítejte ve firmě, Anno! Všechny informace o dovolenkové politice najdete v naší interní znalostní bázi. Máte nárok na 25 dní dovolené ročně.',
-        startDelay: 2000, // 2s po loadu — bot "přemýšlí"
-        static: false,
-    },
-    {
-        id: 3,
-        type: 'bot' as const,
-        text: 'Pošlu vám shrnutí přímo na e-mail, ať to máte po ruce. Potřebujete ještě s něčím pomoct?',
-        startDelay: 1200,
-        static: false,
-    },
-    {
-        id: 4,
-        type: 'user' as const,
-        text: 'Super, děkuji moc! To je přesně to, co jsem potřebovala. 🙌',
-        startDelay: 1000,
-        static: false,
-    },
-];
-
-// Speed: ms per character
-const CHAR_SPEED_USER = 25;
-const CHAR_SPEED_BOT = 18;
-
-function TypewriterBubble({ text, type, onComplete }: { text: string; type: 'user' | 'bot'; onComplete: () => void }) {
-    const [displayedText, setDisplayedText] = useState('');
-    const charSpeed = type === 'user' ? CHAR_SPEED_USER : CHAR_SPEED_BOT;
-
-    useEffect(() => {
-        let i = 0;
-        const interval = setInterval(() => {
-            i++;
-            setDisplayedText(text.slice(0, i));
-            if (i >= text.length) {
-                clearInterval(interval);
-                onComplete();
-            }
-        }, charSpeed);
-        return () => clearInterval(interval);
-    }, [text, charSpeed, onComplete]);
-
-    return (
-        <div
-            className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed ${
-                type === 'user'
-                    ? 'bg-red-100 text-gray-800 rounded-br-md'
-                    : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
-            }`}
-        >
-            {displayedText}
-            <span className="inline-block w-[2px] h-[14px] bg-gray-400 ml-[1px] align-middle animate-pulse" />
-        </div>
-    );
-}
-
-function CompletedBubble({ text, type }: { text: string; type: 'user' | 'bot' }) {
-    return (
-        <div
-            className={`max-w-[85%] rounded-2xl px-5 py-3 text-sm leading-relaxed ${
-                type === 'user'
-                    ? 'bg-red-100 text-gray-800 rounded-br-md'
-                    : 'bg-promptbook-blue/20 text-gray-800 rounded-bl-md'
-            }`}
-        >
-            {text}
-        </div>
-    );
-}
+import { proFirmyChatMessages } from '@/config/pro-firmy/proFirmyHero';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, FileText, Shield, Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { CompletedBubble, TypewriterBubble } from './ui/ChatBubbles';
 
 export function HeroSection() {
     const [mounted, setMounted] = useState(false);
@@ -97,11 +19,11 @@ export function HeroSection() {
 
     // Client-only: set static messages + start animation after delay
     useEffect(() => {
-        const staticIndices = chatMessages.reduce<number[]>((acc, m, i) => (m.static ? [...acc, i] : acc), []);
+        const staticIndices = proFirmyChatMessages.reduce<number[]>((acc, m, i) => (m.static ? [...acc, i] : acc), []);
         setCompletedMessages(staticIndices);
         setMounted(true);
 
-        const firstAnimatedIndex = chatMessages.findIndex((m) => !m.static);
+        const firstAnimatedIndex = proFirmyChatMessages.findIndex((m) => !m.static);
         if (firstAnimatedIndex === -1) return;
 
         // Start after 1.2s (hero slide-in is 0.8s + 0.2s delay)
@@ -112,7 +34,7 @@ export function HeroSection() {
         const typingTimer = setTimeout(() => {
             setShowTypingIndicator(false);
             setCurrentMessageIndex(firstAnimatedIndex);
-        }, 1200 + chatMessages[firstAnimatedIndex].startDelay);
+        }, 1200 + proFirmyChatMessages[firstAnimatedIndex].startDelay);
 
         return () => {
             clearTimeout(indicatorTimer);
@@ -125,12 +47,12 @@ export function HeroSection() {
 
         // Find next non-static message to animate
         let nextIndex = currentMessageIndex + 1;
-        while (nextIndex < chatMessages.length && chatMessages[nextIndex].static) {
+        while (nextIndex < proFirmyChatMessages.length && proFirmyChatMessages[nextIndex].static) {
             nextIndex++;
         }
 
-        if (nextIndex < chatMessages.length) {
-            const nextMsg = chatMessages[nextIndex];
+        if (nextIndex < proFirmyChatMessages.length) {
+            const nextMsg = proFirmyChatMessages[nextIndex];
             if (nextMsg.type === 'bot') {
                 // Bot message: show typing indicator first
                 setShowTypingIndicator(true);
@@ -176,18 +98,26 @@ export function HeroSection() {
                                 Česká AI platforma pro firemní data
                             </div>
 
-                            <h1 className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold text-[#0f172a] tracking-tight" style={{ lineHeight: 1 }}>
-                                Co kdyby každý váš<br />
+                            <h1
+                                className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold text-[#0f172a] tracking-tight"
+                                style={{ lineHeight: 1 }}
+                            >
+                                Co kdyby každý váš
+                                <br />
                                 zaměstnanec měl{' '}
                                 <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                                    okamžitý<br />přístup
+                                    okamžitý
+                                    <br />
+                                    přístup
                                 </span>{' '}
-                                ke všemu, co vaše<br />
+                                ke všemu, co vaše
+                                <br />
                                 firma kdy napsala?
                             </h1>
 
                             <p className="text-[17px] sm:text-lg text-gray-500 leading-[1.7] max-w-lg tracking-[0.01em]">
-                                Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
+                                Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový
+                                zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
                             </p>
                         </div>
 
@@ -201,7 +131,6 @@ export function HeroSection() {
                                 Chci strategický hovor zdarma
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
-
                         </div>
 
                         {/* Trust Badges */}
@@ -217,7 +146,13 @@ export function HeroSection() {
                             </div>
                             <span className="text-gray-200 hidden sm:inline">|</span>
                             <div className="flex items-center gap-1.5">
-                                <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <svg
+                                    className="w-4 h-4 text-gray-300"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                >
                                     <path d="M3 21V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v16l-4-3-4 3-4-3-4 3z" />
                                 </svg>
                                 <span>Česká platforma</span>
@@ -249,7 +184,7 @@ export function HeroSection() {
                             {/* Chat Messages */}
                             <div className="p-6 space-y-4 h-[480px] sm:h-[360px] overflow-hidden">
                                 <AnimatePresence>
-                                    {chatMessages.map((msg, index) => {
+                                    {proFirmyChatMessages.map((msg, index) => {
                                         const isCompleted = completedMessages.includes(index);
                                         const isCurrentlyTyping = currentMessageIndex === index && !isCompleted;
 
