@@ -1,17 +1,16 @@
+import { BookingNotification } from '@/components/booking-notification';
+import { EnemySection } from '@/components/enemy-section';
+import { FinalCTASection } from '@/components/final-cta-section';
 import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
-import { SocialProofStrip } from '@/components/social-proof-strip';
-import { PainPointsSection } from '@/components/pain-points-section';
-import { SolutionSection } from '@/components/solution-section';
 import { HowItWorksSection } from '@/components/how-it-works-section';
-import { EnemySection } from '@/components/enemy-section';
-import { TestimonialsSection } from '@/components/testimonials-section';
-import { FAQSection } from '@/components/faq-section';
-import { FinalCTASection } from '@/components/final-cta-section';
-import { TeamSection } from '@/components/team-section';
 import { MinimalFooter } from '@/components/minimal-footer';
+import { PainPointsSection } from '@/components/pain-points-section';
 import { QualificationPopup } from '@/components/qualification-popup';
-import { BookingNotification } from '@/components/booking-notification';
+import { SocialProofStrip } from '@/components/social-proof-strip';
+import { SolutionSection } from '@/components/solution-section';
+import { TeamSection } from '@/components/team-section';
+import { TestimonialsSection } from '@/components/testimonials-section';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -20,7 +19,7 @@ export const dynamic = 'force-static';
 
 export function generateMetadata(): Metadata {
     return {
-        title: 'Promptbook — Okamžitý přístup ke všemu, co vaše firma kdy napsala',
+        title: 'Promptbook - Okamžitý přístup ke všemu, co vaše firma kdy napsala',
         description:
             'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR. Česká AI platforma.',
     };

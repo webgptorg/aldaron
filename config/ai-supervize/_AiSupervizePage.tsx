@@ -141,7 +141,7 @@ export function AiSupervizePage() {
                                     <span className="h-3 w-3 rounded-full bg-yellow-400" />
                                     <span className="h-3 w-3 rounded-full bg-emerald-500" />
                                     <span className="ml-3 flex-1 truncate text-center font-mono text-xs text-slate-500 select-none">
-                                        promptbook-supervize — bash — 80×24
+                                        promptbook-supervize - bash - 80×24
                                     </span>
                                 </div>
 

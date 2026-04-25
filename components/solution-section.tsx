@@ -3,12 +3,20 @@
 import { motion } from 'framer-motion';
 
 /* ═══════════════════════════════════════════════════════════
-   CUSTOM SVG ICONS — no background, accent-color only
+   CUSTOM SVG ICONS - no background, accent-color only
    ═══════════════════════════════════════════════════════════ */
 
 function NaturalChatIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Chat bubble */}
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
             {/* Voice wave lines inside */}
@@ -21,7 +29,15 @@ function NaturalChatIcon({ className }: { className?: string }) {
 
 function VaultIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Lock body */}
             <rect x="3" y="11" width="18" height="11" rx="2" />
             {/* Lock shackle */}
@@ -35,7 +51,15 @@ function VaultIcon({ className }: { className?: string }) {
 
 function HonestyIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Shield outline */}
             <path d="M12 3l8 4v5c0 5.25-3.5 8.25-8 10-4.5-1.75-8-4.75-8-10V7l8-4z" />
             {/* Checkmark inside */}
@@ -95,9 +119,7 @@ export function SolutionSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-14"
                 >
-                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Řešení
-                    </p>
+                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">Řešení</p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-3xl mx-auto mb-5"
                         style={{ lineHeight: 1.2 }}
@@ -108,11 +130,12 @@ export function SolutionSection() {
                         </span>
                     </h2>
                     <p className="text-[17px] text-gray-500 leading-relaxed max-w-2xl mx-auto">
-                        Nahrajte firemní dokumenty do bezpečného trezoru. Promptbook z nich vytvoří virtuálního zaměstnance - HR-istu, právníka, technika - kterého se kdokoliv zeptá normální češtinou.
+                        Nahrajte firemní dokumenty do bezpečného trezoru. Promptbook z nich vytvoří virtuálního
+                        zaměstnance - HR-istu, právníka, technika - kterého se kdokoliv zeptá normální češtinou.
                     </p>
                 </motion.div>
 
-                {/* 3 Benefit Cards — matching pain points style */}
+                {/* 3 Benefit Cards - matching pain points style */}
                 <div className="grid md:grid-cols-3 gap-5">
                     {benefits.map((benefit, i) => (
                         <motion.div
@@ -124,9 +147,11 @@ export function SolutionSection() {
                             className="group relative bg-white rounded-2xl border border-gray-100 p-7 hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-200 transition-all duration-500 flex flex-col"
                         >
                             {/* Top accent line */}
-                            <div className={`absolute top-0 left-6 right-6 h-px bg-gradient-to-r ${benefit.accentColor} opacity-0 group-hover:opacity-40 transition-opacity duration-500`}></div>
+                            <div
+                                className={`absolute top-0 left-6 right-6 h-px bg-gradient-to-r ${benefit.accentColor} opacity-0 group-hover:opacity-40 transition-opacity duration-500`}
+                            ></div>
 
-                            {/* Icon + Title — same line */}
+                            {/* Icon + Title - same line */}
                             <div className="flex items-center gap-3 mb-4">
                                 <benefit.CustomIcon className={`shrink-0 w-7 h-7 ${benefit.iconColor}`} />
                                 <h3 className="text-lg font-bold text-[#0f172a] tracking-tight leading-tight">
@@ -139,7 +164,7 @@ export function SolutionSection() {
                                 {benefit.description}
                             </p>
 
-                            {/* Highlight — italic citation */}
+                            {/* Highlight - italic citation */}
                             <p className="text-[14.5px] italic font-semibold text-gray-500 leading-relaxed">
                                 <span className={benefit.iconColor}>→</span> {benefit.highlight}
                             </p>

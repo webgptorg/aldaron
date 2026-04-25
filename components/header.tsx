@@ -41,7 +41,7 @@ export function Header() {
                         </span>
                     </Link>
 
-                    {/* FOMO text — centered, hidden on small screens */}
+                    {/* FOMO text - centered, hidden on small screens */}
                     <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
                         <span>🔥</span>
                         <span>

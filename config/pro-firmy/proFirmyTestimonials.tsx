@@ -13,7 +13,7 @@ interface ProFirmyTestimonial {
 
 const testimonials: ProFirmyTestimonial[] = [
     {
-        quote: 'Promptbook nás od sebe neodstřihl. Naopak — konečně máme čas řešit opravdovou práci, za kterou jsme placeni.',
+        quote: 'Promptbook nás od sebe neodstřihl. Naopak - konečně máme čas řešit opravdovou práci, za kterou jsme placeni.',
         author: 'IT oddělení',
         company: 'Slezská univerzita v Opavě',
         icon: BookOpen,

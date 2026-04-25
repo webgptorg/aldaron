@@ -1,8 +1,8 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 /* ═══════════════════════════════════════════════════════════
    CUSTOM SVG ICONS
@@ -10,7 +10,15 @@ import { Button } from '@/components/ui/button';
 
 function UploadDocsIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <path d="M12 18v-6" />
@@ -21,7 +29,15 @@ function UploadDocsIcon({ className }: { className?: string }) {
 
 function CreateAgentIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             <rect x="5" y="8" width="14" height="10" rx="2" />
             <path d="M12 8V5" />
             <circle cx="12" cy="4" r="1" fill="currentColor" stroke="none" />
@@ -36,7 +52,15 @@ function CreateAgentIcon({ className }: { className?: string }) {
 
 function AskQuestionIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
             <path d="M7 8h10" strokeWidth="1.4" />
             <path d="M7 11h7" strokeWidth="1.4" />
@@ -81,7 +105,7 @@ const steps = [
 ];
 
 /* ═══════════════════════════════════════════════════════════
-   MAIN SECTION — Vertical Timeline, alternating sides
+   MAIN SECTION - Vertical Timeline, alternating sides
    ═══════════════════════════════════════════════════════════ */
 export function HowItWorksSection() {
     const handleCTAClick = () => {
@@ -115,11 +139,11 @@ export function HowItWorksSection() {
 
                 {/* Timeline */}
                 <div className="relative">
-                    {/* Vertical line — center */}
+                    {/* Vertical line - center */}
                     <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 hidden md:block">
                         <div className="w-full h-full bg-gradient-to-b from-cyan-300 via-blue-300 to-violet-300 opacity-30"></div>
                     </div>
-                    {/* Vertical line — mobile (left) */}
+                    {/* Vertical line - mobile (left) */}
                     <div className="absolute left-[22px] top-0 bottom-0 w-px md:hidden">
                         <div className="w-full h-full bg-gradient-to-b from-cyan-300 via-blue-300 to-violet-300 opacity-30"></div>
                     </div>
@@ -147,7 +171,9 @@ export function HowItWorksSection() {
                                                         <h3 className="text-xl font-bold text-[#0f172a] tracking-tight">
                                                             {step.title}
                                                         </h3>
-                                                        <step.CustomIcon className={`shrink-0 w-7 h-7 ${step.iconColor}`} />
+                                                        <step.CustomIcon
+                                                            className={`shrink-0 w-7 h-7 ${step.iconColor}`}
+                                                        />
                                                     </div>
                                                     <p className="text-[15px] text-gray-500 leading-relaxed">
                                                         {step.description}
@@ -158,7 +184,9 @@ export function HowItWorksSection() {
 
                                         {/* Center dot */}
                                         <div className="flex justify-center">
-                                            <div className={`relative w-[46px] h-[46px] rounded-full ${step.dotColor} flex items-center justify-center shadow-lg ${step.glowColor}`}>
+                                            <div
+                                                className={`relative w-[46px] h-[46px] rounded-full ${step.dotColor} flex items-center justify-center shadow-lg ${step.glowColor}`}
+                                            >
                                                 <span className="text-[13px] font-bold text-white">{step.number}</span>
                                             </div>
                                         </div>
@@ -168,7 +196,9 @@ export function HowItWorksSection() {
                                             {!isLeft && (
                                                 <div>
                                                     <div className="flex items-center gap-3 mb-3">
-                                                        <step.CustomIcon className={`shrink-0 w-7 h-7 ${step.iconColor}`} />
+                                                        <step.CustomIcon
+                                                            className={`shrink-0 w-7 h-7 ${step.iconColor}`}
+                                                        />
                                                         <h3 className="text-xl font-bold text-[#0f172a] tracking-tight">
                                                             {step.title}
                                                         </h3>
@@ -185,7 +215,9 @@ export function HowItWorksSection() {
                                     <div className="md:hidden flex gap-6">
                                         {/* Dot */}
                                         <div className="shrink-0 relative">
-                                            <div className={`w-[44px] h-[44px] rounded-full ${step.dotColor} flex items-center justify-center shadow-lg ${step.glowColor}`}>
+                                            <div
+                                                className={`w-[44px] h-[44px] rounded-full ${step.dotColor} flex items-center justify-center shadow-lg ${step.glowColor}`}
+                                            >
                                                 <span className="text-[12px] font-bold text-white">{step.number}</span>
                                             </div>
                                         </div>

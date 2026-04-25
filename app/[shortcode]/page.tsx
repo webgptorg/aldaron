@@ -103,20 +103,22 @@ export default async function Page({ params }: PageProps) {
         const isLocalhost = /^https?:\/\/localhost(:[0-9]+)?/.test(selectedUrl);
 
         if (data.landingPage || (isLocalhost && !data.landingPage)) {
-            const { data: clickData, error: clickError } = supabase ? await supabase
-                .from('ShortcodeLinkClick')
-                .insert({
-                    shortcodeLinkId: data.id,
-                    userAgent,
-                    referer,
-                    ip,
-                    language,
-                    platform,
-                    navigatedAt: new Date().toISOString(),
-                    clickedAt: null,
-                })
-                .select('id')
-                .single() : { data: null, error: null };
+            const { data: clickData, error: clickError } = supabase
+                ? await supabase
+                      .from('ShortcodeLinkClick')
+                      .insert({
+                          shortcodeLinkId: data.id,
+                          userAgent,
+                          referer,
+                          ip,
+                          language,
+                          platform,
+                          navigatedAt: new Date().toISOString(),
+                          clickedAt: null,
+                      })
+                      .select('id')
+                      .single()
+                : { data: null, error: null };
 
             if (clickError) {
                 console.error('Error creating click record:', clickError);
@@ -206,21 +208,22 @@ export default async function Page({ params }: PageProps) {
                 </div>
             );
         } else {
-            if (supabase) await supabase.from('ShortcodeLinkClick').insert({
-                shortcodeLinkId: data.id,
-                userAgent,
-                referer,
-                ip,
-                language,
-                platform,
-                navigatedAt: new Date().toISOString(),
-                clickedAt: new Date().toISOString(),
-            });
+            if (supabase)
+                await supabase.from('ShortcodeLinkClick').insert({
+                    shortcodeLinkId: data.id,
+                    userAgent,
+                    referer,
+                    ip,
+                    language,
+                    platform,
+                    navigatedAt: new Date().toISOString(),
+                    clickedAt: new Date().toISOString(),
+                });
 
             redirect(selectedUrl);
         }
     } catch (err) {
-        // Next.js uses thrown errors internally for redirect() and notFound() — must re-throw them
+        // Next.js uses thrown errors internally for redirect() and notFound() - must re-throw them
         if ((err as { digest?: string })?.digest?.startsWith('NEXT_')) {
             throw err;
         }

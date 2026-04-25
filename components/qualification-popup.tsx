@@ -1,10 +1,10 @@
 'use client';
 
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, CheckCircle2, Send, Calendar } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Question {
     id: string;
@@ -45,11 +45,7 @@ const questions: Question[] = [
         id: 'urgency',
         question: 'Kdy byste chtěli začít?',
         type: 'single',
-        options: [
-            'Co nejdřív - řešíme to akutně',
-            'Příští kvartál',
-            'Zatím jen zkoumáme možnosti',
-        ],
+        options: ['Co nejdřív - řešíme to akutně', 'Příští kvartál', 'Zatím jen zkoumáme možnosti'],
     },
     {
         id: 'contact',
@@ -119,7 +115,7 @@ export function QualificationPopup() {
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        // Simulate submission — replace with actual API call
+        // Simulate submission - replace with actual API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setIsSubmitting(false);
         // Redirect to thank you page with personalization
@@ -149,7 +145,13 @@ export function QualificationPopup() {
 
                 {/* Progress bar */}
                 {!isSubmitted && (
-                    <div className="h-1.5 bg-gray-100" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+                    <div
+                        className="h-1.5 bg-gray-100"
+                        role="progressbar"
+                        aria-valuenow={progress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                    >
                         <div
                             className="h-full bg-gradient-to-r from-[#0891b2] to-[#06b6d4] transition-all duration-500 ease-out rounded-full"
                             style={{ width: `${progress}%` }}
@@ -163,20 +165,16 @@ export function QualificationPopup() {
                         <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-50 to-teal-50 rounded-full flex items-center justify-center">
                             <CheckCircle2 className="w-10 h-10 text-cyan-600" />
                         </div>
-                        <h3 className="text-2xl font-bold text-[#0f172a] mb-3">
-                            Výborně, {answers.name}!
-                        </h3>
+                        <h3 className="text-2xl font-bold text-[#0f172a] mb-3">Výborně, {answers.name}!</h3>
                         <p className="text-[15px] text-gray-500 leading-relaxed mb-2">
-                            Do 24 hodin se vám telefonicky ozve <strong className="text-[#0f172a]">Jirka</strong>. Probereme vaše otázky a domluvíme termín videohovoru.
+                            Do 24 hodin se vám telefonicky ozve <strong className="text-[#0f172a]">Jirka</strong>.
+                            Probereme vaše otázky a domluvíme termín videohovoru.
                         </p>
                         <p className="text-[13px] text-gray-400 leading-relaxed">
-                            Odkaz na videohovor vám následně zašleme na <strong className="text-gray-500">{answers.email}</strong>.
+                            Odkaz na videohovor vám následně zašleme na{' '}
+                            <strong className="text-gray-500">{answers.email}</strong>.
                         </p>
-                        <Button
-                            onClick={handleClose}
-                            variant="outline"
-                            className="mt-8 rounded-full px-6"
-                        >
+                        <Button onClick={handleClose} variant="outline" className="mt-8 rounded-full px-6">
                             Zavřít
                         </Button>
                     </div>
@@ -202,9 +200,7 @@ export function QualificationPopup() {
                         </div>
 
                         {/* Question */}
-                        <h3 className="text-xl font-bold text-[#0f172a] mb-6">
-                            {currentQuestion.question}
-                        </h3>
+                        <h3 className="text-xl font-bold text-[#0f172a] mb-6">{currentQuestion.question}</h3>
 
                         {/* Single select options */}
                         {currentQuestion.type === 'single' && currentQuestion.options && (
@@ -229,9 +225,7 @@ export function QualificationPopup() {
                         {currentQuestion.type === 'contact' && currentQuestion.fields && (
                             <div className="space-y-3">
                                 {currentQuestion.subtitle && (
-                                    <p className="text-[13px] text-gray-400 -mt-2 mb-3">
-                                        {currentQuestion.subtitle}
-                                    </p>
+                                    <p className="text-[13px] text-gray-400 -mt-2 mb-3">{currentQuestion.subtitle}</p>
                                 )}
                                 {/* 2-column grid: Name + Company */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -242,7 +236,9 @@ export function QualificationPopup() {
                                             </label>
                                             <input
                                                 type={field.type}
-                                                inputMode={field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']}
+                                                inputMode={
+                                                    field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
+                                                }
                                                 value={answers[field.id] || ''}
                                                 onChange={(e) =>
                                                     setAnswers((prev) => ({
@@ -265,7 +261,9 @@ export function QualificationPopup() {
                                         </label>
                                         <input
                                             type={field.type}
-                                            inputMode={field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']}
+                                            inputMode={
+                                                field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
+                                            }
                                             value={answers[field.id] || ''}
                                             onChange={(e) =>
                                                 setAnswers((prev) => ({

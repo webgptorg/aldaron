@@ -1,30 +1,38 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
 import {
-    FileText,
-    Mail,
-    HardDrive,
-    Cloud,
-    Brain,
-    FolderOpen,
-    MessageCircleQuestion,
     AlertTriangle,
+    BookOpen,
+    Brain,
+    Cloud,
+    FileText,
+    FolderOpen,
+    Handshake,
+    HardDrive,
+    Lightbulb,
+    Mail,
+    MessageCircleQuestion,
     User,
     Users,
-    BookOpen,
-    Lightbulb,
-    Handshake,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════════════════
-   CUSTOM SVG ICONS — no background, pure accent-color path
+   CUSTOM SVG ICONS - no background, pure accent-color path
    ═══════════════════════════════════════════════════════════ */
 
 function ScatteredDataIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Folder base */}
             <path d="M3 7V17a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             {/* Search magnifier */}
@@ -39,7 +47,15 @@ function ScatteredDataIcon({ className }: { className?: string }) {
 
 function HelpdeskIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Person */}
             <circle cx="9" cy="7" r="3" />
             <path d="M9 13c-4 0-6 2-6 4v1h12v-1c0-2-2-4-6-4z" />
@@ -53,7 +69,15 @@ function HelpdeskIcon({ className }: { className?: string }) {
 
 function AIRiskIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Shield */}
             <path d="M12 3l8 4v5c0 5.25-3.5 8.25-8 10-4.5-1.75-8-4.75-8-10V7l8-4z" />
             {/* Alert triangle inside */}
@@ -67,7 +91,15 @@ function AIRiskIcon({ className }: { className?: string }) {
 
 function KnowledgeExitIcon({ className }: { className?: string }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
             {/* Person */}
             <circle cx="10" cy="7" r="3" />
             <path d="M4 18v-1c0-2 2-4 6-4s6 2 6 4v1" />
@@ -84,7 +116,7 @@ function KnowledgeExitIcon({ className }: { className?: string }) {
 
 /* ═══════════════════════════════════════════════════════════
    MICRO-ILLUSTRATION 1: Scattered Files
-   Files drift outward from center to edges — smooth linear
+   Files drift outward from center to edges - smooth linear
    ═══════════════════════════════════════════════════════════ */
 function ScatteredFilesIllustration() {
     const items = [
@@ -103,7 +135,7 @@ function ScatteredFilesIllustration() {
                 <FolderOpen className="w-5 h-5 text-orange-500" strokeWidth={1.8} />
             </div>
 
-            {/* Connection lines — dashed */}
+            {/* Connection lines - dashed */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" fill="none">
                 <motion.path
                     d="M30 30 L100 50 L170 25"
@@ -228,7 +260,7 @@ function AIRiskIllustration() {
                     <div className="h-1.5 bg-gray-200 rounded-full w-full" />
                 </div>
 
-                {/* "Hallucinated" line — glitches red */}
+                {/* "Hallucinated" line - glitches red */}
                 <motion.div
                     className="h-1.5 rounded-full w-11/12"
                     animate={{
@@ -258,7 +290,7 @@ function AIRiskIllustration() {
                 </motion.div>
             </motion.div>
 
-            {/* Scanning line — horizontal sweep */}
+            {/* Scanning line - horizontal sweep */}
             <motion.div
                 className="absolute left-8 right-8 h-px bg-gradient-to-r from-transparent via-red-400/40 to-transparent"
                 animate={{ top: ['25%', '75%', '25%'] }}
@@ -298,7 +330,7 @@ function FadingKnowledgeIllustration() {
 
     return (
         <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-            {/* Central person — gentle pulse */}
+            {/* Central person - gentle pulse */}
             <motion.div
                 className="relative z-10"
                 animate={{ opacity: [1, 0.55, 1] }}
@@ -428,7 +460,7 @@ export function PainPointsSection() {
                     </h2>
                 </motion.div>
 
-                {/* Pain Point Cards — 2x2 Grid */}
+                {/* Pain Point Cards - 2x2 Grid */}
                 <div className="grid md:grid-cols-2 gap-5">
                     {painPoints.map((point, i) => (
                         <motion.div
@@ -440,16 +472,20 @@ export function PainPointsSection() {
                             className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:shadow-gray-200/50 hover:border-gray-200 transition-all duration-500"
                         >
                             {/* Top accent line */}
-                            <div className={`absolute top-0 left-8 right-8 h-px bg-gradient-to-r ${point.accentColor} opacity-0 group-hover:opacity-40 transition-opacity duration-500 z-10`}></div>
+                            <div
+                                className={`absolute top-0 left-8 right-8 h-px bg-gradient-to-r ${point.accentColor} opacity-0 group-hover:opacity-40 transition-opacity duration-500 z-10`}
+                            ></div>
 
                             {/* ─── Illustration Zone ─── */}
-                            <div className={`relative h-32 bg-gradient-to-br ${point.illustrationBg} border-b border-gray-100/80`}>
+                            <div
+                                className={`relative h-32 bg-gradient-to-br ${point.illustrationBg} border-b border-gray-100/80`}
+                            >
                                 <point.Illustration />
                             </div>
 
                             {/* ─── Content Zone ─── */}
                             <div className="p-7">
-                                {/* Icon + Title — same line */}
+                                {/* Icon + Title - same line */}
                                 <div className="flex items-center gap-3 mb-4">
                                     <point.CustomIcon className={`shrink-0 w-7 h-7 ${point.iconColor}`} />
                                     <h3 className="text-lg font-bold text-[#0f172a] tracking-tight leading-tight">
@@ -457,12 +493,10 @@ export function PainPointsSection() {
                                     </h3>
                                 </div>
 
-                                {/* Description — full width, aligned with icon */}
-                                <p className="text-[14.5px] text-gray-500 leading-relaxed mb-4">
-                                    {point.description}
-                                </p>
+                                {/* Description - full width, aligned with icon */}
+                                <p className="text-[14.5px] text-gray-500 leading-relaxed mb-4">{point.description}</p>
 
-                                {/* Consequence — italic citation */}
+                                {/* Consequence - italic citation */}
                                 <p className="text-[14.5px] italic font-semibold text-gray-500 leading-relaxed">
                                     <span className={point.iconColor}>→</span> {point.consequence}
                                 </p>
@@ -471,7 +505,7 @@ export function PainPointsSection() {
                     ))}
                 </div>
 
-                {/* Time Allocation infographic — animated */}
+                {/* Time Allocation infographic - animated */}
                 <TimeAllocationChart />
             </div>
         </section>
@@ -505,7 +539,12 @@ function CountUp({ target, suffix = '%' }: { target: number; suffix?: string }) 
         return () => clearInterval(timer);
     }, [isInView, target]);
 
-    return <span ref={ref}>{count}{suffix}</span>;
+    return (
+        <span ref={ref}>
+            {count}
+            {suffix}
+        </span>
+    );
 }
 
 function TimeAllocationChart() {
@@ -521,9 +560,7 @@ function TimeAllocationChart() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-10 max-w-2xl mx-auto mt-10"
         >
-            <h3 className="text-lg font-bold text-[#0f172a] text-center mb-8">
-                Kam mizí čas vašich lidí?
-            </h3>
+            <h3 className="text-lg font-bold text-[#0f172a] text-center mb-8">Kam mizí čas vašich lidí?</h3>
 
             <div className="space-y-6">
                 {/* Before */}
@@ -554,7 +591,9 @@ function TimeAllocationChart() {
 
                 {/* After */}
                 <div>
-                    <p className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Po nasazení Promptbooku</p>
+                    <p className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                        Po nasazení Promptbooku
+                    </p>
                     <div className="flex rounded-xl overflow-hidden h-12 bg-gray-100">
                         <motion.div
                             className="bg-gradient-to-r from-red-200 to-red-300 flex items-center justify-center"

@@ -192,7 +192,7 @@ export function ProFirmyHeroSection() {
                                     <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
                                     <span className="ml-3 text-sm font-medium text-gray-600">
-                                        Promptbook — HR Asistent
+                                        Promptbook - HR Asistent
                                     </span>
                                 </div>
                             </div>
