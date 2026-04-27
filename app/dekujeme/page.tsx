@@ -113,7 +113,7 @@ function ThankYouContent() {
                             <div className="text-center">
                                 <div className="w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
                                     <img
-                                        src="/images/Jirka.png"
+                                        src="people/jiri-jahn-transparent-square.png"
                                         alt="Jiří Jahn"
                                         className="w-full h-full object-cover object-top"
                                     />
@@ -142,7 +142,7 @@ function ThankYouContent() {
                             <div className="text-center">
                                 <div className="w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
                                     <img
-                                        src="/images/Pavol.png"
+                                        src="people/pavol-hejny-transparent-square.png"
                                         alt="Pavol Hejný"
                                         className="w-full h-full object-cover object-top"
                                     />
