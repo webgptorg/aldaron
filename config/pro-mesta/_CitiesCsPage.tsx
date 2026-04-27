@@ -4,16 +4,14 @@ import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
+import { OldHeroSection } from '@/components/old-hero-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
-import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import citiesCsBook from '@/config/pro-mesta/citiesCs.book';
 import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
 import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
@@ -53,7 +51,7 @@ export function CitiesCsPage() {
                     getStartedText="Začněte"
                 />
                 <Suspense>
-                    <HeroSection
+                    <OldHeroSection
                         conversation={citiesCsConversation}
                         backgroundImage="/backgrounds/pro-mesta.svg"
                         getHero={({ you }) => (

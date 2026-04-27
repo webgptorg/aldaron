@@ -4,8 +4,8 @@ import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
 import { IntegrationsSection } from '@/components/integrations-section';
+import { OldHeroSection } from '@/components/old-hero-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
@@ -54,7 +54,7 @@ export function ForAgroPage() {
                 />
 
                 <Suspense>
-                    <HeroSection
+                    <OldHeroSection
                         conversation={forAgroConversation}
                         backgroundImage="/backgrounds/for-agro.svg"
                         getHero={({ you }) => (
