@@ -5,7 +5,7 @@ import { FeatureCardsSection } from '@/components/feature-cards-section';
 import { Footer } from '@/components/footer';
 import { HackathonFactoryLogo } from '@/components/hackathon-factory-logo';
 import { Header } from '@/components/header';
-import { HeroSection } from '@/components/hero-section';
+import { OldHeroSection } from '@/components/old-hero-section';
 import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
@@ -75,7 +75,7 @@ export function HackathonFactoryPage() {
                 />
 
                 <Suspense>
-                    <HeroSection
+                    <OldHeroSection
                         conversation={hackathonFactoryConversation}
                         backgroundImage={null}
                         getHero={() => (
@@ -91,8 +91,8 @@ export function HackathonFactoryPage() {
                                     </div>
 
                                     <h1 className="text-5xl font-bold leading-tight text-slate-900 lg:text-6xl">
-                                        Spojujeme <span className="text-amber-500">reálné problémy</span> s týmy,
-                                        které je umí dotáhnout do výsledku
+                                        Spojujeme <span className="text-amber-500">reálné problémy</span> s týmy, které
+                                        je umí dotáhnout do výsledku
                                     </h1>
 
                                     <p className="max-w-2xl text-xl leading-relaxed text-slate-600">
