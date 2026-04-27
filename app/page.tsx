@@ -1,10 +1,10 @@
 import { BookingNotification } from '@/components/booking-notification';
 import { EnemySection } from '@/components/enemy-section';
 import { FinalCTASection } from '@/components/final-cta-section';
+import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { HeroSection } from '@/components/hero-section';
 import { HowItWorksSection } from '@/components/how-it-works-section';
-import { MinimalFooter } from '@/components/minimal-footer';
 import { PainPointsSection } from '@/components/pain-points-section';
 import { QualificationPopup } from '@/components/qualification-popup';
 import { SocialProofStrip } from '@/components/social-proof-strip';
@@ -40,7 +40,10 @@ export default function Home() {
             <TestimonialsSection />
             <TeamSection />
             <FinalCTASection />
-            <MinimalFooter />
+            <Footer />
+            {/* <- Note: Due to legal reasons we cannot use `<MinimalFooter/>` here and need to use `<Footer/>` instead
+                         On the other hand, we can use `<MinimalFooter/>` on the `/dekujeme` page 
+            */}
             <QualificationPopup />
             <BookingNotification />
         </main>
