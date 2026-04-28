@@ -1,5 +1,6 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion, useInView } from 'framer-motion';
 import {
     AlertTriangle,
@@ -372,13 +373,9 @@ function FadingKnowledgeIllustration() {
 /* ═══════════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════════ */
-const painPoints = [
+const painPointVisuals = [
     {
         CustomIcon: ScatteredDataIcon,
-        title: 'Roztříštěná firemní data',
-        description:
-            'Směrnice na SharePointu, smlouvy v e-mailech, manuály na Google Disku, procesy v hlavách lidí. Informace existují - ale jsou rozházené po desítkách systémů.',
-        consequence: 'Zaměstnanci tráví výraznou část dne hledáním místo práce, za kterou je platíte.',
         accentColor: 'from-orange-500 to-amber-500',
         bgAccent: 'from-orange-50 to-amber-50',
         borderAccent: 'border-orange-200/50',
@@ -388,10 +385,6 @@ const painPoints = [
     },
     {
         CustomIcon: HelpdeskIcon,
-        title: 'Klíčoví lidé jako interní helpdesk',
-        description:
-            'Seniorní zaměstnanci zodpovídají stále stejné dotazy od nováčků a kolegů. Místo strategické práce řeší rutinní informační servis.',
-        consequence: 'Vaši nejdražší lidé dělají práci, kterou by měl dělat systém.',
         accentColor: 'from-blue-500 to-indigo-500',
         bgAccent: 'from-blue-50 to-indigo-50',
         borderAccent: 'border-blue-200/50',
@@ -401,10 +394,6 @@ const painPoints = [
     },
     {
         CustomIcon: AIRiskIcon,
-        title: 'Riziko veřejné AI',
-        description:
-            'Zaměstnanci řeší pracovní úkoly přes veřejný ChatGPT - včetně citlivých firemních dokumentů. Veřejná AI nemá kontext vaší firmy a při neznalosti si odpověď domyslí.',
-        consequence: 'Jedno rozhodnutí na základě vymyšlené informace může stát víc než roční rozpočet na nástroje.',
         accentColor: 'from-red-500 to-rose-500',
         bgAccent: 'from-red-50 to-rose-50',
         borderAccent: 'border-red-200/50',
@@ -414,10 +403,6 @@ const painPoints = [
     },
     {
         CustomIcon: KnowledgeExitIcon,
-        title: 'Odcházející know-how',
-        description:
-            'Když z firmy odejde zkušený člověk, odchází s ním znalosti, které nikde nejsou zdokumentované - rozhodovací procesy, kontext klientských vztahů, historické know-how.',
-        consequence: 'Firma přichází o roky budovanou expertízu, kterou nelze jednoduše nahradit.',
         accentColor: 'from-purple-500 to-violet-500',
         bgAccent: 'from-purple-50 to-violet-50',
         borderAccent: 'border-purple-200/50',
@@ -430,7 +415,13 @@ const painPoints = [
 /* ═══════════════════════════════════════════════════════════
    MAIN SECTION
    ═══════════════════════════════════════════════════════════ */
-export function PainPointsSection() {
+export function PainPointsSection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { painPoints } = getHomepageContent(language);
+    const points = painPoints.points.map((point, index) => ({
+        ...point,
+        ...painPointVisuals[index],
+    }));
+
     return (
         <section className="relative pt-[50px] pb-24 bg-gradient-to-b from-gray-50/80 to-white overflow-hidden">
             {/* Subtle background orbs */}
@@ -447,22 +438,19 @@ export function PainPointsSection() {
                     className="text-center mb-16"
                 >
                     <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Proč firmy ztrácejí miliony
+                        {painPoints.eyebrow}
                     </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-2xl mx-auto"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Znalosti ve firmě existují.{' '}
-                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            Problém je, že je nikdo nenajde.
-                        </span>
+                        {painPoints.heading}
                     </h2>
                 </motion.div>
 
                 {/* Pain Point Cards - 2x2 Grid */}
                 <div className="grid md:grid-cols-2 gap-5">
-                    {painPoints.map((point, i) => (
+                    {points.map((point, i) => (
                         <motion.div
                             key={point.title}
                             initial={{ opacity: 0, y: 25 }}
@@ -506,7 +494,7 @@ export function PainPointsSection() {
                 </div>
 
                 {/* Time Allocation infographic - animated */}
-                <TimeAllocationChart />
+                <TimeAllocationChart content={painPoints.timeAllocation} />
             </div>
         </section>
     );
@@ -547,7 +535,21 @@ function CountUp({ target, suffix = '%' }: { target: number; suffix?: string }) 
     );
 }
 
-function TimeAllocationChart() {
+function TimeAllocationChart({
+    content,
+}: {
+    content: {
+        title: string;
+        beforeLabel: string;
+        beforePrimary: string;
+        beforeSecondary: string;
+        beforeNote: string;
+        afterLabel: string;
+        afterPrimary: string;
+        afterSecondary: string;
+        afterNote: string;
+    };
+}) {
     const ref = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: true, margin: '-50px' });
 
@@ -560,12 +562,14 @@ function TimeAllocationChart() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-10 max-w-2xl mx-auto mt-10"
         >
-            <h3 className="text-lg font-bold text-[#0f172a] text-center mb-8">Kam mizí čas vašich lidí?</h3>
+            <h3 className="text-lg font-bold text-[#0f172a] text-center mb-8">{content.title}</h3>
 
             <div className="space-y-6">
                 {/* Before */}
                 <div>
-                    <p className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Před</p>
+                    <p className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                        {content.beforeLabel}
+                    </p>
                     <div className="flex rounded-xl overflow-hidden h-12 bg-gray-100">
                         <motion.div
                             className="bg-gradient-to-r from-red-200 to-red-300 flex items-center justify-center"
@@ -574,7 +578,7 @@ function TimeAllocationChart() {
                             transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                         >
                             <span className="text-[14px] font-bold text-red-800">
-                                <CountUp target={80} /> Nedůležité
+                                <CountUp target={80} /> {content.beforePrimary}
                             </span>
                         </motion.div>
                         <motion.div
@@ -583,16 +587,16 @@ function TimeAllocationChart() {
                             animate={isInView ? { width: '20%' } : { width: '0%' }}
                             transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                         >
-                            <span className="text-[12px] font-bold text-cyan-800">20%</span>
+                            <span className="text-[12px] font-bold text-cyan-800">{content.beforeSecondary}</span>
                         </motion.div>
                     </div>
-                    <p className="text-[12px] text-gray-400 mt-2">E-maily · Porady · Rutinní úkoly</p>
+                    <p className="text-[12px] text-gray-400 mt-2">{content.beforeNote}</p>
                 </div>
 
                 {/* After */}
                 <div>
                     <p className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                        Po nasazení Promptbooku
+                        {content.afterLabel}
                     </p>
                     <div className="flex rounded-xl overflow-hidden h-12 bg-gray-100">
                         <motion.div
@@ -601,7 +605,7 @@ function TimeAllocationChart() {
                             animate={isInView ? { width: '20%' } : { width: '0%' }}
                             transition={{ duration: 1, delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                         >
-                            <span className="text-[12px] font-bold text-red-800">20%</span>
+                            <span className="text-[12px] font-bold text-red-800">{content.afterSecondary}</span>
                         </motion.div>
                         <motion.div
                             className="bg-gradient-to-r from-cyan-300 to-cyan-400 flex items-center justify-center"
@@ -610,11 +614,11 @@ function TimeAllocationChart() {
                             transition={{ duration: 1, delay: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
                         >
                             <span className="text-[14px] font-bold text-cyan-800">
-                                <CountUp target={80} /> Důležité
+                                <CountUp target={80} /> {content.afterPrimary}
                             </span>
                         </motion.div>
                     </div>
-                    <p className="text-[12px] text-gray-400 mt-2 text-right">Rodina · Kreativita · Strategická práce</p>
+                    <p className="text-[12px] text-gray-400 mt-2 text-right">{content.afterNote}</p>
                 </div>
             </div>
         </motion.div>

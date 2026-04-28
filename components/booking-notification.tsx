@@ -1,27 +1,15 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'promptbook_notif_shown';
 
-const notifications = [
-    {
-        company: 'Firma z Prahy',
-        time: 'před 2 hodinami',
-    },
-    {
-        company: 'Firma z Brna',
-        time: 'před 4 hodinami',
-    },
-    {
-        company: 'Firma z Ostravy',
-        time: 'včera',
-    },
-];
-
-export function BookingNotification() {
+export function BookingNotification({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { bookingNotification } = getHomepageContent(language);
+    const notifications = bookingNotification.notifications;
     const [visible, setVisible] = useState(false);
     const [notification, setNotification] = useState(notifications[0]);
 
@@ -43,7 +31,7 @@ export function BookingNotification() {
         }, 6000);
 
         return () => clearTimeout(showTimer);
-    }, []);
+    }, [notifications]);
 
     // Auto-dismiss after 8 seconds
     useEffect(() => {
@@ -71,11 +59,9 @@ export function BookingNotification() {
 
                         <div className="flex-1 min-w-0">
                             <p className="text-[14px] font-semibold text-[#0f172a] leading-snug">
-                                {notification.company} si zarezervovala strategický hovor
+                                {notification.company} {bookingNotification.messageSuffix}
                             </p>
-                            <p className="text-[12px] text-gray-400 mt-0.5">
-                                {notification.time}
-                            </p>
+                            <p className="text-[12px] text-gray-400 mt-0.5">{notification.time}</p>
                         </div>
 
                         {/* Close button */}

@@ -1,13 +1,29 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
 
-export function Header() {
+interface HeaderProps {
+    language?: HomepageLanguage;
+    isBare?: boolean;
+    tryItYourselfText?: ReactNode;
+    whyPromptbookText?: ReactNode;
+    integrationsText?: ReactNode;
+    pricingText?: ReactNode;
+    getStartedText?: ReactNode;
+    brandLogo?: ReactNode;
+    brandName?: ReactNode;
+}
+
+export function Header({ language }: HeaderProps = {}) {
+    const resolvedLanguage = language ?? 'cs';
+    const { header } = getHomepageContent(resolvedLanguage);
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -34,7 +50,10 @@ export function Header() {
             <div className="container mx-auto px-4">
                 <div className="flex items-center justify-between h-14">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
+                    <Link
+                        href={language ? `/${language}` : '/'}
+                        className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0"
+                    >
                         <Image src={promptbookLogo} alt="Promptbook" width={32} height={32} className="w-8 h-8" />
                         <span className="text-xl text-gray-900">
                             Prompt<b>book</b>
@@ -45,7 +64,8 @@ export function Header() {
                     <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
                         <span>🔥</span>
                         <span>
-                            Zbývá <strong className="text-gray-900">7 míst z 10</strong> pro strategický hovor zdarma
+                            {header.fomoBefore} <strong className="text-gray-900">{header.fomoStrong}</strong>{' '}
+                            {header.fomoAfter}
                         </span>
                     </div>
 
@@ -55,8 +75,8 @@ export function Header() {
                         className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90 hover:shadow-lg transition-all duration-300 shrink-0 text-[13px] sm:text-sm px-3 sm:px-4"
                         id="header-cta"
                     >
-                        <span className="sm:hidden">Chci hovor zdarma</span>
-                        <span className="hidden sm:inline">Zarezervovat hovor zdarma</span>
+                        <span className="sm:hidden">{header.ctaMobile}</span>
+                        <span className="hidden sm:inline">{header.ctaDesktop}</span>
                         <ArrowRight className="ml-1.5 w-4 h-4" />
                     </Button>
                 </div>

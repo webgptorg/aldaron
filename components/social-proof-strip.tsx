@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import {
     Building2,
     Scale,
@@ -19,24 +20,26 @@ import {
 } from 'lucide-react';
 import { InfiniteSlider } from '@/components/ui/infinite-slider';
 
-const industries = [
-    { icon: Building2, label: 'Výrobní firmy' },
-    { icon: Scale, label: 'Advokátní kanceláře' },
-    { icon: HardHat, label: 'Stavební firmy' },
-    { icon: Landmark, label: 'Veřejná správa' },
-    { icon: Stethoscope, label: 'Zdravotnictví' },
-    { icon: GraduationCap, label: 'Vzdělávání' },
-    { icon: Truck, label: 'Logistika' },
-    { icon: Zap, label: 'Energetika' },
-    { icon: Monitor, label: 'IT firmy' },
-    { icon: ShieldCheck, label: 'Pojišťovnictví' },
-    { icon: FlaskConical, label: 'Farmaceutický průmysl' },
-    { icon: ShoppingCart, label: 'E-commerce' },
-    { icon: Calculator, label: 'Účetní kanceláře' },
-    { icon: Radio, label: 'Telekomunikace' },
+const industryIcons = [
+    Building2,
+    Scale,
+    HardHat,
+    Landmark,
+    Stethoscope,
+    GraduationCap,
+    Truck,
+    Zap,
+    Monitor,
+    ShieldCheck,
+    FlaskConical,
+    ShoppingCart,
+    Calculator,
+    Radio,
 ];
 
-export function SocialProofStrip() {
+export function SocialProofStrip({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { socialProof } = getHomepageContent(language);
+
     return (
         <section className="relative py-14 bg-white border-y border-gray-100">
             <div className="max-w-6xl mx-auto px-6">
@@ -48,7 +51,7 @@ export function SocialProofStrip() {
                     className="text-center"
                 >
                     <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-8">
-                        Navrženo pro firmy, které berou svá data vážně
+                        {socialProof.eyebrow}
                     </p>
                 </motion.div>
             </div>
@@ -60,25 +63,21 @@ export function SocialProofStrip() {
                 {/* Right progressive blur */}
                 <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-[120px] bg-gradient-to-l from-white to-transparent" />
 
-                <InfiniteSlider
-                    gap={48}
-                    duration={80}
-                    durationOnHover={160}
-                    className="py-2"
-                >
-                    {industries.map((industry) => (
-                        <div
-                            key={industry.label}
-                            className="flex items-center gap-2.5 group shrink-0 select-none"
-                        >
-                            <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-cyan-50 group-hover:to-blue-50 group-hover:border-cyan-200/50 transition-all duration-300">
-                                <industry.icon className="w-4 h-4 text-gray-400 group-hover:text-[#0891b2] transition-colors duration-300" />
+                <InfiniteSlider gap={48} duration={80} durationOnHover={160} className="py-2">
+                    {socialProof.industries.map((label, index) => {
+                        const Icon = industryIcons[index];
+
+                        return (
+                            <div key={label} className="flex items-center gap-2.5 group shrink-0 select-none">
+                                <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-cyan-50 group-hover:to-blue-50 group-hover:border-cyan-200/50 transition-all duration-300">
+                                    <Icon className="w-4 h-4 text-gray-400 group-hover:text-[#0891b2] transition-colors duration-300" />
+                                </div>
+                                <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300 whitespace-nowrap">
+                                    {label}
+                                </span>
                             </div>
-                            <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300 whitespace-nowrap">
-                                {industry.label}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </InfiniteSlider>
             </div>
         </section>

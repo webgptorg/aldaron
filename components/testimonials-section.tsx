@@ -1,7 +1,23 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion } from 'framer-motion';
 import { Quote } from 'lucide-react';
+import type { StaticImageData } from 'next/image';
+
+export type Testimonial = {
+    name: string;
+    role: string;
+    testimonial: string;
+    avatar?: StaticImageData | string;
+};
+
+type TestimonialsSectionProps = {
+    language?: HomepageLanguage;
+    title?: string;
+    description?: string;
+    testimonials?: Testimonial[];
+};
 
 /* Custom SVG icons */
 function UniversityIcon({ className }: { className?: string }) {
@@ -56,28 +72,22 @@ function CityHallIcon({ className }: { className?: string }) {
     );
 }
 
-const testimonials = [
+const testimonialVisuals = [
     {
-        quote: 'Promptbook nás od sebe neodstřihl. Naopak - konečně máme čas řešit opravdovou práci, za kterou jsme placeni.',
-        author: 'IT oddělení',
-        company: 'Slezská univerzita v Opavě',
         CustomIcon: UniversityIcon,
     },
     {
-        quote: 'Nováčci se už nemusí bát zeptat. Mají odpovědi okamžitě a přesně podle našich interních směrnic.',
-        author: 'Městská část',
-        company: 'Praha 13',
         CustomIcon: CityHallIcon,
     },
 ];
 
-const metrics = [
-    { value: '1 000 000' /* <- !!!!!! */, label: 'normostran kapacity', suffix: '' },
-    { value: '100%', label: 'GDPR compliance', suffix: '' },
-    { value: '0', label: 'halucinací', suffix: '' },
-];
+export function TestimonialsSection({ language = 'cs' }: TestimonialsSectionProps) {
+    const { testimonials: homepageTestimonials } = getHomepageContent(language);
+    const items = homepageTestimonials.items.map((testimonial, index) => ({
+        ...testimonial,
+        ...testimonialVisuals[index],
+    }));
 
-export function TestimonialsSection() {
     return (
         <section className="relative pt-[50px] pb-24 bg-gradient-to-b from-gray-50/50 to-white overflow-hidden">
             <div className="max-w-6xl mx-auto px-6 relative z-10">
@@ -89,21 +99,20 @@ export function TestimonialsSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-14"
                 >
-                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">Reference</p>
+                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
+                        {homepageTestimonials.eyebrow}
+                    </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-3xl mx-auto"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Co říkají firmy, které{' '}
-                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            přestaly hledat.
-                        </span>
+                        {homepageTestimonials.heading}
                     </h2>
                 </motion.div>
 
                 {/* Testimonial Cards */}
                 <div className="grid md:grid-cols-2 gap-6 mb-16">
-                    {testimonials.map((testimonial, i) => (
+                    {items.map((testimonial, i) => (
                         <motion.div
                             key={testimonial.company}
                             initial={{ opacity: 0, y: 25 }}
@@ -142,7 +151,7 @@ export function TestimonialsSection() {
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
                 >
-                    {metrics.map((metric, i) => (
+                    {homepageTestimonials.metrics.map((metric, i) => (
                         <div
                             key={metric.label}
                             className="text-center py-6 sm:py-8 bg-white rounded-2xl border border-gray-100"

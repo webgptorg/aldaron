@@ -1,10 +1,13 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion } from 'framer-motion';
 import { ArrowRight, Shield, Clock, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function FinalCTASection() {
+export function FinalCTASection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { finalCta } = getHomepageContent(language);
+
     const handleCTAClick = () => {
         window.dispatchEvent(new CustomEvent('open-qualification-popup'));
     };
@@ -32,19 +35,27 @@ export function FinalCTASection() {
             <div
                 className="absolute inset-0"
                 style={{
-                    background: 'radial-gradient(ellipse at 30% 70%, rgba(6,182,212,0.12) 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, rgba(20,184,166,0.1) 0%, transparent 50%)',
+                    background:
+                        'radial-gradient(ellipse at 30% 70%, rgba(6,182,212,0.12) 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, rgba(20,184,166,0.1) 0%, transparent 50%)',
                 }}
             />
 
             {/* Animated glow spots */}
-            <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] rounded-full bg-cyan-400/[0.08] blur-[100px]" style={{ animation: 'pulseGlow 8s ease-in-out infinite' }} />
-            <div className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-teal-300/[0.06] blur-[100px]" style={{ animation: 'pulseGlow 10s ease-in-out infinite 3s' }} />
+            <div
+                className="absolute top-[30%] left-[20%] w-[300px] h-[300px] rounded-full bg-cyan-400/[0.08] blur-[100px]"
+                style={{ animation: 'pulseGlow 8s ease-in-out infinite' }}
+            />
+            <div
+                className="absolute bottom-[20%] right-[15%] w-[350px] h-[350px] rounded-full bg-teal-300/[0.06] blur-[100px]"
+                style={{ animation: 'pulseGlow 10s ease-in-out infinite 3s' }}
+            />
 
             {/* Edge vignette */}
             <div
                 className="absolute inset-0"
                 style={{
-                    background: 'radial-gradient(ellipse at center, transparent 40%, rgba(7,46,63,0.85) 80%, rgba(7,46,63,1) 100%)',
+                    background:
+                        'radial-gradient(ellipse at center, transparent 40%, rgba(7,46,63,0.85) 80%, rgba(7,46,63,1) 100%)',
                 }}
             />
 
@@ -56,19 +67,17 @@ export function FinalCTASection() {
                     transition={{ duration: 0.7 }}
                     className="space-y-8"
                 >
-
                     {/* Heading */}
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.75rem] font-extrabold text-white tracking-tight"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Přestaňte platit za hledání.<br />
-                        Začněte platit za práci.
+                        {finalCta.heading}
                     </h2>
 
                     {/* Body */}
                     <p className="text-[17px] text-cyan-100/80 leading-relaxed max-w-xl mx-auto">
-                        Zarezervujte si 20minutový strategický hovor s naším týmem. Žádný agresivní sales pitch - projdeme vaši konkrétní situaci a ukážeme vám Promptbook přímo na vašich firemních datech.
+                        {finalCta.description}
                     </p>
 
                     {/* CTA */}
@@ -78,7 +87,7 @@ export function FinalCTASection() {
                             size="lg"
                             className="bg-white text-[#0e7490] hover:bg-gray-50 hover:shadow-2xl hover:shadow-black/20 transform hover:scale-[1.03] transition-all duration-300 text-[14px] sm:text-[16px] font-bold px-6 sm:px-10 py-5 sm:py-7 rounded-full"
                         >
-                            Zarezervovat strategický hovor zdarma
+                            {finalCta.cta}
                             <ArrowRight className="ml-2 w-5 h-5" />
                         </Button>
                     </div>
@@ -86,8 +95,12 @@ export function FinalCTASection() {
                     {/* Urgency: Progress bar */}
                     <div className="max-w-xs mx-auto space-y-2">
                         <div className="flex items-center justify-between text-[13px]">
-                            <span className="text-cyan-100/70 font-medium">Obsazeno <span className="text-white font-bold">7</span> z 10 míst</span>
-                            <span className="text-amber-300/90 font-semibold">Zbývají 3</span>
+                            <span className="text-cyan-100/70 font-medium">
+                                {finalCta.capacityPrefix}{' '}
+                                <span className="text-white font-bold">{finalCta.capacityStrong}</span>{' '}
+                                {finalCta.capacitySuffix}
+                            </span>
+                            <span className="text-amber-300/90 font-semibold">{finalCta.capacityRemaining}</span>
                         </div>
                         <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                             <motion.div
@@ -98,16 +111,13 @@ export function FinalCTASection() {
                                 className="h-full bg-gradient-to-r from-amber-300 to-orange-400 rounded-full"
                             />
                         </div>
-                        <p className="text-[11px] text-cyan-200/40 leading-snug">
-                            Bereme max. 10 firem měsíčně, abychom se každé mohli věnovat individuálně.
-                        </p>
+                        <p className="text-[11px] text-cyan-200/40 leading-snug">{finalCta.capacityNote}</p>
                     </div>
 
                     {/* Risk reversal */}
                     <p className="text-[13px] text-cyan-100/60 leading-relaxed max-w-md mx-auto">
-                        I kdybyste se rozhodli Promptbook nepoužívat, odnesete si konkrétní strategii, jak vyřešit chaos ve firemních datech.
+                        {finalCta.riskReversal}
                     </p>
-
                 </motion.div>
             </div>
         </section>

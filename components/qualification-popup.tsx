@@ -2,66 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface Question {
-    id: string;
-    question: string;
-    subtitle?: string;
-    type: 'single' | 'contact';
-    options?: string[];
-    fields?: { id: string; label: string; type: string; placeholder: string; inputMode?: string }[];
-}
-
-const questions: Question[] = [
-    {
-        id: 'industry',
-        question: 'V jakém oboru působíte?',
-        type: 'single',
-        options: [
-            'Výroba / Průmysl',
-            'Právo / Finance',
-            'Stavebnictví / Real estate',
-            'Veřejná správa / Vzdělávání',
-            'IT / Technologie',
-            'Jiný obor',
-        ],
-    },
-    {
-        id: 'pain_point',
-        question: 'Co vás nejvíc trápí?',
-        type: 'single',
-        options: [
-            'Lidé tráví hodiny hledáním dokumentů',
-            'Senioři odpovídají stále na stejné dotazy',
-            'Firemní data ve veřejném ChatGPT nás děsí',
-            'Když odejde klíčový člověk, know-how zmizí s ním',
-            'Zatím jen zkoumám, co Promptbook umí',
-        ],
-    },
-    {
-        id: 'urgency',
-        question: 'Kdy byste chtěli začít?',
-        type: 'single',
-        options: ['Co nejdřív - řešíme to akutně', 'Příští kvartál', 'Zatím jen zkoumáme možnosti'],
-    },
-    {
-        id: 'contact',
-        question: 'Kam se vám ozveme?',
-        subtitle: 'Jirka vám zavolá do 24 hodin.',
-        type: 'contact',
-        fields: [
-            { id: 'name', label: 'Jméno', type: 'text', placeholder: 'Jan Novák' },
-            { id: 'company', label: 'Firma', type: 'text', placeholder: 'Název vaší firmy' },
-            { id: 'email', label: 'E-mail', type: 'email', placeholder: 'jan@firma.cz' },
-            { id: 'phone', label: 'Telefon', type: 'tel', placeholder: '+420 777 123 456', inputMode: 'tel' },
-        ],
-    },
-];
-
-export function QualificationPopup() {
+export function QualificationPopup({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { qualificationPopup } = getHomepageContent(language);
+    const questions = qualificationPopup.questions;
     const [isOpen, setIsOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -140,7 +88,7 @@ export function QualificationPopup() {
             <DialogContent className="max-w-lg p-0 overflow-hidden border-0 rounded-3xl shadow-2xl h-[600px] sm:h-[620px] flex flex-col">
                 {/* Accessibility: hidden title for screen readers */}
                 <VisuallyHidden>
-                    <DialogTitle>Kvalifikační formulář</DialogTitle>
+                    <DialogTitle>{qualificationPopup.dialogTitle}</DialogTitle>
                 </VisuallyHidden>
 
                 {/* Progress bar */}
@@ -165,17 +113,18 @@ export function QualificationPopup() {
                         <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-50 to-teal-50 rounded-full flex items-center justify-center">
                             <CheckCircle2 className="w-10 h-10 text-cyan-600" />
                         </div>
-                        <h3 className="text-2xl font-bold text-[#0f172a] mb-3">Výborně, {answers.name}!</h3>
+                        <h3 className="text-2xl font-bold text-[#0f172a] mb-3">
+                            {qualificationPopup.successTitle(answers.name || '')}
+                        </h3>
                         <p className="text-[15px] text-gray-500 leading-relaxed mb-2">
-                            Do 24 hodin se vám telefonicky ozve <strong className="text-[#0f172a]">Jirka</strong>.
-                            Probereme vaše otázky a domluvíme termín videohovoru.
+                            {qualificationPopup.successDescription}
                         </p>
                         <p className="text-[13px] text-gray-400 leading-relaxed">
-                            Odkaz na videohovor vám následně zašleme na{' '}
+                            {qualificationPopup.successEmailPrefix}{' '}
                             <strong className="text-gray-500">{answers.email}</strong>.
                         </p>
                         <Button onClick={handleClose} variant="outline" className="mt-8 rounded-full px-6">
-                            Zavřít
+                            {qualificationPopup.close}
                         </Button>
                     </div>
                 ) : (
@@ -185,17 +134,15 @@ export function QualificationPopup() {
                         <div className="mb-6">
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-[12px] font-medium text-gray-400 uppercase tracking-wider">
-                                    Krok {currentStep + 1} z {totalSteps}
+                                    {qualificationPopup.stepLabel(currentStep, totalSteps)}
                                 </span>
                                 <span className="text-[12px] text-emerald-600 font-medium flex items-center gap-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    Zbývají 3 místa
+                                    {qualificationPopup.remainingSpots}
                                 </span>
                             </div>
                             {currentStep === 0 && (
-                                <p className="text-[13px] text-gray-400 mt-2">
-                                    5 otázek, 30 sekund. Ověříme, jestli pro vás Promptbook dává smysl.
-                                </p>
+                                <p className="text-[13px] text-gray-400 mt-2">{qualificationPopup.intro}</p>
                             )}
                         </div>
 
@@ -289,10 +236,10 @@ export function QualificationPopup() {
                                     className="bg-gradient-to-r from-[#0e7490] to-[#0891b2] text-white rounded-full px-8 py-5 text-[15px] font-semibold hover:shadow-lg hover:shadow-cyan-500/15 transition-all duration-300 disabled:opacity-40 w-full sm:w-auto"
                                 >
                                     {isSubmitting ? (
-                                        'Odesílám...'
+                                        qualificationPopup.submitting
                                     ) : (
                                         <>
-                                            Rezervovat hovor zdarma
+                                            {qualificationPopup.submit}
                                             <Calendar className="ml-2 w-4 h-4" />
                                         </>
                                     )}
@@ -303,18 +250,18 @@ export function QualificationPopup() {
                                     className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <ArrowLeft className="w-3.5 h-3.5" />
-                                    Zpět
+                                    {qualificationPopup.back}
                                 </button>
 
                                 <p className="text-[11px] text-gray-400 text-center mt-1">
-                                    Odesláním souhlasíte s{' '}
+                                    {qualificationPopup.privacyPrefix}{' '}
                                     <a
-                                        href="/ochrana-soukromi"
+                                        href={qualificationPopup.privacyHref}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="underline hover:text-gray-600 transition-colors"
                                     >
-                                        ochranou osobních údajů
+                                        {qualificationPopup.privacyLinkText}
                                     </a>
                                     .
                                 </p>
@@ -329,7 +276,7 @@ export function QualificationPopup() {
                                     }`}
                                 >
                                     <ArrowLeft className="w-4 h-4" />
-                                    Zpět
+                                    {qualificationPopup.back}
                                 </button>
                             </div>
                         )}

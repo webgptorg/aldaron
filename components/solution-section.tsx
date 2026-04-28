@@ -1,5 +1,6 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion } from 'framer-motion';
 
 /* ═══════════════════════════════════════════════════════════
@@ -71,31 +72,19 @@ function HonestyIcon({ className }: { className?: string }) {
 /* ═══════════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════════ */
-const benefits = [
+const benefitVisuals = [
     {
         CustomIcon: NaturalChatIcon,
-        title: 'Bez promptování',
-        description:
-            'Žádné školení. Žádné napiš prompt jako ajťák. Vaši zaměstnanci jsou experti na svůj obor, ne na zaříkávání robotů. Prostě se zeptají - písemně nebo hlasovkou - a dostanou odpověď.',
-        highlight: 'Tak, jak jsou zvyklí komunikovat s lidmi.',
         iconColor: 'text-cyan-500',
         accentColor: 'from-cyan-500 to-blue-500',
     },
     {
         CustomIcon: VaultIcon,
-        title: 'Kontextový trezor',
-        description:
-            'Data nikdy neopustí vaši infrastrukturu. Nepoužíváme je na trénování žádných modelů. Víte, co se stane, když zaměstnanec zkopíruje NDA do veřejného ChatGPT?',
-        highlight: 'My taky. Proto jsme to udělali jinak.',
         iconColor: 'text-emerald-500',
         accentColor: 'from-emerald-500 to-teal-500',
     },
     {
         CustomIcon: HonestyIcon,
-        title: 'Nevím je lepší než halucinace',
-        description:
-            'Veřejná AI si vymyslí pět odstavců, které zní důvěryhodně - a mohou vás stát firmu. Promptbook čerpá výhradně z vašich dat. A když odpověď nenajde?',
-        highlight: 'Narovinu řekne: Tuto informaci ve vašich dokumentech nemám.',
         iconColor: 'text-violet-500',
         accentColor: 'from-violet-500 to-purple-500',
     },
@@ -104,7 +93,13 @@ const benefits = [
 /* ═══════════════════════════════════════════════════════════
    MAIN SECTION
    ═══════════════════════════════════════════════════════════ */
-export function SolutionSection() {
+export function SolutionSection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { solution } = getHomepageContent(language);
+    const benefits = solution.benefits.map((benefit, index) => ({
+        ...benefit,
+        ...benefitVisuals[index],
+    }));
+
     return (
         <section className="relative pt-[50px] pb-24 bg-white overflow-hidden">
             {/* Background */}
@@ -119,19 +114,17 @@ export function SolutionSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-14"
                 >
-                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">Řešení</p>
+                    <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
+                        {solution.eyebrow}
+                    </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-3xl mx-auto mb-5"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Virtuální zaměstnanec, který{' '}
-                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            zná celou firmu.
-                        </span>
+                        {solution.heading}
                     </h2>
                     <p className="text-[17px] text-gray-500 leading-relaxed max-w-2xl mx-auto">
-                        Nahrajte firemní dokumenty do bezpečného trezoru. Promptbook z nich vytvoří virtuálního
-                        zaměstnance - HR-istu, právníka, technika - kterého se kdokoliv zeptá normální češtinou.
+                        {solution.description}
                     </p>
                 </motion.div>
 

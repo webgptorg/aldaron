@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
@@ -71,13 +72,10 @@ function AskQuestionIcon({ className }: { className?: string }) {
 /* ═══════════════════════════════════════════════════════════
    DATA
    ═══════════════════════════════════════════════════════════ */
-const steps = [
+const stepVisuals = [
     {
         number: '01',
         CustomIcon: UploadDocsIcon,
-        title: 'Nahrajete dokumenty',
-        description:
-            'Směrnice, smlouvy, manuály, NDAčka, zápisy z porad - cokoliv, co dnes leží rozházené po SharePointu, Google Disku nebo v šuplíku. Promptbook pojme až milion normostran.',
         iconColor: 'text-cyan-500',
         dotColor: 'bg-cyan-500',
         glowColor: 'shadow-cyan-500/30',
@@ -85,9 +83,6 @@ const steps = [
     {
         number: '02',
         CustomIcon: CreateAgentIcon,
-        title: 'Vytvoříte virtuálního zaměstnance',
-        description:
-            'HR-istu, který zná pracovní řád. Právníka, který zná všechny smlouvy. Technika, který zná manuály. Každý agent odpovídá přesně podle vašich firemních dat.',
         iconColor: 'text-blue-500',
         dotColor: 'bg-blue-500',
         glowColor: 'shadow-blue-500/30',
@@ -95,9 +90,6 @@ const steps = [
     {
         number: '03',
         CustomIcon: AskQuestionIcon,
-        title: 'Lidé se ptají',
-        description:
-            'Normální češtinou. Jako by psali zprávu na WhatsApp. Nebo pošlou hlasovku. Bez promptů, bez školení, bez ajťáků.',
         iconColor: 'text-violet-500',
         dotColor: 'bg-violet-500',
         glowColor: 'shadow-violet-500/30',
@@ -107,7 +99,13 @@ const steps = [
 /* ═══════════════════════════════════════════════════════════
    MAIN SECTION - Vertical Timeline, alternating sides
    ═══════════════════════════════════════════════════════════ */
-export function HowItWorksSection() {
+export function HowItWorksSection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { howItWorks } = getHomepageContent(language);
+    const steps = howItWorks.steps.map((step, index) => ({
+        ...step,
+        ...stepVisuals[index],
+    }));
+
     const handleCTAClick = () => {
         window.dispatchEvent(new CustomEvent('open-qualification-popup'));
     };
@@ -124,16 +122,13 @@ export function HowItWorksSection() {
                     className="text-center mb-20"
                 >
                     <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Jak to funguje
+                        {howItWorks.eyebrow}
                     </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-2xl mx-auto"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Nasazení,{' '}
-                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            které nebolí.
-                        </span>
+                        {howItWorks.heading}
                     </h2>
                 </motion.div>
 
@@ -254,7 +249,7 @@ export function HowItWorksSection() {
                         size="lg"
                         className="bg-gradient-to-r from-[#0e7490] to-[#0891b2] text-white hover:shadow-xl hover:shadow-cyan-500/15 transform hover:scale-[1.03] transition-all duration-300 text-[16px] font-semibold px-8 py-6 rounded-full border border-white/20"
                     >
-                        Chci vidět, jak to funguje
+                        {howItWorks.cta}
                         <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                 </motion.div>

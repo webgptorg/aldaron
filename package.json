@@ -8,6 +8,7 @@
         "start": "next start",
         "lint": "next lint",
         "test-types": "tsc",
+        "test-for-ptbk-coder": "npx kill-port 4009 && next build",
         "export": "next build",
         "coder:generate-boilerplates": "npx ptbk coder generate-boilerplates",
         "coder:run": "npx ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --context AGENTS.md --no-wait",

@@ -8,16 +8,21 @@ import { Input } from '@/components/ui/input';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
+
 const promptbookLogo = '/logo/promptbook-logo-blue-transparent-256.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-256.png';
 
+type FooterLanguage = 'cs' | 'en';
+type FooterLink = { href: string; text: string };
+
 interface FooterProps {
+    language?: FooterLanguage;
     productHeader?: string;
-    productLinks?: { href: string; text: string }[];
+    productLinks?: FooterLink[];
     companyHeader?: string;
-    companyLinks?: { href: string; text: string }[];
+    companyLinks?: FooterLink[];
     connectHeader?: string;
-    connectLinks?: { href: string; text: string }[];
+    connectLinks?: FooterLink[];
     stayUpdatedHeader?: string;
     emailLabel?: string;
     emailPlaceholder?: string;
@@ -28,60 +33,136 @@ interface FooterProps {
     successMessage?: string;
     genericErrorMessage?: string;
     rightsReservedText?: string;
-    projectFundingText?: React.ReactNode;
+    projectFundingText?: ReactNode;
 }
 
-export function Footer({
-    productHeader = 'Product',
-    productLinks = [
-        { href: '?modal=get-started', text: 'Get started' },
-        { href: 'https://ptbk.io/manifest', text: 'Manifest' },
-        { href: 'https://github.com/webgptorg/promptbook', text: 'Documentation' },
-        { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
-    ],
-    companyHeader = 'Company',
-    companyLinks = [
-        {
-            href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
-            text: 'AI Web s.r.o.',
-        },
-        { href: 'https://ptbk.io/about', text: 'About Us' },
-        { href: 'https://ptbk.io/blog', text: 'Blog' },
-    ],
-    connectHeader = 'Connect',
-    connectLinks = [
-        { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
-        { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
-        { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
-        { href: '/contact', text: 'More' },
-    ],
-    stayUpdatedHeader = 'Stay Updated',
-    emailLabel = 'Email *',
-    emailPlaceholder = 'you@example.com',
-    consentLabel = 'I consent to receive news and updates via email *',
-    consentErrorMessage = 'Please consent to receive news and updates',
-    subscribeButtonText = 'Subscribe',
-    subscribingButtonText = 'Subscribing...',
-    successMessage = 'Successfully subscribed!',
-    genericErrorMessage = 'An error occurred',
-    rightsReservedText = 'All rights reserved.',
-    projectFundingText = (
-        <>
-            This project was implemented with funding from the national budget
-            <br />
-            via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest Technology Incubation
-            programme.
-        </>
-    ),
-}: FooterProps) {
-    const claim = 'Create AI that truly understands your business.';
+type FooterContent = Required<Omit<FooterProps, 'language'>>;
+
+const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
+    en: {
+        productHeader: 'Product',
+        productLinks: [
+            { href: '?modal=get-started', text: 'Get started' },
+            { href: 'https://ptbk.io/manifest', text: 'Manifest' },
+            { href: 'https://github.com/webgptorg/promptbook', text: 'Documentation' },
+            { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+        ],
+        companyHeader: 'Company',
+        companyLinks: [
+            {
+                href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+                text: 'AI Web s.r.o.',
+            },
+            { href: 'https://ptbk.io/about', text: 'About Us' },
+            { href: 'https://ptbk.io/blog', text: 'Blog' },
+        ],
+        connectHeader: 'Connect',
+        connectLinks: [
+            { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
+            { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
+            { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
+            { href: '/contact', text: 'More' },
+        ],
+        stayUpdatedHeader: 'Stay Updated',
+        emailLabel: 'Email *',
+        emailPlaceholder: 'you@example.com',
+        consentLabel: 'I consent to receive news and updates via email *',
+        consentErrorMessage: 'Please consent to receive news and updates',
+        subscribeButtonText: 'Subscribe',
+        subscribingButtonText: 'Subscribing...',
+        successMessage: 'Successfully subscribed!',
+        genericErrorMessage: 'An error occurred',
+        rightsReservedText: 'All rights reserved.',
+        projectFundingText: (
+            <>
+                This project was implemented with funding from the national budget
+                <br />
+                via the Ministry of Industry and Trade of the Czech Republic within the CzechInvest Technology
+                Incubation programme.
+            </>
+        ),
+    },
+    cs: {
+        productHeader: 'Produkt',
+        productLinks: [
+            { href: '?modal=get-started', text: 'Začít' },
+            { href: 'https://ptbk.io/', text: 'Promptbook' },
+            { href: 'https://github.com/webgptorg/promptbook', text: 'Dokumentace' },
+            { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+        ],
+        companyHeader: 'Společnost',
+        companyLinks: [
+            {
+                href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+                text: 'AI Web s.r.o.',
+            },
+            {
+                href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
+                text: 'IČO: 21012288',
+            },
+            { href: 'https://info.mojedatovaschranka.cz/info/cs/', text: 'Datová schránka: hzuu4yn' },
+        ],
+        connectHeader: 'Spojte se s námi',
+        connectLinks: [
+            { href: 'https://github.com/webgptorg/promptbook', text: 'GitHub' },
+            { href: 'https://linkedin.com/company/promptbook', text: 'LinkedIn' },
+            { href: 'https://discord.gg/x3QWNaa89N', text: 'Discord' },
+            { href: '/contact', text: 'Více' },
+        ],
+        stayUpdatedHeader: 'Zůstaňte v obraze',
+        emailLabel: 'E-mail *',
+        emailPlaceholder: 'jmeno@firma.cz',
+        consentLabel: 'Souhlasím se zasíláním novinek e-mailem *',
+        consentErrorMessage: 'Potvrďte prosím souhlas se zasíláním novinek.',
+        subscribeButtonText: 'Odebírat',
+        subscribingButtonText: 'Odebírám...',
+        successMessage: 'Úspěšně přihlášeno!',
+        genericErrorMessage: 'Nastala chyba. Zkuste to prosím znovu.',
+        rightsReservedText: 'Všechna práva vyhrazena.',
+        projectFundingText: (
+            <>
+                Tento projekt byl realizován za finanční podpory z národního rozpočtu
+                <br />
+                prostřednictvím Ministerstva průmyslu a obchodu České republiky v rámci programu CzechInvest
+                Technologická inkubace.
+            </>
+        ),
+    },
+};
+
+export function Footer({ language = 'en', ...overrides }: FooterProps) {
+    const defaults = footerDefaultsByLanguage[language];
+    const {
+        productHeader = defaults.productHeader,
+        productLinks = defaults.productLinks,
+        companyHeader = defaults.companyHeader,
+        companyLinks = defaults.companyLinks,
+        connectHeader = defaults.connectHeader,
+        connectLinks = defaults.connectLinks,
+        stayUpdatedHeader = defaults.stayUpdatedHeader,
+        emailLabel = defaults.emailLabel,
+        emailPlaceholder = defaults.emailPlaceholder,
+        consentLabel = defaults.consentLabel,
+        consentErrorMessage = defaults.consentErrorMessage,
+        subscribeButtonText = defaults.subscribeButtonText,
+        subscribingButtonText = defaults.subscribingButtonText,
+        successMessage = defaults.successMessage,
+        genericErrorMessage = defaults.genericErrorMessage,
+        rightsReservedText = defaults.rightsReservedText,
+        projectFundingText = defaults.projectFundingText,
+    } = overrides;
+
+    const claim =
+        language === 'cs'
+            ? 'Vytvořte AI, která skutečně rozumí vaší firmě.'
+            : 'Create AI that truly understands your business.';
     const [email, setEmail] = useState('');
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    const handleSubscribe = async (e: React.FormEvent) => {
+    const handleSubscribe = async (e: FormEvent) => {
         e.preventDefault();
 
         if (!consent) {
@@ -109,7 +190,6 @@ export function Footer({
         <footer className="bg-gray-900 text-white py-16">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                    {/* Product */}
                     <div>
                         <h3 className="text-lg font-semibold mb-6">{productHeader}</h3>
                         <ul className="space-y-3">
@@ -123,7 +203,6 @@ export function Footer({
                         </ul>
                     </div>
 
-                    {/* Company */}
                     <div>
                         <h3 className="text-lg font-semibold mb-6">{companyHeader}</h3>
                         <ul className="space-y-3">
@@ -137,7 +216,6 @@ export function Footer({
                         </ul>
                     </div>
 
-                    {/* Connect */}
                     <div>
                         <h3 className="text-lg font-semibold mb-6">{connectHeader}</h3>
                         <ul className="space-y-3">
@@ -151,7 +229,6 @@ export function Footer({
                         </ul>
                     </div>
 
-                    {/* Stay Updated */}
                     <div>
                         <h3 className="text-lg font-semibold mb-6">{stayUpdatedHeader}</h3>
                         <form onSubmit={handleSubscribe} className="space-y-4">
@@ -193,7 +270,6 @@ export function Footer({
                     </div>
                 </div>
 
-                {/* Bottom Section */}
                 <div className="pt-8 border-t border-gray-800">
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
                         <div className="flex flex-col items-center lg:items-start gap-4">

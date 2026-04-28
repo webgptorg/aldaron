@@ -1,37 +1,12 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 
-const comparisons = [
-    {
-        feature: 'Když nezná odpověď',
-        chatgpt: 'Sebevědomě si ji vymyslí',
-        promptbook: 'Řekne: Nevím',
-    },
-    {
-        feature: 'Vaše firemní data',
-        chatgpt: 'Veřejný cloud. Kdo ví, kdo je čte',
-        promptbook: 'Zamčené ve vašem trezoru',
-    },
-    {
-        feature: 'Trénink na vašich datech',
-        chatgpt: 'Ano - trénuje na nich další modely',
-        promptbook: 'Ne. Nikdy.',
-    },
-    {
-        feature: 'Jak se ptáte',
-        chatgpt: '"Act as senior lawyer, temperature 0.2..."',
-        promptbook: '"Hele, kde je NDA z 2021?"',
-    },
-    {
-        feature: 'Firemní kontext',
-        chatgpt: 'Žádný. Neví nic o vaší firmě',
-        promptbook: 'Zná vaše směrnice, smlouvy, procesy',
-    },
-];
+export function EnemySection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { enemy } = getHomepageContent(language);
 
-export function EnemySection() {
     return (
         <section className="relative pt-[50px] pb-24 bg-white overflow-hidden">
             {/* Subtle bg */}
@@ -48,16 +23,13 @@ export function EnemySection() {
                     className="text-center mb-16"
                 >
                     <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Proč ne veřejný ChatGPT
+                        {enemy.eyebrow}
                     </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight max-w-3xl mx-auto"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Tak to hodím do ChatGPT{' '}
-                        <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">
-                            je firemní sebevražda.
-                        </span>
+                        {enemy.heading}
                     </h2>
                 </motion.div>
 
@@ -68,20 +40,20 @@ export function EnemySection() {
                         <div className="flex justify-center">
                             <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 rounded-full px-5 py-2">
                                 <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                                <span className="text-[13px] font-semibold text-red-600">Veřejný ChatGPT</span>
+                                <span className="text-[13px] font-semibold text-red-600">{enemy.chatgptLabel}</span>
                             </div>
                         </div>
                         <div className="flex justify-center">
                             <div className="inline-flex items-center gap-2 bg-cyan-50 border border-cyan-100 rounded-full px-5 py-2">
                                 <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
-                                <span className="text-[13px] font-semibold text-cyan-700">Promptbook</span>
+                                <span className="text-[13px] font-semibold text-cyan-700">{enemy.promptbookLabel}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Comparison Rows */}
                     <div className="space-y-6">
-                        {comparisons.map((row, i) => (
+                        {enemy.comparisons.map((row, i) => (
                             <motion.div
                                 key={row.feature}
                                 initial={{ opacity: 0, y: 20 }}
@@ -142,7 +114,7 @@ export function EnemySection() {
                                     <div className="flex justify-start">
                                         <div className="bg-red-50/80 rounded-2xl rounded-tl-md border border-red-200/50 px-5 py-3 max-w-[85%]">
                                             <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">
-                                                ChatGPT
+                                                {enemy.chatgptLabel}
                                             </span>
                                             <p className="text-[14.5px] text-gray-600 leading-relaxed mt-1">
                                                 {row.chatgpt}
@@ -154,7 +126,7 @@ export function EnemySection() {
                                     <div className="flex justify-end">
                                         <div className="bg-cyan-50/80 rounded-2xl rounded-tr-md border border-cyan-200/50 px-5 py-3 max-w-[85%]">
                                             <span className="text-[10px] font-semibold text-cyan-500 uppercase tracking-wider">
-                                                Promptbook
+                                                {enemy.promptbookLabel}
                                             </span>
                                             <p className="text-[14.5px] font-medium text-[#0f172a] leading-relaxed mt-1">
                                                 {row.promptbook}

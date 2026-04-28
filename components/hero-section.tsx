@@ -1,13 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { proFirmyChatMessages } from '@/config/pro-firmy/proFirmyHero';
+import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, FileText, Shield, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompletedBubble, TypewriterBubble } from './ui/ChatBubbles';
 
-export function HeroSection() {
+export function HeroSection({ language = 'cs' }: { language?: HomepageLanguage }) {
+    const { hero } = getHomepageContent(language);
+    const chatMessages = hero.chatMessages;
     const [mounted, setMounted] = useState(false);
     // Which message is currently typing
     const [currentMessageIndex, setCurrentMessageIndex] = useState(-1);
@@ -19,11 +21,13 @@ export function HeroSection() {
 
     // Client-only: set static messages + start animation after delay
     useEffect(() => {
-        const staticIndices = proFirmyChatMessages.reduce<number[]>((acc, m, i) => (m.static ? [...acc, i] : acc), []);
+        const staticIndices = chatMessages.reduce<number[]>((acc, m, i) => (m.static ? [...acc, i] : acc), []);
+        setCurrentMessageIndex(-1);
         setCompletedMessages(staticIndices);
+        setShowTypingIndicator(false);
         setMounted(true);
 
-        const firstAnimatedIndex = proFirmyChatMessages.findIndex((m) => !m.static);
+        const firstAnimatedIndex = chatMessages.findIndex((m) => !m.static);
         if (firstAnimatedIndex === -1) return;
 
         // Start after 1.2s (hero slide-in is 0.8s + 0.2s delay)
@@ -34,25 +38,25 @@ export function HeroSection() {
         const typingTimer = setTimeout(() => {
             setShowTypingIndicator(false);
             setCurrentMessageIndex(firstAnimatedIndex);
-        }, 1200 + proFirmyChatMessages[firstAnimatedIndex].startDelay);
+        }, 1200 + chatMessages[firstAnimatedIndex].startDelay);
 
         return () => {
             clearTimeout(indicatorTimer);
             clearTimeout(typingTimer);
         };
-    }, []);
+    }, [chatMessages]);
 
     const handleMessageComplete = useCallback(() => {
         setCompletedMessages((prev) => [...prev, currentMessageIndex]);
 
         // Find next non-static message to animate
         let nextIndex = currentMessageIndex + 1;
-        while (nextIndex < proFirmyChatMessages.length && proFirmyChatMessages[nextIndex].static) {
+        while (nextIndex < chatMessages.length && chatMessages[nextIndex].static) {
             nextIndex++;
         }
 
-        if (nextIndex < proFirmyChatMessages.length) {
-            const nextMsg = proFirmyChatMessages[nextIndex];
+        if (nextIndex < chatMessages.length) {
+            const nextMsg = chatMessages[nextIndex];
             if (nextMsg.type === 'bot') {
                 // Bot message: show typing indicator first
                 setShowTypingIndicator(true);
@@ -69,7 +73,7 @@ export function HeroSection() {
                 return () => clearTimeout(timer);
             }
         }
-    }, [currentMessageIndex]);
+    }, [chatMessages, currentMessageIndex]);
 
     const handleCTAClick = () => {
         window.dispatchEvent(new CustomEvent('open-qualification-popup'));
@@ -95,29 +99,18 @@ export function HeroSection() {
                         <div className="space-y-7">
                             <div className="inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-gray-200/60 px-4 py-2 rounded-full text-[13px] font-medium text-gray-500 tracking-wide uppercase">
                                 <Sparkles className="w-3.5 h-3.5 text-promptbook-blue-dark" />
-                                Česká AI platforma pro firemní data
+                                {hero.eyebrow}
                             </div>
 
                             <h1
                                 className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold text-[#0f172a] tracking-tight"
                                 style={{ lineHeight: 1 }}
                             >
-                                Co kdyby každý váš
-                                <br />
-                                zaměstnanec měl{' '}
-                                <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                                    okamžitý
-                                    <br />
-                                    přístup
-                                </span>{' '}
-                                ke všemu, co vaše
-                                <br />
-                                firma kdy napsala?
+                                {hero.heading}
                             </h1>
 
                             <p className="text-[17px] sm:text-lg text-gray-500 leading-[1.7] max-w-lg tracking-[0.01em]">
-                                Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový
-                                zaměstnanec. Zkušený manažer. Každý dostane stejně přesnou odpověď.
+                                {hero.description}
                             </p>
                         </div>
 
@@ -128,7 +121,7 @@ export function HeroSection() {
                                 className="bg-gradient-to-r from-[#0e7490] to-[#0891b2] text-white hover:shadow-xl hover:shadow-cyan-500/15 transform hover:scale-[1.03] transition-all duration-300 text-[16px] font-semibold px-8 py-6 rounded-full border border-white/20"
                                 id="hero-cta"
                             >
-                                Chci strategický hovor zdarma
+                                {hero.cta}
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
                         </div>
@@ -137,12 +130,12 @@ export function HeroSection() {
                         <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-y-2 gap-x-5 text-[13px] text-gray-400 tracking-wide">
                             <div className="flex items-center gap-1.5">
                                 <Shield className="w-4 h-4 text-gray-300" />
-                                <span>100% GDPR</span>
+                                <span>{hero.badges[0]}</span>
                             </div>
                             <span className="text-gray-200 hidden sm:inline">|</span>
                             <div className="flex items-center gap-1.5">
                                 <FileText className="w-4 h-4 text-gray-300" />
-                                <span>Až 1 000 000 normostran</span>
+                                <span>{hero.badges[1]}</span>
                             </div>
                             <span className="text-gray-200 hidden sm:inline">|</span>
                             <div className="flex items-center gap-1.5">
@@ -155,7 +148,7 @@ export function HeroSection() {
                                 >
                                     <path d="M3 21V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v16l-4-3-4 3-4-3-4 3z" />
                                 </svg>
-                                <span>Česká platforma</span>
+                                <span>{hero.badges[2]}</span>
                             </div>
                         </div>
                     </motion.div>
@@ -175,16 +168,14 @@ export function HeroSection() {
                                     <div className="w-3 h-3 rounded-full bg-red-400"></div>
                                     <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                                     <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                                    <span className="ml-3 text-sm font-medium text-gray-600">
-                                        Promptbook - HR Asistent
-                                    </span>
+                                    <span className="ml-3 text-sm font-medium text-gray-600">{hero.chatTitle}</span>
                                 </div>
                             </div>
 
                             {/* Chat Messages */}
                             <div className="p-6 space-y-4 h-[480px] sm:h-[360px] overflow-hidden">
                                 <AnimatePresence>
-                                    {proFirmyChatMessages.map((msg, index) => {
+                                    {chatMessages.map((msg, index) => {
                                         const isCompleted = completedMessages.includes(index);
                                         const isCurrentlyTyping = currentMessageIndex === index && !isCompleted;
 
@@ -246,7 +237,7 @@ export function HeroSection() {
                             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                                 <div className="flex items-center gap-3">
                                     <div className="flex-1 bg-white rounded-full px-4 py-2.5 text-sm text-gray-400 border border-gray-200">
-                                        Napište dotaz...
+                                        {hero.chatInputPlaceholder}
                                     </div>
                                     <div className="w-9 h-9 rounded-full bg-promptbook-blue-dark flex items-center justify-center">
                                         <ArrowRight className="w-4 h-4 text-white" />

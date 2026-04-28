@@ -1,9 +1,9 @@
-import { ProFirmyPage } from '@/config/pro-firmy/_ProFirmyPage';
-import { proFirmyMetadata } from '@/config/pro-firmy/proFirmyMetadata';
+import { Homepage } from '@/config/homepage/_Homepage';
+import { homepageContent } from '@/config/homepage/homepageContent';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = proFirmyMetadata;
+export const metadata: Metadata = homepageContent.cs.metadata;
 
 export default function HomePage() {
-    return <ProFirmyPage />;
+    return <Homepage language="cs" />;
 }
