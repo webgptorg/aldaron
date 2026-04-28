@@ -15,6 +15,14 @@ async function fetchIpAddress(): Promise<string | null> {
     }
 }
 
+type SubscribeToWaitlistOptions = {
+    fullname?: string;
+    email: string;
+    placeName: string;
+    phone?: string;
+    note?: string;
+};
+
 /**
  * Subscribe an email address to the waitlist
  *
@@ -23,7 +31,9 @@ async function fetchIpAddress(): Promise<string | null> {
  * @param phone - Optional phone number
  * @param note - Optional notes (e.g., selected plan)
  */
-export async function subscribeToWaitlist(email: string, placeName: string, phone?: string, note?: string) {
+export async function subscribeToWaitlist(options: SubscribeToWaitlistOptions) {
+    const { fullname, email, placeName, phone, note } = options;
+
     // Get additional data for tracking
     const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : undefined;
     const referrer = typeof window !== 'undefined' ? document.referrer : undefined;
@@ -38,6 +48,7 @@ export async function subscribeToWaitlist(email: string, placeName: string, phon
 
     const { error: supabaseError } = await supabase.from('Contact').insert([
         {
+            fullname: fullname || null,
             email: email || null,
             phone: phone || null,
 

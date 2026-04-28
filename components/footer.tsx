@@ -1,10 +1,10 @@
 'use client';
 
-import { subscribeToNewsletter } from '@/app/subscription/subscribeToNewsletter';
-import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { subscribeToNewsletter } from '@/lib/subscription/subscribeToNewsletter';
+import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -174,7 +174,7 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
         setError(null);
 
         try {
-            await Promise.all([subscribeToNewsletter(email), subscribeToWaitlist(email, 'newsletter-footer')]);
+            await Promise.all([subscribeToNewsletter(email), subscribeToWaitlist({ email, placeName: 'newsletter-footer' })]);
 
             setSuccess(true);
             setEmail('');

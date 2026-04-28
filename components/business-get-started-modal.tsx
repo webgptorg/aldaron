@@ -1,12 +1,12 @@
 'use client';
 
-import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
+import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
 import { Mail } from 'lucide-react';
 import Image from 'next/image';
@@ -68,7 +68,7 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
 
         try {
             const note = selectedPlanLabel ? `Selected plan: ${selectedPlanLabel}` : undefined;
-            await subscribeToWaitlist(email, placeName, phone, note);
+            await subscribeToWaitlist({ email, placeName, phone, note });
 
             setSuccess(true);
             setEmail('');

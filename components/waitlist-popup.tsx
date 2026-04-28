@@ -1,6 +1,5 @@
 'use client';
 
-import { subscribeToWaitlist } from '@/app/subscription/subscribeToWaitlist';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,7 @@ import { defaultPricing } from '@/config/_generic/defaultPricing';
 import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
+import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { Mail } from 'lucide-react';
 import { useState } from 'react';
 
@@ -61,7 +61,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
 
         try {
             const note = selectedPlanName ? `Selected plan: ${selectedPlanName}` : undefined;
-            await subscribeToWaitlist(email, placeName, undefined, note);
+            await subscribeToWaitlist({ email, placeName, note });
 
             setSuccess(true);
             setEmail('');
@@ -153,7 +153,9 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
                         </div>
 
                         <div className="text-center">
-                            <p className="text-xs text-gray-500">We respect your privacy. No spam, just relevant follow-up.</p>
+                            <p className="text-xs text-gray-500">
+                                We respect your privacy. No spam, just relevant follow-up.
+                            </p>
                         </div>
                     </form>
                 )}

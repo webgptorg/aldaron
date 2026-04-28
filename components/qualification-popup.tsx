@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
+import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -63,8 +64,14 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        // Simulate submission - replace with actual API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const fullname = answers.name || '';
+        const email = answers.email || '';
+        const phone = answers.phone || '';
+        const placeName = 'qualification-popup';
+        const note = JSON.stringify(answers, null, 4);
+        await subscribeToWaitlist({ fullname, email, placeName, phone, note });
+
         setIsSubmitting(false);
         // Redirect to thank you page with personalization
         const params = new URLSearchParams({
