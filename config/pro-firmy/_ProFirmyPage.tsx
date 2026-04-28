@@ -1,52 +1,41 @@
 'use client';
 
+import { BookingNotification } from '@/components/booking-notification';
 import { EnemySection } from '@/components/enemy-section';
-import { FAQSection } from '@/components/faq-section';
 import { FinalCTASection } from '@/components/final-cta-section';
+import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { HeroSection } from '@/components/hero-section';
 import { HowItWorksSection } from '@/components/how-it-works-section';
-import { MinimalFooter } from '@/components/minimal-footer';
 import { PainPointsSection } from '@/components/pain-points-section';
 import { QualificationPopup } from '@/components/qualification-popup';
 import { SocialProofStrip } from '@/components/social-proof-strip';
 import { SolutionSection } from '@/components/solution-section';
-import { ProFirmyHeroSection } from '@/config/pro-firmy/proFirmyHero';
-import { ProFirmyTestimonialsSection } from '@/config/pro-firmy/proFirmyTestimonials';
+import { TeamSection } from '@/components/team-section';
+import { TestimonialsSection } from '@/components/testimonials-section';
 import { Suspense } from 'react';
 
 export function ProFirmyPage() {
     return (
-        <>
-            <Suspense>
-                <QualificationPopup placeName="ProFirmyPage" />
+        <main className="min-h-screen">
+            <Header />
+            <Suspense fallback={<div>Načítání...</div>}>
+                <HeroSection />
             </Suspense>
-            <main className="min-h-screen">
-                <Header
-                    fomoText={
-                        <>
-                            <span>🔥</span>
-                            <span>
-                                Zbývá <strong className="text-gray-900">7 míst z 10</strong> pro strategický hovor
-                                zdarma
-                            </span>
-                        </>
-                    }
-                    getStartedText="Zarezervovat hovor zdarma"
-                    ctaShortText="Rezervovat"
-                />
-                <Suspense fallback={<div>Načítání...</div>}>
-                    <ProFirmyHeroSection />
-                </Suspense>
-                <SocialProofStrip />
-                <PainPointsSection />
-                <SolutionSection />
-                <HowItWorksSection />
-                <EnemySection />
-                <ProFirmyTestimonialsSection />
-                <FAQSection />
-                <FinalCTASection />
-                <MinimalFooter />
-            </main>
-        </>
+            <SocialProofStrip />
+            <PainPointsSection />
+            <SolutionSection />
+            <HowItWorksSection />
+            <EnemySection />
+            <TestimonialsSection />
+            <TeamSection />
+            <FinalCTASection />
+            <Footer />
+            {/* <- Note: Due to legal reasons we cannot use `<MinimalFooter/>` here and need to use `<Footer/>` instead
+                         On the other hand, we can use `<MinimalFooter/>` on the `/dekujeme` page 
+            */}
+            <QualificationPopup />
+            <BookingNotification />
+        </main>
     );
 }

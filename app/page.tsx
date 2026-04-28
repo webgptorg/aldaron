@@ -11,6 +11,7 @@ import { SocialProofStrip } from '@/components/social-proof-strip';
 import { SolutionSection } from '@/components/solution-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
+import { proFirmyMetadata } from '@/config/pro-firmy/proFirmyMetadata';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -18,11 +19,7 @@ import { Suspense } from 'react';
 export const dynamic = 'force-static';
 
 export function generateMetadata(): Metadata {
-    return {
-        title: 'Promptbook - Okamžitý přístup ke všemu, co vaše firma kdy napsala',
-        description:
-            'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR. Česká AI platforma.',
-    };
+    return proFirmyMetadata;
 }
 
 export default function Home() {

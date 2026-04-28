@@ -12,3 +12,5 @@ export const proFirmyMetadata: Metadata = {
         type: 'website',
     },
 };
+
+
