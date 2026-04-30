@@ -7,31 +7,28 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PU
 const isSupabaseConfigured = !!(supabaseUrl && supabaseKey);
 
 if (!isSupabaseConfigured) {
-    console.warn('⚠️ Supabase not configured - API routes will be disabled. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable.');
+    console.warn(
+        '⚠️ Supabase not configured - API routes will be disabled. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable.',
+    );
 }
 
-export const supabase: SupabaseClient | null = isSupabaseConfigured
-    ? createClient(supabaseUrl!, supabaseKey!)
-    : null;
+export const supabase: SupabaseClient | null = isSupabaseConfigured ? createClient(supabaseUrl!, supabaseKey!) : null;
 
 if (supabase) {
-    /* not await */ testSupabaseConnection(supabase);
+    //* not await */ testSupabaseConnection(supabase);
 }
 
 export function createSupabaseClient(): SupabaseClient | null {
     if (!isSupabaseConfigured) return null;
     const client = createClient(supabaseUrl!, supabaseKey!);
-    /* not await */ testSupabaseConnection(client);
+    //* not await */ testSupabaseConnection(client);
     return client;
 }
 
 export function getSupabaseForBrowser(): SupabaseClient | null {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null;
-    const client = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    );
-    /* not await */ testSupabaseConnection(client);
+    const client = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    //* not await */ testSupabaseConnection(client);
     return client;
 }
 
