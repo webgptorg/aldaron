@@ -2,8 +2,8 @@
 
 import { GenericChatbot } from '@/businesses/_generic/genericChatbot';
 import { AiSupervizeChatbot } from '@/businesses/ai-supervize/aiSupervizeChatbot';
+import { ForAgroChatbot } from '@/businesses/for-agro/forAgroChatbot';
 import { CitiesCsChatbot } from '@/businesses/pro-mesta/citiesCsChatbot';
-import { ForAgroChatbot } from '@/config/for-agro/forAgroChatbot';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
