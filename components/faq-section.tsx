@@ -2,9 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
-const faqs = [
+export type FAQ = {
+    question: string;
+    answer: ReactNode;
+};
+
+const defaultFaqs: FAQ[] = [
     {
         question: 'Nevymýšlí si to odpovědi? Jak můžu věřit AI?',
         answer: 'Promptbook čerpá výhradně z dokumentů, které do něj sami nahrajete. Když odpověď ve vašich datech není, narovinu to přizná. Žádné halucinace, žádné sebevědomé vymýšlení. A každá odpověď obsahuje odkaz na zdrojový dokument, takže si ji snadno ověříte.',
@@ -32,7 +37,7 @@ const faqs = [
     },
 ];
 
-function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+function FAQItem({ question, answer, index }: { question: string; answer: ReactNode; index: number }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -59,15 +64,34 @@ function FAQItem({ question, answer, index }: { question: string; answer: string
                 </div>
             </button>
             <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[900px] opacity-100 pb-6' : 'max-h-0 opacity-0'}`}
             >
-                <p className="text-[15px] text-gray-500 leading-relaxed pr-12">{answer}</p>
+                <div className="text-[15px] text-gray-500 leading-relaxed pr-12">{answer}</div>
             </div>
         </motion.div>
     );
 }
 
-export function FAQSection() {
+type FAQSectionProps = {
+    faqs?: FAQ[];
+    eyebrow?: ReactNode;
+    title?: ReactNode;
+    description?: ReactNode;
+};
+
+export function FAQSection({
+    faqs = defaultFaqs,
+    eyebrow = 'Časté otázky',
+    title = (
+        <>
+            Máte otázky?{' '}
+            <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
+                My máme odpovědi.
+            </span>
+        </>
+    ),
+    description = 'Na rozdíl od ChatGPT si je nevymýšlíme.',
+}: FAQSectionProps = {}) {
     return (
         <section className="relative pt-[50px] pb-24 bg-white overflow-hidden">
             <div className="max-w-3xl mx-auto px-6 relative z-10">
@@ -80,24 +104,21 @@ export function FAQSection() {
                     className="text-center mb-14"
                 >
                     <p className="text-[13px] uppercase tracking-[0.15em] text-gray-400 font-medium mb-4">
-                        Časté otázky
+                        {eyebrow}
                     </p>
                     <h2
                         className="text-[28px] sm:text-[32px] lg:text-[2.5rem] font-extrabold text-[#0f172a] tracking-tight"
                         style={{ lineHeight: 1.2 }}
                     >
-                        Máte otázky?{' '}
-                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            My máme odpovědi.
-                        </span>
+                        {title}
                     </h2>
-                    <p className="text-[15px] text-gray-400 mt-3">Na rozdíl od ChatGPT si je nevymýšlíme.</p>
+                    {description && <p className="text-[15px] text-gray-400 mt-3">{description}</p>}
                 </motion.div>
 
                 {/* FAQ Items */}
                 <div className="bg-white rounded-2xl border border-gray-100 px-8 divide-y-0">
                     {faqs.map((faq, i) => (
-                        <FAQItem key={i} question={faq.question} answer={faq.answer} index={i} />
+                        <FAQItem key={faq.question} question={faq.question} answer={faq.answer} index={i} />
                     ))}
                 </div>
             </div>

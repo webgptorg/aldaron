@@ -9,4 +9,6 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/pro-firmy` - The landing page for Czech companies - a sales-style page with pain points, solution overview, comparison with ChatGPT, FAQ, and a strategic call CTA.
 - `/for-agro` - The landing page for agronomy and agricultural companies to use AI for expert knowledge, compliance, and operations.
 - `/ai-supervize` - The landing page for the AI for IT development companies
+- `/ai-supervize-mini` - The Czech one-day AI Supervize workshop page for individual developers and product people.
+- `/skoleni` - Redirects to `/ai-supervize-mini`.
 - ...
