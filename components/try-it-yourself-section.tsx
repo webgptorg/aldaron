@@ -1,6 +1,6 @@
 'use client';
 
-import defaultBook from '@/config/_generic/default.book';
+import defaultBook from '@/businesses/_generic/default.book';
 import type { string_book } from '@promptbook/types';
 import dynamic from 'next/dynamic';
 

@@ -16,7 +16,7 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
-import forIndustryBook from '@/config/for-industry/for-industry.book';
+import forIndustryBook from '@/businesses/for-industry/for-industry.book';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
