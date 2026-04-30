@@ -1,6 +1,6 @@
 [ ] !!!
 
-[✨😜] Create a page `/ai-supervize-skoleni`
+[✨😜] Create a page `/ai-supervize-mini`
 
 ```text
 Ozývají se nám lidé, kteří mají zájem o AI Supervizi jako jednotlivci.
@@ -29,7 +29,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
 - The "🔥 Zbývá 7 míst z 10 pro strategický hovor zdarma" does not make sence on this page
 - Create there artificial scarcity by showing the number of remaining seats for the workshop, which should be 8 on 15.5 and 7 on 21.5
     - Theese are just in the config not in the real booking system
-- Also create `/skoleni` which will be just a redirect to `/ai-supervize-skoleni`
+- Also create `/skoleni` which will be just a redirect to `/ai-supervize-mini`
 - The main bulk of code should be in `businesses` folder
 - The configurations (like discount code, available dates, remaining seats) should be in the config file `businesses/config.ts` and not hardcoded there
 - Create FAQ section with 5-10 questions and answers about the workshop _(look at page `/` and reuse the FAQ component with different content)_
@@ -58,10 +58,10 @@ V Praze někdy v průběhu května. Max 10 lidí.
     - Same with reusing header
     - Same with FAQ
     - ...
-- In the header of `/ai-supervize-skoleni` should be link / button "[Pro firmy]" which will link to `/ai-supervize` page
+- In the header of `/ai-supervize-mini` should be link / button "[Pro firmy]" which will link to `/ai-supervize` page
 - Do a proper analysis of the current functionality before you start implementing.
-- The `ai-supervize-skoleni` page should be only in Czech language for now
-- The `/ai-supervize` page should stay intact, just add button and link to the new `/ai-supervize-skoleni` as "[Pro jednotlivce]" which will link to `/ai-supervize-skoleni`
+- The `ai-supervize-mini` page should be only in Czech language for now
+- The `/ai-supervize` page should stay intact, just add button and link to the new `/ai-supervize-mini` as "[Pro jednotlivce]" which will link to `/ai-supervize-mini`
 - Update `AGENTS.md` documentation if needed to reflect the changes you made.
 
 ![alt text](prompts/screenshots/2026-04-0050-ai-supervize-mini.png)
