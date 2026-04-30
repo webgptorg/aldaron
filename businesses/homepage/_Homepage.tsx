@@ -1,5 +1,6 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { BookingNotification } from '@/components/booking-notification';
 import { EnemySection } from '@/components/enemy-section';
 import { FinalCTASection } from '@/components/final-cta-section';
@@ -13,7 +14,6 @@ import { SocialProofStrip } from '@/components/social-proof-strip';
 import { SolutionSection } from '@/components/solution-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { Suspense } from 'react';
 
 export function Homepage({ language }: { language: HomepageLanguage }) {

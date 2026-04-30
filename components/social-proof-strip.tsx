@@ -1,24 +1,24 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
+import { InfiniteSlider } from '@/components/ui/infinite-slider';
 import { motion } from 'framer-motion';
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import {
     Building2,
-    Scale,
+    Calculator,
+    FlaskConical,
+    GraduationCap,
     HardHat,
     Landmark,
+    Monitor,
+    Radio,
+    Scale,
+    ShieldCheck,
+    ShoppingCart,
     Stethoscope,
-    GraduationCap,
     Truck,
     Zap,
-    Monitor,
-    ShieldCheck,
-    FlaskConical,
-    ShoppingCart,
-    Calculator,
-    Radio,
 } from 'lucide-react';
-import { InfiniteSlider } from '@/components/ui/infinite-slider';
 
 const industryIcons = [
     Building2,

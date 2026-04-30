@@ -1,5 +1,5 @@
-import { Homepage } from '@/config/homepage/_Homepage';
-import { homepageContent } from '@/config/homepage/homepageContent';
+import { Homepage } from '@/businesses/homepage/_Homepage';
+import { homepageContent } from '@/businesses/homepage/homepageContent';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = homepageContent.en.metadata;

@@ -1,5 +1,20 @@
 'use client';
 
+import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import {
+    hackathonFactoryAudience,
+    hackathonFactoryHighlights,
+    hackathonFactoryPrinciples,
+    hackathonFactoryPrinciplesNote,
+    hackathonFactoryProcess,
+    hackathonFactoryProcessNote,
+    hackathonFactorySituations,
+} from '@/businesses/hackathon-factory/hackathonFactoryContent';
+import { hackathonFactoryConversation } from '@/businesses/hackathon-factory/hackathonFactoryConversation';
+import {
+    hackathonFactoryPricing,
+    hackathonFactoryPricingFootnotes,
+} from '@/businesses/hackathon-factory/hackathonFactoryPricing';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { FeatureCardsSection } from '@/components/feature-cards-section';
 import { Footer } from '@/components/footer';
@@ -10,21 +25,6 @@ import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
-import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import {
-    hackathonFactoryAudience,
-    hackathonFactoryHighlights,
-    hackathonFactoryPrinciples,
-    hackathonFactoryPrinciplesNote,
-    hackathonFactoryProcess,
-    hackathonFactoryProcessNote,
-    hackathonFactorySituations,
-} from '@/config/hackathon-factory/hackathonFactoryContent';
-import { hackathonFactoryConversation } from '@/config/hackathon-factory/hackathonFactoryConversation';
-import {
-    hackathonFactoryPricing,
-    hackathonFactoryPricingFootnotes,
-} from '@/config/hackathon-factory/hackathonFactoryPricing';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle } from 'lucide-react';

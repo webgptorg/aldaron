@@ -1,5 +1,17 @@
 'use client';
 
+import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import { aiSupervizeBenefits } from '@/businesses/ai-supervize/aiSupervizeBenefits';
+import {
+    aiSupervizeDeliverables,
+    aiSupervizeFocusAreas,
+    aiSupervizeProcess,
+    aiSupervizeSecurity,
+    aiSupervizeSituations,
+    aiSupervizeSituationsNote,
+    aiSupervizeSymptoms,
+} from '@/businesses/ai-supervize/aiSupervizeContent';
+import { aiSupervizePricing, aiSupervizePricingFootnotes } from '@/businesses/ai-supervize/aiSupervizePricing';
 import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { FeatureCardsSection } from '@/components/feature-cards-section';
@@ -9,18 +21,6 @@ import { PlaygroundSection } from '@/components/playground-section';
 import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { Button } from '@/components/ui/button';
-import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import { aiSupervizeBenefits } from '@/config/ai-supervize/aiSupervizeBenefits';
-import {
-    aiSupervizeDeliverables,
-    aiSupervizeFocusAreas,
-    aiSupervizeProcess,
-    aiSupervizeSecurity,
-    aiSupervizeSituations,
-    aiSupervizeSituationsNote,
-    aiSupervizeSymptoms,
-} from '@/config/ai-supervize/aiSupervizeContent';
-import { aiSupervizePricing, aiSupervizePricingFootnotes } from '@/config/ai-supervize/aiSupervizePricing';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';

@@ -4,7 +4,8 @@ export const aiSupervizeBenefits: Array<Benefit> = [
     {
         iconName: 'Zap',
         title: 'Kratší time-to-merge',
-        description: 'Menší změny, jasné workflow a promyšlená delegace na AI zkrátí cestu od požadavku po merge.',
+        description:
+            'Menší změny, jasné workflow a promyšlená delegace na AI zkrátí cestu od požadavku po merge.',
     },
     {
         iconName: 'Shield',
@@ -15,7 +16,8 @@ export const aiSupervizeBenefits: Array<Benefit> = [
     {
         iconName: 'Code',
         title: 'Méně reworku a regresí',
-        description: 'AI nebude generovat kód bez mantinelů. Dostane pravidla, review guardraily a Definition of Done.',
+        description:
+            'AI nebude generovat kód bez mantinelů. Dostane pravidla, review guardraily a Definition of Done.',
     },
     {
         iconName: 'FileStack',
@@ -26,7 +28,8 @@ export const aiSupervizeBenefits: Array<Benefit> = [
     {
         iconName: 'Users',
         title: 'Stejný způsob práce napříč týmem',
-        description: 'Každý nebude používat jiný nástroj a jiný prompt. Vznikne opakovatelný týmový playbook.',
+        description:
+            'Každý nebude používat jiný nástroj a jiný prompt. Vznikne opakovatelný týmový playbook.',
     },
     {
         iconName: 'Book',

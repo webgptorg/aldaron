@@ -1,5 +1,5 @@
-import { CitiesCsPage } from '@/config/pro-mesta/_CitiesCsPage';
-import { citiesCsMetadata } from '@/config/pro-mesta/citiesCsMetadata';
+import { CitiesCsPage } from '@/businesses/pro-mesta/_CitiesCsPage';
+import { citiesCsMetadata } from '@/businesses/pro-mesta/citiesCsMetadata';
 
 export const metadata = citiesCsMetadata;
 

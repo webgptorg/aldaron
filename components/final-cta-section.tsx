@@ -1,9 +1,9 @@
 'use client';
 
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
-import { motion } from 'framer-motion';
-import { ArrowRight, Shield, Clock, Gift } from 'lucide-react';
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
 export function FinalCTASection({ language = 'cs' }: { language?: HomepageLanguage }) {
     const { finalCta } = getHomepageContent(language);

@@ -1,5 +1,5 @@
-import { HackathonFactoryPage } from '@/config/hackathon-factory/_HackathonFactoryPage';
-import { hackathonFactoryMetadata } from '@/config/hackathon-factory/hackathonFactoryMetadata';
+import { HackathonFactoryPage } from '@/businesses/hackathon-factory/_HackathonFactoryPage';
+import { hackathonFactoryMetadata } from '@/businesses/hackathon-factory/hackathonFactoryMetadata';
 
 export const metadata = hackathonFactoryMetadata;
 

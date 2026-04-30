@@ -1,9 +1,9 @@
 'use client';
 
-import { GenericChatbot } from '@/config/_generic/genericChatbot';
-import { AiSupervizeChatbot } from '@/config/ai-supervize/aiSupervizeChatbot';
+import { GenericChatbot } from '@/businesses/_generic/genericChatbot';
+import { AiSupervizeChatbot } from '@/businesses/ai-supervize/aiSupervizeChatbot';
+import { CitiesCsChatbot } from '@/businesses/pro-mesta/citiesCsChatbot';
 import { ForAgroChatbot } from '@/config/for-agro/forAgroChatbot';
-import { CitiesCsChatbot } from '@/config/pro-mesta/citiesCsChatbot';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 

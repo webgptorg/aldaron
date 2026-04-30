@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image, { StaticImageData } from 'next/image';
-import { defaultIntegrations } from '../config/_generic/defaultIntegrations';
+import { defaultIntegrations } from '../businesses/_generic/defaultIntegrations';
 
 export type Integration = {
     preview: StaticImageData;

@@ -1,6 +1,6 @@
 'use client';
 
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { motion } from 'framer-motion';
 import { Quote } from 'lucide-react';
 import type { StaticImageData } from 'next/image';

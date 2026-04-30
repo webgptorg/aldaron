@@ -1,8 +1,8 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';

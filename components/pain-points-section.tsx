@@ -1,6 +1,6 @@
 'use client';
 
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { motion, useInView } from 'framer-motion';
 import {
     AlertTriangle,

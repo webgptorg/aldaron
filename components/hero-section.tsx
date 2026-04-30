@@ -1,7 +1,7 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { Button } from '@/components/ui/button';
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, FileText, Shield, Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';

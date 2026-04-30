@@ -1,5 +1,11 @@
 'use client';
 
+import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import { forAgroBenefits } from '@/businesses/for-agro/forAgroBenefits';
+import { forAgroConversation } from '@/businesses/for-agro/forAgroConversation';
+import { forAgroIntegrations } from '@/businesses/for-agro/forAgroIntegrations';
+import { forAgroPricing, forAgroPricingFootnotes } from '@/businesses/for-agro/forAgroPricing';
+import { forAgroTestimonials } from '@/businesses/for-agro/forAgroTestimonials';
 import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
@@ -11,12 +17,6 @@ import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
-import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import { forAgroBenefits } from '@/config/for-agro/forAgroBenefits';
-import { forAgroConversation } from '@/config/for-agro/forAgroConversation';
-import { forAgroIntegrations } from '@/config/for-agro/forAgroIntegrations';
-import { forAgroPricing, forAgroPricingFootnotes } from '@/config/for-agro/forAgroPricing';
-import { forAgroTestimonials } from '@/config/for-agro/forAgroTestimonials';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';

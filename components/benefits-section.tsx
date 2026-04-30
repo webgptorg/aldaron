@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Book, Briefcase, Code, FileStack, Mail, Shield, UserRound, Users, Zap } from 'lucide-react';
 import { FC, ReactNode } from 'react';
-import { defaultBenefits } from '../config/_generic/defaultBenefits';
+import { defaultBenefits } from '../businesses/_generic/defaultBenefits';
 
 const iconMap = {
     Briefcase,

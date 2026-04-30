@@ -1,5 +1,5 @@
-import { ForAgroPage } from '@/config/for-agro/_ForAgroPage';
-import { forAgroMetadata } from '@/config/for-agro/forAgroMetadata';
+import { ForAgroPage } from '@/businesses/for-agro/_ForAgroPage';
+import { forAgroMetadata } from '@/businesses/for-agro/forAgroMetadata';
 
 export const metadata = forAgroMetadata;
 

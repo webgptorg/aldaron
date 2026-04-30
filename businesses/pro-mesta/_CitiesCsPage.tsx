@@ -1,5 +1,11 @@
 'use client'; // <- TODO: !!! Maybe not ideal here
 
+import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import { citiesCsBenefits } from '@/businesses/pro-mesta/citiesCsBenefits';
+import { citiesCsConversation } from '@/businesses/pro-mesta/citiesCsConversation';
+import { citiesCsIntegrations } from '@/businesses/pro-mesta/citiesCsIntegrations';
+import { citiesCsPricing, citiesCsPricingFootnotes } from '@/businesses/pro-mesta/citiesCsPricing';
+import { citiesCsTestimonials } from '@/businesses/pro-mesta/citiesCsTestimonials';
 import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
@@ -11,12 +17,6 @@ import { PricingSection } from '@/components/pricing-section';
 import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
-import { czechBusinessFooterProps } from '@/config/_generic/czechBusinessFooterProps';
-import { citiesCsBenefits } from '@/config/pro-mesta/citiesCsBenefits';
-import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
-import { citiesCsIntegrations } from '@/config/pro-mesta/citiesCsIntegrations';
-import { citiesCsPricing, citiesCsPricingFootnotes } from '@/config/pro-mesta/citiesCsPricing';
-import { citiesCsTestimonials } from '@/config/pro-mesta/citiesCsTestimonials';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';

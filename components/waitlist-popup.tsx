@@ -1,9 +1,9 @@
 'use client';
 
+import { defaultPricing } from '@/businesses/_generic/defaultPricing';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { defaultPricing } from '@/config/_generic/defaultPricing';
 import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';

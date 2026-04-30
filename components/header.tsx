@@ -1,7 +1,7 @@
 'use client';
 
+import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { Button } from '@/components/ui/button';
-import { getHomepageContent, type HomepageLanguage } from '@/config/homepage/homepageContent';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

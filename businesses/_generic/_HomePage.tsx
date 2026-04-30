@@ -1,5 +1,7 @@
 'use client'; // <- TODO: !!! Maybe not ideal here
 
+import { defaultPricing } from '@/businesses/_generic/defaultPricing';
+import { genericConversation } from '@/businesses/_generic/genericConversation';
 import { BenefitsSection } from '@/components/benefits-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
@@ -11,8 +13,6 @@ import { TeamSection } from '@/components/team-section';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import { WaitlistPopup } from '@/components/waitlist-popup';
-import { defaultPricing } from '@/config/_generic/defaultPricing';
-import { genericConversation } from '@/config/_generic/genericConversation';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 // import { Metadata } from 'next';

@@ -2,12 +2,12 @@ import {
     defaultMetadataDescription,
     defaultMetadataOpenGraphAlt,
     defaultMetadataTitle,
-} from '@/config/_generic/defaultMetadata';
+} from '@/businesses/_generic/defaultMetadata';
 import {
     citiesCsMetadataDescription,
     citiesCsMetadataOpenGraphAlt,
     citiesCsMetadataTitle,
-} from '@/config/pro-mesta/citiesCsMetadata';
+} from '@/businesses/pro-mesta/citiesCsMetadata';
 import { SocialPreviewImageOptions } from '@/lib/social-preview-image';
 
 export const defaultSocialPreviewOptions: SocialPreviewImageOptions = {

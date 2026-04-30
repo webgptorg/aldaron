@@ -1,5 +1,5 @@
-import { AiSupervizePage } from '@/config/ai-supervize/_AiSupervizePage';
-import { aiSupervizeMetadata } from '@/config/ai-supervize/aiSupervizeMetadata';
+import { AiSupervizePage } from '@/businesses/ai-supervize/_AiSupervizePage';
+import { aiSupervizeMetadata } from '@/businesses/ai-supervize/aiSupervizeMetadata';
 
 export const metadata = aiSupervizeMetadata;
 

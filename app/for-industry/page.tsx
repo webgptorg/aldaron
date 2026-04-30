@@ -1,5 +1,9 @@
 'use client';
 
+import { industryIntegrations } from '@/businesses/for-industry/industryIntegrations';
+import { industryPricing } from '@/businesses/for-industry/industryPricing';
+import { industryTestimonials } from '@/businesses/for-industry/industryTestimonials';
+import { citiesCsConversation } from '@/businesses/pro-mesta/citiesCsConversation';
 import { BenefitsSection } from '@/components/benefits-section';
 import { BusinessGetStartedModal } from '@/components/business-get-started-modal';
 import { Footer } from '@/components/footer';
@@ -13,15 +17,11 @@ import { TestimonialsSection } from '@/components/testimonials-section';
 import { TryItYourselfSection } from '@/components/try-it-yourself-section';
 import { Button } from '@/components/ui/button';
 import forIndustryBook from '@/config/for-industry/for-industry.book';
-import { industryIntegrations } from '@/config/for-industry/industryIntegrations';
-import { industryPricing } from '@/config/for-industry/industryPricing';
-import { industryTestimonials } from '@/config/for-industry/industryTestimonials';
-import { citiesCsConversation } from '@/config/pro-mesta/citiesCsConversation';
 import { useIsLocalhost } from '@/hooks/useIsLocalhost';
 import { ArrowRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { industryBenefits } from '../../config/for-industry/industryBenefits';
+import { industryBenefits } from '../../businesses/for-industry/industryBenefits';
 
 export default function ForIndustryPage() {
     const isLocalhost = useIsLocalhost();
