@@ -1,0 +1,2397 @@
+{
+  "version": 1,
+  "files": {
+    "AGENT_CODING.md": {
+      "mtimeMs": 1775858204363.2593,
+      "size": 2929,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "AGENTS.md": {
+      "mtimeMs": 1777404508042.067,
+      "size": 870,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/[shortcode]/page.tsx": {
+      "mtimeMs": 1777298158134.7542,
+      "size": 8564,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/admin/contacts/AdminContactsComponent.tsx": {
+      "mtimeMs": 1775858204367.249,
+      "size": 16955,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/admin/contacts/page.tsx": {
+      "mtimeMs": 1775858204369.2434,
+      "size": 271,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/admin/contacts/TODO.txt": {
+      "mtimeMs": 1775858204368.2463,
+      "size": 380,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/ai-supervize/page.tsx": {
+      "mtimeMs": 1775858204374.2307,
+      "size": 289,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/api/contacts/route.ts": {
+      "mtimeMs": 1777298158135.7507,
+      "size": 3155,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/api/track-click/route.ts": {
+      "mtimeMs": 1777298158135.7507,
+      "size": 1099,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/contact/page.tsx": {
+      "mtimeMs": 1775858204377.2217,
+      "size": 413,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/cs/page.tsx": {
+      "mtimeMs": 1777404429086.3071,
+      "size": 301,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/data-deletion/page.tsx": {
+      "mtimeMs": 1775858204378.2188,
+      "size": 14988,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/dekujeme/page.tsx": {
+      "mtimeMs": 1777299070622.5398,
+      "size": 11166,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/en/page.tsx": {
+      "mtimeMs": 1777404434969.5056,
+      "size": 301,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/for-agro/page.tsx": {
+      "mtimeMs": 1775858204379.2163,
+      "size": 253,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/for-industry/page.tsx": {
+      "mtimeMs": 1777298314424.1465,
+      "size": 6107,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/hackathon-factory/page.tsx": {
+      "mtimeMs": 1775858204389.19,
+      "size": 334,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/k/[...shortFileUrlParts]/route.tsx": {
+      "mtimeMs": 1775858204392.1826,
+      "size": 2232,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/layout.tsx": {
+      "mtimeMs": 1777555632864.8848,
+      "size": 5459,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/not-found.tsx": {
+      "mtimeMs": 1775858204395.1748,
+      "size": 1387,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/old/page.tsx": {
+      "mtimeMs": 1776784526663.1533,
+      "size": 317,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/opengraph-image.tsx": {
+      "mtimeMs": 1775858204395.1748,
+      "size": 451,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/page.tsx": {
+      "mtimeMs": 1777405484279.428,
+      "size": 367,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/privacy/page.tsx": {
+      "mtimeMs": 1775858204407.1426,
+      "size": 9842,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/pro-firmy/route.tsx": {
+      "mtimeMs": 1776784611699.8867,
+      "size": 186,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/pro-mesta/opengraph-image.tsx": {
+      "mtimeMs": 1775858204415.1206,
+      "size": 454,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/pro-mesta/page.tsx": {
+      "mtimeMs": 1775858204415.1206,
+      "size": 261,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/pro-mesta/twitter-image.tsx": {
+      "mtimeMs": 1775858204417.1155,
+      "size": 452,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/shortener/page.tsx": {
+      "mtimeMs": 1775858204418.113,
+      "size": 647,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/terms/page.tsx": {
+      "mtimeMs": 1775858204426.0913,
+      "size": 12229,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "app/twitter-image.tsx": {
+      "mtimeMs": 1775858204427.0896,
+      "size": 449,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "changelog/_current-preversion.md": {
+      "mtimeMs": 1775858204428.086,
+      "size": 480,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components.json": {
+      "mtimeMs": 1751318214146.3057,
+      "size": 473,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/benefits-section.tsx": {
+      "mtimeMs": 1775858204429.0835,
+      "size": 3477,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/booking-notification.tsx": {
+      "mtimeMs": 1777404508272.4255,
+      "size": 3291,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/business-get-started-modal.tsx": {
+      "mtimeMs": 1777414101723.0488,
+      "size": 7642,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/chatbot-config.ts": {
+      "mtimeMs": 1775858204430.0808,
+      "size": 2788,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/chatbot.tsx": {
+      "mtimeMs": 1775858204431.0784,
+      "size": 1217,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/client-wrapper.tsx": {
+      "mtimeMs": 1775858204431.0784,
+      "size": 127,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/cookie-settings-modal.tsx": {
+      "mtimeMs": 1775858204432.0747,
+      "size": 3790,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/cookies-bar.tsx": {
+      "mtimeMs": 1775858204433.0725,
+      "size": 2184,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/enemy-section.tsx": {
+      "mtimeMs": 1777404508320.297,
+      "size": 8870,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/faq-section.tsx": {
+      "mtimeMs": 1777298158146.722,
+      "size": 5629,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/feature-cards-section.tsx": {
+      "mtimeMs": 1775858204442.0486,
+      "size": 7851,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/final-cta-section.tsx": {
+      "mtimeMs": 1777404508353.2102,
+      "size": 5909,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/footer.tsx": {
+      "mtimeMs": 1777414109611.178,
+      "size": 14099,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/hackathon-factory-logo.tsx": {
+      "mtimeMs": 1775858204445.0408,
+      "size": 4872,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/header.tsx": {
+      "mtimeMs": 1777404508438.9802,
+      "size": 3637,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/hero-section.tsx": {
+      "mtimeMs": 1777404508510.788,
+      "size": 14287,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/how-it-works-section.tsx": {
+      "mtimeMs": 1777404508550.6812,
+      "size": 12938,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/integrations-section.tsx": {
+      "mtimeMs": 1775858204451.0244,
+      "size": 3878,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/markdown-content.tsx": {
+      "mtimeMs": 1776603682825.9458,
+      "size": 398,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/minimal-footer.tsx": {
+      "mtimeMs": 1777298158152.7058,
+      "size": 2003,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/mocked-chat-section.tsx": {
+      "mtimeMs": 1776603892156.7603,
+      "size": 2185,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/old-hero-section.tsx": {
+      "mtimeMs": 1777298314426.1416,
+      "size": 2768,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/pain-points-section.tsx": {
+      "mtimeMs": 1777404508650.4175,
+      "size": 28713,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/playground-section.tsx": {
+      "mtimeMs": 1775858204457.0093,
+      "size": 775,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/pricing-section.tsx": {
+      "mtimeMs": 1775858204459.004,
+      "size": 29828,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/qualification-popup.tsx": {
+      "mtimeMs": 1777555357337.9243,
+      "size": 16013,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/social-proof-strip.tsx": {
+      "mtimeMs": 1777404508703.273,
+      "size": 3228,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/solution-section.tsx": {
+      "mtimeMs": 1777404508729.2046,
+      "size": 7632,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/team-section.tsx": {
+      "mtimeMs": 1775858204467.98,
+      "size": 4404,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/testimonials-section.tsx": {
+      "mtimeMs": 1777404904402.9844,
+      "size": 6688,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/try-it-yourself-section.tsx": {
+      "mtimeMs": 1775858204472.0369,
+      "size": 3359,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/accordion.tsx": {
+      "mtimeMs": 1777298158162.6975,
+      "size": 2062,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/alert-dialog.tsx": {
+      "mtimeMs": 1777298158162.6975,
+      "size": 4600,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/alert.tsx": {
+      "mtimeMs": 1777298158163.6946,
+      "size": 1654,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/aspect-ratio.tsx": {
+      "mtimeMs": 1751032380978.5881,
+      "size": 158,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/avatar.tsx": {
+      "mtimeMs": 1777298158164.692,
+      "size": 1480,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/badge.tsx": {
+      "mtimeMs": 1777298158165.6892,
+      "size": 1170,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/breadcrumb.tsx": {
+      "mtimeMs": 1777298158166.6875,
+      "size": 2839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/button.tsx": {
+      "mtimeMs": 1777298158167.6843,
+      "size": 1902,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/calendar.tsx": {
+      "mtimeMs": 1777298158191.6538,
+      "size": 2699,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/card.tsx": {
+      "mtimeMs": 1751032381164.396,
+      "size": 1905,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/carousel.tsx": {
+      "mtimeMs": 1777298158192.651,
+      "size": 6557,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/chart.tsx": {
+      "mtimeMs": 1751032381432.9138,
+      "size": 10551,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/ChatBubbles.tsx": {
+      "mtimeMs": 1777298158161.7,
+      "size": 1892,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/checkbox.tsx": {
+      "mtimeMs": 1777298158193.6487,
+      "size": 1108,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/collapsible.tsx": {
+      "mtimeMs": 1751032382550.1562,
+      "size": 335,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/command.tsx": {
+      "mtimeMs": 1777298158193.6487,
+      "size": 5075,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/context-menu.tsx": {
+      "mtimeMs": 1777298158194.6516,
+      "size": 7494,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/dialog.tsx": {
+      "mtimeMs": 1777298158195.643,
+      "size": 4013,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/drawer.tsx": {
+      "mtimeMs": 1751032381793.9102,
+      "size": 3043,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/dropdown-menu.tsx": {
+      "mtimeMs": 1777298158195.643,
+      "size": 7543,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/form.tsx": {
+      "mtimeMs": 1777298158199.632,
+      "size": 4328,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/hover-card.tsx": {
+      "mtimeMs": 1777298158199.632,
+      "size": 1236,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/infinite-slider.tsx": {
+      "mtimeMs": 1777298158200.6294,
+      "size": 3131,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/input-otp.tsx": {
+      "mtimeMs": 1777298158201.6267,
+      "size": 2256,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/input.tsx": {
+      "mtimeMs": 1751032382713.1604,
+      "size": 851,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/label.tsx": {
+      "mtimeMs": 1777298158201.6267,
+      "size": 759,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/menubar.tsx": {
+      "mtimeMs": 1777298158202.6243,
+      "size": 8261,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/navigation-menu.tsx": {
+      "mtimeMs": 1777298158203.621,
+      "size": 5195,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/pagination.tsx": {
+      "mtimeMs": 1777298158203.621,
+      "size": 2889,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/popover.tsx": {
+      "mtimeMs": 1777298158204.619,
+      "size": 1284,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/progress.tsx": {
+      "mtimeMs": 1777298158205.6162,
+      "size": 826,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/radio-group.tsx": {
+      "mtimeMs": 1777298158206.6135,
+      "size": 1537,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/resizable.tsx": {
+      "mtimeMs": 1751032381611.9128,
+      "size": 1732,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/scroll-area.tsx": {
+      "mtimeMs": 1777298158207.6113,
+      "size": 1713,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/select.tsx": {
+      "mtimeMs": 1777298158208.6084,
+      "size": 5812,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/separator.tsx": {
+      "mtimeMs": 1777298158209.6057,
+      "size": 808,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/sheet.tsx": {
+      "mtimeMs": 1777298158210.6028,
+      "size": 4445,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/skeleton.tsx": {
+      "mtimeMs": 1751032382751.1597,
+      "size": 264,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/slider.tsx": {
+      "mtimeMs": 1777298158210.6028,
+      "size": 1126,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/sonner.tsx": {
+      "mtimeMs": 1751032381127.4255,
+      "size": 902,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/switch.tsx": {
+      "mtimeMs": 1777298158211.6003,
+      "size": 1189,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/table.tsx": {
+      "mtimeMs": 1751032382349.1267,
+      "size": 2784,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/tabs.tsx": {
+      "mtimeMs": 1777298158211.6003,
+      "size": 1964,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/textarea.tsx": {
+      "mtimeMs": 1751032382673.1604,
+      "size": 778,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/toast.tsx": {
+      "mtimeMs": 1777298158212.597,
+      "size": 5012,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/toaster.tsx": {
+      "mtimeMs": 1775858342388.6624,
+      "size": 826,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/toggle-group.tsx": {
+      "mtimeMs": 1777298158213.5947,
+      "size": 1828,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/toggle.tsx": {
+      "mtimeMs": 1777298158213.5947,
+      "size": 1503,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/ui/tooltip.tsx": {
+      "mtimeMs": 1777298158214.5925,
+      "size": 1199,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/url-shortener.tsx": {
+      "mtimeMs": 1775858204477.953,
+      "size": 26558,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "components/waitlist-popup.tsx": {
+      "mtimeMs": 1777414122525.712,
+      "size": 7166,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config.ts": {
+      "mtimeMs": 1775858204480.9446,
+      "size": 449,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/_HomePage.tsx": {
+      "mtimeMs": 1777298314427.1387,
+      "size": 7883,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/czechBusinessFooterProps.tsx": {
+      "mtimeMs": 1775858204483.9373,
+      "size": 2158,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/defaultBenefits.tsx": {
+      "mtimeMs": 1775858204490.9185,
+      "size": 1545,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/defaultIntegrations.ts": {
+      "mtimeMs": 1775858204491.9155,
+      "size": 1473,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/defaultMetadata.tsx": {
+      "mtimeMs": 1776784547192.4028,
+      "size": 1274,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/defaultPricing.ts": {
+      "mtimeMs": 1775858204493.91,
+      "size": 1724,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/defaultTestimonials.tsx": {
+      "mtimeMs": 1775858204494.9082,
+      "size": 3104,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/genericChatbot.tsx": {
+      "mtimeMs": 1775858204495.9048,
+      "size": 789,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/_generic/genericConversation.ts": {
+      "mtimeMs": 1775858204495.9048,
+      "size": 249,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/_AiSupervizePage.tsx": {
+      "mtimeMs": 1777298158218.5818,
+      "size": 24935,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeBenefits.tsx": {
+      "mtimeMs": 1775858204500.891,
+      "size": 1529,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeChatbot.tsx": {
+      "mtimeMs": 1775858204501.8882,
+      "size": 870,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeContent.tsx": {
+      "mtimeMs": 1775858204501.8882,
+      "size": 10294,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeConversation.ts": {
+      "mtimeMs": 1775858204502.8853,
+      "size": 4336,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeMetadata.tsx": {
+      "mtimeMs": 1775858204508.8699,
+      "size": 1226,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizePricing.ts": {
+      "mtimeMs": 1775858204509.8674,
+      "size": 4102,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/ai-supervize/aiSupervizeTestimonials.tsx": {
+      "mtimeMs": 1775858204509.8674,
+      "size": 301,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/_ForAgroPage.tsx": {
+      "mtimeMs": 1777298314428.136,
+      "size": 9367,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroBenefits.ts": {
+      "mtimeMs": 1775858204511.8625,
+      "size": 1672,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroChatbot.tsx": {
+      "mtimeMs": 1775858204512.859,
+      "size": 926,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroConversation.ts": {
+      "mtimeMs": 1775858204512.859,
+      "size": 3287,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroIntegrations.ts": {
+      "mtimeMs": 1775858204513.8562,
+      "size": 2146,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroMetadata.ts": {
+      "mtimeMs": 1775858204514.8545,
+      "size": 1221,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroPricing.ts": {
+      "mtimeMs": 1775858204515.8518,
+      "size": 2465,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-agro/forAgroTestimonials.ts": {
+      "mtimeMs": 1775858204516.8484,
+      "size": 308,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-industry/industryBenefits.tsx": {
+      "mtimeMs": 1775858204518.8433,
+      "size": 856,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-industry/industryIntegrations.ts": {
+      "mtimeMs": 1775858204527.8193,
+      "size": 1482,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-industry/industryPricing.ts": {
+      "mtimeMs": 1775858204529.8137,
+      "size": 1725,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-industry/industryTestimonials.tsx": {
+      "mtimeMs": 1775858204531.8083,
+      "size": 298,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/for-industry/TODO.txt": {
+      "mtimeMs": 1775858204517.8457,
+      "size": 75,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/hackathon-factory/_HackathonFactoryPage.tsx": {
+      "mtimeMs": 1777298314429.1338,
+      "size": 14301,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/hackathon-factory/hackathonFactoryContent.tsx": {
+      "mtimeMs": 1775858204533.8032,
+      "size": 6917,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/hackathon-factory/hackathonFactoryConversation.ts": {
+      "mtimeMs": 1775858204534.8003,
+      "size": 3719,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/hackathon-factory/hackathonFactoryMetadata.tsx": {
+      "mtimeMs": 1775858204534.8003,
+      "size": 1364,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/hackathon-factory/hackathonFactoryPricing.ts": {
+      "mtimeMs": 1775858204535.7979,
+      "size": 2472,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/homepage/_Homepage.tsx": {
+      "mtimeMs": 1777404423602.6726,
+      "size": 2155,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/homepage/homepageContent.tsx": {
+      "mtimeMs": 1777405484280.426,
+      "size": 41968,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-firmy/_ProFirmyPage.tsx": {
+      "mtimeMs": 1777405484285.4133,
+      "size": 1710,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-firmy/proFirmyHero.tsx": {
+      "mtimeMs": 1777298709660.5818,
+      "size": 15477,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-firmy/proFirmyMetadata.ts": {
+      "mtimeMs": 1777374406867.9502,
+      "size": 721,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-firmy/proFirmyTestimonials.tsx": {
+      "mtimeMs": 1777298709662.577,
+      "size": 5542,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/_CitiesCsPage.tsx": {
+      "mtimeMs": 1777298314431.1274,
+      "size": 8999,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsBenefits.tsx": {
+      "mtimeMs": 1775858204615.5854,
+      "size": 1415,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsChatbot.tsx": {
+      "mtimeMs": 1775858204617.5796,
+      "size": 861,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsConversation.ts": {
+      "mtimeMs": 1775858204618.5771,
+      "size": 2732,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsIntegrations.ts": {
+      "mtimeMs": 1775858204618.5771,
+      "size": 1996,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsMetadata.tsx": {
+      "mtimeMs": 1775858204623.563,
+      "size": 1259,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsPricing.ts": {
+      "mtimeMs": 1775858204624.561,
+      "size": 2376,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/pro-mesta/citiesCsTestimonials.tsx": {
+      "mtimeMs": 1775858204625.558,
+      "size": 1164,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "config/TODO.txt": {
+      "mtimeMs": 1775858204481.9414,
+      "size": 41,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/use-user-session.ts": {
+      "mtimeMs": 1775858204626.5547,
+      "size": 398,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useBookPersistence.ts": {
+      "mtimeMs": 1777298158230.5496,
+      "size": 2115,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useCloseGetStartedModal.ts": {
+      "mtimeMs": 1775858204629.5479,
+      "size": 667,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useGetParam.ts": {
+      "mtimeMs": 1775858204631.5422,
+      "size": 1252,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useIsLocalhost.ts": {
+      "mtimeMs": 1775858204632.5396,
+      "size": 365,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useOptionalGetParam.ts": {
+      "mtimeMs": 1775858204633.5356,
+      "size": 950,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useSelectedAgent.ts": {
+      "mtimeMs": 1777298158231.5466,
+      "size": 1677,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useToast.ts": {
+      "mtimeMs": 1775858204634.5337,
+      "size": 4788,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "hooks/useYou.ts": {
+      "mtimeMs": 1775858204640.518,
+      "size": 918,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/book-registry.ts": {
+      "mtimeMs": 1777298158266.67,
+      "size": 2051,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/classNames.ts": {
+      "mtimeMs": 1775858204642.5127,
+      "size": 335,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/conversations-data.ts": {
+      "mtimeMs": 1775858204643.5098,
+      "size": 570,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/homepage-language.ts": {
+      "mtimeMs": 1777405484278.4585,
+      "size": 1281,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/social-preview-image.tsx": {
+      "mtimeMs": 1775858204644.5068,
+      "size": 16563,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/social-preview-options.ts": {
+      "mtimeMs": 1775858204645.5044,
+      "size": 3277,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/subscription/subscribeToNewsletter.ts": {
+      "mtimeMs": 1757430301164.752,
+      "size": 591,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/subscription/subscribeToWaitlist.ts": {
+      "mtimeMs": 1777414587359.7695,
+      "size": 2098,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/supabase.ts": {
+      "mtimeMs": 1777555695537.9878,
+      "size": 2400,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/utils.ts": {
+      "mtimeMs": 1751032382954.1584,
+      "size": 169,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "lib/waitlist.ts": {
+      "mtimeMs": 1757348951172.5676,
+      "size": 1364,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "LICENSE.md": {
+      "mtimeMs": 1777298158131.7622,
+      "size": 10910,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "middleware.ts": {
+      "mtimeMs": 1777405484279.428,
+      "size": 461,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "next-env.d.ts": {
+      "mtimeMs": 1751032380384.4055,
+      "size": 211,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "next.config.js": {
+      "mtimeMs": 1775858204663.4565,
+      "size": 985,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/app-build-manifest.json": {
+      "mtimeMs": 1775859293685.2837,
+      "size": 17,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/build-manifest.json": {
+      "mtimeMs": 1775859239738.8467,
+      "size": 661,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/fallback-build-manifest.json": {
+      "mtimeMs": 1775859293328.5742,
+      "size": 734,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/package.json": {
+      "mtimeMs": 1775858211738.3323,
+      "size": 20,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/react-loadable-manifest.json": {
+      "mtimeMs": 1775859293328.5742,
+      "size": 1007,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/_error.js": {
+      "mtimeMs": 1775858701850.13,
+      "size": 14743,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app-paths-manifest.json": {
+      "mtimeMs": 1775859494625.8733,
+      "size": 126,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app/_not-found/page.js": {
+      "mtimeMs": 1775859315161.1833,
+      "size": 512452,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app/[shortcode]/page_client-reference-manifest.js": {
+      "mtimeMs": 1775859239817.6357,
+      "size": 15948,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app/[shortcode]/page.js": {
+      "mtimeMs": 1775859221478.942,
+      "size": 578484,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app/pro-mesta/page_client-reference-manifest.js": {
+      "mtimeMs": 1775859239822.622,
+      "size": 15852,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/app/pro-mesta/page.js": {
+      "mtimeMs": 1775859221595.63,
+      "size": 1021133,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/interception-route-rewrite-manifest.js": {
+      "mtimeMs": 1775859494624.8752,
+      "size": 47,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/middleware-build-manifest.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 947,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/middleware-manifest.json": {
+      "mtimeMs": 1775859494624.8752,
+      "size": 83,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/middleware-react-loadable-manifest.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 1036,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/next-font-manifest.js": {
+      "mtimeMs": 1775859239744.8293,
+      "size": 113,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/next-font-manifest.json": {
+      "mtimeMs": 1775859239817.6357,
+      "size": 77,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/pages-manifest.json": {
+      "mtimeMs": 1775859494625.8733,
+      "size": 100,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/pages/_app.js": {
+      "mtimeMs": 1775858701846.1404,
+      "size": 1513,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/pages/_document.js": {
+      "mtimeMs": 1775858701846.1404,
+      "size": 2337,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/pages/_error.js": {
+      "mtimeMs": 1775858701846.1404,
+      "size": 14450,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/server-reference-manifest.js": {
+      "mtimeMs": 1775859494630.859,
+      "size": 140,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/server-reference-manifest.json": {
+      "mtimeMs": 1775859494630.859,
+      "size": 97,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/@opentelemetry.js": {
+      "mtimeMs": 1775858654938.9062,
+      "size": 327535,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/@radix-ui.js": {
+      "mtimeMs": 1775859315152.2048,
+      "size": 318095,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/@supabase.js": {
+      "mtimeMs": 1775859315146.686,
+      "size": 1687646,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/@swc.js": {
+      "mtimeMs": 1775858701832.0488,
+      "size": 25317,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/aria-hidden.js": {
+      "mtimeMs": 1775858654999.7434,
+      "size": 19845,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/class-variance-authority.js": {
+      "mtimeMs": 1775858654998.746,
+      "size": 9852,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/clsx.js": {
+      "mtimeMs": 1775858654998.746,
+      "size": 2888,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/cookie.js": {
+      "mtimeMs": 1775859315171.1533,
+      "size": 23849,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/framer-motion.js": {
+      "mtimeMs": 1775859221649.487,
+      "size": 974461,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/get-nonce.js": {
+      "mtimeMs": 1775858654999.7434,
+      "size": 2659,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/lucide-react.js": {
+      "mtimeMs": 1775859315152.2048,
+      "size": 44364,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/motion-dom.js": {
+      "mtimeMs": 1775859221654.4734,
+      "size": 539639,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/motion-utils.js": {
+      "mtimeMs": 1775859221656.468,
+      "size": 64437,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/next.js": {
+      "mtimeMs": 1775859315151.2065,
+      "size": 6317994,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/react-remove-scroll-bar.js": {
+      "mtimeMs": 1775858654949.877,
+      "size": 21772,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/react-remove-scroll.js": {
+      "mtimeMs": 1775858654948.879,
+      "size": 55887,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/react-style-singleton.js": {
+      "mtimeMs": 1775858654949.877,
+      "size": 14300,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/spacetrim.js": {
+      "mtimeMs": 1775859221559.7256,
+      "size": 37369,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/tailwind-merge.js": {
+      "mtimeMs": 1775858654998.746,
+      "size": 250080,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/tr46.js": {
+      "mtimeMs": 1775859315161.1833,
+      "size": 282453,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/tslib.js": {
+      "mtimeMs": 1775859315161.1833,
+      "size": 50542,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/use-callback-ref.js": {
+      "mtimeMs": 1775858654997.7485,
+      "size": 14996,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/use-sidecar.js": {
+      "mtimeMs": 1775858654997.7485,
+      "size": 12230,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/use-sync-external-store.js": {
+      "mtimeMs": 1775859221656.468,
+      "size": 12668,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/vendor-chunks/whatwg-url.js": {
+      "mtimeMs": 1775859315155.1963,
+      "size": 141746,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/server/webpack-runtime.js": {
+      "mtimeMs": 1775859313976.6084,
+      "size": 8799,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_canvg_lib_index_es_js.js": {
+      "mtimeMs": 1775858677628.3225,
+      "size": 1242047,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_dompurify_dist_purify_es_mjs.js": {
+      "mtimeMs": 1775858677611.3684,
+      "size": 166486,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_html2canvas_dist_html2canvas_js.js": {
+      "mtimeMs": 1775858677606.3826,
+      "size": 1108222,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js": {
+      "mtimeMs": 1775858677593.416,
+      "size": 6405,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_promptbook_components_esm_index_es_js-_c64b0.js": {
+      "mtimeMs": 1775858677704.1204,
+      "size": 20823821,
+      "tagsByPrefix": {
+        "✨": [
+          "🥚",
+          "✷"
+        ]
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_promptbook_components_esm_index_es_js-_c64b1.js": {
+      "mtimeMs": 1775858677659.24,
+      "size": 20677859,
+      "tagsByPrefix": {
+        "✨": [
+          "🥚",
+          "✷"
+        ]
+      }
+    },
+    "out/static/chunks/_app-pages-browser_node_modules_promptbook_components_esm_index_es_js-_c64b2.js": {
+      "mtimeMs": 1775859238377.3838,
+      "size": 20655797,
+      "tagsByPrefix": {
+        "✨": [
+          "🥚",
+          "✷"
+        ]
+      }
+    },
+    "out/static/chunks/_error.js": {
+      "mtimeMs": 1775858699362.205,
+      "size": 81147,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_pages-dir-browser_node_modules_next_dist_pages__app_js.js": {
+      "mtimeMs": 1775858699362.205,
+      "size": 9495,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/_pages-dir-browser_node_modules_next_dist_pages__error_js.js": {
+      "mtimeMs": 1775858699362.205,
+      "size": 77578,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/app-pages-internals.js": {
+      "mtimeMs": 1775858676745.684,
+      "size": 229227,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/app/[shortcode]/page.js": {
+      "mtimeMs": 1775858676859.38,
+      "size": 3001481,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/app/layout.js": {
+      "mtimeMs": 1775859239683.5627,
+      "size": 1091997,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/app/not-found.js": {
+      "mtimeMs": 1775858676792.558,
+      "size": 3313528,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/app/pro-mesta/page.js": {
+      "mtimeMs": 1775859237994.4092,
+      "size": 5627641,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 6405,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/_pages-dir-browser_node_modules_next_dist_pages__app_js.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 9495,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/_pages-dir-browser_node_modules_next_dist_pages__error_js.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 77578,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/amp.js": {
+      "mtimeMs": 1775859293557.2903,
+      "size": 4096697,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/main-app.js": {
+      "mtimeMs": 1775859293562.2769,
+      "size": 6548444,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/main.js": {
+      "mtimeMs": 1775859293606.4937,
+      "size": 6259882,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/pages/_app.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 12276,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/pages/_error.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 80407,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/react-refresh.js": {
+      "mtimeMs": 1775859293556.2927,
+      "size": 79687,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/fallback/webpack.js": {
+      "mtimeMs": 1775859293558.2878,
+      "size": 55534,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/leaflet.js": {
+      "mtimeMs": 1775858677612.366,
+      "size": 1252844,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/main-app.js": {
+      "mtimeMs": 1775858676740.6973,
+      "size": 6548444,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/main.js": {
+      "mtimeMs": 1775858699367.1917,
+      "size": 6260778,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/pages/_app.js": {
+      "mtimeMs": 1775858699375.1,
+      "size": 12276,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/pages/_error.js": {
+      "mtimeMs": 1775858699361.2075,
+      "size": 80407,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/polyfills.js": {
+      "mtimeMs": 1775858214795.8662,
+      "size": 112594,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/react-refresh.js": {
+      "mtimeMs": 1775858699349.239,
+      "size": 79687,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/chunks/webpack.js": {
+      "mtimeMs": 1775859239683.5627,
+      "size": 56377,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/development/_buildManifest.js": {
+      "mtimeMs": 1775859239742.8357,
+      "size": 312,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/development/_ssgManifest.js": {
+      "mtimeMs": 1775859239742.8357,
+      "size": 76,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/35384b5c370159f5.webpack.hot-update.json": {
+      "mtimeMs": 1775859196269.805,
+      "size": 31,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/633457081244afec._.hot-update.json": {
+      "mtimeMs": 1775858677611.3684,
+      "size": 22,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/74eab0af5f8cd384.webpack.hot-update.json": {
+      "mtimeMs": 1775859237970.472,
+      "size": 44,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/9ab848dee99a86f6.webpack.hot-update.json": {
+      "mtimeMs": 1775859181780.587,
+      "size": 309,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/a4098a90917a0276.webpack.hot-update.json": {
+      "mtimeMs": 1775859239818.6323,
+      "size": 44,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/a6f10421341c5314.webpack.hot-update.json": {
+      "mtimeMs": 1775859182786.4053,
+      "size": 44,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/app/layout.74eab0af5f8cd384.hot-update.js": {
+      "mtimeMs": 1775859237970.472,
+      "size": 1843,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/app/layout.9ab848dee99a86f6.hot-update.js": {
+      "mtimeMs": 1775859181779.589,
+      "size": 1843,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/app/layout.a4098a90917a0276.hot-update.js": {
+      "mtimeMs": 1775859239817.6357,
+      "size": 1843,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/app/layout.a6f10421341c5314.hot-update.js": {
+      "mtimeMs": 1775859182789.3901,
+      "size": 1843,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/app/layout.fb739b37d3f49144.hot-update.js": {
+      "mtimeMs": 1775858681880.5603,
+      "size": 1843,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/fb739b37d3f49144.webpack.hot-update.json": {
+      "mtimeMs": 1775858681909.483,
+      "size": 44,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/fd04df2dd9fca5bd.webpack.hot-update.json": {
+      "mtimeMs": 1775858699385.0728,
+      "size": 31,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.35384b5c370159f5.hot-update.js": {
+      "mtimeMs": 1775859196269.805,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.74eab0af5f8cd384.hot-update.js": {
+      "mtimeMs": 1775859237970.472,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.9ab848dee99a86f6.hot-update.js": {
+      "mtimeMs": 1775859181773.605,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.a4098a90917a0276.hot-update.js": {
+      "mtimeMs": 1775859239817.6357,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.a6f10421341c5314.hot-update.js": {
+      "mtimeMs": 1775859182785.4006,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.fb739b37d3f49144.hot-update.js": {
+      "mtimeMs": 1775858681909.483,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/static/webpack/webpack.fd04df2dd9fca5bd.hot-update.js": {
+      "mtimeMs": 1775858699374.1038,
+      "size": 839,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/types/app/[shortcode]/page.ts": {
+      "mtimeMs": 1775859221591.6401,
+      "size": 3763,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/types/app/layout.ts": {
+      "mtimeMs": 1775859315211.047,
+      "size": 3733,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/types/app/pro-mesta/page.ts": {
+      "mtimeMs": 1775859221650.484,
+      "size": 3757,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/types/cache-life.d.ts": {
+      "mtimeMs": 1775859494625.8733,
+      "size": 5861,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "out/types/package.json": {
+      "mtimeMs": 1775859494625.8733,
+      "size": 18,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "package-lock.json": {
+      "mtimeMs": 1777298158279.2905,
+      "size": 940730,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "package.json": {
+      "mtimeMs": 1777555357338.9214,
+      "size": 3923,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "postcss.config.js": {
+      "mtimeMs": 1751318230468.2449,
+      "size": 95,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "promptbook.d.ts": {
+      "mtimeMs": 1776604023130.9265,
+      "size": 285,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/2026-04-0000-ai-supervize-skoleni.md": {
+      "mtimeMs": 1775858204711.3281,
+      "size": 1719,
+      "tagsByPrefix": {
+        "✨": [
+          "🥣"
+        ]
+      }
+    },
+    "prompts/2026-04-0010-tweaks.md": {
+      "mtimeMs": 1777298158281.2844,
+      "size": 1218,
+      "tagsByPrefix": {
+        "✨": [
+          "🍆"
+        ]
+      }
+    },
+    "prompts/2026-04-0020-footer.md": {
+      "mtimeMs": 1777298158281.2844,
+      "size": 1065,
+      "tagsByPrefix": {
+        "✨": [
+          "🚠"
+        ]
+      }
+    },
+    "prompts/2026-04-0030-translate.md": {
+      "mtimeMs": 1777405666904.6377,
+      "size": 1202,
+      "tagsByPrefix": {
+        "✨": [
+          "🔵"
+        ]
+      }
+    },
+    "prompts/2026-04-0040-enhance-popup.md": {
+      "mtimeMs": 1777558522240.7827,
+      "size": 1108,
+      "tagsByPrefix": {
+        "✨": [
+          "⬅️"
+        ]
+      }
+    },
+    "prompts/done/404.md": {
+      "mtimeMs": 1775858204718.3093,
+      "size": 245,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/ai-supervize-skoleni.md": {
+      "mtimeMs": 1775858204719.3064,
+      "size": 948,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/ai-supervize.md": {
+      "mtimeMs": 1775858204723.296,
+      "size": 9238,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/arrow.md": {
+      "mtimeMs": 1775858204730.2776,
+      "size": 0,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/cookies-bar.md": {
+      "mtimeMs": 1775858204747.233,
+      "size": 345,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/for-agro.md": {
+      "mtimeMs": 1775858204747.233,
+      "size": 1006,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/for-industry.md": {
+      "mtimeMs": 1775858204765.184,
+      "size": 2375,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/for-municipalities.md": {
+      "mtimeMs": 1775858204767.18,
+      "size": 1289,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/get-started-business.md": {
+      "mtimeMs": 1775858204767.18,
+      "size": 499,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/get-started.md": {
+      "mtimeMs": 1775858204768.1763,
+      "size": 114,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/hackathon-factory.md": {
+      "mtimeMs": 1777298158283.3066,
+      "size": 9742,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/metadata.md": {
+      "mtimeMs": 1775858204771.1685,
+      "size": 679,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/mocked-chat-like-arena.md": {
+      "mtimeMs": 1775858204775.1577,
+      "size": 324,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/new-main-landing-page-company-knowledge.md": {
+      "mtimeMs": 1775858204776.1553,
+      "size": 7487,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/prefilled-book-by-get-param.md": {
+      "mtimeMs": 1775858204777.1526,
+      "size": 686,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/pro-mesta-translations.md": {
+      "mtimeMs": 1775858204782.1392,
+      "size": 1115,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/shortener-landing-page.md": {
+      "mtimeMs": 1775858204782.1392,
+      "size": 3793,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/shortener-localhost.md": {
+      "mtimeMs": 1775858204783.1362,
+      "size": 652,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/shortener-transfer.md": {
+      "mtimeMs": 1775858204798.0962,
+      "size": 741,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/team.md": {
+      "mtimeMs": 1775858204862.923,
+      "size": 135,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/done/testimonials.md": {
+      "mtimeMs": 1775858204862.923,
+      "size": 0,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/templates/common.md": {
+      "mtimeMs": 1775858204958.667,
+      "size": 236,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "prompts/TODO.md": {
+      "mtimeMs": 1775858204717.3132,
+      "size": 302,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "public/manifest.json": {
+      "mtimeMs": 1751543617967.3206,
+      "size": 520,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "public/robots.txt": {
+      "mtimeMs": 1775858205474.2874,
+      "size": 65,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "README.md": {
+      "mtimeMs": 1777298158132.759,
+      "size": 2215,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "reset.d.ts": {
+      "mtimeMs": 1745616069893.8452,
+      "size": 38,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "tailwind.config.ts": {
+      "mtimeMs": 1775862441872.0498,
+      "size": 4199,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "tsconfig.json": {
+      "mtimeMs": 1777298158303.244,
+      "size": 925,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    },
+    "types/yaml.d.ts": {
+      "mtimeMs": 1775858205477.279,
+      "size": 78,
+      "tagsByPrefix": {
+        "✨": []
+      }
+    }
+  }
+}
