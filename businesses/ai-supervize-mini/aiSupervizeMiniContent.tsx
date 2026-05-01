@@ -127,6 +127,7 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
             </p>
         ),
     },
+    /*
     {
         question: 'Kolik workshop stojí a jak funguje sleva SUPER?',
         answer: (
@@ -138,4 +139,5 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
             </p>
         ),
     },
+    */
 ];
