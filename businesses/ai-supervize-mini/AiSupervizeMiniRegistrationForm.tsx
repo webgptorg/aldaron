@@ -19,6 +19,27 @@ function clampParticipants(value: number, max: number) {
     return Math.min(Math.max(Math.round(value), 1), max);
 }
 
+function normalizeDiscountCode(value: string) {
+    return value
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .replace(/_+/g, '_');
+}
+
+function isValidDiscountCode(value: string) {
+    const normalizedValue = normalizeDiscountCode(value);
+    const parts = normalizedValue.split('_').filter(Boolean);
+    const normalizedCode = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code);
+    const normalizedSuffix = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix);
+    const minimumParts = aiSupervizeMiniWorkshopConfig.discount.codeFormat.minimumMiddleParts + 2;
+    const lastPart = parts[parts.length - 1];
+
+    return parts.length >= minimumParts && parts[0] === normalizedCode && lastPart === normalizedSuffix;
+}
+
 export function AiSupervizeMiniRegistrationForm() {
     const [selectedDateId, setSelectedDateId] = useState<string>(aiSupervizeMiniWorkshopConfig.dates[0]!.id);
     const selectedDate =
@@ -44,8 +65,8 @@ export function AiSupervizeMiniRegistrationForm() {
         setParticipantCount((count) => clampParticipants(count, availableSeats));
     }, [availableSeats]);
 
-    const normalizedDiscountCode = discountCode.trim().toUpperCase();
-    const discountApplied = normalizedDiscountCode === aiSupervizeMiniWorkshopConfig.discount.code;
+    const normalizedDiscountCode = normalizeDiscountCode(discountCode);
+    const discountApplied = isValidDiscountCode(discountCode);
     const price = useMemo(() => {
         const basePrice = aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk * participantCount;
         const discountAmount = discountApplied
@@ -93,7 +114,7 @@ export function AiSupervizeMiniRegistrationForm() {
             billingDetails,
             userNote: note,
             discountCodeEntered: discountCode.trim() || null,
-            discountCodeUsed: discountApplied ? aiSupervizeMiniWorkshopConfig.discount.code : null,
+            discountCodeUsed: discountApplied ? normalizedDiscountCode : null,
             discountPercentApplied: discountApplied ? aiSupervizeMiniWorkshopConfig.discount.percent : 0,
             unitPriceCzk: aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk,
             basePriceCzk: price.basePrice,
@@ -156,7 +177,11 @@ export function AiSupervizeMiniRegistrationForm() {
                 <div className="rounded-xl bg-slate-950 px-4 py-3 text-white">
                     <div className="text-xs text-slate-300">Cena po přepočtu</div>
                     <div className="text-2xl font-bold">{formatCzk(price.finalPrice)}</div>
-                    {discountApplied && <div className="text-xs text-cyan-300">Sleva SUPER započtena</div>}
+                    {discountApplied && (
+                        <div className="text-xs text-cyan-300">
+                            Sleva {aiSupervizeMiniWorkshopConfig.discount.code} započtena
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -220,7 +245,7 @@ export function AiSupervizeMiniRegistrationForm() {
                                 name="discount"
                                 value={discountCode}
                                 onChange={(event) => setDiscountCode(event.target.value)}
-                                // placeholder={''}
+                                // placeholder={`${normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code)}_JMENO_${normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix)}`}
                                 className="h-11 pl-10 uppercase"
                             />
                         </div>

@@ -6,6 +6,10 @@ export const aiSupervizeMiniWorkshopConfig = {
     discount: {
         code: 'SUPER',
         percent: 15,
+        codeFormat: {
+            suffix: '15',
+            minimumMiddleParts: 1,
+        },
     },
     dates: [
         {
