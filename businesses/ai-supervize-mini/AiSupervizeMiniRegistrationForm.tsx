@@ -81,7 +81,7 @@ export function AiSupervizeMiniRegistrationForm() {
 
     const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const canSubmit =
-        fullname.trim().length > 1 &&
+        fullname.trim().length > 0 &&
         emailIsValid &&
         // company.trim().length > 1 &&
         // billingDetails.trim().length > 4 &&
@@ -172,7 +172,6 @@ export function AiSupervizeMiniRegistrationForm() {
                 <div>
                     <p className="text-sm font-semibold uppercase text-cyan-700">Registrace</p>
                     <h2 className="mt-2 text-2xl font-bold text-slate-950">Vyberte termín a místo</h2>
-                    <p className="mt-2 text-sm text-slate-500">Rezervace se uloží do stejného systému jako poptávky.</p>
                 </div>
                 <div className="rounded-xl bg-slate-950 px-4 py-3 text-white">
                     <div className="text-xs text-slate-300">Cena po přepočtu</div>
