@@ -222,9 +222,8 @@ function TerminalMetrics(props: Required<Omit<AiSupervizeTerminalProps, 'classNa
             ref={containerRef}
             style={{
                 height: `${props.height}px`,
-                overscrollBehavior: 'contain',
             }}
-            className="scrollbar-none max-w-full overflow-x-auto overflow-y-auto font-mono text-[11px] leading-[1.65] sm:text-xs"
+            className="max-w-full overflow-hidden font-mono text-[11px] leading-[1.65] sm:text-xs"
         >
             {lines.slice(0, step).map((line) => (
                 <div key={line.key}>{line.node(barFill)}</div>
@@ -266,7 +265,7 @@ export function AiSupervizeTerminal({
 
     return (
         <div
-            className={`min-w-0 overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 shadow-2xl ${className}`}
+            className={`pointer-events-none min-w-0 select-none overflow-hidden rounded-xl border border-slate-700/70 bg-slate-950 shadow-2xl ${className}`}
         >
             <div className="flex items-center gap-3 border-b border-slate-700/60 bg-slate-900 px-4 py-2.5">
                 <span className="h-3 w-3 rounded-full bg-red-500" />

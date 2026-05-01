@@ -1,4 +1,4 @@
-[ ] !!
+[!] (failed after 2 attempts) 9 minutes by OpenAI Codex `gpt-5.5`
 
 [✨🛹] Fix mobile scrolling for the terminal on hero section of the `/ai-supervize-mini` and `/ai-supervize`
 
@@ -42,3 +42,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+
