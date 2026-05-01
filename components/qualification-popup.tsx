@@ -4,6 +4,7 @@ import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
+import { cn } from '@/lib/utils';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { ArrowLeft, Calendar, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -16,12 +17,17 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showValidation, setShowValidation] = useState(false);
 
     useEffect(() => {
         const handleOpen = () => setIsOpen(true);
         window.addEventListener('open-qualification-popup', handleOpen);
         return () => window.removeEventListener('open-qualification-popup', handleOpen);
     }, []);
+
+    useEffect(() => {
+        setShowValidation(false);
+    }, [currentStep, isOpen]);
 
     const currentQuestion = questions[currentStep];
     const totalSteps = questions.length;
@@ -39,7 +45,26 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
         return !!answers[currentQuestion.id];
     };
 
+    const getContactFieldError = (fieldId: string) => {
+        const value = answers[fieldId]?.trim() ?? '';
+
+        if (!value) {
+            return 'Toto pole je povinné.';
+        }
+
+        if (fieldId === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            return 'Zadejte platný e-mail.';
+        }
+
+        return null;
+    };
+
     const handleNext = () => {
+        if (!canProceed()) {
+            setShowValidation(true);
+            return;
+        }
+
         if (currentStep < totalSteps - 1) {
             setCurrentStep((s) => s + 1);
         } else {
@@ -63,6 +88,11 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
     };
 
     const handleSubmit = async () => {
+        if (!canProceed()) {
+            setShowValidation(true);
+            return;
+        }
+
         setIsSubmitting(true);
 
         const fullname = answers.name || '';
@@ -87,6 +117,7 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
             setCurrentStep(0);
             setAnswers({});
             setIsSubmitted(false);
+            setShowValidation(false);
         }, 300);
     };
 
@@ -185,49 +216,93 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {currentQuestion.fields.slice(0, 2).map((field) => (
                                         <div key={field.id}>
-                                            <label className="block text-[12px] font-medium text-gray-500 mb-1">
-                                                {field.label}
-                                            </label>
-                                            <input
-                                                type={field.type}
-                                                inputMode={
-                                                    field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
-                                                }
-                                                value={answers[field.id] || ''}
-                                                onChange={(e) =>
-                                                    setAnswers((prev) => ({
-                                                        ...prev,
-                                                        [field.id]: e.target.value,
-                                                    }))
-                                                }
-                                                placeholder={field.placeholder}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[14px] text-[#0f172a] placeholder:text-gray-300 focus:outline-none focus:border-[#0891b2] focus:ring-2 focus:ring-cyan-100 transition-all duration-200"
-                                                autoFocus={field.id === 'name'}
-                                            />
+                                            {(() => {
+                                                const fieldError = showValidation ? getContactFieldError(field.id) : null;
+
+                                                return (
+                                                    <>
+                                                        <label
+                                                            className={cn(
+                                                                'mb-1 block text-[12px] font-medium text-gray-500',
+                                                                fieldError && 'text-red-600',
+                                                            )}
+                                                        >
+                                                            {field.label}
+                                                        </label>
+                                                        <input
+                                                            type={field.type}
+                                                            inputMode={
+                                                                field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
+                                                            }
+                                                            value={answers[field.id] || ''}
+                                                            onChange={(e) =>
+                                                                setAnswers((prev) => ({
+                                                                    ...prev,
+                                                                    [field.id]: e.target.value,
+                                                                }))
+                                                            }
+                                                            placeholder={field.placeholder}
+                                                            aria-invalid={!!fieldError}
+                                                            className={cn(
+                                                                'w-full rounded-xl border px-4 py-3 text-[14px] text-[#0f172a] placeholder:text-gray-300 transition-all duration-200 focus:outline-none',
+                                                                fieldError
+                                                                    ? 'border-red-300 bg-red-50/70 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                                                                    : 'border-gray-200 focus:border-[#0891b2] focus:ring-2 focus:ring-cyan-100',
+                                                            )}
+                                                            autoFocus={field.id === 'name'}
+                                                        />
+                                                        {fieldError && (
+                                                            <p className="mt-1 text-[12px] text-red-600">{fieldError}</p>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     ))}
                                 </div>
                                 {/* Full-width: Email + Phone */}
                                 {currentQuestion.fields.slice(2).map((field) => (
                                     <div key={field.id}>
-                                        <label className="block text-[12px] font-medium text-gray-500 mb-1">
-                                            {field.label}
-                                        </label>
-                                        <input
-                                            type={field.type}
-                                            inputMode={
-                                                field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
-                                            }
-                                            value={answers[field.id] || ''}
-                                            onChange={(e) =>
-                                                setAnswers((prev) => ({
-                                                    ...prev,
-                                                    [field.id]: e.target.value,
-                                                }))
-                                            }
-                                            placeholder={field.placeholder}
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[14px] text-[#0f172a] placeholder:text-gray-300 focus:outline-none focus:border-[#0891b2] focus:ring-2 focus:ring-cyan-100 transition-all duration-200"
-                                        />
+                                        {(() => {
+                                            const fieldError = showValidation ? getContactFieldError(field.id) : null;
+
+                                            return (
+                                                <>
+                                                    <label
+                                                        className={cn(
+                                                            'mb-1 block text-[12px] font-medium text-gray-500',
+                                                            fieldError && 'text-red-600',
+                                                        )}
+                                                    >
+                                                        {field.label}
+                                                    </label>
+                                                    <input
+                                                        type={field.type}
+                                                        inputMode={
+                                                            field.inputMode as React.HTMLAttributes<HTMLInputElement>['inputMode']
+                                                        }
+                                                        value={answers[field.id] || ''}
+                                                        onChange={(e) =>
+                                                            setAnswers((prev) => ({
+                                                                ...prev,
+                                                                [field.id]: e.target.value,
+                                                            }))
+                                                        }
+                                                        placeholder={field.placeholder}
+                                                        aria-invalid={!!fieldError}
+                                                        className={cn(
+                                                            'w-full rounded-xl border px-4 py-3 text-[14px] text-[#0f172a] placeholder:text-gray-300 transition-all duration-200 focus:outline-none',
+                                                            fieldError
+                                                                ? 'border-red-300 bg-red-50/70 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                                                                : 'border-gray-200 focus:border-[#0891b2] focus:ring-2 focus:ring-cyan-100',
+                                                        )}
+                                                    />
+                                                    {fieldError && (
+                                                        <p className="mt-1 text-[12px] text-red-600">{fieldError}</p>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 ))}
                             </div>
@@ -239,7 +314,7 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
                             <div className="mt-auto pt-6 flex flex-col items-center gap-3">
                                 <Button
                                     onClick={handleNext}
-                                    disabled={!canProceed() || isSubmitting}
+                                    disabled={isSubmitting}
                                     className="bg-gradient-to-r from-[#0e7490] to-[#0891b2] text-white rounded-full px-8 py-5 text-[15px] font-semibold hover:shadow-lg hover:shadow-cyan-500/15 transition-all duration-300 disabled:opacity-40 w-full sm:w-auto"
                                 >
                                     {isSubmitting ? (

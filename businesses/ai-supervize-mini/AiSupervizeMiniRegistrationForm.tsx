@@ -4,6 +4,7 @@ import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { BadgePercent, CheckCircle2, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -60,6 +61,7 @@ export function AiSupervizeMiniRegistrationForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [showValidation, setShowValidation] = useState(false);
 
     useEffect(() => {
         setParticipantCount((count) => clampParticipants(count, availableSeats));
@@ -80,22 +82,28 @@ export function AiSupervizeMiniRegistrationForm() {
     }, [discountApplied, participantCount]);
 
     const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    const canSubmit =
-        fullname.trim().length > 0 &&
-        emailIsValid &&
-        // company.trim().length > 1 &&
-        // billingDetails.trim().length > 4 &&
-        participantCount >= 1 &&
-        participantCount <= availableSeats;
+    const participantError =
+        participantCount < 1 || participantCount > availableSeats
+            ? availableSeats > 0
+                ? `Počet účastníků musí být mezi 1 a ${availableSeats}.`
+                : 'Tento termín je momentálně bez volných míst.'
+            : null;
+    const fullnameError = fullname.trim() ? null : 'Vyplňte jméno a příjmení.';
+    const emailError = email.trim() ? (emailIsValid ? null : 'Zadejte platný e-mail.') : 'Vyplňte e-mail.';
+    const companyError = company.trim() ? null : 'Vyplňte firmu nebo fakturační jméno.';
+    const billingDetailsError = billingDetails.trim() ? null : 'Vyplňte fakturační údaje.';
+    const canSubmit = !participantError && !fullnameError && !emailError && !companyError && !billingDetailsError;
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!canSubmit) {
+            setShowValidation(true);
             setError('Vyplňte prosím jméno, platný e-mail, firmu/fakturační jméno a fakturační údaje.');
             return;
         }
 
+        setShowValidation(false);
         setIsSubmitting(true);
         setError(null);
 
@@ -229,9 +237,22 @@ export function AiSupervizeMiniRegistrationForm() {
                             onChange={(event) =>
                                 setParticipantCount(clampParticipants(Number(event.target.value), availableSeats))
                             }
-                            className="mt-2 h-11"
+                            aria-invalid={showValidation && !!participantError}
+                            className={cn(
+                                'mt-2 h-11',
+                                showValidation &&
+                                    participantError &&
+                                    'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                            )}
                         />
-                        <p className="mt-1 text-xs text-slate-500">Maximum pro tento termín: {availableSeats}</p>
+                        <p
+                            className={cn(
+                                'mt-1 text-xs text-slate-500',
+                                showValidation && participantError && 'text-red-600',
+                            )}
+                        >
+                            {showValidation && participantError ? participantError : `Maximum pro tento termín: ${availableSeats}`}
+                        </p>
                     </div>
                     <div>
                         <label htmlFor="discount" className="text-sm font-semibold text-slate-700">
@@ -269,9 +290,16 @@ export function AiSupervizeMiniRegistrationForm() {
                             value={fullname}
                             onChange={(event) => setFullname(event.target.value)}
                             placeholder="Jana Nováková"
-                            className="mt-2 h-11"
+                            aria-invalid={showValidation && !!fullnameError}
+                            className={cn(
+                                'mt-2 h-11',
+                                showValidation && fullnameError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                            )}
                             autoComplete="name"
                         />
+                        {showValidation && fullnameError && (
+                            <p className="mt-1 text-xs text-red-600">{fullnameError}</p>
+                        )}
                     </div>
                     <div>
                         <label htmlFor="email" className="text-sm font-semibold text-slate-700">
@@ -284,9 +312,14 @@ export function AiSupervizeMiniRegistrationForm() {
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
                             placeholder="jmeno@firma.cz"
-                            className="mt-2 h-11"
+                            aria-invalid={showValidation && !!emailError}
+                            className={cn(
+                                'mt-2 h-11',
+                                showValidation && emailError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                            )}
                             autoComplete="email"
                         />
+                        {showValidation && emailError && <p className="mt-1 text-xs text-red-600">{emailError}</p>}
                     </div>
                 </div>
 
@@ -300,9 +333,14 @@ export function AiSupervizeMiniRegistrationForm() {
                         value={company}
                         onChange={(event) => setCompany(event.target.value)}
                         placeholder="Firma s.r.o. / fyzická osoba"
-                        className="mt-2 h-11"
+                        aria-invalid={showValidation && !!companyError}
+                        className={cn(
+                            'mt-2 h-11',
+                            showValidation && companyError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                        )}
                         autoComplete="organization"
                     />
+                    {showValidation && companyError && <p className="mt-1 text-xs text-red-600">{companyError}</p>}
                 </div>
 
                 <div>
@@ -339,8 +377,17 @@ export function AiSupervizeMiniRegistrationForm() {
                         value={billingDetails}
                         onChange={(event) => setBillingDetails(event.target.value)}
                         placeholder="Název, IČO/DIČ nebo adresa pro fakturaci"
-                        className="mt-2 min-h-[96px]"
+                        aria-invalid={showValidation && !!billingDetailsError}
+                        className={cn(
+                            'mt-2 min-h-[96px]',
+                            showValidation &&
+                                billingDetailsError &&
+                                'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                        )}
                     />
+                    {showValidation && billingDetailsError && (
+                        <p className="mt-1 text-xs text-red-600">{billingDetailsError}</p>
+                    )}
                 </div>
 
                 <div>
@@ -378,7 +425,7 @@ export function AiSupervizeMiniRegistrationForm() {
 
                 <Button
                     type="submit"
-                    disabled={!canSubmit || isSubmitting}
+                    disabled={isSubmitting}
                     className="h-12 w-full rounded-xl bg-promptbook-blue-dark text-base font-semibold text-white hover:bg-promptbook-blue-dark/90"
                 >
                     {isSubmitting ? (

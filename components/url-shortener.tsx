@@ -140,9 +140,15 @@ export function UrlShortener(props: UrlShortenerProps) {
             const processedUrls = validUrls.map((url) => addUtmParams(url.trim()));
 
             if (isShortener) {
+                const supabase = getSupabaseForBrowser();
+
+                if (!supabase) {
+                    throw new Error('Supabase is not configured');
+                }
+
                 // Use the selected shortcode or generate a new one if none selected
                 const shortcode = selectedShortcode || generateShortCode();
-                const { error } = await getSupabaseForBrowser()
+                const { error } = await supabase
                     .from('ShortcodeLink')
                     .insert({
                         type: 'CUSTOM',

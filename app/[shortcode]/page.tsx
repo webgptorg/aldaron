@@ -9,7 +9,7 @@ import Script from 'next/script';
 import { spaceTrim } from 'spacetrim';
 
 interface PageProps {
-    params: { shortcode: string };
+    params: Promise<{ shortcode: string }>;
 }
 
 async function getShortcodeLink(shortcode: string) {
