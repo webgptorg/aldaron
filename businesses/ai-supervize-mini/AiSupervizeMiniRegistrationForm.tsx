@@ -83,8 +83,8 @@ export function AiSupervizeMiniRegistrationForm() {
     const canSubmit =
         fullname.trim().length > 1 &&
         emailIsValid &&
-        company.trim().length > 1 &&
-        billingDetails.trim().length > 4 &&
+        // company.trim().length > 1 &&
+        // billingDetails.trim().length > 4 &&
         participantCount >= 1 &&
         participantCount <= availableSeats;
 
