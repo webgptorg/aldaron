@@ -68,11 +68,11 @@ V Praze někdy v průběhu května. Max 10 lidí.
 
 ---
 
-[-]
+[.] !!
 
-[✨😜] foo
+[✨😜] Only listed term of `/ai-supervize-mini` should be `15. 5. 2026`
 
-- @@@
+- The `21. 5. 2026` should be
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)

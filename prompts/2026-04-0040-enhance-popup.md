@@ -1,9 +1,10 @@
 [ ] !
 
-[✨⬅️] When clicking on "Rezervovat hovor zdarma" withould filled or correctly filled form, highlite the fields which are missing / incorrect
+[✨⬅️] When clicking on "Rezervovat hovor zdarma" or "Vyberte termín a místo" without filled or correctly filled form, highlight the fields which are missing / incorrect
 
+-
 - Do a proper analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
 
 ---
 
