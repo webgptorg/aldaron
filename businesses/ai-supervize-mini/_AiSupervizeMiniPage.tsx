@@ -1,7 +1,6 @@
 'use client';
 
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
-import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { AiSupervizeMiniRegistrationForm } from '@/businesses/ai-supervize-mini/AiSupervizeMiniRegistrationForm';
 import {
     aiSupervizeMiniFaqs,
@@ -9,6 +8,7 @@ import {
     aiSupervizeMiniTakeaways,
     aiSupervizeMiniTerminalMetrics,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
+import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
 import { FAQSection } from '@/components/faq-section';
 import { Footer } from '@/components/footer';
@@ -65,11 +65,11 @@ export function AiSupervizeMiniPage() {
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                                    Jednodenní workshop, jak{' '}
+                                    Jednodenní workshop, jak ukrotit{' '}
                                     <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                        řídit AI vývoj
+                                        AI vývoj
                                     </span>{' '}
-                                    od zadání po merge
+                                    od nápadu po funkční produkt.
                                 </h1>
 
                                 <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
@@ -143,8 +143,8 @@ export function AiSupervizeMiniPage() {
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
                             Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi. Cena je{' '}
                             {aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za
-                            účastníka, kapacita maximálně{' '}
-                            {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop} lidí na termín.
+                            účastníka, kapacita maximálně {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop}{' '}
+                            lidí na termín.
                         </p>
                     </div>
 
@@ -241,7 +241,10 @@ export function AiSupervizeMiniPage() {
                                 zvětšování technického dluhu.
                             </p>
                             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                                <Button asChild className="rounded-full bg-slate-950 px-6 text-white hover:bg-slate-800">
+                                <Button
+                                    asChild
+                                    className="rounded-full bg-slate-950 px-6 text-white hover:bg-slate-800"
+                                >
                                     <Link href="#registrace">Přihlásit se</Link>
                                 </Button>
                                 <Button asChild variant="outline" className="rounded-full px-6">
