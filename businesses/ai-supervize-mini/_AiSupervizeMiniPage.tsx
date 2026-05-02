@@ -5,6 +5,7 @@ import { AiSupervizeMiniRegistrationForm } from '@/businesses/ai-supervize-mini/
 import {
     aiSupervizeMiniFaqs,
     aiSupervizeMiniHeroBullets,
+    aiSupervizeMiniImpactMetrics,
     aiSupervizeMiniTakeaways,
     aiSupervizeMiniTerminalMetrics,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
@@ -223,7 +224,7 @@ export function AiSupervizeMiniPage() {
                 }
                 description="Pro AI Supervizi Mini teď vybíráme dvě reference z Pavolovy osobní stránky, které dobře ukazují rychlost prototypování, produktové myšlení a schopnost dovést nápad do funkčního výsledku."
                 testimonials={aiSupervizeMiniTestimonials}
-                metrics={[]}
+                metrics={aiSupervizeMiniImpactMetrics}
             />
 
             <section className="overflow-hidden bg-white pt-20">

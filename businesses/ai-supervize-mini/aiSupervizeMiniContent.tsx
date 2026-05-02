@@ -15,6 +15,24 @@ export const aiSupervizeMiniTerminalMetrics = [
     { metric: 'Regrese', before: 6, after: 2, unit: '/sprint' },
 ];
 
+export const aiSupervizeMiniImpactMetrics = [
+    {
+        value: '3',
+        suffix: ' týdny',
+        label: 'Průměrná návratnost investice za',
+    },
+    {
+        value: '20',
+        suffix: ' %',
+        label: 'Průměrné zrychlení vývoje',
+    },
+    {
+        value: '30',
+        suffix: ' %',
+        label: 'Méně chyb v produkci',
+    },
+];
+
 export const aiSupervizeMiniTakeaways = [
     {
         icon: Workflow,
