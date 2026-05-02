@@ -1,12 +1,18 @@
 'use client';
 
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
+import {
+    AiSupervizeMiniErrorAlert,
+    AiSupervizeMiniSuccessState,
+    AiSupervizeMiniTextareaField,
+    AiSupervizeMiniTextField,
+    isValidEmail,
+    submitAiSupervizeMiniLead,
+} from '@/businesses/ai-supervize-mini/aiSupervizeMiniFormShared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
-import { BadgePercent, CheckCircle2, Loader2, Users } from 'lucide-react';
+import { BadgePercent, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 type InvoiceType = 'company' | 'individual';
@@ -81,7 +87,7 @@ export function AiSupervizeMiniRegistrationForm() {
         };
     }, [discountApplied, participantCount]);
 
-    const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const emailIsValid = isValidEmail(email);
     const participantError =
         participantCount < 1 || participantCount > availableSeats
             ? availableSeats > 0
@@ -130,27 +136,24 @@ export function AiSupervizeMiniRegistrationForm() {
             computedFinalPriceCzk: price.finalPrice,
         };
 
-        const contactNote = [
-            'AI Supervize Mini registration',
-            `Workshop date: ${payload.selectedDate}`,
-            `Participants: ${payload.participantCount}`,
-            `Unit price CZK: ${payload.unitPriceCzk}`,
-            `Base price CZK: ${payload.basePriceCzk}`,
-            `Discount code entered: ${payload.discountCodeEntered ?? '(none)'}`,
-            `Discount code used: ${payload.discountCodeUsed ?? '(none)'}`,
-            `Discount percent applied: ${payload.discountPercentApplied}`,
-            `Discount amount CZK: ${payload.discountAmountCzk}`,
-            `Computed final price CZK: ${payload.computedFinalPriceCzk}`,
-            '',
-            JSON.stringify(payload, null, 4),
-        ].join('\n');
-
         try {
-            await subscribeToWaitlist({
+            await submitAiSupervizeMiniLead({
                 fullname,
                 email,
                 placeName: 'AiSupervizeMiniWorkshopRegistration',
-                note: contactNote,
+                summaryTitle: 'AI Supervize Mini registration',
+                summaryLines: [
+                    `Workshop date: ${payload.selectedDate}`,
+                    `Participants: ${payload.participantCount}`,
+                    `Unit price CZK: ${payload.unitPriceCzk}`,
+                    `Base price CZK: ${payload.basePriceCzk}`,
+                    `Discount code entered: ${payload.discountCodeEntered ?? '(none)'}`,
+                    `Discount code used: ${payload.discountCodeUsed ?? '(none)'}`,
+                    `Discount percent applied: ${payload.discountPercentApplied}`,
+                    `Discount amount CZK: ${payload.discountAmountCzk}`,
+                    `Computed final price CZK: ${payload.computedFinalPriceCzk}`,
+                ],
+                payload,
             });
             setSuccess(true);
         } catch (err) {
@@ -162,15 +165,10 @@ export function AiSupervizeMiniRegistrationForm() {
 
     if (success) {
         return (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                </div>
-                <h3 className="mt-5 text-2xl font-bold text-slate-950">Přihláška je odeslaná</h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                    Ozveme se vám s potvrzením termínu, fakturací a praktickými informacemi k workshopu.
-                </p>
-            </div>
+            <AiSupervizeMiniSuccessState
+                title="Přihláška je odeslaná"
+                description="Ozveme se vám s potvrzením termínu, fakturací a praktickými informacemi k workshopu."
+            />
         );
     }
 
@@ -280,68 +278,39 @@ export function AiSupervizeMiniRegistrationForm() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label htmlFor="fullname" className="text-sm font-semibold text-slate-700">
-                            Jméno a příjmení
-                        </label>
-                        <Input
-                            id="fullname"
-                            name="fullname"
-                            value={fullname}
-                            onChange={(event) => setFullname(event.target.value)}
-                            placeholder="Jana Nováková"
-                            aria-invalid={showValidation && !!fullnameError}
-                            className={cn(
-                                'mt-2 h-11',
-                                showValidation && fullnameError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
-                            )}
-                            autoComplete="name"
-                        />
-                        {showValidation && fullnameError && (
-                            <p className="mt-1 text-xs text-red-600">{fullnameError}</p>
-                        )}
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="text-sm font-semibold text-slate-700">
-                            E-mail
-                        </label>
-                        <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={email}
-                            onChange={(event) => setEmail(event.target.value)}
-                            placeholder="jmeno@firma.cz"
-                            aria-invalid={showValidation && !!emailError}
-                            className={cn(
-                                'mt-2 h-11',
-                                showValidation && emailError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
-                            )}
-                            autoComplete="email"
-                        />
-                        {showValidation && emailError && <p className="mt-1 text-xs text-red-600">{emailError}</p>}
-                    </div>
+                    <AiSupervizeMiniTextField
+                        id="fullname"
+                        label="Jméno a příjmení"
+                        value={fullname}
+                        onChange={setFullname}
+                        placeholder="Jana Nováková"
+                        error={fullnameError}
+                        showValidation={showValidation}
+                        autoComplete="name"
+                    />
+                    <AiSupervizeMiniTextField
+                        id="email"
+                        label="E-mail"
+                        value={email}
+                        onChange={setEmail}
+                        placeholder="jmeno@firma.cz"
+                        error={emailError}
+                        showValidation={showValidation}
+                        autoComplete="email"
+                        type="email"
+                    />
                 </div>
 
-                <div>
-                    <label htmlFor="company" className="text-sm font-semibold text-slate-700">
-                        Firma / organizace nebo fakturační jméno
-                    </label>
-                    <Input
-                        id="company"
-                        name="company"
-                        value={company}
-                        onChange={(event) => setCompany(event.target.value)}
-                        placeholder="Firma s.r.o. / fyzická osoba"
-                        aria-invalid={showValidation && !!companyError}
-                        className={cn(
-                            'mt-2 h-11',
-                            showValidation && companyError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
-                        )}
-                        autoComplete="organization"
-                    />
-                    {showValidation && companyError && <p className="mt-1 text-xs text-red-600">{companyError}</p>}
-                </div>
+                <AiSupervizeMiniTextField
+                    id="company"
+                    label="Firma / organizace nebo fakturační jméno"
+                    value={company}
+                    onChange={setCompany}
+                    placeholder="Firma s.r.o. / fyzická osoba"
+                    error={companyError}
+                    showValidation={showValidation}
+                    autoComplete="organization"
+                />
 
                 <div>
                     <label className="text-sm font-semibold text-slate-700">Fakturace</label>
@@ -367,42 +336,23 @@ export function AiSupervizeMiniRegistrationForm() {
                     </div>
                 </div>
 
-                <div>
-                    <label htmlFor="billingDetails" className="text-sm font-semibold text-slate-700">
-                        Fakturační údaje
-                    </label>
-                    <Textarea
-                        id="billingDetails"
-                        name="billingDetails"
-                        value={billingDetails}
-                        onChange={(event) => setBillingDetails(event.target.value)}
-                        placeholder="Název, IČO/DIČ nebo adresa pro fakturaci"
-                        aria-invalid={showValidation && !!billingDetailsError}
-                        className={cn(
-                            'mt-2 min-h-[96px]',
-                            showValidation &&
-                                billingDetailsError &&
-                                'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
-                        )}
-                    />
-                    {showValidation && billingDetailsError && (
-                        <p className="mt-1 text-xs text-red-600">{billingDetailsError}</p>
-                    )}
-                </div>
+                <AiSupervizeMiniTextareaField
+                    id="billingDetails"
+                    label="Fakturační údaje"
+                    value={billingDetails}
+                    onChange={setBillingDetails}
+                    placeholder="Název, IČO/DIČ nebo adresa pro fakturaci"
+                    error={billingDetailsError}
+                    showValidation={showValidation}
+                />
 
-                <div>
-                    <label htmlFor="note" className="text-sm font-semibold text-slate-700">
-                        Poznámka
-                    </label>
-                    <Textarea
-                        id="note"
-                        name="note"
-                        value={note}
-                        onChange={(event) => setNote(event.target.value)}
-                        placeholder="Co řešíte, kolik lidí posíláte, specifické dotazy..."
-                        className="mt-2 min-h-[96px]"
-                    />
-                </div>
+                <AiSupervizeMiniTextareaField
+                    id="note"
+                    label="Poznámka"
+                    value={note}
+                    onChange={setNote}
+                    placeholder="Co řešíte, kolik lidí posíláte, specifické dotazy..."
+                />
 
                 <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
                     <div className="flex justify-between gap-4">
@@ -421,7 +371,7 @@ export function AiSupervizeMiniRegistrationForm() {
                     </div>
                 </div>
 
-                {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+                {error && <AiSupervizeMiniErrorAlert message={error} />}
 
                 <Button
                     type="submit"

@@ -1,6 +1,7 @@
 'use client';
 
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import { AiSupervizeMiniInterestForm } from '@/businesses/ai-supervize-mini/AiSupervizeMiniInterestForm';
 import { AiSupervizeMiniRegistrationForm } from '@/businesses/ai-supervize-mini/AiSupervizeMiniRegistrationForm';
 import {
     aiSupervizeMiniFaqs,
@@ -144,7 +145,14 @@ export function AiSupervizeMiniPage() {
                             Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi. Cena je{' '}
                             {aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za
                             účastníka, kapacita maximálně {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop}{' '}
-                            lidí na termín.
+                            lidí na termín. Pokud vám aktuální termín nebo rozpočet nesedí,{' '}
+                            <Link
+                                href="#zajem-o-dalsi-termin"
+                                className="font-semibold text-cyan-700 underline-offset-4 hover:underline"
+                            >
+                                vyplňte krátký dotazník
+                            </Link>{' '}
+                            a dejte nám vědět, co by pro vás dávalo větší smysl.
                         </p>
                     </div>
 
@@ -190,6 +198,50 @@ export function AiSupervizeMiniPage() {
                         </div>
 
                         <AiSupervizeMiniRegistrationForm />
+                    </div>
+                </div>
+            </section>
+
+            <section id="zajem-o-dalsi-termin" className="bg-white py-20">
+                <div className="container mx-auto px-4">
+                    <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(420px,1fr)] lg:items-start">
+                        <div className="max-w-3xl">
+                            <p className="text-sm font-semibold uppercase text-cyan-700">Nevyhovuje vám aktuální běh?</p>
+                            <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
+                                Dejte nám vědět, jaký workshop by vám seděl víc
+                            </h2>
+                            <p className="mt-4 text-lg leading-relaxed text-slate-600">
+                                Ne každý může dorazit právě teď. Pokud vám nesedí termín, cena, Praha nebo samotný
+                                formát, vyplňte krátký dotazník. Pomůže nám to rozhodnout, kdy otevřít další běh a jak
+                                ho nastavit, aby odpovídal reálným potřebám lidí z praxe.
+                            </p>
+
+                            <div className="mt-8 grid gap-4">
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                                    <h3 className="font-bold text-slate-950">Získáme konkrétní signály, ne jen „možná“</h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                        Zajímá nás, jestli je problém hlavně termín, rozpočet, lokalita nebo jiný
+                                        formát. Podle toho můžeme připravit další termín smysluplněji.
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                                    <h3 className="font-bold text-slate-950">Lépe odhadneme další termín i podobu dne</h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                        Když uvidíme, co lidé skutečně potřebují, můžeme zvažovat jiný měsíc, jiné
+                                        město, kratší formát nebo další variantu workshopu.
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5">
+                                    <h3 className="font-bold text-slate-950">Až budeme vypisovat další běh, ozveme se</h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                        Pokud o workshop stojíte, ale teď to nevychází, nemusíte na něj zapomenout.
+                                        Stačí nám zanechat kontakt a preferenci.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <AiSupervizeMiniInterestForm />
                     </div>
                 </div>
             </section>

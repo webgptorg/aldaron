@@ -79,7 +79,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
 
 ---
 
-[ ]
+[x] ~$0.00 10 minutes by GitHub Copilot `gpt-5.4`
 
 [✨😜] Add form / questionare for people who cannot attend for some reason to `/ai-supervize-mini`
 
@@ -128,3 +128,4 @@ Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho p
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini`
+
