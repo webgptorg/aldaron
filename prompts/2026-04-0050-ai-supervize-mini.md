@@ -79,7 +79,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
 
 ---
 
-[x] ~$0.00 10 minutes by GitHub Copilot `gpt-5.4`
+[ ]
 
 [✨😜] Add form / questionare for people who cannot attend for some reason to `/ai-supervize-mini`
 
