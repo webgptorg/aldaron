@@ -9,8 +9,8 @@ import {
     aiSupervizeMiniTakeaways,
     aiSupervizeMiniTerminalMetrics,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
+import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
 import { FAQSection } from '@/components/faq-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
@@ -206,7 +206,9 @@ export function AiSupervizeMiniPage() {
                 <div className="container mx-auto px-4">
                     <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(420px,1fr)] lg:items-start">
                         <div className="max-w-3xl">
-                            <p className="text-sm font-semibold uppercase text-cyan-700">Nevyhovuje vám aktuální běh?</p>
+                            <p className="text-sm font-semibold uppercase text-cyan-700">
+                                Nevyhovuje vám aktuální běh?
+                            </p>
                             <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
                                 Dejte nám vědět, jaký workshop by vám seděl víc
                             </h2>
@@ -218,21 +220,27 @@ export function AiSupervizeMiniPage() {
 
                             <div className="mt-8 grid gap-4">
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                                    <h3 className="font-bold text-slate-950">Získáme konkrétní signály, ne jen „možná“</h3>
+                                    <h3 className="font-bold text-slate-950">
+                                        Získáme konkrétní signály, ne jen „možná“
+                                    </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         Zajímá nás, jestli je problém hlavně termín, rozpočet, lokalita nebo jiný
                                         formát. Podle toho můžeme připravit další termín smysluplněji.
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                                    <h3 className="font-bold text-slate-950">Lépe odhadneme další termín i podobu dne</h3>
+                                    <h3 className="font-bold text-slate-950">
+                                        Lépe odhadneme další termín i podobu dne
+                                    </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         Když uvidíme, co lidé skutečně potřebují, můžeme zvažovat jiný měsíc, jiné
                                         město, kratší formát nebo další variantu workshopu.
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5">
-                                    <h3 className="font-bold text-slate-950">Až budeme vypisovat další běh, ozveme se</h3>
+                                    <h3 className="font-bold text-slate-950">
+                                        Až budeme vypisovat další běh, ozveme se
+                                    </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         Pokud o workshop stojíte, ale teď to nevychází, nemusíte na něj zapomenout.
                                         Stačí nám zanechat kontakt a preferenci.

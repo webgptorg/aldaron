@@ -1,4 +1,4 @@
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
+import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { FAQ } from '@/components/faq-section';
 import { Bot, Code2, GitPullRequest, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
 

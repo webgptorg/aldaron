@@ -1,6 +1,5 @@
 'use client';
 
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/config';
 import {
     AiSupervizeMiniErrorAlert,
     AiSupervizeMiniSuccessState,
@@ -9,6 +8,7 @@ import {
     isValidEmail,
     submitAiSupervizeMiniLead,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniFormShared';
+import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -249,7 +249,9 @@ export function AiSupervizeMiniRegistrationForm() {
                                 showValidation && participantError && 'text-red-600',
                             )}
                         >
-                            {showValidation && participantError ? participantError : `Maximum pro tento termín: ${availableSeats}`}
+                            {showValidation && participantError
+                                ? participantError
+                                : `Maximum pro tento termín: ${availableSeats}`}
                         </p>
                     </div>
                     <div>
