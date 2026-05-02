@@ -9,31 +9,7 @@ export type PavolMediaAppearance = {
     description: string;
 };
 
-const linkedInProfileHref = 'https://www.linkedin.com/in/hejny/';
-const linkedInProfileImageSrc = '/pavol/media/linkedin-profile.svg';
-
-const linkedInProfileAppearance: Record<SupportedHomepageLanguage, PavolMediaAppearance> = {
-    cs: {
-        href: linkedInProfileHref,
-        imageSrc: linkedInProfileImageSrc,
-        source: 'LinkedIn',
-        kind: 'Profil',
-        title: 'Další vystoupení a aktuality na LinkedIn',
-        description:
-            'Průběžné postřehy, sdílené materiály a další veřejné výstupy k AI, vývoji softwaru, produktům a vzdělávání.',
-    },
-    en: {
-        href: linkedInProfileHref,
-        imageSrc: linkedInProfileImageSrc,
-        source: 'LinkedIn',
-        kind: 'Profile',
-        title: 'More appearances and updates on LinkedIn',
-        description:
-            'Ongoing notes, shared materials, and additional public posts about AI, software development, product work, and education.',
-    },
-};
-
-const localizedMediaAppearances: Record<SupportedHomepageLanguage, PavolMediaAppearance[]> = {
+export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMediaAppearance[]> = {
     cs: [
         {
             href: 'https://www.youtube.com/@aitakrajta_tv',
@@ -145,9 +121,4 @@ const localizedMediaAppearances: Record<SupportedHomepageLanguage, PavolMediaApp
                 'A media appearance about change in education, digital transformation, and projects built around remote teaching.',
         },
     ],
-};
-
-export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMediaAppearance[]> = {
-    cs: [...localizedMediaAppearances.cs, linkedInProfileAppearance.cs],
-    en: [...localizedMediaAppearances.en, linkedInProfileAppearance.en],
 };
