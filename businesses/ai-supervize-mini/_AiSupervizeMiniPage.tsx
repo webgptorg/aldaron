@@ -275,7 +275,7 @@ export function AiSupervizeMiniPage() {
                 </div>
             </section>
 
-            <Footer {...czechBusinessFooterProps} />
+            <Footer {...czechBusinessFooterProps} isTechnologyIncubationShown={false} />
         </main>
     );
 }

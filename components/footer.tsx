@@ -7,6 +7,7 @@ import { subscribeToNewsletter } from '@/lib/subscription/subscribeToNewsletter'
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState, type FormEvent, type ReactNode } from 'react';
 
@@ -34,9 +35,16 @@ interface FooterProps {
     genericErrorMessage?: string;
     rightsReservedText?: string;
     projectFundingText?: ReactNode;
+    isTechnologyIncubationShown?: boolean;
 }
 
-type FooterContent = Required<Omit<FooterProps, 'language'>>;
+type FooterContent = Required<Omit<FooterProps, 'language' | 'isTechnologyIncubationShown'>>;
+
+const pathnamesWithTechnologyIncubation = new Set(['/', '/cs', '/en', '/pro-mesta']);
+
+function shouldShowTechnologyIncubation(pathname: string | null) {
+    return pathname !== null && pathnamesWithTechnologyIncubation.has(pathname);
+}
 
 const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
     en: {
@@ -131,6 +139,7 @@ const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
 };
 
 export function Footer({ language = 'en', ...overrides }: FooterProps) {
+    const pathname = usePathname();
     const defaults = footerDefaultsByLanguage[language];
     const {
         productHeader = defaults.productHeader,
@@ -150,6 +159,7 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
         genericErrorMessage = defaults.genericErrorMessage,
         rightsReservedText = defaults.rightsReservedText,
         projectFundingText = defaults.projectFundingText,
+        isTechnologyIncubationShown = shouldShowTechnologyIncubation(pathname),
     } = overrides;
 
     const claim =
@@ -293,12 +303,14 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
                             </p>
                         </div>
 
-                        <div className="flex flex-col items-center lg:items-end gap-4">
-                            <Image src={technologyIncubationSponsor} alt="Our Sponsor" className="h-32 w-auto" />
-                            <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
-                                {projectFundingText}
-                            </p>
-                        </div>
+                        {isTechnologyIncubationShown && (
+                            <div className="flex flex-col items-center lg:items-end gap-4">
+                                <Image src={technologyIncubationSponsor} alt="Our Sponsor" className="h-32 w-auto" />
+                                <p className="text-xs text-gray-500 text-center lg:text-right leading-relaxed">
+                                    {projectFundingText}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
