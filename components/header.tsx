@@ -25,7 +25,6 @@ interface HeaderProps {
     getStartedText?: ReactNode;
     brandLogo?: ReactNode;
     brandName?: ReactNode;
-    brandHref?: string;
     centerContent?: ReactNode;
     hideCenterContent?: boolean;
     primaryAction?: HeaderAction;
@@ -38,7 +37,6 @@ export function Header({
     getStartedText,
     brandLogo,
     brandName,
-    brandHref,
     centerContent,
     hideCenterContent = false,
     primaryAction,
@@ -107,7 +105,7 @@ export function Header({
                 <div className="flex items-center justify-between h-14">
                     {/* Logo */}
                     <Link
-                        href={brandHref ?? (language ? `/${language}` : '/')}
+                        href={language ? `/${language}` : '/'}
                         className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0"
                     >
                         {brandLogo ?? (
