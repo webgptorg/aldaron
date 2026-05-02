@@ -37,7 +37,7 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
     return (
         <footer className="border-t border-[var(--pavol-ink)]/10 bg-[var(--pavol-ink)] text-white">
             <div className="container mx-auto px-4 py-16">
-                <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,0.7fr))]">
+                <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_repeat(2,minmax(0,0.7fr))]">
                     <div className="max-w-md">
                         <div className="flex items-center gap-4">
                             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/10">
@@ -69,13 +69,10 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
 
                     <FooterLinkColumn title={content.footer.navigationTitle} links={content.header.navItems} />
                     <FooterLinkColumn title={content.footer.connectTitle} links={content.contact.links} />
-                    <FooterLinkColumn title={content.footer.legalTitle} links={content.footer.legalLinks} />
                 </div>
 
                 <div className="mt-12 border-t border-white/10 pt-6">
-                    <p className="text-sm text-slate-400">
-                        © 2026 Pavol Hejný. {content.footer.rightsReservedText}
-                    </p>
+                    <p className="text-sm text-slate-400">© 2026 Pavol Hejný. {content.footer.rightsReservedText}</p>
                 </div>
             </div>
         </footer>

@@ -80,10 +80,8 @@ type PavolPageContent = {
         description: string;
         navigationTitle: string;
         connectTitle: string;
-        legalTitle: string;
         primaryAction: string;
         rightsReservedText: string;
-        legalLinks: PavolLink[];
     };
 };
 
@@ -217,13 +215,8 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 'Pomáhám firmám i týmům používat AI prakticky: od strategie a workshopů až po konkrétní produktové a vývojové workflow.',
             navigationTitle: 'Navigace',
             connectTitle: 'Spojte se se mnou',
-            legalTitle: 'Právní informace',
             primaryAction: 'Napsat mi',
             rightsReservedText: 'Všechna práva vyhrazena.',
-            legalLinks: [
-                { label: 'Ochrana soukromí', href: '/privacy' },
-                { label: 'Podmínky užití', href: '/terms' },
-            ],
         },
     },
     en: {
@@ -354,13 +347,8 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 'I help companies and teams use AI in a practical way: from strategy and workshops to concrete product and engineering workflows.',
             navigationTitle: 'Navigation',
             connectTitle: 'Connect with me',
-            legalTitle: 'Legal',
             primaryAction: 'Contact me',
             rightsReservedText: 'All rights reserved.',
-            legalLinks: [
-                { label: 'Privacy policy', href: '/privacy' },
-                { label: 'Terms of use', href: '/terms' },
-            ],
         },
     },
 };
