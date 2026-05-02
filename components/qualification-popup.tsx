@@ -53,7 +53,7 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
         }
 
         if (fieldId === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            return 'Zadejte platný e-mail.';
+            return 'Zadejte prosím platný e-mail.';
         }
 
         return null;
@@ -217,7 +217,9 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
                                     {currentQuestion.fields.slice(0, 2).map((field) => (
                                         <div key={field.id}>
                                             {(() => {
-                                                const fieldError = showValidation ? getContactFieldError(field.id) : null;
+                                                const fieldError = showValidation
+                                                    ? getContactFieldError(field.id)
+                                                    : null;
 
                                                 return (
                                                     <>
@@ -252,7 +254,9 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
                                                             autoFocus={field.id === 'name'}
                                                         />
                                                         {fieldError && (
-                                                            <p className="mt-1 text-[12px] text-red-600">{fieldError}</p>
+                                                            <p className="mt-1 text-[12px] text-red-600">
+                                                                {fieldError}
+                                                            </p>
                                                         )}
                                                     </>
                                                 );

@@ -48,7 +48,7 @@ function getContactFieldErrors({
 
     return {
         fullnameError: fullname.trim() ? null : 'Vyplňte jméno a příjmení.',
-        emailError: email.trim() ? (emailIsValid ? null : 'Zadejte platný e-mail.') : 'Vyplňte e-mail.',
+        emailError: email.trim() ? (emailIsValid ? null : 'Zadejte prosím platný e-mail.') : 'Vyplňte e-mail.',
     };
 }
 
