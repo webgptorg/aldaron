@@ -215,7 +215,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 'Pomáhám firmám i týmům používat AI prakticky: od strategie a workshopů až po konkrétní produktové a vývojové workflow.',
             navigationTitle: 'Navigace',
             connectTitle: 'Spojte se se mnou',
-            primaryAction: 'Napsat mi',
+            primaryAction: 'Napište mi',
             rightsReservedText: 'Všechna práva vyhrazena.',
         },
     },
