@@ -11,4 +11,7 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/ai-supervize` - The landing page for the AI for IT development companies
 - `/ai-supervize-mini` - The Czech one-day AI Supervize workshop page for individual developers and product people.
 - `/skoleni` - Redirects to `/ai-supervize-mini`.
+- `/pavol` - Redirects to `/pavol/cs` or `/pavol/en` based on the browser `Accept-Language` header.
+- `/pavol/cs` - The Czech personal page of Pavol Hejný.
+- `/pavol/en` - The English personal page of Pavol Hejný.
 - ...

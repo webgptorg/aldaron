@@ -3,8 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
     overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 :root {
@@ -91,7 +96,12 @@ html, body {
         @apply bg-background text-foreground;
         font-family: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
     }
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-family: var(--font-outfit), 'Outfit', ui-sans-serif, system-ui, sans-serif;
     }
 }
@@ -114,17 +124,34 @@ body > nextjs-portal {
 }
 
 @keyframes gridScroll {
-    0% { background-position: 0 0; }
-    100% { background-position: 60px 60px; }
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 60px 60px;
+    }
 }
 
 @keyframes lightSweep {
-    0% { transform: translateX(-30%) rotate(-45deg); }
-    50% { transform: translateX(80%) rotate(-45deg); }
-    100% { transform: translateX(-30%) rotate(-45deg); }
+    0% {
+        transform: translateX(-30%) rotate(-45deg);
+    }
+    50% {
+        transform: translateX(80%) rotate(-45deg);
+    }
+    100% {
+        transform: translateX(-30%) rotate(-45deg);
+    }
 }
 
 @keyframes pulseGlow {
-    0%, 100% { opacity: 0.3; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(1.15); }
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.15);
+    }
 }
