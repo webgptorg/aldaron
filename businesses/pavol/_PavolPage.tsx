@@ -332,15 +332,15 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: '-50px' }}
                                 transition={{ duration: 0.45, delay: index * 0.06 }}
-                                className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm"
+                                className="rounded-[1.75rem] border border-slate-200 bg-white p-7 text-center shadow-sm"
                             >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--pavol-ink)] text-white">
+                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--pavol-ink)] text-white">
                                     <project.icon className="h-5 w-5" />
                                 </div>
                                 <h3 className="mt-6 text-xl font-bold text-[var(--pavol-ink)]">{project.title}</h3>
                                 <p className="mt-4 text-sm leading-relaxed text-slate-600">{project.description}</p>
 
-                                <div className="mt-6 flex flex-wrap gap-2">
+                                <div className="mt-6 flex flex-wrap justify-center gap-2">
                                     {project.links.map((link) => (
                                         <Button
                                             key={`${project.title}-${link.href}`}
@@ -382,12 +382,14 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: '-40px' }}
                                 transition={{ duration: 0.45, delay: index * 0.06 }}
-                                className="rounded-[1.75rem] border border-white/12 bg-white/8 p-6 backdrop-blur-sm"
+                                className="rounded-[1.75rem] border border-white/12 bg-white/8 p-6 text-center backdrop-blur-sm"
                             >
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-[var(--pavol-gold)]">
-                                    <item.icon className="h-5 w-5" />
+                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-[var(--pavol-gold)]">
+                                    <item.icon className="h-6 w-6" />
                                 </div>
-                                <div className="mt-6 text-4xl font-bold tracking-tight text-white">{item.value}</div>
+                                <div className="mt-6 text-5xl font-bold tracking-tight text-white sm:text-6xl">
+                                    {item.value}
+                                </div>
                                 <p className="mt-3 text-sm leading-relaxed text-slate-200">{item.label}</p>
                             </motion.div>
                         ))}
