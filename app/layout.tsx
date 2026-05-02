@@ -4,6 +4,7 @@ import { Inter, Outfit } from 'next/font/google';
 import Script from 'next/script';
 import spaceTrim from 'spacetrim';
 import { Chatbot } from '../components/chatbot';
+import { ClientWrapper } from '../components/client-wrapper';
 import { CookiesBar } from '../components/cookies-bar';
 import './globals.css';
 
@@ -124,19 +125,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Script>
             </head>
             <body className={`${inter.variable} ${outfit.variable} font-sans`}>
-                {children}
-                {/* Meta Pixel NoScript */}
-                <noscript>
-                    <img
-                        height="1"
-                        width="1"
-                        style={{ display: 'none' }}
-                        src="https://www.facebook.com/tr?id=1211494690544539&ev=PageView&noscript=1"
-                        alt="Meta Pixel"
-                    />
-                </noscript>
-                <Chatbot />
-                <CookiesBar />
+                <ClientWrapper>
+                    {children}
+                    {/* Meta Pixel NoScript */}
+                    <noscript>
+                        <img
+                            height="1"
+                            width="1"
+                            style={{ display: 'none' }}
+                            src="https://www.facebook.com/tr?id=1211494690544539&ev=PageView&noscript=1"
+                            alt="Meta Pixel"
+                        />
+                    </noscript>
+                    <Chatbot />
+                    <CookiesBar />
+                </ClientWrapper>
             </body>
         </html>
     );
