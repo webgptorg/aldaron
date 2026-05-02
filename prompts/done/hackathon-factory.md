@@ -5,7 +5,7 @@
 - Website is in Czech language targeting Czech developers, CTOs, and innovators
 - Customer is a developer, startup founder, CTO, or anyone with a real-world problem they want solved
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of page variants before you start implementing.
+- Do a analysis of page variants before you start implementing.
     - subpage `/hackathon-factory` should technically fit into the system of landing pages _(for example the `/` and `/pro-mesta`)_
     - Look at `config` folder on the root of the project
 

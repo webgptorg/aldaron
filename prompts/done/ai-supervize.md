@@ -5,7 +5,7 @@ Create a subpage `/ai-supervize` that will be focused and narrowed down to AI Su
 - Website is in Czech language targeting Czech companies
 - Customer is CTO, CEO or Tech Lead of a software development team
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of page variants before you start implementing.
+- Do a analysis of page variants before you start implementing.
     - subpage `/ai-supervize` should technically fit into the system of landing pages _(for example the `/` and `/pro-mesta`)_
     - Look at `config` folder on the root of the project
 
@@ -229,5 +229,3 @@ _(Zatím nejsme plátci DPH, cena je tedy konečná.)_
 
 Napište nám na jiri@ptbk.io nebo pavol@ptbk.io a domluvíme si úvodní schůzku.  
 Během 2-3 hodin budete vědět, **jestli vám to přinese hodnotu** a co přesně bude další krok.
-
-

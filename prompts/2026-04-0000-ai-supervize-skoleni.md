@@ -17,7 +17,7 @@ Oboje by se pak započítalo do ceny supervize, pokud by dále týmy pokračoval
 
 ```
 
--   The price of the first step is deductable from the total price of the AI Supervize.
+- The price of the first step is deductable from the total price of the AI Supervize.
 
 ---
 
@@ -25,10 +25,10 @@ Oboje by se pak započítalo do ceny supervize, pokud by dále týmy pokračoval
 
 [✨🥣] foo
 
--   @@@
--   Keep in mind the DRY _(don't repeat yourself)_ principle.
--   Do a proper analysis of the current functionality before you start implementing.
--   Add the changes into the [changelog](./changelog/_current-preversion.md)
+- @@@
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ---
 
@@ -36,10 +36,10 @@ Oboje by se pak započítalo do ceny supervize, pokud by dále týmy pokračoval
 
 [✨🥣] foo
 
--   @@@
--   Keep in mind the DRY _(don't repeat yourself)_ principle.
--   Do a proper analysis of the current functionality before you start implementing.
--   Add the changes into the [changelog](./changelog/_current-preversion.md)
+- @@@
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ---
 
@@ -47,7 +47,7 @@ Oboje by se pak započítalo do ceny supervize, pokud by dále týmy pokračoval
 
 [✨🥣] foo
 
--   @@@
--   Keep in mind the DRY _(don't repeat yourself)_ principle.
--   Do a proper analysis of the current functionality before you start implementing.
--   Add the changes into the [changelog](./changelog/_current-preversion.md)
+- @@@
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)

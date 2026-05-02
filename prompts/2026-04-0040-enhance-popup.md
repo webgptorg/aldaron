@@ -3,8 +3,7 @@
 [✨⬅️] When clicking on "Rezervovat hovor zdarma" or "Vyberte termín a místo" without filled or correctly filled form, highlight the fields which are missing / incorrect
 
 -
-- Do a proper analysis of the current functionality before you start implementing.
-
+- Do a analysis of the current functionality before you start implementing.
 
 ---
 
@@ -14,7 +13,7 @@
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ---
@@ -25,7 +24,7 @@
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ---
@@ -36,6 +35,5 @@
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-

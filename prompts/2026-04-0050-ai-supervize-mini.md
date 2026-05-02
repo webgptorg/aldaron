@@ -59,7 +59,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
     - Same with FAQ
     - ...
 - In the header of `/ai-supervize-mini` should be link / button "[Pro firmy]" which will link to `/ai-supervize` page
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - The `ai-supervize-mini` page should be only in Czech language for now
 - The `/ai-supervize` page should stay intact, just add button and link to the new `/ai-supervize-mini` as "[Pro jednotlivce]" which will link to `/ai-supervize-mini`
 - Update `AGENTS.md` documentation if needed to reflect the changes you made.
@@ -74,7 +74,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
 
 - The `21. 5. 2026` should be
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ---
@@ -89,7 +89,7 @@ V Praze někdy v průběhu května. Max 10 lidí.
     - Reason with multiple choice options like "Datum mi nevyhovuje", "Cena je pro mě příliš vysoká", "Mám zájem o jiný formát (např. online)", "Jiné (uveďte v poznámce)" and you can select multiple options
 - For users which are registering this should be just a small button, for those who click on it, it should open the form and the form should be submitted to the same system as the registration for the workshop, just with different note, so we can track how many people are interested in the workshop but cannot attend for some reason and what are their reasons.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current state of the page before you start implementing.
+- Do a analysis of the current state of the page before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
 
 ---
@@ -103,7 +103,7 @@ Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho p
 ```
 
 - For me (on the desktop and samsung phone) the discount code input field is working as expected, but we got feedback from the customer that it is not working for them, so please check if there is any bug and fix it if needed.
-- Do a proper analysis of the current functionality before you start implementing.
+- Do a analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
 
 ![alt text](prompts/screenshots/2026-04-0050-ai-supervize-mini-1.png)
@@ -113,13 +113,80 @@ Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho p
 
 ---
 
-[ ]
+[.]
 
 [✨😜] Enhance the `/ai-supervize-mini` based on the analysis
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current state of the page before you start implementing.
+- Do a analysis of the current state of the page before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+---
+
+[ ] !
+
+[✨😜] Fix discount codes on `/ai-supervize-mini`
+
+Any code in format `SUPER_XXXX_15` should be working
+All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` - `  super jan 15`
+
+- Code `SUPER` is not valid
+- Codes are case insensitive and special characters are normalized in same way as letters are capitalized.
+- The codes must be configured in `aiSupervizeMiniWorkshopConfig` and defined as regex
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+---
+
+[ ] !
+
+[✨😜] Fix design of "Pavol Hejný" section in `/ai-supervize-mini`
+
+- There is a gap between the bottom side of the Pavol image and the footer, it should be directly above the footer, without any gap
+- Look at the attached screenshot and try to match the design as close as possible
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0050-ai-supervize-mini-4.png)
+
+---
+
+[ ] !
+
+[✨😜] Add testimonials into `/ai-supervize-mini`
+
+- For now, keep the testimonial from Honza Šedo and Tomáš Studeník
+    - Take the testimonials from Pavol Hejný personal page https://www.pavolhejny.com/references, locally on C:/Users/me/work/hejny/hejny
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Reuse the testimonials component from other pages and adapt it for this new page, with different testimonials, components should be reused as much as possible, just differ content
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+---
+
+[ ] !
+
+[✨😜] Add numbers into `/ai-supervize-mini` as the mesurable impact for clients
+
+- Add theese numbers:
+    - **3 týdny** Průměrná návratnost investice za
+    - **20 %** Průměrné zrychlení vývoje
+    - **30 %** Méně chyb v produkci
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+---
+
+[ ] !
+
+[✨😜] Do not show technology incubation on every side
+
+- The `isTechnologyIncubationShown` flag should be passed as prop to the Footer component
+- Only `/`, `/cs`, `/en`, `/pro-mesta` should have the technology incubation in the footer, but not other pages like `/ai-supervize-mini` or `/ai-supervize`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
 
 ---
@@ -130,6 +197,5 @@ Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho p
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
-- You are working with page `/ai-supervize-mini`
-
+- Do a analysis of the current functionality before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
