@@ -117,7 +117,7 @@ export function AiSupervizeMiniPage() {
                             className="min-w-0"
                         >
                             <AiSupervizeTerminal
-                                titleBarText="ai-supervize-mini - workshop - 09:00×17:00"
+                                titleBarText="ai-supervize-mini - workshop - 09:30×17:00"
                                 commandName="promptbook-mini"
                                 commandAction="plan"
                                 commandArgs="--workshop one-day --stack ts-js"

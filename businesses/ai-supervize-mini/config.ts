@@ -2,7 +2,7 @@ export const aiSupervizeMiniWorkshopConfig = {
     pricePerParticipantCzk: 8500,
     maxParticipantsPerWorkshop: 10,
     place: 'Praha',
-    timeRange: '9:00-17:00',
+    timeRange: '9:30-17:00',
     discount: {
         code: 'SUPER',
         percent: 15,
