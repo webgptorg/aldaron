@@ -79,22 +79,52 @@ V Praze někdy v průběhu května. Max 10 lidí.
 
 ---
 
-[-]
+[ ]
 
-[✨😜] foo
+[✨😜] Add form / questionare for people who cannot attend for some reason to `/ai-supervize-mini`
 
-- @@@
+- For some people the date of the workshop might not be suitable, or the price might be too high, but they might still be interested in the workshop, so we can add there a form / questionare for them to fill in, so we can get some insights about their needs and maybe organize another workshop in the future.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a proper analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
+- Do a proper analysis of the current state of the page before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
 
 ---
 
-[-]
+[ ]
+
+[✨😜] Fix the discount code input field in `/ai-supervize-mini`
+
+```
+Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho políčka, tak se nic nezmění
+```
+
+- For me (on the desktop and samsung phone) the discount code input field is working as expected, but we got feedback from the customer that it is not working for them, so please check if there is any bug and fix it if needed.
+- Do a proper analysis of the current functionality before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0050-ai-supervize-mini-1.png)
+![Jak se to zobrazuje tobě? Jestli tam opravdu nemáme bug](prompts/screenshots/2026-04-0050-ai-supervize-mini-2.png)
+![Já jsem na mobilu a u mě to vypadá takto
+](prompts/screenshots/2026-04-0050-ai-supervize-mini-3.png)
+
+---
+
+[ ]
+
+[✨😜] Enhance the `/ai-supervize-mini` based on the analysis
+
+- @@@
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current state of the page before you start implementing.
+- You are working with page `/ai-supervize-mini` and do not change other pages
+
+---
+
+[x]
 
 [✨😜] foo
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
+- You are working with page `/ai-supervize-mini`
