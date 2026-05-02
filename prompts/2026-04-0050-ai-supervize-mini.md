@@ -132,6 +132,7 @@ Any code in format `SUPER_XXXX_15` should be working
 All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` - `  super jan 15`
 
 - Code `SUPER` is not valid
+- There should be no input placeholder or hint with the discount code, discount code is privately shared and should be exclusive
 - Codes are case insensitive and special characters are normalized in same way as letters are capitalized.
 - The codes must be configured in `aiSupervizeMiniWorkshopConfig` and defined as regex
 - Keep in mind the DRY _(don't repeat yourself)_ principle.

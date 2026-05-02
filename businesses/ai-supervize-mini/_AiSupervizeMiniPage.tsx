@@ -65,7 +65,7 @@ export function AiSupervizeMiniPage() {
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                                    Jednodenní workshop, jak ukrotit{' '}
+                                    Ukroťte{' '}
                                     <span className="bg-gradient-promptbook bg-clip-text text-transparent">
                                         AI vývoj
                                     </span>{' '}

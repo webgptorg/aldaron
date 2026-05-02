@@ -1,6 +1,6 @@
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { FAQ } from '@/components/faq-section';
-import { Bot, Code2, GitPullRequest, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
+import { Bot, Code2, GitPullRequest, Link, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
 
 export const aiSupervizeMiniHeroBullets = [
     'Celý den hands-on v Praze',
@@ -114,6 +114,10 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
                 Ano. Formulář umožňuje vybrat počet účastníků podle zbývající kapacity konkrétního termínu. Workshop je
                 pořád vedený pro jednotlivce a malé skupiny, takže držíme maximálně{' '}
                 {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop} lidí na termín.
+                <br />
+                <br />
+                Zároveň však nabízíme <Link href="/ai-supervize">AI Supervizi i pro celé firmy</Link>, kde přizpůsobíme
+                obsah a formát přímo na míru týmu a jeho potřebám.
             </p>
         ),
     },
@@ -127,17 +131,40 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
             </p>
         ),
     },
-    /*
     {
-        question: 'Kolik workshop stojí a jak funguje sleva SUPER?',
+        question: 'Co si mám přinést?',
         answer: (
             <p>
-                Cena je {aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za účastníka.
-                Pokud ve formuláři použijete kód {aiSupervizeMiniWorkshopConfig.discount.code}, cena se pro interní
-                evidenci přepočítá se slevou {aiSupervizeMiniWorkshopConfig.discount.percent} %. Kód zatím neprochází
-                platebním systémem, ukládáme ho do poznámky objednávky.
+                Vlastní notebook a ideálně konkrétní příklad produktu, repozitáře nebo workflow, na kterém chcete AI
+                vývoj zlepšit. Není nutné sdílet citlivý kód. Stačí popsat situaci, typ práce a místa, kde dnes AI
+                pomáhá nebo selhává.
             </p>
         ),
     },
-    */
+
+    {
+        question: 'Proč je cena 8500 Kč když jiné kurzy a školení o AI jsou levnější?',
+        answer: (
+            <p>
+                AI Supervize není běžný kurz o AI, kterých je na trhu spousta. Je to komplexní a praktický workshop
+                zaměřený na konkrétní výzvy a řešení v AI vývoji, včetně rizik, testování, verzování a code review. Cena
+                odráží hloubku obsahu, praktickou hodnotu a individuální přístup v malých skupinách s expertem s
+                reálnými zkušenostmi z AI vývoje. Konkrétně máme několik důvodů pro nastavení této ceny:
+                <ul>
+                    <li>
+                        AI Supervizí Vás provází Pavol Hejný, který má za sebou 15+ let zkušeností s vývojem a
+                        produktovým managementem, včetně 3 let intenzivní práce s AI nástroji v reálných projektech.
+                    </li>
+                    <li>
+                        Jiné kurzy o AI často vedou lidé bez hluboké praktické zkušenosti s AI vývojem, což se může
+                        odrazit na kvalitě obsahu a jeho aplikovatelnosti v reálných situacích.
+                    </li>
+                    <li>
+                        Workshop není jen teorie, ale praktický trénink s konkrétními příklady, cvičeními a zpětnou
+                        vazbou na vaše konkrétní výzvy.
+                    </li>
+                </ul>
+            </p>
+        ),
+    },
 ];

@@ -15,7 +15,7 @@ export const aiSupervizeMiniWorkshopConfig = {
         {
             id: '2026-05-15',
             label: '15. 5. 2026',
-            remainingSeats: 8,
+            remainingSeats: 7,
         },
         /*
         {
