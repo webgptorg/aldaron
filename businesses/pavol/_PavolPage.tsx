@@ -227,9 +227,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 </Button>
 
                                 <Button asChild size="lg" variant="outline" className="rounded-full px-8">
-                                    <Link href="https://docs.google.com/document/d/1M0Py3W4eul8WMfzlvlHHBs50tP2hQ1f519QomfAOhcM/edit?usp=sharing">
-                                        {content.hero.secondaryAction}
-                                    </Link>
+                                    <Link href="#projects">{content.hero.secondaryAction}</Link>
                                 </Button>
                             </div>
 

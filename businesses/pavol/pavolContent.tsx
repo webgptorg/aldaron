@@ -130,9 +130,9 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             title: 'Pavol Hejný',
             description:
                 'Pomáhám firmám a týmům zavádět AI do vývoje, produktového řízení a interních procesů tak, aby přinášela reálnou hodnotu místo dalšího hype.',
-            badges: ['AI consulting', 'Workshopy a talks', '15+ let produktového a technického vedení'],
+            badges: ['AI consulting', 'Workshopy a talks', '15+ let zkušeností s vývojem'],
             primaryAction: 'Spojme se',
-            secondaryAction: 'Otevřít CV',
+            secondaryAction: 'Zjistit více',
         },
         services: {
             eyebrow: 'Jak mohu pomoci',
