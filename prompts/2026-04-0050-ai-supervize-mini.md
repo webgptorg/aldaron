@@ -84,6 +84,10 @@ V Praze někdy v průběhu května. Max 10 lidí.
 [✨😜] Add form / questionare for people who cannot attend for some reason to `/ai-supervize-mini`
 
 - For some people the date of the workshop might not be suitable, or the price might be too high, but they might still be interested in the workshop, so we can add there a form / questionare for them to fill in, so we can get some insights about their needs and maybe organize another workshop in the future.
+- This should not add new section, just add small button / link "Nemůžu se zúčastnit, ale mám zájem o další termíny nebo jiný formát" somewhere in the registration section, which will open a form / questionare with fields like:
+    - Name, Email, Company, Note,...
+    - Reason with multiple choice options like "Datum mi nevyhovuje", "Cena je pro mě příliš vysoká", "Mám zájem o jiný formát (např. online)", "Jiné (uveďte v poznámce)" and you can select multiple options
+- For users which are registering this should be just a small button, for those who click on it, it should open the form and the form should be submitted to the same system as the registration for the workshop, just with different note, so we can track how many people are interested in the workshop but cannot attend for some reason and what are their reasons.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current state of the page before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
@@ -128,5 +132,3 @@ Ahoj Pavle, děkuju moc za info. Ten kód je slevový? Když ho zadám so toho p
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini`
-
-
