@@ -54,14 +54,42 @@
 
 ---
 
-[-]
+[ ] !
 
-[✨😨] baz
+[✨😨] Align the icons to the middle on `/pavol` pages
 
-- @@@
+- Also numbers should be bigger
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page.png)
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-1.png)
+
+---
+
+[ ] !
+
+[✨😨] The "Podcasts, interviews, and public talks" should be shown as list on `/pavol` pages
+
+- Images on the Podcasts, interviews, and public talks are not very visually appealing, they are just mix of logos, thumbnails, and icons, and they do not look good in the grid, so it would be better to show them as list with smaller thumbnails on the left and title and description on the right, this will make it look more organized and visually appealing
+- Also add more item at the end with link to the LinkedIn profile
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-2.png)
+
+---
+
+[ ] !
+
+[✨😨] Add Footer to `/pavol` pages
+
+- This footer should be branded for Pavol Hejný, make a separate footer component for this page
+- But still keep in mind the DRY _(don't repeat yourself)_ principle, if it make sence to share some parts of the existing footer, do it
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
 
 ---
 
@@ -72,16 +100,4 @@
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
-
----
-
-[-]
-
-[✨😨] baz
-
-- @@@
-- Keep in mind the DRY _(don't repeat yourself)_ principle.
-- Do a analysis of the current functionality before you start implementing.
-- Add the changes into the [changelog](./changelog/_current-preversion.md)
-
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
