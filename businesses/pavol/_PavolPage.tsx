@@ -176,10 +176,6 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                 hideCenterContent
                 navItems={content.header.navItems}
                 languageSwitcher={languageSwitcher}
-                secondaryAction={{
-                    label: content.header.secondaryAction,
-                    href: 'https://docs.google.com/document/d/1M0Py3W4eul8WMfzlvlHHBs50tP2hQ1f519QomfAOhcM/edit?usp=sharing',
-                }}
                 primaryAction={{
                     label: content.header.primaryAction,
                     href: '#contact',
@@ -256,7 +252,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                             className="relative mx-auto w-full max-w-md"
                         >
                             <div className="absolute inset-0 rounded-[2rem] bg-[var(--pavol-warm)] blur-3xl" />
-                            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-gradient-to-b from-white via-[#fffdf8] to-[var(--pavol-warm)] p-6 shadow-[0_30px_80px_rgba(16,32,51,0.12)]">
+                            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-gradient-to-b from-white via-[#fffdf8] to-[var(--pavol-warm)] p-6 pb-0 shadow-[0_30px_80px_rgba(16,32,51,0.12)]">
                                 <div className="absolute left-6 top-6 h-20 w-20 rounded-full bg-[var(--pavol-accent)]/10 blur-2xl" />
                                 <div className="absolute bottom-4 right-4 h-28 w-28 rounded-full bg-[var(--pavol-gold)]/15 blur-2xl" />
                                 <Image
