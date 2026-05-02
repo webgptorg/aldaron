@@ -39,13 +39,16 @@ function toggleInterestReason(
     return current.filter((value) => value !== reason);
 }
 
-function getContactFieldErrors({ fullname, email, company }: Pick<ContactFieldsState, 'fullname' | 'email' | 'company'>) {
+function getContactFieldErrors({
+    fullname,
+    email,
+    company,
+}: Pick<ContactFieldsState, 'fullname' | 'email' | 'company'>) {
     const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     return {
         fullnameError: fullname.trim() ? null : 'Vyplňte jméno a příjmení.',
         emailError: email.trim() ? (emailIsValid ? null : 'Zadejte platný e-mail.') : 'Vyplňte e-mail.',
-        companyError: company.trim() ? null : 'Vyplňte firmu nebo fakturační jméno.',
     };
 }
 
@@ -122,7 +125,7 @@ function ContactFields({
 
             <div>
                 <label htmlFor={`${idPrefix}-company`} className="text-sm font-semibold text-slate-700">
-                    Firma / organizace nebo fakturační jméno
+                    Firma / organizace
                 </label>
                 <Input
                     id={`${idPrefix}-company`}
