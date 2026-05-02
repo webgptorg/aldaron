@@ -1,7 +1,7 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import type { Metadata } from 'next';
 
-type PavolNavItem = {
+type PavolLink = {
     label: string;
     href: string;
 };
@@ -14,15 +14,10 @@ type PavolService = {
     prefillMessage: string;
 };
 
-type PavolContactLink = {
-    label: string;
-    href: string;
-};
-
 type PavolPageContent = {
     metadata: Metadata;
     header: {
-        navItems: PavolNavItem[];
+        navItems: PavolLink[];
         primaryAction: string;
         secondaryAction: string;
         languageSwitcherLabel: string;
@@ -79,7 +74,16 @@ type PavolPageContent = {
         successDescription: string;
         errorMessage: string;
         otherContactsTitle: string;
-        links: PavolContactLink[];
+        links: PavolLink[];
+    };
+    footer: {
+        description: string;
+        navigationTitle: string;
+        connectTitle: string;
+        legalTitle: string;
+        primaryAction: string;
+        rightsReservedText: string;
+        legalLinks: PavolLink[];
     };
 };
 
@@ -208,6 +212,19 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny' },
             ],
         },
+        footer: {
+            description:
+                'Pomáhám firmám i týmům používat AI prakticky: od strategie a workshopů až po konkrétní produktové a vývojové workflow.',
+            navigationTitle: 'Navigace',
+            connectTitle: 'Spojte se se mnou',
+            legalTitle: 'Právní informace',
+            primaryAction: 'Napsat mi',
+            rightsReservedText: 'Všechna práva vyhrazena.',
+            legalLinks: [
+                { label: 'Ochrana soukromí', href: '/privacy' },
+                { label: 'Podmínky užití', href: '/terms' },
+            ],
+        },
     },
     en: {
         metadata: {
@@ -330,6 +347,19 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hejny/' },
                 { label: 'Facebook', href: 'https://www.facebook.com/hejny' },
                 { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny' },
+            ],
+        },
+        footer: {
+            description:
+                'I help companies and teams use AI in a practical way: from strategy and workshops to concrete product and engineering workflows.',
+            navigationTitle: 'Navigation',
+            connectTitle: 'Connect with me',
+            legalTitle: 'Legal',
+            primaryAction: 'Contact me',
+            rightsReservedText: 'All rights reserved.',
+            legalLinks: [
+                { label: 'Privacy policy', href: '/privacy' },
+                { label: 'Terms of use', href: '/terms' },
             ],
         },
     },

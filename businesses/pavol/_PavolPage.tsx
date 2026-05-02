@@ -4,6 +4,7 @@ import { type PavolMediaAppearance, pavolMediaAppearances } from '@/businesses/p
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
+import { PavolFooter } from '@/businesses/pavol/_PavolFooter';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Header } from '@/components/header';
 import { TestimonialsSection } from '@/components/testimonials-section';
@@ -604,6 +605,8 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                     </div>
                 </div>
             </section>
+
+            <PavolFooter language={language} />
         </main>
     );
 }
