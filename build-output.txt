@@ -1,0 +1,76 @@
+
+> promptbook-landing-page@0.1.0 build
+> next build
+
+   Ôľ▓ Next.js 15.2.6
+   - Environments: .env
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Browserslist: browsers data (caniuse-lite) is 7 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ Ôťô Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/31) ...
+BenefitsSection rendered
+IntegrationsSection rendered
+BenefitsSection rendered
+IntegrationsSection rendered
+BenefitsSection rendered
+IntegrationsSection rendered
+BenefitsSection rendered
+IntegrationsSection rendered
+   Generating static pages (7/31) 
+   Generating static pages (15/31) 
+   Generating static pages (23/31) 
+BenefitsSection rendered
+ Ôťô Generating static pages (31/31)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+Ôöî Ăĺ /                                      177 B         102 kB
+Ôöť ÔŚő /_not-found                            177 B         102 kB
+Ôöť Ăĺ /[shortcode]                           414 B         195 kB
+Ôöť ÔŚő /admin/contacts                      39.3 kB         150 kB
+Ôöť ÔŚő /ai-supervize                        12.6 kB         290 kB
+Ôöť ÔŚő /ai-supervize-mini                   13.2 kB         270 kB
+Ôöť Ăĺ /api/contacts                          177 B         102 kB
+Ôöť Ăĺ /api/track-click                       177 B         102 kB
+Ôöť ÔŚő /contact                               236 B         216 kB
+Ôöť ÔŚő /cs                                    174 B         289 kB
+Ôöť ÔŚő /data-deletion                         219 B         192 kB
+Ôöť ÔŚő /dekujeme                            2.87 kB         112 kB
+Ôöť ÔŚő /en                                    173 B         289 kB
+Ôöť ÔŚő /for-agro                            6.76 kB         319 kB
+Ôöť ÔŚő /for-industry                        6.28 kB         319 kB
+Ôöť ÔŚő /hackathon-factory                   11.1 kB         303 kB
+Ôöť Ăĺ /k/[...shortFileUrlParts]              177 B         102 kB
+Ôöť ÔŚő /old                                 17.3 kB         295 kB
+Ôöť ÔŚő /opengraph-image                       177 B         102 kB
+Ôöť Ăĺ /pavol                                 177 B         102 kB
+Ôöť ÔŚő /pavol/cs                              158 B         253 kB
+Ôöť ÔŚő /pavol/en                              159 B         253 kB
+Ôöť ÔŚő /privacy                               205 B         192 kB
+Ôöť Ăĺ /pro-firmy                             177 B         102 kB
+Ôöť ÔŚő /pro-mesta                           5.63 kB         318 kB
+Ôöť ÔŚő /pro-mesta/opengraph-image             177 B         102 kB
+Ôöť ÔŚő /pro-mesta/twitter-image               177 B         102 kB
+Ôöť ÔŚő /shortener                            161 kB         317 kB
+Ôöť ÔŚő /skoleni                               177 B         102 kB
+Ôöť ÔŚő /terms                                 219 B         192 kB
+Ôöö ÔŚő /twitter-image                         177 B         102 kB
++ First Load JS shared by all             101 kB
+  Ôöť chunks/1684-894c2e57ca87f9ef.js      45.6 kB
+  Ôöť chunks/4bd1b696-cbcc659508b5b358.js  53.3 kB
+  Ôöö other shared chunks (total)          2.47 kB
+
+
+Ăĺ Middleware                             31.8 kB
+
+ÔŚő  (Static)   prerendered as static content
+Ăĺ  (Dynamic)  server-rendered on demand
+

@@ -4,12 +4,8 @@ export const aiSupervizeMiniWorkshopConfig = {
     place: 'Praha',
     timeRange: '9:30-17:00',
     discount: {
-        code: 'SUPER',
         percent: 15,
-        codeFormat: {
-            suffix: '15',
-            minimumMiddleParts: 1,
-        },
+        validCodeRegex: /^SUPER_[A-Z0-9]+(?:_[A-Z0-9]+)*_15$/,
     },
     dates: [
         {

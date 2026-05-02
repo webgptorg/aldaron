@@ -1,6 +1,7 @@
 'use client';
 
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
+import { getAiSupervizeMiniDiscountCode } from '@/businesses/ai-supervize-mini/discountCode';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -170,43 +171,6 @@ function clampParticipants(value: number, max: number) {
     return Math.min(Math.max(Math.round(value), 1), max);
 }
 
-function normalizeDiscountCode(value: string) {
-    return value
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toUpperCase()
-        .replace(/[^A-Z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '')
-        .replace(/_+/g, '_');
-}
-
-const normalizedWorkshopDiscountCode = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code);
-const normalizedWorkshopDiscountSuffix = normalizeDiscountCode(
-    aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix,
-);
-
-function isValidDiscountCode(value: string) {
-    const normalizedValue = normalizeDiscountCode(value);
-
-    if (!normalizedValue) {
-        return false;
-    }
-
-    if (normalizedValue === normalizedWorkshopDiscountCode) {
-        return true;
-    }
-
-    const parts = normalizedValue.split('_').filter(Boolean);
-    const minimumParts = aiSupervizeMiniWorkshopConfig.discount.codeFormat.minimumMiddleParts + 2;
-    const lastPart = parts[parts.length - 1];
-
-    return (
-        parts.length >= minimumParts &&
-        parts[0] === normalizedWorkshopDiscountCode &&
-        lastPart === normalizedWorkshopDiscountSuffix
-    );
-}
-
 export function AiSupervizeMiniRegistrationForm() {
     const [selectedDateId, setSelectedDateId] = useState<string>(aiSupervizeMiniWorkshopConfig.dates[0]!.id);
     const selectedDate =
@@ -245,8 +209,8 @@ export function AiSupervizeMiniRegistrationForm() {
         setParticipantCount((count) => clampParticipants(count, availableSeats));
     }, [availableSeats]);
 
-    const normalizedDiscountCode = normalizeDiscountCode(discountCode);
-    const discountApplied = isValidDiscountCode(discountCode);
+    const appliedDiscountCode = getAiSupervizeMiniDiscountCode(discountCode);
+    const discountApplied = appliedDiscountCode !== null;
     const price = useMemo(() => {
         const basePrice = aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk * participantCount;
         const discountAmount = discountApplied
@@ -326,7 +290,7 @@ export function AiSupervizeMiniRegistrationForm() {
             billingDetails,
             userNote: note,
             discountCodeEntered: discountCode.trim() || null,
-            discountCodeUsed: discountApplied ? normalizedDiscountCode : null,
+            discountCodeUsed: appliedDiscountCode,
             discountPercentApplied: discountApplied ? aiSupervizeMiniWorkshopConfig.discount.percent : 0,
             unitPriceCzk: aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk,
             basePriceCzk: price.basePrice,
@@ -442,9 +406,7 @@ export function AiSupervizeMiniRegistrationForm() {
                     <div className="text-xs text-slate-300">Cena po přepočtu</div>
                     <div className="text-2xl font-bold">{formatCzk(price.finalPrice)}</div>
                     {discountApplied && (
-                        <div className="text-xs text-cyan-300">
-                            Sleva {aiSupervizeMiniWorkshopConfig.discount.code} započtena
-                        </div>
+                        <div className="text-xs text-cyan-300">Sleva {aiSupervizeMiniWorkshopConfig.discount.percent} % započtena</div>
                     )}
                 </div>
             </div>
@@ -524,7 +486,6 @@ export function AiSupervizeMiniRegistrationForm() {
                                 name="discount"
                                 value={discountCode}
                                 onChange={(event) => setDiscountCode(event.target.value)}
-                                placeholder={aiSupervizeMiniWorkshopConfig.discount.code}
                                 className="h-11 pl-10 uppercase"
                                 autoCapitalize="characters"
                                 autoCorrect="off"
@@ -535,8 +496,8 @@ export function AiSupervizeMiniRegistrationForm() {
                             {discountCode.trim()
                                 ? discountApplied
                                     ? `Aktivní sleva ${aiSupervizeMiniWorkshopConfig.discount.percent} %.`
-                                    : `Tento kód není aktivní. Zkuste ${aiSupervizeMiniWorkshopConfig.discount.code}.`
-                                : `Volitelné. Zadejte ${aiSupervizeMiniWorkshopConfig.discount.code} nebo celý partnerský kód.`}
+                                    : 'Tento kód není aktivní.'
+                                : 'Volitelné.'}
                         </p>
                     </div>
                 </div>
