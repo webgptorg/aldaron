@@ -36,15 +36,29 @@ function normalizeDiscountCode(value: string) {
         .replace(/_+/g, '_');
 }
 
+const normalizedWorkshopDiscountCode = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code);
+const normalizedWorkshopDiscountSuffix = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix);
+
 function isValidDiscountCode(value: string) {
     const normalizedValue = normalizeDiscountCode(value);
+
+    if (!normalizedValue) {
+        return false;
+    }
+
+    if (normalizedValue === normalizedWorkshopDiscountCode) {
+        return true;
+    }
+
     const parts = normalizedValue.split('_').filter(Boolean);
-    const normalizedCode = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code);
-    const normalizedSuffix = normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix);
     const minimumParts = aiSupervizeMiniWorkshopConfig.discount.codeFormat.minimumMiddleParts + 2;
     const lastPart = parts[parts.length - 1];
 
-    return parts.length >= minimumParts && parts[0] === normalizedCode && lastPart === normalizedSuffix;
+    return (
+        parts.length >= minimumParts &&
+        parts[0] === normalizedWorkshopDiscountCode &&
+        lastPart === normalizedWorkshopDiscountSuffix
+    );
 }
 
 export function AiSupervizeMiniRegistrationForm() {
@@ -263,16 +277,19 @@ export function AiSupervizeMiniRegistrationForm() {
                                 name="discount"
                                 value={discountCode}
                                 onChange={(event) => setDiscountCode(event.target.value)}
-                                // placeholder={`${normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.code)}_JMENO_${normalizeDiscountCode(aiSupervizeMiniWorkshopConfig.discount.codeFormat.suffix)}`}
+                                placeholder={aiSupervizeMiniWorkshopConfig.discount.code}
                                 className="h-11 pl-10 uppercase"
+                                autoCapitalize="characters"
+                                autoCorrect="off"
+                                spellCheck={false}
                             />
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
                             {discountCode.trim()
                                 ? discountApplied
                                     ? `Aktivní sleva ${aiSupervizeMiniWorkshopConfig.discount.percent} %.`
-                                    : 'Tento kód není aktivní.'
-                                : 'Volitelné.'}
+                                    : `Tento kód není aktivní. Zkuste ${aiSupervizeMiniWorkshopConfig.discount.code}.`
+                                : `Volitelné. Zadejte ${aiSupervizeMiniWorkshopConfig.discount.code} nebo celý partnerský kód.`}
                         </p>
                     </div>
                 </div>
