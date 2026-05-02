@@ -1,6 +1,6 @@
 'use client';
 
-import { pavolMediaAppearances } from '@/businesses/pavol/config-media';
+import { type PavolMediaAppearance, pavolMediaAppearances } from '@/businesses/pavol/config-media';
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
@@ -56,6 +56,62 @@ function SectionHeading({
     );
 }
 
+function MediaAppearanceListItem({
+    appearance,
+    index,
+    openLabel,
+}: {
+    appearance: PavolMediaAppearance;
+    index: number;
+    openLabel: string;
+}) {
+    return (
+        <motion.article
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.45, delay: index * 0.05 }}
+            className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"
+        >
+            <Link
+                href={appearance.href}
+                className="group flex h-full flex-col sm:flex-row"
+                target="_blank"
+                rel="noreferrer"
+            >
+                <div className="relative h-40 shrink-0 overflow-hidden bg-slate-50 sm:h-auto sm:w-44">
+                    <Image
+                        src={appearance.imageSrc}
+                        alt={appearance.title}
+                        fill
+                        className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                        sizes="(min-width: 640px) 176px, 100vw"
+                    />
+                </div>
+
+                <div className="flex flex-1 flex-col justify-center p-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-[var(--pavol-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--pavol-accent)]">
+                            {appearance.kind}
+                        </span>
+                        <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
+                            {appearance.source}
+                        </span>
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">{appearance.title}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{appearance.description}</p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pavol-accent)]">
+                        <span>{openLabel}</span>
+                        <ChevronRight className="h-4 w-4" />
+                    </div>
+                </div>
+            </Link>
+        </motion.article>
+    );
+}
+
 export function PavolPage({ language }: { language: SupportedHomepageLanguage }) {
     const content = pavolPageContent[language];
     const projects = pavolProjects[language];
@@ -63,6 +119,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
     const media = pavolMediaAppearances[language];
     const testimonials = pavolTestimonials[language];
     const isCzech = language === 'cs';
+    const mediaOpenLabel = isCzech ? 'Otevřít' : 'Open';
 
     const [selectedInquiryId, setSelectedInquiryId] = useState<string | null>(null);
     const [formState, setFormState] = useState<ContactFormState>({
@@ -405,43 +462,14 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                         description={content.media.description}
                     />
 
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mt-12 space-y-5">
                         {media.map((appearance, index) => (
-                            <motion.article
+                            <MediaAppearanceListItem
                                 key={appearance.href}
-                                initial={{ opacity: 0, y: 24 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: '-40px' }}
-                                transition={{ duration: 0.45, delay: index * 0.05 }}
-                                className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"
-                            >
-                                <Link href={appearance.href} className="block">
-                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                                        <Image
-                                            src={appearance.imageSrc}
-                                            alt={appearance.title}
-                                            fill
-                                            className="object-cover transition-transform duration-500 hover:scale-105"
-                                        />
-                                    </div>
-                                    <div className="p-6">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="rounded-full bg-[var(--pavol-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--pavol-accent)]">
-                                                {appearance.kind}
-                                            </span>
-                                            <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
-                                                {appearance.source}
-                                            </span>
-                                        </div>
-                                        <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">
-                                            {appearance.title}
-                                        </h3>
-                                        <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                                            {appearance.description}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </motion.article>
+                                appearance={appearance}
+                                index={index}
+                                openLabel={mediaOpenLabel}
+                            />
                         ))}
                     </div>
                 </div>
