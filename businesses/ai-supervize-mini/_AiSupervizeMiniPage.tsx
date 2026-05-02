@@ -8,11 +8,13 @@ import {
     aiSupervizeMiniTakeaways,
     aiSupervizeMiniTerminalMetrics,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
+import { aiSupervizeMiniTestimonials } from '@/businesses/ai-supervize-mini/aiSupervizeMiniTestimonials';
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { FAQSection } from '@/components/faq-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { motion } from 'framer-motion';
@@ -206,6 +208,22 @@ export function AiSupervizeMiniPage() {
                     </>
                 }
                 description="Praktické informace k obsahu, průběhu a registraci."
+            />
+
+            <TestimonialsSection
+                id="reference"
+                eyebrow="Reference"
+                title={
+                    <>
+                        Co říkají lidé, kteří s{' '}
+                        <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
+                            Pavolem spolupracovali
+                        </span>
+                    </>
+                }
+                description="Pro AI Supervizi Mini teď vybíráme dvě reference z Pavolovy osobní stránky, které dobře ukazují rychlost prototypování, produktové myšlení a schopnost dovést nápad do funkčního výsledku."
+                testimonials={aiSupervizeMiniTestimonials}
+                metrics={[]}
             />
 
             <section className="overflow-hidden bg-white pt-20">

@@ -153,7 +153,7 @@ All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` -
 
 ---
 
-[ ] !
+[x] ~$0.00 11 minutes by GitHub Copilot `gpt-5.4`
 
 [✨😜] Add testimonials into `/ai-supervize-mini`
 
@@ -200,5 +200,6 @@ All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` -
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
+
 
 
