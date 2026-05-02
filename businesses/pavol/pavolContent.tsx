@@ -152,11 +152,11 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 },
                 {
                     id: 'ai-workshops-talks',
-                    title: 'AI workshopy / talks',
+                    title: 'Workshopy / Přednášky',
                     description:
                         'Přednášky a hands-on workshopy pro firmy, product týmy i vývojáře. Bez zbytečného hype, s důrazem na praxi, kvalitu a konkrétní rozhodnutí.',
-                    buttonLabel: 'Chci workshop nebo talk',
-                    prefillMessage: 'Dobrý den Pavle, mám zájem o AI workshopy / talks, prosím ozvěte se mi.',
+                    buttonLabel: 'Chci workshop nebo přednášku',
+                    prefillMessage: 'Dobrý den Pavle, mám zájem o AI workshopy / přednášky, prosím ozvěte se mi.',
                 },
             ],
         },

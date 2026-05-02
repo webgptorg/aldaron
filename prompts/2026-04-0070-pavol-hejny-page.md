@@ -93,6 +93,45 @@
 
 ---
 
+[ ]
+
+[✨😨] Add icons to "Kde dávám největší smysl" section
+
+- Each "AI konzultace" and "Workshopy / Přednášky" should have relevant icons
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-4.png)
+
+---
+
+[ ]
+
+[✨😨] Social media and buttons should have icons
+
+- For example section "Další odkazy"
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-3.png)
+
+---
+
+[ ]
+
+[✨😨] Make 3D event badge on PC from Pavol image and box
+
+- Look at https://vercel.com/blog/building-an-interactive-3d-event-badge-with-react-three-fiber
+- Keep it light theme
+- This should be turned on only on PC and bigger screens, on mobile it should be just static image as it is now
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-5.png)
+
+---
+
 [-]
 
 [✨😨] baz
