@@ -208,20 +208,20 @@ export function AiSupervizeMiniPage() {
                 description="Praktické informace k obsahu, průběhu a registraci."
             />
 
-            <section className="bg-white py-20">
+            <section className="overflow-hidden bg-white pt-20">
                 <div className="container mx-auto px-4">
-                    <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1fr]">
-                        <div className="relative mx-auto max-w-sm">
-                            <div className="absolute inset-x-8 bottom-0 h-40 rounded-full bg-cyan-100 blur-2xl" />
+                    <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,0.9fr)_1fr]">
+                        <div className="relative mx-auto w-full max-w-[26rem] self-end lg:max-w-[32rem]">
+                            <div className="absolute inset-x-10 bottom-4 h-40 rounded-full bg-cyan-100/80 blur-3xl" />
                             <Image
                                 src={pavolHejny}
                                 alt="Pavol Hejný"
-                                className="relative z-10 h-auto w-full object-contain"
+                                className="relative z-10 block h-auto w-full object-contain"
                                 priority={false}
                             />
                         </div>
 
-                        <div>
+                        <div className="pb-16 lg:pb-20">
                             <p className="text-sm font-semibold uppercase text-cyan-700">Workshop vede</p>
                             <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Pavol Hejný</h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-600">
