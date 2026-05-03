@@ -1,17 +1,14 @@
 'use client';
 
+import type { PavolLink } from '@/businesses/pavol/pavolContent';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Button } from '@/components/ui/button';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
+import { Send } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-type FooterLink = {
-    label: string;
-    href: string;
-};
-
-function FooterLinkColumn({ title, links }: { title: string; links: FooterLink[] }) {
+function FooterLinkColumn({ title, links }: { title: string; links: PavolLink[] }) {
     return (
         <div>
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">{title}</h3>
@@ -20,8 +17,9 @@ function FooterLinkColumn({ title, links }: { title: string; links: FooterLink[]
                     <li key={`${title}-${link.href}`}>
                         <Link
                             href={link.href}
-                            className="text-sm text-slate-200 transition-colors duration-200 hover:text-white"
+                            className="inline-flex items-center gap-2 text-sm text-slate-200 transition-colors duration-200 hover:text-white"
                         >
+                            {link.icon ? <link.icon className="h-4 w-4 shrink-0" /> : null}
                             {link.label}
                         </Link>
                     </li>
@@ -63,7 +61,10 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
                             size="lg"
                             className="mt-8 rounded-full bg-white px-7 text-[var(--pavol-ink)] hover:bg-white/90"
                         >
-                            <Link href="#contact">{content.footer.primaryAction}</Link>
+                            <Link href="#contact">
+                                {content.footer.primaryAction}
+                                <Send className="ml-2 h-4 w-4" />
+                            </Link>
                         </Button>
                     </div>
 

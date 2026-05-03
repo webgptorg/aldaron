@@ -95,6 +95,21 @@ function MediaThumbnail({
     );
 }
 
+function PavolLinkContent({
+    label,
+    icon: Icon,
+}: {
+    label: string;
+    icon?: React.ComponentType<{ className?: string }>;
+}) {
+    return (
+        <>
+            {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+            <span>{label}</span>
+        </>
+    );
+}
+
 export function PavolPage({ language }: { language: SupportedHomepageLanguage }) {
     const content = pavolPageContent[language];
     const projects = pavolProjects[language];
@@ -266,7 +281,10 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 </Button>
 
                                 <Button asChild size="lg" variant="outline" className="rounded-full px-8">
-                                    <Link href="#projects">{content.hero.secondaryAction}</Link>
+                                    <Link href="#projects">
+                                        {content.hero.secondaryAction}
+                                        <ArrowRight className="ml-2 h-5 w-5" />
+                                    </Link>
                                 </Button>
                             </div>
 
@@ -389,13 +407,15 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                     {project.links.map((link) => (
                                         <Button
                                             key={`${project.title}-${link.href}`}
-                                            asChild
-                                            variant="outline"
-                                            className="rounded-full text-xs font-semibold"
-                                        >
-                                            <Link href={link.href}>{link.label}</Link>
-                                        </Button>
-                                    ))}
+                                        asChild
+                                        variant="outline"
+                                        className="rounded-full text-xs font-semibold"
+                                    >
+                                        <Link href={link.href}>
+                                            <PavolLinkContent label={link.label} icon={link.icon} />
+                                        </Link>
+                                    </Button>
+                                ))}
                                 </div>
                             </motion.div>
                         ))}
@@ -520,7 +540,9 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 <div className="mt-5 flex flex-wrap gap-3">
                                     {content.contact.links.map((link) => (
                                         <Button key={link.href} asChild variant="outline" className="rounded-full">
-                                            <Link href={link.href}>{link.label}</Link>
+                                            <Link href={link.href}>
+                                                <PavolLinkContent label={link.label} icon={link.icon} />
+                                            </Link>
                                         </Button>
                                     ))}
                                 </div>

@@ -1,11 +1,12 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import type { Metadata } from 'next';
 import type { LucideIcon } from 'lucide-react';
-import { BrainCircuit, Presentation } from 'lucide-react';
+import { BrainCircuit, Facebook, FileText, Github, Linkedin, Presentation, Youtube } from 'lucide-react';
 
-type PavolLink = {
+export type PavolLink = {
     label: string;
     href: string;
+    icon?: LucideIcon;
 };
 
 type PavolService = {
@@ -208,11 +209,11 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             errorMessage: 'Vyplňte prosím jméno, e-mail a zprávu.',
             otherContactsTitle: 'Další odkazy',
             links: [
-                { label: 'CV', href: cvLink },
-                { label: 'GitHub', href: 'https://github.com/hejny' },
-                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hejny/' },
-                { label: 'Facebook', href: 'https://www.facebook.com/hejny' },
-                { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny' },
+                { label: 'CV', href: cvLink, icon: FileText },
+                { label: 'GitHub', href: 'https://github.com/hejny', icon: Github },
+                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hejny/', icon: Linkedin },
+                { label: 'Facebook', href: 'https://www.facebook.com/hejny', icon: Facebook },
+                { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny', icon: Youtube },
             ],
         },
         footer: {
@@ -342,11 +343,11 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             errorMessage: 'Please fill in your name, email, and message.',
             otherContactsTitle: 'Other links',
             links: [
-                { label: 'CV', href: cvLink },
-                { label: 'GitHub', href: 'https://github.com/hejny' },
-                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hejny/' },
-                { label: 'Facebook', href: 'https://www.facebook.com/hejny' },
-                { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny' },
+                { label: 'CV', href: cvLink, icon: FileText },
+                { label: 'GitHub', href: 'https://github.com/hejny', icon: Github },
+                { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hejny/', icon: Linkedin },
+                { label: 'Facebook', href: 'https://www.facebook.com/hejny', icon: Facebook },
+                { label: 'YouTube', href: 'https://www.youtube.com/@pavolhejny', icon: Youtube },
             ],
         },
         footer: {
