@@ -325,14 +325,20 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 className="group rounded-[1.75rem] border border-slate-200 bg-white p-8 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                             >
                                 <div className="flex items-start justify-between gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--pavol-accent)]/10 text-[var(--pavol-accent)]">
+                                        <service.icon className="h-7 w-7" />
+                                    </div>
+                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--pavol-accent)]/10 text-[var(--pavol-accent)]">
+                                        <ChevronRight className="h-5 w-5" />
+                                    </div>
+                                </div>
+
+                                <div className="mt-6">
                                     <div>
                                         <h3 className="text-2xl font-bold text-[var(--pavol-ink)]">{service.title}</h3>
                                         <p className="mt-4 text-base leading-relaxed text-slate-600">
                                             {service.description}
                                         </p>
-                                    </div>
-                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--pavol-accent)]/10 text-[var(--pavol-accent)]">
-                                        <ChevronRight className="h-5 w-5" />
                                     </div>
                                 </div>
 

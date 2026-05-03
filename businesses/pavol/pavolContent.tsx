@@ -1,5 +1,7 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import type { Metadata } from 'next';
+import type { LucideIcon } from 'lucide-react';
+import { BrainCircuit, Presentation } from 'lucide-react';
 
 type PavolLink = {
     label: string;
@@ -8,6 +10,7 @@ type PavolLink = {
 
 type PavolService = {
     id: string;
+    icon: LucideIcon;
     title: string;
     description: string;
     buttonLabel: string;
@@ -144,6 +147,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             items: [
                 {
                     id: 'ai-consulting',
+                    icon: BrainCircuit,
                     title: 'AI konzultace',
                     description:
                         'Strategie, výběr nástrojů, vendor lock-in, bezpečnost dat, agentní workflow a to, jak dostat AI z demo režimu do běžného provozu.',
@@ -152,6 +156,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 },
                 {
                     id: 'ai-workshops-talks',
+                    icon: Presentation,
                     title: 'Workshopy / Přednášky',
                     description:
                         'Přednášky a hands-on workshopy pro firmy, product týmy i vývojáře. Bez zbytečného hype, s důrazem na praxi, kvalitu a konkrétní rozhodnutí.',
@@ -275,6 +280,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             items: [
                 {
                     id: 'ai-consulting',
+                    icon: BrainCircuit,
                     title: 'AI consulting',
                     description:
                         'Strategy, tooling choices, vendor lock-in, data safety, agent workflows, and the move from flashy demos to sustainable daily use.',
@@ -283,6 +289,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 },
                 {
                     id: 'ai-workshops-talks',
+                    icon: Presentation,
                     title: 'AI workshops / talks',
                     description:
                         'Talks and hands-on workshops for companies, product teams, and developers. Less hype, more practical decisions, quality signals, and real workflows.',
