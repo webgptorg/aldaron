@@ -11,6 +11,7 @@ import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
@@ -53,6 +54,43 @@ function SectionHeading({
             <p className={`mt-4 text-lg leading-relaxed ${tone === 'light' ? 'text-slate-200' : 'text-slate-600'}`}>
                 {description}
             </p>
+        </div>
+    );
+}
+
+function MediaThumbnail({
+    title,
+    imageSrc,
+    thumbnailLabel,
+    thumbnailClassName,
+}: {
+    title: string;
+    imageSrc?: string;
+    thumbnailLabel?: string;
+    thumbnailClassName?: string;
+}) {
+    if (imageSrc) {
+        return (
+            <div className="relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40">
+                <Image
+                    src={imageSrc}
+                    alt={title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div
+            aria-hidden="true"
+            className={cn(
+                'flex h-24 w-full items-center justify-center rounded-2xl bg-slate-900 text-3xl font-bold lowercase sm:w-40',
+                thumbnailClassName,
+            )}
+        >
+            {thumbnailLabel ?? title.slice(0, 2)}
         </div>
     );
 }
@@ -406,7 +444,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                         description={content.media.description}
                     />
 
-                    <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mt-12 space-y-4">
                         {media.map((appearance, index) => (
                             <motion.article
                                 key={appearance.href}
@@ -414,18 +452,19 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: '-40px' }}
                                 transition={{ duration: 0.45, delay: index * 0.05 }}
-                                className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm"
+                                className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all hover:border-[var(--pavol-accent)]/30 hover:shadow-md"
                             >
-                                <Link href={appearance.href} className="block">
-                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                                        <Image
-                                            src={appearance.imageSrc}
-                                            alt={appearance.title}
-                                            fill
-                                            className="object-cover transition-transform duration-500 hover:scale-105"
-                                        />
-                                    </div>
-                                    <div className="p-6">
+                                <Link
+                                    href={appearance.href}
+                                    className="group flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:p-6"
+                                >
+                                    <MediaThumbnail
+                                        title={appearance.title}
+                                        imageSrc={appearance.imageSrc}
+                                        thumbnailLabel={appearance.thumbnailLabel}
+                                        thumbnailClassName={appearance.thumbnailClassName}
+                                    />
+                                    <div className="min-w-0 flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
                                             <span className="rounded-full bg-[var(--pavol-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--pavol-accent)]">
                                                 {appearance.kind}
@@ -440,6 +479,10 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                         <p className="mt-3 text-sm leading-relaxed text-slate-600">
                                             {appearance.description}
                                         </p>
+                                        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pavol-accent)]">
+                                            {appearance.source}
+                                            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                        </div>
                                     </div>
                                 </Link>
                             </motion.article>

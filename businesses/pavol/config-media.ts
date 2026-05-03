@@ -2,15 +2,49 @@ import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 
 export type PavolMediaAppearance = {
     href: string;
-    imageSrc: string;
+    imageSrc?: string;
     source: string;
     kind: string;
     title: string;
     description: string;
+    thumbnailLabel?: string;
+    thumbnailClassName?: string;
 };
 
+const linkedInProfileHref = 'https://www.linkedin.com/in/hejny/';
+
+const linkedInProfileAppearance: Record<SupportedHomepageLanguage, PavolMediaAppearance> = {
+    cs: {
+        href: linkedInProfileHref,
+        source: 'LinkedIn',
+        kind: 'Profil',
+        title: 'LinkedIn profil Pavola Hejného',
+        description:
+            'Další postřehy, novinky a veřejné výstupy sdílím průběžně také na LinkedInu.',
+        thumbnailLabel: 'in',
+        thumbnailClassName: 'bg-[#0A66C2] text-white',
+    },
+    en: {
+        href: linkedInProfileHref,
+        source: 'LinkedIn',
+        kind: 'Profile',
+        title: 'Pavol Hejny on LinkedIn',
+        description:
+            'I also share updates, observations, and public-facing work regularly on LinkedIn.',
+        thumbnailLabel: 'in',
+        thumbnailClassName: 'bg-[#0A66C2] text-white',
+    },
+};
+
+function withLinkedInProfile(
+    language: SupportedHomepageLanguage,
+    appearances: PavolMediaAppearance[],
+): PavolMediaAppearance[] {
+    return [...appearances, linkedInProfileAppearance[language]];
+}
+
 export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMediaAppearance[]> = {
-    cs: [
+    cs: withLinkedInProfile('cs', [
         {
             href: 'https://www.youtube.com/@aitakrajta_tv',
             imageSrc: '/pavol/media/ai-ta-krajta.jpg',
@@ -64,8 +98,8 @@ export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMedia
             description:
                 'Mediální výstup o změnách ve školství, digitalizaci a projektech, které vznikaly kolem online výuky.',
         },
-    ],
-    en: [
+    ]),
+    en: withLinkedInProfile('en', [
         {
             href: 'https://www.youtube.com/@aitakrajta_tv',
             imageSrc: '/pavol/media/ai-ta-krajta.jpg',
@@ -120,5 +154,5 @@ export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMedia
             description:
                 'A media appearance about change in education, digital transformation, and projects built around remote teaching.',
         },
-    ],
+    ]),
 };
