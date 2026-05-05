@@ -5,6 +5,7 @@ import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects, type PavolProject } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
 import { PavolFooter } from '@/businesses/pavol/_PavolFooter';
+import { PavolHeroBadge } from '@/businesses/pavol/PavolHeroBadge';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Header } from '@/components/header';
 import { TestimonialsSection } from '@/components/testimonials-section';
@@ -14,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
-import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, ChevronRight, Globe2, Send } from 'lucide-react';
 import Image from 'next/image';
@@ -408,17 +408,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                             transition={{ duration: 0.7, delay: 0.15 }}
                             className="relative mx-auto w-full max-w-md"
                         >
-                            <div className="absolute inset-0 rounded-[2rem] bg-[var(--pavol-warm)] blur-3xl" />
-                            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-gradient-to-b from-white via-[#fffdf8] to-[var(--pavol-warm)] p-6 pb-0 shadow-[0_30px_80px_rgba(16,32,51,0.12)]">
-                                <div className="absolute left-6 top-6 h-20 w-20 rounded-full bg-[var(--pavol-accent)]/10 blur-2xl" />
-                                <div className="absolute bottom-4 right-4 h-28 w-28 rounded-full bg-[var(--pavol-gold)]/15 blur-2xl" />
-                                <Image
-                                    src={pavolHejny}
-                                    alt="Pavol Hejný"
-                                    priority
-                                    className="relative z-10 mx-auto h-auto w-full max-w-[320px] object-contain"
-                                />
-                            </div>
+                            <PavolHeroBadge alt="Pavol Hejný" />
                         </motion.div>
                     </div>
                 </div>

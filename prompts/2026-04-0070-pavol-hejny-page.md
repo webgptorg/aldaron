@@ -117,7 +117,7 @@
 
 ---
 
-[ ]
+[x] ~$0.00 25 minutes by GitHub Copilot `gpt-5.4`
 
 [✨😨] Make 3D event badge on PC from Pavol image and box
 
@@ -295,5 +295,6 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
 
 
