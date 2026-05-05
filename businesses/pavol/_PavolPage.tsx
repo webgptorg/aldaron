@@ -2,7 +2,7 @@
 
 import { pavolMediaAppearances, pavolMediaMoreHref, type PavolMediaAppearance } from '@/businesses/pavol/config-media';
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
-import { pavolProjects } from '@/businesses/pavol/config-projects';
+import { pavolProjects, type PavolProject } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
 import { PavolFooter } from '@/businesses/pavol/_PavolFooter';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
@@ -177,6 +177,36 @@ function PavolLinkContent({
             {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
             <span>{label}</span>
         </>
+    );
+}
+
+function PavolProjectIcon({ project }: { project: PavolProject }) {
+    const Icon = project.icon;
+    const logos = project.logos ?? [];
+
+    return (
+        <div
+            aria-hidden="true"
+            className={cn(
+                'mx-auto flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--pavol-ink)] text-white',
+                project.logoFrameClassName ?? 'w-12',
+            )}
+        >
+            {logos.map((logo) => (
+                <Image
+                    key={logo.src}
+                    src={logo.src}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className={cn('h-6 w-6 object-contain brightness-0 invert', logo.className)}
+                />
+            ))}
+            {project.logoText ? (
+                <span className="text-sm font-black leading-none tracking-normal">{project.logoText}</span>
+            ) : null}
+            {logos.length === 0 && !project.logoText && Icon ? <Icon className="h-5 w-5" /> : null}
+        </div>
     );
 }
 
@@ -469,9 +499,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                 transition={{ duration: 0.45, delay: index * 0.06 }}
                                 className="rounded-[1.75rem] border border-slate-200 bg-white p-7 text-center shadow-sm"
                             >
-                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--pavol-ink)] text-white">
-                                    <project.icon className="h-5 w-5" />
-                                </div>
+                                <PavolProjectIcon project={project} />
                                 <h3 className="mt-6 text-xl font-bold text-[var(--pavol-ink)]">{project.title}</h3>
                                 <p className="mt-4 text-sm leading-relaxed text-slate-600">{project.description}</p>
 
