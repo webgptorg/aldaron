@@ -59,6 +59,9 @@ type PavolPageContent = {
         eyebrow: string;
         title: string;
         description: string;
+        highlightsLabel: string;
+        restLabel: string;
+        moreLabel: string;
     };
     contact: {
         eyebrow: string;
@@ -189,6 +192,9 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             title: 'Rozhovory, podcasty a přednášky',
             description:
                 'Pravidelně mě můžete potkat v různých veřejných rozhovorech, podcastech a přednáškách, kde mluvím o AI, vývoji a budování digitálních produktů.',
+            highlightsLabel: 'Highlights',
+            restLabel: 'Další výstupy',
+            moreLabel: 'Více',
         },
         contact: {
             eyebrow: 'Kontakt',
@@ -322,6 +328,9 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             title: 'Podcasts, interviews, and public talks',
             description:
                 'A curated set of public appearances where I talk about AI, software development, education, and building digital products.',
+            highlightsLabel: 'Highlights',
+            restLabel: 'More appearances',
+            moreLabel: 'More',
         },
         contact: {
             eyebrow: 'Contact',

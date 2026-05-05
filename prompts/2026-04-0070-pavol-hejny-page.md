@@ -257,7 +257,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
 ---
 
-[ ] !!
+[x] (2 attempts) ~$0.3714 17 minutes by OpenAI Codex `gpt-5.5`
 
 [✨😨] Reorganize "Rozhovory, podcasty a přednášky" section
 
@@ -295,3 +295,4 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+

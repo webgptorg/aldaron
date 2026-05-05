@@ -1,6 +1,6 @@
 'use client';
 
-import { pavolMediaAppearances } from '@/businesses/pavol/config-media';
+import { pavolMediaAppearances, pavolMediaMoreHref, type PavolMediaAppearance } from '@/businesses/pavol/config-media';
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
@@ -63,15 +63,17 @@ function MediaThumbnail({
     imageSrc,
     thumbnailLabel,
     thumbnailClassName,
+    className,
 }: {
     title: string;
     imageSrc?: string;
     thumbnailLabel?: string;
     thumbnailClassName?: string;
+    className?: string;
 }) {
     if (imageSrc) {
         return (
-            <div className="relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40">
+            <div className={cn('relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40', className)}>
                 <Image
                     src={imageSrc}
                     alt={title}
@@ -88,10 +90,78 @@ function MediaThumbnail({
             className={cn(
                 'flex h-24 w-full items-center justify-center rounded-2xl bg-slate-900 text-3xl font-bold lowercase sm:w-40',
                 thumbnailClassName,
+                className,
             )}
         >
             {thumbnailLabel ?? title.slice(0, 2)}
         </div>
+    );
+}
+
+function MediaGroupLabel({ children }: { children: React.ReactNode }) {
+    return (
+        <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
+            {children}
+        </h3>
+    );
+}
+
+function MediaAppearanceCard({
+    appearance,
+    index,
+    variant = 'rest',
+}: {
+    appearance: PavolMediaAppearance;
+    index: number;
+    variant?: PavolMediaAppearance['importance'];
+}) {
+    const isHighlight = variant === 'highlight';
+
+    return (
+        <motion.article
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.45, delay: index * 0.05 }}
+            className={cn(
+                'overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all hover:border-[var(--pavol-accent)]/30 hover:shadow-md',
+                isHighlight && 'h-full shadow-md',
+            )}
+        >
+            <Link
+                href={appearance.href}
+                className={cn(
+                    'group flex h-full flex-col gap-5 p-5 sm:p-6',
+                    !isHighlight && 'sm:flex-row sm:items-start',
+                )}
+            >
+                <MediaThumbnail
+                    title={appearance.title}
+                    imageSrc={appearance.imageSrc}
+                    thumbnailLabel={appearance.thumbnailLabel}
+                    thumbnailClassName={appearance.thumbnailClassName}
+                    className={isHighlight ? 'h-36 sm:h-44 sm:w-full' : undefined}
+                />
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-[var(--pavol-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--pavol-accent)]">
+                            {appearance.kind}
+                        </span>
+                        <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
+                            {appearance.source}
+                        </span>
+                    </div>
+                    <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">
+                        {appearance.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{appearance.description}</p>
+                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pavol-accent)]">
+                        {appearance.source}
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                </div>
+            </Link>
+        </motion.article>
     );
 }
 
@@ -115,6 +185,8 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
     const projects = pavolProjects[language];
     const numbers = pavolNumbers[language];
     const media = pavolMediaAppearances[language];
+    const highlightedMedia = media.filter((appearance) => appearance.importance === 'highlight');
+    const restMedia = media.filter((appearance) => appearance.importance === 'rest');
     const testimonials = pavolTestimonials[language];
     const isCzech = language === 'cs';
 
@@ -470,49 +542,38 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                         description={content.media.description}
                     />
 
-                    <div className="mt-12 space-y-4">
-                        {media.map((appearance, index) => (
-                            <motion.article
-                                key={appearance.href}
-                                initial={{ opacity: 0, y: 24 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: '-40px' }}
-                                transition={{ duration: 0.45, delay: index * 0.05 }}
-                                className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all hover:border-[var(--pavol-accent)]/30 hover:shadow-md"
-                            >
-                                <Link
-                                    href={appearance.href}
-                                    className="group flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:p-6"
-                                >
-                                    <MediaThumbnail
-                                        title={appearance.title}
-                                        imageSrc={appearance.imageSrc}
-                                        thumbnailLabel={appearance.thumbnailLabel}
-                                        thumbnailClassName={appearance.thumbnailClassName}
+                    <div className="mt-12 space-y-10">
+                        <div>
+                            <MediaGroupLabel>{content.media.highlightsLabel}</MediaGroupLabel>
+                            <div className="mt-5 grid gap-5 lg:grid-cols-2">
+                                {highlightedMedia.map((appearance, index) => (
+                                    <MediaAppearanceCard
+                                        key={appearance.href}
+                                        appearance={appearance}
+                                        index={index}
+                                        variant="highlight"
                                     />
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="rounded-full bg-[var(--pavol-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--pavol-accent)]">
-                                                {appearance.kind}
-                                            </span>
-                                            <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
-                                                {appearance.source}
-                                            </span>
-                                        </div>
-                                        <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">
-                                            {appearance.title}
-                                        </h3>
-                                        <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                                            {appearance.description}
-                                        </p>
-                                        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pavol-accent)]">
-                                            {appearance.source}
-                                            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                        </div>
-                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <MediaGroupLabel>{content.media.restLabel}</MediaGroupLabel>
+                            <div className="mt-5 space-y-4">
+                                {restMedia.map((appearance, index) => (
+                                    <MediaAppearanceCard key={appearance.href} appearance={appearance} index={index} />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <Button asChild variant="outline" className="rounded-full px-6">
+                                <Link href={pavolMediaMoreHref}>
+                                    {content.media.moreLabel}
+                                    <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
-                            </motion.article>
-                        ))}
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </section>
