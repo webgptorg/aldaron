@@ -19,8 +19,7 @@ const linkedInProfileAppearance: Record<SupportedHomepageLanguage, PavolMediaApp
         source: 'LinkedIn',
         kind: 'Profil',
         title: 'LinkedIn profil Pavola Hejného',
-        description:
-            'Další postřehy, novinky a veřejné výstupy sdílím průběžně také na LinkedInu.',
+        description: 'Další postřehy, novinky a veřejné výstupy sdílím průběžně také na LinkedInu.',
         thumbnailLabel: 'in',
         thumbnailClassName: 'bg-[#0A66C2] text-white',
     },
@@ -29,8 +28,7 @@ const linkedInProfileAppearance: Record<SupportedHomepageLanguage, PavolMediaApp
         source: 'LinkedIn',
         kind: 'Profile',
         title: 'Pavol Hejny on LinkedIn',
-        description:
-            'I also share updates, observations, and public-facing work regularly on LinkedIn.',
+        description: 'I also share updates, observations, and public-facing work regularly on LinkedIn.',
         thumbnailLabel: 'in',
         thumbnailClassName: 'bg-[#0A66C2] text-white',
     },
@@ -52,7 +50,7 @@ export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMedia
             kind: 'Video podcast',
             title: 'AI ta Krajta TV',
             description:
-                'Pravidelný video podcast o AI infrastruktuře, agentních workflow a tom, kam se posouvá software engineering.',
+                'Vše o AI na jednom místě, každý týden. Novinky, poutavé zajímavosti a diskuze z oblasti umělé inteligence.',
         },
         {
             href: 'https://www.datatalk.cz/podcast/epizoda-157',
@@ -77,7 +75,7 @@ export const pavolMediaAppearances: Record<SupportedHomepageLanguage, PavolMedia
             imageSrc: '/pavol/media/sit-port-podcast.jpg',
             source: 'SIT Port',
             kind: 'Podcast',
-            title: 'PODCAST: Pavol Hejný a Collboard',
+            title: 'Pavol Hejný a Collboard',
             description:
                 'Rozhovor o Collboardu, vzdělávání a tom, jak vznikají produkty na pomezí technologie a společenského dopadu.',
         },
