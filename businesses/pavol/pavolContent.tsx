@@ -1,7 +1,7 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
-import type { Metadata } from 'next';
 import type { LucideIcon } from 'lucide-react';
 import { BrainCircuit, Facebook, FileText, Github, Linkedin, Presentation, Youtube } from 'lucide-react';
+import type { Metadata } from 'next';
 
 export type PavolLink = {
     label: string;
@@ -132,16 +132,16 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             languageSwitcherLabel: 'Přepnout jazyk',
         },
         hero: {
-            eyebrow: 'AI konzultace, workshopy a produktový vývoj',
+            eyebrow: 'AI konzultace, workshopy a vývoj',
             title: 'Pavol Hejný',
             description:
-                'Pomáhám firmám a týmům zavádět AI do vývoje, produktového řízení a interních procesů tak, aby přinášela reálnou hodnotu místo dalšího hype.',
+                'Pomáhám firmám a týmům zavádět AI do vývoje, produktů a interních procesů tak, aby přinášela reálnou hodnotu místo dalšího hype.',
             badges: ['AI consulting', 'Workshopy a talks', '15+ let zkušeností s vývojem'],
-            primaryAction: 'Spojme se',
+            primaryAction: 'Chci řešit AI',
             secondaryAction: 'Zjistit více',
         },
         services: {
-            eyebrow: 'Jak mohu pomoci',
+            eyebrow: 'Co nabízím',
             title: 'Kde dávám největší smysl',
             description:
                 'Neprodávám jednu univerzální AI odpověď. Pomáhám vybrat správný use-case, proces a způsob práce pro konkrétní tým nebo produkt.',
@@ -169,13 +169,14 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
         testimonials: {
             eyebrow: 'Reference',
             title: 'Lidé, kteří se mnou opravdu pracovali',
-            description: 'Vybrané reference z produktů, hackathonů, vzdělávání a spolupráce na nových nápadech.',
+            description:
+                'Reference z různých projektů, školení, workshopů i dlouhodobé spolupráce na budování nových věcí od nuly.',
         },
         projects: {
             eyebrow: 'Projekty',
-            title: 'Od vzdělávání a produktů až k AI agentům',
+            title: 'Od aplikací až k AI agentům',
             description:
-                'Promptbook je dnes důležitou částí mé práce, ale není to jediný projekt. Dlouhodobě propojuji software, produkt a vzdělávání.',
+                'Vyvíjím víc než polovinu mého života. Za tu dobu jsem pracoval na mnoha různých projektech, od webových aplikací až po AI agenty. Zde je výběr těch nejrelevantnějších pro to, co dělám dnes:',
         },
         numbers: {
             eyebrow: 'Čísla',
@@ -184,16 +185,15 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
                 'Zajímá mě dopad v praxi. Ne jen to, jak věci znějí v prezentaci, ale co obstojí v týmu, produktu a v dlouhodobém provozu.',
         },
         media: {
-            eyebrow: 'Média a vystoupení',
+            eyebrow: 'Média',
             title: 'Rozhovory, podcasty a přednášky',
             description:
-                'Výběr veřejných vystoupení a mediálních výstupů, kde mluvím o AI, vývoji, vzdělávání a stavění digitálních produktů.',
+                'Pravidelně mě můžete potkat v různých veřejných rozhovorech, podcastech a přednáškách, kde mluvím o AI, vývoji a budování digitálních produktů.',
         },
         contact: {
             eyebrow: 'Kontakt',
             title: 'Napište mi, co řešíte',
-            description:
-                'Pošlete stručný kontext a já se ozvu. Pokud už víte, že jde o konzultaci nebo workshop, klidně použijte jednu z předvyplněných variant výše.',
+            description: 'Pošlete stručnou zprávu já se ozvu zpět do 24 hodin!',
             formNameLabel: 'Jméno',
             formNamePlaceholder: 'Vaše jméno',
             formEmailLabel: 'E-mail',
@@ -202,7 +202,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             formCompanyPlaceholder: 'Firma s.r.o.',
             formMessageLabel: 'Zpráva',
             formMessagePlaceholder: 'Popište stručně, co řešíte a s čím byste potřebovali pomoci.',
-            submitLabel: 'Odeslat zprávu',
+            submitLabel: 'Odeslat zprávu, spojíme se do 24 hodin!',
             submittingLabel: 'Odesílám...',
             successTitle: 'Děkuji, zpráva je odeslaná',
             successDescription: 'Jakmile to bude možné, ozvu se zpět na uvedený e-mail.',
