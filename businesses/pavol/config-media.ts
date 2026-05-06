@@ -39,7 +39,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Video podcast',
                 title: 'AI ta Krajta',
                 description:
-                    'A weekly Czech video podcast about AI infrastructure, agent workflows, and how software engineering is changing.',
+                    'Everything about AI in one place, every week. News, engaging points of interest, and discussions from the field of artificial intelligence.',
             },
         },
     },
@@ -60,7 +60,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Zátiší: Pavol Hejný & Tomáš Studeník',
                 description:
-                    'A Radio 1 Zátiší episode about where AI may be heading, practical everyday use, and when to stay cautious.',
+                    'An interview on the Zátiší program about where AI may be heading, how to use it effectively in everyday life, and where to be cautious.',
             },
         },
     },
@@ -80,7 +80,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Data Talk Special: Podcast crossover feat. AI ta Krajta',
                 description:
-                    'A long-form conversation about AI in software development, the future of developer tooling, and why AI ta Krajta exists.',
+                    'A long interview about AI in software development, the future of developer tools, and why AI ta Krajta was created.',
             },
         },
     },
@@ -121,7 +121,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Talk',
                 title: 'Building modular apps for online education',
                 description:
-                    'A talk about modular application design and the technical foundations behind digital products for schools.',
+                    'A talk about designing modular applications and the technical background of digital products for education.',
             },
         },
     },
@@ -141,7 +141,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Podcast: Pavol Hejný and Collboard',
                 description:
-                    'A conversation about Collboard, education, and how products emerge at the intersection of technology and public impact.',
+                    'An interview about Collboard, education, and how products are created at the intersection of technology and social impact.',
             },
         },
     },
@@ -159,9 +159,9 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
             },
             en: {
                 kind: 'Talk',
-                title: 'Useful browser APIs',
+                title: 'LinuxDays 2018 - Useful browser APIs',
                 description:
-                    'A technical session on lesser-known browser APIs and the places where they can save developers real work.',
+                    'A technical talk about lesser-known browser APIs and where they can save developers work.',
             },
         },
     },
@@ -181,7 +181,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Article',
                 title: 'Digital school desks: the pandemic shook Czech education awake',
                 description:
-                    'A media appearance about change in education, digital transformation, and projects built around remote teaching.',
+                    'A media appearance about changes in education, digitalization, and projects that emerged around online teaching.',
             },
         },
     },

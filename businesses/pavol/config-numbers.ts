@@ -50,7 +50,7 @@ export const pavolNumbers: Record<SupportedHomepageLanguage, PavolNumber[]> = {
         {
             icon: Users,
             value: '4500+',
-            label: 'people reached through workshops, talks, podcasts, and similar formats',
+            label: 'people trained through workshops, talks, podcasts, and other appearances',
         },
     ],
 };

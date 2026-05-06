@@ -92,7 +92,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logos: [projectLogos.collboard],
             title: 'Collboard & H-edu',
             description:
-                'Education and collaboration products that proved themselves in real schools, especially when teams had to adapt fast.',
+                'Products for education and online collaboration that proved themselves in schools and when it was necessary to respond quickly to a new context.',
             links: [
                 { href: 'https://collboard.com/', label: 'Collboard', icon: ExternalLink },
                 { href: 'https://www.h-edu.cz/', label: 'H-edu', icon: ExternalLink },
@@ -102,14 +102,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logoText: 'AI*',
             title: 'AI Supervize',
             description:
-                'A practical framework for companies and teams that want to do AI development with less chaos and more control over quality.',
+                'A practical framework for companies and teams that want to do AI development with less chaos and greater control over quality.',
             links: [{ href: '/ai-supervize', label: 'AI Supervize', icon: ArrowRight }],
         },
         {
             icon: Github,
             title: 'All projects',
             description:
-                'Dozens of open-source and product projects spanning prototypes, education, AI tooling, and software development.',
+                'Dozens of open-source and product projects from prototypes through education to tools for AI and development.',
             links: [
                 { href: 'https://github.com/hejny', label: 'GitHub', icon: Github },
                 {
