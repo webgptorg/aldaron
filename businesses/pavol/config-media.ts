@@ -93,15 +93,15 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
         copy: {
             cs: {
                 kind: 'Přednáška',
-                title: "2023's most interesting browser APIs",
+                title: 'Most interesting browser APIs',
                 description:
-                    'Přednáška z DevConf.CZ 2023 o zajímavých webových API, včetně Web Speech API, Sensor APIs, WebXR, Offscreen Canvas a File System Access API.',
+                    'Přednáška z DevConf.CZ o zajímavých webových API, včetně Web Speech API, Sensor APIs, WebXR, Offscreen Canvas a File System Access API.',
             },
             en: {
                 kind: 'Talk',
-                title: "2023's most interesting browser APIs",
+                title: 'Most interesting browser APIs',
                 description:
-                    'A DevConf.CZ 2023 talk about interesting web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and File System Access API.',
+                    'A DevConf.CZ talk about interesting web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and File System Access API.',
             },
         },
     },
@@ -153,13 +153,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
         copy: {
             cs: {
                 kind: 'Přednáška',
-                title: 'LinuxDays 2018 - Užitečná browser APIs',
+                title: 'LinuxDays - Užitečná browser APIs',
                 description:
                     'Technická přednáška o méně známých browser API a o tom, kde mohou vývojářům ušetřit práci.',
             },
             en: {
                 kind: 'Talk',
-                title: 'LinuxDays 2018 - Useful browser APIs',
+                title: 'LinuxDays - Useful browser APIs',
                 description:
                     'A technical talk about lesser-known browser APIs and where they can save developers work.',
             },

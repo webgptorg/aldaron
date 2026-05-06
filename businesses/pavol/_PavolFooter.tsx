@@ -73,7 +73,7 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
                 </div>
 
                 <div className="mt-12 border-t border-white/10 pt-6">
-                    <p className="text-sm text-slate-400">© 2026 Pavol Hejný. {content.footer.rightsReservedText}</p>
+                    <p className="text-sm text-slate-400">© Pavol Hejný. {content.footer.rightsReservedText}</p>
                 </div>
             </div>
         </footer>
