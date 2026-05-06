@@ -117,10 +117,11 @@
 
 ---
 
-[ ]
+[.]
 
 [✨😨] Make 3D event badge on PC from Pavol image and box
 
+- _(@@@ Try on some stronger model)_
 - Look at https://vercel.com/blog/building-an-interactive-3d-event-badge-with-react-three-fiber
 - Keep it light theme
 - This should be turned on only on PC and bigger screens, on mobile it should be just static image as it is now
@@ -287,6 +288,43 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
 ---
 
+[ ] !
+
+[✨😨] The background of highlighted projects should be the color of the logo.
+
+- In this case The left project should be grey and the right project should be red.
+- These colors should be defined alongside the image src of the projects
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current design and projects before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-8.png)
+
+---
+
+[ ]
+
+[✨😨] Remove years from `/pavol/cs`
+
+- A lot of the things and text on the page contain the years like 2018. Suppress the years so that the page should look more up to date, not like we are presenting five-year-old projects.
+- Do a analysis of the current content before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+---
+
+[ ]
+
+[✨😨] Add margin on smaller desktop and tablet screens
+
+- The content of the page is tightly on the edges of the screen, on the left and right edge of the screen.
+- Looks good on big PC screens or mobile screens, but not on the middle-sized desktop screens.
+- Do a analysis of the current design before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+![alt text](prompts/screenshots/2026-04-0070-pavol-hejny-page-9.png)
+
+---
+
 [-]
 
 [✨😨] baz
@@ -296,4 +334,22 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 - Do a analysis of the current functionality before you start implementing.
 - You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
 
+---
 
+[ ] !
+
+[✨😨] Translate the `/pavol/cs` -> `/pavol/en`
+
+- The source of the truth is `/pavol/cs`, the en should be just translation of the cs version from the current state
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
+
+---
+
+[-]
+
+[✨😨] baz
+
+- @@@
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with pages `/pavol/en` and `/pavol/cs` and do not change other pages
