@@ -10,7 +10,6 @@ export type PavolProjectLink = {
 
 export type PavolProjectLogo = {
     src: string;
-    backgroundColor: string;
     className?: string;
 };
 
@@ -24,32 +23,21 @@ export type PavolProject = {
     links: PavolProjectLink[];
 };
 
-const projectLogoClassName = 'h-7 w-7';
-
-const projectLogos = {
-    promptbook: {
-        src: '/logo/promptbook-logo-blue-transparent-128.png',
-        backgroundColor: '#6f7782',
-        className: projectLogoClassName,
-    },
-    collboard: {
-        src: '/pavol/projects/collboard.svg',
-        backgroundColor: '#d12d2d',
-        className: projectLogoClassName,
-    },
-} satisfies Record<string, PavolProjectLogo>;
+const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png';
+const collboardLogo = '/pavol/projects/collboard.svg';
+const hEduLogo = '/pavol/projects/h-edu.svg';
 
 export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = {
     cs: [
         {
-            logos: [projectLogos.promptbook],
+            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'Promptbook',
             description:
                 'Ekosystém pro persistentní AI agenty, kteří pracují s cíli, pravidly, znalostmi a firemním kontextem místo jednorázového chatování.',
             links: [{ href: '/', label: 'Otevřít Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [projectLogos.collboard],
+            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
                 'Produkty pro vzdělávání a online spolupráci, které se osvědčily ve školách i ve chvíli, kdy bylo potřeba rychle reagovat na nový kontext.',
@@ -82,14 +70,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
     ],
     en: [
         {
-            logos: [projectLogos.promptbook],
+            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'Promptbook',
             description:
                 'An ecosystem for persistent AI agents that work with goals, rules, knowledge, and company context instead of one-off chats.',
             links: [{ href: '/', label: 'Open Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [projectLogos.collboard],
+            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
                 'Products for education and online collaboration that proved themselves in schools and when it was necessary to respond quickly to a new context.',
