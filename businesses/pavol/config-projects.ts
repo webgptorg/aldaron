@@ -11,6 +11,7 @@ export type PavolProjectLink = {
 export type PavolProjectLogo = {
     src: string;
     className?: string;
+    backgroundColor: string;
 };
 
 export type PavolProject = {
@@ -23,21 +24,37 @@ export type PavolProject = {
     links: PavolProjectLink[];
 };
 
-const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png';
-const collboardLogo = '/pavol/projects/collboard.svg';
-const hEduLogo = '/pavol/projects/h-edu.svg';
+const projectLogoClassName = 'h-7 w-7';
+
+const promptbookLogo: PavolProjectLogo = {
+    src: '/logo/promptbook-logo-blue-transparent-128.png',
+    className: projectLogoClassName,
+    backgroundColor: '#000080',
+};
+
+const collboardLogo: PavolProjectLogo = {
+    src: '/pavol/projects/collboard.svg',
+    className: projectLogoClassName,
+    backgroundColor: '#6b7280',
+};
+
+const hEduLogo: PavolProjectLogo = {
+    src: '/pavol/projects/h-edu.svg',
+    className: projectLogoClassName,
+    backgroundColor: '#d9232e',
+};
 
 export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = {
     cs: [
         {
-            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
+            logos: [promptbookLogo],
             title: 'Promptbook',
             description:
                 'Ekosystém pro persistentní AI agenty, kteří pracují s cíli, pravidly, znalostmi a firemním kontextem místo jednorázového chatování.',
             links: [{ href: '/', label: 'Otevřít Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
+            logos: [collboardLogo, hEduLogo],
             title: 'Collboard & H-edu',
             description:
                 'Produkty pro vzdělávání a online spolupráci, které se osvědčily ve školách i ve chvíli, kdy bylo potřeba rychle reagovat na nový kontext.',
@@ -70,14 +87,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
     ],
     en: [
         {
-            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
+            logos: [promptbookLogo],
             title: 'Promptbook',
             description:
                 'An ecosystem for persistent AI agents that work with goals, rules, knowledge, and company context instead of one-off chats.',
             links: [{ href: '/', label: 'Open Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
+            logos: [collboardLogo, hEduLogo],
             title: 'Collboard & H-edu',
             description:
                 'Products for education and online collaboration that proved themselves in schools and when it was necessary to respond quickly to a new context.',
