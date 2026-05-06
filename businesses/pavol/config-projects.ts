@@ -47,7 +47,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             ],
         },
         {
-            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
+            logoText: 'AI*',
             title: 'AI Supervize',
             description:
                 'Praktický rámec pro firmy a týmy, které chtějí dělat AI development s menším chaosem a větší kontrolou nad kvalitou.',
@@ -77,9 +77,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             links: [{ href: '/', label: 'Open Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [
-                { src: collboardLogo, className: 'h-7 w-7' },
-            ],
+            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
                 'Education and collaboration products that proved themselves in real schools, especially when teams had to adapt fast.',
@@ -89,7 +87,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             ],
         },
         {
-            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
+            logoText: 'AI*',
             title: 'AI Supervize',
             description:
                 'A practical framework for companies and teams that want to do AI development with less chaos and more control over quality.',

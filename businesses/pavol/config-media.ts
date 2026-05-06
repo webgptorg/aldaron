@@ -31,13 +31,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
         copy: {
             cs: {
                 kind: 'Video podcast',
-                title: 'AI ta Krajta TV',
+                title: 'AI ta Krajta',
                 description:
                     'Vše o AI na jednom místě, každý týden. Novinky, poutavé zajímavosti a diskuze z oblasti umělé inteligence.',
             },
             en: {
                 kind: 'Video podcast',
-                title: 'AI ta Krajta TV',
+                title: 'AI ta Krajta',
                 description:
                     'A weekly Czech video podcast about AI infrastructure, agent workflows, and how software engineering is changing.',
             },
@@ -45,20 +45,20 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
     },
     {
         href: 'https://ceskepodcasty.cz/podcast/zatisi/zatisi-3-1-2024-pavol-hejny-tomas-studenik',
+        imageSrc: '/pavol/media/radio-1.svg',
         source: 'Rádio 1',
         importance: 'highlight',
-        thumbnailLabel: 'r1',
         thumbnailClassName: 'bg-[#ed1c24] text-white',
         copy: {
             cs: {
                 kind: 'Podcast',
-                title: 'Zátiší 3/1/2024: Pavol Hejný & Tomáš Studeník',
+                title: 'Zátiší: Pavol Hejný & Tomáš Studeník',
                 description:
                     'Rozhovor v pořadu Zátiší o tom, kam se může vyvíjet AI, jak ji efektivně používat v každodenním životě a kde být opatrný.',
             },
             en: {
                 kind: 'Podcast',
-                title: 'Zátiší 3/1/2024: Pavol Hejný & Tomáš Studeník',
+                title: 'Zátiší: Pavol Hejný & Tomáš Studeník',
                 description:
                     'A Radio 1 Zátiší episode about where AI may be heading, practical everyday use, and when to stay cautious.',
             },
@@ -154,7 +154,8 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
             cs: {
                 kind: 'Přednáška',
                 title: 'LinuxDays 2018 - Užitečná browser APIs',
-                description: 'Technická přednáška o méně známých browser API a o tom, kde mohou vývojářům ušetřit práci.',
+                description:
+                    'Technická přednáška o méně známých browser API a o tom, kde mohou vývojářům ušetřit práci.',
             },
             en: {
                 kind: 'Talk',

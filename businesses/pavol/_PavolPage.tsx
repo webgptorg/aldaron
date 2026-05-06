@@ -1,25 +1,25 @@
 'use client';
 
+import { PavolFooter } from '@/businesses/pavol/_PavolFooter';
 import { pavolMediaAppearances, pavolMediaMoreHref, type PavolMediaAppearance } from '@/businesses/pavol/config-media';
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects, type PavolProject } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
-import { PavolFooter } from '@/businesses/pavol/_PavolFooter';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Header } from '@/components/header';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
+import { cn } from '@/lib/utils';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, ChevronRight, Globe2, Send } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { type CSSProperties, useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 
 type ContactFormState = {
     name: string;
@@ -78,7 +78,7 @@ function MediaThumbnail({
                     src={imageSrc}
                     alt={title}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                 />
             </div>
         );
@@ -99,11 +99,7 @@ function MediaThumbnail({
 }
 
 function MediaGroupLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-            {children}
-        </h3>
-    );
+    return <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">{children}</h3>;
 }
 
 function MediaAppearanceCard({
@@ -151,9 +147,7 @@ function MediaAppearanceCard({
                             {appearance.source}
                         </span>
                     </div>
-                    <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">
-                        {appearance.title}
-                    </h3>
+                    <h3 className="mt-4 text-xl font-bold leading-snug text-[var(--pavol-ink)]">{appearance.title}</h3>
                     <p className="mt-3 text-sm leading-relaxed text-slate-600">{appearance.description}</p>
                     <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--pavol-accent)]">
                         {appearance.source}
@@ -507,15 +501,15 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                     {project.links.map((link) => (
                                         <Button
                                             key={`${project.title}-${link.href}`}
-                                        asChild
-                                        variant="outline"
-                                        className="rounded-full text-xs font-semibold"
-                                    >
-                                        <Link href={link.href}>
-                                            <PavolLinkContent label={link.label} icon={link.icon} />
-                                        </Link>
-                                    </Button>
-                                ))}
+                                            asChild
+                                            variant="outline"
+                                            className="rounded-full text-xs font-semibold"
+                                        >
+                                            <Link href={link.href}>
+                                                <PavolLinkContent label={link.label} icon={link.icon} />
+                                            </Link>
+                                        </Button>
+                                    ))}
                                 </div>
                             </motion.div>
                         ))}
