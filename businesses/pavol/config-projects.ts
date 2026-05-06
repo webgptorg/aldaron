@@ -37,11 +37,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             links: [{ href: '/', label: 'Otevřít Promptbook', icon: ArrowRight }],
         },
         {
-            logos: [
-                { src: collboardLogo, className: 'h-6 w-6' },
-                { src: hEduLogo, className: 'h-6 w-6' },
-            ],
-            logoFrameClassName: 'w-20',
+            logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
                 'Produkty pro vzdělávání a online spolupráci, které se osvědčily ve školách i ve chvíli, kdy bylo potřeba rychle reagovat na nový kontext.',
@@ -51,9 +47,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             ],
         },
         {
-            logos: [{ src: promptbookLogo, className: 'h-5 w-5' }],
-            logoText: 'AI',
-            logoFrameClassName: 'w-20',
+            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'AI Supervize',
             description:
                 'Praktický rámec pro firmy a týmy, které chtějí dělat AI development s menším chaosem a větší kontrolou nad kvalitou.',
@@ -84,10 +78,8 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
         },
         {
             logos: [
-                { src: collboardLogo, className: 'h-6 w-6' },
-                { src: hEduLogo, className: 'h-6 w-6' },
+                { src: collboardLogo, className: 'h-7 w-7' },
             ],
-            logoFrameClassName: 'w-20',
             title: 'Collboard & H-edu',
             description:
                 'Education and collaboration products that proved themselves in real schools, especially when teams had to adapt fast.',
@@ -97,9 +89,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             ],
         },
         {
-            logos: [{ src: promptbookLogo, className: 'h-5 w-5' }],
-            logoText: 'AI',
-            logoFrameClassName: 'w-20',
+            logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'AI Supervize',
             description:
                 'A practical framework for companies and teams that want to do AI development with less chaos and more control over quality.',
