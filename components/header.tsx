@@ -50,6 +50,7 @@ interface HeaderProps {
     languageSwitcher?: HeaderLanguageSwitcher;
     primaryAction?: HeaderAction;
     secondaryAction?: HeaderAction;
+    containerClassName?: string;
 }
 
 export function Header({
@@ -65,6 +66,7 @@ export function Header({
     languageSwitcher,
     primaryAction,
     secondaryAction,
+    containerClassName,
 }: HeaderProps = {}) {
     const resolvedLanguage = language ?? 'cs';
     const { header } = getHomepageContent(resolvedLanguage);
@@ -126,7 +128,7 @@ export function Header({
                     : 'bg-white/80 backdrop-blur-md border-b border-gray-100'
             }`}
         >
-            <div className="container mx-auto px-4">
+            <div className={cn('container mx-auto px-4', containerClassName)}>
                 <div className="flex items-center justify-between h-14 gap-4">
                     {/* Logo */}
                     <Link

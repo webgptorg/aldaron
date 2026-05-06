@@ -5,6 +5,7 @@ import { pavolMediaAppearances, pavolMediaMoreHref, type PavolMediaAppearance } 
 import { pavolNumbers } from '@/businesses/pavol/config-numbers';
 import { pavolProjects, type PavolProject } from '@/businesses/pavol/config-projects';
 import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
+import { pavolContainerClassName } from '@/businesses/pavol/layout';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Header } from '@/components/header';
 import { TestimonialsSection } from '@/components/testimonials-section';
@@ -341,6 +342,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                 hideCenterContent
                 navItems={content.header.navItems}
                 languageSwitcher={languageSwitcher}
+                containerClassName={pavolContainerClassName}
                 primaryAction={{
                     label: content.header.primaryAction,
                     href: '#contact',
@@ -356,7 +358,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                 }}
             >
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--pavol-accent)]/30 to-transparent" />
-                <div className="container mx-auto px-4 py-16 sm:py-20">
+                <div className={`${pavolContainerClassName} py-16 sm:py-20`}>
                     <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.8fr)]">
                         <motion.div
                             initial={{ opacity: 0, y: 24 }}
@@ -434,7 +436,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
             </section>
 
             <section id="services" className="scroll-mt-32 bg-[#fcf7ef] py-20">
-                <div className="container mx-auto px-4">
+                <div className={pavolContainerClassName}>
                     <SectionHeading
                         eyebrow={content.services.eyebrow}
                         title={content.services.title}
@@ -491,7 +493,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
             />
 
             <section id="projects" className="scroll-mt-32 bg-[#fffaf5] py-20">
-                <div className="container mx-auto px-4">
+                <div className={pavolContainerClassName}>
                     <SectionHeading
                         eyebrow={content.projects.eyebrow}
                         title={content.projects.title}
@@ -539,7 +541,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                     backgroundImage: 'linear-gradient(135deg, #102033 0%, #153657 55%, #0f8c9d 140%)',
                 }}
             >
-                <div className="container mx-auto px-4">
+                <div className={pavolContainerClassName}>
                     <SectionHeading
                         eyebrow={content.numbers.eyebrow}
                         title={content.numbers.title}
@@ -572,7 +574,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
             </section>
 
             <section id="media" className="scroll-mt-32 bg-white py-20">
-                <div className="container mx-auto px-4">
+                <div className={pavolContainerClassName}>
                     <SectionHeading
                         eyebrow={content.media.eyebrow}
                         title={content.media.title}
@@ -622,7 +624,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                     backgroundImage: 'linear-gradient(180deg, #fffaf5 0%, #f8f2e8 100%)',
                 }}
             >
-                <div className="container mx-auto px-4">
+                <div className={pavolContainerClassName}>
                     <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.8fr)]">
                         <div>
                             <SectionHeading

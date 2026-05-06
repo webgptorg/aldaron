@@ -1,6 +1,7 @@
 'use client';
 
 import type { PavolLink } from '@/businesses/pavol/pavolContent';
+import { pavolContainerClassName } from '@/businesses/pavol/layout';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Button } from '@/components/ui/button';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
@@ -34,7 +35,7 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
 
     return (
         <footer className="border-t border-[var(--pavol-ink)]/10 bg-[var(--pavol-ink)] text-white">
-            <div className="container mx-auto px-4 py-16">
+            <div className={`${pavolContainerClassName} py-16`}>
                 <div className="grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_repeat(2,minmax(0,0.7fr))]">
                     <div className="max-w-md">
                         <div className="flex items-center gap-4">
