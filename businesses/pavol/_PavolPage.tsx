@@ -178,6 +178,31 @@ function PavolProjectIcon({ project }: { project: PavolProject }) {
     const Icon = project.icon;
     const logos = project.logos ?? [];
 
+    if (logos.length > 0) {
+        return (
+            <div aria-hidden="true" className="mx-auto flex items-center justify-center gap-2">
+                {logos.map((logo) => (
+                    <div
+                        key={logo.src}
+                        className={cn(
+                            'flex h-12 items-center justify-center rounded-2xl text-white',
+                            project.logoFrameClassName ?? 'w-12',
+                        )}
+                        style={{ backgroundColor: logo.backgroundColor }}
+                    >
+                        <Image
+                            src={logo.src}
+                            alt=""
+                            width={32}
+                            height={32}
+                            className={cn('h-6 w-6 object-contain brightness-0 invert', logo.className)}
+                        />
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div
             aria-hidden="true"
@@ -186,20 +211,10 @@ function PavolProjectIcon({ project }: { project: PavolProject }) {
                 project.logoFrameClassName ?? 'w-12',
             )}
         >
-            {logos.map((logo) => (
-                <Image
-                    key={logo.src}
-                    src={logo.src}
-                    alt=""
-                    width={32}
-                    height={32}
-                    className={cn('h-6 w-6 object-contain brightness-0 invert', logo.className)}
-                />
-            ))}
             {project.logoText ? (
                 <span className="text-sm font-black leading-none tracking-normal">{project.logoText}</span>
             ) : null}
-            {logos.length === 0 && !project.logoText && Icon ? <Icon className="h-5 w-5" /> : null}
+            {!project.logoText && Icon ? <Icon className="h-5 w-5" /> : null}
         </div>
     );
 }
