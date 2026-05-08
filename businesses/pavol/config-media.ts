@@ -28,6 +28,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
         imageSrc: '/pavol/media/ai-ta-krajta.jpg',
         source: 'YouTube',
         importance: 'highlight',
+        thumbnailClassName: 'bg-[#303832]',
         copy: {
             cs: {
                 kind: 'Video podcast',

@@ -74,7 +74,13 @@ function MediaThumbnail({
 }) {
     if (imageSrc) {
         return (
-            <div className={cn('relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40', className)}>
+            <div
+                className={cn(
+                    'relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40',
+                    thumbnailClassName,
+                    className,
+                )}
+            >
                 <Image
                     src={imageSrc}
                     alt={title}
