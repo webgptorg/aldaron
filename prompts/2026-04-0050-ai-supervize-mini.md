@@ -202,6 +202,44 @@ All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` -
 - You are working with page `/ai-supervize-mini` and do not change other pages
 
 
+---
+
+[ ]
+
+[✨😜] page for participant of supervize 
+
+
+Vytvoř jednoduchou stránku, která bude sloužit už pro registrované účastníky AI supervize mini na termín 15. 5. od 9:30 do 17. Mají tam být základní informace ohledně kurzu, časový rozvrh, co je potřeba, nějaká informace, že se těšíme. A má to sloužit jako taková jednoduchá all in one page, na které budou informace pro účastníka, kterou si může buď vytisknout nebo mít na ní někde URL a podobně. S tím že v tuhle chvíli tam udělej tam udělej get parametr, který se bude jmenovat registration který může být vlastně úplně cokoliv a jediné co to bude jediné na co to bude odkazovat ta registration ID to vlastně bude to samé jako ID na faktuře na Faktoroidu a a vlastně jako součástí téhle stránky má být i odkaz na zálohovou fakturu z Faktoroidu která tam bude vystavena s tím že s tím že někdy v budoucnu to bude tak že tenhle ten že tady to registrační ID bude vlastně jako v sobě někde v naší interní databáze pak obsahovat i to jaký konkrétně je to termín kurzu v tuhle do chvíli ale tam zahardkoduji toho 15.5.
+
+
+S tím, že harmonogram má být následující, je to místo tam uvedň, že Praha a pravděpodobně Scott Weber Flow na Václaváku.
+
+Dej tam i nějaký hezký odkaz na mapu. Má to celé vypadat prémiově, tahleta věc, a jako v duchu těch ostatních stránek, které tam jsou.
+
+A teďka:
+
+- 9:30 - 10:00: Obecné zahájení
+
+- 10:00 - 12:30: První blok
+
+- 12:30 - 13:30: Přestávka na oběd
+
+- 13:30 - 16:00: Druhý blok
+
+- 16:00 - 17:00: Diskuse, dotazy a další
+
+Udělaj to v nějakém hezkém vizuálním flow, aby to tam nebylo jenom jako obyčejná tabulka, ale aby to prostě vypadalo hezky a prémiově.
+
+Má tam být nějaké i FAQ a zároveň tam má být i to, co si účastníci mají přenést, co mají mít připravené předem.
+
+A taky informace, že se těšíme a děkujeme.
+
+Prostě má to působit jako velmi prémiová stránka pro účastníka takového workshopu a konference, vlastně jednodenního workshopu supervize.
+
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- You are working with page `/ai-supervize-mini/participant` and do not change other pages
 
 
 
