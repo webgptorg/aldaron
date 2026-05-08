@@ -59,7 +59,7 @@ const workshopLocation = {
     venueUrl: 'https://scottweber.cz/location/the-flow-building/',
 } as const;
 
-const fakturoidAccountSlug = 'ai-web-s-r-o';
+const fakturoidAccountSlug = 'aiweb';
 
 const infoItems: InfoItem[] = [
     {
