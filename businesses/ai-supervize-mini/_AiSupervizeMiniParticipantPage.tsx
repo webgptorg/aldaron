@@ -12,12 +12,10 @@ import {
     Coffee,
     ExternalLink,
     HelpCircle,
-    Laptop,
     Mail,
     MapPin,
     MessageSquareText,
     NotebookTabs,
-    Printer,
     ReceiptText,
     ShieldCheck,
     Sparkles,
@@ -140,14 +138,6 @@ const faqItems: FaqItem[] = [
     {
         question: 'Bude se pracovat s citlivým kódem?',
         answer: 'Nemusí. Workshop je stavěný tak, aby šel aplikovat i na anonymizované ukázky, veřejné repozitáře nebo popsané workflow bez sdílení interních dat.',
-    },
-    {
-        question: 'Jak je to s fakturou a platbou?',
-        answer: 'Registrační ID v URL odpovídá ID dokladu ve Fakturoidu. Odkaz na zálohovou fakturu najdete v horní části stránky.',
-    },
-    {
-        question: 'Mohu si stránku vytisknout?',
-        answer: 'Ano. Stránka je připravená jako jednoduchý účastnický přehled. Při tisku se schová navigace a ovládací prvky, takže zůstanou hlavní informace, harmonogram a příprava.',
     },
 ];
 
@@ -297,7 +287,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMi
                     </div>
 
                     <div className="rounded-lg border border-white/15 bg-white/[0.08] p-5 shadow-2xl backdrop-blur-xl print:border-slate-200 print:bg-white print:text-slate-900 print:shadow-none">
-                        <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5 print:border-slate-200">
+                        <div className="flex items-start justify-between gap-4 border-white/10 pb-5 print:border-slate-200">
                             <div>
                                 <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-200 print:text-cyan-700">
                                     Registrace
@@ -307,59 +297,6 @@ export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMi
                                 </h2>
                             </div>
                             <CheckCircle2 className="mt-1 h-7 w-7 shrink-0 text-emerald-300 print:text-emerald-600" />
-                        </div>
-
-                        <div className="mt-5 space-y-4">
-                            <div className="rounded-lg bg-white/10 p-4 print:border print:border-slate-200 print:bg-white">
-                                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55 print:text-slate-500">
-                                    Registration ID
-                                </div>
-                                <div className="mt-2 break-all font-mono text-lg font-semibold text-white print:text-slate-950">
-                                    {registrationId ?? 'Chybí v URL'}
-                                </div>
-                            </div>
-
-                            <div
-                                id="fakturace"
-                                className="rounded-lg bg-white/10 p-4 print:border print:border-slate-200 print:bg-white"
-                            >
-                                <div className="flex items-start gap-3">
-                                    <ReceiptText className="mt-0.5 h-5 w-5 shrink-0 text-cyan-200 print:text-cyan-700" />
-                                    <div>
-                                        <h3 className="font-semibold text-white print:text-slate-950">
-                                            Zálohová faktura
-                                        </h3>
-                                        <p className="mt-1 text-sm leading-relaxed text-white/68 print:text-slate-600">
-                                            Registrační ID používáme jako ID dokladu ve Fakturoidu.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {invoiceUrl ? (
-                                    <Button
-                                        asChild
-                                        className="mt-4 w-full rounded-lg bg-white text-slate-950 hover:bg-cyan-50 print:hidden"
-                                    >
-                                        <a href={invoiceUrl} target="_blank" rel="noreferrer">
-                                            Otevřít zálohovou fakturu
-                                            <ExternalLink className="ml-2 h-4 w-4" />
-                                        </a>
-                                    </Button>
-                                ) : (
-                                    <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                                        Otevřete stránku s parametrem <strong>?registration=ID_Z_FAKTUROIDU</strong>.
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="rounded-lg bg-white/10 p-4 print:border print:border-slate-200 print:bg-white">
-                                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55 print:text-slate-500">
-                                    URL této stránky
-                                </div>
-                                <div className="mt-2 break-all text-sm text-white/78 print:text-slate-700">
-                                    {participantPageUrl}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -532,25 +469,6 @@ export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMi
                                     <p className="text-sm leading-relaxed text-slate-700">{item}</p>
                                 </div>
                             ))}
-                        </div>
-                    </div>
-
-                    <div className="mt-10 grid gap-4 md:grid-cols-2">
-                        <div className="rounded-lg border border-cyan-100 bg-cyan-50 p-5">
-                            <Laptop className="h-6 w-6 text-cyan-700" />
-                            <h3 className="mt-3 text-lg font-bold text-slate-950">Pracovní nastavení</h3>
-                            <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                Počítejte s praktickými ukázkami a diskusí nad nástroji. Pokud nějaký AI nástroj ve
-                                firmě používáte, přineste si i konkrétní otázky k jeho workflow.
-                            </p>
-                        </div>
-                        <div className="rounded-lg border border-amber-100 bg-amber-50 p-5">
-                            <Printer className="h-6 w-6 text-amber-700" />
-                            <h3 className="mt-3 text-lg font-bold text-slate-950">Tisk a sdílení</h3>
-                            <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                Tuto stránku můžete poslat interně, uložit do kalendáře nebo vytisknout jako krátký
-                                účastnický brief.
-                            </p>
                         </div>
                     </div>
                 </div>
