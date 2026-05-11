@@ -68,11 +68,11 @@ export function AiSupervizeMiniPage() {
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                                    Ukroťte{' '}
+                                    Nechte AI pracovat za Vás.{' '}
                                     <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                        AI vývoj
-                                    </span>{' '}
-                                    od nápadu po funkční produkt.
+                                        Vy udáváte směr
+                                    </span>
+                                    , AI řídí a naviguje.
                                 </h1>
 
                                 <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
