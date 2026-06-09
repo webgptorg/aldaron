@@ -53,8 +53,8 @@ export const aiSupervizePricing: PricingPlan[] = [
     },
     {
         name: 'Discovery workshop',
-        priceMonthly: '5 000',
-        priceYearly: '5 000',
+        priceMonthly: '10 000',
+        priceYearly: '10 000',
         currency: 'Kč',
         period: 'za workshop',
         description: '2-3 hodiny online s CTO nebo Tech Leadem.',

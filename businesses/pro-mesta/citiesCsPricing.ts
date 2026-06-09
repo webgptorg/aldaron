@@ -34,7 +34,7 @@ export const citiesCsPricing = [
     },
     {
         name: 'Standardní',
-        priceMonthly: '5 000',
+        priceMonthly: '10 000',
         priceYearly: '45 000',
         currency: 'Kč',
         period: 'měsíčně',
