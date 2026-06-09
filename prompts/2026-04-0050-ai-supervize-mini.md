@@ -239,7 +239,7 @@ Prostě má to působit jako velmi prémiová stránka pro účastníka takovéh
 
 ---
 
-[ ] !!
+[x] ~$0.2731 7 minutes by OpenAI Codex `gpt-5.4`
 
 [✨😜] Update `/ai-supervize-mini`
 
@@ -247,3 +247,4 @@ Prostě má to působit jako velmi prémiová stránka pro účastníka takovéh
 - Add 2 new terms 19.6 and 25.6
 - The 25.6 will be online
 - Increase price of onsite workshop to 12 000 CZK and online workshop to 9 000 CZK
+

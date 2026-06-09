@@ -1,0 +1,6 @@
+[✨😜] Update `/ai-supervize-mini`
+
+- Remove term 15.5
+- Add 2 new terms 19.6 and 25.6
+- The 25.6 will be online
+- Increase price of onsite workshop to 12 000 CZK and online workshop to 9 000 CZK

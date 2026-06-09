@@ -46,7 +46,9 @@ type FaqItem = {
     answer: string;
 };
 
-const workshopDate = aiSupervizeMiniWorkshopConfig.dates[0]!;
+const workshopDate =
+    aiSupervizeMiniWorkshopConfig.dates.find((date) => date.format === 'onsite') ??
+    aiSupervizeMiniWorkshopConfig.dates[0]!;
 const workshopLocation = {
     city: 'Praha',
     venue: 'Scott.Weber Workspace - The Flow Building',

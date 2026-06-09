@@ -212,7 +212,7 @@ export function AiSupervizeMiniRegistrationForm() {
     const appliedDiscountCode = getAiSupervizeMiniDiscountCode(discountCode);
     const discountApplied = appliedDiscountCode !== null;
     const price = useMemo(() => {
-        const basePrice = aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk * participantCount;
+        const basePrice = selectedDate.pricePerParticipantCzk * participantCount;
         const discountAmount = discountApplied
             ? Math.round((basePrice * aiSupervizeMiniWorkshopConfig.discount.percent) / 100)
             : 0;
@@ -221,7 +221,7 @@ export function AiSupervizeMiniRegistrationForm() {
             discountAmount,
             finalPrice: basePrice - discountAmount,
         };
-    }, [discountApplied, participantCount]);
+    }, [discountApplied, participantCount, selectedDate.pricePerParticipantCzk]);
 
     const participantError =
         participantCount < 1 || participantCount > availableSeats
@@ -279,7 +279,8 @@ export function AiSupervizeMiniRegistrationForm() {
             workshop: 'AI Supervize Mini',
             selectedDate: selectedDate.label,
             selectedDateId: selectedDate.id,
-            place: aiSupervizeMiniWorkshopConfig.place,
+            selectedFormat: selectedDate.formatLabel,
+            place: selectedDate.placeLabel,
             timeRange: aiSupervizeMiniWorkshopConfig.timeRange,
             remainingSeatsAtSubmit: selectedDate.remainingSeats,
             participantCount,
@@ -292,7 +293,7 @@ export function AiSupervizeMiniRegistrationForm() {
             discountCodeEntered: discountCode.trim() || null,
             discountCodeUsed: appliedDiscountCode,
             discountPercentApplied: discountApplied ? aiSupervizeMiniWorkshopConfig.discount.percent : 0,
-            unitPriceCzk: aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk,
+            unitPriceCzk: selectedDate.pricePerParticipantCzk,
             basePriceCzk: price.basePrice,
             discountAmountCzk: price.discountAmount,
             computedFinalPriceCzk: price.finalPrice,
@@ -302,6 +303,8 @@ export function AiSupervizeMiniRegistrationForm() {
             'AI Supervize Mini registration',
             [
                 `Workshop date: ${payload.selectedDate}`,
+                `Workshop format: ${payload.selectedFormat}`,
+                `Workshop place: ${payload.place}`,
                 `Participants: ${payload.participantCount}`,
                 `Unit price CZK: ${payload.unitPriceCzk}`,
                 `Base price CZK: ${payload.basePriceCzk}`,
@@ -400,10 +403,10 @@ export function AiSupervizeMiniRegistrationForm() {
             <div className="flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <p className="text-sm font-semibold uppercase text-cyan-700">Registrace</p>
-                    <h2 className="mt-2 text-2xl font-bold text-slate-950">Vyberte termín a místo</h2>
+                    <h2 className="mt-2 text-2xl font-bold text-slate-950">Vyberte termín a formát</h2>
                 </div>
                 <div className="rounded-xl bg-slate-950 px-4 py-3 text-white">
-                    <div className="text-xs text-slate-300">Cena po přepočtu</div>
+                    <div className="text-xs text-slate-300">{selectedDate.formatLabel}</div>
                     <div className="text-2xl font-bold">{formatCzk(price.finalPrice)}</div>
                     {discountApplied && (
                         <div className="text-xs text-cyan-300">Sleva {aiSupervizeMiniWorkshopConfig.discount.percent} % započtena</div>
@@ -430,6 +433,14 @@ export function AiSupervizeMiniRegistrationForm() {
                                     }`}
                                 >
                                     <div className="text-lg font-bold text-slate-950">{date.label}</div>
+                                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                            {date.formatLabel}
+                                        </span>
+                                        <span className="font-medium text-slate-700">
+                                            {formatCzk(date.pricePerParticipantCzk)}
+                                        </span>
+                                    </div>
                                     <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
                                         <Users className="h-4 w-4 text-cyan-600" />
                                         Zbývá {date.remainingSeats} míst z{' '}

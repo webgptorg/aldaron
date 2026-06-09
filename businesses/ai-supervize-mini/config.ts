@@ -1,35 +1,17 @@
-// Baseline for the dynamic seat countdown.
-// On REMAINING_SEATS_BASELINE_DATE_ISO the page shows REMAINING_SEATS_BASELINE.
-// Each calendar day in Europe/Prague after that, the count drops by 1 (clamped at 0).
-// The Prague timezone keeps SSR and client renders aligned regardless of where the
-// Node process or the visitor is located.
-const REMAINING_SEATS_BASELINE = 5;
-const REMAINING_SEATS_BASELINE_DATE_ISO = '2026-05-11';
+type WorkshopFormat = 'onsite' | 'online';
 
-const pragueDateFormatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Europe/Prague',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-});
-
-function getPragueDateAsUtcMidnight(date: Date): Date {
-    const pragueIso = pragueDateFormatter.format(date);
-    return new Date(`${pragueIso}T00:00:00Z`);
-}
-
-function computeRemainingSeats(): number {
-    const today = getPragueDateAsUtcMidnight(new Date());
-    const baseline = new Date(`${REMAINING_SEATS_BASELINE_DATE_ISO}T00:00:00Z`);
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const daysPassed = Math.floor((today.getTime() - baseline.getTime()) / msPerDay);
-    return Math.max(0, REMAINING_SEATS_BASELINE - daysPassed);
-}
+type WorkshopDate = {
+    id: string;
+    label: string;
+    format: WorkshopFormat;
+    formatLabel: string;
+    placeLabel: string;
+    pricePerParticipantCzk: number;
+    remainingSeats: number;
+};
 
 export const aiSupervizeMiniWorkshopConfig = {
-    pricePerParticipantCzk: 8500,
     maxParticipantsPerWorkshop: 10,
-    place: 'Praha',
     timeRange: '9:30-17:00',
     discount: {
         percent: 15,
@@ -37,20 +19,22 @@ export const aiSupervizeMiniWorkshopConfig = {
     },
     dates: [
         {
-            id: '2026-05-15',
-            label: '15. 5. 2026',
-            get remainingSeats() {
-                return computeRemainingSeats();
-            },
+            id: '2026-06-19',
+            label: '19. 6. 2026',
+            format: 'onsite',
+            formatLabel: 'Prezenčně v Praze',
+            placeLabel: 'Praha',
+            pricePerParticipantCzk: 12000,
+            remainingSeats: 6,
         },
-        /*
         {
-            id: '2026-05-21',
-            label: '21. 5. 2026',
-            get remainingSeats() {
-                return computeRemainingSeats();
-            },
+            id: '2026-06-25',
+            label: '25. 6. 2026',
+            format: 'online',
+            formatLabel: 'Online',
+            placeLabel: 'Online',
+            pricePerParticipantCzk: 9000,
+            remainingSeats: 8,
         },
-        */
-    ],
+    ] as ReadonlyArray<WorkshopDate>,
 } as const;

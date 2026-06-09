@@ -25,9 +25,14 @@ import Link from 'next/link';
 
 export function AiSupervizeMiniPage() {
     const dateSummary = aiSupervizeMiniWorkshopConfig.dates.map((date) => date.label.replace(' 2026', '')).join(' / ');
+    const placeSummary = Array.from(new Set(aiSupervizeMiniWorkshopConfig.dates.map((date) => date.placeLabel)))
+        .map((placeLabel) => (placeLabel === 'Online' ? 'online' : placeLabel))
+        .join(' + ');
     const seatSummary = aiSupervizeMiniWorkshopConfig.dates
         .map((date) => `${date.remainingSeats} míst ${date.label.replace(' 2026', '')}`)
         .join(' · ');
+    const onsiteDate = aiSupervizeMiniWorkshopConfig.dates.find((date) => date.format === 'onsite');
+    const onlineDate = aiSupervizeMiniWorkshopConfig.dates.find((date) => date.format === 'online');
 
     return (
         <main className="min-h-screen bg-white">
@@ -64,7 +69,7 @@ export function AiSupervizeMiniPage() {
                             <div className="space-y-5">
                                 <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
                                     <CalendarDays className="h-4 w-4" />
-                                    AI Supervize Mini · {dateSummary} · Praha
+                                    AI Supervize Mini · {dateSummary} · {placeSummary}
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
@@ -144,10 +149,10 @@ export function AiSupervizeMiniPage() {
                             Jeden den, malá skupina, konkrétní workflow
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi. Cena je{' '}
-                            {aiSupervizeMiniWorkshopConfig.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za
-                            účastníka, kapacita maximálně {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop}{' '}
-                            lidí na termín.
+                            Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi. Prezenční termín stojí{' '}
+                            {onsiteDate?.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč, online termín{' '}
+                            {onlineDate?.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za účastníka. Kapacita je
+                            maximálně {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop} lidí na termín.
                         </p>
                     </div>
 
@@ -156,9 +161,10 @@ export function AiSupervizeMiniPage() {
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <MapPin className="h-6 w-6 text-cyan-700" />
-                                    <h3 className="mt-3 font-bold text-slate-950">Praha</h3>
+                                    <h3 className="mt-3 font-bold text-slate-950">Praha i online</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                        Přesné místo pošleme po potvrzení registrace. Počítáme s celodenním blokem{' '}
+                                        {onsiteDate?.label.replace(' 2026', '')} proběhne prezenčně v Praze,{` `}
+                                        {onlineDate?.label.replace(' 2026', '')} online. Oba termíny běží v čase{' '}
                                         {aiSupervizeMiniWorkshopConfig.timeRange}.
                                     </p>
                                 </div>

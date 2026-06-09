@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 export const aiSupervizeMiniMetadata: Metadata = {
     title: 'AI Supervize Mini | Celodenní workshop pro jednotlivce',
     description:
-        'Hands-on workshop v Praze pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu: nástroje, rizika, verzování, testování a code quality v AI vývoji.',
+        'Hands-on workshop pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu: nástroje, rizika, verzování, testování a code quality v AI vývoji, prezenčně v Praze i online.',
     alternates: {
         canonical: '/ai-supervize-mini',
     },
@@ -12,7 +12,7 @@ export const aiSupervizeMiniMetadata: Metadata = {
         type: 'website',
         title: 'AI Supervize Mini | Promptbook',
         description:
-            'Jednodenní workshop, jak komplexně přemýšlet nad AI vývojem od zadání po merge. Praha, max 10 účastníků.',
+            'Jednodenní workshop, jak komplexně přemýšlet nad AI vývojem od zadání po merge. Praha i online, max 10 účastníků.',
         url: 'https://ptbk.io/ai-supervize-mini',
         images: [
             {
@@ -25,6 +25,6 @@ export const aiSupervizeMiniMetadata: Metadata = {
     },
     twitter: {
         title: 'AI Supervize Mini | Promptbook',
-        description: 'Celodenní hands-on workshop pro vývojáře a produkťáky v TypeScriptu / JavaScriptu.',
+        description: 'Celodenní hands-on workshop pro vývojáře a produkťáky v TypeScriptu / JavaScriptu, prezenčně i online.',
     },
 };

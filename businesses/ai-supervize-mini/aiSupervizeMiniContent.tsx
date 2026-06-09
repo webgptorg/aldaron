@@ -3,7 +3,7 @@ import { FAQ } from '@/components/faq-section';
 import { Bot, Code2, GitPullRequest, Link, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
 
 export const aiSupervizeMiniHeroBullets = [
-    'Celý den hands-on v Praze',
+    'Prezenčně v Praze i online',
     'Max 10 účastníků',
     'Pro TypeScript / JavaScript produktový vývoj',
 ];
@@ -161,13 +161,14 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
     },
 
     {
-        question: 'Proč je cena 8500 Kč když jiné kurzy a školení o AI jsou levnější?',
+        question: 'Proč je cena 12 000 Kč prezenčně a 9 000 Kč online, když jiné kurzy a školení o AI bývají levnější?',
         answer: (
             <p>
                 AI Supervize není běžný kurz o AI, kterých je na trhu spousta. Je to komplexní a praktický workshop
                 zaměřený na konkrétní výzvy a řešení v AI vývoji, včetně rizik, testování, verzování a code review. Cena
                 odráží hloubku obsahu, praktickou hodnotu a individuální přístup v malých skupinách s expertem s
-                reálnými zkušenostmi z AI vývoje. Konkrétně máme několik důvodů pro nastavení této ceny:
+                reálnými zkušenostmi z AI vývoje. Online termín je levnější, protože odpadá cestování a fyzické zázemí,
+                ale obsahově zůstává stejně náročný. Konkrétně máme několik důvodů pro nastavení této ceny:
                 <ul>
                     <li>
                         AI Supervizí Vás provází Pavol Hejný, který má za sebou 15+ let zkušeností s vývojem a
