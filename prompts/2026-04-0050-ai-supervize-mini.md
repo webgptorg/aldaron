@@ -201,16 +201,13 @@ All of theese are valid: - `SUPER_ADAM_15` - `super jakub 15` - `SUPER-jan 15` -
 - Do a analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini` and do not change other pages
 
-
 ---
 
 [x] ~$0.2901 21 minutes by OpenAI Codex `gpt-5.5`
 
-[✨😜] page for participant of supervize 
-
+[✨😜] page for participant of supervize
 
 Vytvoř jednoduchou stránku, která bude sloužit už pro registrované účastníky AI supervize mini na termín 15. 5. od 9:30 do 17. Mají tam být základní informace ohledně kurzu, časový rozvrh, co je potřeba, nějaká informace, že se těšíme. A má to sloužit jako taková jednoduchá all in one page, na které budou informace pro účastníka, kterou si může buď vytisknout nebo mít na ní někde URL a podobně. S tím že v tuhle chvíli tam udělej tam udělej get parametr, který se bude jmenovat registration který může být vlastně úplně cokoliv a jediné co to bude jediné na co to bude odkazovat ta registration ID to vlastně bude to samé jako ID na faktuře na Faktoroidu a a vlastně jako součástí téhle stránky má být i odkaz na zálohovou fakturu z Faktoroidu která tam bude vystavena s tím že s tím že někdy v budoucnu to bude tak že tenhle ten že tady to registrační ID bude vlastně jako v sobě někde v naší interní databáze pak obsahovat i to jaký konkrétně je to termín kurzu v tuhle do chvíli ale tam zahardkoduji toho 15.5.
-
 
 S tím, že harmonogram má být následující, je to místo tam uvedň, že Praha a pravděpodobně Scott Weber Flow na Václaváku.
 
@@ -236,11 +233,17 @@ A taky informace, že se těšíme a děkujeme.
 
 Prostě má to působit jako velmi prémiová stránka pro účastníka takového workshopu a konference, vlastně jednodenního workshopu supervize.
 
-
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - You are working with page `/ai-supervize-mini/participant` and do not change other pages
 
+---
 
+[ ] !!
 
+[✨😜] Update `/ai-supervize-mini`
 
+- Remove term 15.5
+- Add 2 new terms 19.6 and 25.6
+- The 25.6 will be online
+- Increase price of onsite workshop to 12 000 CZK and online workshop to 9 000 CZK
