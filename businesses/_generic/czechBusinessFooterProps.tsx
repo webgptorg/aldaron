@@ -4,6 +4,7 @@ export const czechBusinessFooterProps = {
         { href: '?modal=get-started', text: 'Začít' },
         { href: 'https://ptbk.io/', text: 'Promptbook' },
         { href: 'https://github.com/webgptorg/promptbook', text: 'Dokumentace' },
+        { href: '/branding', text: 'Branding' },
     ],
     companyHeader: 'Společnost',
     companyLinks: [
@@ -41,8 +42,8 @@ export const czechBusinessFooterProps = {
         <>
             Tento projekt byl realizován za finanční podpory z národního rozpočtu
             <br />
-            prostřednictvím Ministerstva průmyslu a obchodu České republiky v rámci programu CzechInvest
-            Technologická inkubace.
+            prostřednictvím Ministerstva průmyslu a obchodu České republiky v rámci programu CzechInvest Technologická
+            inkubace.
         </>
     ),
 };

@@ -25,6 +25,12 @@ export function MinimalFooter() {
                     {/* Links */}
                     <div className="flex items-center gap-6">
                         <Link
+                            href="/branding"
+                            className="text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200"
+                        >
+                            Branding
+                        </Link>
+                        <Link
                             href="/privacy"
                             className="text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200"
                         >

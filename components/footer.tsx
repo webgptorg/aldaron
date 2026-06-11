@@ -54,6 +54,7 @@ const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
             { href: 'https://ptbk.io/manifest', text: 'Manifest' },
             { href: 'https://github.com/webgptorg/promptbook', text: 'Documentation' },
             { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+            { href: '/branding', text: 'Branding' },
         ],
         companyHeader: 'Company',
         companyLinks: [
@@ -97,6 +98,7 @@ const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
             { href: 'https://ptbk.io/', text: 'Promptbook' },
             { href: 'https://github.com/webgptorg/promptbook', text: 'Dokumentace' },
             { href: 'https://promptbook.studio/miniapps/new', text: 'Playground' },
+            { href: '/branding', text: 'Branding' },
         ],
         companyHeader: 'Společnost',
         companyLinks: [
@@ -184,7 +186,10 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
         setError(null);
 
         try {
-            await Promise.all([subscribeToNewsletter(email), subscribeToWaitlist({ email, placeName: 'newsletter-footer' })]);
+            await Promise.all([
+                subscribeToNewsletter(email),
+                subscribeToWaitlist({ email, placeName: 'newsletter-footer' }),
+            ]);
 
             setSuccess(true);
             setEmail('');
