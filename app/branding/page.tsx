@@ -1,3 +1,4 @@
+import { BrandingComponentsDemo } from '@/components/branding-components-demo';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { buttonVariants } from '@/components/ui/button';
@@ -362,6 +363,24 @@ export default function BrandingPage() {
                                 <p className="mt-3 text-sm leading-6 text-slate-600">{rule.description}</p>
                             </article>
                         ))}
+                    </div>
+                </section>
+
+                <section className="container mx-auto px-4 py-16 sm:px-6">
+                    <div className="max-w-2xl">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">UI Components</p>
+                        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+                            Ready-made components for your integration.
+                        </h2>
+                        <p className="mt-4 text-base leading-7 text-slate-600">
+                            The <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm">@promptbook/components</code> package ships{' '}
+                            <strong>BookEditor</strong> for authoring agents in plain text and <strong>MockedChat</strong> for
+                            embedding realistic conversation previews in your product or landing page.
+                        </p>
+                    </div>
+
+                    <div className="mt-10">
+                        <BrandingComponentsDemo />
                     </div>
                 </section>
 
