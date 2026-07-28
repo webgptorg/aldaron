@@ -3,6 +3,6 @@ import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 
 export const metadata = pavolPageContent.cs.metadata;
 
-export default function PavolCsPage() {
+export default function CsPavolPage() {
     return <PavolPage language="cs" />;
 }

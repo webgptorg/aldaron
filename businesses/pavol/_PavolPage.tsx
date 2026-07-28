@@ -237,13 +237,13 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
             ariaLabel: content.header.languageSwitcherLabel,
             items: [
                 {
-                    href: '/pavol/cs',
+                    href: '/cs/pavol',
                     label: 'Čeština',
                     iconSrc: '/locale-flags/cs.svg',
                     isActive: isCzech,
                 },
                 {
-                    href: '/pavol/en',
+                    href: '/en/pavol',
                     label: 'English',
                     iconSrc: '/locale-flags/en.svg',
                     isActive: !isCzech,
@@ -319,7 +319,7 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
         >
             <Header
                 language={language}
-                brandHref={`/pavol/${language}`}
+                brandHref={`/${language}/pavol`}
                 brandLogo={
                     <Image
                         src="/logo/pavol-hejny-ph.svg"

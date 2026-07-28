@@ -12,6 +12,20 @@ const nextConfig = {
     },
     images: { unoptimized: true },
     devIndicators: false,
+    async redirects() {
+        return [
+            {
+                source: '/pavol/cs',
+                destination: '/cs/pavol',
+                permanent: true,
+            },
+            {
+                source: '/pavol/en',
+                destination: '/en/pavol',
+                permanent: true,
+            },
+        ];
+    },
     allowedDevOrigins: ['*.macaly.dev', '*.macaly.app', '*.macaly-app.com', '*.macaly-user-data.dev'],
     webpack: (config, { dev, isServer }) => {
         // Note: [📖] Allow books to be imported:

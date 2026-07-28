@@ -101,10 +101,10 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             description:
                 'Osobní stránka Pavola Hejného. AI konzultace, workshopy, přednášky a projekty na pomezí vývoje, produktu a vzdělávání.',
             alternates: {
-                canonical: '/pavol/cs',
+                canonical: '/cs/pavol',
                 languages: {
-                    cs: '/pavol/cs',
-                    en: '/pavol/en',
+                    cs: '/cs/pavol',
+                    en: '/en/pavol',
                 },
             },
             openGraph: {
@@ -237,10 +237,10 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             description:
                 'The personal page of Pavol Hejný. AI consulting, workshops, talks, and projects at the intersection of development, product, and education.',
             alternates: {
-                canonical: '/pavol/en',
+                canonical: '/en/pavol',
                 languages: {
-                    cs: '/pavol/cs',
-                    en: '/pavol/en',
+                    cs: '/cs/pavol',
+                    en: '/en/pavol',
                 },
             },
             openGraph: {

@@ -6,5 +6,5 @@ export default async function PavolRootPage() {
     const requestHeaders = await headers();
     const language = getPreferredHomepageLanguage(requestHeaders.get('accept-language'));
 
-    redirect(`/pavol/${language}`);
+    redirect(`/${language}/pavol`);
 }
