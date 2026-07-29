@@ -1,8 +1,8 @@
 import { Homepage } from '@/businesses/homepage/_Homepage';
-import { homepageContent } from '@/businesses/homepage/homepageContent';
+import { HOMEPAGE_METADATA } from '@/businesses/homepage/homepageMetadata';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = homepageContent.cs.metadata;
+export const metadata: Metadata = HOMEPAGE_METADATA.cs;
 
 export default function HomePage() {
     return <Homepage language="cs" />;

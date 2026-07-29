@@ -1,8 +1,14 @@
 import { PavolPage } from '@/businesses/pavol/_PavolPage';
-import { pavolPageContent } from '@/businesses/pavol/pavolContent';
+import { PAVOL_METADATA, createPavolStructuredData } from '@/businesses/pavol/pavolMetadata';
+import { StructuredData } from '@/components/structured-data';
 
-export const metadata = pavolPageContent.en.metadata;
+export const metadata = PAVOL_METADATA.en;
 
 export default function EnPavolPage() {
-    return <PavolPage language="en" />;
+    return (
+        <>
+            <StructuredData nodes={[createPavolStructuredData('en')]} />
+            <PavolPage language="en" />
+        </>
+    );
 }

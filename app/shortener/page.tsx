@@ -1,15 +1,11 @@
 import { UrlShortener } from '@/components/url-shortener';
+import { SHORTENER_METADATA } from '@/lib/metadata/site-page-definitions';
 import { Metadata } from 'next';
 
 // Force static generation for static export
 export const dynamic = 'force-static';
 
-export function generateMetadata(): Metadata {
-    return {
-        title: '✨ AI Transformation for Your Business | Promptbook',
-        description: 'Create AI agents that truly understand your company with Promptbook.',
-    };
-}
+export const metadata: Metadata = SHORTENER_METADATA;
 
 export default function ShortenerPage() {
     return <UrlShortener />;

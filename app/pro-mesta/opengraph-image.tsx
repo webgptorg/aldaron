@@ -1,10 +1,9 @@
-import { proMestaSocialPreviewOptions } from '@/lib/social-preview-options';
-import { createSocialPreviewImage, socialImageContentType, socialImageSize } from '@/lib/social-preview-image';
+import { CITIES_CS_SOCIAL_PREVIEW_OPTIONS } from '@/businesses/pro-mesta/citiesCsMetadata';
+import { createSocialPreviewImageRoute } from '@/lib/metadata/social-preview-image-route';
 
-export const alt = proMestaSocialPreviewOptions.alt;
-export const size = socialImageSize;
-export const contentType = socialImageContentType;
+const { alt, contentType, renderSocialPreviewImage, size } = createSocialPreviewImageRoute(
+    CITIES_CS_SOCIAL_PREVIEW_OPTIONS,
+);
 
-export default function OpenGraphImage() {
-    return createSocialPreviewImage(proMestaSocialPreviewOptions);
-}
+export { alt, contentType, size };
+export default renderSocialPreviewImage;

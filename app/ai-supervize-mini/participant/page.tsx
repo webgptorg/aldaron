@@ -1,3 +1,4 @@
+import { AI_SUPERVIZE_MINI_PARTICIPANT_METADATA } from '@/businesses/ai-supervize-mini/aiSupervizeMiniMetadata';
 import { AiSupervizeMiniParticipantPage } from '@/businesses/ai-supervize-mini/_AiSupervizeMiniParticipantPage';
 import type { Metadata } from 'next';
 
@@ -7,18 +8,7 @@ type ParticipantRouteProps = {
     }>;
 };
 
-export const metadata: Metadata = {
-    title: 'Informace pro účastníka | AI Supervize Mini',
-    description:
-        'Praktické informace, harmonogram a příprava pro registrované účastníky jednodenního workshopu AI Supervize Mini.',
-    alternates: {
-        canonical: '/ai-supervize-mini/participant',
-    },
-    robots: {
-        index: false,
-        follow: false,
-    },
-};
+export const metadata: Metadata = AI_SUPERVIZE_MINI_PARTICIPANT_METADATA;
 
 function getSingleSearchParam(value: string | string[] | undefined) {
     if (Array.isArray(value)) {

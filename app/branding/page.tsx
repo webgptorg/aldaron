@@ -2,38 +2,14 @@ import { BrandingComponentsDemo } from '@/components/branding-components-demo';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { buttonVariants } from '@/components/ui/button';
+import { BRANDING_METADATA } from '@/lib/metadata/site-page-definitions';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, Download, Palette, ShieldCheck, Type } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-    title: 'Promptbook Branding',
-    description: 'Official Promptbook logos, colors, typography, and messaging for brand and partner use.',
-    alternates: {
-        canonical: '/branding',
-    },
-    openGraph: {
-        title: 'Promptbook Branding',
-        description: 'Official Promptbook logos, colors, typography, and messaging for brand and partner use.',
-        url: 'https://ptbk.io/branding',
-        images: [
-            {
-                url: '/logo/og-image.png',
-                width: 1860,
-                height: 992,
-                alt: 'Promptbook branding',
-            },
-        ],
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Promptbook Branding',
-        description: 'Official Promptbook logos, colors, typography, and messaging for brand and partner use.',
-        images: ['/logo/og-image.png'],
-    },
-};
+export const metadata: Metadata = BRANDING_METADATA;
 
 const logoCollections = [
     {

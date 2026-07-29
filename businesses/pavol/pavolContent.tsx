@@ -1,7 +1,6 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import type { LucideIcon } from 'lucide-react';
 import { BrainCircuit, Facebook, FileText, Github, Linkedin, Presentation, Youtube } from 'lucide-react';
-import type { Metadata } from 'next';
 
 export type PavolLink = {
     label: string;
@@ -19,7 +18,6 @@ type PavolService = {
 };
 
 type PavolPageContent = {
-    metadata: Metadata;
     header: {
         navItems: PavolLink[];
         primaryAction: string;
@@ -96,31 +94,6 @@ const cvLink = 'https://docs.google.com/document/d/1M0Py3W4eul8WMfzlvlHHBs50tP2h
 
 export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageContent> = {
     cs: {
-        metadata: {
-            title: 'Pavol Hejný | AI konzultace, workshopy a projekty',
-            description:
-                'Osobní stránka Pavola Hejného. AI konzultace, workshopy, přednášky a projekty na pomezí vývoje, produktu a vzdělávání.',
-            alternates: {
-                canonical: '/cs/pavol',
-                languages: {
-                    cs: '/cs/pavol',
-                    en: '/en/pavol',
-                },
-            },
-            openGraph: {
-                title: 'Pavol Hejný',
-                description: 'AI konzultace, workshopy a projekty na pomezí vývoje, produktu a vzdělávání.',
-                locale: 'cs_CZ',
-                type: 'website',
-                images: ['/people/pavol-hejny-transparent-square.png'],
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: 'Pavol Hejný',
-                description: 'AI konzultace, workshopy a projekty na pomezí vývoje, produktu a vzdělávání.',
-                images: ['/people/pavol-hejny-transparent-square.png'],
-            },
-        },
         header: {
             navItems: [
                 { label: 'Jak pomohu', href: '#services' },
@@ -232,31 +205,6 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
         },
     },
     en: {
-        metadata: {
-            title: 'Pavol Hejný | AI consulting, workshops, and projects',
-            description:
-                'The personal page of Pavol Hejný. AI consulting, workshops, talks, and projects at the intersection of development, product, and education.',
-            alternates: {
-                canonical: '/en/pavol',
-                languages: {
-                    cs: '/cs/pavol',
-                    en: '/en/pavol',
-                },
-            },
-            openGraph: {
-                title: 'Pavol Hejný',
-                description: 'AI consulting, workshops, and projects at the intersection of development, product, and education.',
-                locale: 'en_US',
-                type: 'website',
-                images: ['/people/pavol-hejny-transparent-square.png'],
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: 'Pavol Hejný',
-                description: 'AI consulting, workshops, and projects at the intersection of development, product, and education.',
-                images: ['/people/pavol-hejny-transparent-square.png'],
-            },
-        },
         header: {
             navItems: [
                 { label: 'How I Help', href: '#services' },

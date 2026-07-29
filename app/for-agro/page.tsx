@@ -1,7 +1,7 @@
 import { ForAgroPage } from '@/businesses/for-agro/_ForAgroPage';
-import { forAgroMetadata } from '@/businesses/for-agro/forAgroMetadata';
+import { FOR_AGRO_METADATA } from '@/businesses/for-agro/forAgroMetadata';
 
-export const metadata = forAgroMetadata;
+export const metadata = FOR_AGRO_METADATA;
 
 export default function ForAgroRoute() {
     return <ForAgroPage />;

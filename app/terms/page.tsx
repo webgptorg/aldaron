@@ -1,6 +1,10 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { TERMS_METADATA } from '@/lib/metadata/site-page-definitions';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = TERMS_METADATA;
 
 export default function TermsPage() {
     return (

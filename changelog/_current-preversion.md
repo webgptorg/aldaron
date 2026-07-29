@@ -5,3 +5,10 @@
 - Reduced mobile hero/header overflow by tightening responsive header sizing and constraining hero text, hint pills, mocked chat, and AI Supervize terminal animation.
 - Added the Czech `/ai-supervize-mini` workshop landing page with configurable dates, scarcity, SUPER discount tracking, Contact registration, `/skoleni` redirect, and cross-links from the full AI Supervize page.
 - Updated `/ai-supervize-mini` terms to 19. 6. and 25. 6., added an online variant, and split onsite vs. online pricing in the registration flow.
+- Rebuilt page metadata around one shared `createPageMetadata` factory, so every page derives its title, description, canonical, `hreflang` alternates, Open Graph and X card from a single definition instead of repeating them.
+- Fixed `/cs` and `/en` sharing no preview image at all, because a page level `openGraph` object replaces the inherited one in Next.js.
+- Generated on-brand sharing preview images for every landing page (`/cs`, `/en`, `/pro-mesta`, `/for-agro`, `/for-industry`, `/ai-supervize`, `/ai-supervize-mini`, `/cs/online-workshop`, `/hackathon-factory`, `/cs/pavol`, `/en/pavol`) from a derived palette, and dropped the duplicated `twitter-image` routes.
+- Added `/sitemap.xml` built from the same page definitions, so the sitemap advertised by `robots.txt` finally exists.
+- Added Organization, WebSite and Person structured data for Google, and removed the placeholder Google site verification tag that shipped to production.
+- Gave metadata to the pages which had none (`/contact`, `/privacy`, `/terms`, `/data-deletion`, `/for-industry`) and kept `/old`, `/dekujeme`, `/shortener` and `/admin/contacts` out of search results.
+- Replaced the static `manifest.json` and `robots.txt` with generated routes, aligning the app manifest theme color with the browser theme color and dropping the dead `browserconfig.xml` reference.

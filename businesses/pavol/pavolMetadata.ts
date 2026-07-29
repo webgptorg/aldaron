@@ -1,0 +1,148 @@
+import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
+import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
+import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
+import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
+import type { SocialPreviewImageOptions } from '@/lib/metadata/social-preview-image';
+import type { SocialPreviewPaletteSeed } from '@/lib/metadata/social-preview-palette';
+import { createPersonStructuredData, type StructuredDataNode } from '@/lib/metadata/structured-data';
+import type { Metadata } from 'next';
+
+/**
+ * Name of the person the page is about
+ */
+const PAVOL_NAME = 'Pavol Hejný';
+
+/**
+ * Portrait used in structured data
+ */
+const PAVOL_IMAGE_PATH = '/people/pavol-hejny-transparent-square.png';
+
+/**
+ * Profiles which represent the person elsewhere on the web
+ */
+const PAVOL_SOCIAL_URLS: readonly string[] = [
+    'https://github.com/hejny',
+    'https://www.linkedin.com/in/hejny/',
+    'https://www.facebook.com/hejny',
+    'https://www.youtube.com/@pavolhejny',
+];
+
+/**
+ * Paths of the personal page in every language it is published in
+ */
+const PAVOL_LANGUAGE_ALTERNATES: Readonly<Record<SupportedHomepageLanguage, string>> = {
+    cs: '/cs/pavol',
+    en: '/en/pavol',
+};
+
+/**
+ * Warmer palette which sets the personal page apart from the product pages
+ */
+const PAVOL_PALETTE_SEED: SocialPreviewPaletteSeed = {
+    backgroundStart: '#0c0a14',
+    backgroundEnd: '#2f2440',
+    accent: '#ffd97a',
+    accentSoft: '#7aebff',
+};
+
+export const PAVOL_PAGE_DEFINITIONS: Readonly<Record<SupportedHomepageLanguage, PageMetadataDefinition>> = {
+    cs: {
+        path: PAVOL_LANGUAGE_ALTERNATES.cs,
+        language: 'cs',
+        title: 'Pavol Hejný | AI konzultace, workshopy a projekty',
+        socialTitle: 'Pavol Hejný',
+        description:
+            'Osobní stránka Pavola Hejného. AI konzultace, workshopy, přednášky a projekty na pomezí vývoje, produktu a vzdělávání.',
+        socialDescription: 'AI konzultace, workshopy a projekty na pomezí vývoje, produktu a vzdělávání.',
+        socialPreviewImageAlt: 'Pavol Hejný - AI konzultace, workshopy a projekty',
+        keywords: ['Pavol Hejný', 'AI konzultace', 'AI workshopy', 'přednášky', 'vývoj', 'Promptbook'],
+        languageAlternates: PAVOL_LANGUAGE_ALTERNATES,
+        openGraphType: 'profile',
+        isSocialPreviewImageGenerated: true,
+        sitemapPriority: 0.8,
+    },
+    en: {
+        path: PAVOL_LANGUAGE_ALTERNATES.en,
+        language: 'en',
+        title: 'Pavol Hejný | AI consulting, workshops, and projects',
+        socialTitle: 'Pavol Hejný',
+        description:
+            'The personal page of Pavol Hejný. AI consulting, workshops, talks, and projects at the intersection of development, product, and education.',
+        socialDescription:
+            'AI consulting, workshops, and projects at the intersection of development, product, and education.',
+        socialPreviewImageAlt: 'Pavol Hejný - AI consulting, workshops, and projects',
+        keywords: ['Pavol Hejný', 'AI consulting', 'AI workshops', 'talks', 'development', 'Promptbook'],
+        languageAlternates: PAVOL_LANGUAGE_ALTERNATES,
+        openGraphType: 'profile',
+        isSocialPreviewImageGenerated: true,
+        sitemapPriority: 0.8,
+    },
+};
+
+export const PAVOL_METADATA: Readonly<Record<SupportedHomepageLanguage, Metadata>> = {
+    cs: createPageMetadata(PAVOL_PAGE_DEFINITIONS.cs),
+    en: createPageMetadata(PAVOL_PAGE_DEFINITIONS.en),
+};
+
+/**
+ * Personal branding of the page, which replaces the Promptbook favicon
+ */
+export const PAVOL_LAYOUT_METADATA: Metadata = {
+    icons: {
+        icon: [{ url: '/logo/pavol-hejny-ph.svg', type: 'image/svg+xml' }],
+        shortcut: ['/logo/pavol-hejny-ph.svg'],
+    },
+};
+
+export const PAVOL_SOCIAL_PREVIEW_OPTIONS: Readonly<Record<SupportedHomepageLanguage, SocialPreviewImageOptions>> = {
+    cs: createSocialPreviewOptions(PAVOL_PAGE_DEFINITIONS.cs, {
+        brandLabel: PAVOL_NAME,
+        eyebrow: 'AI konzultace, workshopy a vývoj',
+        audienceLabel: 'Pro firmy a týmy',
+        bullets: ['AI consulting', 'Workshopy a talks', '15+ let vývoje'],
+        stats: [
+            { label: 'Konzultace', value: 'AI se skutečným dopadem' },
+            { label: 'Workshopy', value: 'Prakticky, ne teoreticky' },
+            { label: 'Projekty', value: 'Vývoj, produkt, vzdělávání' },
+        ],
+        callToActionLabel: 'Napište mi',
+        paletteSeed: PAVOL_PALETTE_SEED,
+    }),
+    en: createSocialPreviewOptions(PAVOL_PAGE_DEFINITIONS.en, {
+        brandLabel: PAVOL_NAME,
+        eyebrow: 'AI consulting, workshops, and development',
+        audienceLabel: 'For companies and teams',
+        bullets: ['AI consulting', 'Workshops and talks', '15+ years of development'],
+        stats: [
+            { label: 'Consulting', value: 'AI with real impact' },
+            { label: 'Workshops', value: 'Hands-on, not theory' },
+            { label: 'Projects', value: 'Development, product, education' },
+        ],
+        callToActionLabel: 'Get in touch',
+        paletteSeed: PAVOL_PALETTE_SEED,
+    }),
+};
+
+/**
+ * Job title presented to search engines in each language
+ */
+const PAVOL_JOB_TITLE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
+    cs: 'AI konzultant a vývojář',
+    en: 'AI consultant and developer',
+};
+
+/**
+ * Builds the schema.org description of the person behind the page
+ */
+export function createPavolStructuredData(language: SupportedHomepageLanguage): StructuredDataNode {
+    const definition = PAVOL_PAGE_DEFINITIONS[language];
+
+    return createPersonStructuredData({
+        name: PAVOL_NAME,
+        jobTitle: PAVOL_JOB_TITLE_BY_LANGUAGE[language],
+        description: definition.description,
+        path: definition.path,
+        imagePath: PAVOL_IMAGE_PATH,
+        socialUrls: PAVOL_SOCIAL_URLS,
+    });
+}

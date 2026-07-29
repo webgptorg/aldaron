@@ -1,7 +1,7 @@
 import { CitiesCsPage } from '@/businesses/pro-mesta/_CitiesCsPage';
-import { citiesCsMetadata } from '@/businesses/pro-mesta/citiesCsMetadata';
+import { CITIES_CS_METADATA } from '@/businesses/pro-mesta/citiesCsMetadata';
 
-export const metadata = citiesCsMetadata;
+export const metadata = CITIES_CS_METADATA;
 
 export default function ProMestaPage() {
     return <CitiesCsPage />;

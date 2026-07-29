@@ -1,5 +1,4 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -23,7 +22,6 @@ type Question = {
 };
 
 type HomepageContent = {
-    metadata: Metadata;
     loading: string;
     header: {
         fomoBefore: string;
@@ -152,30 +150,6 @@ type HomepageContent = {
 
 export const homepageContent = {
     cs: {
-        metadata: {
-            title: 'Promptbook - Okamžitý přístup ke všemu, co vaše firma kdy napsala',
-            description:
-                'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR. Česká AI platforma.',
-            alternates: {
-                canonical: '/cs',
-                languages: {
-                    cs: '/cs',
-                    en: '/en',
-                },
-            },
-            openGraph: {
-                title: 'Promptbook - Okamžitý přístup ke všemu, co vaše firma kdy napsala',
-                description:
-                    'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR.',
-                locale: 'cs_CZ',
-                type: 'website',
-            },
-            twitter: {
-                title: 'Promptbook - Okamžitý přístup ke všemu, co vaše firma kdy napsala',
-                description:
-                    'Nahrajte firemní dokumenty, vytvořte virtuálního zaměstnance a ptejte se normální češtinou. Bez promptů, bez halucinací, 100% GDPR.',
-            },
-        },
         loading: 'Načítání...',
         header: {
             fomoBefore: 'Zbývá',
@@ -562,30 +536,6 @@ export const homepageContent = {
         },
     },
     en: {
-        metadata: {
-            title: 'Promptbook - Instant access to everything your company has ever written',
-            description:
-                'Upload company documents, create a virtual employee, and ask questions in natural language. No prompting, no hallucinations, 100% GDPR. A Czech AI platform.',
-            alternates: {
-                canonical: '/en',
-                languages: {
-                    cs: '/cs',
-                    en: '/en',
-                },
-            },
-            openGraph: {
-                title: 'Promptbook - Instant access to everything your company has ever written',
-                description:
-                    'Upload company documents, create a virtual employee, and ask questions in natural language. No prompting, no hallucinations, 100% GDPR.',
-                locale: 'en_US',
-                type: 'website',
-            },
-            twitter: {
-                title: 'Promptbook - Instant access to everything your company has ever written',
-                description:
-                    'Upload company documents, create a virtual employee, and ask questions in natural language. No prompting, no hallucinations, 100% GDPR.',
-            },
-        },
         loading: 'Loading...',
         header: {
             fomoBefore: 'Only',
