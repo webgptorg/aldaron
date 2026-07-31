@@ -24,6 +24,16 @@ const nextConfig = {
                 destination: '/en/pavol',
                 permanent: true,
             },
+            {
+                source: '/jirka',
+                destination: 'https://www.linkedin.com/in/jirkajahn/',
+                permanent: true,
+            },
+            {
+                source: '/jiri',
+                destination: 'https://www.linkedin.com/in/jirkajahn/',
+                permanent: true,
+            },
         ];
     },
     allowedDevOrigins: ['*.macaly.dev', '*.macaly.app', '*.macaly-app.com', '*.macaly-user-data.dev'],
