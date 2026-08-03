@@ -1,5 +1,9 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { PRIVACY_METADATA } from '@/lib/metadata/site-page-definitions';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = PRIVACY_METADATA;
 
 export default function PrivacyPage() {
     return (

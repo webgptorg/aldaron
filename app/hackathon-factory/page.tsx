@@ -1,7 +1,7 @@
 import { HackathonFactoryPage } from '@/businesses/hackathon-factory/_HackathonFactoryPage';
-import { hackathonFactoryMetadata } from '@/businesses/hackathon-factory/hackathonFactoryMetadata';
+import { HACKATHON_FACTORY_METADATA } from '@/businesses/hackathon-factory/hackathonFactoryMetadata';
 
-export const metadata = hackathonFactoryMetadata;
+export const metadata = HACKATHON_FACTORY_METADATA;
 
 export default function HackathonFactoryRoute() {
     return <HackathonFactoryPage />;

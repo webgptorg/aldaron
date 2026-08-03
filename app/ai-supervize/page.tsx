@@ -1,7 +1,7 @@
 import { AiSupervizePage } from '@/businesses/ai-supervize/_AiSupervizePage';
-import { aiSupervizeMetadata } from '@/businesses/ai-supervize/aiSupervizeMetadata';
+import { AI_SUPERVIZE_METADATA } from '@/businesses/ai-supervize/aiSupervizeMetadata';
 
-export const metadata = aiSupervizeMetadata;
+export const metadata = AI_SUPERVIZE_METADATA;
 
 export default function AISupervizeRoute() {
     return <AiSupervizePage />;

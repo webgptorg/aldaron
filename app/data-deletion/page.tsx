@@ -1,6 +1,10 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { DATA_DELETION_METADATA } from '@/lib/metadata/site-page-definitions';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = DATA_DELETION_METADATA;
 
 export default function DataDeletionPage() {
     return (

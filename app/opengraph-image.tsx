@@ -1,10 +1,8 @@
-import { defaultSocialPreviewOptions } from '@/lib/social-preview-options';
-import { createSocialPreviewImage, socialImageContentType, socialImageSize } from '@/lib/social-preview-image';
+import { DEFAULT_SOCIAL_PREVIEW_OPTIONS } from '@/businesses/_generic/defaultMetadata';
+import { createSocialPreviewImageRoute } from '@/lib/metadata/social-preview-image-route';
 
-export const alt = defaultSocialPreviewOptions.alt;
-export const size = socialImageSize;
-export const contentType = socialImageContentType;
+const { alt, contentType, renderSocialPreviewImage, size } =
+    createSocialPreviewImageRoute(DEFAULT_SOCIAL_PREVIEW_OPTIONS);
 
-export default function OpenGraphImage() {
-    return createSocialPreviewImage(defaultSocialPreviewOptions);
-}
+export { alt, contentType, size };
+export default renderSocialPreviewImage;
