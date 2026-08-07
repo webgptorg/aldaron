@@ -1,10 +1,11 @@
+import { ONLINE_WORKSHOP_PATH, ONLINE_WORKSHOP_THANK_YOU_PATH } from '@/businesses/online-workshop/config';
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
 import type { Metadata } from 'next';
 
 export const ONLINE_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
-    path: '/cs/online-workshop',
+    path: ONLINE_WORKSHOP_PATH,
     language: 'cs',
     title: 'Promptbook | Online workshop zdarma',
     socialTitle: 'Online workshop zdarma',
@@ -19,7 +20,24 @@ export const ONLINE_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
     sitemapChangeFrequency: 'weekly',
 };
 
+/**
+ * Note: The page confirms a registration which already happened, it has nothing to offer to a visitor arriving from
+ *       search, so it stays out of the search results and out of the sitemap.
+ */
+export const ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: ONLINE_WORKSHOP_THANK_YOU_PATH,
+    language: 'cs',
+    title: 'Promptbook | Registrace na online workshop potvrzena',
+    socialTitle: 'Registrace na online workshop potvrzena',
+    description: 'Potvrzení registrace na bezplatný online workshop o psaní produkčního kódu s AI agenty.',
+    isIndexed: false,
+};
+
 export const ONLINE_WORKSHOP_METADATA: Metadata = createPageMetadata(ONLINE_WORKSHOP_PAGE_DEFINITION);
+
+export const ONLINE_WORKSHOP_THANK_YOU_METADATA: Metadata = createPageMetadata(
+    ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION,
+);
 
 export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(ONLINE_WORKSHOP_PAGE_DEFINITION, {
     eyebrow: 'Online workshop naživo',

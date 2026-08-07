@@ -1,11 +1,10 @@
 'use client';
 
 import { MinimalFooter } from '@/components/minimal-footer';
+import { MinimalHeader } from '@/components/minimal-header';
 import { CheckCircle2, Handshake, Mail, Phone, PhoneCall, Video } from 'lucide-react';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
 
 function ThankYouContent() {
     const searchParams = useSearchParams();
@@ -14,17 +13,7 @@ function ThankYouContent() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
-            {/* Header logo */}
-            <header className="py-6 px-6">
-                <div className="max-w-4xl mx-auto">
-                    <a href="/" className="flex items-center gap-2.5 w-fit">
-                        <Image src={promptbookLogo} alt="Promptbook" width={36} height={36} className="w-9 h-9" />
-                        <span className="text-xl text-gray-900">
-                            Prompt<b>book</b>
-                        </span>
-                    </a>
-                </div>
-            </header>
+            <MinimalHeader />
 
             {/* Main content */}
             <main className="flex-1 flex items-center justify-center px-6 py-12 md:py-20">

@@ -1,4 +1,4 @@
-import { GOOGLE_ANALYTICS_ID } from '@/config';
+import { GOOGLE_ANALYTICS_ID, META_PIXEL_ID } from '@/config';
 import { SITE_METADATA, SITE_VIEWPORT } from '@/lib/metadata/site-metadata';
 import { createOrganizationStructuredData, createWebSiteStructuredData } from '@/lib/metadata/structured-data';
 import { Metadata, Viewport } from 'next';
@@ -51,6 +51,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Script>
 
                 {/* Meta Pixel Code */}
+                {/*
+                    Note: The snippet runs on every real page load and reports a `PageView` of the current url, which is
+                          what the url based conversions in the Meta administration are built on. A page which must be
+                          measured as a conversion therefore has to be reached by a full page load.
+                */}
                 <Script id="meta-pixel" strategy="afterInteractive">
                     {spaceTrim(`
                         console.log('📈 Meta Pixel initialized');
@@ -63,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         t.src=v;s=b.getElementsByTagName(e)[0];
                         s.parentNode.insertBefore(t,s)}(window, document,'script',
                         'https://connect.facebook.net/en_US/fbevents.js');
-                        fbq('init', '1211494690544539');
+                        fbq('init', '${META_PIXEL_ID}');
                         fbq('track', 'PageView');
                     `)}
                 </Script>
@@ -77,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             height="1"
                             width="1"
                             style={{ display: 'none' }}
-                            src="https://www.facebook.com/tr?id=1211494690544539&ev=PageView&noscript=1"
+                            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
                             alt="Meta Pixel"
                         />
                     </noscript>

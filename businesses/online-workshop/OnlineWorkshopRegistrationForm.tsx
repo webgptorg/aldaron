@@ -1,13 +1,13 @@
 'use client';
 
-import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { ONLINE_WORKSHOP_THANK_YOU_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
@@ -26,8 +26,7 @@ export function OnlineWorkshopRegistrationForm() {
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showValidation, setShowValidation] = useState(false);
 
     const { fullnameError, emailError } = getFieldErrors({ fullname, email });
@@ -38,13 +37,13 @@ export function OnlineWorkshopRegistrationForm() {
 
         if (!canSubmit) {
             setShowValidation(true);
-            setError('Vyplňte prosím jméno a platný e-mail.');
+            setErrorMessage('Vyplňte prosím jméno a platný e-mail.');
             return;
         }
 
         setShowValidation(false);
         setIsSubmitting(true);
-        setError(null);
+        setErrorMessage(null);
 
         try {
             await subscribeToWaitlist({
@@ -54,29 +53,17 @@ export function OnlineWorkshopRegistrationForm() {
                 placeName: onlineWorkshopConfig.registrationPlaceName,
                 note: `Online workshop registration\nDate: ${onlineWorkshopConfig.date.weekdayLabel} ${onlineWorkshopConfig.date.dateLabel} ${onlineWorkshopConfig.date.time}`,
             });
-            setSuccess(true);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
-        } finally {
+
+            // Note: A full page load, not a client side route change - only that runs the Meta Pixel again and reports
+            //       a `PageView` of the thank you url, which is what the ad campaign optimizes on.
+            //       `isSubmitting` intentionally stays `true`, so the form cannot be sent twice while the browser
+            //       is still loading the thank you page.
+            window.location.assign(ONLINE_WORKSHOP_THANK_YOU_PATH);
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
             setIsSubmitting(false);
         }
     };
-
-    if (success) {
-        return (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-xl">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white">
-                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                </div>
-                <h3 className="mt-5 text-2xl font-bold text-slate-950">
-                    Máš místo. Uvidíme se {onlineWorkshopConfig.date.dateLabel} v {onlineWorkshopConfig.date.time}.
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                    Odkaz na připojení ti přijde na e-mail. Zkontroluj i spam a promotions.
-                </p>
-            </div>
-        );
-    }
 
     return (
         <form
@@ -169,7 +156,7 @@ export function OnlineWorkshopRegistrationForm() {
                     />
                 </div>
 
-                {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+                {errorMessage && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>}
 
                 <Button
                     type="submit"
