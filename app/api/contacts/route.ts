@@ -35,9 +35,22 @@ export async function PATCH(req: NextRequest) {
     if (!id) {
         return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
+
+    // Note: Only the fields which are really sent are updated, so changing one of them never overwrites the other one
+    const contactChanges: Record<string, unknown> = {};
+    if (ourNote !== undefined) {
+        contactChanges.ourNote = ourNote;
+    }
+    if (isContacted !== undefined) {
+        contactChanges.isContacted = isContacted;
+    }
+    if (Object.keys(contactChanges).length === 0) {
+        return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
+    }
+
     const supabase = createSupabaseClient();
     if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { error } = await supabase.from('Contact').update({ ourNote, isContacted }).eq('id', id);
+    const { error } = await supabase.from('Contact').update(contactChanges).eq('id', id);
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

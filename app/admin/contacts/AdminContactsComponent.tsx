@@ -1,304 +1,105 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useGetParam } from '@/hooks/useGetParam';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useResizableColumnWidths } from '@/hooks/useResizableColumnWidths';
+import type { ContactColumnKey, ContactDraft } from '@/lib/contacts/Contact';
+import {
+    DEFAULT_CONTACT_COLUMN_WIDTHS,
+    MAXIMAL_CONTACT_COLUMN_WIDTH,
+    MINIMAL_CONTACT_COLUMN_WIDTH,
+} from '@/lib/contacts/contactColumnDefinitions';
+import { DEFAULT_CONTACTS_FILTER, filterContacts, type ContactsFilter } from '@/lib/contacts/filterContacts';
+import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from '@/lib/contacts/sortContacts';
+import { useCallback, useMemo, useState } from 'react';
+import { AddContactForm } from './AddContactForm';
+import { ContactsExportBar } from './ContactsExportBar';
+import { ContactsFilterBar } from './ContactsFilterBar';
+import { ContactsTable } from './ContactsTable';
+import { useContacts } from './useContacts';
 
-// Helper component for truncated cells with tooltip
-const TruncatedCell = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
-    const content = String(children || '');
-    if (!content) return null;
+/**
+ * Key under which the widths of the columns survive a reload of the page
+ */
+const CONTACT_COLUMN_WIDTHS_STORAGE_KEY = 'admin-contacts-column-widths';
 
-    return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <div className={`cursor-help ${className}`}>{children}</div>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-md break-words">
-                <p>{content}</p>
-            </TooltipContent>
-        </Tooltip>
-    );
-};
-
+/**
+ * Dashboard which shows, filters, sorts and exports the gathered contacts and leads
+ */
 export default function AdminContactsComponent() {
-    const [token] = useGetParam('token');
-    const [contacts, setContacts] = useState<any[]>([]);
-    const [showAll, setShowAll] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newContact, setNewContact] = useState({
-        fullname: '',
-        email: '',
-        phone: '',
-        userNote: '',
-        appName: '',
-        placeName: '',
+    const [adminToken] = useGetParam('token');
+    const { contacts, isLoading, errorMessage, changeContact, addContact } = useContacts(adminToken);
+
+    const [filter, setFilter] = useState<ContactsFilter>(DEFAULT_CONTACTS_FILTER);
+    const [sortState, setSortState] = useState(DEFAULT_CONTACTS_SORT_STATE);
+    const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+
+    const { widths, startResizing, resetWidths } = useResizableColumnWidths({
+        defaultWidths: DEFAULT_CONTACT_COLUMN_WIDTHS,
+        minimalWidth: MINIMAL_CONTACT_COLUMN_WIDTH,
+        maximalWidth: MAXIMAL_CONTACT_COLUMN_WIDTH,
+        storageKey: CONTACT_COLUMN_WIDTHS_STORAGE_KEY,
     });
 
-    useEffect(() => {
-        setLoading(true);
-        fetch(`/api/contacts?token=${encodeURIComponent(token || '')}&showAll=${showAll}`)
-            .then((res) => res.json())
-            .then((data) => {
-                setContacts((data as { contacts: any[] }).contacts || []);
-                setLoading(false);
-            });
-    }, [showAll]);
+    // Note: This is the current view, exactly what is shown in the table and exactly what gets exported
+    const visibleContacts = useMemo(
+        () => sortContacts(filterContacts(contacts, filter), sortState),
+        [contacts, filter, sortState],
+    );
 
-    const handleAddContact = async () => {
-        const res = await fetch(`/api/contacts?token=${encodeURIComponent(token || '')}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newContact),
-        });
-        if (res.ok) {
-            const addedContact = await res.json();
-            setContacts((prev) => [addedContact, ...prev]);
-            setNewContact({
-                fullname: '',
-                email: '',
-                phone: '',
-                userNote: '',
-                appName: '',
-                placeName: '',
-            });
-            setShowAddForm(false);
-        }
-    };
+    const toggleSort = useCallback(
+        (columnKey: ContactColumnKey) =>
+            setSortState((previousSortState) => toggleContactsSortState(previousSortState, columnKey)),
+        [],
+    );
+
+    const handleAddContact = useCallback(
+        async (contactDraft: ContactDraft) => {
+            const isAdded = await addContact(contactDraft);
+            if (isAdded) {
+                setIsAddFormOpen(false);
+            }
+            return isAdded;
+        },
+        [addContact],
+    );
 
     return (
         <div className="p-8">
-            <h1 className="text-2xl font-bold mb-4">Contacts & Leads Dashboard</h1>
-            <div className="flex items-center mb-4 gap-2">
-                <Switch checked={showAll} onCheckedChange={setShowAll} />
-                <span>{showAll ? 'Show all contacts' : 'Showing only not contacted'}</span>
-                <Button onClick={() => setShowAddForm(!showAddForm)} variant={showAddForm ? 'outline' : 'default'}>
-                    {showAddForm ? 'Cancel' : 'Add Contact'}
-                </Button>
-                <Button
-                    onClick={() => {
-                        const headers = [
-                            'createdAt',
-                            'fullname',
-                            'email',
-                            'phone',
-                            'userNote',
-                            'isContacted',
-                            'ourNote',
-                            'userAgent',
-                            'ipAddress',
-                            'referrer',
-                            'appName',
-                            'placeName',
-                            'url',
-                        ];
-                        const csvRows = [
-                            headers.join(','),
-                            ...contacts.map((c) =>
-                                headers.map((h) => `"${(c[h] ?? '').toString().replace(/"/g, '""')}"`).join(','),
-                            ),
-                        ];
-                        const csvContent = csvRows.join('\r\n');
-                        const blob = new Blob([csvContent], { type: 'text/csv' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'contacts.csv';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }}
-                >
-                    Export CSV
-                </Button>
-            </div>
-            {showAddForm && (
-                <div className="mb-6 p-4 border rounded-lg bg-gray-50">
-                    <h2 className="text-xl font-semibold mb-4">Add New Contact</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Full Name</label>
-                            <Input
-                                type="text"
-                                value={newContact.fullname}
-                                onChange={(e) => setNewContact({ ...newContact, fullname: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Email</label>
-                            <Input
-                                type="email"
-                                value={newContact.email}
-                                onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Phone</label>
-                            <Input
-                                type="tel"
-                                value={newContact.phone}
-                                onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">App Name</label>
-                            <Input
-                                type="text"
-                                value={newContact.appName}
-                                onChange={(e) => setNewContact({ ...newContact, appName: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Place Name</label>
-                            <Input
-                                type="text"
-                                value={newContact.placeName}
-                                onChange={(e) => setNewContact({ ...newContact, placeName: e.target.value })}
-                            />
-                        </div>
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium mb-1">User Note</label>
-                            <Textarea
-                                className="w-full"
-                                value={newContact.userNote}
-                                onChange={(e) => setNewContact({ ...newContact, userNote: e.target.value })}
-                            />
-                        </div>
-                    </div>
-                    <Button className="mt-4" onClick={handleAddContact}>
-                        Save Contact
-                    </Button>
+            <h1 className="mb-4 text-2xl font-bold">Contacts & Leads Dashboard</h1>
+
+            {errorMessage !== null && (
+                <div className="mb-4 rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+                    {errorMessage}
                 </div>
             )}
-            {loading ? (
+
+            <ContactsFilterBar filter={filter} onChangeFilter={setFilter} />
+
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+                <ContactsExportBar exportedContacts={visibleContacts} totalContactsCount={contacts.length} />
+                <div className="grow" />
+                <Button variant="ghost" onClick={resetWidths} title="Set the widths of all the columns back to default">
+                    Reset column widths
+                </Button>
+                <Button onClick={() => setIsAddFormOpen(!isAddFormOpen)} variant={isAddFormOpen ? 'outline' : 'default'}>
+                    {isAddFormOpen ? 'Cancel' : 'Add Contact'}
+                </Button>
+            </div>
+
+            {isAddFormOpen && <AddContactForm onAddContact={handleAddContact} />}
+
+            {isLoading ? (
                 <div>Loading...</div>
             ) : (
-                <TooltipProvider>
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="">
-                                    <TableCell className="max-w-[120px]">Created At</TableCell>
-                                    <TableCell className="max-w-[150px]">Full Name</TableCell>
-                                    <TableCell className="max-w-[200px]">Email</TableCell>
-                                    <TableCell className="max-w-[120px]">Phone</TableCell>
-                                    <TableCell className="max-w-[200px]">User Note</TableCell>
-                                    <TableCell className="max-w-[100px]">Is Contacted</TableCell>
-                                    <TableCell className="min-w-[200px] max-w-[250px]">Our Note</TableCell>
-                                    <TableCell className="max-w-[300px]">User Agent</TableCell>
-                                    <TableCell className="max-w-[120px]">IP Address</TableCell>
-                                    <TableCell className="max-w-[200px]">Referrer</TableCell>
-                                    <TableCell className="max-w-[120px]">App Name</TableCell>
-                                    <TableCell className="max-w-[120px]">Place Name</TableCell>
-                                    <TableCell className="max-w-[200px]">URL</TableCell>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {contacts.map((c: any) => (
-                                    <TableRow key={c.id}>
-                                        <TableCell className="max-w-[120px]">
-                                            <TruncatedCell className="truncate">
-                                                {moment(c.createdAt).calendar()}
-                                            </TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[150px]">
-                                            <TruncatedCell className="truncate">{c.fullname}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[200px]">
-                                            <TruncatedCell className="truncate">{c.email}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[120px]">
-                                            <TruncatedCell className="truncate">{c.phone}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[200px]">
-                                            <TruncatedCell className="line-clamp-3">{c.userNote}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[100px]">
-                                            <Switch
-                                                checked={!!c.isContacted}
-                                                onCheckedChange={async (val) => {
-                                                    const res = await fetch(
-                                                        `/api/contacts?token=${encodeURIComponent(token || '')}`,
-                                                        {
-                                                            method: 'PATCH',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({
-                                                                id: c.id,
-                                                                isContacted: val,
-                                                                ourNote: c.ourNote,
-                                                            }),
-                                                        },
-                                                    );
-                                                    if (res.ok) {
-                                                        setContacts((prev) =>
-                                                            prev.map((row) =>
-                                                                row.id === c.id ? { ...row, isContacted: val } : row,
-                                                            ),
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="max-w-[250px]">
-                                            <Textarea
-                                                className="w-full h-full min-h-[100px]"
-                                                value={c.ourNote ?? ''}
-                                                onChange={async (e) => {
-                                                    const val = e.target.value;
-                                                    const res = await fetch(
-                                                        `/api/contacts?token=${encodeURIComponent(token || '')}`,
-                                                        {
-                                                            method: 'PATCH',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({
-                                                                id: c.id,
-                                                                ourNote: val,
-                                                                isContacted: c.isContacted,
-                                                            }),
-                                                        },
-                                                    );
-                                                    if (res.ok) {
-                                                        setContacts((prev) =>
-                                                            prev.map((row) =>
-                                                                row.id === c.id ? { ...row, ourNote: val } : row,
-                                                            ),
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="max-w-[300px]">
-                                            <TruncatedCell className="whitespace-normal break-words line-clamp-3">
-                                                {c.userAgent}
-                                            </TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[120px]">
-                                            <TruncatedCell className="truncate">{c.ipAddress}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[200px]">
-                                            <TruncatedCell className="truncate">{c.referrer}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[120px]">
-                                            <TruncatedCell className="truncate">{c.appName}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[120px]">
-                                            <TruncatedCell className="truncate">{c.placeName}</TruncatedCell>
-                                        </TableCell>
-                                        <TableCell className="max-w-[200px]">
-                                            <TruncatedCell className="truncate">{c.url}</TruncatedCell>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </TooltipProvider>
+                <ContactsTable
+                    contacts={visibleContacts}
+                    columnWidths={widths}
+                    sortState={sortState}
+                    onToggleSort={toggleSort}
+                    onStartColumnResize={startResizing}
+                    onChangeContact={changeContact}
+                />
             )}
         </div>
     );

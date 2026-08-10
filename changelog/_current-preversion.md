@@ -14,3 +14,9 @@
 - Replaced the static `manifest.json` and `robots.txt` with generated routes, aligning the app manifest theme color with the browser theme color and dropping the dead `browserconfig.xml` reference.
 - Moved the online workshop registration confirmation onto its own `/cs/online-workshop/dekujeme` url reached by a full page load, so the Meta Pixel reports a `PageView` of it and an ad campaign can optimize on real registrations instead of clicks.
 - Added "add to calendar" links and the follow-up steps to the online workshop confirmation, and reported it to the Meta Pixel as a `CompleteRegistration` event.
+- Rebuilt the `/admin/contacts` dashboard around one shared list of column definitions, so the table, the sorting, the fulltext search and both exports describe every column exactly once instead of repeating it.
+- Made the columns of the contacts table resizable by dragging the right edge of their header, which decides how much of the value is shown before the ellipsis "...", and remembered the widths for the next visit.
+- Made every column of the contacts table sortable, with the empty values kept at the end in both directions and the whole values still readable in a tooltip.
+- Added filtering of the contacts by a fulltext search, a created date range, the presence of the email, the phone or the user note, and by whether the contact was already contacted.
+- Added the download of the contacts as a CSV or a vCard file, which always exports the current view and says next to the buttons how many contacts that is.
+- Fixed the contacts CSV export mangling the diacritics in spreadsheet editors, and stopped a note being sent to the server on every single keystroke.

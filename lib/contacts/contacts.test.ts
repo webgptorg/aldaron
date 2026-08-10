@@ -1,0 +1,170 @@
+import { describe, expect, it } from 'vitest';
+import type { Contact } from './Contact';
+import { DEFAULT_CONTACTS_FILTER, EMPTY_CONTACTS_FILTER, filterContacts, isContactsFilterActive } from './filterContacts';
+import { serializeContactsAsCsv } from './serializeContactsAsCsv';
+import { serializeContactsAsVcard } from './serializeContactsAsVcard';
+import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from './sortContacts';
+
+/**
+ * Build one contact where only the interesting values are filled in
+ */
+function buildContact(contactValues: Partial<Contact>): Contact {
+    return {
+        id: 1,
+        createdAt: '2026-07-01T10:00:00.000Z',
+        fullname: null,
+        email: null,
+        phone: null,
+        userNote: null,
+        isContacted: null,
+        ourNote: null,
+        userAgent: null,
+        ipAddress: null,
+        referrer: null,
+        appName: null,
+        placeName: null,
+        url: null,
+        ...contactValues,
+    };
+}
+
+const NOVAK = buildContact({
+    id: 1,
+    fullname: 'Jan Novák',
+    email: 'jan@example.com',
+    createdAt: '2026-07-01T10:00:00.000Z',
+    userNote: 'Chce "AI", hned;\nzavolat',
+});
+
+const CAPEK = buildContact({
+    id: 2,
+    fullname: 'Karel Čapek',
+    phone: '+420123456789',
+    isContacted: true,
+    createdAt: '2026-07-15T10:00:00.000Z',
+});
+
+const ANONYMOUS = buildContact({ id: 3, createdAt: '2026-06-01T10:00:00.000Z' });
+
+const ALL_CONTACTS = [NOVAK, CAPEK, ANONYMOUS];
+
+describe('filterContacts', () => {
+    it('lets everything through with the empty filter', () => {
+        expect(filterContacts(ALL_CONTACTS, EMPTY_CONTACTS_FILTER)).toHaveLength(3);
+        expect(isContactsFilterActive(EMPTY_CONTACTS_FILTER)).toBe(false);
+    });
+
+    it('shows only the contacts which were not contacted yet by default', () => {
+        expect(filterContacts(ALL_CONTACTS, DEFAULT_CONTACTS_FILTER).map((contact) => contact.id)).toEqual([1, 3]);
+    });
+
+    it('finds by fulltext across the columns even without the diacritics', () => {
+        const foundContacts = filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, searchQuery: 'capek' });
+        expect(foundContacts.map((contact) => contact.id)).toEqual([2]);
+    });
+
+    it('requires every single word of the fulltext query', () => {
+        expect(filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, searchQuery: 'jan example' })).toHaveLength(1);
+        expect(filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, searchQuery: 'jan capek' })).toHaveLength(0);
+    });
+
+    it('filters by the presence of the email and of the phone', () => {
+        expect(filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, emailPresence: 'PRESENT' })).toHaveLength(1);
+        expect(filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, emailPresence: 'MISSING' })).toHaveLength(2);
+        expect(filterContacts(ALL_CONTACTS, { ...EMPTY_CONTACTS_FILTER, phonePresence: 'PRESENT' })).toHaveLength(1);
+    });
+
+    it('filters by a date range which includes both of its bounds', () => {
+        const contactsFromJuly = filterContacts(ALL_CONTACTS, {
+            ...EMPTY_CONTACTS_FILTER,
+            createdFromDate: '2026-07-01',
+            createdToDate: '2026-07-15',
+        });
+        expect(contactsFromJuly.map((contact) => contact.id)).toEqual([1, 2]);
+    });
+});
+
+describe('sortContacts', () => {
+    it('sorts the newest contacts first by default', () => {
+        expect(sortContacts(ALL_CONTACTS, DEFAULT_CONTACTS_SORT_STATE).map((contact) => contact.id)).toEqual([2, 1, 3]);
+    });
+
+    it('keeps the contacts with an empty value at the end in both directions', () => {
+        const ascending = sortContacts(ALL_CONTACTS, { columnKey: 'fullname', direction: 'ASCENDING' });
+        const descending = sortContacts(ALL_CONTACTS, { columnKey: 'fullname', direction: 'DESCENDING' });
+        expect(ascending.map((contact) => contact.id)).toEqual([1, 2, 3]);
+        expect(descending.map((contact) => contact.id)).toEqual([2, 1, 3]);
+    });
+
+    it('turns the direction around on the same column and starts fresh on another one', () => {
+        expect(toggleContactsSortState(DEFAULT_CONTACTS_SORT_STATE, 'createdAt').direction).toBe('ASCENDING');
+        expect(toggleContactsSortState(DEFAULT_CONTACTS_SORT_STATE, 'email')).toEqual({
+            columnKey: 'email',
+            direction: 'ASCENDING',
+        });
+    });
+
+    it('never mutates the given contacts', () => {
+        const originalContacts = [...ALL_CONTACTS];
+        sortContacts(ALL_CONTACTS, { columnKey: 'email', direction: 'ASCENDING' });
+        expect(ALL_CONTACTS).toEqual(originalContacts);
+    });
+});
+
+describe('serializeContactsAsCsv', () => {
+    const csv = serializeContactsAsCsv([NOVAK]);
+
+    it('starts with the byte order mark and with the header of every column', () => {
+        expect(csv.charCodeAt(0)).toBe(0xfeff);
+        expect(csv.split('\r\n')[0]).toContain('"createdAt","fullname","email","phone","userNote","isContacted"');
+    });
+
+    it('escapes the quotes and keeps the newlines inside of a quoted field', () => {
+        expect(csv).toContain('"Chce ""AI"", hned;\nzavolat"');
+    });
+
+    it('writes the date and the switch in a machine readable way', () => {
+        expect(serializeContactsAsCsv([CAPEK])).toContain('"yes"');
+        expect(csv).toMatch(/"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/);
+    });
+});
+
+describe('serializeContactsAsVcard', () => {
+    it('writes one well formed card per contact', () => {
+        const vcard = serializeContactsAsVcard(ALL_CONTACTS);
+        expect(vcard.match(/^BEGIN:VCARD$/gm)).toHaveLength(3);
+        expect(vcard.match(/^END:VCARD$/gm)).toHaveLength(3);
+        expect(vcard).toContain('VERSION:3.0');
+    });
+
+    it('splits the full name into the given name and the family name', () => {
+        expect(serializeContactsAsVcard([CAPEK])).toContain('N:Čapek;Karel;;;');
+    });
+
+    it('falls back to something readable when there is no name at all', () => {
+        expect(serializeContactsAsVcard([ANONYMOUS])).toContain('FN:Contact #3');
+    });
+
+    it('escapes the characters which have a special meaning', () => {
+        const vcard = serializeContactsAsVcard([NOVAK]);
+        expect(vcard).toContain('hned\\;');
+        expect(vcard).toContain('\\n');
+    });
+
+    it('folds every line to the length required by the specification', () => {
+        const contactWithLongNote = buildContact({ id: 4, userNote: 'a'.repeat(500), fullname: 'Dlouhá Poznámka' });
+        const vcard = serializeContactsAsVcard([contactWithLongNote]);
+
+        for (const line of vcard.split('\r\n')) {
+            expect(line.length).toBeLessThanOrEqual(75);
+        }
+    });
+
+    it('writes the revision as an ISO timestamp', () => {
+        expect(serializeContactsAsVcard([NOVAK])).toContain('REV:2026-07-01T10:00:00.000Z');
+    });
+
+    it('omits the properties which have no value', () => {
+        expect(serializeContactsAsVcard([ANONYMOUS])).not.toContain('EMAIL');
+    });
+});
