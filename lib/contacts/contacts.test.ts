@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Contact } from './Contact';
 import { DEFAULT_CONTACTS_FILTER, EMPTY_CONTACTS_FILTER, filterContacts, isContactsFilterActive } from './filterContacts';
+import { CONTACTS_PER_PAGE_OPTIONS, DEFAULT_CONTACTS_PER_PAGE, paginateContacts } from './paginateContacts';
 import { serializeContactsAsCsv } from './serializeContactsAsCsv';
 import { serializeContactsAsVcard } from './serializeContactsAsVcard';
 import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from './sortContacts';
@@ -139,6 +140,55 @@ describe('sortContacts', () => {
         const originalContacts = [...ALL_CONTACTS];
         sortContacts(ALL_CONTACTS, { columnKey: 'email', direction: 'ASCENDING' });
         expect(ALL_CONTACTS).toEqual(originalContacts);
+    });
+});
+
+describe('paginateContacts', () => {
+    const PAGINATED_CONTACTS = Array.from({ length: 250 }, (_, index) => buildContact({ id: index + 1 }));
+
+    it('offers every required page size and defaults to 100 contacts', () => {
+        expect(CONTACTS_PER_PAGE_OPTIONS).toEqual([50, 100, 200, 500, 'ALL']);
+        expect(DEFAULT_CONTACTS_PER_PAGE).toBe(100);
+    });
+
+    it('shows 100 contacts on the default page size', () => {
+        const contactsPage = paginateContacts(PAGINATED_CONTACTS, 2, DEFAULT_CONTACTS_PER_PAGE);
+
+        expect(contactsPage.pageContacts).toHaveLength(100);
+        expect(contactsPage.pageContacts[0].id).toBe(101);
+        expect(contactsPage.pageContacts.at(-1)?.id).toBe(200);
+        expect(contactsPage).toMatchObject({
+            currentPage: 2,
+            totalPages: 3,
+            totalContactsCount: 250,
+            firstContactNumber: 101,
+            lastContactNumber: 200,
+        });
+    });
+
+    it('shows every contact on one page when all contacts are selected', () => {
+        const contactsPage = paginateContacts(PAGINATED_CONTACTS, 2, 'ALL');
+
+        expect(contactsPage.pageContacts).toEqual(PAGINATED_CONTACTS);
+        expect(contactsPage).toMatchObject({
+            currentPage: 1,
+            totalPages: 1,
+            firstContactNumber: 1,
+            lastContactNumber: 250,
+        });
+    });
+
+    it('keeps the table on its last available page after a filter removes contacts', () => {
+        const contactsPage = paginateContacts(PAGINATED_CONTACTS.slice(0, 120), 5, 50);
+
+        expect(contactsPage.pageContacts).toHaveLength(20);
+        expect(contactsPage.pageContacts[0].id).toBe(101);
+        expect(contactsPage).toMatchObject({
+            currentPage: 3,
+            totalPages: 3,
+            firstContactNumber: 101,
+            lastContactNumber: 120,
+        });
     });
 });
 

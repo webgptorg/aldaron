@@ -10,11 +10,13 @@ import {
     MINIMAL_CONTACT_COLUMN_WIDTH,
 } from '@/lib/contacts/contactColumnDefinitions';
 import { DEFAULT_CONTACTS_FILTER, filterContacts, type ContactsFilter } from '@/lib/contacts/filterContacts';
+import { DEFAULT_CONTACTS_PER_PAGE, paginateContacts, type ContactsPerPage } from '@/lib/contacts/paginateContacts';
 import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from '@/lib/contacts/sortContacts';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AddContactForm } from './AddContactForm';
 import { ContactsExportBar } from './ContactsExportBar';
 import { ContactsFilterBar } from './ContactsFilterBar';
+import { ContactsPagination } from './ContactsPagination';
 import { ContactsTable } from './ContactsTable';
 import { useContacts } from './useContacts';
 
@@ -32,6 +34,8 @@ export default function AdminContactsComponent() {
 
     const [filter, setFilter] = useState<ContactsFilter>(DEFAULT_CONTACTS_FILTER);
     const [sortState, setSortState] = useState(DEFAULT_CONTACTS_SORT_STATE);
+    const [contactsPerPage, setContactsPerPage] = useState<ContactsPerPage>(DEFAULT_CONTACTS_PER_PAGE);
+    const [currentPage, setCurrentPage] = useState(1);
     const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
     const { widths, startResizing, resetWidths } = useResizableColumnWidths({
@@ -41,16 +45,47 @@ export default function AdminContactsComponent() {
         storageKey: CONTACT_COLUMN_WIDTHS_STORAGE_KEY,
     });
 
-    // Note: This is the current view, exactly what is shown in the table and exactly what gets exported
-    const visibleContacts = useMemo(
+    const filteredAndSortedContacts = useMemo(
         () => sortContacts(filterContacts(contacts, filter), sortState),
         [contacts, filter, sortState],
     );
 
+    const contactsPage = useMemo(
+        () => paginateContacts(filteredAndSortedContacts, currentPage, contactsPerPage),
+        [contactsPerPage, currentPage, filteredAndSortedContacts],
+    );
+
+    // An inline edit can make the final contact on a page stop matching the active filter
+    useEffect(() => {
+        setCurrentPage((previousPage) =>
+            previousPage === contactsPage.currentPage ? previousPage : contactsPage.currentPage,
+        );
+    }, [contactsPage.currentPage]);
+
+    const showFirstContactsPage = useCallback(() => setCurrentPage(1), []);
+
+    const changeFilter = useCallback(
+        (newFilter: ContactsFilter) => {
+            setFilter(newFilter);
+            showFirstContactsPage();
+        },
+        [showFirstContactsPage],
+    );
+
     const toggleSort = useCallback(
-        (columnKey: ContactColumnKey) =>
+        (columnKey: ContactColumnKey) => {
             setSortState((previousSortState) => toggleContactsSortState(previousSortState, columnKey)),
-        [],
+            showFirstContactsPage();
+        },
+        [showFirstContactsPage],
+    );
+
+    const changeContactsPerPage = useCallback(
+        (newContactsPerPage: ContactsPerPage) => {
+            setContactsPerPage(newContactsPerPage);
+            showFirstContactsPage();
+        },
+        [showFirstContactsPage],
     );
 
     const handleAddContact = useCallback(
@@ -74,10 +109,10 @@ export default function AdminContactsComponent() {
                 </div>
             )}
 
-            <ContactsFilterBar filter={filter} onChangeFilter={setFilter} />
+            <ContactsFilterBar filter={filter} onChangeFilter={changeFilter} />
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <ContactsExportBar exportedContacts={visibleContacts} totalContactsCount={contacts.length} />
+                <ContactsExportBar contacts={contacts} />
                 <div className="grow" />
                 <Button variant="ghost" onClick={resetWidths} title="Set the widths of all the columns back to default">
                     Reset column widths
@@ -92,14 +127,22 @@ export default function AdminContactsComponent() {
             {isLoading ? (
                 <div>Loading...</div>
             ) : (
-                <ContactsTable
-                    contacts={visibleContacts}
-                    columnWidths={widths}
-                    sortState={sortState}
-                    onToggleSort={toggleSort}
-                    onStartColumnResize={startResizing}
-                    onChangeContact={changeContact}
-                />
+                <>
+                    <ContactsTable
+                        contacts={contactsPage.pageContacts}
+                        columnWidths={widths}
+                        sortState={sortState}
+                        onToggleSort={toggleSort}
+                        onStartColumnResize={startResizing}
+                        onChangeContact={changeContact}
+                    />
+                    <ContactsPagination
+                        contactsPage={contactsPage}
+                        contactsPerPage={contactsPerPage}
+                        onChangePage={setCurrentPage}
+                        onChangeContactsPerPage={changeContactsPerPage}
+                    />
+                </>
             )}
         </div>
     );

@@ -16,7 +16,7 @@ export function buildContactsExportFileName(format: ContactsExportFormat): strin
 /**
  * Serialize the given contacts and download them as a file
  *
- * Note: Whatever is passed in is exported, so the dashboard always exports exactly the contacts which are on the screen
+ * Note: The caller decides the export scope by supplying the contacts to serialize
  */
 export function exportContacts(contacts: readonly Contact[], format: ContactsExportFormat): void {
     downloadTextFile({

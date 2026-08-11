@@ -17,7 +17,7 @@ function buildContactsApiUrl(
 /**
  * Load every contact from the database
  *
- * Note: All the contacts are loaded at once and filtered in the browser, so that the exports match the shown table
+ * Note: All contacts are loaded at once so the browser can filter, sort and paginate the table while exports include every contact
  */
 export async function fetchContacts(adminToken: string | null): Promise<Array<Contact>> {
     const response = await fetch(buildContactsApiUrl(adminToken, { showAll: 'true' }));

@@ -28,7 +28,7 @@ type ContactsFilterBarProps = {
 };
 
 /**
- * Everything the user can narrow the shown (and therefore also the exported) contacts down by
+ * Everything the user can narrow the shown contacts down by
  */
 export function ContactsFilterBar(props: ContactsFilterBarProps) {
     const { filter, onChangeFilter } = props;
