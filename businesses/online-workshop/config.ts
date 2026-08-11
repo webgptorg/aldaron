@@ -1,3 +1,5 @@
+import type { WorkshopSettings } from '@/lib/workshop/workshopTypes';
+
 /**
  * Site-relative path of the online workshop landing page
  */
@@ -11,6 +13,19 @@ export const ONLINE_WORKSHOP_PATH = '/cs/online-workshop';
  *       so a conversion defined by this url would never be reported.
  */
 export const ONLINE_WORKSHOP_THANK_YOU_PATH = `${ONLINE_WORKSHOP_PATH}/dekujeme`;
+
+/**
+ * Site-relative path of the page a registered participant spends the workshop on
+ */
+export const ONLINE_WORKSHOP_PARTICIPANT_PATH = `${ONLINE_WORKSHOP_PATH}/participant`;
+
+/**
+ * Identifier under which everything about this workshop is stored in the database
+ *
+ * Note: Every row of the workshop tables carries it, so a second workshop can live in the very same tables without
+ *       ever meeting the content, the chat or the reactions of this one.
+ */
+export const ONLINE_WORKSHOP_ID = 'cs-online-workshop';
 
 export const onlineWorkshopConfig = {
     date: {
@@ -26,3 +41,19 @@ export const onlineWorkshopConfig = {
     },
     registrationPlaceName: 'OnlineWorkshopRegistration',
 } as const;
+
+/**
+ * Settings the participant page runs on until the administration saves its own
+ *
+ * Note: They repeat nothing - the moment of the start is the very same one the landing page and the calendar links
+ *       are built from.
+ */
+export const ONLINE_WORKSHOP_DEFAULT_SETTINGS: WorkshopSettings = {
+    workshopId: ONLINE_WORKSHOP_ID,
+    title: 'Jak s AI agenty psát produkční kód',
+    startsAt: new Date(onlineWorkshopConfig.date.startsAt).toISOString(),
+    youtubeVideoId: null,
+    isStreamLive: false,
+    streamNote: null,
+    isChatEnabled: true,
+};

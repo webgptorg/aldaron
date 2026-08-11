@@ -20,3 +20,7 @@
 - Added filtering of the contacts by a fulltext search, a created date range, the presence of the email, the phone or the user note, and by whether the contact was already contacted.
 - Added the download of the contacts as a CSV or a vCard file, which always exports the current view and says next to the buttons how many contacts that is.
 - Fixed the contacts CSV export mangling the diacritics in spreadsheet editors, and stopped a note being sent to the server on every single keystroke.
+- Added the room of the online workshop on `/cs/online-workshop/participant`, where a participant writes their name and then watches the countdown, the stream which starts on its own the moment the countdown ends, the materials, the live chat and the reactions of the whole room.
+- Made the materials of the workshop unlock each at its own moment, whether that is half an hour into the workshop or two days after it, and made everything the room shows reach an already connected participant within seconds, without anybody reloading anything.
+- Added the `/admin/workshop` dashboard behind the same `?token=` link as the rest of the administration, which sets the start, the YouTube stream and the chat, writes the materials in Markdown, unlocks them with one click and moderates the chat.
+- Wrote down the rule who may write into the administration exactly once, so the contacts api and the whole workshop api ask the very same question instead of each repeating it.

@@ -1,4 +1,8 @@
-import { ONLINE_WORKSHOP_PATH, ONLINE_WORKSHOP_THANK_YOU_PATH } from '@/businesses/online-workshop/config';
+import {
+    ONLINE_WORKSHOP_PARTICIPANT_PATH,
+    ONLINE_WORKSHOP_PATH,
+    ONLINE_WORKSHOP_THANK_YOU_PATH,
+} from '@/businesses/online-workshop/config';
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
@@ -33,10 +37,27 @@ export const ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION: PageMetadataDefinition =
     isIndexed: false,
 };
 
+/**
+ * Note: The room of the workshop belongs to the registered participants, a visitor arriving from search would only
+ *       find a countdown, so it stays out of the search results and out of the sitemap.
+ */
+export const ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: ONLINE_WORKSHOP_PARTICIPANT_PATH,
+    language: 'cs',
+    title: 'Promptbook | Online workshop naživo',
+    socialTitle: 'Online workshop naživo',
+    description: 'Živé vysílání, materiály a chat bezplatného online workshopu o psaní produkčního kódu s AI agenty.',
+    isIndexed: false,
+};
+
 export const ONLINE_WORKSHOP_METADATA: Metadata = createPageMetadata(ONLINE_WORKSHOP_PAGE_DEFINITION);
 
 export const ONLINE_WORKSHOP_THANK_YOU_METADATA: Metadata = createPageMetadata(
     ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION,
+);
+
+export const ONLINE_WORKSHOP_PARTICIPANT_METADATA: Metadata = createPageMetadata(
+    ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION,
 );
 
 export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(ONLINE_WORKSHOP_PAGE_DEFINITION, {

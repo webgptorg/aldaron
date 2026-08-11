@@ -80,6 +80,15 @@ export const ADMIN_CONTACTS_PAGE_DEFINITION: PageMetadataDefinition = {
     isIndexed: false,
 };
 
+export const ADMIN_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: '/admin/workshop',
+    language: 'en',
+    title: 'Online workshop administration | Promptbook',
+    description:
+        'Internal administration of the online workshop room - its start, its stream, the unlocking of the materials and the moderation of the chat.',
+    isIndexed: false,
+};
+
 export const BRANDING_METADATA: Metadata = createPageMetadata(BRANDING_PAGE_DEFINITION);
 export const CONTACT_METADATA: Metadata = createPageMetadata(CONTACT_PAGE_DEFINITION);
 export const PRIVACY_METADATA: Metadata = createPageMetadata(PRIVACY_PAGE_DEFINITION);
@@ -88,3 +97,4 @@ export const DATA_DELETION_METADATA: Metadata = createPageMetadata(DATA_DELETION
 export const SHORTENER_METADATA: Metadata = createPageMetadata(SHORTENER_PAGE_DEFINITION);
 export const THANK_YOU_METADATA: Metadata = createPageMetadata(THANK_YOU_PAGE_DEFINITION);
 export const ADMIN_CONTACTS_METADATA: Metadata = createPageMetadata(ADMIN_CONTACTS_PAGE_DEFINITION);
+export const ADMIN_WORKSHOP_METADATA: Metadata = createPageMetadata(ADMIN_WORKSHOP_PAGE_DEFINITION);

@@ -1,14 +1,15 @@
 // app/api/contacts/route.ts
+import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { createSupabaseClient } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     const url = new URL(req.url);
-    const token = url.searchParams.get('token');
     const showAll = url.searchParams.get('showAll') === 'true';
 
-    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(req);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
     }
 
     const supabase = createSupabaseClient();
@@ -25,11 +26,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-    const url = new URL(req.url);
-    const token = url.searchParams.get('token');
-    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(req);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
     }
+
     const body = await req.json();
     const { id, ourNote, isContacted } = body as any;
     if (!id) {
@@ -58,11 +59,11 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const url = new URL(req.url);
-    const token = url.searchParams.get('token');
-    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(req);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
     }
+
     const body = await req.json();
     const { fullname, email, phone, userNote, appName, placeName } = body as any;
 

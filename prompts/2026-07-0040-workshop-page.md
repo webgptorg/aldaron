@@ -1,4 +1,4 @@
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $4.83 5 hours; Testing a minute
 
 [✨🛳] Create a workshop page of `/cs/online-workshop/participant`
 
@@ -14,3 +14,4 @@
 - The backend is not locked under the user and password, but use the simple admin token already used in `/admin` pages
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
+
