@@ -30,6 +30,11 @@ export type ContactColumnCellKind =
     | 'EDITABLE_NOTE';
 
 /**
+ * Kind of destination a contact column can link to
+ */
+export type ContactColumnLinkKind = 'EMAIL' | 'PHONE' | 'WEB_URL';
+
+/**
  * Description of one column of the contacts table
  *
  * Note: This is the single source of truth shared by the table, the sorting, the filtering and all the exports
@@ -38,6 +43,11 @@ export type ContactColumnDefinition = {
     readonly key: ContactColumnKey;
     readonly label: string;
     readonly cellKind: ContactColumnCellKind;
+
+    /**
+     * Link behavior of a text value, when the column represents a way to reach the contact or their source page
+     */
+    readonly linkKind?: ContactColumnLinkKind;
 
     /**
      * Width in pixels used until the user resizes the column
@@ -71,17 +81,17 @@ export const MULTILINE_CONTACT_CELL_LINE_COUNT = 3;
 export const CONTACT_COLUMN_DEFINITIONS: readonly ContactColumnDefinition[] = [
     { key: 'createdAt', label: 'Created At', cellKind: 'DATE', defaultWidth: 140 },
     { key: 'fullname', label: 'Full Name', cellKind: 'TEXT', defaultWidth: 150 },
-    { key: 'email', label: 'Email', cellKind: 'TEXT', defaultWidth: 200 },
-    { key: 'phone', label: 'Phone', cellKind: 'TEXT', defaultWidth: 120 },
+    { key: 'email', label: 'Email', cellKind: 'TEXT', linkKind: 'EMAIL', defaultWidth: 200 },
+    { key: 'phone', label: 'Phone', cellKind: 'TEXT', linkKind: 'PHONE', defaultWidth: 120 },
     { key: 'userNote', label: 'User Note', cellKind: 'MULTILINE_TEXT', defaultWidth: 200 },
     { key: 'isContacted', label: 'Is Contacted', cellKind: 'CONTACTED_SWITCH', defaultWidth: 100 },
     { key: 'ourNote', label: 'Our Note', cellKind: 'EDITABLE_NOTE', defaultWidth: 250 },
     { key: 'userAgent', label: 'User Agent', cellKind: 'MULTILINE_TEXT', defaultWidth: 300 },
     { key: 'ipAddress', label: 'IP Address', cellKind: 'TEXT', defaultWidth: 120 },
-    { key: 'referrer', label: 'Referrer', cellKind: 'TEXT', defaultWidth: 200 },
+    { key: 'referrer', label: 'Referrer', cellKind: 'TEXT', linkKind: 'WEB_URL', defaultWidth: 200 },
     { key: 'appName', label: 'App Name', cellKind: 'TEXT', defaultWidth: 120 },
     { key: 'placeName', label: 'Place Name', cellKind: 'TEXT', defaultWidth: 120 },
-    { key: 'url', label: 'URL', cellKind: 'TEXT', defaultWidth: 200 },
+    { key: 'url', label: 'URL', cellKind: 'TEXT', linkKind: 'WEB_URL', defaultWidth: 200 },
 ];
 
 /**

@@ -7,13 +7,19 @@ import {
     type ContactsViewState,
 } from './contactsViewState';
 import { describeContactsExportScope } from './exportContacts';
-import { DEFAULT_CONTACTS_FILTER, EMPTY_CONTACTS_FILTER, filterContacts, isContactsFilterActive } from './filterContacts';
+import {
+    DEFAULT_CONTACTS_FILTER,
+    EMPTY_CONTACTS_FILTER,
+    filterContacts,
+    isContactsFilterActive,
+} from './filterContacts';
 import {
     CONTACTS_PER_PAGE_OPTIONS,
     DEFAULT_CONTACTS_PER_PAGE,
     paginateContacts,
     parseContactsPerPage,
 } from './paginateContacts';
+import { getContactLink } from './contactLinks';
 import { serializeContactsAsCsv } from './serializeContactsAsCsv';
 import { serializeContactsAsVcard } from './serializeContactsAsVcard';
 import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from './sortContacts';
@@ -152,6 +158,34 @@ describe('sortContacts', () => {
         const originalContacts = [...ALL_CONTACTS];
         sortContacts(ALL_CONTACTS, { columnKey: 'email', direction: 'ASCENDING' });
         expect(ALL_CONTACTS).toEqual(originalContacts);
+    });
+});
+
+describe('getContactLink', () => {
+    it('links an email address and phone number with their matching browser protocols', () => {
+        expect(getContactLink(NOVAK, 'email')).toEqual({ href: 'mailto:jan@example.com' });
+        expect(getContactLink(CAPEK, 'phone')).toEqual({ href: 'tel:+420123456789' });
+    });
+
+    it('links both URL-valued columns in a new tab', () => {
+        expect(getContactLink(HEJNY, 'url')).toEqual({
+            href: 'https://ptbk.io/cs/online-workshop',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+        });
+        expect(
+            getContactLink(buildContact({ referrer: 'https://example.com/search?q=promptbook' }), 'referrer'),
+        ).toEqual({
+            href: 'https://example.com/search?q=promptbook',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+        });
+    });
+
+    it('keeps missing, ordinary, and unsafe URL values as plain text', () => {
+        expect(getContactLink(ANONYMOUS, 'email')).toBeNull();
+        expect(getContactLink(NOVAK, 'fullname')).toBeNull();
+        expect(getContactLink(buildContact({ url: 'javascript:alert()' }), 'url')).toBeNull();
     });
 });
 

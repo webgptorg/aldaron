@@ -7,6 +7,7 @@ import {
     MULTILINE_CONTACT_CELL_LINE_COUNT,
     type ContactColumnDefinition,
 } from '@/lib/contacts/contactColumnDefinitions';
+import { getContactLink } from '@/lib/contacts/contactLinks';
 import { formatContactValueForDisplay } from '@/lib/contacts/contactValues';
 import { TruncatedText } from './TruncatedText';
 
@@ -41,10 +42,14 @@ export function ContactsTableCell(props: ContactsTableCellProps) {
         );
     }
 
+    const text = formatContactValueForDisplay(contact, column.key);
+    const link = getContactLink(contact, column.key);
+
     return (
         <TruncatedText
-            text={formatContactValueForDisplay(contact, column.key)}
+            text={text}
             lineCount={column.cellKind === 'MULTILINE_TEXT' ? MULTILINE_CONTACT_CELL_LINE_COUNT : 1}
+            link={link ?? undefined}
         />
     );
 }
