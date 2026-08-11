@@ -14,3 +14,58 @@
 
 ![alt text](prompts/screenshots/2026-07-0030-contact-filters.png)
 
+---
+
+[ ]
+
+[✨⇨] Enhance the export to VCARD functionality
+
+The exported contact should look like this:
+
+```vcard
+BEGIN:VCARD
+VERSION:3.0
+N:Hejný;Pavol;;;
+FN:Pavol Hejný
+EMAIL;TYPE=INTERNET:me@pavolhejny.com
+TEL;TYPE=CELL:+420777777777
+ORG:Landing page
+NOTE:Promptbook contact from Landing page -> OnlineWorkshopRegistration
+ Online workshop registration Date: čtvrtek 20. 8. 2026 19:00
+REV:2026-08-11T04:19:04.597Z
+UID:contact-810
+END:VCARD
+```
+
+- The `ORG` and `URL` fields should not be filled because they are not representing the organization of the contact, but the landing page where the contact was gathered.
+- For the VCARD export the isContacted field is irrelevant and should not be included in the export.
+- On the other hand, the `NOTE` field should contain all the information about the contact
+    - It should have format `Promptbook contact from <app name> -> <place name>\n<users note>`
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just changing how the data is exported to VCARD.
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] Add pagination to the contacts table
+
+- By default, show 100 contacts per page. Allow to change this to 50, 100, 200, 500, or all contacts.
+- When exporting, always export ALL contacts, not just the current page.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just editing the viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] The contacts table cannot be horizontally scrolled, fix it
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just editing the viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
