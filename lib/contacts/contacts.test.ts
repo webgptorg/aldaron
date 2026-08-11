@@ -524,10 +524,23 @@ describe('serializeContactsAsVcard', () => {
         expect(serializeContactsAsVcard([ANONYMOUS])).not.toContain('EMAIL');
     });
 
-    it('says where the contact was gathered and then repeats the user note', () => {
+    it('says where the contact was gathered and then repeats both the note of the user and our own note', () => {
         expect(readVcardPropertyValue(serializeContactsAsVcard([HEJNY]), 'NOTE')).toBe(
             'Promptbook contact from Landing page -> OnlineWorkshopRegistration\\n' +
-                'Online workshop registration Date: čtvrtek 20. 8. 2026 19:00',
+                'Online workshop registration Date: čtvrtek 20. 8. 2026 19:00\\n' +
+                'Zavolat po workshopu',
+        );
+    });
+
+    it('writes only the note which is there when the other one is missing', () => {
+        const contactWithOurNoteOnly = buildContact({ id: 6, ourNote: 'Zavolat po workshopu' });
+        const contactWithUserNoteOnly = buildContact({ id: 7, userNote: 'Chci demo' });
+
+        expect(readVcardPropertyValue(serializeContactsAsVcard([contactWithOurNoteOnly]), 'NOTE')).toBe(
+            'Promptbook contact\\nZavolat po workshopu',
+        );
+        expect(readVcardPropertyValue(serializeContactsAsVcard([contactWithUserNoteOnly]), 'NOTE')).toBe(
+            'Promptbook contact\\nChci demo',
         );
     });
 
@@ -539,11 +552,8 @@ describe('serializeContactsAsVcard', () => {
         expect(vcard).not.toContain('https://ptbk.io/cs/online-workshop');
     });
 
-    it('leaves out our own workflow, which is whether the contact was already contacted and our internal note', () => {
-        const vcard = serializeContactsAsVcard([HEJNY]);
-
-        expect(vcard).not.toContain('Is Contacted');
-        expect(vcard).not.toContain('Zavolat po workshopu');
+    it('leaves out our own workflow, which is whether the contact was already contacted', () => {
+        expect(serializeContactsAsVcard([HEJNY])).not.toContain('Is Contacted');
     });
 
     it('drops the separator of the origin when only the application is known', () => {

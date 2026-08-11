@@ -16,6 +16,43 @@ type MutableContactChanges = {
 };
 
 /**
+ * Unique column by which one single contact is found and ordered
+ */
+const CONTACT_ID_COLUMN = 'id';
+
+/**
+ * How many contacts one mutation of the dashboard is ever allowed to touch
+ */
+const ONE_CONTACT_LIMIT = 1;
+
+/**
+ * A mutation which can still be narrowed down to one row, described only by the methods the narrowing needs
+ */
+type ScopableContactMutation<ScopedMutation> = {
+    eq(
+        column: string,
+        value: number,
+    ): {
+        order(column: string): {
+            limit(count: number): ScopedMutation;
+        };
+    };
+};
+
+/**
+ * Narrow one mutation down to exactly the one requested contact, so that no other contact can ever be touched
+ *
+ * Note: PostgREST refuses a `limit` which has no explicit `order` ("A 'limit' was applied without an explicit 'order'"),
+ *       therefore the rows are ordered by the unique id, which makes the limited mutation unambiguous
+ */
+function scopeMutationToOneContact<ScopedMutation>(
+    mutation: ScopableContactMutation<ScopedMutation>,
+    contactId: number,
+): ScopedMutation {
+    return mutation.eq(CONTACT_ID_COLUMN, contactId).order(CONTACT_ID_COLUMN).limit(ONE_CONTACT_LIMIT);
+}
+
+/**
  * Is the parsed JSON body an object which can contain a contact mutation
  */
 function isContactRequestBody(value: unknown): value is Record<string, unknown> {
@@ -120,11 +157,7 @@ export async function PATCH(request: NextRequest) {
 
     const supabase = createSupabaseClient();
     if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { data, error } = await supabase
-        .from('Contact')
-        .update(contactChanges)
-        .eq('id', contactId)
-        .limit(1)
+    const { data, error } = await scopeMutationToOneContact(supabase.from('Contact').update(contactChanges), contactId)
         .select()
         .maybeSingle();
     if (error) {
@@ -198,11 +231,7 @@ export async function DELETE(request: NextRequest) {
 
     const supabase = createSupabaseClient();
     if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { data, error } = await supabase
-        .from('Contact')
-        .delete()
-        .eq('id', contactId)
-        .limit(1)
+    const { data, error } = await scopeMutationToOneContact(supabase.from('Contact').delete(), contactId)
         .select('id')
         .maybeSingle();
     if (error) {

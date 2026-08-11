@@ -127,12 +127,16 @@ function buildVcardNoteHeadline(contact: Contact): string {
 }
 
 /**
- * Everything worth knowing about the contact which no standard vCard property can hold
+ * Everything worth knowing about the contact which no standard vCard property can hold, which is where the contact
+ * comes from, what they wrote to us themselves and what we noted about them, each of them only when it is filled in
  *
  * Note: Whether we have already contacted them is our own workflow, an address book has no use for it
  */
 function buildVcardNote(contact: Contact): string {
-    return joinFilledParts([buildVcardNoteHeadline(contact), contact.userNote], VCARD_NOTE_LINE_SEPARATOR);
+    return joinFilledParts(
+        [buildVcardNoteHeadline(contact), contact.userNote, contact.ourNote],
+        VCARD_NOTE_LINE_SEPARATOR,
+    );
 }
 
 /**

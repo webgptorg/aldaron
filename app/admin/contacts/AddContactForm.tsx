@@ -1,7 +1,7 @@
 'use client';
 
 import type { ContactDraft } from '@/lib/contacts/Contact';
-import { EMPTY_CONTACT_DRAFT } from '@/lib/contacts/Contact';
+import { CONTACT_DRAFT_FIELD_NAMES, EMPTY_CONTACT_DRAFT } from '@/lib/contacts/Contact';
 import { ContactForm } from './ContactForm';
 
 type AddContactFormProps = {
@@ -19,7 +19,8 @@ export function AddContactForm(props: AddContactFormProps) {
         <div className="mb-6 rounded-lg border bg-muted/30 p-4">
             <h2 className="mb-4 text-xl font-semibold">Add New Contact</h2>
             <ContactForm
-                initialContactDraft={EMPTY_CONTACT_DRAFT}
+                fieldNames={CONTACT_DRAFT_FIELD_NAMES}
+                initialContactValues={EMPTY_CONTACT_DRAFT}
                 saveButtonLabel="Save Contact"
                 onSaveContact={onAddContact}
                 onContactSaved={onContactAdded}

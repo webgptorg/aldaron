@@ -3,46 +3,62 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import type { ContactDraft, ContactDraftFieldName } from '@/lib/contacts/Contact';
+import type { ContactEditableTextFieldName, ContactTextValues } from '@/lib/contacts/Contact';
+import { getContactColumnDefinition } from '@/lib/contacts/contactColumnDefinitions';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 
 /**
- * Fields of the form, so their labels and controls are defined only once for both adding and editing a contact
+ * How one contact field is filled in
+ *
+ * Note: The label is not written down here, both the contacts table and this form read it from the column definition
  */
-const CONTACT_FORM_FIELDS: readonly {
-    readonly key: ContactDraftFieldName;
-    readonly label: string;
+type ContactFormFieldControl = {
+    readonly fieldName: ContactEditableTextFieldName;
     readonly inputType?: string;
     readonly isMultiline?: boolean;
-}[] = [
-    { key: 'fullname', label: 'Full Name', inputType: 'text' },
-    { key: 'email', label: 'Email', inputType: 'email' },
-    { key: 'phone', label: 'Phone', inputType: 'tel' },
-    { key: 'appName', label: 'App Name', inputType: 'text' },
-    { key: 'placeName', label: 'Place Name', inputType: 'text' },
-    { key: 'userNote', label: 'User Note', isMultiline: true },
+};
+
+/**
+ * Every field a contact form can offer, in the order in which they are shown
+ *
+ * Note: The notes come last, because each of them takes the full width of the form
+ */
+const CONTACT_FORM_FIELD_CONTROLS: readonly ContactFormFieldControl[] = [
+    { fieldName: 'fullname', inputType: 'text' },
+    { fieldName: 'email', inputType: 'email' },
+    { fieldName: 'phone', inputType: 'tel' },
+    { fieldName: 'appName', inputType: 'text' },
+    { fieldName: 'placeName', inputType: 'text' },
+    { fieldName: 'userNote', isMultiline: true },
+    { fieldName: 'ourNote', isMultiline: true },
 ];
 
-type ContactFormProps = {
-    readonly initialContactDraft: ContactDraft;
+type ContactFormProps<FieldName extends ContactEditableTextFieldName> = {
+    readonly fieldNames: readonly FieldName[];
+    readonly initialContactValues: ContactTextValues<FieldName>;
     readonly saveButtonLabel: string;
-    readonly onSaveContact: (contactDraft: ContactDraft) => Promise<boolean>;
+    readonly onSaveContact: (contactValues: ContactTextValues<FieldName>) => Promise<boolean>;
     readonly onContactSaved?: () => void;
     readonly onCancel?: () => void;
 };
 
 /**
- * Fields shared by the add-contact panel and the edit-contact dialog
+ * Fields shared by the add-contact panel and the edit-contact dialog, only the ones the caller asks for
  */
-export function ContactForm(props: ContactFormProps) {
-    const { initialContactDraft, saveButtonLabel, onSaveContact, onContactSaved, onCancel } = props;
+export function ContactForm<FieldName extends ContactEditableTextFieldName>(props: ContactFormProps<FieldName>) {
+    const { fieldNames, initialContactValues, saveButtonLabel, onSaveContact, onContactSaved, onCancel } = props;
 
-    const [contactDraft, setContactDraft] = useState<ContactDraft>(initialContactDraft);
+    const [contactValues, setContactValues] = useState<ContactTextValues<FieldName>>(initialContactValues);
     const [isSaving, setIsSaving] = useState(false);
 
-    const changeContactDraftValue = (fieldName: ContactDraftFieldName, fieldValue: string) => {
-        setContactDraft((previousContactDraft) => ({ ...previousContactDraft, [fieldName]: fieldValue }));
+    const shownFieldControls = CONTACT_FORM_FIELD_CONTROLS.filter(
+        (fieldControl): fieldControl is ContactFormFieldControl & { readonly fieldName: FieldName } =>
+            (fieldNames as readonly ContactEditableTextFieldName[]).includes(fieldControl.fieldName),
+    );
+
+    const changeContactValue = (fieldName: FieldName, fieldValue: string) => {
+        setContactValues((previousContactValues) => ({ ...previousContactValues, [fieldName]: fieldValue }));
     };
 
     const handleSaveContact = async (event: FormEvent<HTMLFormElement>) => {
@@ -51,7 +67,7 @@ export function ContactForm(props: ContactFormProps) {
 
         let isSaved = false;
         try {
-            isSaved = await onSaveContact(contactDraft);
+            isSaved = await onSaveContact(contactValues);
         } finally {
             setIsSaving(false);
         }
@@ -64,20 +80,25 @@ export function ContactForm(props: ContactFormProps) {
     return (
         <form onSubmit={handleSaveContact}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {CONTACT_FORM_FIELDS.map((field) => (
-                    <label key={field.key} className={field.isMultiline ? 'sm:col-span-2' : undefined}>
-                        <span className="mb-1 block text-sm font-medium">{field.label}</span>
-                        {field.isMultiline ? (
+                {shownFieldControls.map((fieldControl) => (
+                    <label
+                        key={fieldControl.fieldName}
+                        className={fieldControl.isMultiline ? 'sm:col-span-2' : undefined}
+                    >
+                        <span className="mb-1 block text-sm font-medium">
+                            {getContactColumnDefinition(fieldControl.fieldName).label}
+                        </span>
+                        {fieldControl.isMultiline ? (
                             <Textarea
                                 className="w-full"
-                                value={contactDraft[field.key]}
-                                onChange={(event) => changeContactDraftValue(field.key, event.target.value)}
+                                value={contactValues[fieldControl.fieldName]}
+                                onChange={(event) => changeContactValue(fieldControl.fieldName, event.target.value)}
                             />
                         ) : (
                             <Input
-                                type={field.inputType}
-                                value={contactDraft[field.key]}
-                                onChange={(event) => changeContactDraftValue(field.key, event.target.value)}
+                                type={fieldControl.inputType}
+                                value={contactValues[fieldControl.fieldName]}
+                                onChange={(event) => changeContactValue(fieldControl.fieldName, event.target.value)}
                             />
                         )}
                     </label>

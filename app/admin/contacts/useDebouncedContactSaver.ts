@@ -11,7 +11,7 @@ const CONTACT_SAVE_DEBOUNCE_MILLISECONDS = 600;
 
 type DebouncedContactSaver = {
     readonly saveContactChanges: (contactId: number, contactChanges: ContactChanges) => void;
-    readonly cancelContactChanges: (contactId: number) => void;
+    readonly takePendingContactChanges: (contactId: number) => ContactChanges | null;
 };
 
 /**
@@ -68,15 +68,24 @@ export function useDebouncedContactSaver(
         [adminToken, onSaveError],
     );
 
-    const cancelContactChanges = useCallback((contactId: number) => {
+    /**
+     * Stop the delayed save of one contact and hand its unsaved changes over to the caller
+     *
+     * Note: The caller decides what happens to them, it either saves them together with its own changes or drops them
+     */
+    const takePendingContactChanges = useCallback((contactId: number): ContactChanges | null => {
         const pendingTimeout = pendingTimeoutsRef.current.get(contactId);
         if (pendingTimeout !== undefined) {
             clearTimeout(pendingTimeout);
         }
 
         pendingTimeoutsRef.current.delete(contactId);
+
+        const pendingChanges = pendingChangesRef.current.get(contactId) ?? null;
         pendingChangesRef.current.delete(contactId);
+
+        return pendingChanges;
     }, []);
 
-    return { saveContactChanges, cancelContactChanges };
+    return { saveContactChanges, takePendingContactChanges };
 }

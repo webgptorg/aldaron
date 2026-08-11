@@ -1,6 +1,6 @@
 'use client';
 
-import type { Contact, ContactChanges, ContactDraft } from '@/lib/contacts/Contact';
+import type { Contact, ContactChanges, ContactDraft, ContactTextValues } from '@/lib/contacts/Contact';
 import {
     createContact,
     deleteContact as deleteContactRequest,
@@ -16,7 +16,7 @@ type UseContactsResult = {
     readonly errorMessage: string | null;
     readonly changeContact: (contactId: number, contactChanges: ContactChanges) => void;
     readonly addContact: (contactDraft: ContactDraft) => Promise<boolean>;
-    readonly editContact: (contactId: number, contactDraft: ContactDraft) => Promise<boolean>;
+    readonly editContact: (contactId: number, contactValues: ContactTextValues) => Promise<boolean>;
     readonly deleteContact: (contactId: number) => Promise<boolean>;
 };
 
@@ -30,7 +30,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const { saveContactChanges, cancelContactChanges } = useDebouncedContactSaver(adminToken, setErrorMessage);
+    const { saveContactChanges, takePendingContactChanges } = useDebouncedContactSaver(adminToken, setErrorMessage);
 
     useEffect(() => {
         let isLoadingActive = true;
@@ -91,9 +91,16 @@ export function useContacts(adminToken: string | null): UseContactsResult {
     );
 
     const editContact = useCallback(
-        async (contactId: number, contactDraft: ContactDraft): Promise<boolean> => {
+        async (contactId: number, contactValues: ContactTextValues): Promise<boolean> => {
+            // The dialog holds the newest text of every field, a delayed change of the same contact must not undo it
+            // afterwards, so it is saved together with the dialog instead of on its own.
+            const pendingContactChanges = takePendingContactChanges(contactId);
+
             try {
-                const updatedContact = await updateContact(adminToken, contactId, contactDraft);
+                const updatedContact = await updateContact(adminToken, contactId, {
+                    ...pendingContactChanges,
+                    ...contactValues,
+                });
                 setContacts((previousContacts) =>
                     previousContacts.map((contact) => (contact.id === contactId ? updatedContact : contact)),
                 );
@@ -104,13 +111,13 @@ export function useContacts(adminToken: string | null): UseContactsResult {
                 return false;
             }
         },
-        [adminToken],
+        [adminToken, takePendingContactChanges],
     );
 
     const deleteContact = useCallback(
         async (contactId: number): Promise<boolean> => {
-            // A delayed update must not run after the contact row was removed.
-            cancelContactChanges(contactId);
+            // A delayed update must not run after the contact row was removed, so its changes are dropped.
+            takePendingContactChanges(contactId);
 
             try {
                 await deleteContactRequest(adminToken, contactId);
@@ -122,7 +129,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
                 return false;
             }
         },
-        [adminToken, cancelContactChanges],
+        [adminToken, takePendingContactChanges],
     );
 
     return { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact };

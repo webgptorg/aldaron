@@ -38,38 +38,9 @@ export const CONTACT_DRAFT_FIELD_NAMES = ['fullname', 'email', 'phone', 'userNot
 export type ContactDraftFieldName = (typeof CONTACT_DRAFT_FIELD_NAMES)[number];
 
 /**
- * Values which can be filled in when a contact is added manually through the dashboard
- */
-export type ContactDraft = Readonly<Record<ContactDraftFieldName, string>>;
-
-/**
- * Empty contact draft used as the initial state of the "add contact" form
- */
-export const EMPTY_CONTACT_DRAFT: ContactDraft = {
-    fullname: '',
-    email: '',
-    phone: '',
-    userNote: '',
-    appName: '',
-    placeName: '',
-};
-
-/**
- * Start an editable draft with the values of one existing contact
- */
-export function createContactDraftFromContact(contact: Contact): ContactDraft {
-    return {
-        fullname: contact.fullname ?? '',
-        email: contact.email ?? '',
-        phone: contact.phone ?? '',
-        userNote: contact.userNote ?? '',
-        appName: contact.appName ?? '',
-        placeName: contact.placeName ?? '',
-    };
-}
-
-/**
  * Text fields which can be changed on an existing contact
+ *
+ * Note: `ourNote` is written only by us, so it is offered once the contact exists and never while it is being added
  */
 export const CONTACT_EDITABLE_TEXT_FIELD_NAMES = [...CONTACT_DRAFT_FIELD_NAMES, 'ourNote'] as const;
 
@@ -77,6 +48,37 @@ export const CONTACT_EDITABLE_TEXT_FIELD_NAMES = [...CONTACT_DRAFT_FIELD_NAMES, 
  * Name of one editable text field of an existing contact
  */
 export type ContactEditableTextFieldName = (typeof CONTACT_EDITABLE_TEXT_FIELD_NAMES)[number];
+
+/**
+ * Values of the contact text fields which are filled in together by one form
+ *
+ * Note: A form works with empty strings while the database works with `null`, the contacts api turns one into the other
+ */
+export type ContactTextValues<FieldName extends ContactEditableTextFieldName = ContactEditableTextFieldName> = Readonly<
+    Record<FieldName, string>
+>;
+
+/**
+ * Values which can be filled in when a contact is added manually through the dashboard
+ */
+export type ContactDraft = ContactTextValues<ContactDraftFieldName>;
+
+/**
+ * Read the given text fields of one contact, with every value which is not filled in as an empty string
+ */
+export function pickContactTextValues<FieldName extends ContactEditableTextFieldName>(
+    contact: Readonly<Partial<Contact>>,
+    fieldNames: readonly FieldName[],
+): ContactTextValues<FieldName> {
+    return Object.fromEntries(
+        fieldNames.map((fieldName) => [fieldName, contact[fieldName] ?? ''] as const),
+    ) as ContactTextValues<FieldName>;
+}
+
+/**
+ * Empty contact draft used as the initial state of the "add contact" form
+ */
+export const EMPTY_CONTACT_DRAFT: ContactDraft = pickContactTextValues({}, CONTACT_DRAFT_FIELD_NAMES);
 
 /**
  * Fields of an existing contact which can be changed from the dashboard

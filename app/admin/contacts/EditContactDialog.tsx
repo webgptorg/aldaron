@@ -1,12 +1,17 @@
 'use client';
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { createContactDraftFromContact, type Contact, type ContactDraft } from '@/lib/contacts/Contact';
+import {
+    CONTACT_EDITABLE_TEXT_FIELD_NAMES,
+    pickContactTextValues,
+    type Contact,
+    type ContactTextValues,
+} from '@/lib/contacts/Contact';
 import { ContactForm } from './ContactForm';
 
 type EditContactDialogProps = {
     readonly contact: Contact;
-    readonly onEditContact: (contactId: number, contactDraft: ContactDraft) => Promise<boolean>;
+    readonly onEditContact: (contactId: number, contactValues: ContactTextValues) => Promise<boolean>;
     readonly onClose: () => void;
 };
 
@@ -29,15 +34,16 @@ export function EditContactDialog(props: EditContactDialogProps) {
                 <DialogHeader>
                     <DialogTitle>Edit Contact</DialogTitle>
                     <DialogDescription>
-                        Update the contact details. The contacted status and our internal note stay editable in the
-                        table.
+                        Update the contact details, including both notes. The contacted status and our note stay
+                        editable in the table as well.
                     </DialogDescription>
                 </DialogHeader>
                 <ContactForm
                     key={contact.id}
-                    initialContactDraft={createContactDraftFromContact(contact)}
+                    fieldNames={CONTACT_EDITABLE_TEXT_FIELD_NAMES}
+                    initialContactValues={pickContactTextValues(contact, CONTACT_EDITABLE_TEXT_FIELD_NAMES)}
                     saveButtonLabel="Save Changes"
-                    onSaveContact={(contactDraft) => onEditContact(contact.id, contactDraft)}
+                    onSaveContact={(contactValues) => onEditContact(contact.id, contactValues)}
                     onContactSaved={onClose}
                     onCancel={onClose}
                 />
