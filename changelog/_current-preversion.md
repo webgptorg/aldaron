@@ -29,3 +29,4 @@
 - Told search engines the page is a podcast rather than one more page, and put it into the sitemap and onto its own sharing preview built from the colors of the cover artwork.
 - Moved the reading of a YouTube address out of the workshop, so the podcast page uses the very same one instead of a second copy of it, and made the e-mail check and the intro of a section shared as well rather than repeated on every page which needs them.
 - Stopped the exported vCard claiming that our landing page is the organization and the website of the contact, and made its note say in one sentence where the contact was gathered before it repeats what the contact wrote.
+- Stopped the contacts export ignoring the filter, so the downloaded CSV or vCard again holds exactly the current view, all of its pages included, and says so next to the buttons.

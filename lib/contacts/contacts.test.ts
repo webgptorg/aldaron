@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Contact } from './Contact';
+import { describeContactsExportScope } from './exportContacts';
 import { DEFAULT_CONTACTS_FILTER, EMPTY_CONTACTS_FILTER, filterContacts, isContactsFilterActive } from './filterContacts';
 import { CONTACTS_PER_PAGE_OPTIONS, DEFAULT_CONTACTS_PER_PAGE, paginateContacts } from './paginateContacts';
 import { serializeContactsAsCsv } from './serializeContactsAsCsv';
@@ -189,6 +190,47 @@ describe('paginateContacts', () => {
             firstContactNumber: 101,
             lastContactNumber: 120,
         });
+    });
+});
+
+describe('the scope of the export', () => {
+    const GATHERED_CONTACTS = Array.from({ length: 250 }, (_, index) =>
+        buildContact({ id: index + 1, email: index % 2 === 0 ? `contact-${index}@example.com` : null }),
+    );
+
+    /**
+     * The current view of the dashboard, which is exactly what gets exported
+     */
+    const exportedContacts = sortContacts(
+        filterContacts(GATHERED_CONTACTS, { ...EMPTY_CONTACTS_FILTER, emailPresence: 'PRESENT' }),
+        DEFAULT_CONTACTS_SORT_STATE,
+    );
+
+    it('is every contact which matches the filter, not only the ones on the shown page', () => {
+        const contactsPage = paginateContacts(exportedContacts, 1, DEFAULT_CONTACTS_PER_PAGE);
+
+        expect(contactsPage.pageContacts).toHaveLength(100);
+        expect(exportedContacts).toHaveLength(125);
+    });
+
+    it('says how much of the gathered contacts is being exported', () => {
+        expect(describeContactsExportScope(exportedContacts.length, GATHERED_CONTACTS.length)).toBe(
+            '125 of 250 contacts which match the filter, across all pages',
+        );
+    });
+
+    it('says that everything is being exported when the filter narrows nothing down', () => {
+        expect(describeContactsExportScope(GATHERED_CONTACTS.length, GATHERED_CONTACTS.length)).toBe(
+            'all 250 contacts',
+        );
+    });
+
+    it('keeps the wording readable when nothing was gathered at all', () => {
+        expect(describeContactsExportScope(0, 0)).toBe('no contacts');
+    });
+
+    it('still names the whole amount when the filter matches nothing', () => {
+        expect(describeContactsExportScope(0, 250)).toBe('0 of 250 contacts which match the filter, across all pages');
     });
 });
 

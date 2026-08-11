@@ -14,6 +14,23 @@ export function buildContactsExportFileName(format: ContactsExportFormat): strin
 }
 
 /**
+ * Sentence which says how many contacts are going to be downloaded and how narrow that selection is
+ *
+ * Note: Only the filter narrows the export down, splitting the table into pages never does
+ */
+export function describeContactsExportScope(exportedContactsCount: number, totalContactsCount: number): string {
+    if (totalContactsCount === 0) {
+        return 'no contacts';
+    }
+
+    if (exportedContactsCount === totalContactsCount) {
+        return `all ${totalContactsCount} contacts`;
+    }
+
+    return `${exportedContactsCount} of ${totalContactsCount} contacts which match the filter, across all pages`;
+}
+
+/**
  * Serialize the given contacts and download them as a file
  *
  * Note: The caller decides the export scope by supplying the contacts to serialize

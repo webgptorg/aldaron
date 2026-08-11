@@ -45,6 +45,7 @@ export default function AdminContactsComponent() {
         storageKey: CONTACT_COLUMN_WIDTHS_STORAGE_KEY,
     });
 
+    // Note: This is the current view, the table pages through it and the export downloads all of it
     const filteredAndSortedContacts = useMemo(
         () => sortContacts(filterContacts(contacts, filter), sortState),
         [contacts, filter, sortState],
@@ -112,7 +113,7 @@ export default function AdminContactsComponent() {
             <ContactsFilterBar filter={filter} onChangeFilter={changeFilter} />
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <ContactsExportBar contacts={contacts} />
+                <ContactsExportBar exportedContacts={filteredAndSortedContacts} totalContactsCount={contacts.length} />
                 <div className="grow" />
                 <Button variant="ghost" onClick={resetWidths} title="Set the widths of all the columns back to default">
                     Reset column widths
