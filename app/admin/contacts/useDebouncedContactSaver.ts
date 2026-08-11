@@ -9,6 +9,11 @@ import { useCallback, useEffect, useRef } from 'react';
  */
 const CONTACT_SAVE_DEBOUNCE_MILLISECONDS = 600;
 
+type DebouncedContactSaver = {
+    readonly saveContactChanges: (contactId: number, contactChanges: ContactChanges) => void;
+    readonly cancelContactChanges: (contactId: number) => void;
+};
+
 /**
  * Save the changes of a contact to the server, but not more often than once per `CONTACT_SAVE_DEBOUNCE_MILLISECONDS`
  *
@@ -17,7 +22,7 @@ const CONTACT_SAVE_DEBOUNCE_MILLISECONDS = 600;
 export function useDebouncedContactSaver(
     adminToken: string | null,
     onSaveError: (errorMessage: string) => void,
-): (contactId: number, contactChanges: ContactChanges) => void {
+): DebouncedContactSaver {
     const pendingChangesRef = useRef(new Map<number, ContactChanges>());
     const pendingTimeoutsRef = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
@@ -27,10 +32,11 @@ export function useDebouncedContactSaver(
         return () => {
             pendingTimeouts.forEach((pendingTimeout) => clearTimeout(pendingTimeout));
             pendingTimeouts.clear();
+            pendingChangesRef.current.clear();
         };
     }, []);
 
-    return useCallback(
+    const saveContactChanges = useCallback(
         (contactId: number, contactChanges: ContactChanges) => {
             const pendingChanges = pendingChangesRef.current;
             const pendingTimeouts = pendingTimeoutsRef.current;
@@ -61,4 +67,16 @@ export function useDebouncedContactSaver(
         },
         [adminToken, onSaveError],
     );
+
+    const cancelContactChanges = useCallback((contactId: number) => {
+        const pendingTimeout = pendingTimeoutsRef.current.get(contactId);
+        if (pendingTimeout !== undefined) {
+            clearTimeout(pendingTimeout);
+        }
+
+        pendingTimeoutsRef.current.delete(contactId);
+        pendingChangesRef.current.delete(contactId);
+    }, []);
+
+    return { saveContactChanges, cancelContactChanges };
 }

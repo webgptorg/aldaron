@@ -28,16 +28,19 @@ export type Contact = {
 export type ContactColumnKey = Exclude<keyof Contact, 'id'>;
 
 /**
+ * Fields which may be filled in when a contact is added manually through the dashboard
+ */
+export const CONTACT_DRAFT_FIELD_NAMES = ['fullname', 'email', 'phone', 'userNote', 'appName', 'placeName'] as const;
+
+/**
+ * Name of one manually maintained contact field
+ */
+export type ContactDraftFieldName = (typeof CONTACT_DRAFT_FIELD_NAMES)[number];
+
+/**
  * Values which can be filled in when a contact is added manually through the dashboard
  */
-export type ContactDraft = {
-    readonly fullname: string;
-    readonly email: string;
-    readonly phone: string;
-    readonly userNote: string;
-    readonly appName: string;
-    readonly placeName: string;
-};
+export type ContactDraft = Readonly<Record<ContactDraftFieldName, string>>;
 
 /**
  * Empty contact draft used as the initial state of the "add contact" form
@@ -52,9 +55,34 @@ export const EMPTY_CONTACT_DRAFT: ContactDraft = {
 };
 
 /**
+ * Start an editable draft with the values of one existing contact
+ */
+export function createContactDraftFromContact(contact: Contact): ContactDraft {
+    return {
+        fullname: contact.fullname ?? '',
+        email: contact.email ?? '',
+        phone: contact.phone ?? '',
+        userNote: contact.userNote ?? '',
+        appName: contact.appName ?? '',
+        placeName: contact.placeName ?? '',
+    };
+}
+
+/**
+ * Text fields which can be changed on an existing contact
+ */
+export const CONTACT_EDITABLE_TEXT_FIELD_NAMES = [...CONTACT_DRAFT_FIELD_NAMES, 'ourNote'] as const;
+
+/**
+ * Name of one editable text field of an existing contact
+ */
+export type ContactEditableTextFieldName = (typeof CONTACT_EDITABLE_TEXT_FIELD_NAMES)[number];
+
+/**
  * Fields of an existing contact which can be changed from the dashboard
  */
 export type ContactChanges = {
+    readonly [fieldName in ContactEditableTextFieldName]?: string | null;
+} & {
     readonly isContacted?: boolean;
-    readonly ourNote?: string;
 };

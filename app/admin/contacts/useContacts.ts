@@ -1,7 +1,12 @@
 'use client';
 
 import type { Contact, ContactChanges, ContactDraft } from '@/lib/contacts/Contact';
-import { createContact, fetchContacts } from '@/lib/contacts/contactsApiClient';
+import {
+    createContact,
+    deleteContact as deleteContactRequest,
+    fetchContacts,
+    updateContact,
+} from '@/lib/contacts/contactsApiClient';
 import { useCallback, useEffect, useState } from 'react';
 import { useDebouncedContactSaver } from './useDebouncedContactSaver';
 
@@ -11,6 +16,8 @@ type UseContactsResult = {
     readonly errorMessage: string | null;
     readonly changeContact: (contactId: number, contactChanges: ContactChanges) => void;
     readonly addContact: (contactDraft: ContactDraft) => Promise<boolean>;
+    readonly editContact: (contactId: number, contactDraft: ContactDraft) => Promise<boolean>;
+    readonly deleteContact: (contactId: number) => Promise<boolean>;
 };
 
 /**
@@ -23,7 +30,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const saveContactChanges = useDebouncedContactSaver(adminToken, setErrorMessage);
+    const { saveContactChanges, cancelContactChanges } = useDebouncedContactSaver(adminToken, setErrorMessage);
 
     useEffect(() => {
         let isLoadingActive = true;
@@ -83,5 +90,40 @@ export function useContacts(adminToken: string | null): UseContactsResult {
         [adminToken],
     );
 
-    return { contacts, isLoading, errorMessage, changeContact, addContact };
+    const editContact = useCallback(
+        async (contactId: number, contactDraft: ContactDraft): Promise<boolean> => {
+            try {
+                const updatedContact = await updateContact(adminToken, contactId, contactDraft);
+                setContacts((previousContacts) =>
+                    previousContacts.map((contact) => (contact.id === contactId ? updatedContact : contact)),
+                );
+                setErrorMessage(null);
+                return true;
+            } catch (error) {
+                setErrorMessage((error as Error).message);
+                return false;
+            }
+        },
+        [adminToken],
+    );
+
+    const deleteContact = useCallback(
+        async (contactId: number): Promise<boolean> => {
+            // A delayed update must not run after the contact row was removed.
+            cancelContactChanges(contactId);
+
+            try {
+                await deleteContactRequest(adminToken, contactId);
+                setContacts((previousContacts) => previousContacts.filter((contact) => contact.id !== contactId));
+                setErrorMessage(null);
+                return true;
+            } catch (error) {
+                setErrorMessage((error as Error).message);
+                return false;
+            }
+        },
+        [adminToken, cancelContactChanges],
+    );
+
+    return { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact };
 }

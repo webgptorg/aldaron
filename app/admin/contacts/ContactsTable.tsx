@@ -3,10 +3,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import type { Contact, ContactChanges, ContactColumnKey } from '@/lib/contacts/Contact';
-import { CONTACT_COLUMN_DEFINITIONS } from '@/lib/contacts/contactColumnDefinitions';
+import { CONTACT_ACTIONS_COLUMN_WIDTH, CONTACT_COLUMN_DEFINITIONS } from '@/lib/contacts/contactColumnDefinitions';
 import type { ContactsSortState } from '@/lib/contacts/sortContacts';
 import type { ColumnWidths } from '@/hooks/useResizableColumnWidths';
 import type { PointerEvent } from 'react';
+import { ContactActions } from './ContactActions';
 import { ContactsTableCell } from './ContactsTableCell';
 import { ContactsTableHeaderCell } from './ContactsTableHeaderCell';
 
@@ -17,6 +18,8 @@ type ContactsTableProps = {
     readonly onToggleSort: (columnKey: ContactColumnKey) => void;
     readonly onStartColumnResize: (columnKey: string, pointerEvent: PointerEvent) => void;
     readonly onChangeContact: (contactId: number, contactChanges: ContactChanges) => void;
+    readonly onEditContact: (contact: Contact) => void;
+    readonly onDeleteContact: (contactId: number) => Promise<boolean>;
 };
 
 /**
@@ -25,11 +28,20 @@ type ContactsTableProps = {
  * Note: The layout is fixed and driven by `columnWidths`, so a narrower column really does cut its text sooner
  */
 export function ContactsTable(props: ContactsTableProps) {
-    const { contacts, columnWidths, sortState, onToggleSort, onStartColumnResize, onChangeContact } = props;
+    const {
+        contacts,
+        columnWidths,
+        sortState,
+        onToggleSort,
+        onStartColumnResize,
+        onChangeContact,
+        onEditContact,
+        onDeleteContact,
+    } = props;
 
     const tableWidth = CONTACT_COLUMN_DEFINITIONS.reduce(
         (totalWidth, column) => totalWidth + (columnWidths[column.key] ?? column.defaultWidth),
-        0,
+        CONTACT_ACTIONS_COLUMN_WIDTH,
     );
 
     if (contacts.length === 0) {
@@ -45,6 +57,7 @@ export function ContactsTable(props: ContactsTableProps) {
                     {CONTACT_COLUMN_DEFINITIONS.map((column) => (
                         <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
                     ))}
+                    <col style={{ width: CONTACT_ACTIONS_COLUMN_WIDTH }} />
                 </colgroup>
                 <TableHeader>
                     <TableRow>
@@ -58,6 +71,7 @@ export function ContactsTable(props: ContactsTableProps) {
                                 />
                             </TableHead>
                         ))}
+                        <TableHead className="px-4">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -72,6 +86,13 @@ export function ContactsTable(props: ContactsTableProps) {
                                     />
                                 </TableCell>
                             ))}
+                            <TableCell className="p-2 align-top">
+                                <ContactActions
+                                    contact={contact}
+                                    onEditContact={onEditContact}
+                                    onDeleteContact={onDeleteContact}
+                                />
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

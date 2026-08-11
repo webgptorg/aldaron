@@ -56,6 +56,11 @@ export const MINIMAL_CONTACT_COLUMN_WIDTH = 60;
 export const MAXIMAL_CONTACT_COLUMN_WIDTH = 900;
 
 /**
+ * Width of the actions column, which is deliberately separate from data columns because it is neither sortable nor exportable
+ */
+export const CONTACT_ACTIONS_COLUMN_WIDTH = 170;
+
+/**
  * How many lines of a `MULTILINE_TEXT` column are shown before the text is cut by the ellipsis "..."
  */
 export const MULTILINE_CONTACT_CELL_LINE_COUNT = 3;
