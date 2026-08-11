@@ -14,6 +14,7 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/cs/online-workshop` - The Czech landing page of the free 60minute online workshop about writing production code with AI agents.
 - `/cs/online-workshop/dekujeme` - The confirmation page of the online workshop registration, reached by a full page load so that the Meta Pixel can measure the conversion.
 - `/cs/online-workshop/participant` - The room of the online workshop, where a participant writes their name and then gets the countdown, the stream, the materials unlocked one by one, the live chat and the reactions. It is steered from `/admin/workshop` and its tables are created by `lib/workshop/workshop-tables.sql`.
+- `/ai-ta-krajta` - The Czech landing page of the AI ta Krajta video podcast, which leads to its YouTube channel and to the e-mail notification about a new episode. Everything the site knows about the podcast lives in `businesses/ai-ta-krajta/config.ts`, so the media appearances of Pavol Hejný describe it from the very same place.
 - `/pavol` - Redirects to `/cs/pavol` or `/en/pavol` based on the browser `Accept-Language` header.
 - `/cs/pavol` - The Czech personal page of Pavol Hejný.
 - `/en/pavol` - The English personal page of Pavol Hejný.

@@ -19,6 +19,7 @@ import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTermin
 import { FAQSection } from '@/components/faq-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { SectionIntro } from '@/components/section-intro';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
@@ -27,25 +28,6 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CalendarDays, CheckCircle, Clock, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
-
-function SectionIntro({
-    eyebrow,
-    title,
-    description,
-}: {
-    eyebrow: string;
-    title: ReactNode;
-    description?: ReactNode;
-}) {
-    return (
-        <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">{eyebrow}</p>
-            <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">{title}</h2>
-            {description && <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">{description}</p>}
-        </div>
-    );
-}
 
 export function OnlineWorkshopPage() {
     const { weekdayLabel, dateLabel, time, durationLabel } = onlineWorkshopConfig.date;

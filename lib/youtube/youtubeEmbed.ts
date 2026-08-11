@@ -1,7 +1,7 @@
 /**
- * How a YouTube video can be written down in the administration
+ * How a YouTube video can be written down
  *
- * Note: Whoever fills the stream in should be able to paste whatever YouTube shows in the address bar, including the
+ * Note: Whoever fills a video in should be able to paste whatever YouTube shows in the address bar, including the
  *       `/live/` url of a stream, not only the bare id.
  */
 const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
@@ -53,8 +53,9 @@ export function extractYoutubeVideoId(value: string | null): string | null {
 /**
  * Address of the player which is put into the page
  *
- * Note: The player is asked to start on its own the moment it appears, because the participant already clicked
- *       through the joining form and expects the stream to simply run.
+ * @param videoId id of the video the player is to play
+ * @param isAutoplayed whether the player starts on its own the moment it appears, which only makes sense where the
+ *                     visitor already asked for the video and expects it to simply run
  */
 export function createYoutubeEmbedUrl(videoId: string, { isAutoplayed }: { isAutoplayed: boolean }): string {
     const playerParams = new URLSearchParams({
@@ -72,6 +73,16 @@ export function createYoutubeEmbedUrl(videoId: string, { isAutoplayed }: { isAut
  */
 export function createYoutubeWatchUrl(videoId: string): string {
     return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
+/**
+ * Address of the still image YouTube renders for a video, used wherever a whole player would be too heavy
+ *
+ * Note: The widescreen `maxresdefault` variant is asked for, because every other one is padded with black bars which
+ *       would show up inside a card built for the 16:9 ratio.
+ */
+export function createYoutubeThumbnailUrl(videoId: string): string {
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 }
 
 /**

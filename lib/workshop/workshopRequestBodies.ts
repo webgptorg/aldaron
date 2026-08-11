@@ -16,7 +16,7 @@ import {
     readRequiredText,
     readText,
 } from '@/lib/workshop/workshopValidation';
-import { extractYoutubeVideoId } from '@/lib/workshop/youtubeEmbed';
+import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 
 /**
  * Whether the browser really sent the field, which tells "leave it as it is" from "empty it"

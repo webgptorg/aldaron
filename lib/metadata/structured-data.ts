@@ -1,3 +1,4 @@
+import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import {
     ORGANIZATION_COUNTRY_CODE,
     ORGANIZATION_LEGAL_NAME,
@@ -7,6 +8,7 @@ import {
     SITE_LOGO_PATH,
     SITE_NAME,
     SITE_URL,
+    STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE,
     createAbsoluteUrl,
 } from '@/lib/metadata/site-config';
 
@@ -66,7 +68,47 @@ export function createWebSiteStructuredData(): StructuredDataNode {
         name: SITE_NAME,
         description: SITE_DESCRIPTION,
         url: SITE_URL,
-        inLanguage: ['cs-CZ', 'en-US'],
+        inLanguage: Object.values(STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE),
+        publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
+    };
+}
+
+/**
+ * Everything needed to describe a podcast published by the site
+ */
+export type PodcastSeriesStructuredDataOptions = {
+    readonly name: string;
+    readonly description: string;
+    readonly path: string;
+    readonly imagePath: string;
+    readonly language: SupportedHomepageLanguage;
+    readonly authorName: string;
+
+    /**
+     * Places the very same podcast can be watched or listened to, for example its YouTube channel
+     */
+    readonly channelUrls: readonly string[];
+};
+
+/**
+ * Describes a podcast, which lets search engines present it as a show rather than as one more page
+ *
+ * @see https://schema.org/PodcastSeries
+ */
+export function createPodcastSeriesStructuredData(options: PodcastSeriesStructuredDataOptions): StructuredDataNode {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'PodcastSeries',
+        name: options.name,
+        description: options.description,
+        url: createAbsoluteUrl(options.path),
+        image: createAbsoluteUrl(options.imagePath),
+        inLanguage: STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE[options.language],
+        sameAs: [...options.channelUrls],
+        author: {
+            '@type': 'Person',
+            name: options.authorName,
+        },
         publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
     };
 }

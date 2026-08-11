@@ -51,6 +51,14 @@ export const OPEN_GRAPH_LOCALE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLan
 };
 
 /**
+ * Language tag understood by schema.org for each language the site is published in
+ */
+export const STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
+    cs: 'cs-CZ',
+    en: 'en-US',
+};
+
+/**
  * Legal entity operating the site, presented in structured data
  */
 export const ORGANIZATION_LEGAL_NAME = 'AI Web s.r.o.';

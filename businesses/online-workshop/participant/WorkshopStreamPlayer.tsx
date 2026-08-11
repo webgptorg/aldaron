@@ -1,6 +1,6 @@
 'use client';
 
-import { createYoutubeEmbedUrl, createYoutubeWatchUrl } from '@/lib/workshop/youtubeEmbed';
+import { createYoutubeEmbedUrl, createYoutubeWatchUrl } from '@/lib/youtube/youtubeEmbed';
 import { ExternalLink, Radio, VideoOff } from 'lucide-react';
 
 type WorkshopStreamPlayerProps = {

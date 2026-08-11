@@ -3,6 +3,7 @@
 import { ONLINE_WORKSHOP_THANK_YOU_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
@@ -13,11 +14,13 @@ import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
 function getFieldErrors({ fullname, email }: { fullname: string; email: string }) {
-    const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
     return {
         fullnameError: fullname.trim() ? null : 'Vyplňte jméno a příjmení.',
-        emailError: email.trim() ? (emailIsValid ? null : 'Zadejte prosím platný e-mail.') : 'Vyplňte e-mail.',
+        emailError: email.trim()
+            ? isEmailAddressValid(email)
+                ? null
+                : 'Zadejte prosím platný e-mail.'
+            : 'Vyplňte e-mail.',
     };
 }
 

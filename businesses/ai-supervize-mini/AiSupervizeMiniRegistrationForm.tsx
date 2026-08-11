@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import { BadgePercent, CheckCircle2, Loader2, Users } from 'lucide-react';
@@ -45,11 +46,13 @@ function getContactFieldErrors({
     email,
     company,
 }: Pick<ContactFieldsState, 'fullname' | 'email' | 'company'>) {
-    const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
     return {
         fullnameError: fullname.trim() ? null : 'Vyplňte jméno a příjmení.',
-        emailError: email.trim() ? (emailIsValid ? null : 'Zadejte prosím platný e-mail.') : 'Vyplňte e-mail.',
+        emailError: email.trim()
+            ? isEmailAddressValid(email)
+                ? null
+                : 'Zadejte prosím platný e-mail.'
+            : 'Vyplňte e-mail.',
         companyError: company.trim() ? null : 'Vyplňte firmu nebo fakturační jméno.',
     };
 }

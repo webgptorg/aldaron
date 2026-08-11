@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { fromDateTimeLocalInputValue, toDateTimeLocalInputValue } from '@/lib/workshop/dateTimeLocalInput';
 import type { WorkshopSettings, WorkshopSettingsChanges } from '@/lib/workshop/workshopTypes';
-import { extractYoutubeVideoId } from '@/lib/workshop/youtubeEmbed';
+import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 import { useEffect, useState, type FormEvent } from 'react';
 
 type WorkshopSettingsFormProps = {

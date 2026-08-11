@@ -1,3 +1,11 @@
+import {
+    AI_TA_KRAJTA_BACKGROUND_COLOR,
+    AI_TA_KRAJTA_COVER_IMAGE_PATH,
+    AI_TA_KRAJTA_KIND,
+    AI_TA_KRAJTA_NAME,
+    AI_TA_KRAJTA_PATH,
+    AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE,
+} from '@/businesses/ai-ta-krajta/config';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 
 export type PavolMediaImportance = 'highlight' | 'rest';
@@ -12,6 +20,14 @@ export type PavolMediaAppearance = {
     importance: PavolMediaImportance;
     thumbnailLabel?: string;
     thumbnailClassName?: string;
+
+    /**
+     * Color behind the thumbnail, for an appearance whose brand color is written down elsewhere
+     *
+     * Note: Tailwind only knows the classes which are spelled out in the source, so a color which comes from a
+     *       configuration has to reach the thumbnail as a style rather than as a class.
+     */
+    thumbnailBackgroundColor?: string;
 };
 
 type LocalizedMediaCopy = Pick<PavolMediaAppearance, 'kind' | 'title' | 'description'>;
@@ -24,23 +40,24 @@ export const pavolMediaMoreHref = 'https://www.linkedin.com/in/hejny/';
 
 const sharedMediaAppearances: SharedMediaAppearance[] = [
     {
-        href: 'https://www.youtube.com/@aitakrajta_tv',
-        imageSrc: '/pavol/media/ai-ta-krajta.jpg',
+        // Note: The podcast has a page of its own, which is where a visitor learns the most about it and finds the way
+        //       to the YouTube channel. Everything the card says about it is taken from the very same configuration
+        //       that page is built from.
+        href: AI_TA_KRAJTA_PATH,
+        imageSrc: AI_TA_KRAJTA_COVER_IMAGE_PATH,
         source: 'YouTube',
         importance: 'highlight',
-        thumbnailClassName: 'bg-[#303832]',
+        thumbnailBackgroundColor: AI_TA_KRAJTA_BACKGROUND_COLOR,
         copy: {
             cs: {
-                kind: 'Video podcast',
-                title: 'AI ta Krajta',
-                description:
-                    'Vše o AI na jednom místě, každý týden. Novinky, poutavé zajímavosti a diskuze z oblasti umělé inteligence.',
+                kind: AI_TA_KRAJTA_KIND,
+                title: AI_TA_KRAJTA_NAME,
+                description: AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE.cs,
             },
             en: {
-                kind: 'Video podcast',
-                title: 'AI ta Krajta',
-                description:
-                    'Everything about AI in one place, every week. News, engaging points of interest, and discussions from the field of artificial intelligence.',
+                kind: AI_TA_KRAJTA_KIND,
+                title: AI_TA_KRAJTA_NAME,
+                description: AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE.en,
             },
         },
     },

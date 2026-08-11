@@ -3,6 +3,7 @@
 import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -40,7 +41,7 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
             const phone = answers['phone'];
             const company = answers['company'];
             if (!name || !email || !phone || !company) return false;
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            return isEmailAddressValid(email);
         }
         return !!answers[currentQuestion.id];
     };
@@ -52,7 +53,7 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
             return 'Toto pole je povinné.';
         }
 
-        if (fieldId === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        if (fieldId === 'email' && !isEmailAddressValid(value)) {
             return 'Zadejte prosím platný e-mail.';
         }
 

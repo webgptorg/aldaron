@@ -64,17 +64,22 @@ function MediaThumbnail({
     imageSrc,
     thumbnailLabel,
     thumbnailClassName,
+    thumbnailBackgroundColor,
     className,
 }: {
     title: string;
     imageSrc?: string;
     thumbnailLabel?: string;
     thumbnailClassName?: string;
+    thumbnailBackgroundColor?: string;
     className?: string;
 }) {
+    const backgroundStyle = thumbnailBackgroundColor ? { backgroundColor: thumbnailBackgroundColor } : undefined;
+
     if (imageSrc) {
         return (
             <div
+                style={backgroundStyle}
                 className={cn(
                     'relative h-24 w-full overflow-hidden rounded-2xl bg-slate-100 sm:w-40',
                     thumbnailClassName,
@@ -94,6 +99,7 @@ function MediaThumbnail({
     return (
         <div
             aria-hidden="true"
+            style={backgroundStyle}
             className={cn(
                 'flex h-24 w-full items-center justify-center rounded-2xl bg-slate-900 text-3xl font-bold lowercase sm:w-40',
                 thumbnailClassName,
@@ -143,6 +149,7 @@ function MediaAppearanceCard({
                     imageSrc={appearance.imageSrc}
                     thumbnailLabel={appearance.thumbnailLabel}
                     thumbnailClassName={appearance.thumbnailClassName}
+                    thumbnailBackgroundColor={appearance.thumbnailBackgroundColor}
                     className={isHighlight ? 'h-36 sm:h-44 sm:w-full' : undefined}
                 />
                 <div className="min-w-0 flex-1">

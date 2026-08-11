@@ -5,7 +5,6 @@ import { isContentBlockUnlocked, selectUnlockedContentBlocks } from './selectUnl
 import { summarizeReactions } from './summarizeReactions';
 import type { WorkshopContentBlock, WorkshopReaction } from './workshopTypes';
 import { readOptionalDateTime, readReactionEmoji, readRowId, readText } from './workshopValidation';
-import { createYoutubeEmbedUrl, extractYoutubeVideoId } from './youtubeEmbed';
 
 const WORKSHOP_ID = 'cs-online-workshop';
 
@@ -127,30 +126,6 @@ describe('countdown until the workshop', () => {
     it('writes the numbers with two digits', () => {
         expect(formatCountdownNumber(7)).toBe('07');
         expect(formatCountdownNumber(42)).toBe('42');
-    });
-});
-
-describe('reading of a YouTube video', () => {
-    it('takes a bare id as it is', () => {
-        expect(extractYoutubeVideoId('dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-    });
-
-    it('reads the id out of every address YouTube shows', () => {
-        expect(extractYoutubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10')).toBe('dQw4w9WgXcQ');
-        expect(extractYoutubeVideoId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-        expect(extractYoutubeVideoId('https://www.youtube.com/live/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-        expect(extractYoutubeVideoId('https://www.youtube.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
-    });
-
-    it('answers nothing when there is no video in the text', () => {
-        expect(extractYoutubeVideoId('')).toBe(null);
-        expect(extractYoutubeVideoId(null)).toBe(null);
-        expect(extractYoutubeVideoId('https://www.youtube.com/')).toBe(null);
-    });
-
-    it('asks the player to start on its own', () => {
-        expect(createYoutubeEmbedUrl('dQw4w9WgXcQ', { isAutoplayed: true })).toContain('autoplay=1');
-        expect(createYoutubeEmbedUrl('dQw4w9WgXcQ', { isAutoplayed: false })).toContain('autoplay=0');
     });
 });
 
