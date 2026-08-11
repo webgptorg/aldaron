@@ -40,44 +40,42 @@ export function ContactsTable(props: ContactsTableProps) {
 
     return (
         <TooltipProvider delayDuration={300}>
-            <div className="overflow-x-auto rounded-lg border">
-                <Table className="table-fixed" style={{ width: tableWidth }}>
-                    <colgroup>
+            <Table containerClassName="rounded-lg border" className="table-fixed" style={{ width: tableWidth }}>
+                <colgroup>
+                    {CONTACT_COLUMN_DEFINITIONS.map((column) => (
+                        <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
+                    ))}
+                </colgroup>
+                <TableHeader>
+                    <TableRow>
                         {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                            <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
+                            <TableHead key={column.key} className="overflow-hidden px-4">
+                                <ContactsTableHeaderCell
+                                    column={column}
+                                    sortState={sortState}
+                                    onToggleSort={onToggleSort}
+                                    onStartResize={onStartColumnResize}
+                                />
+                            </TableHead>
                         ))}
-                    </colgroup>
-                    <TableHeader>
-                        <TableRow>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {contacts.map((contact) => (
+                        <TableRow key={contact.id}>
                             {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                                <TableHead key={column.key} className="overflow-hidden px-4">
-                                    <ContactsTableHeaderCell
+                                <TableCell key={column.key} className="overflow-hidden p-2 align-top">
+                                    <ContactsTableCell
+                                        contact={contact}
                                         column={column}
-                                        sortState={sortState}
-                                        onToggleSort={onToggleSort}
-                                        onStartResize={onStartColumnResize}
+                                        onChangeContact={onChangeContact}
                                     />
-                                </TableHead>
+                                </TableCell>
                             ))}
                         </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {contacts.map((contact) => (
-                            <TableRow key={contact.id}>
-                                {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                                    <TableCell key={column.key} className="overflow-hidden p-2 align-top">
-                                        <ContactsTableCell
-                                            contact={contact}
-                                            column={column}
-                                            onChangeContact={onChangeContact}
-                                        />
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                    ))}
+                </TableBody>
+            </Table>
         </TooltipProvider>
     );
 }
