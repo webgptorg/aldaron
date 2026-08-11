@@ -3,24 +3,37 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { ContactedFilterValue, ContactsFilter, PresenceFilterValue } from '@/lib/contacts/filterContacts';
-import { EMPTY_CONTACTS_FILTER, isContactsFilterActive } from '@/lib/contacts/filterContacts';
+import {
+    CONTACTED_FILTER_VALUES,
+    EMPTY_CONTACTS_FILTER,
+    isContactsFilterActive,
+    PRESENCE_FILTER_VALUES,
+} from '@/lib/contacts/filterContacts';
 import { X } from 'lucide-react';
 import { LabeledFilterField, LabeledFilterSelect, type FilterSelectOption } from './FilterControls';
+
+const PRESENCE_FILTER_LABELS: Readonly<Record<PresenceFilterValue, string>> = {
+    ANY: 'Any',
+    PRESENT: 'Filled in',
+    MISSING: 'Missing',
+};
+
+const CONTACTED_FILTER_LABELS: Readonly<Record<ContactedFilterValue, string>> = {
+    ANY: 'All contacts',
+    NOT_CONTACTED: 'Not contacted yet',
+    CONTACTED: 'Already contacted',
+};
 
 /**
  * Options shared by every filter which only asks whether a value is filled in
  */
-const PRESENCE_FILTER_OPTIONS: readonly FilterSelectOption<PresenceFilterValue>[] = [
-    { value: 'ANY', label: 'Any' },
-    { value: 'PRESENT', label: 'Filled in' },
-    { value: 'MISSING', label: 'Missing' },
-];
+const PRESENCE_FILTER_OPTIONS: readonly FilterSelectOption<PresenceFilterValue>[] = PRESENCE_FILTER_VALUES.map(
+    (value) => ({ value, label: PRESENCE_FILTER_LABELS[value] }),
+);
 
-const CONTACTED_FILTER_OPTIONS: readonly FilterSelectOption<ContactedFilterValue>[] = [
-    { value: 'ANY', label: 'All contacts' },
-    { value: 'NOT_CONTACTED', label: 'Not contacted yet' },
-    { value: 'CONTACTED', label: 'Already contacted' },
-];
+const CONTACTED_FILTER_OPTIONS: readonly FilterSelectOption<ContactedFilterValue>[] = CONTACTED_FILTER_VALUES.map(
+    (value) => ({ value, label: CONTACTED_FILTER_LABELS[value] }),
+);
 
 type ContactsFilterBarProps = {
     readonly filter: ContactsFilter;

@@ -3,15 +3,15 @@
 import { Button } from '@/components/ui/button';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useResizableColumnWidths } from '@/hooks/useResizableColumnWidths';
-import type { ContactColumnKey, ContactDraft } from '@/lib/contacts/Contact';
+import type { ContactDraft } from '@/lib/contacts/Contact';
 import {
     DEFAULT_CONTACT_COLUMN_WIDTHS,
     MAXIMAL_CONTACT_COLUMN_WIDTH,
     MINIMAL_CONTACT_COLUMN_WIDTH,
 } from '@/lib/contacts/contactColumnDefinitions';
-import { DEFAULT_CONTACTS_FILTER, filterContacts, type ContactsFilter } from '@/lib/contacts/filterContacts';
-import { DEFAULT_CONTACTS_PER_PAGE, paginateContacts, type ContactsPerPage } from '@/lib/contacts/paginateContacts';
-import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from '@/lib/contacts/sortContacts';
+import { filterContacts } from '@/lib/contacts/filterContacts';
+import { paginateContacts } from '@/lib/contacts/paginateContacts';
+import { sortContacts } from '@/lib/contacts/sortContacts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AddContactForm } from './AddContactForm';
 import { ContactsExportBar } from './ContactsExportBar';
@@ -19,6 +19,7 @@ import { ContactsFilterBar } from './ContactsFilterBar';
 import { ContactsPagination } from './ContactsPagination';
 import { ContactsTable } from './ContactsTable';
 import { useContacts } from './useContacts';
+import { useContactsViewState } from './useContactsViewState';
 
 /**
  * Key under which the widths of the columns survive a reload of the page
@@ -32,10 +33,17 @@ export default function AdminContactsComponent() {
     const [adminToken] = useGetParam('token');
     const { contacts, isLoading, errorMessage, changeContact, addContact } = useContacts(adminToken);
 
-    const [filter, setFilter] = useState<ContactsFilter>(DEFAULT_CONTACTS_FILTER);
-    const [sortState, setSortState] = useState(DEFAULT_CONTACTS_SORT_STATE);
-    const [contactsPerPage, setContactsPerPage] = useState<ContactsPerPage>(DEFAULT_CONTACTS_PER_PAGE);
-    const [currentPage, setCurrentPage] = useState(1);
+    const {
+        filter,
+        sortState,
+        contactsPerPage,
+        currentPage,
+        changeFilter,
+        toggleSort,
+        changeContactsPerPage,
+        changePage,
+    } = useContactsViewState();
+
     const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
     const { widths, startResizing, resetWidths } = useResizableColumnWidths({
@@ -56,38 +64,18 @@ export default function AdminContactsComponent() {
         [contactsPerPage, currentPage, filteredAndSortedContacts],
     );
 
-    // An inline edit can make the final contact on a page stop matching the active filter
+    // An inline edit can make the final contact on a page stop matching the active filter and a shared link can point
+    // to a page which the filter does not reach anymore
+    //
+    // Note: The page is only kept valid once the contacts are loaded, otherwise a shared page number would be thrown
+    //       away while the empty table waits for them
     useEffect(() => {
-        setCurrentPage((previousPage) =>
-            previousPage === contactsPage.currentPage ? previousPage : contactsPage.currentPage,
-        );
-    }, [contactsPage.currentPage]);
+        if (isLoading) {
+            return;
+        }
 
-    const showFirstContactsPage = useCallback(() => setCurrentPage(1), []);
-
-    const changeFilter = useCallback(
-        (newFilter: ContactsFilter) => {
-            setFilter(newFilter);
-            showFirstContactsPage();
-        },
-        [showFirstContactsPage],
-    );
-
-    const toggleSort = useCallback(
-        (columnKey: ContactColumnKey) => {
-            setSortState((previousSortState) => toggleContactsSortState(previousSortState, columnKey)),
-            showFirstContactsPage();
-        },
-        [showFirstContactsPage],
-    );
-
-    const changeContactsPerPage = useCallback(
-        (newContactsPerPage: ContactsPerPage) => {
-            setContactsPerPage(newContactsPerPage);
-            showFirstContactsPage();
-        },
-        [showFirstContactsPage],
-    );
+        changePage(contactsPage.currentPage);
+    }, [changePage, contactsPage.currentPage, isLoading]);
 
     const handleAddContact = useCallback(
         async (contactDraft: ContactDraft) => {
@@ -140,7 +128,7 @@ export default function AdminContactsComponent() {
                     <ContactsPagination
                         contactsPage={contactsPage}
                         contactsPerPage={contactsPerPage}
-                        onChangePage={setCurrentPage}
+                        onChangePage={changePage}
                         onChangeContactsPerPage={changeContactsPerPage}
                     />
                 </>

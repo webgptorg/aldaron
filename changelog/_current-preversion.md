@@ -30,3 +30,4 @@
 - Moved the reading of a YouTube address out of the workshop, so the podcast page uses the very same one instead of a second copy of it, and made the e-mail check and the intro of a section shared as well rather than repeated on every page which needs them.
 - Stopped the exported vCard claiming that our landing page is the organization and the website of the contact, and made its note say in one sentence where the contact was gathered before it repeats what the contact wrote.
 - Stopped the contacts export ignoring the filter, so the downloaded CSV or vCard again holds exactly the current view, all of its pages included, and says so next to the buttons.
+- Wrote the filtering, the sorting and the pagination of the contacts table into the address of the dashboard, so that the link opens exactly the view somebody else was looking at, while a link without any of it still opens the leads which nobody has contacted yet.

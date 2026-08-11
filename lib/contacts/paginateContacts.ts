@@ -13,6 +13,24 @@ export type ContactsPerPage = (typeof CONTACTS_PER_PAGE_OPTIONS)[number];
 export const DEFAULT_CONTACTS_PER_PAGE: ContactsPerPage = 100;
 
 /**
+ * Number of the very first page of the table, the pages are counted the way the user reads them
+ */
+export const FIRST_CONTACTS_PAGE = 1;
+
+/**
+ * Find the page size which the given text stands for, no matter the letter case
+ *
+ * Note: The text comes either from the select of the pagination or from a hand written link
+ *
+ * @returns `null` when the text is none of `CONTACTS_PER_PAGE_OPTIONS`
+ */
+export function parseContactsPerPage(contactsPerPageValue: string): ContactsPerPage | null {
+    const normalizedValue = contactsPerPageValue.trim().toLowerCase();
+
+    return CONTACTS_PER_PAGE_OPTIONS.find((option) => option.toString().toLowerCase() === normalizedValue) ?? null;
+}
+
+/**
  * One valid slice of the filtered and sorted contacts table, together with the information needed to render its controls
  */
 export type ContactsPage = {
@@ -40,10 +58,10 @@ function getTotalPages(totalContactsCount: number, contactsPerPage: ContactsPerP
  */
 function getValidCurrentPage(currentPage: number, totalPages: number): number {
     if (!Number.isFinite(currentPage)) {
-        return 1;
+        return FIRST_CONTACTS_PAGE;
     }
 
-    return Math.min(Math.max(Math.floor(currentPage), 1), totalPages);
+    return Math.min(Math.max(Math.floor(currentPage), FIRST_CONTACTS_PAGE), totalPages);
 }
 
 /**

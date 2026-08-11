@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { Contact } from './Contact';
+import {
+    DEFAULT_CONTACTS_VIEW_STATE,
+    parseContactsViewState,
+    serializeContactsViewState,
+    type ContactsViewState,
+} from './contactsViewState';
 import { describeContactsExportScope } from './exportContacts';
 import { DEFAULT_CONTACTS_FILTER, EMPTY_CONTACTS_FILTER, filterContacts, isContactsFilterActive } from './filterContacts';
-import { CONTACTS_PER_PAGE_OPTIONS, DEFAULT_CONTACTS_PER_PAGE, paginateContacts } from './paginateContacts';
+import {
+    CONTACTS_PER_PAGE_OPTIONS,
+    DEFAULT_CONTACTS_PER_PAGE,
+    paginateContacts,
+    parseContactsPerPage,
+} from './paginateContacts';
 import { serializeContactsAsCsv } from './serializeContactsAsCsv';
 import { serializeContactsAsVcard } from './serializeContactsAsVcard';
 import { DEFAULT_CONTACTS_SORT_STATE, sortContacts, toggleContactsSortState } from './sortContacts';
@@ -190,6 +201,93 @@ describe('paginateContacts', () => {
             firstContactNumber: 101,
             lastContactNumber: 120,
         });
+    });
+
+    it('understands the page size which the select or a link says', () => {
+        expect(parseContactsPerPage('200')).toBe(200);
+        expect(parseContactsPerPage('all')).toBe('ALL');
+        expect(parseContactsPerPage('7')).toBeNull();
+    });
+});
+
+describe('the shared link to one view of the contacts table', () => {
+    /**
+     * View which somebody narrowed down, sorted and paged through before sharing the link to it
+     */
+    const SHARED_VIEW_STATE: ContactsViewState = {
+        filter: {
+            ...EMPTY_CONTACTS_FILTER,
+            searchQuery: 'novák praha',
+            createdFromDate: '2026-07-01',
+            emailPresence: 'PRESENT',
+        },
+        sortState: { columnKey: 'fullname', direction: 'ASCENDING' },
+        contactsPerPage: 200,
+        currentPage: 3,
+    };
+
+    it('carries no parameter at all for the view which the dashboard opens with', () => {
+        expect(serializeContactsViewState(DEFAULT_CONTACTS_VIEW_STATE, new URLSearchParams()).toString()).toBe('');
+        expect(parseContactsViewState(new URLSearchParams())).toEqual(DEFAULT_CONTACTS_VIEW_STATE);
+    });
+
+    it('opens exactly the same view which it was written from', () => {
+        const searchParams = serializeContactsViewState(SHARED_VIEW_STATE, new URLSearchParams());
+
+        expect(parseContactsViewState(searchParams)).toEqual(SHARED_VIEW_STATE);
+    });
+
+    it('keeps the parameters which do not describe the view, like the admin token', () => {
+        const searchParams = serializeContactsViewState(SHARED_VIEW_STATE, new URLSearchParams('token=secret'));
+
+        expect(searchParams.get('token')).toBe('secret');
+        expect(searchParams.get('search')).toBe('novák praha');
+    });
+
+    it('drops the parameters of the values which went back to the default', () => {
+        const searchParams = serializeContactsViewState(
+            DEFAULT_CONTACTS_VIEW_STATE,
+            new URLSearchParams('token=secret&page=3&perPage=200&sortBy=fullname'),
+        );
+
+        expect(searchParams.toString()).toBe('token=secret');
+    });
+
+    it('still opens when a value of the link makes no sense', () => {
+        const viewState = parseContactsViewState(
+            new URLSearchParams('contacted=maybe&sortBy=salary&page=0&perPage=7&createdFrom=yesterday'),
+        );
+
+        expect(viewState).toEqual(DEFAULT_CONTACTS_VIEW_STATE);
+    });
+
+    it('understands a link written by hand, no matter the letter case', () => {
+        const viewState = parseContactsViewState(
+            new URLSearchParams('contacted=any&sortBy=email&sortDirection=descending&perPage=all'),
+        );
+
+        expect(viewState).toEqual({
+            ...DEFAULT_CONTACTS_VIEW_STATE,
+            filter: EMPTY_CONTACTS_FILTER,
+            sortState: { columnKey: 'email', direction: 'DESCENDING' },
+            contactsPerPage: 'ALL',
+        });
+    });
+
+    it('shows the very same contacts as the view it was shared from', () => {
+        const searchParams = serializeContactsViewState(
+            { ...DEFAULT_CONTACTS_VIEW_STATE, filter: { ...EMPTY_CONTACTS_FILTER, searchQuery: 'capek' } },
+            new URLSearchParams(),
+        );
+        const { filter, sortState, contactsPerPage, currentPage } = parseContactsViewState(searchParams);
+
+        const contactsPage = paginateContacts(
+            sortContacts(filterContacts(ALL_CONTACTS, filter), sortState),
+            currentPage,
+            contactsPerPage,
+        );
+
+        expect(contactsPage.pageContacts.map((contact) => contact.id)).toEqual([2]);
     });
 });
 

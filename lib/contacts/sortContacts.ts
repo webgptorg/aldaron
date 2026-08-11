@@ -2,9 +2,14 @@ import type { Contact, ContactColumnKey } from './Contact';
 import { compareContactSortValues, getContactSortValue } from './contactValues';
 
 /**
+ * Every direction in which the contacts table can be sorted
+ */
+export const CONTACTS_SORT_DIRECTIONS = ['ASCENDING', 'DESCENDING'] as const;
+
+/**
  * Direction in which the contacts table is sorted
  */
-export type ContactsSortDirection = 'ASCENDING' | 'DESCENDING';
+export type ContactsSortDirection = (typeof CONTACTS_SORT_DIRECTIONS)[number];
 
 /**
  * Which column the contacts table is sorted by and in which direction

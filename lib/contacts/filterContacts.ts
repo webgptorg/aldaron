@@ -8,14 +8,24 @@ import { getContactSearchText, normalizeSearchText } from './contactValues';
 export const DATE_FILTER_FORMAT = 'YYYY-MM-DD';
 
 /**
+ * Every answer to the question whether one value of the contact is filled in at all, in the order in which they are offered
+ */
+export const PRESENCE_FILTER_VALUES = ['ANY', 'PRESENT', 'MISSING'] as const;
+
+/**
  * Filter which asks whether one value of the contact is filled in at all
  */
-export type PresenceFilterValue = 'ANY' | 'PRESENT' | 'MISSING';
+export type PresenceFilterValue = (typeof PRESENCE_FILTER_VALUES)[number];
+
+/**
+ * Every answer to the question whether the contact was already contacted, in the order in which they are offered
+ */
+export const CONTACTED_FILTER_VALUES = ['ANY', 'NOT_CONTACTED', 'CONTACTED'] as const;
 
 /**
  * Filter which asks whether the contact was already contacted by us
  */
-export type ContactedFilterValue = 'ANY' | 'CONTACTED' | 'NOT_CONTACTED';
+export type ContactedFilterValue = (typeof CONTACTED_FILTER_VALUES)[number];
 
 /**
  * Everything the user can narrow the contacts down by
