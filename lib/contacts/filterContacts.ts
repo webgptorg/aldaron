@@ -1,6 +1,13 @@
 import moment from 'moment';
 import type { Contact } from './Contact';
 import { getContactSearchText, normalizeSearchText } from './contactValues';
+import {
+    EMPTY_CONTACT_ORIGIN_SELECTIONS,
+    isContactOriginSelectionActive,
+    matchesContactOriginSelections,
+    normalizeContactOriginSelections,
+    type ContactOriginSelection,
+} from './contactOrigins';
 
 /**
  * Format of the dates in the date range filter, the very same format which `<input type="date">` works with
@@ -38,6 +45,7 @@ export type ContactsFilter = {
     readonly phonePresence: PresenceFilterValue;
     readonly userNotePresence: PresenceFilterValue;
     readonly contactedStatus: ContactedFilterValue;
+    readonly contactOriginSelections: readonly ContactOriginSelection[];
 };
 
 /**
@@ -51,6 +59,7 @@ export const EMPTY_CONTACTS_FILTER: ContactsFilter = {
     phonePresence: 'ANY',
     userNotePresence: 'ANY',
     contactedStatus: 'ANY',
+    contactOriginSelections: EMPTY_CONTACT_ORIGIN_SELECTIONS,
 };
 
 /**
@@ -63,13 +72,25 @@ export const DEFAULT_CONTACTS_FILTER: ContactsFilter = {
     contactedStatus: 'NOT_CONTACTED',
 };
 
-const CONTACTS_FILTER_KEYS = Object.keys(EMPTY_CONTACTS_FILTER) as Array<keyof ContactsFilter>;
+const CONTACTS_FILTER_SCALAR_KEYS: readonly (Exclude<keyof ContactsFilter, 'contactOriginSelections'>)[] = [
+    'searchQuery',
+    'createdFromDate',
+    'createdToDate',
+    'emailPresence',
+    'phonePresence',
+    'userNotePresence',
+    'contactedStatus',
+];
 
 /**
  * Is the given filter narrowing the contacts down in any way?
  */
 export function isContactsFilterActive(filter: ContactsFilter): boolean {
-    return CONTACTS_FILTER_KEYS.some((filterKey) => filter[filterKey] !== EMPTY_CONTACTS_FILTER[filterKey]);
+    return (
+        CONTACTS_FILTER_SCALAR_KEYS.some(
+            (filterKey) => filter[filterKey] !== EMPTY_CONTACTS_FILTER[filterKey],
+        ) || isContactOriginSelectionActive(filter.contactOriginSelections)
+    );
 }
 
 /**
@@ -143,14 +164,19 @@ function matchesContactedStatus(contact: Contact, contactedStatus: ContactedFilt
 /**
  * Does the contact match every part of the filter?
  */
-function matchesContactsFilter(contact: Contact, filter: ContactsFilter): boolean {
+function matchesContactsFilter(
+    contact: Contact,
+    filter: ContactsFilter,
+    contactOriginSelections: readonly ContactOriginSelection[],
+): boolean {
     return (
         matchesContactedStatus(contact, filter.contactedStatus) &&
         matchesPresence(contact.email, filter.emailPresence) &&
         matchesPresence(contact.phone, filter.phonePresence) &&
         matchesPresence(contact.userNote, filter.userNotePresence) &&
         matchesCreatedDateRange(contact, filter.createdFromDate, filter.createdToDate) &&
-        matchesSearchQuery(contact, filter.searchQuery)
+        matchesSearchQuery(contact, filter.searchQuery) &&
+        matchesContactOriginSelections(contact, contactOriginSelections)
     );
 }
 
@@ -160,5 +186,7 @@ function matchesContactsFilter(contact: Contact, filter: ContactsFilter): boolea
  * @returns New array, the given contacts are never mutated
  */
 export function filterContacts(contacts: readonly Contact[], filter: ContactsFilter): Contact[] {
-    return contacts.filter((contact) => matchesContactsFilter(contact, filter));
+    const contactOriginSelections = normalizeContactOriginSelections(filter.contactOriginSelections);
+
+    return contacts.filter((contact) => matchesContactsFilter(contact, filter, contactOriginSelections));
 }

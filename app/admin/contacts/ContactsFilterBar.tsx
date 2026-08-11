@@ -10,7 +10,9 @@ import {
     PRESENCE_FILTER_VALUES,
 } from '@/lib/contacts/filterContacts';
 import { X } from 'lucide-react';
+import { ContactOriginFilter } from './ContactOriginFilter';
 import { LabeledFilterField, LabeledFilterSelect, type FilterSelectOption } from './FilterControls';
+import type { ContactOriginGroup } from '@/lib/contacts/contactOrigins';
 
 const PRESENCE_FILTER_LABELS: Readonly<Record<PresenceFilterValue, string>> = {
     ANY: 'Any',
@@ -37,6 +39,7 @@ const CONTACTED_FILTER_OPTIONS: readonly FilterSelectOption<ContactedFilterValue
 
 type ContactsFilterBarProps = {
     readonly filter: ContactsFilter;
+    readonly contactOriginGroups: readonly ContactOriginGroup[];
     readonly onChangeFilter: (filter: ContactsFilter) => void;
 };
 
@@ -44,7 +47,7 @@ type ContactsFilterBarProps = {
  * Everything the user can narrow the shown contacts down by
  */
 export function ContactsFilterBar(props: ContactsFilterBarProps) {
-    const { filter, onChangeFilter } = props;
+    const { filter, contactOriginGroups, onChangeFilter } = props;
 
     const changeFilter = (filterChanges: Partial<ContactsFilter>) => onChangeFilter({ ...filter, ...filterChanges });
 
@@ -59,6 +62,14 @@ export function ContactsFilterBar(props: ContactsFilterBarProps) {
                         onChange={(changeEvent) => changeFilter({ searchQuery: changeEvent.target.value })}
                     />
                 </LabeledFilterField>
+                <ContactOriginFilter
+                    className="lg:col-span-2"
+                    contactOriginGroups={contactOriginGroups}
+                    selectedContactOrigins={filter.contactOriginSelections}
+                    onChangeSelectedContactOrigins={(contactOriginSelections) =>
+                        changeFilter({ contactOriginSelections })
+                    }
+                />
                 <LabeledFilterField label="Created from">
                     <Input
                         type="date"

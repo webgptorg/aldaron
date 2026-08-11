@@ -1,6 +1,12 @@
 import moment from 'moment';
 import { CONTACT_COLUMN_DEFINITIONS } from './contactColumnDefinitions';
 import {
+    areContactOriginSelectionsEqual,
+    normalizeContactOriginSelections,
+    type ContactOriginName,
+    type ContactOriginSelection,
+} from './contactOrigins';
+import {
     CONTACTED_FILTER_VALUES,
     DATE_FILTER_FORMAT,
     DEFAULT_CONTACTS_FILTER,
@@ -45,6 +51,14 @@ type ContactsViewValueCodec<TValue> = {
     readonly parseValue: (parameterValue: string) => TValue | null;
 
     readonly serializeValue: (value: TValue) => string;
+
+    /**
+     * Does this value have the same meaning as another one?
+     *
+     * Most view values are strings or numbers and can use strict equality. Origin selections are arrays, so their
+     * normalized contents have to be compared instead.
+     */
+    readonly areValuesEqual?: (firstValue: TValue, secondValue: TValue) => boolean;
 };
 
 /**
@@ -124,6 +138,68 @@ const CONTACTS_PER_PAGE_VALUE_CODEC: ContactsViewValueCodec<ContactsPerPage> = {
 };
 
 /**
+ * Is one JSON value a contact origin name which may be selected in the filter?
+ */
+function isContactOriginName(value: unknown): value is ContactOriginName {
+    return value === null || typeof value === 'string';
+}
+
+/**
+ * Read one list of app-name and place-name selections from the URL.
+ *
+ * JSON avoids making assumptions about which punctuation a dynamically gathered app or place name may contain.
+ */
+function parseContactOriginSelections(parameterValue: string): ContactOriginSelection[] | null {
+    let parsedValue: unknown;
+
+    try {
+        parsedValue = JSON.parse(parameterValue);
+    } catch {
+        return null;
+    }
+
+    if (!Array.isArray(parsedValue)) {
+        return null;
+    }
+
+    const selections: ContactOriginSelection[] = [];
+
+    for (const parsedSelection of parsedValue) {
+        if (typeof parsedSelection !== 'object' || parsedSelection === null || Array.isArray(parsedSelection)) {
+            return null;
+        }
+
+        const parsedSelectionValues = parsedSelection as Record<string, unknown>;
+        const appName = parsedSelectionValues.appName;
+
+        if (!isContactOriginName(appName)) {
+            return null;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(parsedSelectionValues, 'placeName')) {
+            selections.push({ appName });
+            continue;
+        }
+
+        const placeName = parsedSelectionValues.placeName;
+
+        if (!isContactOriginName(placeName)) {
+            return null;
+        }
+
+        selections.push({ appName, placeName });
+    }
+
+    return normalizeContactOriginSelections(selections);
+}
+
+const CONTACT_ORIGIN_SELECTIONS_VALUE_CODEC: ContactsViewValueCodec<readonly ContactOriginSelection[]> = {
+    parseValue: parseContactOriginSelections,
+    serializeValue: (selections) => JSON.stringify(normalizeContactOriginSelections(selections)),
+    areValuesEqual: areContactOriginSelectionsEqual,
+};
+
+/**
  * Describe one value of the filter, all of which are carried by one query parameter each
  */
 function defineContactsFilterParameter<TFilterKey extends keyof ContactsFilter>(
@@ -168,6 +244,7 @@ const CONTACTS_VIEW_PARAMETERS: readonly ContactsViewParameter<unknown>[] = [
     defineContactsFilterParameter('phonePresence', 'phone', PRESENCE_FILTER_VALUE_CODEC),
     defineContactsFilterParameter('userNotePresence', 'userNote', PRESENCE_FILTER_VALUE_CODEC),
     defineContactsFilterParameter('contactedStatus', 'contacted', CONTACTED_FILTER_VALUE_CODEC),
+    defineContactsFilterParameter('contactOriginSelections', 'origins', CONTACT_ORIGIN_SELECTIONS_VALUE_CODEC),
     defineContactsSortParameter('columnKey', 'sortBy', SORT_COLUMN_VALUE_CODEC),
     defineContactsSortParameter('direction', 'sortDirection', SORT_DIRECTION_VALUE_CODEC),
     defineContactsViewParameter<ContactsPerPage>({
@@ -219,8 +296,10 @@ export function serializeContactsViewState(
 
     for (const parameter of CONTACTS_VIEW_PARAMETERS) {
         const value = parameter.readValue(viewState);
+        const defaultValue = parameter.readValue(DEFAULT_CONTACTS_VIEW_STATE);
+        const isDefaultValue = parameter.areValuesEqual?.(value, defaultValue) ?? value === defaultValue;
 
-        if (value === parameter.readValue(DEFAULT_CONTACTS_VIEW_STATE)) {
+        if (isDefaultValue) {
             newSearchParams.delete(parameter.parameterName);
         } else {
             newSearchParams.set(parameter.parameterName, parameter.serializeValue(value));

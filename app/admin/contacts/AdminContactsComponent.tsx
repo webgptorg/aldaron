@@ -9,6 +9,7 @@ import {
     MAXIMAL_CONTACT_COLUMN_WIDTH,
     MINIMAL_CONTACT_COLUMN_WIDTH,
 } from '@/lib/contacts/contactColumnDefinitions';
+import { getContactOriginGroups } from '@/lib/contacts/contactOrigins';
 import { filterContacts } from '@/lib/contacts/filterContacts';
 import { paginateContacts } from '@/lib/contacts/paginateContacts';
 import { sortContacts } from '@/lib/contacts/sortContacts';
@@ -62,6 +63,8 @@ export default function AdminContactsComponent() {
         [contacts, filter, sortState],
     );
 
+    const contactOriginGroups = useMemo(() => getContactOriginGroups(contacts), [contacts]);
+
     const contactsPage = useMemo(
         () => paginateContacts(filteredAndSortedContacts, currentPage, contactsPerPage),
         [contactsPerPage, currentPage, filteredAndSortedContacts],
@@ -92,7 +95,11 @@ export default function AdminContactsComponent() {
                 </div>
             )}
 
-            <ContactsFilterBar filter={filter} onChangeFilter={changeFilter} />
+            <ContactsFilterBar
+                filter={filter}
+                contactOriginGroups={contactOriginGroups}
+                onChangeFilter={changeFilter}
+            />
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
                 <ContactsExportBar exportedContacts={filteredAndSortedContacts} totalContactsCount={contacts.length} />

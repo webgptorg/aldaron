@@ -13,6 +13,7 @@ import {
     filterContacts,
     isContactsFilterActive,
 } from './filterContacts';
+import { getContactOriginGroups, normalizeContactOriginSelections } from './contactOrigins';
 import {
     CONTACTS_PER_PAGE_OPTIONS,
     DEFAULT_CONTACTS_PER_PAGE,
@@ -131,6 +132,99 @@ describe('filterContacts', () => {
             createdToDate: '2026-07-15',
         });
         expect(contactsFromJuly.map((contact) => contact.id)).toEqual([1, 2]);
+    });
+
+    it('filters by a whole app name and by multiple place names below one app name', () => {
+        const contactsWithOrigins = [
+            buildContact({ id: 4, appName: 'Landing page', placeName: 'Online workshop' }),
+            buildContact({ id: 5, appName: 'Landing page', placeName: 'Newsletter' }),
+            buildContact({ id: 6, appName: 'Landing page', placeName: null }),
+            buildContact({ id: 7, appName: 'Podcast', placeName: 'Online workshop' }),
+        ];
+
+        const contactsFromLandingPage = filterContacts(contactsWithOrigins, {
+            ...EMPTY_CONTACTS_FILTER,
+            contactOriginSelections: [{ appName: 'Landing page' }],
+        });
+        const contactsFromSelectedLandingPagePlaces = filterContacts(contactsWithOrigins, {
+            ...EMPTY_CONTACTS_FILTER,
+            contactOriginSelections: [
+                { appName: 'Landing page', placeName: 'Newsletter' },
+                { appName: 'Landing page', placeName: 'Online workshop' },
+            ],
+        });
+
+        expect(contactsFromLandingPage.map((contact) => contact.id)).toEqual([4, 5, 6]);
+        expect(contactsFromSelectedLandingPagePlaces.map((contact) => contact.id)).toEqual([4, 5]);
+    });
+
+    it('keeps place names scoped to their app name and can select multiple app names', () => {
+        const contactsWithOrigins = [
+            buildContact({ id: 4, appName: 'Landing page', placeName: 'Registration' }),
+            buildContact({ id: 5, appName: 'Podcast', placeName: 'Registration' }),
+            buildContact({ id: 6, appName: 'Podcast', placeName: 'Episode page' }),
+        ];
+
+        const contactsFromSelectedOrigins = filterContacts(contactsWithOrigins, {
+            ...EMPTY_CONTACTS_FILTER,
+            contactOriginSelections: [
+                { appName: 'Landing page', placeName: 'Registration' },
+                { appName: 'Podcast' },
+            ],
+        });
+
+        expect(contactsFromSelectedOrigins.map((contact) => contact.id)).toEqual([4, 5, 6]);
+    });
+
+    it('keeps the contacts without an app name or place name selectable', () => {
+        const contactsWithOrigins = [
+            buildContact({ id: 4, appName: null, placeName: null }),
+            buildContact({ id: 5, appName: 'Landing page', placeName: null }),
+        ];
+
+        const contactsWithoutOriginNames = filterContacts(contactsWithOrigins, {
+            ...EMPTY_CONTACTS_FILTER,
+            contactOriginSelections: [{ appName: null, placeName: null }],
+        });
+
+        expect(contactsWithoutOriginNames.map((contact) => contact.id)).toEqual([4]);
+    });
+
+    it('recognizes an origin selection as an active filter', () => {
+        expect(
+            isContactsFilterActive({
+                ...EMPTY_CONTACTS_FILTER,
+                contactOriginSelections: [{ appName: 'Landing page' }],
+            }),
+        ).toBe(true);
+    });
+});
+
+describe('contact origins', () => {
+    it('derives unique place names grouped below their app names', () => {
+        const contactsWithOrigins = [
+            buildContact({ appName: 'Podcast', placeName: 'Episode page' }),
+            buildContact({ appName: 'Landing page', placeName: 'Newsletter' }),
+            buildContact({ appName: 'Landing page', placeName: 'Newsletter' }),
+            buildContact({ appName: 'Landing page', placeName: null }),
+            buildContact({ appName: null, placeName: 'Imported' }),
+        ];
+
+        expect(getContactOriginGroups(contactsWithOrigins)).toEqual([
+            { appName: 'Landing page', placeNames: ['Newsletter', null] },
+            { appName: 'Podcast', placeNames: ['Episode page'] },
+            { appName: null, placeNames: ['Imported'] },
+        ]);
+    });
+
+    it('normalizes duplicate and overlapping selections before matching or sharing them', () => {
+        expect(
+            normalizeContactOriginSelections([
+                { appName: ' Landing page ', placeName: 'Online workshop' },
+                { appName: 'Landing page', placeName: 'Online workshop' },
+                { appName: 'Landing page' },
+            ]),
+        ).toEqual([{ appName: 'Landing page' }]);
     });
 });
 
@@ -254,6 +348,10 @@ describe('the shared link to one view of the contacts table', () => {
             searchQuery: 'novák praha',
             createdFromDate: '2026-07-01',
             emailPresence: 'PRESENT',
+            contactOriginSelections: [
+                { appName: 'Landing page', placeName: 'Online workshop' },
+                { appName: 'Podcast' },
+            ],
         },
         sortState: { columnKey: 'fullname', direction: 'ASCENDING' },
         contactsPerPage: 200,
@@ -276,6 +374,7 @@ describe('the shared link to one view of the contacts table', () => {
 
         expect(searchParams.get('token')).toBe('secret');
         expect(searchParams.get('search')).toBe('novák praha');
+        expect(searchParams.get('origins')).not.toBeNull();
     });
 
     it('drops the parameters of the values which went back to the default', () => {
@@ -289,7 +388,9 @@ describe('the shared link to one view of the contacts table', () => {
 
     it('still opens when a value of the link makes no sense', () => {
         const viewState = parseContactsViewState(
-            new URLSearchParams('contacted=maybe&sortBy=salary&page=0&perPage=7&createdFrom=yesterday'),
+            new URLSearchParams(
+                'contacted=maybe&sortBy=salary&page=0&perPage=7&createdFrom=yesterday&origins=not-json',
+            ),
         );
 
         expect(viewState).toEqual(DEFAULT_CONTACTS_VIEW_STATE);
