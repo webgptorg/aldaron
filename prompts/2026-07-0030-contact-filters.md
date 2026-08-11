@@ -148,6 +148,21 @@ END:VCARD
 
 ---
 
+[ ]
+
+[✨⇨] When editing contact it fails with error `A 'limit' was applied without an explicit 'order'`, fix it
+
+- Either when editing "Our Note" in place or via "Edit" action
+- Allow to edit both "User Note" and "Our Note" in the "Edit" action modal
+- Keep the option to edit "Our Note" in place, just fix the SQL error
+- When exporting to VCARD to the VCARD NOTE concat both "User Note" and "Our Note" if they are both present, otherwise just the existing one.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
 [-]
 
 [✨⇨]
@@ -156,9 +171,3 @@ END:VCARD
 - Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
-
-
-
-
-
-
