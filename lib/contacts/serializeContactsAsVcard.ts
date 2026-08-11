@@ -1,7 +1,7 @@
+import { SITE_NAME } from '@/lib/metadata/site-config';
 import moment from 'moment';
-import type { Contact, ContactColumnKey } from './Contact';
-import { getContactColumnDefinition } from './contactColumnDefinitions';
-import { formatContactValueForExport, getContactDisplayName } from './contactValues';
+import type { Contact } from './Contact';
+import { getContactDisplayName } from './contactValues';
 
 const VCARD_LINE_SEPARATOR = '\r\n';
 
@@ -23,18 +23,19 @@ const VCARD_MAXIMAL_LINE_LENGTH = 75;
 const VCARD_MAXIMAL_CONTINUATION_LINE_LENGTH = VCARD_MAXIMAL_LINE_LENGTH - 1;
 
 /**
- * Values which do not fit into any standard vCard property and are gathered into the note instead
+ * Separator between the lines of the note, which the escaping turns into the `\n` the vCard specification asks for
  */
-const VCARD_NOTE_COLUMN_KEYS: readonly ContactColumnKey[] = [
-    'userNote',
-    'ourNote',
-    'appName',
-    'placeName',
-    'url',
-    'referrer',
-    'createdAt',
-    'isContacted',
-];
+const VCARD_NOTE_LINE_SEPARATOR = '\n';
+
+/**
+ * Opening of the note, which says that the card comes from us and not from the address book of somebody else
+ */
+const VCARD_NOTE_HEADLINE_PREFIX = `${SITE_NAME} contact`;
+
+/**
+ * Separator between the application and the place inside the headline of the note
+ */
+const VCARD_NOTE_ORIGIN_SEPARATOR = ' -> ';
 
 /**
  * Escape the characters which have a special meaning in a vCard value
@@ -106,15 +107,32 @@ function splitFullnameIntoNameParts(fullname: string): { readonly givenName: str
 }
 
 /**
- * Gather the values which have no vCard property of their own into one labeled note
+ * Trim the parts and join only the ones which are filled in, so that no separator ever dangles around a missing part
+ */
+function joinFilledParts(parts: ReadonlyArray<string | null>, separator: string): string {
+    return parts
+        .map((part) => part?.trim() ?? '')
+        .filter((part) => part !== '')
+        .join(separator);
+}
+
+/**
+ * First line of the note, which says where the contact was gathered, for example
+ * `Promptbook contact from Landing page -> OnlineWorkshopRegistration`
+ */
+function buildVcardNoteHeadline(contact: Contact): string {
+    const origin = joinFilledParts([contact.appName, contact.placeName], VCARD_NOTE_ORIGIN_SEPARATOR);
+
+    return origin === '' ? VCARD_NOTE_HEADLINE_PREFIX : `${VCARD_NOTE_HEADLINE_PREFIX} from ${origin}`;
+}
+
+/**
+ * Everything worth knowing about the contact which no standard vCard property can hold
+ *
+ * Note: Whether we have already contacted them is our own workflow, an address book has no use for it
  */
 function buildVcardNote(contact: Contact): string {
-    return VCARD_NOTE_COLUMN_KEYS.map((columnKey) => {
-        const value = formatContactValueForExport(contact, columnKey);
-        return value === '' ? null : `${getContactColumnDefinition(columnKey).label}: ${value}`;
-    })
-        .filter(Boolean)
-        .join('\n');
+    return joinFilledParts([buildVcardNoteHeadline(contact), contact.userNote], VCARD_NOTE_LINE_SEPARATOR);
 }
 
 /**
@@ -131,6 +149,9 @@ function buildVcardRevision(contact: Contact): string {
 
 /**
  * Serialize one contact into one vCard
+ *
+ * Note: There is no `ORG` and no `URL`, because the application, the place and the address describe the landing page
+ *       where the contact was gathered, never the organization or the website of the contact themselves
  */
 function serializeContactAsVcard(contact: Contact): string {
     const { givenName, familyName } = splitFullnameIntoNameParts(contact.fullname ?? '');
@@ -142,8 +163,6 @@ function serializeContactAsVcard(contact: Contact): string {
         buildVcardLine('FN', getContactDisplayName(contact)),
         buildVcardLine('EMAIL;TYPE=INTERNET', contact.email ?? ''),
         buildVcardLine('TEL;TYPE=CELL', contact.phone ?? ''),
-        buildVcardLine('ORG', contact.appName ?? ''),
-        buildVcardLine('URL', contact.url ?? ''),
         buildVcardLine('NOTE', buildVcardNote(contact)),
         buildVcardLine('REV', buildVcardRevision(contact)),
         `UID:contact-${contact.id}`,

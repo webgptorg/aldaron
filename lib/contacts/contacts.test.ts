@@ -48,6 +48,37 @@ const ANONYMOUS = buildContact({ id: 3, createdAt: '2026-06-01T10:00:00.000Z' })
 
 const ALL_CONTACTS = [NOVAK, CAPEK, ANONYMOUS];
 
+/**
+ * Contact gathered by a landing page, with everything the export has to deal with filled in
+ *
+ * Note: It is deliberately kept out of `ALL_CONTACTS`, it only serves the export tests
+ */
+const HEJNY = buildContact({
+    id: 810,
+    fullname: 'Pavol Hejný',
+    email: 'me@pavolhejny.com',
+    phone: '+420777777777',
+    userNote: 'Online workshop registration Date: čtvrtek 20. 8. 2026 19:00',
+    isContacted: true,
+    ourNote: 'Zavolat po workshopu',
+    appName: 'Landing page',
+    placeName: 'OnlineWorkshopRegistration',
+    url: 'https://ptbk.io/cs/online-workshop',
+    createdAt: '2026-08-11T04:19:04.597Z',
+});
+
+/**
+ * Read the value of one property of the first card, with the folded lines joined back together
+ */
+function readVcardPropertyValue(vcard: string, propertyName: string): string | null {
+    const propertyLine = vcard
+        .replace(/\r\n /g, '')
+        .split('\r\n')
+        .find((line) => line.startsWith(`${propertyName}:`));
+
+    return propertyLine === undefined ? null : propertyLine.slice(propertyName.length + 1);
+}
+
 describe('filterContacts', () => {
     it('lets everything through with the empty filter', () => {
         expect(filterContacts(ALL_CONTACTS, EMPTY_CONTACTS_FILTER)).toHaveLength(3);
@@ -166,5 +197,39 @@ describe('serializeContactsAsVcard', () => {
 
     it('omits the properties which have no value', () => {
         expect(serializeContactsAsVcard([ANONYMOUS])).not.toContain('EMAIL');
+    });
+
+    it('says where the contact was gathered and then repeats the user note', () => {
+        expect(readVcardPropertyValue(serializeContactsAsVcard([HEJNY]), 'NOTE')).toBe(
+            'Promptbook contact from Landing page -> OnlineWorkshopRegistration\\n' +
+                'Online workshop registration Date: čtvrtek 20. 8. 2026 19:00',
+        );
+    });
+
+    it('leaves out the organization and the url, because they describe our landing page and not the contact', () => {
+        const vcard = serializeContactsAsVcard([HEJNY]);
+
+        expect(vcard).not.toContain('ORG:');
+        expect(vcard).not.toContain('URL:');
+        expect(vcard).not.toContain('https://ptbk.io/cs/online-workshop');
+    });
+
+    it('leaves out our own workflow, which is whether the contact was already contacted and our internal note', () => {
+        const vcard = serializeContactsAsVcard([HEJNY]);
+
+        expect(vcard).not.toContain('Is Contacted');
+        expect(vcard).not.toContain('Zavolat po workshopu');
+    });
+
+    it('drops the separator of the origin when only the application is known', () => {
+        const contactWithoutPlace = buildContact({ id: 5, appName: 'Landing page' });
+
+        expect(readVcardPropertyValue(serializeContactsAsVcard([contactWithoutPlace]), 'NOTE')).toBe(
+            'Promptbook contact from Landing page',
+        );
+    });
+
+    it('still marks the card as ours when there is neither an application nor a place', () => {
+        expect(readVcardPropertyValue(serializeContactsAsVcard([ANONYMOUS]), 'NOTE')).toBe('Promptbook contact');
     });
 });
