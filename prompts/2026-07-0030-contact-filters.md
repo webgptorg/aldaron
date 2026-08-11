@@ -55,7 +55,7 @@ END:VCARD
 - By default, show 100 contacts per page. Allow to change this to 50, 100, 200, 500, or all contacts.
 - When exporting, always export ALL contacts, not just the current page.
 - You are working with `/admin/contacts` page.
-- Do not change database structure or gathering of the contacts. You are just editing the viewing of the contacts
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 
@@ -66,9 +66,74 @@ END:VCARD
 [✨⇨] The contacts table cannot be horizontally scrolled, fix it
 
 - You are working with `/admin/contacts` page.
-- Do not change database structure or gathering of the contacts. You are just editing the viewing of the contacts
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 
+---
 
+[ ]
 
+[✨⇨] When exporting the contacts, export only the current view, not all contacts
+
+- Only exception is pagination, export current filtered contacts, not just the current page.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] Save the filtering, sorting, and pagination of the contacts table in the URL get parameters, so that the user can share the link with the current view of the contacts table
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] Add actions column with edit and delete buttons to the contacts table
+
+- You are working with `/admin/contacts` page.
+- Be carefull to change only that contact you are editing/deleting, enforce the `LIMIT 1` in the backend
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] The contacts table cannot be horizontally scrolled, fix it
+
+- Scrolling is only on bottom but when there are many rows, the user cannot scroll to the right because the table is too high. Allow scrolling on top and bottom of the table.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] Link the email, phone number, and URLs in the contacts table
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[-]
+
+[✨⇨]
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
