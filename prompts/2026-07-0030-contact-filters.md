@@ -129,6 +129,25 @@ END:VCARD
 
 ---
 
+[ ]
+
+[✨⇨] Add app name / place name selector filter in the contacts table
+
+- Group the place names under App Names.
+- Allow to pick all (default), one, or multiple app names and place names.
+    - You can pick one app name and multiple place names under that app name.
+- Place names and app names aren't hardcoded. They are derrived from the existing names in the contacts.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+@@@@@@ Security of the contacts table
+
+---
+
 [-]
 
 [✨⇨]
