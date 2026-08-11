@@ -4,13 +4,19 @@ import { cn } from '@/lib/utils';
 
 type TableProps = React.HTMLAttributes<HTMLTableElement> & {
   readonly containerClassName?: string;
+  readonly containerRef?: React.Ref<HTMLDivElement>;
+  readonly onContainerScroll?: React.UIEventHandler<HTMLDivElement>;
 };
 
 const Table = React.forwardRef<
   HTMLTableElement,
   TableProps
->(({ className, containerClassName, ...props }, ref) => (
-  <div className={cn('relative w-full overflow-auto', containerClassName)}>
+>(({ className, containerClassName, containerRef, onContainerScroll, ...props }, ref) => (
+  <div
+    ref={containerRef}
+    className={cn('relative w-full overflow-auto', containerClassName)}
+    onScroll={onContainerScroll}
+  >
     <table
       ref={ref}
       className={cn('w-full caption-bottom text-sm', className)}

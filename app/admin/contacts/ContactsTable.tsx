@@ -2,6 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useSynchronizedHorizontalScroll } from '@/hooks/useSynchronizedHorizontalScroll';
 import type { Contact, ContactChanges, ContactColumnKey } from '@/lib/contacts/Contact';
 import { CONTACT_ACTIONS_COLUMN_WIDTH, CONTACT_COLUMN_DEFINITIONS } from '@/lib/contacts/contactColumnDefinitions';
 import type { ContactsSortState } from '@/lib/contacts/sortContacts';
@@ -44,6 +45,9 @@ export function ContactsTable(props: ContactsTableProps) {
         CONTACT_ACTIONS_COLUMN_WIDTH,
     );
 
+    const { topScrollContainerRef, bottomScrollContainerRef, handleTopScroll, handleBottomScroll } =
+        useSynchronizedHorizontalScroll();
+
     if (contacts.length === 0) {
         return (
             <div className="rounded-lg border p-8 text-center text-muted-foreground">No contact matches the filter</div>
@@ -52,51 +56,69 @@ export function ContactsTable(props: ContactsTableProps) {
 
     return (
         <TooltipProvider delayDuration={300}>
-            <Table containerClassName="rounded-lg border" className="table-fixed" style={{ width: tableWidth }}>
-                <colgroup>
-                    {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                        <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
-                    ))}
-                    <col style={{ width: CONTACT_ACTIONS_COLUMN_WIDTH }} />
-                </colgroup>
-                <TableHeader>
-                    <TableRow>
+            <div className="rounded-lg border">
+                <div
+                    ref={topScrollContainerRef}
+                    className="h-5 overflow-x-auto overflow-y-hidden border-b"
+                    onScroll={handleTopScroll}
+                    role="region"
+                    aria-label="Scroll contacts table horizontally"
+                    tabIndex={0}
+                >
+                    <div aria-hidden="true" className="h-px" style={{ width: tableWidth }} />
+                </div>
+                <Table
+                    containerRef={bottomScrollContainerRef}
+                    containerClassName="rounded-b-lg"
+                    className="table-fixed"
+                    style={{ width: tableWidth }}
+                    onContainerScroll={handleBottomScroll}
+                >
+                    <colgroup>
                         {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                            <TableHead key={column.key} className="overflow-hidden px-4">
-                                <ContactsTableHeaderCell
-                                    column={column}
-                                    sortState={sortState}
-                                    onToggleSort={onToggleSort}
-                                    onStartResize={onStartColumnResize}
-                                />
-                            </TableHead>
+                            <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
                         ))}
-                        <TableHead className="px-4">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {contacts.map((contact) => (
-                        <TableRow key={contact.id}>
+                        <col style={{ width: CONTACT_ACTIONS_COLUMN_WIDTH }} />
+                    </colgroup>
+                    <TableHeader>
+                        <TableRow>
                             {CONTACT_COLUMN_DEFINITIONS.map((column) => (
-                                <TableCell key={column.key} className="overflow-hidden p-2 align-top">
-                                    <ContactsTableCell
-                                        contact={contact}
+                                <TableHead key={column.key} className="overflow-hidden px-4">
+                                    <ContactsTableHeaderCell
                                         column={column}
-                                        onChangeContact={onChangeContact}
+                                        sortState={sortState}
+                                        onToggleSort={onToggleSort}
+                                        onStartResize={onStartColumnResize}
+                                    />
+                                </TableHead>
+                            ))}
+                            <TableHead className="px-4">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {contacts.map((contact) => (
+                            <TableRow key={contact.id}>
+                                {CONTACT_COLUMN_DEFINITIONS.map((column) => (
+                                    <TableCell key={column.key} className="overflow-hidden p-2 align-top">
+                                        <ContactsTableCell
+                                            contact={contact}
+                                            column={column}
+                                            onChangeContact={onChangeContact}
+                                        />
+                                    </TableCell>
+                                ))}
+                                <TableCell className="p-2 align-top">
+                                    <ContactActions
+                                        contact={contact}
+                                        onEditContact={onEditContact}
+                                        onDeleteContact={onDeleteContact}
                                     />
                                 </TableCell>
-                            ))}
-                            <TableCell className="p-2 align-top">
-                                <ContactActions
-                                    contact={contact}
-                                    onEditContact={onEditContact}
-                                    onDeleteContact={onDeleteContact}
-                                />
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
         </TooltipProvider>
     );
 }
