@@ -31,3 +31,7 @@
 - Stopped the exported vCard claiming that our landing page is the organization and the website of the contact, and made its note say in one sentence where the contact was gathered before it repeats what the contact wrote.
 - Stopped the contacts export ignoring the filter, so the downloaded CSV or vCard again holds exactly the current view, all of its pages included, and says so next to the buttons.
 - Wrote the filtering, the sorting and the pagination of the contacts table into the address of the dashboard, so that the link opens exactly the view somebody else was looking at, while a link without any of it still opens the leads which nobody has contacted yet.
+- Closed the gathered contacts, which used to be readable, changeable and removable by anybody who took the public key of the database out of the sources of any page, so that they are now reachable only by our own server.
+- Moved the writing of a contact left in one of the forms from the browser onto the server, which decides itself from which address and which browser it came and that the lead is not answered yet, so that a forged request can no longer pretend to be somebody else or an already contacted lead.
+- Wrote down the one way into the gathered contacts exactly once, so that the public forms and the whole administration open them the very same way instead of each reaching into the database on its own.
+- Stopped a contact form quietly pretending that a lead was saved when the server could not save it at all.

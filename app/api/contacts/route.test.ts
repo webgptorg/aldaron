@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { createSupabaseClientMock, getUnauthorizedResponseOrNullMock } = vi.hoisted(() => ({
-    createSupabaseClientMock: vi.fn(),
+const { createSupabaseServiceRoleClientMock, getUnauthorizedResponseOrNullMock } = vi.hoisted(() => ({
+    createSupabaseServiceRoleClientMock: vi.fn(),
     getUnauthorizedResponseOrNullMock: vi.fn(),
 }));
 
@@ -10,8 +10,10 @@ vi.mock('@/lib/admin/adminApiGuard', () => ({
     getUnauthorizedResponseOrNull: getUnauthorizedResponseOrNullMock,
 }));
 
+// Note: Only the key with which the database is opened is mocked, so that the tests really go through the one place
+//       which reaches the contacts and would notice if it stopped asking for the service role key.
 vi.mock('@/lib/supabase', () => ({
-    createSupabaseClient: createSupabaseClientMock,
+    createSupabaseServiceRoleClient: createSupabaseServiceRoleClientMock,
 }));
 
 import { DELETE, PATCH } from './route';
@@ -70,14 +72,14 @@ const ONE_CONTACT_MUTATIONS: readonly {
 
 describe('contact mutations', () => {
     beforeEach(() => {
-        createSupabaseClientMock.mockReset();
+        createSupabaseServiceRoleClientMock.mockReset();
         getUnauthorizedResponseOrNullMock.mockReset();
         getUnauthorizedResponseOrNullMock.mockReturnValue(null);
     });
 
     it('updates just the requested contact with LIMIT 1', async () => {
         const database = createContactMutationDatabase({ id: 37, fullname: 'Updated name' });
-        createSupabaseClientMock.mockReturnValue({ from: database.from });
+        createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await PATCH(createContactRequest('PATCH', { id: 37, fullname: 'Updated name' }));
 
@@ -90,7 +92,7 @@ describe('contact mutations', () => {
 
     it('changes both the note of the user and our own note in one update', async () => {
         const database = createContactMutationDatabase({ id: 37 });
-        createSupabaseClientMock.mockReturnValue({ from: database.from });
+        createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await PATCH(
             createContactRequest('PATCH', { id: 37, userNote: 'Wants a demo', ourNote: 'Call after the workshop' }),
@@ -102,7 +104,7 @@ describe('contact mutations', () => {
 
     it('deletes just the requested contact with LIMIT 1', async () => {
         const database = createContactMutationDatabase({ id: 54 });
-        createSupabaseClientMock.mockReturnValue({ from: database.from });
+        createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await DELETE(createContactRequest('DELETE', { id: 54 }));
 
@@ -118,12 +120,33 @@ describe('contact mutations', () => {
     for (const mutation of ONE_CONTACT_MUTATIONS) {
         it(`orders by the unique id when ${mutation.name}, because the limit needs an explicit order`, async () => {
             const database = createContactMutationDatabase({ id: 37 });
-            createSupabaseClientMock.mockReturnValue({ from: database.from });
+            createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
             const response = await mutation.route(createContactRequest(mutation.method, mutation.body));
 
             expect(response.status).toBe(200);
             expect(database.order).toHaveBeenCalledWith('id');
+        });
+    }
+
+    // Note: Row level security keeps the contacts closed for the public key of the database, so a mutation which is
+    //       not carried by the service role key must not even be attempted
+    for (const mutation of ONE_CONTACT_MUTATIONS) {
+        it(`says that the contacts cannot be reached when ${mutation.name} without the service role key`, async () => {
+            createSupabaseServiceRoleClientMock.mockReturnValue(null);
+
+            const response = await mutation.route(createContactRequest(mutation.method, mutation.body));
+
+            expect(response.status).toBe(503);
+        });
+
+        it(`reads the contacts out of the "Contact" table when ${mutation.name}`, async () => {
+            const database = createContactMutationDatabase({ id: 37 });
+            createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
+
+            await mutation.route(createContactRequest(mutation.method, mutation.body));
+
+            expect(database.from).toHaveBeenCalledWith('Contact');
         });
     }
 });

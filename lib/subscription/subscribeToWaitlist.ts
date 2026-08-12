@@ -1,19 +1,10 @@
-import { APP_NAME } from '@/config';
-import { supabase } from '@/lib/supabase';
+import { sendJson } from '@/lib/api/requestJson';
+import type { ContactSubmission } from '@/lib/contacts/Contact';
 
 /**
- * Fetch the user's IP address from a public API
+ * Path of the api which writes a contact left in one of the public forms of the site
  */
-async function fetchIpAddress(): Promise<string | null> {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = (await response.json()) as { ip: string };
-        return data.ip || null;
-    } catch (error) {
-        console.error('Failed to fetch IP address:', error);
-        return null;
-    }
-}
+const WAITLIST_API_PATH = '/api/waitlist';
 
 type SubscribeToWaitlistOptions = {
     fullname?: string;
@@ -24,48 +15,41 @@ type SubscribeToWaitlistOptions = {
 };
 
 /**
+ * Read the address of the page the form was filled in on, and the page the visitor came from
+ *
+ * Note: Both are empty whenever there is no browser around, so that the form never fails just because of them
+ */
+function readSubmissionPlace(): Pick<ContactSubmission, 'url' | 'referrer'> {
+    if (typeof window === 'undefined') {
+        return { url: '', referrer: '' };
+    }
+
+    return { url: window.location.href, referrer: document.referrer };
+}
+
+/**
  * Subscribe an email address to the waitlist
+ *
+ * Note: The contact is written by `/api/waitlist` and never by the browser itself, because row level security keeps
+ *       the `Contact` table closed for the public key of the database. Who the visitor is, from which address they
+ *       came and when, is therefore read by the server from the request instead of being sent from here.
  *
  * @param email - The email address to subscribe to the waitlist
  * @param placeName - Name of the place where the popup is triggered (to measure effectiveness)
  * @param phone - Optional phone number
  * @param note - Optional notes (e.g., selected plan)
  */
-export async function subscribeToWaitlist(options: SubscribeToWaitlistOptions) {
+export async function subscribeToWaitlist(options: SubscribeToWaitlistOptions): Promise<void> {
     const { fullname, email, placeName, phone, note } = options;
 
-    // Get additional data for tracking
-    const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : undefined;
-    const referrer = typeof window !== 'undefined' ? document.referrer : undefined;
+    const contactSubmission: ContactSubmission = {
+        fullname: fullname || '',
+        email,
+        phone: phone || '',
+        userNote: note || '',
+        placeName,
+        ...readSubmissionPlace(),
+    };
 
-    // Fetch IP address
-    const ipAddress = await fetchIpAddress();
-
-    if (!supabase) {
-        console.warn('Supabase not configured - subscription skipped');
-        return;
-    }
-
-    const { error: supabaseError } = await supabase.from('Contact').insert([
-        {
-            fullname: fullname || null,
-            email: email || null,
-            phone: phone || null,
-
-            userAgent,
-            referrer,
-            ipAddress,
-
-            appName: APP_NAME,
-            placeName,
-            url: window.location.href,
-            userNote: note || null,
-
-            isContacted: false,
-        },
-    ]);
-
-    if (supabaseError) {
-        throw new Error(supabaseError.message);
-    }
+    await sendJson(WAITLIST_API_PATH, 'POST', contactSubmission);
 }

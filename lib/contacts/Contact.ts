@@ -28,6 +28,19 @@ export type Contact = {
 export type ContactColumnKey = Exclude<keyof Contact, 'id'>;
 
 /**
+ * Key of a contact field which holds a text rather than a yes or no answer
+ */
+export type ContactTextColumnKey = Exclude<ContactColumnKey, 'isContacted'>;
+
+/**
+ * Longest text one field of a contact may carry
+ *
+ * Note: The limit is far above anything a person fills into a form, it is here so that one request cannot fill the
+ *       database with a single enormous note.
+ */
+export const MAXIMAL_CONTACT_TEXT_LENGTH = 10000;
+
+/**
  * Fields which may be filled in when a contact is added manually through the dashboard
  */
 export const CONTACT_DRAFT_FIELD_NAMES = ['fullname', 'email', 'phone', 'userNote', 'appName', 'placeName'] as const;
@@ -50,13 +63,40 @@ export const CONTACT_EDITABLE_TEXT_FIELD_NAMES = [...CONTACT_DRAFT_FIELD_NAMES, 
 export type ContactEditableTextFieldName = (typeof CONTACT_EDITABLE_TEXT_FIELD_NAMES)[number];
 
 /**
+ * Fields which one of the public forms of the site fills in about the contact it gathers
+ *
+ * Note: Everything else which is stored about a contact - who the visitor is, from which address they came and whether
+ *       we already answered them - is decided by the server, so that a forged request cannot pretend to be a different
+ *       visitor or an already contacted lead.
+ */
+export const CONTACT_SUBMISSION_FIELD_NAMES = [
+    'fullname',
+    'email',
+    'phone',
+    'userNote',
+    'placeName',
+    'url',
+    'referrer',
+] as const;
+
+/**
+ * Name of one field which a public form fills in
+ */
+export type ContactSubmissionFieldName = (typeof CONTACT_SUBMISSION_FIELD_NAMES)[number];
+
+/**
  * Values of the contact text fields which are filled in together by one form
  *
  * Note: A form works with empty strings while the database works with `null`, the contacts api turns one into the other
  */
-export type ContactTextValues<FieldName extends ContactEditableTextFieldName = ContactEditableTextFieldName> = Readonly<
+export type ContactTextValues<FieldName extends ContactTextColumnKey = ContactEditableTextFieldName> = Readonly<
     Record<FieldName, string>
 >;
+
+/**
+ * Values which one of the public forms sends when somebody leaves their contact
+ */
+export type ContactSubmission = ContactTextValues<ContactSubmissionFieldName>;
 
 /**
  * Values which can be filled in when a contact is added manually through the dashboard
@@ -66,7 +106,7 @@ export type ContactDraft = ContactTextValues<ContactDraftFieldName>;
 /**
  * Read the given text fields of one contact, with every value which is not filled in as an empty string
  */
-export function pickContactTextValues<FieldName extends ContactEditableTextFieldName>(
+export function pickContactTextValues<FieldName extends ContactTextColumnKey>(
     contact: Readonly<Partial<Contact>>,
     fieldNames: readonly FieldName[],
 ): ContactTextValues<FieldName> {
@@ -88,3 +128,11 @@ export type ContactChanges = {
 } & {
     readonly isContacted?: boolean;
 };
+
+/**
+ * Everything which is known about a contact at the moment it is gathered
+ *
+ * Note: `isContacted` is deliberately not part of it - a contact which has just arrived was by definition not
+ *       contacted yet, so nobody may say otherwise while writing it.
+ */
+export type NewContact = Readonly<Partial<Omit<Contact, 'id' | 'createdAt' | 'isContacted'>>>;

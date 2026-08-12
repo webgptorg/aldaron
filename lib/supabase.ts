@@ -25,6 +25,29 @@ export function createSupabaseClient(): SupabaseClient | null {
     return client;
 }
 
+/**
+ * Talk to the database as the service role, or `null` when this server does not hold the service role key
+ *
+ * Note: The service role key is the only key which reaches a table protected by row level security, like `Contact`.
+ *       It is not a `NEXT_PUBLIC_` variable, so it is never part of the browser bundle and the browser can therefore
+ *       never reach such a table.
+ *
+ * Note: The public anonymous key is deliberately not used as a fallback here. Under row level security it would not
+ *       fail, it would quietly answer that there is nothing to see, which is far harder to notice than a missing key.
+ */
+export function createSupabaseServiceRoleClient(): SupabaseClient | null {
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+        return null;
+    }
+
+    return createClient(supabaseUrl, supabaseServiceRoleKey, {
+        // Note: A server talks for everybody at once, so it must never carry over a session from one request to another
+        auth: { persistSession: false, autoRefreshToken: false },
+    });
+}
+
 export function getSupabaseForBrowser(): SupabaseClient | null {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null;
     const client = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -51,6 +74,12 @@ export async function testSupabaseConnection(client: ReturnType<typeof createSup
 
 /*
 Note: The tables of the online workshop are written down in `lib/workshop/workshop-tables.sql`
+*/
+
+/*
+Note: The `Contact` table below is closed by row level security, which is written down in
+      `lib/contacts/contact-table-rls.sql`. It is reachable only with the service role key, so every contact is written
+      and read through `/api/waitlist` and `/api/contacts` instead of directly from the browser.
 */
 
 /*

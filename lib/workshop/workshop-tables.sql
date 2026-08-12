@@ -4,8 +4,9 @@
 --       "the workshop tables are missing" and the participant page falls back to the date from the landing page
 --       configuration.
 --
--- Note: The site talks to the database with the anonymous key and decides itself who may write, exactly like it
---       already does for the `Contact` table, so the row level security stays off here as well.
+-- Note: The site talks to the database with the anonymous key and decides itself who may write, so the row level
+--       security stays off for the tables below. The `Contact` table is the exception, it holds personal data of the
+--       leads and is closed by `lib/contacts/contact-table-rls.sql`.
 
 CREATE TABLE IF NOT EXISTS public."WorkshopSettings" (
     "workshopId" text PRIMARY KEY,

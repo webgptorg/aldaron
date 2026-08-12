@@ -1,19 +1,18 @@
 // app/api/contacts/route.ts
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import {
     CONTACT_DRAFT_FIELD_NAMES,
     CONTACT_EDITABLE_TEXT_FIELD_NAMES,
     type ContactChanges,
-    type ContactEditableTextFieldName,
 } from '@/lib/contacts/Contact';
-import { createSupabaseClient } from '@/lib/supabase';
+import {
+    createContactsUnreachableResponse,
+    getContactsTableOrNull,
+    insertContact,
+} from '@/lib/contacts/contactsDatabase';
+import { readContactTextFields } from '@/lib/contacts/readContactTextFields';
 import { NextRequest, NextResponse } from 'next/server';
-
-type MutableContactChanges = {
-    [fieldName in ContactEditableTextFieldName]?: string | null;
-} & {
-    isContacted?: boolean;
-};
 
 /**
  * Unique column by which one single contact is found and ordered
@@ -24,6 +23,11 @@ const CONTACT_ID_COLUMN = 'id';
  * How many contacts one mutation of the dashboard is ever allowed to touch
  */
 const ONE_CONTACT_LIMIT = 1;
+
+/**
+ * What is written instead of a browser for a contact somebody typed into the dashboard by hand
+ */
+const MANUAL_CONTACT_USER_AGENT = 'Manual entry';
 
 /**
  * A mutation which can still be narrowed down to one row, described only by the methods the narrowing needs
@@ -53,25 +57,6 @@ function scopeMutationToOneContact<ScopedMutation>(
 }
 
 /**
- * Is the parsed JSON body an object which can contain a contact mutation
- */
-function isContactRequestBody(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/**
- * Read the JSON body without letting malformed requests reach a database query
- */
-async function readContactRequestBody(request: NextRequest): Promise<Record<string, unknown> | null> {
-    try {
-        const body = await request.json();
-        return isContactRequestBody(body) ? body : null;
-    } catch {
-        return null;
-    }
-}
-
-/**
  * Read a positive integer contact id from a request body
  */
 function readContactId(body: Readonly<Record<string, unknown>>): number | null {
@@ -83,29 +68,19 @@ function readContactId(body: Readonly<Record<string, unknown>>): number | null {
  * Read only the contact fields which the dashboard is allowed to change
  */
 function readContactChanges(body: Readonly<Record<string, unknown>>): ContactChanges | null {
-    const contactChanges: MutableContactChanges = {};
-
-    for (const fieldName of CONTACT_EDITABLE_TEXT_FIELD_NAMES) {
-        const fieldValue = body[fieldName];
-        if (fieldValue === undefined) {
-            continue;
-        }
-        if (typeof fieldValue !== 'string') {
-            return null;
-        }
-
-        contactChanges[fieldName] = fieldValue || null;
+    const contactTextFields = readContactTextFields(body, CONTACT_EDITABLE_TEXT_FIELD_NAMES);
+    if (contactTextFields === null) {
+        return null;
     }
 
-    if (body.isContacted !== undefined) {
-        if (typeof body.isContacted !== 'boolean') {
-            return null;
-        }
-
-        contactChanges.isContacted = body.isContacted;
+    if (body.isContacted === undefined) {
+        return contactTextFields;
+    }
+    if (typeof body.isContacted !== 'boolean') {
+        return null;
     }
 
-    return contactChanges;
+    return { ...contactTextFields, isContacted: body.isContacted };
 }
 
 export async function GET(request: NextRequest) {
@@ -117,9 +92,12 @@ export async function GET(request: NextRequest) {
         return unauthorizedResponse;
     }
 
-    const supabase = createSupabaseClient();
-    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    let query = supabase.from('Contact').select('*').order('createdAt', { ascending: false });
+    const contactsTable = getContactsTableOrNull();
+    if (contactsTable === null) {
+        return createContactsUnreachableResponse();
+    }
+
+    let query = contactsTable.select('*').order('createdAt', { ascending: false });
     if (!isShowingAll) {
         query = query.eq('isContacted', false);
     }
@@ -136,7 +114,7 @@ export async function PATCH(request: NextRequest) {
         return unauthorizedResponse;
     }
 
-    const body = await readContactRequestBody(request);
+    const body = await readJsonObjectOrNull(request);
     if (body === null) {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -155,9 +133,12 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
     }
 
-    const supabase = createSupabaseClient();
-    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { data, error } = await scopeMutationToOneContact(supabase.from('Contact').update(contactChanges), contactId)
+    const contactsTable = getContactsTableOrNull();
+    if (contactsTable === null) {
+        return createContactsUnreachableResponse();
+    }
+
+    const { data, error } = await scopeMutationToOneContact(contactsTable.update(contactChanges), contactId)
         .select()
         .maybeSingle();
     if (error) {
@@ -175,39 +156,37 @@ export async function POST(request: NextRequest) {
         return unauthorizedResponse;
     }
 
-    const body = await readContactRequestBody(request);
+    const body = await readJsonObjectOrNull(request);
     if (body === null) {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
-    const contactChanges = readContactChanges(body);
-    if (contactChanges === null) {
-        return NextResponse.json({ error: 'Contact fields must be text or boolean values' }, { status: 400 });
+    const contactDraft = readContactTextFields(body, CONTACT_DRAFT_FIELD_NAMES);
+    if (contactDraft === null) {
+        return NextResponse.json({ error: 'Contact fields must be text values' }, { status: 400 });
     }
 
     const manualContactValues = Object.fromEntries(
-        CONTACT_DRAFT_FIELD_NAMES.map((fieldName) => [fieldName, contactChanges[fieldName] ?? null]),
+        CONTACT_DRAFT_FIELD_NAMES.map((fieldName) => [fieldName, contactDraft[fieldName] ?? null]),
     );
 
-    const supabase = createSupabaseClient();
-    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { data, error } = await supabase
-        .from('Contact')
-        .insert({
-            ...manualContactValues,
-            isContacted: false,
-            userAgent: 'Manual entry',
-            ipAddress: null,
-            referrer: null,
-            url: null,
-        })
-        .select()
-        .single();
-
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    const contactsTable = getContactsTableOrNull();
+    if (contactsTable === null) {
+        return createContactsUnreachableResponse();
     }
-    return NextResponse.json(data);
+
+    const { contact, errorMessage } = await insertContact(contactsTable, {
+        ...manualContactValues,
+        userAgent: MANUAL_CONTACT_USER_AGENT,
+        ipAddress: null,
+        referrer: null,
+        url: null,
+    });
+
+    if (errorMessage !== null) {
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
+    }
+    return NextResponse.json(contact);
 }
 
 /**
@@ -219,7 +198,7 @@ export async function DELETE(request: NextRequest) {
         return unauthorizedResponse;
     }
 
-    const body = await readContactRequestBody(request);
+    const body = await readJsonObjectOrNull(request);
     if (body === null) {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -229,9 +208,12 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
 
-    const supabase = createSupabaseClient();
-    if (!supabase) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-    const { data, error } = await scopeMutationToOneContact(supabase.from('Contact').delete(), contactId)
+    const contactsTable = getContactsTableOrNull();
+    if (contactsTable === null) {
+        return createContactsUnreachableResponse();
+    }
+
+    const { data, error } = await scopeMutationToOneContact(contactsTable.delete(), contactId)
         .select('id')
         .maybeSingle();
     if (error) {
