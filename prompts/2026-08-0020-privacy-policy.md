@@ -1,4 +1,4 @@
-[ ]
+[x] Commited manually
 
 [✨🛅] Add privacy policy and "Obchodní podmínky"
 

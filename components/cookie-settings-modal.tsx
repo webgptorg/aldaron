@@ -10,30 +10,52 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { useState } from 'react';
+import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
+import { getCookieConsentContent } from '@/lib/legal/cookieConsentContent';
+import { ONLY_NECESSARY_COOKIES_ALLOWED, saveCookiePreferences } from '@/lib/legal/cookieConsentStorage';
+import { useState, type ReactNode } from 'react';
+
+/**
+ * One switchable kind of cookies, with the switch on its right
+ */
+function CookieCategoryRow({
+    id,
+    title,
+    description,
+    children,
+}: {
+    id: string;
+    title: string;
+    description: string;
+    children: ReactNode;
+}) {
+    return (
+        <div className="flex items-center justify-between">
+            <label htmlFor={id}>
+                <strong>{title}</strong>
+                <p className="text-sm text-gray-500">{description}</p>
+            </label>
+            {children}
+        </div>
+    );
+}
 
 export function CookieSettingsModal({
+    language,
     open,
     onOpenChange,
     onSave,
 }: {
+    language: SupportedHomepageLanguage;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSave?: () => void;
 }) {
-    const [preferences, setPreferences] = useState({
-        necessary: true,
-        analytics: false,
-        marketing: false,
-    });
-
-    const handlePreferenceChange = (category: keyof typeof preferences, value: boolean) => {
-        setPreferences((prev) => ({ ...prev, [category]: value }));
-    };
+    const content = getCookieConsentContent(language);
+    const [preferences, setPreferences] = useState(ONLY_NECESSARY_COOKIES_ALLOWED);
 
     const handleSave = () => {
-        localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
-        localStorage.setItem('cookiesAccepted', 'true');
+        saveCookiePreferences(preferences);
         onOpenChange(false);
         onSave?.();
     };
@@ -42,50 +64,48 @@ export function CookieSettingsModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Customize Cookie Settings</DialogTitle>
-                    <DialogDescription>
-                        Manage your cookie preferences. You can enable or disable different types of cookies below.
-                    </DialogDescription>
+                    <DialogTitle>{content.settingsTitle}</DialogTitle>
+                    <DialogDescription>{content.settingsDescription}</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <label htmlFor="necessary-cookies">
-                            <strong>Necessary Cookies</strong>
-                            <p className="text-sm text-gray-500">
-                                These cookies are essential for the website to function properly.
-                            </p>
-                        </label>
+                    <CookieCategoryRow
+                        id="necessary-cookies"
+                        title={content.necessaryCategory.title}
+                        description={content.necessaryCategory.description}
+                    >
                         <Switch id="necessary-cookies" checked disabled />
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <label htmlFor="analytics-cookies">
-                            <strong>Analytics Cookies</strong>
-                            <p className="text-sm text-gray-500">
-                                These cookies help us understand how visitors interact with our website.
-                            </p>
-                        </label>
+                    </CookieCategoryRow>
+
+                    <CookieCategoryRow
+                        id="analytics-cookies"
+                        title={content.analyticsCategory.title}
+                        description={content.analyticsCategory.description}
+                    >
                         <Switch
                             id="analytics-cookies"
-                            checked={preferences.analytics}
-                            onCheckedChange={(value) => handlePreferenceChange('analytics', value)}
+                            checked={preferences.isAnalyticsAllowed}
+                            onCheckedChange={(isAllowed) =>
+                                setPreferences((previous) => ({ ...previous, isAnalyticsAllowed: isAllowed }))
+                            }
                         />
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <label htmlFor="marketing-cookies">
-                            <strong>Marketing Cookies</strong>
-                            <p className="text-sm text-gray-500">
-                                These cookies are used to track visitors across websites to display relevant ads.
-                            </p>
-                        </label>
+                    </CookieCategoryRow>
+
+                    <CookieCategoryRow
+                        id="marketing-cookies"
+                        title={content.marketingCategory.title}
+                        description={content.marketingCategory.description}
+                    >
                         <Switch
                             id="marketing-cookies"
-                            checked={preferences.marketing}
-                            onCheckedChange={(value) => handlePreferenceChange('marketing', value)}
+                            checked={preferences.isMarketingAllowed}
+                            onCheckedChange={(isAllowed) =>
+                                setPreferences((previous) => ({ ...previous, isMarketingAllowed: isAllowed }))
+                            }
                         />
-                    </div>
+                    </CookieCategoryRow>
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleSave}>Save Preferences</Button>
+                    <Button onClick={handleSave}>{content.saveButton}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

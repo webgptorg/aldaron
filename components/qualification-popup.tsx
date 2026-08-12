@@ -1,6 +1,7 @@
 'use client';
 
 import { getHomepageContent, type HomepageLanguage } from '@/businesses/homepage/homepageContent';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
@@ -340,18 +341,11 @@ export function QualificationPopup({ language = 'cs' }: { language?: HomepageLan
                                     {qualificationPopup.back}
                                 </button>
 
-                                <p className="text-[11px] text-gray-400 text-center mt-1">
-                                    {qualificationPopup.privacyPrefix}{' '}
-                                    <a
-                                        href={qualificationPopup.privacyHref}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="underline hover:text-gray-600 transition-colors"
-                                    >
-                                        {qualificationPopup.privacyLinkText}
-                                    </a>
-                                    .
-                                </p>
+                                <PersonalDataConsentNote
+                                    language={language}
+                                    className="mt-1 text-center text-[11px] text-gray-400"
+                                    linkClassName="hover:text-gray-600"
+                                />
                             </div>
                         ) : (
                             /* Single-select steps: just back button */

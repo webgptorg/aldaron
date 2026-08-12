@@ -1,8 +1,11 @@
 'use client';
 
+import { LegalFooterLinks } from '@/components/legal/LegalFooterLinks';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { ORGANIZATION_DATA_BOX_ID } from '@/lib/metadata/site-config';
 import { subscribeToNewsletter } from '@/lib/subscription/subscribeToNewsletter';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
@@ -16,7 +19,7 @@ const promptbookLogo = '/logo/promptbook-logo-blue-transparent-256.png'; // <- T
 type FooterLanguage = 'cs' | 'en';
 type FooterLink = { href: string; text: string };
 
-interface FooterProps {
+export interface FooterProps {
     language?: FooterLanguage;
     productHeader?: string;
     productLinks?: FooterLink[];
@@ -110,7 +113,10 @@ const footerDefaultsByLanguage: Record<FooterLanguage, FooterContent> = {
                 href: 'https://or-justice-cz.translate.goog/ias/ui/rejstrik-firma.vysledky?subjektId=1223693&typ=UPLNY&_x_tr_sl=cs&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp',
                 text: 'IČO: 21012288',
             },
-            { href: 'https://info.mojedatovaschranka.cz/info/cs/', text: 'Datová schránka: hzuu4yn' },
+            {
+                href: 'https://info.mojedatovaschranka.cz/info/cs/',
+                text: `Datová schránka: ${ORGANIZATION_DATA_BOX_ID}`,
+            },
         ],
         connectHeader: 'Spojte se s námi',
         connectLinks: [
@@ -281,6 +287,12 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
                             >
                                 {isSubmitting ? subscribingButtonText : subscribeButtonText}
                             </Button>
+
+                            <PersonalDataConsentNote
+                                language={language}
+                                className="text-gray-500"
+                                linkClassName="text-gray-400 hover:text-white"
+                            />
                         </form>
                     </div>
                 </div>
@@ -303,6 +315,12 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
                                 <br />
                                 {rightsReservedText}
                             </p>
+                            <LegalFooterLinks
+                                language={language}
+                                className="justify-center text-sm lg:justify-start"
+                                linkClassName="text-gray-400 hover:text-white"
+                            />
+
                             <p className="text-xs text-gray-500 text-center lg:text-left leading-relaxed">
                                 {claim} <i style={{ visibility: 'hidden' }}>11:11</i>
                             </p>

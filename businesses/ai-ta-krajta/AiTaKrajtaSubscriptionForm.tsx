@@ -1,13 +1,13 @@
 'use client';
 
 import { AI_TA_KRAJTA_NAME, AI_TA_KRAJTA_SUBSCRIPTION_PLACE_NAME } from '@/businesses/ai-ta-krajta/config';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, Loader2 } from 'lucide-react';
-import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
 /**
@@ -117,13 +117,9 @@ export function AiTaKrajtaSubscriptionForm() {
                 )}
             </Button>
 
-            <p className="mt-4 text-center text-xs leading-relaxed text-slate-400">
-                Odesláním souhlasíš se zpracováním osobních údajů podle{' '}
-                <Link href="/privacy" className="text-cyan-700 underline-offset-4 hover:underline">
-                    zásad ochrany osobních údajů
-                </Link>
-                . Odhlásit se můžeš kdykoliv.
-            </p>
+            <PersonalDataConsentNote language="cs" addressForm="informal" className="mt-4 text-center">
+                Odhlásit se můžeš kdykoliv.
+            </PersonalDataConsentNote>
         </form>
     );
 }

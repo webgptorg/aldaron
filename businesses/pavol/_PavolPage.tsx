@@ -8,6 +8,7 @@ import { pavolTestimonials } from '@/businesses/pavol/config-testimonials';
 import { pavolContainerClassName } from '@/businesses/pavol/layout';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
 import { Header } from '@/components/header';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -740,6 +741,12 @@ export function PavolPage({ language }: { language: SupportedHomepageLanguage })
                                         {isSubmitting ? content.contact.submittingLabel : content.contact.submitLabel}
                                         {!isSubmitting && <Send className="ml-2 h-4 w-4" />}
                                     </Button>
+
+                                    <PersonalDataConsentNote
+                                        language={language}
+                                        className="text-center text-slate-500"
+                                        linkClassName="text-[var(--pavol-accent)]"
+                                    />
                                 </form>
                             )}
                         </motion.div>

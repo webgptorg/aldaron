@@ -138,9 +138,6 @@ type HomepageContent = {
         submitting: string;
         submit: string;
         back: string;
-        privacyPrefix: string;
-        privacyLinkText: string;
-        privacyHref: string;
     };
     bookingNotification: {
         notifications: { company: string; time: string }[];
@@ -522,9 +519,6 @@ export const homepageContent = {
             submitting: 'Odesílám...',
             submit: 'Rezervovat hovor zdarma',
             back: 'Zpět',
-            privacyPrefix: 'Odesláním souhlasíte s',
-            privacyLinkText: 'ochranou osobních údajů',
-            privacyHref: '/privacy',
         },
         bookingNotification: {
             notifications: [
@@ -903,9 +897,6 @@ export const homepageContent = {
             submitting: 'Submitting...',
             submit: 'Book a free call',
             back: 'Back',
-            privacyPrefix: 'By submitting, you agree to our',
-            privacyLinkText: 'privacy policy',
-            privacyHref: '/privacy',
         },
         bookingNotification: {
             notifications: [

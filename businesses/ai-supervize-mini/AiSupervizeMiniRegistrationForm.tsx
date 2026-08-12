@@ -2,6 +2,7 @@
 
 import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
 import { getAiSupervizeMiniDiscountCode } from '@/businesses/ai-supervize-mini/discountCode';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -613,6 +614,8 @@ export function AiSupervizeMiniRegistrationForm() {
                     )}
                 </Button>
 
+                <PersonalDataConsentNote language="cs" className="text-center" />
+
                 <div className="text-center">
                     <button
                         type="button"
@@ -744,6 +747,8 @@ export function AiSupervizeMiniRegistrationForm() {
                                     )}
                                 </Button>
                             </div>
+
+                            <PersonalDataConsentNote language="cs" />
                         </form>
                     )}
                 </DialogContent>

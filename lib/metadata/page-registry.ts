@@ -8,13 +8,12 @@ import { HOMEPAGE_PAGE_DEFINITIONS } from '@/businesses/homepage/homepageMetadat
 import { ONLINE_WORKSHOP_PAGE_DEFINITION } from '@/businesses/online-workshop/onlineWorkshopMetadata';
 import { PAVOL_PAGE_DEFINITIONS } from '@/businesses/pavol/pavolMetadata';
 import { CITIES_CS_PAGE_DEFINITION } from '@/businesses/pro-mesta/citiesCsMetadata';
+import { LEGAL_PAGE_DEFINITION_LIST } from '@/lib/legal/legalPageMetadata';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
 import {
     BRANDING_PAGE_DEFINITION,
     CONTACT_PAGE_DEFINITION,
     DATA_DELETION_PAGE_DEFINITION,
-    PRIVACY_PAGE_DEFINITION,
-    TERMS_PAGE_DEFINITION,
 } from '@/lib/metadata/site-page-definitions';
 
 /**
@@ -38,8 +37,7 @@ const PAGE_METADATA_DEFINITIONS: readonly PageMetadataDefinition[] = [
     AI_TA_KRAJTA_PAGE_DEFINITION,
     CONTACT_PAGE_DEFINITION,
     BRANDING_PAGE_DEFINITION,
-    PRIVACY_PAGE_DEFINITION,
-    TERMS_PAGE_DEFINITION,
+    ...LEGAL_PAGE_DEFINITION_LIST,
     DATA_DELETION_PAGE_DEFINITION,
 ];
 

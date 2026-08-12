@@ -4,11 +4,14 @@ import { defaultPricing } from '@/businesses/_generic/defaultPricing';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
+import { getLanguageFromPathname } from '@/lib/language/pageLanguage';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { Mail } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 interface WaitlistPopupProps {
@@ -20,6 +23,8 @@ interface WaitlistPopupProps {
 
 export function WaitlistPopup(props: WaitlistPopupProps) {
     const { placeName } = props;
+    // Note: The popup is opened from pages of both languages without being told which one, so it asks the url.
+    const language = getLanguageFromPathname(usePathname());
     const [modal] = useGetParam('modal');
     const [plan] = useOptionalGetParam('plan');
     const closeGetStartedModal = useCloseGetStartedModal();
@@ -152,11 +157,7 @@ export function WaitlistPopup(props: WaitlistPopupProps) {
                             </Button>
                         </div>
 
-                        <div className="text-center">
-                            <p className="text-xs text-gray-500">
-                                We respect your privacy. No spam, just relevant follow-up.
-                            </p>
-                        </div>
+                        <PersonalDataConsentNote language={language} className="text-center text-gray-500" />
                     </form>
                 )}
             </DialogContent>

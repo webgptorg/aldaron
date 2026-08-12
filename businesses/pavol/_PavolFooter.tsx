@@ -3,6 +3,7 @@
 import type { PavolLink } from '@/businesses/pavol/pavolContent';
 import { pavolContainerClassName } from '@/businesses/pavol/layout';
 import { pavolPageContent } from '@/businesses/pavol/pavolContent';
+import { LegalFooterLinks } from '@/components/legal/LegalFooterLinks';
 import { Button } from '@/components/ui/button';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import { Send } from 'lucide-react';
@@ -73,8 +74,14 @@ export function PavolFooter({ language }: { language: SupportedHomepageLanguage 
                     <FooterLinkColumn title={content.footer.connectTitle} links={content.contact.links} />
                 </div>
 
-                <div className="mt-12 border-t border-white/10 pt-6">
+                <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-slate-400">© Pavol Hejný. {content.footer.rightsReservedText}</p>
+
+                    <LegalFooterLinks
+                        language={language}
+                        className="text-sm"
+                        linkClassName="text-slate-400 hover:text-white"
+                    />
                 </div>
             </div>
         </footer>

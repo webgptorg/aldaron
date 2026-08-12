@@ -1,5 +1,7 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { PRIVACY_CONTACT_EMAIL } from '@/lib/legal/legalOperator';
+import { getLegalPagePath } from '@/lib/legal/legalPagePaths';
 import { DATA_DELETION_METADATA } from '@/lib/metadata/site-page-definitions';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -35,8 +37,11 @@ export default function DataDeletionPage() {
                             <div className="space-y-2">
                                 <p>
                                     <strong>Email:</strong>{' '}
-                                    <a href="mailto:privacy@ptbk.io" className="text-blue-600 hover:underline">
-                                        privacy@ptbk.io
+                                    <a
+                                        href={`mailto:${PRIVACY_CONTACT_EMAIL}`}
+                                        className="text-blue-600 hover:underline"
+                                    >
+                                        {PRIVACY_CONTACT_EMAIL}
                                     </a>
                                 </p>
                                 <p>
@@ -237,13 +242,16 @@ export default function DataDeletionPage() {
                         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                             <p>
                                 <strong>Email:</strong>{' '}
-                                <a href="mailto:privacy@ptbk.io" className="text-blue-600 hover:underline">
-                                    privacy@ptbk.io
+                                <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`} className="text-blue-600 hover:underline">
+                                    {PRIVACY_CONTACT_EMAIL}
                                 </a>
                             </p>
                             <p className="mt-2">
                                 <strong>Privacy Policy:</strong>{' '}
-                                <Link href="/privacy" className="text-blue-600 hover:underline">
+                                <Link
+                                    href={getLegalPagePath('privacyPolicy', 'en')}
+                                    className="text-blue-600 hover:underline"
+                                >
                                     View our Privacy Policy
                                 </Link>
                             </p>

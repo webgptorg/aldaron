@@ -1,6 +1,7 @@
 'use client';
 
 import { ONLINE_WORKSHOP_THANK_YOU_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
@@ -10,7 +11,6 @@ import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 
 function getFieldErrors({ fullname, email }: { fullname: string; email: string }) {
@@ -176,13 +176,9 @@ export function OnlineWorkshopRegistrationForm() {
                     )}
                 </Button>
 
-                <p className="text-center text-xs leading-relaxed text-slate-400">
-                    Odesláním souhlasíš se zpracováním osobních údajů podle{' '}
-                    <Link href="/privacy" className="text-cyan-700 underline-offset-4 hover:underline">
-                        zásad ochrany osobních údajů
-                    </Link>
-                    . Odkaz na připojení ti přijde e-mailem.
-                </p>
+                <PersonalDataConsentNote language="cs" addressForm="informal" className="text-center">
+                    Odkaz na připojení ti přijde e-mailem.
+                </PersonalDataConsentNote>
             </div>
         </form>
     );

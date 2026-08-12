@@ -74,6 +74,11 @@ export const ORGANIZATION_REGISTRATION_NUMBER = '21012288';
 export const ORGANIZATION_COUNTRY_CODE = 'CZ';
 
 /**
+ * Identifier of the Czech data box (datová schránka) of the legal entity, which is a legally binding way to reach it
+ */
+export const ORGANIZATION_DATA_BOX_ID = 'hzuu4yn';
+
+/**
  * Profiles which represent the brand elsewhere on the web, used as `sameAs` in structured data
  */
 export const ORGANIZATION_SOCIAL_URLS: readonly string[] = [

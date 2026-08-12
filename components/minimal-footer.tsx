@@ -1,6 +1,12 @@
 const promptbookLogo = '/logo/promptbook-logo-blue-transparent-128.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-128.png';
+import { LegalFooterLinks } from '@/components/legal/LegalFooterLinks';
 import Image from 'next/image';
 import Link from 'next/link';
+
+/**
+ * Look shared by every link of this footer
+ */
+const MINIMAL_FOOTER_LINK_CLASS_NAME = 'text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200';
 
 export function MinimalFooter() {
     return (
@@ -23,25 +29,17 @@ export function MinimalFooter() {
                     </div>
 
                     {/* Links */}
+                    {/* Note: This footer belongs on the Czech confirmation pages only, so its legal links are Czech
+                              as well, just like the copyright line above. */}
                     <div className="flex items-center gap-6">
-                        <Link
-                            href="/branding"
-                            className="text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200"
-                        >
+                        <Link href="/branding" className={MINIMAL_FOOTER_LINK_CLASS_NAME}>
                             Branding
                         </Link>
-                        <Link
-                            href="/privacy"
-                            className="text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200"
-                        >
-                            Ochrana soukromí
-                        </Link>
-                        <Link
-                            href="/terms"
-                            className="text-[13px] text-gray-400 hover:text-gray-700 transition-colors duration-200"
-                        >
-                            Podmínky užití
-                        </Link>
+                        <LegalFooterLinks
+                            language="cs"
+                            className="gap-x-6"
+                            linkClassName={MINIMAL_FOOTER_LINK_CLASS_NAME}
+                        />
                     </div>
                 </div>
             </div>

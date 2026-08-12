@@ -28,24 +28,11 @@ export const CONTACT_PAGE_DEFINITION: PageMetadataDefinition = {
     sitemapChangeFrequency: 'yearly',
 };
 
-export const PRIVACY_PAGE_DEFINITION: PageMetadataDefinition = {
-    path: '/privacy',
-    language: 'en',
-    title: 'Privacy Policy | Promptbook',
-    description: 'How Promptbook collects, uses, discloses, and safeguards your information when you use the service.',
-    sitemapPriority: 0.3,
-    sitemapChangeFrequency: 'yearly',
-};
-
-export const TERMS_PAGE_DEFINITION: PageMetadataDefinition = {
-    path: '/terms',
-    language: 'en',
-    title: 'Terms of Service | Promptbook',
-    description: 'The terms and conditions you agree to when you access and use Promptbook.',
-    sitemapPriority: 0.3,
-    sitemapChangeFrequency: 'yearly',
-};
-
+/**
+ * Note: The privacy policy and the terms of business are published in every language of the site, so they describe
+ *       themselves in `@/lib/legal/legalPageMetadata` next to their own text. Only `/privacy` and `/terms` stay here
+ *       as redirects, and a redirect needs no metadata of its own.
+ */
 export const DATA_DELETION_PAGE_DEFINITION: PageMetadataDefinition = {
     path: '/data-deletion',
     language: 'en',
@@ -91,8 +78,6 @@ export const ADMIN_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
 
 export const BRANDING_METADATA: Metadata = createPageMetadata(BRANDING_PAGE_DEFINITION);
 export const CONTACT_METADATA: Metadata = createPageMetadata(CONTACT_PAGE_DEFINITION);
-export const PRIVACY_METADATA: Metadata = createPageMetadata(PRIVACY_PAGE_DEFINITION);
-export const TERMS_METADATA: Metadata = createPageMetadata(TERMS_PAGE_DEFINITION);
 export const DATA_DELETION_METADATA: Metadata = createPageMetadata(DATA_DELETION_PAGE_DEFINITION);
 export const SHORTENER_METADATA: Metadata = createPageMetadata(SHORTENER_PAGE_DEFINITION);
 export const THANK_YOU_METADATA: Metadata = createPageMetadata(THANK_YOU_PAGE_DEFINITION);

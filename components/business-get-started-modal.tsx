@@ -1,15 +1,18 @@
 'use client';
 
+import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useCloseGetStartedModal } from '@/hooks/useCloseGetStartedModal';
 import { useGetParam } from '@/hooks/useGetParam';
 import { useOptionalGetParam } from '@/hooks/useOptionalGetParam';
+import { getLanguageFromPathname } from '@/lib/language/pageLanguage';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import jiriJahn from '@/public/people/jiri-jahn-transparent.png';
 import { Mail } from 'lucide-react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 interface BusinessGetStartedModalProps {
@@ -45,6 +48,8 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
         scheduleCall = 'Schedule a Call',
         genericErrorMessage = 'An error occurred',
     } = props;
+    // Note: Every landing page passes its own wording, but not its language, so the language comes from the url.
+    const language = getLanguageFromPathname(usePathname());
     const [modal] = useGetParam('modal');
     const [plan] = useOptionalGetParam('plan');
     const closeGetStartedModal = useCloseGetStartedModal();
@@ -169,6 +174,8 @@ export function BusinessGetStartedModal(props: BusinessGetStartedModalProps) {
                                 >
                                     {isSubmitting ? sending : scheduleCall}
                                 </Button>
+
+                                <PersonalDataConsentNote language={language} className="text-center" />
                             </div>
                         </form>
                     </div>
