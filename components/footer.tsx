@@ -6,15 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { ORGANIZATION_DATA_BOX_ID } from '@/lib/metadata/site-config';
-import { subscribeToNewsletter } from '@/lib/subscription/subscribeToNewsletter';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import technologyIncubationSponsor from '@/public/sponsors/CI-Technology-Incubation.png';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import React, { useState, type FormEvent, type ReactNode } from 'react';
 
 const promptbookLogo = '/logo/promptbook-logo-blue-transparent-256.png'; // <- TODO: import promptbookLogo from '@/public/logo/promptbook-logo-blue-transparent-256.png';
+const NEWSLETTER_FOOTER_PLACE_NAME = 'newsletter-footer';
 
 type FooterLanguage = 'cs' | 'en';
 type FooterLink = { href: string; text: string };
@@ -175,33 +175,31 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
             ? 'Vytvořte AI, která skutečně rozumí vaší firmě.'
             : 'Create AI that truly understands your business.';
     const [email, setEmail] = useState('');
-    const [consent, setConsent] = useState(false);
+    const [isConsentGiven, setIsConsentGiven] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [isSuccessful, setIsSuccessful] = useState(false);
 
-    const handleSubscribe = async (e: FormEvent) => {
-        e.preventDefault();
+    const handleSubscribe = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-        if (!consent) {
+        if (!isConsentGiven) {
             setError(consentErrorMessage);
             return;
         }
 
         setIsSubmitting(true);
         setError(null);
+        setIsSuccessful(false);
 
         try {
-            await Promise.all([
-                subscribeToNewsletter(email),
-                subscribeToWaitlist({ email, placeName: 'newsletter-footer' }),
-            ]);
+            await subscribeToWaitlist({ email, placeName: NEWSLETTER_FOOTER_PLACE_NAME });
 
-            setSuccess(true);
+            setIsSuccessful(true);
             setEmail('');
-            setConsent(false);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : genericErrorMessage);
+            setIsConsentGiven(false);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : genericErrorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -268,8 +266,8 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
                             <div className="flex items-start space-x-2">
                                 <Checkbox
                                     id="consent"
-                                    checked={consent}
-                                    onCheckedChange={(checked) => setConsent(checked as boolean)}
+                                    checked={isConsentGiven}
+                                    onCheckedChange={(isChecked) => setIsConsentGiven(isChecked === true)}
                                     className="mt-0.5"
                                 />
                                 <label htmlFor="consent" className="text-sm text-gray-400 leading-relaxed">
@@ -278,11 +276,11 @@ export function Footer({ language = 'en', ...overrides }: FooterProps) {
                             </div>
 
                             {error && <p className="text-sm text-red-500">{error}</p>}
-                            {success && <p className="text-sm text-green-500">{successMessage}</p>}
+                            {isSuccessful && <p className="text-sm text-green-500">{successMessage}</p>}
 
                             <Button
                                 type="submit"
-                                disabled={!email || !consent || isSubmitting}
+                                disabled={!email || !isConsentGiven || isSubmitting}
                                 className="w-full bg-primary hover:bg-primary/90"
                             >
                                 {isSubmitting ? subscribingButtonText : subscribeButtonText}
