@@ -1,6 +1,7 @@
-import moment from 'moment';
+import type { Moment } from 'moment';
 import type { Contact, ContactColumnKey } from './Contact';
 import { CONTACT_COLUMN_DEFINITIONS, getContactColumnDefinition } from './contactColumnDefinitions';
+import { parseContactDate } from './contactDates';
 
 /**
  * How a date is written into the exported files
@@ -31,24 +32,38 @@ function getContactRawValue(contact: Contact, columnKey: ContactColumnKey): stri
 }
 
 /**
- * Format one value of a contact the way it is shown in the contacts table
+ * Format one value of a contact, with its dates written the way the reader of the value needs them
  */
-export function formatContactValueForDisplay(contact: Contact, columnKey: ContactColumnKey): string {
+function formatContactValue(
+    contact: Contact,
+    columnKey: ContactColumnKey,
+    formatDate: (contactDate: Moment) => string,
+): string {
     const rawValue = getContactRawValue(contact, columnKey);
 
     if (rawValue === null) {
         return '';
     }
 
-    if (getContactColumnDefinition(columnKey).cellKind === 'DATE') {
-        return moment(String(rawValue)).calendar();
-    }
-
     if (typeof rawValue === 'boolean') {
         return rawValue ? BOOLEAN_TRUE_LABEL : BOOLEAN_FALSE_LABEL;
     }
 
+    if (getContactColumnDefinition(columnKey).cellKind === 'DATE') {
+        const contactDate = parseContactDate(rawValue);
+
+        // Note: A value which holds no readable date is shown as it is stored, which tells more than "Invalid date"
+        return contactDate === null ? rawValue : formatDate(contactDate);
+    }
+
     return rawValue;
+}
+
+/**
+ * Format one value of a contact the way it is shown in the contacts table
+ */
+export function formatContactValueForDisplay(contact: Contact, columnKey: ContactColumnKey): string {
+    return formatContactValue(contact, columnKey, (contactDate) => contactDate.calendar());
 }
 
 /**
@@ -57,25 +72,14 @@ export function formatContactValueForDisplay(contact: Contact, columnKey: Contac
  * Note: Unlike the displayed value, the exported value is machine readable, so dates are absolute
  */
 export function formatContactValueForExport(contact: Contact, columnKey: ContactColumnKey): string {
-    const rawValue = getContactRawValue(contact, columnKey);
-
-    if (rawValue === null) {
-        return '';
-    }
-
-    if (getContactColumnDefinition(columnKey).cellKind === 'DATE') {
-        return moment(String(rawValue)).format(CONTACT_DATE_EXPORT_FORMAT);
-    }
-
-    if (typeof rawValue === 'boolean') {
-        return rawValue ? BOOLEAN_TRUE_LABEL : BOOLEAN_FALSE_LABEL;
-    }
-
-    return rawValue;
+    return formatContactValue(contact, columnKey, (contactDate) => contactDate.format(CONTACT_DATE_EXPORT_FORMAT));
 }
 
 /**
  * Value the contacts are sorted by when one column is picked
+ *
+ * Note: A date is sorted by the point in time it stands for and never by the text it is written as, so that the order
+ *       does not depend on how the date happens to be spelled
  *
  * @returns Number for dates and switches, text for everything else, `null` when there is nothing to sort by
  */
@@ -88,16 +92,15 @@ export function getContactSortValue(contact: Contact, columnKey: ContactColumnKe
         return rawValue === true ? 1 : 0;
     }
 
-    if (rawValue === null) {
+    if (typeof rawValue !== 'string') {
         return null;
     }
 
     if (cellKind === 'DATE') {
-        const dateValue = moment(String(rawValue)).valueOf();
-        return Number.isNaN(dateValue) ? null : dateValue;
+        return parseContactDate(rawValue)?.valueOf() ?? null;
     }
 
-    const textValue = String(rawValue).trim();
+    const textValue = rawValue.trim();
     return textValue === '' ? null : textValue;
 }
 

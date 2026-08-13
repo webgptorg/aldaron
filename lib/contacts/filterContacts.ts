@@ -1,5 +1,6 @@
 import moment from 'moment';
 import type { Contact } from './Contact';
+import { parseContactDate } from './contactDates';
 import { getContactSearchText, normalizeSearchText } from './contactValues';
 import {
     EMPTY_CONTACT_ORIGIN_SELECTIONS,
@@ -119,11 +120,11 @@ function matchesCreatedDateRange(contact: Contact, createdFromDate: string, crea
         return true;
     }
 
-    if (contact.createdAt === null) {
+    const createdAtMoment = parseContactDate(contact.createdAt);
+
+    if (createdAtMoment === null) {
         return false;
     }
-
-    const createdAtMoment = moment(contact.createdAt);
 
     if (createdFromDate !== '' && createdAtMoment.isBefore(moment(createdFromDate, DATE_FILTER_FORMAT).startOf('day'))) {
         return false;

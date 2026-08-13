@@ -1,6 +1,6 @@
 import { SITE_NAME } from '@/lib/metadata/site-config';
-import moment from 'moment';
 import type { Contact } from './Contact';
+import { parseContactDate } from './contactDates';
 import { getContactDisplayName } from './contactValues';
 
 const VCARD_LINE_SEPARATOR = '\r\n';
@@ -143,12 +143,9 @@ function buildVcardNote(contact: Contact): string {
  * Timestamp of the last revision of the card, which the vCard specification requires in the ISO 8601 format
  */
 function buildVcardRevision(contact: Contact): string {
-    if (contact.createdAt === null) {
-        return '';
-    }
+    const createdAtMoment = parseContactDate(contact.createdAt);
 
-    const createdAtMoment = moment(contact.createdAt);
-    return createdAtMoment.isValid() ? createdAtMoment.toISOString() : '';
+    return createdAtMoment === null ? '' : createdAtMoment.toISOString();
 }
 
 /**

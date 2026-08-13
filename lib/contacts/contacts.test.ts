@@ -14,6 +14,7 @@ import {
     isContactsFilterActive,
 } from './filterContacts';
 import { getContactOriginGroups, normalizeContactOriginSelections } from './contactOrigins';
+import { formatContactValueForDisplay, formatContactValueForExport } from './contactValues';
 import {
     CONTACTS_PER_PAGE_OPTIONS,
     DEFAULT_CONTACTS_PER_PAGE,
@@ -134,6 +135,18 @@ describe('filterContacts', () => {
         expect(contactsFromJuly.map((contact) => contact.id)).toEqual([1, 2]);
     });
 
+    it('finds a contact by a date range even when its date is written the way a person writes it', () => {
+        const contactsWithWrittenDate = [buildContact({ id: 8, createdAt: '11. 8. 2026 5:19:04' })];
+
+        expect(
+            filterContacts(contactsWithWrittenDate, {
+                ...EMPTY_CONTACTS_FILTER,
+                createdFromDate: '2026-08-11',
+                createdToDate: '2026-08-11',
+            }),
+        ).toHaveLength(1);
+    });
+
     it('filters by a whole app name and by multiple place names below one app name', () => {
         const contactsWithOrigins = [
             buildContact({ id: 4, appName: 'Landing page', placeName: 'Online workshop' }),
@@ -233,6 +246,66 @@ describe('sortContacts', () => {
         expect(sortContacts(ALL_CONTACTS, DEFAULT_CONTACTS_SORT_STATE).map((contact) => contact.id)).toEqual([2, 1, 3]);
     });
 
+    /**
+     * Four days, each of them written in another one of the ways the gathered contacts carry a date
+     *
+     * Note: As a text these run in a different order than the days they stand for, which is exactly the difference
+     *       the sorting has to make
+     */
+    const DIFFERENTLY_WRITTEN_CONTACTS = [
+        buildContact({ id: 1, createdAt: '11. 8. 2026 5:19:04' }),
+        buildContact({ id: 2, createdAt: '2026-08-20T04:19:04.597123+00:00' }),
+        buildContact({ id: 3, createdAt: '2026-07-30 03:19:04.597+00' }),
+        buildContact({ id: 4, createdAt: '2026-08-25T06:19:04+01:00' }),
+    ];
+
+    it('sorts the dates by the moment they stand for and not by how they are written', () => {
+        const ascending = sortContacts(DIFFERENTLY_WRITTEN_CONTACTS, {
+            columnKey: 'createdAt',
+            direction: 'ASCENDING',
+        });
+        const descending = sortContacts(DIFFERENTLY_WRITTEN_CONTACTS, {
+            columnKey: 'createdAt',
+            direction: 'DESCENDING',
+        });
+
+        expect(ascending.map((contact) => contact.id)).toEqual([3, 1, 2, 4]);
+        expect(descending.map((contact) => contact.id)).toEqual([4, 2, 1, 3]);
+    });
+
+    it('reads a date which starts with the day as that day and not as that month', () => {
+        const contactsAcrossMonths = [
+            buildContact({ id: 1, createdAt: '11. 8. 2026' }),
+            buildContact({ id: 2, createdAt: '2026-09-01T10:00:00.000Z' }),
+        ];
+
+        expect(
+            sortContacts(contactsAcrossMonths, { columnKey: 'createdAt', direction: 'ASCENDING' }).map(
+                (contact) => contact.id,
+            ),
+        ).toEqual([1, 2]);
+    });
+
+    it('keeps a contact whose date cannot be read at the end in both directions', () => {
+        const contactsWithUnreadableDate = [
+            buildContact({ id: 1, createdAt: 'nobody knows when' }),
+            buildContact({ id: 2, createdAt: '2026-07-01T10:00:00.000Z' }),
+            buildContact({ id: 3, createdAt: null }),
+        ];
+
+        const ascending = sortContacts(contactsWithUnreadableDate, {
+            columnKey: 'createdAt',
+            direction: 'ASCENDING',
+        });
+        const descending = sortContacts(contactsWithUnreadableDate, {
+            columnKey: 'createdAt',
+            direction: 'DESCENDING',
+        });
+
+        expect(ascending.map((contact) => contact.id)).toEqual([2, 1, 3]);
+        expect(descending.map((contact) => contact.id)).toEqual([2, 1, 3]);
+    });
+
     it('keeps the contacts with an empty value at the end in both directions', () => {
         const ascending = sortContacts(ALL_CONTACTS, { columnKey: 'fullname', direction: 'ASCENDING' });
         const descending = sortContacts(ALL_CONTACTS, { columnKey: 'fullname', direction: 'DESCENDING' });
@@ -252,6 +325,20 @@ describe('sortContacts', () => {
         const originalContacts = [...ALL_CONTACTS];
         sortContacts(ALL_CONTACTS, { columnKey: 'email', direction: 'ASCENDING' });
         expect(ALL_CONTACTS).toEqual(originalContacts);
+    });
+});
+
+describe('the date one contact carries', () => {
+    it('is written into an export as one absolute date, no matter how it is stored', () => {
+        expect(formatContactValueForExport(buildContact({ createdAt: '11. 8. 2026 5:19:04' }), 'createdAt')).toBe(
+            '2026-08-11 05:19:04',
+        );
+    });
+
+    it('is shown as it is stored when it holds no date which can be read at all', () => {
+        expect(formatContactValueForDisplay(buildContact({ createdAt: 'nobody knows when' }), 'createdAt')).toBe(
+            'nobody knows when',
+        );
     });
 });
 

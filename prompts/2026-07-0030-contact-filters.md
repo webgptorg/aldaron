@@ -174,7 +174,7 @@ END:VCARD
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $6.35 25 minutes; Testing 2 minutes
 
 [✨⇨] Created at should be sorted by the true date, not by the text.
 
@@ -208,3 +208,4 @@ END:VCARD
 - Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
+

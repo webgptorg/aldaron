@@ -35,3 +35,4 @@
 - Moved the writing of a contact left in one of the forms from the browser onto the server, which decides itself from which address and which browser it came and that the lead is not answered yet, so that a forged request can no longer pretend to be somebody else or an already contacted lead.
 - Wrote down the one way into the gathered contacts exactly once, so that the public forms and the whole administration open them the very same way instead of each reaching into the database on its own.
 - Stopped a contact form quietly pretending that a lead was saved when the server could not save it at all.
+- Made the contacts table order "Created At" by the moment the date stands for instead of by the text it is written as, and taught the dashboard to read a date which starts with the day, so that "11. 8. 2026" is no longer understood as the eighth of November - in the table, in the date range filter and in both exports alike.

@@ -1,4 +1,5 @@
 import type { Contact, ContactColumnKey } from './Contact';
+import { getContactColumnDefinition } from './contactColumnDefinitions';
 import { compareContactSortValues, getContactSortValue } from './contactValues';
 
 /**
@@ -33,7 +34,7 @@ export const DEFAULT_CONTACTS_SORT_STATE: ContactsSortState = {
  * Note: Dates are the most useful the newest first, everything else reads better from A to Z
  */
 function getInitialSortDirection(columnKey: ContactColumnKey): ContactsSortDirection {
-    return columnKey === 'createdAt' ? 'DESCENDING' : 'ASCENDING';
+    return getContactColumnDefinition(columnKey).cellKind === 'DATE' ? 'DESCENDING' : 'ASCENDING';
 }
 
 /**
@@ -48,13 +49,28 @@ export function toggleContactsSortState(sortState: ContactsSortState, columnKey:
 }
 
 /**
- * Compare two contacts according to the sort state
+ * One contact together with the value it is sorted by
+ *
+ * Note: The value is read once per contact and not again in every single comparison, because reading it means parsing
+ *       the date the contact carries
+ */
+type ContactWithSortValue = {
+    readonly contact: Contact;
+    readonly sortValue: string | number | null;
+};
+
+/**
+ * Compare two contacts by the values they are sorted by
  *
  * Note: Contacts with an empty value stay at the end in both directions, because they carry no information
  */
-function compareContacts(contactA: Contact, contactB: Contact, sortState: ContactsSortState): number {
-    const sortValueA = getContactSortValue(contactA, sortState.columnKey);
-    const sortValueB = getContactSortValue(contactB, sortState.columnKey);
+function compareContactsWithSortValue(
+    contactA: ContactWithSortValue,
+    contactB: ContactWithSortValue,
+    direction: ContactsSortDirection,
+): number {
+    const { sortValue: sortValueA } = contactA;
+    const { sortValue: sortValueB } = contactB;
 
     if (sortValueA === null || sortValueB === null) {
         if (sortValueA === sortValueB) {
@@ -64,7 +80,7 @@ function compareContacts(contactA: Contact, contactB: Contact, sortState: Contac
     }
 
     const ascendingOrder = compareContactSortValues(sortValueA, sortValueB);
-    return sortState.direction === 'ASCENDING' ? ascendingOrder : -ascendingOrder;
+    return direction === 'ASCENDING' ? ascendingOrder : -ascendingOrder;
 }
 
 /**
@@ -73,5 +89,13 @@ function compareContacts(contactA: Contact, contactB: Contact, sortState: Contac
  * @returns New array, the given contacts are never mutated
  */
 export function sortContacts(contacts: readonly Contact[], sortState: ContactsSortState): Contact[] {
-    return contacts.slice().sort((contactA, contactB) => compareContacts(contactA, contactB, sortState));
+    const contactsWithSortValue = contacts.map((contact): ContactWithSortValue => {
+        return { contact, sortValue: getContactSortValue(contact, sortState.columnKey) };
+    });
+
+    contactsWithSortValue.sort((contactA, contactB) =>
+        compareContactsWithSortValue(contactA, contactB, sortState.direction),
+    );
+
+    return contactsWithSortValue.map(({ contact }) => contact);
 }
