@@ -46,6 +46,56 @@ export function createContactsUnreachableResponse(): NextResponse {
 }
 
 /**
+ * Column which says when the contact was gathered, by which the contacts arrive from the database
+ */
+const CONTACT_CREATED_AT_COLUMN = 'createdAt';
+
+/**
+ * Column which says whether we have already answered the contact
+ */
+const CONTACT_IS_CONTACTED_COLUMN = 'isContacted';
+
+/**
+ * The read contacts, or the reason why they could not be read
+ */
+export type LoadedContacts = {
+    readonly contacts: readonly Contact[] | null;
+    readonly errorMessage: string | null;
+};
+
+type LoadContactsOptions = {
+    /**
+     * Read every contact, and not only the leads which nobody has answered yet
+     */
+    readonly isLoadingAll: boolean;
+};
+
+/**
+ * Read the gathered contacts, the newest ones first
+ *
+ * Note: This is the one place which says in which order the contacts arrive, so that the dashboard and every export
+ *       start from the very same list
+ */
+export async function loadContacts(
+    contactsTable: ContactsTable,
+    options: LoadContactsOptions,
+): Promise<LoadedContacts> {
+    let contactsQuery = contactsTable.select('*').order(CONTACT_CREATED_AT_COLUMN, { ascending: false });
+
+    if (!options.isLoadingAll) {
+        contactsQuery = contactsQuery.eq(CONTACT_IS_CONTACTED_COLUMN, false);
+    }
+
+    const { data, error } = await contactsQuery;
+
+    if (error) {
+        return { contacts: null, errorMessage: error.message };
+    }
+
+    return { contacts: (data ?? []) as Contact[], errorMessage: null };
+}
+
+/**
  * One contact which was written into the database, or the reason why it was not
  */
 export type InsertedContact = {

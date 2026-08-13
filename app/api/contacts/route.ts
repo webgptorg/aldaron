@@ -10,6 +10,7 @@ import {
     createContactsUnreachableResponse,
     getContactsTableOrNull,
     insertContact,
+    loadContacts,
 } from '@/lib/contacts/contactsDatabase';
 import { readContactTextFields } from '@/lib/contacts/readContactTextFields';
 import { NextRequest, NextResponse } from 'next/server';
@@ -97,15 +98,11 @@ export async function GET(request: NextRequest) {
         return createContactsUnreachableResponse();
     }
 
-    let query = contactsTable.select('*').order('createdAt', { ascending: false });
-    if (!isShowingAll) {
-        query = query.eq('isContacted', false);
+    const { contacts, errorMessage } = await loadContacts(contactsTable, { isLoadingAll: isShowingAll });
+    if (contacts === null) {
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
-    const { data, error } = await query;
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-    return NextResponse.json({ contacts: data });
+    return NextResponse.json({ contacts });
 }
 
 export async function PATCH(request: NextRequest) {

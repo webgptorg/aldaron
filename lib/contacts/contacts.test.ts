@@ -6,7 +6,13 @@ import {
     serializeContactsViewState,
     type ContactsViewState,
 } from './contactsViewState';
-import { describeContactsExportScope } from './exportContacts';
+import {
+    CONTACTS_EXPORT_FORMATS,
+    getContactsExportFormatOrNull,
+    type ContactsExportFormat,
+} from './contactsExportFormats';
+import { selectContacts, type ContactsSelection } from './contactsSelection';
+import { buildContactsExportUrl, describeContactsExportScope } from './exportContacts';
 import {
     DEFAULT_CONTACTS_FILTER,
     EMPTY_CONTACTS_FILTER,
@@ -551,6 +557,77 @@ describe('the scope of the export', () => {
 
     it('still names the whole amount when the filter matches nothing', () => {
         expect(describeContactsExportScope(0, 250)).toBe('0 of 250 contacts which match the filter, across all pages');
+    });
+});
+
+describe('the link which opens one export in a new tab', () => {
+    /**
+     * A view which somebody narrowed down and sorted before opening its export
+     */
+    const EXPORTED_SELECTION: ContactsSelection = {
+        filter: { ...EMPTY_CONTACTS_FILTER, searchQuery: 'čapek', emailPresence: 'MISSING' },
+        sortState: { columnKey: 'fullname', direction: 'ASCENDING' },
+    };
+
+    /**
+     * Read one export link the way the server does, which is as the address it points to
+     */
+    function buildExportUrl(format: ContactsExportFormat, selection: ContactsSelection = EXPORTED_SELECTION): URL {
+        return new URL(buildContactsExportUrl(format, 'secret', selection), 'http://localhost');
+    }
+
+    it('is offered for every format the dashboard exports to', () => {
+        expect(CONTACTS_EXPORT_FORMATS.map((format) => format.id)).toEqual(['CSV', 'VCARD']);
+    });
+
+    it('is understood no matter the letter case, so that it can also be written by hand', () => {
+        expect(getContactsExportFormatOrNull('csv')?.id).toBe('CSV');
+        expect(getContactsExportFormatOrNull(' VCard ')?.id).toBe('VCARD');
+        expect(getContactsExportFormatOrNull('xlsx')).toBeNull();
+    });
+
+    for (const format of CONTACTS_EXPORT_FORMATS) {
+        it(`carries the admin token and the whole narrowed down view of the ${format.label} export`, () => {
+            const exportUrl = buildExportUrl(format);
+
+            expect(exportUrl.pathname).toBe(`/api/contacts/export/${format.id}`);
+            expect(exportUrl.searchParams.get('token')).toBe('secret');
+            expect(exportUrl.searchParams.get('search')).toBe('čapek');
+            expect(exportUrl.searchParams.get('email')).toBe('MISSING');
+            expect(exportUrl.searchParams.get('sortBy')).toBe('fullname');
+            expect(exportUrl.searchParams.get('sortDirection')).toBe('ASCENDING');
+        });
+    }
+
+    // Note: The pages only decide how much of the view is shown at once, an export always contains all of it
+    it('carries no page of the table at all', () => {
+        const exportUrl = buildExportUrl(CONTACTS_EXPORT_FORMATS[0]);
+
+        expect(exportUrl.searchParams.get('page')).toBeNull();
+        expect(exportUrl.searchParams.get('perPage')).toBeNull();
+    });
+
+    it('exports exactly the contacts which the view it was built from shows', () => {
+        const exportUrl = buildExportUrl(CONTACTS_EXPORT_FORMATS[0], {
+            filter: { ...EMPTY_CONTACTS_FILTER, searchQuery: 'novak' },
+            sortState: DEFAULT_CONTACTS_SORT_STATE,
+        });
+
+        const exportedContacts = selectContacts(ALL_CONTACTS, parseContactsViewState(exportUrl.searchParams));
+
+        expect(exportedContacts.map((contact) => contact.id)).toEqual([1]);
+    });
+
+    it('exports the whole default view of the dashboard when nothing was narrowed down', () => {
+        const exportUrl = buildExportUrl(CONTACTS_EXPORT_FORMATS[0], {
+            filter: DEFAULT_CONTACTS_FILTER,
+            sortState: DEFAULT_CONTACTS_SORT_STATE,
+        });
+
+        expect(exportUrl.search).toBe('?token=secret');
+        expect(
+            selectContacts(ALL_CONTACTS, parseContactsViewState(exportUrl.searchParams)).map((contact) => contact.id),
+        ).toEqual([1, 3]);
     });
 });
 

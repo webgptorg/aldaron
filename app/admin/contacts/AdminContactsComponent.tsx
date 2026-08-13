@@ -10,9 +10,8 @@ import {
     MINIMAL_CONTACT_COLUMN_WIDTH,
 } from '@/lib/contacts/contactColumnDefinitions';
 import { getContactOriginGroups } from '@/lib/contacts/contactOrigins';
-import { filterContacts } from '@/lib/contacts/filterContacts';
+import { selectContacts, type ContactsSelection } from '@/lib/contacts/contactsSelection';
 import { paginateContacts } from '@/lib/contacts/paginateContacts';
-import { sortContacts } from '@/lib/contacts/sortContacts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AddContactForm } from './AddContactForm';
 import { EditContactDialog } from './EditContactDialog';
@@ -57,10 +56,12 @@ export default function AdminContactsComponent() {
         storageKey: CONTACT_COLUMN_WIDTHS_STORAGE_KEY,
     });
 
-    // Note: This is the current view, the table pages through it and the export downloads all of it
+    // Note: This is the current view, the table pages through it and the export contains all of it
+    const contactsSelection = useMemo((): ContactsSelection => ({ filter, sortState }), [filter, sortState]);
+
     const filteredAndSortedContacts = useMemo(
-        () => sortContacts(filterContacts(contacts, filter), sortState),
-        [contacts, filter, sortState],
+        () => selectContacts(contacts, contactsSelection),
+        [contacts, contactsSelection],
     );
 
     const contactOriginGroups = useMemo(() => getContactOriginGroups(contacts), [contacts]);
@@ -102,7 +103,12 @@ export default function AdminContactsComponent() {
             />
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <ContactsExportBar exportedContacts={filteredAndSortedContacts} totalContactsCount={contacts.length} />
+                <ContactsExportBar
+                    exportedContacts={filteredAndSortedContacts}
+                    totalContactsCount={contacts.length}
+                    contactsSelection={contactsSelection}
+                    adminToken={adminToken}
+                />
                 <div className="grow" />
                 <Button variant="ghost" onClick={resetWidths} title="Set the widths of all the columns back to default">
                     Reset column widths

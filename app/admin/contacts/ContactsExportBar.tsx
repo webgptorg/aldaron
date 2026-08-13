@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import type { Contact } from '@/lib/contacts/Contact';
 import { CONTACTS_EXPORT_FORMATS } from '@/lib/contacts/contactsExportFormats';
-import { describeContactsExportScope, exportContacts } from '@/lib/contacts/exportContacts';
-import { Download } from 'lucide-react';
+import type { ContactsSelection } from '@/lib/contacts/contactsSelection';
+import { buildContactsExportUrl, describeContactsExportScope } from '@/lib/contacts/exportContacts';
+import { ContactsExportButton } from './ContactsExportButton';
 
 type ContactsExportBarProps = {
     /**
@@ -18,17 +18,25 @@ type ContactsExportBarProps = {
      * How many contacts the dashboard has loaded altogether, to say how much of them the current view is
      */
     readonly totalContactsCount: number;
+
+    /**
+     * The very same view written as a filter and a sorting, which the link to an export in a new tab carries
+     */
+    readonly contactsSelection: ContactsSelection;
+
+    /**
+     * Token which opens the dashboard, with which an export in a new tab authenticates itself as well
+     */
+    readonly adminToken: string | null;
 };
 
 /**
- * Download buttons of every export format together with the scope of the contacts which are about to be exported
+ * Export buttons of every format together with the scope of the contacts which are about to be exported
  */
 export function ContactsExportBar(props: ContactsExportBarProps) {
-    const { exportedContacts, totalContactsCount } = props;
+    const { exportedContacts, totalContactsCount, contactsSelection, adminToken } = props;
 
-    const exportedContactsCount = exportedContacts.length;
-    const isSomethingToExport = exportedContactsCount > 0;
-    const exportScopeDescription = describeContactsExportScope(exportedContactsCount, totalContactsCount);
+    const exportScopeDescription = describeContactsExportScope(exportedContacts.length, totalContactsCount);
 
     return (
         <div className="flex flex-wrap items-center gap-2">
@@ -36,16 +44,13 @@ export function ContactsExportBar(props: ContactsExportBarProps) {
                 Exporting <strong className="text-foreground">{exportScopeDescription}</strong>
             </span>
             {CONTACTS_EXPORT_FORMATS.map((format) => (
-                <Button
+                <ContactsExportButton
                     key={format.id}
-                    variant="outline"
-                    disabled={!isSomethingToExport}
-                    onClick={() => exportContacts(exportedContacts, format)}
-                    title={`Download the ${format.label} file with ${exportScopeDescription}`}
-                >
-                    <Download className="mr-2 h-4 w-4" />
-                    {format.label} ({exportedContactsCount})
-                </Button>
+                    format={format}
+                    exportedContacts={exportedContacts}
+                    exportUrl={buildContactsExportUrl(format, adminToken, contactsSelection)}
+                    exportScopeDescription={exportScopeDescription}
+                />
             ))}
         </div>
     );

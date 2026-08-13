@@ -1,10 +1,18 @@
+import { buildAdminApiUrl } from '@/lib/admin/buildAdminApiUrl';
 import { downloadTextFile } from '@/lib/downloadTextFile';
 import moment from 'moment';
 import type { Contact } from './Contact';
 import type { ContactsExportFormat } from './contactsExportFormats';
+import type { ContactsSelection } from './contactsSelection';
+import { DEFAULT_CONTACTS_VIEW_STATE, serializeContactsViewState } from './contactsViewState';
 
 const EXPORT_FILE_NAME_PREFIX = 'contacts';
 const EXPORT_FILE_NAME_DATE_FORMAT = 'YYYY-MM-DD-HHmm';
+
+/**
+ * Where the server serves the exports from, one address below it for each format
+ */
+const CONTACTS_EXPORT_API_PATH = '/api/contacts/export';
 
 /**
  * Name of the exported file, stamped with the moment of the export so that repeated exports do not overwrite each other
@@ -31,11 +39,37 @@ export function describeContactsExportScope(exportedContactsCount: number, total
 }
 
 /**
+ * Address which serves the export of the given selection, opened by the very same admin token as the dashboard itself
+ *
+ * Note: The link carries the filter and the sorting and never the contacts themselves, so that opening it again -
+ *       for example by reloading the tab it was opened in - exports the contacts as they are at that later moment
+ *
+ * Note: The page of the table is left out, because an export always contains the whole selection anyway
+ */
+export function buildContactsExportUrl(
+    format: ContactsExportFormat,
+    adminToken: string | null,
+    selection: ContactsSelection,
+): string {
+    const exportSearchParams = serializeContactsViewState(
+        { ...DEFAULT_CONTACTS_VIEW_STATE, ...selection },
+        new URLSearchParams(),
+    );
+
+    return buildAdminApiUrl(
+        `${CONTACTS_EXPORT_API_PATH}/${format.id}`,
+        adminToken,
+        Object.fromEntries(exportSearchParams.entries()),
+    );
+}
+
+/**
  * Serialize the given contacts and download them as a file
  *
- * Note: The caller decides the export scope by supplying the contacts to serialize
+ * Note: The caller decides the export scope by supplying the contacts to serialize, so the downloaded file holds
+ *       exactly the contacts which the dashboard shows at that moment
  */
-export function exportContacts(contacts: readonly Contact[], format: ContactsExportFormat): void {
+export function downloadContactsExport(contacts: readonly Contact[], format: ContactsExportFormat): void {
     downloadTextFile({
         fileName: buildContactsExportFileName(format),
         mimeType: format.mimeType,

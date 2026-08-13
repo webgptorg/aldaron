@@ -34,3 +34,16 @@ export const CONTACTS_EXPORT_FORMATS: readonly ContactsExportFormat[] = [
         serialize: serializeContactsAsVcard,
     },
 ];
+
+/**
+ * Find the export format which a link asks for
+ *
+ * Note: The letter case is ignored, so that a link to an export can also be written by hand
+ *
+ * @returns The format, or `null` when no format is called like that
+ */
+export function getContactsExportFormatOrNull(formatId: string): ContactsExportFormat | null {
+    const normalizedFormatId = formatId.trim().toLowerCase();
+
+    return CONTACTS_EXPORT_FORMATS.find((format) => format.id.toLowerCase() === normalizedFormatId) ?? null;
+}
