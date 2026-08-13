@@ -172,3 +172,39 @@ END:VCARD
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 
+---
+
+[ ]
+
+[✨⇨] Created at should be sorted by the true date, not by the text.
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨⇨] For both CSV and vCard exports, add an option to download or view the file in a new tab.
+
+- On the right side of the button, there should be some row which will open a small menu which allows to download the export file or open the export file on a new tab.
+- Default option is to download the file.
+- When you open the export on a new tab, it should pass all the necessary filter parameters to that view. When I refresh this export in future, it should be up to date.
+- The exports are authenticated by the same token as the page.
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[-]
+
+[✨⇨]
+
+- You are working with `/admin/contacts` page.
+- Do not change database structure or gathering of the contacts. You are just working with viewing of the contacts
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
