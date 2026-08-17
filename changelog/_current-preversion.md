@@ -20,3 +20,4 @@
 - Added filtering of the contacts by a fulltext search, a created date range, the presence of the email, the phone or the user note, and by whether the contact was already contacted.
 - Added the download of the contacts as a CSV or a vCard file, which always exports the current view and says next to the buttons how many contacts that is.
 - Fixed the contacts CSV export mangling the diacritics in spreadsheet editors, and stopped a note being sent to the server on every single keystroke.
+- Added the reusable `/cs/online-workshop/participant` live room with participant sessions, a server-synchronized countdown and YouTube stream, timed Markdown materials, moderated chat, upvotes, animated reactions, an RLS-secured Supabase model, and workshop administration from the new `/admin` dashboard.

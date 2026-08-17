@@ -1,5 +1,7 @@
+import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { isIpAddressValid, readClientIpAddress } from '@/lib/api/readClientIpAddress';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import { NextRequest } from 'next/server';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -73,4 +75,28 @@ describe('reading the body of a request', () => {
             ).toBeNull();
         });
     }
+});
+
+describe('cookie-authenticated mutation origin checks', () => {
+    it('accepts a mutation from the application itself', () => {
+        const request = new NextRequest('https://promptbook.studio/api/workshops/example/comments', {
+            headers: { origin: 'https://promptbook.studio', 'sec-fetch-site': 'same-origin' },
+        });
+
+        expect(getCrossSiteResponseOrNull(request)).toBeNull();
+    });
+
+    it('refuses a cross-site browser request', () => {
+        const request = new NextRequest('https://promptbook.studio/api/workshops/example/comments', {
+            headers: { origin: 'https://attacker.example', 'sec-fetch-site': 'cross-site' },
+        });
+
+        expect(getCrossSiteResponseOrNull(request)?.status).toBe(403);
+    });
+
+    it('keeps non-browser API clients available when they send no browser metadata', () => {
+        const request = new NextRequest('https://promptbook.studio/api/workshops/example/comments');
+
+        expect(getCrossSiteResponseOrNull(request)).toBeNull();
+    });
 });

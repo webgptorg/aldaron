@@ -1,4 +1,5 @@
 import type { Contact, ContactChanges, ContactDraft } from './Contact';
+import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 
 const CONTACTS_API_PATH = '/api/contacts';
 
@@ -9,10 +10,9 @@ type ContactMutationMethod = 'POST' | 'PATCH' | 'DELETE';
  */
 function buildContactsApiUrl(
     adminToken: string | null,
-    additionalParams: Readonly<Record<string, string>> = {},
+    additionalParameters: Readonly<Record<string, string>> = {},
 ): string {
-    const searchParams = new URLSearchParams({ token: adminToken || '', ...additionalParams });
-    return `${CONTACTS_API_PATH}?${searchParams.toString()}`;
+    return buildAdminUrl(CONTACTS_API_PATH, adminToken, additionalParameters);
 }
 
 /**

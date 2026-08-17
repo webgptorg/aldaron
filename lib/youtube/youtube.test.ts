@@ -11,6 +11,7 @@ describe('reading of a YouTube video', () => {
         expect(extractYoutubeVideoId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
         expect(extractYoutubeVideoId('https://www.youtube.com/live/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
         expect(extractYoutubeVideoId('https://www.youtube.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+        expect(extractYoutubeVideoId('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
     });
 
     it('answers nothing when there is no video in the text', () => {
@@ -25,6 +26,8 @@ describe('reading of a YouTube video', () => {
     });
 
     it('points at the widescreen still image of the video', () => {
-        expect(createYoutubeThumbnailUrl('dQw4w9WgXcQ')).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg');
+        expect(createYoutubeThumbnailUrl('dQw4w9WgXcQ')).toBe(
+            'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+        );
     });
 });

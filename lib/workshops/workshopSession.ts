@@ -1,0 +1,93 @@
+import { readClientIpAddress } from '@/lib/api/readClientIpAddress';
+import {
+    MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH,
+    WORKSHOP_PARTICIPANT_TABLE_NAME,
+    WORKSHOP_SESSION_TOKEN_BYTES,
+    getWorkshopSessionCookieName,
+} from '@/lib/workshops/workshopConstants';
+import type { WorkshopParticipant } from '@/lib/workshops/workshopTypes';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createHash, randomBytes } from 'node:crypto';
+import type { NextRequest } from 'next/server';
+
+type WorkshopParticipantRow = {
+    readonly id: string;
+    readonly fullname: string;
+    readonly connected_at: string;
+};
+
+export function createWorkshopSessionToken(): string {
+    return randomBytes(WORKSHOP_SESSION_TOKEN_BYTES).toString('base64url');
+}
+
+export function hashWorkshopSessionToken(sessionToken: string): string {
+    return createHash('sha256').update(sessionToken, 'utf8').digest('hex');
+}
+
+export function readWorkshopSessionToken(request: NextRequest, workshopSlug: string): string | null {
+    return request.cookies.get(getWorkshopSessionCookieName(workshopSlug))?.value ?? null;
+}
+
+export function mapWorkshopParticipantRow(row: WorkshopParticipantRow): WorkshopParticipant {
+    return {
+        id: row.id,
+        fullname: row.fullname,
+        connectedAt: row.connected_at,
+    };
+}
+
+export async function createWorkshopParticipant(
+    supabase: SupabaseClient,
+    request: NextRequest,
+    workshopId: string,
+    fullname: string,
+    email: string,
+): Promise<{ readonly participant: WorkshopParticipant; readonly sessionToken: string } | null> {
+    const sessionToken = createWorkshopSessionToken();
+    const { data, error } = await supabase
+        .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+        .insert({
+            workshop_id: workshopId,
+            fullname,
+            email,
+            session_token_hash: hashWorkshopSessionToken(sessionToken),
+            ip_address: readClientIpAddress(request),
+            user_agent: request.headers.get('user-agent')?.slice(0, MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH),
+        })
+        .select('id, fullname, connected_at')
+        .single();
+
+    if (error || data === null) {
+        console.error('Failed to connect a workshop participant:', error?.message ?? 'No participant returned');
+        return null;
+    }
+
+    return { participant: mapWorkshopParticipantRow(data as WorkshopParticipantRow), sessionToken };
+}
+
+export async function authenticateWorkshopParticipant(
+    supabase: SupabaseClient,
+    request: NextRequest,
+    workshopId: string,
+    workshopSlug: string,
+): Promise<WorkshopParticipant | null> {
+    const sessionToken = readWorkshopSessionToken(request, workshopSlug);
+
+    if (!sessionToken) {
+        return null;
+    }
+
+    const { data, error } = await supabase
+        .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+        .select('id, fullname, connected_at')
+        .eq('workshop_id', workshopId)
+        .eq('session_token_hash', hashWorkshopSessionToken(sessionToken))
+        .maybeSingle();
+
+    if (error) {
+        console.error('Failed to authenticate a workshop participant:', error.message);
+        return null;
+    }
+
+    return data === null ? null : mapWorkshopParticipantRow(data as WorkshopParticipantRow);
+}

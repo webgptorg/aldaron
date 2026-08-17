@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useGetParam } from '@/hooks/useGetParam';
 import { useResizableColumnWidths } from '@/hooks/useResizableColumnWidths';
 import type { Contact, ContactDraft } from '@/lib/contacts/Contact';
 import {
@@ -27,11 +26,14 @@ import { useContactsViewState } from './useContactsViewState';
  */
 const CONTACT_COLUMN_WIDTHS_STORAGE_KEY = 'admin-contacts-column-widths';
 
+type AdminContactsComponentProps = {
+    readonly adminToken: string;
+};
+
 /**
  * Dashboard which shows, filters, sorts and exports the gathered contacts and leads
  */
-export default function AdminContactsComponent() {
-    const [adminToken] = useGetParam('token');
+export default function AdminContactsComponent({ adminToken }: AdminContactsComponentProps) {
     const { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact } =
         useContacts(adminToken);
 

@@ -1,4 +1,4 @@
-import { buildAdminApiUrl } from '@/lib/admin/buildAdminApiUrl';
+import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 import { downloadTextFile } from '@/lib/downloadTextFile';
 import moment from 'moment';
 import type { Contact } from './Contact';
@@ -56,7 +56,7 @@ export function buildContactsExportUrl(
         new URLSearchParams(),
     );
 
-    return buildAdminApiUrl(
+    return buildAdminUrl(
         `${CONTACTS_EXPORT_API_PATH}/${format.id}`,
         adminToken,
         Object.fromEntries(exportSearchParams.entries()),

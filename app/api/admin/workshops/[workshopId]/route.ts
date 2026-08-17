@@ -1,0 +1,94 @@
+import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import { WORKSHOP_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import {
+    createWorkshopDatabaseUnavailableResponse,
+    findWorkshopById,
+    getWorkshopDatabaseOrNull,
+    loadWorkshopAdminSnapshot,
+    mapWorkshopRow,
+    type WorkshopRow,
+} from '@/lib/workshops/workshopDatabase';
+import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
+import { workshopUpdateSchema } from '@/lib/workshops/workshopSchemas';
+import { createWorkshopUpdateDatabaseValues } from '@/lib/workshops/workshopValues';
+import { NextRequest, NextResponse } from 'next/server';
+
+type AdminWorkshopRouteContext = {
+    readonly params: Promise<{ readonly workshopId: string }>;
+};
+
+export async function GET(request: NextRequest, context: AdminWorkshopRouteContext) {
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
+    }
+
+    const { workshopId } = await context.params;
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
+        return createWorkshopDatabaseUnavailableResponse();
+    }
+
+    const workshopRow = await findWorkshopById(supabase, workshopId);
+    if (workshopRow === null) {
+        return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
+    }
+
+    const { snapshot, errorMessage } = await loadWorkshopAdminSnapshot(supabase, workshopRow);
+    if (snapshot === null) {
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
+    }
+
+    return NextResponse.json(snapshot, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+export async function PATCH(request: NextRequest, context: AdminWorkshopRouteContext) {
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
+    }
+
+    const body = await readJsonObjectOrNull(request);
+    const parsedResult = workshopUpdateSchema.safeParse(body);
+    if (!parsedResult.success) {
+        return NextResponse.json(
+            { error: parsedResult.error.issues[0]?.message ?? 'Invalid workshop' },
+            { status: 400 },
+        );
+    }
+
+    const { workshopId } = await context.params;
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
+        return createWorkshopDatabaseUnavailableResponse();
+    }
+
+    const existingWorkshop = await findWorkshopById(supabase, workshopId);
+    if (existingWorkshop === null) {
+        return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
+    }
+
+    const startsAt = parsedResult.data.startsAt ?? existingWorkshop.starts_at;
+    const endsAt = parsedResult.data.endsAt === undefined ? existingWorkshop.ends_at : parsedResult.data.endsAt;
+    if (endsAt !== null && Date.parse(endsAt) <= Date.parse(startsAt)) {
+        return NextResponse.json({ error: 'Workshop end must be after its start' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .update(createWorkshopUpdateDatabaseValues(parsedResult.data))
+        .eq('id', workshopId)
+        .select('*')
+        .maybeSingle();
+    if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (data === null) {
+        return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
+    }
+
+    const workshop = mapWorkshopRow(data as WorkshopRow);
+    await broadcastWorkshopEvent(supabase, workshop.slug, { kind: 'state-changed' });
+    return NextResponse.json({ workshop });
+}

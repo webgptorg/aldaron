@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-sol` thinking `max` (ChatGPT account) - Implementation ~$0.6882 23 minutes; Testing a minute
 
 [✨🛳] Create a workshop page of `/cs/online-workshop/participant`
 
@@ -26,3 +26,4 @@
 - The miniapp you are implementing is small but it should be implemented in a way that it can be reused for other workshops in the future and also production-ready for 1000+ participants.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
+

@@ -5,6 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const isSupabaseConfigured = !!(supabaseUrl && supabaseKey);
+let browserSupabaseClient: SupabaseClient | null | undefined;
 
 if (!isSupabaseConfigured) {
     console.warn(
@@ -49,10 +50,20 @@ export function createSupabaseServiceRoleClient(): SupabaseClient | null {
 }
 
 export function getSupabaseForBrowser(): SupabaseClient | null {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return null;
-    const client = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    //* not await */ testSupabaseConnection(client);
-    return client;
+    if (browserSupabaseClient !== undefined) {
+        return browserSupabaseClient;
+    }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        browserSupabaseClient = null;
+        return browserSupabaseClient;
+    }
+
+    browserSupabaseClient = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    );
+    //* not await */ testSupabaseConnection(browserSupabaseClient);
+    return browserSupabaseClient;
 }
 
 export async function testSupabaseConnection(client: ReturnType<typeof createSupabaseClient>) {

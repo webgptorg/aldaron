@@ -1,4 +1,8 @@
-import { ONLINE_WORKSHOP_PATH, ONLINE_WORKSHOP_THANK_YOU_PATH } from '@/businesses/online-workshop/config';
+import {
+    ONLINE_WORKSHOP_PARTICIPANT_PATH,
+    ONLINE_WORKSHOP_PATH,
+    ONLINE_WORKSHOP_THANK_YOU_PATH,
+} from '@/businesses/online-workshop/config';
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
@@ -33,11 +37,24 @@ export const ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION: PageMetadataDefinition =
     isIndexed: false,
 };
 
+export const ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: ONLINE_WORKSHOP_PARTICIPANT_PATH,
+    language: 'cs',
+    title: 'Živý online workshop | Promptbook',
+    description: 'Soukromá místnost účastníků online workshopu o produkčním vývoji s AI agenty.',
+    isIndexed: false,
+};
+
 export const ONLINE_WORKSHOP_METADATA: Metadata = createPageMetadata(ONLINE_WORKSHOP_PAGE_DEFINITION);
 
 export const ONLINE_WORKSHOP_THANK_YOU_METADATA: Metadata = createPageMetadata(
     ONLINE_WORKSHOP_THANK_YOU_PAGE_DEFINITION,
 );
+
+export const ONLINE_WORKSHOP_PARTICIPANT_METADATA: Metadata = {
+    ...createPageMetadata(ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION),
+    referrer: 'no-referrer',
+};
 
 export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(ONLINE_WORKSHOP_PAGE_DEFINITION, {
     eyebrow: 'Online workshop naživo',

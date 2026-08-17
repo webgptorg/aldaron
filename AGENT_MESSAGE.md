@@ -142,3 +142,34 @@ Nothing here needs your attention on the dashboard, it is just so that you know 
 
 ⚠️ One behaviour changed on purpose: when the server has no service role key, a contact form now shows an error instead
 of quietly pretending that the contact was saved. A lost lead should be loud.
+
+---
+
+# Put the live workshop room into production
+
+The participant room and its administration are implemented in the application, but the database migration still has
+to be run against the Supabase project before the room can accept participants.
+
+1. Keep `SUPABASE_SERVICE_ROLE_KEY` configured on the server as described above. Workshop tables are deliberately
+   unreachable with the public anonymous key; the API cannot operate without the server-only key.
+2. In Supabase **SQL Editor**, run the complete file
+   [`migrations/2026-07-0040-workshop-page`](migrations/2026-07-0040-workshop-page). It creates the reusable workshop,
+   participant, content, comment, upvote and reaction tables; their indexes and integrity triggers; forced RLS; and the
+   receive-only private Realtime Broadcast policy. It also creates the `online-workshop-2026-08-20` occurrence used by
+   `/cs/online-workshop/participant`.
+3. In **Realtime Settings**, keep Realtime enabled and set the maximum concurrent clients and event throughput for the
+   expected audience. A room intended for more than 1,000 simultaneously connected participants needs limits of at
+   least that size. Restricting the project to private channels is recommended; this room already subscribes as a
+   private channel and authorizes reads through the migration policy.
+4. Open `/admin?token=<ADMIN_TOKEN>`, choose **Živé workshopy**, add the YouTube stream URL, check the start time and
+   publish the desired Markdown blocks with their unlock times. The video ID is validated and stored separately from
+   the URL.
+5. Smoke-test in a private browser window with
+   `/cs/online-workshop/participant?email=test@example.com&fullname=Test`. Confirm that the form is prefilled, a
+   submitted comment first appears under moderation, approval makes it visible, and a reaction animates in a second
+   browser.
+
+Do not add a browser policy to any `public.workshop_*` table. Participants always use the server API and a hash-only
+HttpOnly session; opening a table to `anon` would expose identities or moderation data. Realtime events contain only
+invalidation signals, reaction emoji and public vote totals, so the database remains the source of truth if a client
+misses an event.

@@ -142,8 +142,8 @@ export function normalizeContactOriginSelections(
     }
 
     const selectedOriginAppNames = new Set<ContactOriginName>([
-        ...selectedAppNames,
-        ...selectedPlaceNamesByAppName.keys(),
+        ...Array.from(selectedAppNames),
+        ...Array.from(selectedPlaceNamesByAppName.keys()),
     ]);
     const normalizedSelections: ContactOriginSelection[] = [];
 

@@ -1,0 +1,65 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page');
+const MIGRATION_SQL = readFileSync(MIGRATION_PATH, 'utf8');
+const WORKSHOP_TABLE_NAMES = [
+    'workshops',
+    'workshop_content_blocks',
+    'workshop_participants',
+    'workshop_comments',
+    'workshop_comment_upvotes',
+    'workshop_reactions',
+] as const;
+
+describe('workshop database migration', () => {
+    it('creates every reusable workshop table', () => {
+        WORKSHOP_TABLE_NAMES.forEach((tableName) => {
+            expect(MIGRATION_SQL).toContain(`CREATE TABLE IF NOT EXISTS public.${tableName}`);
+        });
+    });
+
+    it('forces RLS and removes browser roles from all workshop tables', () => {
+        expect(MIGRATION_SQL).toContain('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY');
+        expect(MIGRATION_SQL).toContain('REVOKE ALL ON TABLE public.%I FROM PUBLIC, anon, authenticated');
+        expect(MIGRATION_SQL).toContain('GRANT ALL ON TABLE public.%I TO service_role');
+    });
+
+    it('persists timestamps and user identity for participant activity', () => {
+        expect(MIGRATION_SQL).toMatch(/workshop_participants[\s\S]*connected_at timestamptz NOT NULL DEFAULT now\(\)/);
+        expect(MIGRATION_SQL).toMatch(/workshop_comments[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/);
+        expect(MIGRATION_SQL).toMatch(
+            /workshop_comment_upvotes[\s\S]*participant_id uuid NOT NULL[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/,
+        );
+        expect(MIGRATION_SQL).toMatch(
+            /workshop_reactions[\s\S]*participant_id uuid NOT NULL[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/,
+        );
+    });
+
+    it('defaults chat messages to pending and atomically limits action bursts', () => {
+        expect(MIGRATION_SQL).toContain("status text NOT NULL DEFAULT 'pending'");
+        expect(MIGRATION_SQL).toContain('workshop_comments_enforce_rate_limit');
+        expect(MIGRATION_SQL).toContain('workshop_reactions_enforce_rate_limit');
+        expect(MIGRATION_SQL).toContain('pg_advisory_xact_lock');
+    });
+
+    it('keeps upvotes attributable and maintains their denormalized count in the database', () => {
+        expect(MIGRATION_SQL).toContain(
+            'CONSTRAINT workshop_comment_upvotes_one_per_participant UNIQUE (comment_id, participant_id)',
+        );
+        expect(MIGRATION_SQL).toContain('workshop_comment_upvotes_participant_fk');
+        expect(MIGRATION_SQL).toContain('workshop_comment_upvotes_update_count');
+        expect(MIGRATION_SQL).toContain('upvote_count = upvote_count + 1');
+    });
+
+    it('allows anonymous clients to receive workshop broadcasts but not author them', () => {
+        const policyStart = MIGRATION_SQL.indexOf('CREATE POLICY workshop_broadcasts_are_receive_only');
+        const policyEnd = MIGRATION_SQL.indexOf('INSERT INTO public.workshops', policyStart);
+        const realtimePolicySql = MIGRATION_SQL.slice(policyStart, policyEnd);
+
+        expect(realtimePolicySql).toContain('FOR SELECT');
+        expect(realtimePolicySql).toContain('TO anon, authenticated');
+        expect(realtimePolicySql).not.toContain('FOR INSERT');
+    });
+});
