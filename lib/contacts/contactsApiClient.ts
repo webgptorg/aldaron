@@ -1,5 +1,3 @@
-import { buildAdminApiUrl } from '@/lib/admin/buildAdminApiUrl';
-import { assertResponseIsOk } from '@/lib/api/assertResponseIsOk';
 import type { Contact, ContactChanges, ContactDraft } from './Contact';
 
 const CONTACTS_API_PATH = '/api/contacts';
@@ -13,7 +11,20 @@ function buildContactsApiUrl(
     adminToken: string | null,
     additionalParams: Readonly<Record<string, string>> = {},
 ): string {
-    return buildAdminApiUrl(CONTACTS_API_PATH, adminToken, additionalParams);
+    const searchParams = new URLSearchParams({ token: adminToken || '', ...additionalParams });
+    return `${CONTACTS_API_PATH}?${searchParams.toString()}`;
+}
+
+/**
+ * Turn a failed response into an error with the message from the api
+ */
+async function assertResponseIsOk(response: Response): Promise<void> {
+    if (response.ok) {
+        return;
+    }
+
+    const errorPayload = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(errorPayload?.error || `Contacts api responded with the status ${response.status}`);
 }
 
 /**

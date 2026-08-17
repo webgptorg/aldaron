@@ -1,29 +1,15 @@
 // app/api/contacts/route.ts
-import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
-import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import {
-    CONTACT_DRAFT_FIELD_NAMES,
-    CONTACT_EDITABLE_TEXT_FIELD_NAMES,
-    type ContactChanges,
-} from '@/lib/contacts/Contact';
-import {
-    createContactsUnreachableResponse,
-    getContactsTableOrNull,
-    insertContact,
-    loadContacts,
-} from '@/lib/contacts/contactsDatabase';
-import { readContactTextFields } from '@/lib/contacts/readContactTextFields';
+import { createSupabaseClient } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * Unique column by which one single contact is found and ordered
- */
-const CONTACT_ID_COLUMN = 'id';
+export async function GET(req: NextRequest) {
+    const url = new URL(req.url);
+    const token = url.searchParams.get('token');
+    const showAll = url.searchParams.get('showAll') === 'true';
 
-/**
- * How many contacts one mutation of the dashboard is ever allowed to touch
- */
-const ONE_CONTACT_LIMIT = 1;
+    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
 /**
  * What is written instead of a browser for a contact somebody typed into the dashboard by hand
@@ -57,67 +43,15 @@ function scopeMutationToOneContact<ScopedMutation>(
     return mutation.eq(CONTACT_ID_COLUMN, contactId).order(CONTACT_ID_COLUMN).limit(ONE_CONTACT_LIMIT);
 }
 
-/**
- * Read a positive integer contact id from a request body
- */
-function readContactId(body: Readonly<Record<string, unknown>>): number | null {
-    const contactId = body.id;
-    return typeof contactId === 'number' && Number.isSafeInteger(contactId) && contactId > 0 ? contactId : null;
-}
-
-/**
- * Read only the contact fields which the dashboard is allowed to change
- */
-function readContactChanges(body: Readonly<Record<string, unknown>>): ContactChanges | null {
-    const contactTextFields = readContactTextFields(body, CONTACT_EDITABLE_TEXT_FIELD_NAMES);
-    if (contactTextFields === null) {
-        return null;
+export async function PATCH(req: NextRequest) {
+    const url = new URL(req.url);
+    const token = url.searchParams.get('token');
+    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    if (body.isContacted === undefined) {
-        return contactTextFields;
-    }
-    if (typeof body.isContacted !== 'boolean') {
-        return null;
-    }
-
-    return { ...contactTextFields, isContacted: body.isContacted };
-}
-
-export async function GET(request: NextRequest) {
-    const url = new URL(request.url);
-    const isShowingAll = url.searchParams.get('showAll') === 'true';
-
-    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
-    if (unauthorizedResponse) {
-        return unauthorizedResponse;
-    }
-
-    const contactsTable = getContactsTableOrNull();
-    if (contactsTable === null) {
-        return createContactsUnreachableResponse();
-    }
-
-    const { contacts, errorMessage } = await loadContacts(contactsTable, { isLoadingAll: isShowingAll });
-    if (contacts === null) {
-        return NextResponse.json({ error: errorMessage }, { status: 500 });
-    }
-    return NextResponse.json({ contacts });
-}
-
-export async function PATCH(request: NextRequest) {
-    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
-    if (unauthorizedResponse) {
-        return unauthorizedResponse;
-    }
-
-    const body = await readJsonObjectOrNull(request);
-    if (body === null) {
-        return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-    }
-
-    const contactId = readContactId(body);
-    if (contactId === null) {
+    const body = await req.json();
+    const { id, ourNote, isContacted } = body as any;
+    if (!id) {
         return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     }
 
@@ -147,16 +81,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(data);
 }
 
-export async function POST(request: NextRequest) {
-    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
-    if (unauthorizedResponse) {
-        return unauthorizedResponse;
+export async function POST(req: NextRequest) {
+    const url = new URL(req.url);
+    const token = url.searchParams.get('token');
+    if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const body = await readJsonObjectOrNull(request);
-    if (body === null) {
-        return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-    }
+    const body = await req.json();
+    const { fullname, email, phone, userNote, appName, placeName } = body as any;
 
     const contactDraft = readContactTextFields(body, CONTACT_DRAFT_FIELD_NAMES);
     if (contactDraft === null) {
