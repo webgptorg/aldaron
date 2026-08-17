@@ -22,5 +22,7 @@
     - Both parameters are optional, but if they are present, the form should be prefilled with them.
 - The backend is not locked under the user and password, but use the simple admin token already used in `/admin` pages
 - Do a page in `/admin` that will show dashboard with all the admin pages, to access it you must pass the admin token in the URL, for example `/admin?token=...`
+- The tables must be RLS secured
+- The miniapp you are implementing is small but it should be implemented in a way that it can be reused for other workshops in the future and also production-ready for 1000+ participants.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
