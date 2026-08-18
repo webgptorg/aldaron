@@ -139,8 +139,11 @@ export function OnlineWorkshopParticipantPage({
                         onReact={controller.react}
                     />
                     <WorkshopContent
+                        workshopSlug={workshopSlug}
                         contentBlocks={state.contentBlocks}
                         nextContentUnlockAt={state.nextContentUnlockAt}
+                        newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
+                        onMaterialLinkClick={controller.recordMaterialLinkClick}
                     />
                 </div>
 

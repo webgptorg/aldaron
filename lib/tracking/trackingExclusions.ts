@@ -1,16 +1,37 @@
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 
-const THIRD_PARTY_TRACKING_EXCLUDED_PATH_PREFIXES = ['/admin', ONLINE_WORKSHOP_PARTICIPANT_PATH] as const;
+const ADMIN_TRACKING_EXCLUDED_PATH_PREFIXES = ['/admin'] as const;
 const SENSITIVE_TRACKING_QUERY_PARAMETERS = ['email', 'fullname', 'token'] as const;
+
+function isWorkshopParticipantPath(pathname: string): boolean {
+    return pathname === ONLINE_WORKSHOP_PARTICIPANT_PATH || pathname.startsWith(`${ONLINE_WORKSHOP_PARTICIPANT_PATH}/`);
+}
+
+function isPathExcluded(pathname: string, excludedPathPrefixes: readonly string[]): boolean {
+    return excludedPathPrefixes.some(
+        (excludedPrefix) => pathname === excludedPrefix || pathname.startsWith(`${excludedPrefix}/`),
+    );
+}
 
 /**
  * Admin URLs carry a bearer token and the participant URL can carry personal
- * data. Neither page may be sent to analytics or session-recording services.
+ * data. Neither page may receive normal page tracking or session recording.
  */
 export function isThirdPartyTrackingAllowed(pathname: string): boolean {
-    return !THIRD_PARTY_TRACKING_EXCLUDED_PATH_PREFIXES.some(
-        (excludedPrefix) => pathname === excludedPrefix || pathname.startsWith(`${excludedPrefix}/`),
-    );
+    return !isPathExcluded(pathname, ADMIN_TRACKING_EXCLUDED_PATH_PREFIXES) && !isWorkshopParticipantPath(pathname);
+}
+
+/**
+ * The participant room sends only explicit anonymized interaction events to
+ * Google Analytics. It never sends its URL as a page view because that URL can
+ * temporarily contain a prefilled e-mail address or full name.
+ */
+export function isGoogleAnalyticsAllowed(pathname: string): boolean {
+    return !isPathExcluded(pathname, ADMIN_TRACKING_EXCLUDED_PATH_PREFIXES);
+}
+
+export function isGoogleAnalyticsPageViewAllowed(pathname: string): boolean {
+    return isGoogleAnalyticsAllowed(pathname) && !isWorkshopParticipantPath(pathname);
 }
 
 /**

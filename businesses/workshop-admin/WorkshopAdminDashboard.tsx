@@ -3,10 +3,13 @@
 import { CreateWorkshopForm } from '@/businesses/workshop-admin/CreateWorkshopForm';
 import {
     adjustAdminWorkshopCommentArtificialUpvotes,
+    clearAdminWorkshopReactions,
     createAdminWorkshopArtificialComment,
     createAdminWorkshop,
     createAdminWorkshopContent,
+    deleteAdminWorkshopComment,
     deleteAdminWorkshopContent,
+    deleteAdminWorkshopParticipant,
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
     moderateAdminWorkshopComment,
@@ -14,6 +17,7 @@ import {
     updateAdminWorkshop,
     updateAdminWorkshopContent,
     updateAdminWorkshopParticipantInteractionBan,
+    updateAdminWorkshopParticipantTrusted,
     type WorkshopArtificialCommentValues,
     type WorkshopArtificialReactionValues,
     type WorkshopContentWriteValues,
@@ -42,6 +46,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
     const [workshops, setWorkshops] = useState<readonly WorkshopSummary[]>([]);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
     const [snapshot, setSnapshot] = useState<WorkshopAdminSnapshot | null>(null);
+    const [commentStatus, setCommentStatus] = useState<WorkshopCommentStatus>('pending');
     const [isLoading, setIsLoading] = useState(true);
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -82,7 +87,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
         );
         setIsSnapshotLoading(true);
         try {
-            const loadedSnapshot = await fetchAdminWorkshopSnapshot(adminToken, selectedWorkshopId);
+            const loadedSnapshot = await fetchAdminWorkshopSnapshot(adminToken, selectedWorkshopId, commentStatus);
             if (snapshotLoadSequence !== snapshotLoadSequenceRef.current) {
                 return;
             }
@@ -97,7 +102,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                 setIsSnapshotLoading(false);
             }
         }
-    }, [adminToken, selectedWorkshopId]);
+    }, [adminToken, commentStatus, selectedWorkshopId]);
 
     useEffect(() => void loadWorkshopList(), [loadWorkshopList]);
     useEffect(() => void loadSnapshot(), [loadSnapshot]);
@@ -155,9 +160,34 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             await runAndReload(() => deleteAdminWorkshopContent(adminToken, snapshot.workshop.id, contentId));
         }
     };
+    const handleUnlockContentNow = (contentId: string) => {
+        if (snapshot === null) {
+            return Promise.resolve(false);
+        }
+
+        const contentBlock = snapshot.contentBlocks.find((currentContentBlock) => currentContentBlock.id === contentId);
+        if (contentBlock === undefined) {
+            return Promise.resolve(false);
+        }
+
+        return runAndReload(() =>
+            updateAdminWorkshopContent(adminToken, snapshot.workshop.id, contentId, {
+                title: contentBlock.title,
+                bodyMarkdown: contentBlock.bodyMarkdown,
+                unlockAt: new Date().toISOString(),
+                sortOrder: contentBlock.sortOrder,
+                isPublished: true,
+            }),
+        );
+    };
     const handleModerateComment = async (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => {
         if (snapshot !== null) {
             await runAndReload(() => moderateAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, status));
+        }
+    };
+    const handleDeleteComment = async (commentId: string) => {
+        if (snapshot !== null) {
+            await runAndReload(() => deleteAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId));
         }
     };
     const handleAdjustArtificialUpvotes = (commentId: string, artificialUpvoteAdjustment: number) =>
@@ -191,6 +221,22 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             );
         }
     };
+    const handleChangeParticipantTrusted = async (participantId: string, isTrusted: boolean) => {
+        if (snapshot !== null) {
+            await runAndReload(() =>
+                updateAdminWorkshopParticipantTrusted(adminToken, snapshot.workshop.id, participantId, isTrusted),
+            );
+        }
+    };
+    const handleDeleteParticipant = async (participantId: string) => {
+        if (snapshot !== null) {
+            await runAndReload(() => deleteAdminWorkshopParticipant(adminToken, snapshot.workshop.id, participantId));
+        }
+    };
+    const handleClearReactions = () =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => clearAdminWorkshopReactions(adminToken, snapshot.workshop.id));
 
     return (
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -265,11 +311,15 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                             participantCount={snapshot.participantCount}
                             participants={snapshot.participants}
                             onChangeInteractionBan={handleChangeParticipantInteractionBan}
+                            onChangeTrusted={handleChangeParticipantTrusted}
+                            onDelete={handleDeleteParticipant}
                         />
                         <WorkshopArtificialActivity
+                            reactionCount={snapshot.reactionCount}
                             artificialReactionCount={snapshot.artificialReactionCount}
                             onCreateArtificialComment={handleCreateArtificialComment}
                             onSendArtificialReaction={handleSendArtificialReaction}
+                            onClearReactions={handleClearReactions}
                         />
                         <WorkshopContentAdmin
                             workshopStartsAt={snapshot.workshop.startsAt}
@@ -277,11 +327,15 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                             onCreate={handleCreateContent}
                             onUpdate={handleUpdateContent}
                             onDelete={handleDeleteContent}
+                            onUnlockNow={handleUnlockContentNow}
                         />
                         <WorkshopCommentModeration
                             comments={snapshot.comments}
+                            commentStatus={commentStatus}
+                            onChangeCommentStatus={setCommentStatus}
                             onModerate={handleModerateComment}
                             onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
+                            onDelete={handleDeleteComment}
                         />
                     </>
                 )}

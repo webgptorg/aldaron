@@ -1,11 +1,12 @@
 'use client';
 
 import type { AnimatedWorkshopReaction } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
+import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Radio, Volume2 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownLeft, Radio, Volume2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const CLOCK_TICK_MILLISECONDS = 1000;
 
@@ -30,10 +31,22 @@ function getReactionHorizontalPosition(reactionId: string): number {
     return 8 + (hash % 80);
 }
 
+function unmuteYoutubeVideo(videoFrame: HTMLIFrameElement | null): void {
+    const playerWindow = videoFrame?.contentWindow;
+    if (playerWindow === null || playerWindow === undefined) {
+        return;
+    }
+
+    playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
+    playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
+}
+
 export function WorkshopStage({ workshop, serverTime, animatedReactions }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
     const serverClockOffset = useMemo(() => Date.parse(serverTime) - Date.now(), [serverTime]);
     const [currentTime, setCurrentTime] = useState(() => Date.now() + serverClockOffset);
+    const [isVideoUnmuted, setIsVideoUnmuted] = useState(false);
+    const videoFrameReference = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
         setCurrentTime(Date.now() + serverClockOffset);
@@ -44,21 +57,32 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
         return () => window.clearInterval(intervalId);
     }, [serverClockOffset]);
 
+    useEffect(() => setIsVideoUnmuted(false), [workshop.youtubeVideoId]);
+
     const remainingMilliseconds = Date.parse(workshop.startsAt) - currentTime;
     const isWorkshopStarted = remainingMilliseconds <= 0;
     const countdownSegments = getRemainingSegments(remainingMilliseconds);
+    const handleVideoUnmute = () => {
+        unmuteYoutubeVideo(videoFrameReference.current);
+        setIsVideoUnmuted(true);
+        trackGoogleAnalyticsEvent('workshop_video_unmuted', { workshop_slug: workshop.slug });
+    };
 
     return (
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#081a24] shadow-2xl">
             <div className="relative aspect-video min-h-[260px]">
                 {isWorkshopStarted && workshop.youtubeVideoId ? (
                     <iframe
+                        ref={videoFrameReference}
                         className="absolute inset-0 h-full w-full"
                         src={createYoutubeEmbedUrl(workshop.youtubeVideoId, {
                             isAutoplayed: true,
                             isMuted: true,
                             isInlinePlayback: true,
                             isRelatedVideoEnabled: false,
+                            isControlsVisible: false,
+                            isCaptionsEnabled: false,
+                            isJavaScriptApiEnabled: true,
                         })}
                         title={workshop.title}
                         allow="autoplay; encrypted-media; picture-in-picture"
@@ -126,13 +150,35 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                         ))}
                     </AnimatePresence>
                 </div>
-            </div>
 
-            {isWorkshopStarted && workshop.youtubeVideoId && (
-                <div className="flex items-center gap-2 border-t border-white/10 px-4 py-3 text-xs text-slate-400">
-                    <Volume2 className="h-4 w-4 text-cyan-300" /> Video se spouští ztlumené. Zvuk zapnete v přehrávači.
-                </div>
-            )}
+                {isWorkshopStarted && workshop.youtubeVideoId && !isVideoUnmuted && (
+                    <motion.div
+                        initial={isReducedMotionPreferred ? false : { opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute bottom-5 left-4 z-20 max-w-xs rounded-2xl border border-cyan-200/40 bg-slate-950/95 p-4 shadow-2xl backdrop-blur sm:left-6"
+                    >
+                        <div className="flex items-start gap-3">
+                            <ArrowDownLeft
+                                className="mt-1 h-8 w-8 shrink-0 animate-bounce text-cyan-300"
+                                aria-hidden="true"
+                            />
+                            <div>
+                                <p className="text-sm font-bold text-white">Zapněte si zvuk</p>
+                                <p className="mt-1 text-xs leading-5 text-slate-300">
+                                    Klikněte na tlačítko níže – stream se kvůli automatickému spuštění otevírá ztlumený.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleVideoUnmute}
+                                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200"
+                                >
+                                    <Volume2 className="h-4 w-4" /> Zapnout zvuk
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </div>
         </section>
     );
 }

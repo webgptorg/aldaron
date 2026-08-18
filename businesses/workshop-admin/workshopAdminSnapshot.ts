@@ -15,7 +15,10 @@ function preserveUnchangedContentBlocks(
 
     return loadedContentBlocks.map((loadedContentBlock) => {
         const currentContentBlock = currentContentBlockById.get(loadedContentBlock.id);
-        return currentContentBlock?.updatedAt === loadedContentBlock.updatedAt ? currentContentBlock : loadedContentBlock;
+        return currentContentBlock?.updatedAt === loadedContentBlock.updatedAt &&
+            currentContentBlock.linkClickCount === loadedContentBlock.linkClickCount
+            ? currentContentBlock
+            : loadedContentBlock;
     });
 }
 

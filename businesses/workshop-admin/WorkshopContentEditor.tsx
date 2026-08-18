@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
-import { Save, Trash2 } from 'lucide-react';
+import { MousePointerClick, Save, Trash2, Unlock } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 type WorkshopContentEditorProps = {
@@ -15,6 +15,7 @@ type WorkshopContentEditorProps = {
     readonly defaultSortOrder: number;
     readonly onSave: (values: WorkshopContentWriteValues) => Promise<boolean>;
     readonly onDelete?: () => Promise<void>;
+    readonly onUnlockNow?: () => Promise<boolean>;
 };
 
 export function WorkshopContentEditor({
@@ -23,6 +24,7 @@ export function WorkshopContentEditor({
     defaultSortOrder,
     onSave,
     onDelete,
+    onUnlockNow,
 }: WorkshopContentEditorProps) {
     const [title, setTitle] = useState(contentBlock?.title ?? '');
     const [bodyMarkdown, setBodyMarkdown] = useState(contentBlock?.bodyMarkdown ?? '');
@@ -31,6 +33,7 @@ export function WorkshopContentEditor({
     const [isPublished, setIsPublished] = useState(contentBlock?.isPublished ?? true);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isUnlocking, setIsUnlocking] = useState(false);
 
     useEffect(() => {
         setTitle(contentBlock?.title ?? '');
@@ -65,12 +68,38 @@ export function WorkshopContentEditor({
         setIsDeleting(false);
     };
 
+    const handleUnlockNow = async () => {
+        if (!onUnlockNow) {
+            return;
+        }
+
+        setIsUnlocking(true);
+        await onUnlockNow();
+        setIsUnlocking(false);
+    };
+
     return (
         <form
             onSubmit={handleSubmit}
             className={`rounded-xl border p-5 ${contentBlock === null ? 'border-dashed border-cyan-300 bg-cyan-50/40' : 'border-slate-200 bg-slate-50/70'}`}
         >
-            <div className="grid gap-4 md:grid-cols-[1fr_190px_100px_auto]">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                    <MousePointerClick className="h-3.5 w-3.5" /> Kliknutí na odkazy: {contentBlock?.linkClickCount ?? 0}
+                </p>
+                {onUnlockNow && (
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        disabled={isUnlocking}
+                        onClick={() => void handleUnlockNow()}
+                    >
+                        <Unlock className="mr-2 h-4 w-4" /> {isUnlocking ? 'Odemkám…' : 'Odemknout hned'}
+                    </Button>
+                )}
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_190px_100px_auto]">
                 <label className="text-xs font-medium text-slate-600">
                     Nadpis
                     <Input

@@ -25,6 +25,18 @@ describe('reading of a YouTube video', () => {
         expect(createYoutubeEmbedUrl('dQw4w9WgXcQ', { isAutoplayed: false })).toContain('autoplay=0');
     });
 
+    it('can use a custom unmute control without exposing player controls or captions', () => {
+        const embedUrl = createYoutubeEmbedUrl('dQw4w9WgXcQ', {
+            isControlsVisible: false,
+            isCaptionsEnabled: false,
+            isJavaScriptApiEnabled: true,
+        });
+
+        expect(embedUrl).toContain('controls=0');
+        expect(embedUrl).toContain('cc_load_policy=0');
+        expect(embedUrl).toContain('enablejsapi=1');
+    });
+
     it('points at the widescreen still image of the video', () => {
         expect(createYoutubeThumbnailUrl('dQw4w9WgXcQ')).toBe(
             'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',

@@ -49,7 +49,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.8433 29 minutes; Testing a minute
 
 [✨🛳] Do some changes and fixes of `/cs/online-workshop/participant` and `/admin/workshops`
 
@@ -89,3 +89,4 @@
 [-]
 
 [✨🛳] Each emoji in `/admin/workshops` Should have its own unique reaction animation
+

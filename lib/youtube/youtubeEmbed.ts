@@ -51,6 +51,9 @@ export function createYoutubeEmbedUrl(
         readonly isMuted?: boolean;
         readonly isInlinePlayback?: boolean;
         readonly isRelatedVideoEnabled?: boolean;
+        readonly isControlsVisible?: boolean;
+        readonly isCaptionsEnabled?: boolean;
+        readonly isJavaScriptApiEnabled?: boolean;
     } = {},
 ): string {
     const searchParameters = new URLSearchParams({ autoplay: options.isAutoplayed === true ? '1' : '0' });
@@ -62,6 +65,15 @@ export function createYoutubeEmbedUrl(
     }
     if (options.isRelatedVideoEnabled !== undefined) {
         searchParameters.set('rel', options.isRelatedVideoEnabled ? '1' : '0');
+    }
+    if (options.isControlsVisible !== undefined) {
+        searchParameters.set('controls', options.isControlsVisible ? '1' : '0');
+    }
+    if (options.isCaptionsEnabled !== undefined) {
+        searchParameters.set('cc_load_policy', options.isCaptionsEnabled ? '1' : '0');
+    }
+    if (options.isJavaScriptApiEnabled !== undefined) {
+        searchParameters.set('enablejsapi', options.isJavaScriptApiEnabled ? '1' : '0');
     }
 
     return `https://www.youtube-nocookie.com/embed/${requireYoutubeVideoId(value)}?${searchParameters}`;

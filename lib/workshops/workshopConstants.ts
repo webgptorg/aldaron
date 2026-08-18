@@ -4,6 +4,7 @@ export const WORKSHOP_PARTICIPANT_TABLE_NAME = 'workshop_participants';
 export const WORKSHOP_COMMENT_TABLE_NAME = 'workshop_comments';
 export const WORKSHOP_UPVOTE_TABLE_NAME = 'workshop_comment_upvotes';
 export const WORKSHOP_REACTION_TABLE_NAME = 'workshop_reactions';
+export const WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME = 'workshop_content_link_clicks';
 
 export const WORKSHOP_SESSION_COOKIE_PREFIX = 'workshop_session_';
 export const WORKSHOP_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
@@ -13,6 +14,7 @@ export const MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH = 320;
 export const MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH = 2_000;
 export const MAXIMAL_WORKSHOP_REACTION_LENGTH = 16;
 export const MAXIMAL_WORKSHOP_COMMENT_LENGTH = 2_000;
+export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
 
 export const MAXIMAL_VISIBLE_COMMENT_COUNT = 200;
 export const MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT = 50;

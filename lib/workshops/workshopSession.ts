@@ -15,6 +15,7 @@ type WorkshopParticipantRow = {
     readonly fullname: string;
     readonly connected_at: string;
     readonly is_interaction_banned: boolean;
+    readonly is_trusted: boolean;
 };
 
 export function createWorkshopSessionToken(): string {
@@ -35,6 +36,7 @@ export function mapWorkshopParticipantRow(row: WorkshopParticipantRow): Workshop
         fullname: row.fullname,
         connectedAt: row.connected_at,
         isInteractionBanned: row.is_interaction_banned,
+        isTrusted: row.is_trusted,
     };
 }
 
@@ -56,7 +58,7 @@ export async function createWorkshopParticipant(
             ip_address: readClientIpAddress(request),
             user_agent: request.headers.get('user-agent')?.slice(0, MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH),
         })
-        .select('id, fullname, connected_at, is_interaction_banned')
+        .select('id, fullname, connected_at, is_interaction_banned, is_trusted')
         .single();
 
     if (error || data === null) {
@@ -81,7 +83,7 @@ export async function authenticateWorkshopParticipant(
 
     const { data, error } = await supabase
         .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-        .select('id, fullname, connected_at, is_interaction_banned')
+        .select('id, fullname, connected_at, is_interaction_banned, is_trusted')
         .eq('workshop_id', workshopId)
         .eq('session_token_hash', hashWorkshopSessionToken(sessionToken))
         .maybeSingle();

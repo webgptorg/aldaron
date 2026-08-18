@@ -8,6 +8,7 @@ type WorkshopContentAdminProps = {
     readonly onCreate: (values: WorkshopContentWriteValues) => Promise<boolean>;
     readonly onUpdate: (contentId: string, values: WorkshopContentWriteValues) => Promise<boolean>;
     readonly onDelete: (contentId: string) => Promise<void>;
+    readonly onUnlockNow: (contentId: string) => Promise<boolean>;
 };
 
 export function WorkshopContentAdmin({
@@ -16,6 +17,7 @@ export function WorkshopContentAdmin({
     onCreate,
     onUpdate,
     onDelete,
+    onUnlockNow,
 }: WorkshopContentAdminProps) {
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -32,6 +34,7 @@ export function WorkshopContentAdmin({
                         defaultSortOrder={contentBlock.sortOrder}
                         onSave={(values) => onUpdate(contentBlock.id, values)}
                         onDelete={() => onDelete(contentBlock.id)}
+                        onUnlockNow={() => onUnlockNow(contentBlock.id)}
                     />
                 ))}
                 <WorkshopContentEditor

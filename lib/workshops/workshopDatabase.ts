@@ -18,6 +18,7 @@ import type {
     WorkshopAdminSnapshot,
     WorkshopComment,
     WorkshopCommentSort,
+    WorkshopCommentStatus,
     WorkshopContentBlock,
     WorkshopDetails,
     WorkshopParticipant,
@@ -72,6 +73,21 @@ type WorkshopAdminParticipantRow = {
     readonly connected_at: string;
     readonly last_seen_at: string;
     readonly is_interaction_banned: boolean;
+    readonly is_trusted: boolean;
+    readonly active_duration_seconds: number;
+};
+
+type WorkshopParticipantActivityTotalsRow = {
+    readonly participant_id: string;
+    readonly comment_count: number | string;
+    readonly reaction_count: number | string;
+    readonly link_click_count: number | string;
+    readonly upvote_count: number | string;
+};
+
+type WorkshopContentLinkClickTotalsRow = {
+    readonly content_block_id: string;
+    readonly link_click_count: number | string;
 };
 
 type WorkshopReactionRow = {
@@ -81,8 +97,12 @@ type WorkshopReactionRow = {
 };
 
 const WORKSHOP_DATABASE_UNAVAILABLE_MESSAGE = 'Workshop database is not configured';
-const MAXIMAL_ADMIN_PENDING_COMMENT_COUNT = 1_000;
-const MAXIMAL_ADMIN_MODERATED_COMMENT_COUNT = 300;
+const MAXIMAL_ADMIN_COMMENT_LIST_COUNT = 1_000;
+
+function getNonNegativeWholeNumber(value: number | string | undefined): number {
+    const numberValue = Number(value);
+    return Number.isSafeInteger(numberValue) && numberValue >= 0 ? numberValue : 0;
+}
 
 export function getWorkshopDatabaseOrNull(): SupabaseClient | null {
     return createSupabaseServiceRoleClient();
@@ -121,7 +141,7 @@ export function mapWorkshopSummaryRow(row: WorkshopRow): WorkshopSummary {
     };
 }
 
-export function mapWorkshopContentRow(row: WorkshopContentRow): WorkshopContentBlock {
+export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 0): WorkshopContentBlock {
     return {
         id: row.id,
         title: row.title,
@@ -131,6 +151,7 @@ export function mapWorkshopContentRow(row: WorkshopContentRow): WorkshopContentB
         isPublished: row.is_published,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+        linkClickCount,
     };
 }
 
@@ -146,7 +167,10 @@ function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: 
     };
 }
 
-function mapWorkshopAdminParticipantRow(row: WorkshopAdminParticipantRow): WorkshopAdminParticipant {
+function mapWorkshopAdminParticipantRow(
+    row: WorkshopAdminParticipantRow,
+    activityTotals: WorkshopParticipantActivityTotalsRow | undefined,
+): WorkshopAdminParticipant {
     return {
         id: row.id,
         fullname: row.fullname,
@@ -154,6 +178,12 @@ function mapWorkshopAdminParticipantRow(row: WorkshopAdminParticipantRow): Works
         connectedAt: row.connected_at,
         lastSeenAt: row.last_seen_at,
         isInteractionBanned: row.is_interaction_banned,
+        isTrusted: row.is_trusted,
+        activeDurationSeconds: getNonNegativeWholeNumber(row.active_duration_seconds),
+        commentCount: getNonNegativeWholeNumber(activityTotals?.comment_count),
+        reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
+        linkClickCount: getNonNegativeWholeNumber(activityTotals?.link_click_count),
+        upvoteCount: getNonNegativeWholeNumber(activityTotals?.upvote_count),
     };
 }
 
@@ -298,14 +328,16 @@ export async function loadWorkshopPublicState(
 export async function loadWorkshopAdminSnapshot(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
+    commentStatus: WorkshopCommentStatus,
 ): Promise<{ readonly snapshot: WorkshopAdminSnapshot | null; readonly errorMessage: string | null }> {
     const [
         contentResult,
-        pendingCommentsResult,
-        moderatedCommentsResult,
+        commentsResult,
         commentsCountResult,
         participantCountResult,
         participantsResult,
+        participantActivityTotalsResult,
+        contentLinkClickTotalsResult,
         reactionsResult,
         artificialReactionsResult,
     ] = await Promise.all([
@@ -319,16 +351,9 @@ export async function loadWorkshopAdminSnapshot(
             .from(WORKSHOP_COMMENT_TABLE_NAME)
             .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
             .eq('workshop_id', workshopRow.id)
-            .eq('status', 'pending')
+            .eq('status', commentStatus)
             .order('created_at', { ascending: false })
-            .limit(MAXIMAL_ADMIN_PENDING_COMMENT_COUNT),
-        supabase
-            .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
-            .eq('workshop_id', workshopRow.id)
-            .in('status', ['approved', 'rejected'])
-            .order('created_at', { ascending: false })
-            .limit(MAXIMAL_ADMIN_MODERATED_COMMENT_COUNT),
+            .limit(MAXIMAL_ADMIN_COMMENT_LIST_COUNT),
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
             .select('id', { count: 'exact', head: true })
@@ -339,10 +364,12 @@ export async function loadWorkshopAdminSnapshot(
             .eq('workshop_id', workshopRow.id),
         supabase
             .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-            .select('id, fullname, email, connected_at, last_seen_at, is_interaction_banned')
+            .select('id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, active_duration_seconds')
             .eq('workshop_id', workshopRow.id)
             .order('connected_at', { ascending: false })
             .limit(MAXIMAL_ADMIN_PARTICIPANT_LIST_COUNT),
+        supabase.rpc('get_workshop_participant_activity_totals', { target_workshop_id: workshopRow.id }),
+        supabase.rpc('get_workshop_content_link_click_totals', { target_workshop_id: workshopRow.id }),
         supabase
             .from(WORKSHOP_REACTION_TABLE_NAME)
             .select('id', { count: 'exact', head: true })
@@ -356,21 +383,19 @@ export async function loadWorkshopAdminSnapshot(
 
     const firstError =
         contentResult.error ??
-        pendingCommentsResult.error ??
-        moderatedCommentsResult.error ??
+        commentsResult.error ??
         commentsCountResult.error ??
         participantCountResult.error ??
         participantsResult.error ??
+        participantActivityTotalsResult.error ??
+        contentLinkClickTotalsResult.error ??
         reactionsResult.error ??
         artificialReactionsResult.error;
     if (firstError) {
         return { snapshot: null, errorMessage: firstError.message };
     }
 
-    const commentRows = [
-        ...((pendingCommentsResult.data ?? []) as WorkshopCommentRow[]),
-        ...((moderatedCommentsResult.data ?? []) as WorkshopCommentRow[]),
-    ];
+    const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
     const comments = commentRows.map((row): WorkshopAdminComment => ({
         ...mapWorkshopCommentRow(row, false),
         participantId: row.participant_id,
@@ -378,14 +403,27 @@ export async function loadWorkshopAdminSnapshot(
         realUpvoteCount: row.upvote_count,
         artificialUpvoteCount: row.artificial_upvote_count,
     }));
+    const activityTotalsByParticipantId = new Map<string, WorkshopParticipantActivityTotalsRow>(
+        ((participantActivityTotalsResult.data ?? []) as WorkshopParticipantActivityTotalsRow[]).map(
+            (activityTotals) => [activityTotals.participant_id, activityTotals] as const,
+        ),
+    );
+    const linkClickCountByContentBlockId = new Map<string, number>(
+        ((contentLinkClickTotalsResult.data ?? []) as WorkshopContentLinkClickTotalsRow[]).map(
+            (linkClickTotals) =>
+                [linkClickTotals.content_block_id, getNonNegativeWholeNumber(linkClickTotals.link_click_count)] as const,
+        ),
+    );
 
     return {
         snapshot: {
             workshop: mapWorkshopRow(workshopRow),
-            contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
+            contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map((contentBlock) =>
+                mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
+            ),
             comments,
-            participants: ((participantsResult.data ?? []) as WorkshopAdminParticipantRow[]).map(
-                mapWorkshopAdminParticipantRow,
+            participants: ((participantsResult.data ?? []) as WorkshopAdminParticipantRow[]).map((participant) =>
+                mapWorkshopAdminParticipantRow(participant, activityTotalsByParticipantId.get(participant.id)),
             ),
             participantCount: participantCountResult.count ?? 0,
             commentCount: commentsCountResult.count ?? 0,

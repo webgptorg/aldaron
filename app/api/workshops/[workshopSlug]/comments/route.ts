@@ -1,7 +1,8 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
-import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
+import { getWorkshopCommentStatusForParticipant } from '@/lib/workshops/workshopParticipantInteraction';
+import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { workshopCommentSchema } from '@/lib/workshops/workshopSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,10 +31,7 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         return authenticatedRequest;
     }
 
-    const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);
-    if (interactionBanResponse) {
-        return interactionBanResponse;
-    }
+    const commentStatus = getWorkshopCommentStatusForParticipant(authenticatedRequest.participant);
 
     const { data, error } = await authenticatedRequest.supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
@@ -42,7 +40,7 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
             participant_id: authenticatedRequest.participant.id,
             author_name: authenticatedRequest.participant.fullname,
             body: parsedResult.data.body,
-            status: 'pending',
+            status: commentStatus,
         })
         .select('id, author_name, body, status, upvote_count, created_at')
         .single();
@@ -55,17 +53,23 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         return NextResponse.json({ error: 'Comment could not be saved' }, { status: 500 });
     }
 
+    const comment = {
+        id: data.id,
+        authorName: data.author_name,
+        body: data.body,
+        status: data.status,
+        upvoteCount: data.upvote_count,
+        isUpvotedByParticipant: false,
+        createdAt: data.created_at,
+    };
+
+    if (commentStatus === 'approved') {
+        await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, { kind: 'state-changed' });
+    }
+
     return NextResponse.json(
         {
-            comment: {
-                id: data.id,
-                authorName: data.author_name,
-                body: data.body,
-                status: data.status,
-                upvoteCount: data.upvote_count,
-                isUpvotedByParticipant: false,
-                createdAt: data.created_at,
-            },
+            comment,
         },
         { status: 201 },
     );

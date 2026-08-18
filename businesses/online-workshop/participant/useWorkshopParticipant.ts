@@ -3,19 +3,31 @@
 import {
     connectToWorkshop,
     fetchWorkshopState,
+    recordWorkshopMaterialLinkClick,
+    reportWorkshopPresence,
     sendWorkshopReaction,
     submitWorkshopComment,
     upvoteWorkshopComment,
     WorkshopApiError,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { getSupabaseForBrowser } from '@/lib/supabase';
-import { getWorkshopRealtimeTopic, WORKSHOP_REALTIME_EVENT_NAME } from '@/lib/workshops/workshopConstants';
+import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
+import {
+    getWorkshopRealtimeTopic,
+    MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
+    WORKSHOP_REALTIME_EVENT_NAME,
+} from '@/lib/workshops/workshopConstants';
 import {
     getContentUnlockRefreshDelay,
     isWorkshopRealtimeEvent,
 } from '@/lib/workshops/workshopClientState';
 import { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
-import type { WorkshopCommentSort, WorkshopPublicState, WorkshopReaction } from '@/lib/workshops/workshopTypes';
+import type {
+    WorkshopCommentSort,
+    WorkshopContentBlock,
+    WorkshopPublicState,
+    WorkshopReaction,
+} from '@/lib/workshops/workshopTypes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS = 25_000;
@@ -27,6 +39,8 @@ const REACTION_ANIMATION_DURATION_MILLISECONDS = 2_800;
 const MAXIMAL_REMEMBERED_REACTION_COUNT = 500;
 const MAXIMAL_FALLBACK_ANIMATED_REACTION_COUNT = 6;
 const MAXIMAL_SIMULTANEOUS_ANIMATED_REACTION_COUNT = 24;
+const WORKSHOP_PRESENCE_REPORT_INTERVAL_MILLISECONDS = 30_000;
+const NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS = 8_000;
 
 export type AnimatedWorkshopReaction = WorkshopReaction & {
     readonly animationId: string;
@@ -40,12 +54,14 @@ type WorkshopParticipantController = {
     readonly isRefreshing: boolean;
     readonly errorMessage: string | null;
     readonly animatedReactions: readonly AnimatedWorkshopReaction[];
+    readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
     readonly connect: (values: { readonly fullname: string; readonly email: string }) => Promise<boolean>;
     readonly refresh: () => Promise<boolean>;
     readonly changeCommentSort: (sort: WorkshopCommentSort) => void;
     readonly submitComment: (body: string) => Promise<boolean>;
     readonly upvoteComment: (commentId: string) => Promise<void>;
     readonly react: (emoji: string) => Promise<void>;
+    readonly recordMaterialLinkClick: (contentId: string) => void;
 };
 
 function getCzechApiErrorMessage(error: unknown): string {
@@ -59,9 +75,7 @@ function getCzechApiErrorMessage(error: unknown): string {
         return 'Odeslané údaje nejsou platné. Zkontrolujte je prosím a zkuste to znovu.';
     }
     if (error.status === 403) {
-        return error.message === 'Moderátor vám zakázal komentovat a reagovat.'
-            ? error.message
-            : 'Tento požadavek nebylo možné bezpečně ověřit. Obnovte prosím stránku.';
+        return 'Interakce nejsou momentálně k dispozici.';
     }
     if (error.status === 404) {
         return 'Workshopová místnost nebyla nalezena nebo zatím není publikovaná.';
@@ -81,11 +95,16 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [animatedReactions, setAnimatedReactions] = useState<readonly AnimatedWorkshopReaction[]>([]);
+    const [newlyUnlockedContentBlockIds, setNewlyUnlockedContentBlockIds] = useState<ReadonlySet<string>>(new Set());
     const refreshSequenceRef = useRef(0);
     const rememberedReactionIdsRef = useRef(new Set<string>());
     const rememberedReactionIdOrderRef = useRef<string[]>([]);
     const isReactionHistoryLoadedRef = useRef(false);
     const realtimeRefreshTimeoutRef = useRef<number | null>(null);
+    const isContentHistoryLoadedRef = useRef(false);
+    const knownContentBlockIdsRef = useRef(new Set<string>());
+    const lastPresenceReportAtRef = useRef<number | null>(null);
+    const isConnectionReportedRef = useRef(false);
     const isConnected = state !== null;
 
     const invalidatePendingRefresh = useCallback(() => {
@@ -156,6 +175,44 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         [addAnimatedReaction, rememberReactionId],
     );
 
+    const processLoadedContentBlocks = useCallback(
+        (contentBlocks: readonly WorkshopContentBlock[]) => {
+            const loadedContentBlockIds = new Set(contentBlocks.map((contentBlock) => contentBlock.id));
+            if (!isContentHistoryLoadedRef.current) {
+                knownContentBlockIdsRef.current = loadedContentBlockIds;
+                isContentHistoryLoadedRef.current = true;
+                return;
+            }
+
+            const newlyUnlockedContentIds = Array.from(loadedContentBlockIds).filter(
+                (contentBlockId) => !knownContentBlockIdsRef.current.has(contentBlockId),
+            );
+            knownContentBlockIdsRef.current = new Set([
+                ...Array.from(knownContentBlockIdsRef.current),
+                ...Array.from(loadedContentBlockIds),
+            ]);
+            if (newlyUnlockedContentIds.length === 0) {
+                return;
+            }
+
+            setNewlyUnlockedContentBlockIds((currentContentBlockIds) =>
+                new Set([...Array.from(currentContentBlockIds), ...newlyUnlockedContentIds]),
+            );
+            trackGoogleAnalyticsEvent('workshop_material_unlocked', {
+                workshop_slug: workshopSlug,
+                material_count: newlyUnlockedContentIds.length,
+            });
+            window.setTimeout(() => {
+                setNewlyUnlockedContentBlockIds((currentContentBlockIds) => {
+                    const remainingContentBlockIds = new Set(currentContentBlockIds);
+                    newlyUnlockedContentIds.forEach((contentBlockId) => remainingContentBlockIds.delete(contentBlockId));
+                    return remainingContentBlockIds;
+                });
+            }, NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS);
+        },
+        [workshopSlug],
+    );
+
     const refresh = useCallback(async (): Promise<boolean> => {
         const refreshSequence = ++refreshSequenceRef.current;
         setIsRefreshing(true);
@@ -166,6 +223,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 return false;
             }
             processLoadedReactions(loadedState.recentReactions);
+            processLoadedContentBlocks(loadedState.contentBlocks);
             setState(loadedState);
             setIsConnectionRequired(false);
             setErrorMessage(null);
@@ -192,7 +250,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 setIsRefreshing(false);
             }
         }
-    }, [commentSort, processLoadedReactions, workshopSlug]);
+    }, [commentSort, processLoadedContentBlocks, processLoadedReactions, workshopSlug]);
 
     const scheduleRealtimeRefresh = useCallback(() => {
         if (realtimeRefreshTimeoutRef.current !== null) {
@@ -209,6 +267,66 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     useEffect(() => {
         void refresh();
     }, [refresh]);
+
+    useEffect(() => {
+        if (state === null || isConnectionReportedRef.current) {
+            return;
+        }
+
+        isConnectionReportedRef.current = true;
+        trackGoogleAnalyticsEvent('workshop_connected', { workshop_slug: state.workshop.slug });
+    }, [state]);
+
+    const reportCurrentPresence = useCallback(() => {
+        const reportedAtMilliseconds = Date.now();
+        const previousReportAtMilliseconds = lastPresenceReportAtRef.current;
+        lastPresenceReportAtRef.current = reportedAtMilliseconds;
+        if (previousReportAtMilliseconds === null) {
+            return;
+        }
+
+        const activeDurationSeconds = Math.min(
+            MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
+            Math.floor((reportedAtMilliseconds - previousReportAtMilliseconds) / 1_000),
+        );
+        if (activeDurationSeconds < 1) {
+            return;
+        }
+
+        void reportWorkshopPresence(workshopSlug, activeDurationSeconds).catch((error) => {
+            console.warn('Failed to report workshop participant presence:', error);
+        });
+    }, [workshopSlug]);
+
+    useEffect(() => {
+        if (!isConnected) {
+            lastPresenceReportAtRef.current = null;
+            return;
+        }
+
+        lastPresenceReportAtRef.current = Date.now();
+        const intervalId = window.setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                reportCurrentPresence();
+            }
+        }, WORKSHOP_PRESENCE_REPORT_INTERVAL_MILLISECONDS);
+        const handlePresenceVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                lastPresenceReportAtRef.current = Date.now();
+                return;
+            }
+            reportCurrentPresence();
+        };
+        document.addEventListener('visibilitychange', handlePresenceVisibilityChange);
+        window.addEventListener('pagehide', reportCurrentPresence);
+
+        return () => {
+            window.clearInterval(intervalId);
+            document.removeEventListener('visibilitychange', handlePresenceVisibilityChange);
+            window.removeEventListener('pagehide', reportCurrentPresence);
+            reportCurrentPresence();
+        };
+    }, [isConnected, reportCurrentPresence]);
 
     useEffect(() => {
         if (!isConnected) {
@@ -326,6 +444,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 setIsConnectionRequired(false);
                 if (connection.state !== null) {
                     processLoadedReactions(connection.state.recentReactions);
+                    processLoadedContentBlocks(connection.state.contentBlocks);
                     setState(connection.state);
                     setIsCheckingConnection(false);
                     setIsRefreshing(false);
@@ -340,7 +459,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 return false;
             }
         },
-        [processLoadedReactions, refresh, workshopSlug],
+        [processLoadedContentBlocks, processLoadedReactions, refresh, workshopSlug],
     );
 
     const submitComment = useCallback(
@@ -349,16 +468,22 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             try {
                 const { comment } = await submitWorkshopComment(workshopSlug, body);
                 invalidatePendingRefresh();
-                setState((currentState) => {
-                    if (currentState === null) {
-                        return currentState;
-                    }
+                if (comment.status !== 'rejected') {
+                    setState((currentState) => {
+                        if (currentState === null) {
+                            return currentState;
+                        }
 
-                    const comments = currentState.comments.filter((currentComment) => currentComment.id !== comment.id);
-                    return {
-                        ...currentState,
-                        comments: sortWorkshopComments([...comments, comment], commentSort),
-                    };
+                        const comments = currentState.comments.filter((currentComment) => currentComment.id !== comment.id);
+                        return {
+                            ...currentState,
+                            comments: sortWorkshopComments([...comments, comment], commentSort),
+                        };
+                    });
+                }
+                trackGoogleAnalyticsEvent('workshop_comment_submitted', {
+                    workshop_slug: workshopSlug,
+                    comment_status: comment.status,
                 });
                 return true;
             } catch (error) {
@@ -393,6 +518,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                         comments: sortWorkshopComments(updatedComments, commentSort),
                     };
                 });
+                trackGoogleAnalyticsEvent('workshop_comment_upvoted', { workshop_slug: workshopSlug });
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
             }
@@ -417,11 +543,21 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             try {
                 const { reaction } = await sendWorkshopReaction(workshopSlug, emoji);
                 addAnimatedReaction(reaction);
+                trackGoogleAnalyticsEvent('workshop_reaction_sent', { workshop_slug: workshopSlug, emoji });
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
             }
         },
         [addAnimatedReaction, workshopSlug],
+    );
+
+    const recordMaterialLinkClick = useCallback(
+        (contentId: string) => {
+            void recordWorkshopMaterialLinkClick(workshopSlug, contentId)
+                .then(() => trackGoogleAnalyticsEvent('workshop_material_link_clicked', { workshop_slug: workshopSlug }))
+                .catch((error) => console.warn('Failed to record workshop material link click:', error));
+        },
+        [workshopSlug],
     );
 
     return {
@@ -432,11 +568,13 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         isRefreshing,
         errorMessage,
         animatedReactions,
+        newlyUnlockedContentBlockIds,
         connect,
         refresh,
         changeCommentSort,
         submitComment,
         upvoteComment,
         react,
+        recordMaterialLinkClick,
     };
 }

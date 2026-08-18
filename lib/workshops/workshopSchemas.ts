@@ -4,6 +4,7 @@ import {
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
+    MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
 } from '@/lib/workshops/workshopConstants';
 import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
@@ -70,8 +71,17 @@ export const workshopCommentArtificialUpvoteSchema = z.object({
         .refine((value) => value !== 0, 'Artificial upvote adjustment cannot be zero'),
 });
 
-export const workshopParticipantInteractionBanSchema = z.object({
-    isInteractionBanned: z.boolean(),
+export const workshopParticipantUpdateSchema = z
+    .object({
+        isInteractionBanned: z.boolean().optional(),
+        isTrusted: z.boolean().optional(),
+    })
+    .refine((value) => value.isInteractionBanned !== undefined || value.isTrusted !== undefined, {
+        message: 'At least one participant field is required',
+    });
+
+export const workshopPresenceSchema = z.object({
+    activeDurationSeconds: z.number().int().min(1).max(MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS),
 });
 
 export const workshopCreateSchema = z

@@ -23,11 +23,17 @@ export type WorkshopParticipant = {
     readonly fullname: string;
     readonly connectedAt: string;
     readonly isInteractionBanned: boolean;
+    readonly isTrusted: boolean;
 };
 
 export type WorkshopAdminParticipant = WorkshopParticipant & {
     readonly email: string;
     readonly lastSeenAt: string;
+    readonly activeDurationSeconds: number;
+    readonly commentCount: number;
+    readonly reactionCount: number;
+    readonly linkClickCount: number;
+    readonly upvoteCount: number;
 };
 
 export type WorkshopContentBlock = {
@@ -39,6 +45,7 @@ export type WorkshopContentBlock = {
     readonly isPublished: boolean;
     readonly createdAt: string;
     readonly updatedAt: string;
+    readonly linkClickCount: number;
 };
 
 export type WorkshopComment = {

@@ -38,8 +38,12 @@ export type WorkshopArtificialReactionValues = {
     readonly emoji: string;
 };
 
-function createAdminApiUrl(path: string, adminToken: string): string {
-    return buildAdminUrl(`/api/admin/workshops${path}`, adminToken);
+function createAdminApiUrl(
+    path: string,
+    adminToken: string,
+    additionalParameters: Readonly<Record<string, string | undefined>> = {},
+): string {
+    return buildAdminUrl(`/api/admin/workshops${path}`, adminToken, additionalParameters);
 }
 
 async function requestAdminJson<ResponseBody>(url: string, requestOptions?: RequestInit): Promise<ResponseBody> {
@@ -65,8 +69,9 @@ export async function fetchAdminWorkshopList(adminToken: string): Promise<readon
 export async function fetchAdminWorkshopSnapshot(
     adminToken: string,
     workshopId: string,
+    commentStatus: WorkshopCommentStatus = 'pending',
 ): Promise<WorkshopAdminSnapshot> {
-    return requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}`, adminToken));
+    return requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}`, adminToken, { commentStatus }));
 }
 
 export async function createAdminWorkshop(adminToken: string, values: WorkshopCreateValues): Promise<WorkshopDetails> {
@@ -125,6 +130,17 @@ export async function deleteAdminWorkshopContent(
     );
 }
 
+export async function deleteAdminWorkshopComment(
+    adminToken: string,
+    workshopId: string,
+    commentId: string,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}`, adminToken),
+        { method: 'DELETE' },
+    );
+}
+
 export async function moderateAdminWorkshopComment(
     adminToken: string,
     workshopId: string,
@@ -174,17 +190,55 @@ export async function sendAdminWorkshopArtificialReaction(
     );
 }
 
-export async function updateAdminWorkshopParticipantInteractionBan(
+export async function clearAdminWorkshopReactions(adminToken: string, workshopId: string): Promise<void> {
+    await requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}/reactions`, adminToken), {
+        method: 'DELETE',
+    });
+}
+
+async function updateAdminWorkshopParticipant(
     adminToken: string,
     workshopId: string,
     participantId: string,
-    isInteractionBanned: boolean,
+    values: { readonly isInteractionBanned?: boolean; readonly isTrusted?: boolean },
 ): Promise<void> {
     await requestAdminJson(
         createAdminApiUrl(
             `/${encodeURIComponent(workshopId)}/participants/${encodeURIComponent(participantId)}`,
             adminToken,
         ),
-        createJsonMutation('PATCH', { isInteractionBanned }),
+        createJsonMutation('PATCH', values),
+    );
+}
+
+export async function updateAdminWorkshopParticipantInteractionBan(
+    adminToken: string,
+    workshopId: string,
+    participantId: string,
+    isInteractionBanned: boolean,
+): Promise<void> {
+    await updateAdminWorkshopParticipant(adminToken, workshopId, participantId, { isInteractionBanned });
+}
+
+export async function updateAdminWorkshopParticipantTrusted(
+    adminToken: string,
+    workshopId: string,
+    participantId: string,
+    isTrusted: boolean,
+): Promise<void> {
+    await updateAdminWorkshopParticipant(adminToken, workshopId, participantId, { isTrusted });
+}
+
+export async function deleteAdminWorkshopParticipant(
+    adminToken: string,
+    workshopId: string,
+    participantId: string,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(
+            `/${encodeURIComponent(workshopId)}/participants/${encodeURIComponent(participantId)}`,
+            adminToken,
+        ),
+        { method: 'DELETE' },
     );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { Textarea } from '@/components/ui/textarea';
 import { MAXIMAL_WORKSHOP_COMMENT_LENGTH } from '@/lib/workshops/workshopConstants';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
@@ -85,14 +86,11 @@ export function WorkshopChat({
                 {comments.length === 0 ? (
                     <div className="flex h-full min-h-48 flex-col items-center justify-center px-6 text-center">
                         <MessageCircle className="h-8 w-8 text-slate-700" />
-                        <p className="mt-3 text-sm text-slate-500">
-                            Schválené komentáře se objeví tady. Položte první otázku.
-                        </p>
+                        <p className="mt-3 text-sm text-slate-500">Zatím je tu klid. Položte první otázku.</p>
                     </div>
                 ) : (
                     comments.map((comment) => {
                         const isUpvoting = upvotingCommentIds.has(comment.id);
-                        const isCommentApproved = comment.status === 'approved';
                         return (
                             <article
                                 key={comment.id}
@@ -104,16 +102,11 @@ export function WorkshopChat({
                                         <time className="text-[11px] text-slate-600" dateTime={comment.createdAt}>
                                             {CZECH_TIME_FORMAT.format(new Date(comment.createdAt))}
                                         </time>
-                                        {!isCommentApproved && (
-                                            <p className="mt-1 text-[11px] font-medium text-amber-200/80">
-                                                Váš komentář čeká na schválení.
-                                            </p>
-                                        )}
                                     </div>
                                     <button
                                         type="button"
                                         disabled={
-                                            !isCommentApproved ||
+                                            comment.status !== 'approved' ||
                                             isInteractionBanned ||
                                             comment.isUpvotedByParticipant ||
                                             isUpvoting
@@ -125,41 +118,36 @@ export function WorkshopChat({
                                         <ThumbsUp className="h-3 w-3" /> {comment.upvoteCount}
                                     </button>
                                 </div>
-                                <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">
-                                    {comment.body}
-                                </p>
+                                <WorkshopCommentMarkdown
+                                    content={comment.body}
+                                    className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300"
+                                />
                             </article>
                         );
                     })
                 )}
             </div>
 
-            {isInteractionBanned ? (
-                <div className="border-t border-white/10 p-4 text-center text-sm leading-6 text-amber-200/80">
-                    Moderátor vám zakázal komentovat a hlasovat.
+            <form onSubmit={handleSubmit} className="border-t border-white/10 p-4">
+                <Textarea
+                    value={commentBody}
+                    onChange={(event) => setCommentBody(event.target.value)}
+                    placeholder="Napište otázku nebo komentář…"
+                    maxLength={MAXIMAL_WORKSHOP_COMMENT_LENGTH}
+                    className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
+                />
+                <div className="mt-3 flex items-center justify-between gap-3">
+                    <p className="text-[11px] text-slate-600">Tučně **text**, kurzíva *text*, podtržení __text__.</p>
+                    <Button
+                        type="submit"
+                        size="sm"
+                        disabled={isSubmitting || !commentBody.trim()}
+                        className="rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                    >
+                        <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
+                    </Button>
                 </div>
-            ) : (
-                <form onSubmit={handleSubmit} className="border-t border-white/10 p-4">
-                    <Textarea
-                        value={commentBody}
-                        onChange={(event) => setCommentBody(event.target.value)}
-                        placeholder="Napište otázku nebo komentář…"
-                        maxLength={MAXIMAL_WORKSHOP_COMMENT_LENGTH}
-                        className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
-                    />
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="text-[11px] text-slate-600">Komentáře schvaluje moderátor.</p>
-                        <Button
-                            type="submit"
-                            size="sm"
-                            disabled={isSubmitting || !commentBody.trim()}
-                            className="rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200"
-                        >
-                            <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
-                        </Button>
-                    </div>
-                </form>
-            )}
+            </form>
         </aside>
     );
 }

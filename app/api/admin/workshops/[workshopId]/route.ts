@@ -10,6 +10,7 @@ import {
     type WorkshopRow,
 } from '@/lib/workshops/workshopDatabase';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
+import { isWorkshopCommentStatus } from '@/lib/workshops/workshopCommentStatus';
 import { workshopUpdateSchema } from '@/lib/workshops/workshopSchemas';
 import { createWorkshopUpdateDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
@@ -35,7 +36,16 @@ export async function GET(request: NextRequest, context: AdminWorkshopRouteConte
         return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
     }
 
-    const { snapshot, errorMessage } = await loadWorkshopAdminSnapshot(supabase, workshopRow);
+    const requestedCommentStatus = request.nextUrl.searchParams.get('commentStatus');
+    if (requestedCommentStatus !== null && !isWorkshopCommentStatus(requestedCommentStatus)) {
+        return NextResponse.json({ error: 'Invalid comment status' }, { status: 400 });
+    }
+
+    const { snapshot, errorMessage } = await loadWorkshopAdminSnapshot(
+        supabase,
+        workshopRow,
+        requestedCommentStatus ?? 'pending',
+    );
     if (snapshot === null) {
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }

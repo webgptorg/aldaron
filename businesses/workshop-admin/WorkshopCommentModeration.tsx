@@ -2,22 +2,26 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT } from '@/lib/workshops/workshopConstants';
 import type { WorkshopAdminComment, WorkshopCommentStatus } from '@/lib/workshops/workshopTypes';
-import { Check, Clock3, MessageCircle, ThumbsUp, X } from 'lucide-react';
+import { Check, Clock3, MessageCircle, ThumbsUp, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkshopCommentModerationProps = {
     readonly comments: readonly WorkshopAdminComment[];
+    readonly commentStatus: WorkshopCommentStatus;
+    readonly onChangeCommentStatus: (commentStatus: WorkshopCommentStatus) => void;
     readonly onModerate: (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => Promise<void>;
     readonly onAdjustArtificialUpvotes: (commentId: string, artificialUpvoteAdjustment: number) => Promise<boolean>;
+    readonly onDelete: (commentId: string) => Promise<void>;
 };
 
 const CZECH_DATE_FORMAT = new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
 const COMMENT_STATUS_LABELS: Readonly<Record<WorkshopCommentStatus, string>> = {
-    pending: 'čeká na schválení',
-    approved: 'schválený',
-    rejected: 'zamítnutý',
+    pending: 'Čekající',
+    approved: 'Schválené',
+    rejected: 'Zamítnuté',
 };
 
 function formatSignedNumber(value: number): string {
@@ -26,43 +30,19 @@ function formatSignedNumber(value: number): string {
 
 export function WorkshopCommentModeration({
     comments,
+    commentStatus,
+    onChangeCommentStatus,
     onModerate,
     onAdjustArtificialUpvotes,
+    onDelete,
 }: WorkshopCommentModerationProps) {
     const [processingCommentIds, setProcessingCommentIds] = useState<ReadonlySet<string>>(new Set());
     const [artificialUpvoteAdjustments, setArtificialUpvoteAdjustments] = useState<Readonly<Record<string, string>>>({});
-    const sortedComments = [...comments].sort((firstComment, secondComment) => {
-        if (firstComment.status === secondComment.status) {
-            return Date.parse(secondComment.createdAt) - Date.parse(firstComment.createdAt);
-        }
-        return firstComment.status === 'pending' ? -1 : secondComment.status === 'pending' ? 1 : 0;
-    });
 
-    const handleModeration = async (commentId: string, status: 'approved' | 'rejected') => {
-        setProcessingCommentIds((currentIds) => new Set(currentIds).add(commentId));
-        await onModerate(commentId, status);
-        setProcessingCommentIds((currentIds) => {
-            const nextIds = new Set(currentIds);
-            nextIds.delete(commentId);
-            return nextIds;
-        });
-    };
-
-    const handleArtificialUpvoteAdjustment = async (commentId: string) => {
-        const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[commentId] ?? '');
-        if (!Number.isSafeInteger(artificialUpvoteAdjustment) || artificialUpvoteAdjustment === 0) {
-            return;
-        }
-
+    const runCommentAction = async (commentId: string, action: () => Promise<unknown>) => {
         setProcessingCommentIds((currentIds) => new Set(currentIds).add(commentId));
         try {
-            const isAdjusted = await onAdjustArtificialUpvotes(commentId, artificialUpvoteAdjustment);
-            if (isAdjusted) {
-                setArtificialUpvoteAdjustments((currentAdjustments) => ({
-                    ...currentAdjustments,
-                    [commentId]: '',
-                }));
-            }
+            await action();
         } finally {
             setProcessingCommentIds((currentIds) => {
                 const nextIds = new Set(currentIds);
@@ -72,28 +52,64 @@ export function WorkshopCommentModeration({
         }
     };
 
+    const handleModeration = (commentId: string, status: 'approved' | 'rejected') =>
+        runCommentAction(commentId, () => onModerate(commentId, status));
+
+    const handleArtificialUpvoteAdjustment = async (commentId: string) => {
+        const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[commentId] ?? '');
+        if (!Number.isSafeInteger(artificialUpvoteAdjustment) || artificialUpvoteAdjustment === 0) {
+            return;
+        }
+
+        await runCommentAction(commentId, async () => {
+            const isAdjusted = await onAdjustArtificialUpvotes(commentId, artificialUpvoteAdjustment);
+            if (isAdjusted) {
+                setArtificialUpvoteAdjustments((currentAdjustments) => ({
+                    ...currentAdjustments,
+                    [commentId]: '',
+                }));
+            }
+        });
+    };
+
+    const handleDelete = (comment: WorkshopAdminComment) => {
+        const isDeletionConfirmed = window.confirm(
+            `Opravdu trvale smazat komentář od ${comment.authorName}? Smažou se také všechny jeho hlasy.`,
+        );
+        if (isDeletionConfirmed) {
+            void runCommentAction(comment.id, () => onDelete(comment.id));
+        }
+    };
+
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h2 className="text-xl font-bold text-slate-950">Moderace chatu</h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Čekající komentář vidí jen jeho autor; po schválení ho uvidí všichni účastníci.
-                    </p>
+                    <p className="mt-1 text-sm text-slate-500">Zobrazeno {comments.length} komentářů ve vybraném stavu.</p>
                 </div>
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                    {comments.filter(({ status }) => status === 'pending').length} čeká
-                </span>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Stav komentářů
+                    <select
+                        value={commentStatus}
+                        onChange={(event) => onChangeCommentStatus(event.target.value as WorkshopCommentStatus)}
+                        className="mt-1 block h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium normal-case tracking-normal text-slate-800"
+                    >
+                        {(Object.keys(COMMENT_STATUS_LABELS) as WorkshopCommentStatus[]).map((status) => (
+                            <option key={status} value={status}>{COMMENT_STATUS_LABELS[status]}</option>
+                        ))}
+                    </select>
+                </label>
             </div>
 
             <div className="mt-6 space-y-3">
-                {sortedComments.length === 0 && (
+                {comments.length === 0 && (
                     <div className="rounded-xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
                         <MessageCircle className="mx-auto mb-2 h-6 w-6" />
-                        Zatím žádné komentáře
+                        V tomto stavu zatím nejsou žádné komentáře.
                     </div>
                 )}
-                {sortedComments.map((comment) => {
+                {comments.map((comment) => {
                     const isProcessing = processingCommentIds.has(comment.id);
                     const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[comment.id] ?? '');
                     const isArtificialUpvoteAdjustmentValid =
@@ -123,7 +139,10 @@ export function WorkshopCommentModeration({
                                     </span>
                                 </div>
                             </div>
-                            <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{comment.body}</p>
+                            <WorkshopCommentMarkdown
+                                content={comment.body}
+                                className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700"
+                            />
                             <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50/50 p-3">
                                 <p className="text-xs text-slate-600">
                                     Skutečné hlasy: {comment.realUpvoteCount} · Umělá změna hlasů:{' '}
@@ -159,7 +178,7 @@ export function WorkshopCommentModeration({
                                     </Button>
                                 </div>
                             </div>
-                            <div className="mt-4 flex justify-end gap-2">
+                            <div className="mt-4 flex flex-wrap justify-end gap-2">
                                 {comment.status !== 'rejected' && (
                                     <Button
                                         type="button"
@@ -168,8 +187,7 @@ export function WorkshopCommentModeration({
                                         disabled={isProcessing}
                                         onClick={() => void handleModeration(comment.id, 'rejected')}
                                     >
-                                        <X className="mr-1.5 h-4 w-4" />
-                                        Zamítnout
+                                        <X className="mr-1.5 h-4 w-4" /> Zamítnout
                                     </Button>
                                 )}
                                 {comment.status !== 'approved' && (
@@ -179,10 +197,19 @@ export function WorkshopCommentModeration({
                                         disabled={isProcessing}
                                         onClick={() => void handleModeration(comment.id, 'approved')}
                                     >
-                                        <Check className="mr-1.5 h-4 w-4" />
-                                        Schválit
+                                        <Check className="mr-1.5 h-4 w-4" /> Schválit
                                     </Button>
                                 )}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isProcessing}
+                                    onClick={() => handleDelete(comment)}
+                                    className="border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+                                >
+                                    <Trash2 className="mr-1.5 h-4 w-4" /> Smazat
+                                </Button>
                             </div>
                         </article>
                     );

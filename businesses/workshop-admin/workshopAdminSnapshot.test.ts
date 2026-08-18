@@ -27,6 +27,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
                 isPublished: true,
                 createdAt: '2026-08-01T17:00:00.000Z',
                 updatedAt: contentUpdatedAt,
+                linkClickCount: 0,
             },
         ],
         comments: [],
@@ -57,5 +58,16 @@ describe('workshop admin snapshot merging', () => {
 
         expect(mergedSnapshot.workshop).toBe(loadedSnapshot.workshop);
         expect(mergedSnapshot.contentBlocks[0]).toBe(loadedSnapshot.contentBlocks[0]);
+    });
+
+    it('uses refreshed content when only its measured link clicks changed', () => {
+        const currentSnapshot = createSnapshot('2026-08-01T17:00:00.000Z', '2026-08-01T17:00:00.000Z');
+        const loadedSnapshot = createSnapshot('2026-08-01T17:00:00.000Z', '2026-08-01T17:00:00.000Z');
+        const loadedContentBlock = { ...loadedSnapshot.contentBlocks[0], linkClickCount: 3 };
+        const snapshotWithNewClicks = { ...loadedSnapshot, contentBlocks: [loadedContentBlock] };
+
+        const mergedSnapshot = mergeWorkshopAdminSnapshot(currentSnapshot, snapshotWithNewClicks);
+
+        expect(mergedSnapshot.contentBlocks[0]).toBe(loadedContentBlock);
     });
 });

@@ -5,6 +5,8 @@ import {
     workshopConnectionSchema,
     workshopContentCreateSchema,
     workshopCreateSchema,
+    workshopParticipantUpdateSchema,
+    workshopPresenceSchema,
     workshopReactionSchema,
 } from '@/lib/workshops/workshopSchemas';
 import { describe, expect, it } from 'vitest';
@@ -74,5 +76,12 @@ describe('workshop request validation', () => {
             artificialUpvoteAdjustment: -12,
         });
         expect(workshopCommentArtificialUpvoteSchema.safeParse({ artificialUpvoteAdjustment: 0 }).success).toBe(false);
+    });
+
+    it('accepts trusted participant changes and bounded active-time reports', () => {
+        expect(workshopParticipantUpdateSchema.parse({ isTrusted: true })).toEqual({ isTrusted: true });
+        expect(workshopParticipantUpdateSchema.safeParse({}).success).toBe(false);
+        expect(workshopPresenceSchema.parse({ activeDurationSeconds: 30 })).toEqual({ activeDurationSeconds: 30 });
+        expect(workshopPresenceSchema.safeParse({ activeDurationSeconds: 121 }).success).toBe(false);
     });
 });

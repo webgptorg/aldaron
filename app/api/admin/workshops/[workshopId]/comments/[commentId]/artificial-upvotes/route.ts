@@ -1,6 +1,7 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { getDisplayedWorkshopCommentUpvoteCount } from '@/lib/workshops/workshopCommentValues';
+import { MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT, WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopCommentArtificialUpvoteSchema } from '@/lib/workshops/workshopSchemas';
@@ -10,13 +11,11 @@ type AdminWorkshopArtificialUpvotesRouteContext = {
     readonly params: Promise<{ readonly workshopId: string; readonly commentId: string }>;
 };
 
-type ArtificialUpvoteAdjustmentRow = {
-    readonly comment_id: string;
+type WorkshopCommentUpvoteRow = {
+    readonly id: string;
     readonly upvote_count: number;
     readonly artificial_upvote_count: number;
 };
-
-const ARTIFICIAL_UPVOTE_CONSTRAINT_ERROR_CODE = '23514';
 
 export async function POST(request: NextRequest, context: AdminWorkshopArtificialUpvotesRouteContext) {
     const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
@@ -36,38 +35,62 @@ export async function POST(request: NextRequest, context: AdminWorkshopArtificia
         return workshopData.response;
     }
 
-    const { data, error } = await workshopData.supabase.rpc('adjust_workshop_comment_artificial_upvotes', {
-        target_workshop_id: workshopId,
-        target_comment_id: commentId,
-        artificial_upvote_adjustment: parsedResult.data.artificialUpvoteAdjustment,
-    });
-    if (error) {
-        const status = error.code === ARTIFICIAL_UPVOTE_CONSTRAINT_ERROR_CODE ? 400 : 500;
-        const errorMessage =
-            status === 400 ? 'Artificial upvote adjustment is outside the supported range' : 'Artificial upvotes could not be changed';
-        if (status === 500) {
-            console.error('Failed to adjust artificial workshop upvotes:', error.message);
-        }
-        return NextResponse.json({ error: errorMessage }, { status });
+    const { data: currentComment, error: currentCommentError } = await workshopData.supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select('id, upvote_count, artificial_upvote_count')
+        .eq('id', commentId)
+        .eq('workshop_id', workshopId)
+        .maybeSingle();
+    if (currentCommentError) {
+        return NextResponse.json({ error: 'Artificial upvotes could not be loaded' }, { status: 500 });
     }
-
-    const updatedComment = ((data ?? []) as readonly ArtificialUpvoteAdjustmentRow[])[0] ?? null;
-    if (updatedComment === null) {
+    if (currentComment === null) {
         return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
     }
 
+    const typedCurrentComment = currentComment as WorkshopCommentUpvoteRow;
+    const nextArtificialUpvoteCount =
+        typedCurrentComment.artificial_upvote_count + parsedResult.data.artificialUpvoteAdjustment;
+    if (
+        !Number.isSafeInteger(nextArtificialUpvoteCount) ||
+        Math.abs(nextArtificialUpvoteCount) > MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT
+    ) {
+        return NextResponse.json({ error: 'Artificial upvote adjustment is outside the supported range' }, { status: 400 });
+    }
+
+    // Do not depend on a PostgREST RPC cache for this critical admin action.
+    // The compare-and-set condition preserves an administrator's change when
+    // two tabs submit an adjustment at the same time.
+    const { data: updatedComment, error: updateError } = await workshopData.supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .update({ artificial_upvote_count: nextArtificialUpvoteCount })
+        .eq('id', commentId)
+        .eq('workshop_id', workshopId)
+        .eq('artificial_upvote_count', typedCurrentComment.artificial_upvote_count)
+        .select('id, upvote_count, artificial_upvote_count')
+        .maybeSingle();
+    if (updateError) {
+        console.error('Failed to adjust artificial workshop upvotes:', updateError.message);
+        return NextResponse.json({ error: 'Artificial upvotes could not be changed' }, { status: 500 });
+    }
+    if (updatedComment === null) {
+        return NextResponse.json({ error: 'Artificial upvotes changed in another tab. Try again.' }, { status: 409 });
+    }
+
+    const typedUpdatedComment = updatedComment as WorkshopCommentUpvoteRow;
+
     const upvoteCount = getDisplayedWorkshopCommentUpvoteCount(
-        updatedComment.upvote_count,
-        updatedComment.artificial_upvote_count,
+        typedUpdatedComment.upvote_count,
+        typedUpdatedComment.artificial_upvote_count,
     );
     await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, {
         kind: 'upvote',
-        commentId: updatedComment.comment_id,
+        commentId: typedUpdatedComment.id,
         upvoteCount,
     });
     return NextResponse.json({
-        commentId: updatedComment.comment_id,
+        commentId: typedUpdatedComment.id,
         upvoteCount,
-        artificialUpvoteCount: updatedComment.artificial_upvote_count,
+        artificialUpvoteCount: typedUpdatedComment.artificial_upvote_count,
     });
 }

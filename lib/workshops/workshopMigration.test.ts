@@ -2,10 +2,12 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page.sql');
+const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-0.sql');
 const MIGRATION_SQL = readFileSync(MIGRATION_PATH, 'utf8');
 const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-1.sql');
 const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
+const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql');
+const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -72,5 +74,13 @@ describe('workshop database migration', () => {
         expect(MODERATION_MIGRATION_SQL).toContain('ALTER COLUMN participant_id DROP NOT NULL');
         expect(MODERATION_MIGRATION_SQL).toContain('adjust_workshop_comment_artificial_upvotes');
         expect(MODERATION_MIGRATION_SQL).toContain('IF NEW.is_artificial THEN');
+    });
+
+    it('stores trusted moderation, active time, and material link clicks in the final migration', () => {
+        expect(ANALYTICS_MIGRATION_SQL).toContain('is_trusted boolean NOT NULL DEFAULT false');
+        expect(ANALYTICS_MIGRATION_SQL).toContain('active_duration_seconds integer NOT NULL DEFAULT 0');
+        expect(ANALYTICS_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_content_link_clicks');
+        expect(ANALYTICS_MIGRATION_SQL).toContain('record_workshop_participant_presence');
+        expect(ANALYTICS_MIGRATION_SQL).toContain('get_workshop_participant_activity_totals');
     });
 });
