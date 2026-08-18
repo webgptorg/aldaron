@@ -53,7 +53,9 @@ export const ONLINE_WORKSHOP_THANK_YOU_METADATA: Metadata = createPageMetadata(
 
 export const ONLINE_WORKSHOP_PARTICIPANT_METADATA: Metadata = {
     ...createPageMetadata(ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION),
-    referrer: 'no-referrer',
+    // YouTube requires a referrer for its embedded player. This policy reveals
+    // only this site's origin to YouTube, never the participant query string.
+    referrer: 'strict-origin-when-cross-origin',
 };
 
 export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(ONLINE_WORKSHOP_PAGE_DEFINITION, {

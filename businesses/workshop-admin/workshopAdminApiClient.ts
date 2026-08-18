@@ -29,6 +29,15 @@ export type WorkshopContentWriteValues = {
     readonly isPublished: boolean;
 };
 
+export type WorkshopArtificialCommentValues = {
+    readonly authorName: string;
+    readonly body: string;
+};
+
+export type WorkshopArtificialReactionValues = {
+    readonly emoji: string;
+};
+
 function createAdminApiUrl(path: string, adminToken: string): string {
     return buildAdminUrl(`/api/admin/workshops${path}`, adminToken);
 }
@@ -125,5 +134,57 @@ export async function moderateAdminWorkshopComment(
     await requestAdminJson(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}`, adminToken),
         createJsonMutation('PATCH', { status }),
+    );
+}
+
+export async function createAdminWorkshopArtificialComment(
+    adminToken: string,
+    workshopId: string,
+    values: WorkshopArtificialCommentValues,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments`, adminToken),
+        createJsonMutation('POST', values),
+    );
+}
+
+export async function adjustAdminWorkshopCommentArtificialUpvotes(
+    adminToken: string,
+    workshopId: string,
+    commentId: string,
+    artificialUpvoteAdjustment: number,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(
+            `/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}/artificial-upvotes`,
+            adminToken,
+        ),
+        createJsonMutation('POST', { artificialUpvoteAdjustment }),
+    );
+}
+
+export async function sendAdminWorkshopArtificialReaction(
+    adminToken: string,
+    workshopId: string,
+    values: WorkshopArtificialReactionValues,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/artificial-reactions`, adminToken),
+        createJsonMutation('POST', values),
+    );
+}
+
+export async function updateAdminWorkshopParticipantInteractionBan(
+    adminToken: string,
+    workshopId: string,
+    participantId: string,
+    isInteractionBanned: boolean,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(
+            `/${encodeURIComponent(workshopId)}/participants/${encodeURIComponent(participantId)}`,
+            adminToken,
+        ),
+        createJsonMutation('PATCH', { isInteractionBanned }),
     );
 }

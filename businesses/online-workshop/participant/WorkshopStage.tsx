@@ -62,6 +62,7 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                         })}
                         title={workshop.title}
                         allow="autoplay; encrypted-media; picture-in-picture"
+                        referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
                     />
                 ) : isWorkshopStarted ? (

@@ -1,9 +1,6 @@
-import type {
-    WorkshopComment,
-    WorkshopCommentSort,
-    WorkshopReaction,
-    WorkshopRealtimeEvent,
-} from '@/lib/workshops/workshopTypes';
+import type { WorkshopReaction, WorkshopRealtimeEvent } from '@/lib/workshops/workshopTypes';
+
+export { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 
 export const MAXIMAL_BROWSER_TIMEOUT_MILLISECONDS = 2_147_000_000;
 const CONTENT_UNLOCK_REFRESH_PADDING_MILLISECONDS = 250;
@@ -41,19 +38,6 @@ export function isWorkshopRealtimeEvent(value: unknown): value is WorkshopRealti
         Number.isSafeInteger(value.upvoteCount) &&
         value.upvoteCount >= 0
     );
-}
-
-export function sortWorkshopComments(
-    comments: readonly WorkshopComment[],
-    commentSort: WorkshopCommentSort,
-): readonly WorkshopComment[] {
-    return [...comments].sort((firstComment, secondComment) => {
-        if (commentSort === 'upvotes' && firstComment.upvoteCount !== secondComment.upvoteCount) {
-            return secondComment.upvoteCount - firstComment.upvoteCount;
-        }
-
-        return Date.parse(secondComment.createdAt) - Date.parse(firstComment.createdAt);
-    });
 }
 
 export function getContentUnlockRefreshDelay(

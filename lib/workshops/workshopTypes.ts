@@ -22,6 +22,12 @@ export type WorkshopParticipant = {
     readonly id: string;
     readonly fullname: string;
     readonly connectedAt: string;
+    readonly isInteractionBanned: boolean;
+};
+
+export type WorkshopAdminParticipant = WorkshopParticipant & {
+    readonly email: string;
+    readonly lastSeenAt: string;
 };
 
 export type WorkshopContentBlock = {
@@ -62,16 +68,21 @@ export type WorkshopPublicState = {
 };
 
 export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant'> & {
-    readonly participantId: string;
+    readonly participantId: string | null;
+    readonly isArtificial: boolean;
+    readonly realUpvoteCount: number;
+    readonly artificialUpvoteCount: number;
 };
 
 export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly comments: readonly WorkshopAdminComment[];
+    readonly participants: readonly WorkshopAdminParticipant[];
     readonly participantCount: number;
     readonly commentCount: number;
     readonly reactionCount: number;
+    readonly artificialReactionCount: number;
 };
 
 export type WorkshopRealtimeEvent =

@@ -2,14 +2,15 @@
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { MAXIMAL_WORKSHOP_COMMENT_LENGTH } from '@/lib/workshops/workshopConstants';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
-import { CheckCircle2, Clock3, MessageCircle, Send, ThumbsUp } from 'lucide-react';
+import { Clock3, MessageCircle, Send, ThumbsUp } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 type WorkshopChatProps = {
     readonly comments: readonly WorkshopComment[];
     readonly commentSort: WorkshopCommentSort;
-    readonly pendingCommentMessage: string | null;
+    readonly isInteractionBanned: boolean;
     readonly onChangeSort: (sort: WorkshopCommentSort) => void;
     readonly onSubmitComment: (body: string) => Promise<boolean>;
     readonly onUpvoteComment: (commentId: string) => Promise<void>;
@@ -20,7 +21,7 @@ const CZECH_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { hour: '2-digit', mi
 export function WorkshopChat({
     comments,
     commentSort,
-    pendingCommentMessage,
+    isInteractionBanned,
     onChangeSort,
     onSubmitComment,
     onUpvoteComment,
@@ -56,7 +57,7 @@ export function WorkshopChat({
     };
 
     return (
-        <aside className="flex min-h-[620px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1c26] shadow-2xl lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)]">
+        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1c26] shadow-2xl lg:sticky lg:top-5 lg:h-[calc(100dvh-6.5rem)] lg:min-h-0">
             <header className="border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2">
                     <MessageCircle className="h-5 w-5 text-cyan-300" />
@@ -91,6 +92,7 @@ export function WorkshopChat({
                 ) : (
                     comments.map((comment) => {
                         const isUpvoting = upvotingCommentIds.has(comment.id);
+                        const isCommentApproved = comment.status === 'approved';
                         return (
                             <article
                                 key={comment.id}
@@ -102,10 +104,20 @@ export function WorkshopChat({
                                         <time className="text-[11px] text-slate-600" dateTime={comment.createdAt}>
                                             {CZECH_TIME_FORMAT.format(new Date(comment.createdAt))}
                                         </time>
+                                        {!isCommentApproved && (
+                                            <p className="mt-1 text-[11px] font-medium text-amber-200/80">
+                                                Váš komentář čeká na schválení.
+                                            </p>
+                                        )}
                                     </div>
                                     <button
                                         type="button"
-                                        disabled={comment.isUpvotedByParticipant || isUpvoting}
+                                        disabled={
+                                            !isCommentApproved ||
+                                            isInteractionBanned ||
+                                            comment.isUpvotedByParticipant ||
+                                            isUpvoting
+                                        }
                                         onClick={() => void handleUpvote(comment.id)}
                                         className={`inline-flex min-w-12 items-center justify-center gap-1 rounded-full border px-2.5 py-1 text-xs transition ${comment.isUpvotedByParticipant ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-200' : 'border-white/10 text-slate-500 hover:border-cyan-300/30 hover:text-cyan-200'} disabled:cursor-default`}
                                         aria-label={`Hlasovat pro komentář od ${comment.authorName}`}
@@ -122,31 +134,32 @@ export function WorkshopChat({
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="border-t border-white/10 p-4">
-                {pendingCommentMessage && (
-                    <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-300/15 bg-amber-300/[0.06] px-3 py-2 text-xs leading-5 text-amber-100/80">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> {pendingCommentMessage}
-                    </div>
-                )}
-                <Textarea
-                    value={commentBody}
-                    onChange={(event) => setCommentBody(event.target.value)}
-                    placeholder="Napište otázku nebo komentář…"
-                    maxLength={2000}
-                    className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
-                />
-                <div className="mt-3 flex items-center justify-between gap-3">
-                    <p className="text-[11px] text-slate-600">Komentáře schvaluje moderátor.</p>
-                    <Button
-                        type="submit"
-                        size="sm"
-                        disabled={isSubmitting || !commentBody.trim()}
-                        className="rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200"
-                    >
-                        <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
-                    </Button>
+            {isInteractionBanned ? (
+                <div className="border-t border-white/10 p-4 text-center text-sm leading-6 text-amber-200/80">
+                    Moderátor vám zakázal komentovat a hlasovat.
                 </div>
-            </form>
+            ) : (
+                <form onSubmit={handleSubmit} className="border-t border-white/10 p-4">
+                    <Textarea
+                        value={commentBody}
+                        onChange={(event) => setCommentBody(event.target.value)}
+                        placeholder="Napište otázku nebo komentář…"
+                        maxLength={MAXIMAL_WORKSHOP_COMMENT_LENGTH}
+                        className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
+                    />
+                    <div className="mt-3 flex items-center justify-between gap-3">
+                        <p className="text-[11px] text-slate-600">Komentáře schvaluje moderátor.</p>
+                        <Button
+                            type="submit"
+                            size="sm"
+                            disabled={isSubmitting || !commentBody.trim()}
+                            className="rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                        >
+                            <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
+                        </Button>
+                    </div>
+                </form>
+            )}
         </aside>
     );
 }

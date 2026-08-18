@@ -133,7 +133,11 @@ export function OnlineWorkshopParticipantPage({
                         serverTime={state.serverTime}
                         animatedReactions={controller.animatedReactions}
                     />
-                    <WorkshopReactions emojis={state.workshop.allowedReactions} onReact={controller.react} />
+                    <WorkshopReactions
+                        emojis={state.workshop.allowedReactions}
+                        isInteractionBanned={state.participant.isInteractionBanned}
+                        onReact={controller.react}
+                    />
                     <WorkshopContent
                         contentBlocks={state.contentBlocks}
                         nextContentUnlockAt={state.nextContentUnlockAt}
@@ -143,7 +147,7 @@ export function OnlineWorkshopParticipantPage({
                 <WorkshopChat
                     comments={state.comments}
                     commentSort={controller.commentSort}
-                    pendingCommentMessage={controller.pendingCommentMessage}
+                    isInteractionBanned={state.participant.isInteractionBanned}
                     onChangeSort={controller.changeCommentSort}
                     onSubmitComment={controller.submitComment}
                     onUpvoteComment={controller.upvoteComment}

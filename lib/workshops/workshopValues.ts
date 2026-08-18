@@ -1,5 +1,7 @@
 import type { z } from 'zod';
 import type {
+    workshopArtificialCommentSchema,
+    workshopArtificialReactionSchema,
     workshopContentCreateSchema,
     workshopContentUpdateSchema,
     workshopCreateSchema,
@@ -10,6 +12,8 @@ type WorkshopCreateValues = z.infer<typeof workshopCreateSchema>;
 type WorkshopUpdateValues = z.infer<typeof workshopUpdateSchema>;
 type WorkshopContentCreateValues = z.infer<typeof workshopContentCreateSchema>;
 type WorkshopContentUpdateValues = z.infer<typeof workshopContentUpdateSchema>;
+type WorkshopArtificialCommentValues = z.infer<typeof workshopArtificialCommentSchema>;
+type WorkshopArtificialReactionValues = z.infer<typeof workshopArtificialReactionSchema>;
 
 export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
     return {
@@ -53,5 +57,24 @@ export function createWorkshopContentUpdateDatabaseValues(values: WorkshopConten
         ...(values.unlockAt === undefined ? {} : { unlock_at: values.unlockAt }),
         ...(values.sortOrder === undefined ? {} : { sort_order: values.sortOrder }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
+    };
+}
+
+export function createWorkshopArtificialCommentDatabaseValues(values: WorkshopArtificialCommentValues) {
+    return {
+        participant_id: null,
+        author_name: values.authorName,
+        body: values.body,
+        status: 'approved',
+        is_artificial: true,
+        moderated_at: new Date().toISOString(),
+    };
+}
+
+export function createWorkshopArtificialReactionDatabaseValues(values: WorkshopArtificialReactionValues) {
+    return {
+        participant_id: null,
+        emoji: values.emoji,
+        is_artificial: true,
     };
 }

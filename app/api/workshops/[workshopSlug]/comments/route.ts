@@ -1,6 +1,7 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { workshopCommentSchema } from '@/lib/workshops/workshopSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -27,6 +28,11 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);
+    if (interactionBanResponse) {
+        return interactionBanResponse;
     }
 
     const { data, error } = await authenticatedRequest.supabase

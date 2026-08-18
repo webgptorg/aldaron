@@ -13,8 +13,8 @@ import { getWorkshopRealtimeTopic, WORKSHOP_REALTIME_EVENT_NAME } from '@/lib/wo
 import {
     getContentUnlockRefreshDelay,
     isWorkshopRealtimeEvent,
-    sortWorkshopComments,
 } from '@/lib/workshops/workshopClientState';
+import { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import type { WorkshopCommentSort, WorkshopPublicState, WorkshopReaction } from '@/lib/workshops/workshopTypes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -39,7 +39,6 @@ type WorkshopParticipantController = {
     readonly isConnectionRequired: boolean;
     readonly isRefreshing: boolean;
     readonly errorMessage: string | null;
-    readonly pendingCommentMessage: string | null;
     readonly animatedReactions: readonly AnimatedWorkshopReaction[];
     readonly connect: (values: { readonly fullname: string; readonly email: string }) => Promise<boolean>;
     readonly refresh: () => Promise<boolean>;
@@ -60,7 +59,9 @@ function getCzechApiErrorMessage(error: unknown): string {
         return 'Odeslané údaje nejsou platné. Zkontrolujte je prosím a zkuste to znovu.';
     }
     if (error.status === 403) {
-        return 'Tento požadavek nebylo možné bezpečně ověřit. Obnovte prosím stránku.';
+        return error.message === 'Moderátor vám zakázal komentovat a reagovat.'
+            ? error.message
+            : 'Tento požadavek nebylo možné bezpečně ověřit. Obnovte prosím stránku.';
     }
     if (error.status === 404) {
         return 'Workshopová místnost nebyla nalezena nebo zatím není publikovaná.';
@@ -79,7 +80,6 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [pendingCommentMessage, setPendingCommentMessage] = useState<string | null>(null);
     const [animatedReactions, setAnimatedReactions] = useState<readonly AnimatedWorkshopReaction[]>([]);
     const refreshSequenceRef = useRef(0);
     const rememberedReactionIdsRef = useRef(new Set<string>());
@@ -87,6 +87,11 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const isReactionHistoryLoadedRef = useRef(false);
     const realtimeRefreshTimeoutRef = useRef<number | null>(null);
     const isConnected = state !== null;
+
+    const invalidatePendingRefresh = useCallback(() => {
+        refreshSequenceRef.current += 1;
+        setIsRefreshing(false);
+    }, []);
 
     const rememberReactionId = useCallback((reactionId: string): boolean => {
         if (rememberedReactionIdsRef.current.has(reactionId)) {
@@ -342,15 +347,26 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         async (body: string): Promise<boolean> => {
             setErrorMessage(null);
             try {
-                await submitWorkshopComment(workshopSlug, body);
-                setPendingCommentMessage('Komentář čeká na schválení. Po schválení se automaticky objeví v chatu.');
+                const { comment } = await submitWorkshopComment(workshopSlug, body);
+                invalidatePendingRefresh();
+                setState((currentState) => {
+                    if (currentState === null) {
+                        return currentState;
+                    }
+
+                    const comments = currentState.comments.filter((currentComment) => currentComment.id !== comment.id);
+                    return {
+                        ...currentState,
+                        comments: sortWorkshopComments([...comments, comment], commentSort),
+                    };
+                });
                 return true;
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
                 return false;
             }
         },
-        [workshopSlug],
+        [commentSort, invalidatePendingRefresh, workshopSlug],
     );
 
     const upvoteComment = useCallback(
@@ -415,7 +431,6 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         isConnectionRequired,
         isRefreshing,
         errorMessage,
-        pendingCommentMessage,
         animatedReactions,
         connect,
         refresh,

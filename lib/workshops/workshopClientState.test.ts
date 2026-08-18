@@ -4,6 +4,7 @@ import {
     isWorkshopRealtimeEvent,
     sortWorkshopComments,
 } from '@/lib/workshops/workshopClientState';
+import { getDisplayedWorkshopCommentUpvoteCount } from '@/lib/workshops/workshopCommentValues';
 import type { WorkshopComment } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
 
@@ -40,6 +41,14 @@ describe('workshop comment ordering', () => {
             'older-popular',
             'newer',
         ]);
+    });
+});
+
+describe('workshop comment upvote totals', () => {
+    it('keeps real and artificial counts distinct while never rendering a negative total', () => {
+        expect(getDisplayedWorkshopCommentUpvoteCount(8, 5)).toBe(13);
+        expect(getDisplayedWorkshopCommentUpvoteCount(8, -5)).toBe(3);
+        expect(getDisplayedWorkshopCommentUpvoteCount(0, -5)).toBe(0);
     });
 });
 

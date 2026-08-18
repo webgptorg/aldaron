@@ -2,21 +2,30 @@
 
 import { CreateWorkshopForm } from '@/businesses/workshop-admin/CreateWorkshopForm';
 import {
+    adjustAdminWorkshopCommentArtificialUpvotes,
+    createAdminWorkshopArtificialComment,
     createAdminWorkshop,
     createAdminWorkshopContent,
     deleteAdminWorkshopContent,
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
     moderateAdminWorkshopComment,
+    sendAdminWorkshopArtificialReaction,
     updateAdminWorkshop,
     updateAdminWorkshopContent,
+    updateAdminWorkshopParticipantInteractionBan,
+    type WorkshopArtificialCommentValues,
+    type WorkshopArtificialReactionValues,
     type WorkshopContentWriteValues,
     type WorkshopCreateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { WorkshopArtificialActivity } from '@/businesses/workshop-admin/WorkshopArtificialActivity';
 import { WorkshopCommentModeration } from '@/businesses/workshop-admin/WorkshopCommentModeration';
 import { WorkshopContentAdmin } from '@/businesses/workshop-admin/WorkshopContentAdmin';
+import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
+import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
 import { Button } from '@/components/ui/button';
 import type { WorkshopAdminSnapshot, WorkshopCommentStatus, WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { MessageCircle, Radio, RefreshCw, Users } from 'lucide-react';
@@ -77,7 +86,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             if (snapshotLoadSequence !== snapshotLoadSequenceRef.current) {
                 return;
             }
-            setSnapshot(loadedSnapshot);
+            setSnapshot((currentSnapshot) => mergeWorkshopAdminSnapshot(currentSnapshot, loadedSnapshot));
             setErrorMessage(null);
         } catch (error) {
             if (snapshotLoadSequence === snapshotLoadSequenceRef.current) {
@@ -151,6 +160,37 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             await runAndReload(() => moderateAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, status));
         }
     };
+    const handleAdjustArtificialUpvotes = (commentId: string, artificialUpvoteAdjustment: number) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() =>
+                  adjustAdminWorkshopCommentArtificialUpvotes(
+                      adminToken,
+                      snapshot.workshop.id,
+                      commentId,
+                      artificialUpvoteAdjustment,
+                  ),
+              );
+    const handleCreateArtificialComment = (values: WorkshopArtificialCommentValues) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => createAdminWorkshopArtificialComment(adminToken, snapshot.workshop.id, values));
+    const handleSendArtificialReaction = (values: WorkshopArtificialReactionValues) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => sendAdminWorkshopArtificialReaction(adminToken, snapshot.workshop.id, values));
+    const handleChangeParticipantInteractionBan = async (participantId: string, isInteractionBanned: boolean) => {
+        if (snapshot !== null) {
+            await runAndReload(() =>
+                updateAdminWorkshopParticipantInteractionBan(
+                    adminToken,
+                    snapshot.workshop.id,
+                    participantId,
+                    isInteractionBanned,
+                ),
+            );
+        }
+    };
 
     return (
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -221,6 +261,16 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                             ))}
                         </div>
                         <WorkshopSettingsForm workshop={snapshot.workshop} onSave={handleSaveWorkshop} />
+                        <WorkshopParticipantList
+                            participantCount={snapshot.participantCount}
+                            participants={snapshot.participants}
+                            onChangeInteractionBan={handleChangeParticipantInteractionBan}
+                        />
+                        <WorkshopArtificialActivity
+                            artificialReactionCount={snapshot.artificialReactionCount}
+                            onCreateArtificialComment={handleCreateArtificialComment}
+                            onSendArtificialReaction={handleSendArtificialReaction}
+                        />
                         <WorkshopContentAdmin
                             workshopStartsAt={snapshot.workshop.startsAt}
                             contentBlocks={snapshot.contentBlocks}
@@ -228,7 +278,11 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                             onUpdate={handleUpdateContent}
                             onDelete={handleDeleteContent}
                         />
-                        <WorkshopCommentModeration comments={snapshot.comments} onModerate={handleModerateComment} />
+                        <WorkshopCommentModeration
+                            comments={snapshot.comments}
+                            onModerate={handleModerateComment}
+                            onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
+                        />
                     </>
                 )}
             </div>

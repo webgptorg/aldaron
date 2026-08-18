@@ -1,5 +1,7 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
+import { getDisplayedWorkshopCommentUpvoteCount } from '@/lib/workshops/workshopCommentValues';
 import { WORKSHOP_COMMENT_TABLE_NAME, WORKSHOP_UPVOTE_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,6 +20,11 @@ export async function POST(request: NextRequest, context: WorkshopUpvoteRouteCon
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);
+    if (interactionBanResponse) {
+        return interactionBanResponse;
     }
 
     const { data: comment, error: commentError } = await authenticatedRequest.supabase
@@ -48,7 +55,7 @@ export async function POST(request: NextRequest, context: WorkshopUpvoteRouteCon
 
     const { data: updatedComment, error: updatedCommentError } = await authenticatedRequest.supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
-        .select('upvote_count')
+        .select('upvote_count, artificial_upvote_count')
         .eq('id', commentId)
         .eq('workshop_id', authenticatedRequest.workshopRow.id)
         .single();
@@ -57,7 +64,10 @@ export async function POST(request: NextRequest, context: WorkshopUpvoteRouteCon
         return NextResponse.json({ error: 'Upvote total could not be loaded' }, { status: 500 });
     }
 
-    const upvoteCount = updatedComment.upvote_count as number;
+    const upvoteCount = getDisplayedWorkshopCommentUpvoteCount(
+        updatedComment.upvote_count as number,
+        updatedComment.artificial_upvote_count as number,
+    );
     if (!upvoteError) {
         await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, {
             kind: 'upvote',

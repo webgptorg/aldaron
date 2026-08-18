@@ -1,4 +1,7 @@
 import {
+    workshopArtificialCommentSchema,
+    workshopArtificialReactionSchema,
+    workshopCommentArtificialUpvoteSchema,
     workshopConnectionSchema,
     workshopContentCreateSchema,
     workshopCreateSchema,
@@ -60,5 +63,16 @@ describe('workshop request validation', () => {
 
     it('trims an allowed reaction before comparing it with workshop settings', () => {
         expect(workshopReactionSchema.parse({ emoji: '  👏  ' })).toEqual({ emoji: '👏' });
+    });
+
+    it('validates artificial workshop actions independently from participant actions', () => {
+        expect(
+            workshopArtificialCommentSchema.parse({ authorName: ' Moderátor ', body: ' Přidejme tento dotaz. ' }),
+        ).toEqual({ authorName: 'Moderátor', body: 'Přidejme tento dotaz.' });
+        expect(workshopArtificialReactionSchema.parse({ emoji: ' 🚀 ' })).toEqual({ emoji: '🚀' });
+        expect(workshopCommentArtificialUpvoteSchema.parse({ artificialUpvoteAdjustment: -12 })).toEqual({
+            artificialUpvoteAdjustment: -12,
+        });
+        expect(workshopCommentArtificialUpvoteSchema.safeParse({ artificialUpvoteAdjustment: 0 }).success).toBe(false);
     });
 });

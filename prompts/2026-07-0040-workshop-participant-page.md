@@ -29,7 +29,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.6863 43 minutes; Testing a few seconds
 
 [✨🛳] Do some changes and fixes of `/cs/online-workshop/participant` and `/admin/workshops`
 
@@ -46,3 +46,4 @@
 - If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-1.sql`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality of workshop logic before you start implementing.
+

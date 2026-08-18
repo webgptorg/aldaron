@@ -14,6 +14,7 @@ type WorkshopParticipantRow = {
     readonly id: string;
     readonly fullname: string;
     readonly connected_at: string;
+    readonly is_interaction_banned: boolean;
 };
 
 export function createWorkshopSessionToken(): string {
@@ -33,6 +34,7 @@ export function mapWorkshopParticipantRow(row: WorkshopParticipantRow): Workshop
         id: row.id,
         fullname: row.fullname,
         connectedAt: row.connected_at,
+        isInteractionBanned: row.is_interaction_banned,
     };
 }
 
@@ -54,7 +56,7 @@ export async function createWorkshopParticipant(
             ip_address: readClientIpAddress(request),
             user_agent: request.headers.get('user-agent')?.slice(0, MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH),
         })
-        .select('id, fullname, connected_at')
+        .select('id, fullname, connected_at, is_interaction_banned')
         .single();
 
     if (error || data === null) {
@@ -79,7 +81,7 @@ export async function authenticateWorkshopParticipant(
 
     const { data, error } = await supabase
         .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-        .select('id, fullname, connected_at')
+        .select('id, fullname, connected_at, is_interaction_banned')
         .eq('workshop_id', workshopId)
         .eq('session_token_hash', hashWorkshopSessionToken(sessionToken))
         .maybeSingle();
@@ -89,5 +91,18 @@ export async function authenticateWorkshopParticipant(
         return null;
     }
 
-    return data === null ? null : mapWorkshopParticipantRow(data as WorkshopParticipantRow);
+    if (data === null) {
+        return null;
+    }
+
+    const { error: activityError } = await supabase
+        .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', data.id)
+        .eq('workshop_id', workshopId);
+    if (activityError) {
+        console.error('Failed to update workshop participant activity:', activityError.message);
+    }
+
+    return mapWorkshopParticipantRow(data as WorkshopParticipantRow);
 }

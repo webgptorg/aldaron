@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page');
+const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page.sql');
 const MIGRATION_SQL = readFileSync(MIGRATION_PATH, 'utf8');
+const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-1.sql');
+const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -61,5 +63,14 @@ describe('workshop database migration', () => {
         expect(realtimePolicySql).toContain('FOR SELECT');
         expect(realtimePolicySql).toContain('TO anon, authenticated');
         expect(realtimePolicySql).not.toContain('FOR INSERT');
+    });
+
+    it('marks artificial actions and participant interaction bans in the follow-up migration', () => {
+        expect(MODERATION_MIGRATION_SQL).toContain('is_interaction_banned boolean NOT NULL DEFAULT false');
+        expect(MODERATION_MIGRATION_SQL).toContain('is_artificial boolean NOT NULL DEFAULT false');
+        expect(MODERATION_MIGRATION_SQL).toContain('artificial_upvote_count integer NOT NULL DEFAULT 0');
+        expect(MODERATION_MIGRATION_SQL).toContain('ALTER COLUMN participant_id DROP NOT NULL');
+        expect(MODERATION_MIGRATION_SQL).toContain('adjust_workshop_comment_artificial_upvotes');
+        expect(MODERATION_MIGRATION_SQL).toContain('IF NEW.is_artificial THEN');
     });
 });

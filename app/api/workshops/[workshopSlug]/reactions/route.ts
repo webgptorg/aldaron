@@ -2,6 +2,7 @@ import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_REACTION_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { mapWorkshopReactionRow } from '@/lib/workshops/workshopDatabase';
+import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { workshopReactionSchema } from '@/lib/workshops/workshopSchemas';
@@ -29,6 +30,11 @@ export async function POST(request: NextRequest, context: WorkshopReactionsRoute
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);
+    if (interactionBanResponse) {
+        return interactionBanResponse;
     }
 
     if (!authenticatedRequest.workshopRow.allowed_reactions.includes(parsedResult.data.emoji)) {

@@ -1,7 +1,9 @@
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import {
+    MAXIMAL_ADMIN_PARTICIPANT_LIST_COUNT,
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
+    MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
     WORKSHOP_CONTENT_TABLE_NAME,
     WORKSHOP_PARTICIPANT_TABLE_NAME,
@@ -9,8 +11,10 @@ import {
     WORKSHOP_TABLE_NAME,
     WORKSHOP_UPVOTE_TABLE_NAME,
 } from '@/lib/workshops/workshopConstants';
+import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import type {
     WorkshopAdminComment,
+    WorkshopAdminParticipant,
     WorkshopAdminSnapshot,
     WorkshopComment,
     WorkshopCommentSort,
@@ -51,12 +55,23 @@ type WorkshopContentRow = {
 
 type WorkshopCommentRow = {
     readonly id: string;
-    readonly participant_id: string;
+    readonly participant_id: string | null;
     readonly author_name: string;
     readonly body: string;
     readonly status: 'pending' | 'approved' | 'rejected';
     readonly upvote_count: number;
+    readonly artificial_upvote_count: number;
+    readonly is_artificial: boolean;
     readonly created_at: string;
+};
+
+type WorkshopAdminParticipantRow = {
+    readonly id: string;
+    readonly fullname: string;
+    readonly email: string;
+    readonly connected_at: string;
+    readonly last_seen_at: string;
+    readonly is_interaction_banned: boolean;
 };
 
 type WorkshopReactionRow = {
@@ -125,9 +140,20 @@ function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: 
         authorName: row.author_name,
         body: row.body,
         status: row.status,
-        upvoteCount: row.upvote_count,
+        upvoteCount: getDisplayedWorkshopCommentUpvoteCount(row.upvote_count, row.artificial_upvote_count),
         isUpvotedByParticipant,
         createdAt: row.created_at,
+    };
+}
+
+function mapWorkshopAdminParticipantRow(row: WorkshopAdminParticipantRow): WorkshopAdminParticipant {
+    return {
+        id: row.id,
+        fullname: row.fullname,
+        email: row.email,
+        connectedAt: row.connected_at,
+        lastSeenAt: row.last_seen_at,
+        isInteractionBanned: row.is_interaction_banned,
     };
 }
 
@@ -177,19 +203,15 @@ export async function loadWorkshopPublicState(
     commentSort: WorkshopCommentSort,
 ): Promise<LoadedWorkshopPublicState> {
     const contentVisibilityCutoff = new Date().toISOString();
-    let commentsQuery = supabase
+    const commentsQuery = supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
-        .select('id, participant_id, author_name, body, status, upvote_count, created_at')
+        .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
         .eq('workshop_id', workshopRow.id)
         .eq('status', 'approved')
+        .order('created_at', { ascending: false })
         .limit(MAXIMAL_VISIBLE_COMMENT_COUNT);
 
-    commentsQuery =
-        commentSort === 'upvotes'
-            ? commentsQuery.order('upvote_count', { ascending: false }).order('created_at', { ascending: false })
-            : commentsQuery.order('created_at', { ascending: false });
-
-    const [contentResult, nextUnlockResult, commentsResult, reactionsResult] = await Promise.all([
+    const [contentResult, nextUnlockResult, commentsResult, pendingCommentsResult, reactionsResult] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
             .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
@@ -209,6 +231,14 @@ export async function loadWorkshopPublicState(
             .maybeSingle(),
         commentsQuery,
         supabase
+            .from(WORKSHOP_COMMENT_TABLE_NAME)
+            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
+            .eq('workshop_id', workshopRow.id)
+            .eq('participant_id', participant.id)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT),
+        supabase
             .from(WORKSHOP_REACTION_TABLE_NAME)
             .select('id, emoji, created_at')
             .eq('workshop_id', workshopRow.id)
@@ -216,12 +246,20 @@ export async function loadWorkshopPublicState(
             .limit(MAXIMAL_RECENT_REACTION_COUNT),
     ]);
 
-    const firstError = contentResult.error ?? nextUnlockResult.error ?? commentsResult.error ?? reactionsResult.error;
+    const firstError =
+        contentResult.error ??
+        nextUnlockResult.error ??
+        commentsResult.error ??
+        pendingCommentsResult.error ??
+        reactionsResult.error;
     if (firstError) {
         return { state: null, errorMessage: firstError.message };
     }
 
-    const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
+    const commentRows = [
+        ...((commentsResult.data ?? []) as WorkshopCommentRow[]),
+        ...((pendingCommentsResult.data ?? []) as WorkshopCommentRow[]),
+    ];
     const commentIds = commentRows.map(({ id }) => id);
     let upvotedCommentIds = new Set<string>();
 
@@ -247,7 +285,10 @@ export async function loadWorkshopPublicState(
             participant,
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
-            comments: commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id))),
+            comments: sortWorkshopComments(
+                commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id))),
+                commentSort,
+            ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
         },
         errorMessage: null,
@@ -263,8 +304,10 @@ export async function loadWorkshopAdminSnapshot(
         pendingCommentsResult,
         moderatedCommentsResult,
         commentsCountResult,
+        participantCountResult,
         participantsResult,
         reactionsResult,
+        artificialReactionsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -274,14 +317,14 @@ export async function loadWorkshopAdminSnapshot(
             .order('unlock_at', { ascending: true }),
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select('id, participant_id, author_name, body, status, upvote_count, created_at')
+            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
             .eq('workshop_id', workshopRow.id)
             .eq('status', 'pending')
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_ADMIN_PENDING_COMMENT_COUNT),
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select('id, participant_id, author_name, body, status, upvote_count, created_at')
+            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
             .eq('workshop_id', workshopRow.id)
             .in('status', ['approved', 'rejected'])
             .order('created_at', { ascending: false })
@@ -295,9 +338,20 @@ export async function loadWorkshopAdminSnapshot(
             .select('id', { count: 'exact', head: true })
             .eq('workshop_id', workshopRow.id),
         supabase
+            .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+            .select('id, fullname, email, connected_at, last_seen_at, is_interaction_banned')
+            .eq('workshop_id', workshopRow.id)
+            .order('connected_at', { ascending: false })
+            .limit(MAXIMAL_ADMIN_PARTICIPANT_LIST_COUNT),
+        supabase
             .from(WORKSHOP_REACTION_TABLE_NAME)
             .select('id', { count: 'exact', head: true })
             .eq('workshop_id', workshopRow.id),
+        supabase
+            .from(WORKSHOP_REACTION_TABLE_NAME)
+            .select('id', { count: 'exact', head: true })
+            .eq('workshop_id', workshopRow.id)
+            .eq('is_artificial', true),
     ]);
 
     const firstError =
@@ -305,8 +359,10 @@ export async function loadWorkshopAdminSnapshot(
         pendingCommentsResult.error ??
         moderatedCommentsResult.error ??
         commentsCountResult.error ??
+        participantCountResult.error ??
         participantsResult.error ??
-        reactionsResult.error;
+        reactionsResult.error ??
+        artificialReactionsResult.error;
     if (firstError) {
         return { snapshot: null, errorMessage: firstError.message };
     }
@@ -318,6 +374,9 @@ export async function loadWorkshopAdminSnapshot(
     const comments = commentRows.map((row): WorkshopAdminComment => ({
         ...mapWorkshopCommentRow(row, false),
         participantId: row.participant_id,
+        isArtificial: row.is_artificial,
+        realUpvoteCount: row.upvote_count,
+        artificialUpvoteCount: row.artificial_upvote_count,
     }));
 
     return {
@@ -325,9 +384,13 @@ export async function loadWorkshopAdminSnapshot(
             workshop: mapWorkshopRow(workshopRow),
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
             comments,
-            participantCount: participantsResult.count ?? 0,
+            participants: ((participantsResult.data ?? []) as WorkshopAdminParticipantRow[]).map(
+                mapWorkshopAdminParticipantRow,
+            ),
+            participantCount: participantCountResult.count ?? 0,
             commentCount: commentsCountResult.count ?? 0,
             reactionCount: reactionsResult.count ?? 0,
+            artificialReactionCount: artificialReactionsResult.count ?? 0,
         },
         errorMessage: null,
     };

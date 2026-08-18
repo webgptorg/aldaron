@@ -1,7 +1,10 @@
 import {
     DEFAULT_WORKSHOP_REACTIONS,
+    MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT,
+    MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
+    MAXIMAL_WORKSHOP_REACTION_LENGTH,
 } from '@/lib/workshops/workshopConstants';
 import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 import { z } from 'zod';
@@ -9,7 +12,8 @@ import { z } from 'zod';
 const WORKSHOP_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const nullableTimestampSchema = z.string().datetime({ offset: true }).nullable();
-const workshopReactionEmojiSchema = z.string().trim().min(1).max(16);
+const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_REACTION_LENGTH);
+const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
 const workshopAllowedReactionsSchema = z
     .array(workshopReactionEmojiSchema)
     .min(1)
@@ -39,7 +43,7 @@ export const workshopConnectionSchema = z.object({
 });
 
 export const workshopCommentSchema = z.object({
-    body: z.string().trim().min(1).max(2000),
+    body: workshopCommentBodySchema,
 });
 
 export const workshopReactionSchema = z.object({
@@ -48,6 +52,26 @@ export const workshopReactionSchema = z.object({
 
 export const workshopCommentModerationSchema = z.object({
     status: z.enum(['approved', 'rejected']),
+});
+
+export const workshopArtificialCommentSchema = z.object({
+    authorName: z.string().trim().min(1).max(MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH),
+    body: workshopCommentBodySchema,
+});
+
+export const workshopArtificialReactionSchema = workshopReactionSchema;
+
+export const workshopCommentArtificialUpvoteSchema = z.object({
+    artificialUpvoteAdjustment: z
+        .number()
+        .int()
+        .min(-MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT)
+        .max(MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT)
+        .refine((value) => value !== 0, 'Artificial upvote adjustment cannot be zero'),
+});
+
+export const workshopParticipantInteractionBanSchema = z.object({
+    isInteractionBanned: z.boolean(),
 });
 
 export const workshopCreateSchema = z
