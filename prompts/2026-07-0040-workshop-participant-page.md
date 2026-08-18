@@ -47,3 +47,45 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality of workshop logic before you start implementing.
 
+---
+
+[ ]
+
+[✨🛳] Do some changes and fixes of `/cs/online-workshop/participant` and `/admin/workshops`
+
+- When showing the list of the participants, show also how many comments, reactions, link clicks, and upvotes the participant made and how long he spent there.
+- Send useful information to Google Analytics.
+- In administration allow deleting a participant or a comment.
+    - Keep the option for disabling interactions, but there should also be a possibility to completely delete the participant or a comment because there will be a lot of participants just for testing purposes.
+    - Confirmation should be asked before deleting a participant or a comment.
+    - Also allow to clean up all the reactions. (Delete them from the database.)
+        - We want to do this before the workshop to see the real amount of the reactions without the testing ones.
+- The artificial upvotes aren't saving - ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-2.png)
+- In the materials, there can be links.
+    - When the user clicks on the link, it should open in a new tab.
+    - Track the clicks on the links and show it in the administration.
+    - Show information about number of link clicks alongside each material and each participant.
+    - Automatically add UTM tracking links to that link.
+- Video should have hidden controls and should be autoplayed, also turn off captions
+- There should be a bigger warning that the user needs to unmute the video, probably as some nice arrow with the text pointing to a place where the user should unmute the video.
+- This warning should disappear when the user does this action.
+- The chat is moderated, but the user shouldn't know about this fact. Do not show their notes that the comments need to be approved.
+- When the user has disabled interactions, he should still be able to write commands, but these commands should automatically be marked as rejected.
+- The Commons should have three states:
+    - Pending
+    - Approved
+    - Rejected
+- Also allow admin to make a user trusted, and his comments will be automatically approved.
+- Allow markdown formatting in the comments, but disable images, HTML, and other advanced features of the markdown. Allow the basic formatting like bold, italic, and underline....
+- In the administration, by default show only the pending comments. Only when the admin selects, he can see the approved or rejected comments.
+- For each material in the administration, allow it to unlock immediately.
+- When the new material is unlocked, there are some nice animation for the participants, so that they can see that new material is unlocked.
+- If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-2.sql`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[-]
+
+[✨🛳] Each emoji in `/admin/workshops` Should have its own unique reaction animation
