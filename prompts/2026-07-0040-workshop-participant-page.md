@@ -27,3 +27,22 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 
+---
+
+[ ]
+
+[✨🛳] Do some changes and fixes of `/cs/online-workshop/participant` and `/admin/workshops`
+
+- Comments should be shown immediately for the person who wrote them, when the admin approves them, they will be visible to all participants.
+- In administration allow to artificially set a positive or negative number of reactions for a comment, so that we can artificially add or remove reactions even if this comment is (not) popular.
+- Also allow to create completely new comments in the admin panel, so that we can add some comments to the chat even if no participant has written them.
+- Also allow to send arbitrary reaction (even reaction not listed for participants) from the admin panel
+- All of these artificial options should be clearly marked as "artificial" in the admin panel and the database, so that we can distinguish them from the real ones.
+- In the administration panel show number and list of the participants
+- Allow to ban a participant from the commenting and reacting, so that they can only watch the stream and the content, but they cannot comment or react.
+- On `/admin/workshops` when I am entering anything, it often "blinks" back to the saved version, so I cannot edit it or must edit it very fast and save it.
+- The button "Odeslat" is just bellow the page fold, fix it ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-1.png)
+- Fix ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page.png)
+- If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-1.sql`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
