@@ -145,6 +145,8 @@
 
 [✨🛳] Allow to reply in chat and also for admin allow to pin one message in `/cs/online-workshop/participant`
 
+- Also in admin allow to pin one message, so that it is always on the top of the chat and all participants can see it.
+- Also allow to edit a message in the admin panel, so that we can fix typos or add some information to the message.
 - Keep in mind the DRY _(don't repeat yourself)_ principle
 - If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-3.sql`
 - Do a proper analysis of the current functionality of workshop logic before you start implementing.
