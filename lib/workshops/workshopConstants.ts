@@ -16,6 +16,14 @@ export const MAXIMAL_WORKSHOP_REACTION_LENGTH = 16;
 export const MAXIMAL_WORKSHOP_COMMENT_LENGTH = 2_000;
 export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
 
+/**
+ * How long after their last request a participant still counts as watching the workshop
+ *
+ * Note: An open room reports its presence every 30 seconds and reloads the whole state at most every 150 seconds,
+ *       so this window stays above both to never drop an attentive participant out of the count.
+ */
+export const WORKSHOP_WATCHING_WINDOW_SECONDS = 180;
+
 export const MAXIMAL_VISIBLE_COMMENT_COUNT = 200;
 export const MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT = 50;
 export const MAXIMAL_RECENT_REACTION_COUNT = 50;

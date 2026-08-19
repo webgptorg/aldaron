@@ -1,5 +1,6 @@
 'use client';
 
+import { WORKSHOP_ROOM_BADGE_CLASS_NAME } from '@/businesses/online-workshop/participant/workshopRoomBadge';
 import { Input } from '@/components/ui/input';
 import { MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH } from '@/lib/workshops/workshopConstants';
 import { isWorkshopParticipantFullnameValid } from '@/lib/workshops/workshopParticipantFullname';
@@ -28,8 +29,7 @@ type WorkshopParticipantBadgeProps = {
     readonly onChangeFullname: (fullname: string) => Promise<boolean>;
 };
 
-const BADGE_CLASS_NAME =
-    'flex min-w-0 max-w-full shrink items-center gap-2 self-end rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] text-xs font-medium leading-5 text-emerald-200 sm:self-auto';
+const BADGE_CLASS_NAME = `${WORKSHOP_ROOM_BADGE_CLASS_NAME} border-emerald-300/15 bg-emerald-300/[0.06] text-emerald-200`;
 const BADGE_ACTION_CLASS_NAME =
     'shrink-0 rounded-full p-1.5 text-emerald-200/70 transition hover:bg-emerald-300/10 hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-40';
 

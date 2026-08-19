@@ -1,5 +1,6 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import { countWatchingWorkshopParticipants } from '@/lib/workshops/workshopDatabase';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { workshopPresenceSchema } from '@/lib/workshops/workshopSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -36,5 +37,11 @@ export async function POST(request: NextRequest, context: WorkshopPresenceRouteC
         return NextResponse.json({ error: 'Active duration could not be saved' }, { status: 500 });
     }
 
-    return new NextResponse(null, { status: 204 });
+    // Answering the heartbeat with the live audience keeps the count fresh without a poll of its own.
+    const watchingParticipantCount = await countWatchingWorkshopParticipants(
+        authenticatedRequest.supabase,
+        authenticatedRequest.workshopRow.id,
+    );
+
+    return NextResponse.json({ watchingParticipantCount }, { headers: { 'Cache-Control': 'no-store' } });
 }

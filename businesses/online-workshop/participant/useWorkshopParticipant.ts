@@ -288,6 +288,17 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         trackGoogleAnalyticsEvent('workshop_connected', { workshop_slug: state.workshop.slug });
     }, [state]);
 
+    const applyWatchingParticipantCount = useCallback((watchingParticipantCount: number) => {
+        // A count which did not survive the way back from the room is dropped, so the room keeps showing the last one.
+        if (!Number.isSafeInteger(watchingParticipantCount) || watchingParticipantCount < 0) {
+            return;
+        }
+
+        setState((currentState) =>
+            currentState === null ? currentState : { ...currentState, watchingParticipantCount },
+        );
+    }, []);
+
     const reportCurrentPresence = useCallback(() => {
         const reportedAtMilliseconds = Date.now();
         const previousReportAtMilliseconds = lastPresenceReportAtRef.current;
@@ -304,10 +315,12 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             return;
         }
 
-        void reportWorkshopPresence(workshopSlug, activeDurationSeconds).catch((error) => {
-            console.warn('Failed to report workshop participant presence:', error);
-        });
-    }, [workshopSlug]);
+        void reportWorkshopPresence(workshopSlug, activeDurationSeconds)
+            .then(({ watchingParticipantCount }) => applyWatchingParticipantCount(watchingParticipantCount))
+            .catch((error) => {
+                console.warn('Failed to report workshop participant presence:', error);
+            });
+    }, [applyWatchingParticipantCount, workshopSlug]);
 
     useEffect(() => {
         if (!isConnected) {

@@ -8,6 +8,8 @@ const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-0
 const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
 const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql');
 const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
+const WATCHING_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
+const WATCHING_MIGRATION_SQL = readFileSync(WATCHING_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -82,5 +84,10 @@ describe('workshop database migration', () => {
         expect(ANALYTICS_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_content_link_clicks');
         expect(ANALYTICS_MIGRATION_SQL).toContain('record_workshop_participant_presence');
         expect(ANALYTICS_MIGRATION_SQL).toContain('get_workshop_participant_activity_totals');
+    });
+
+    it('indexes the participants seen recently so the watching count stays cheap', () => {
+        expect(WATCHING_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshop_participants_watching_idx');
+        expect(WATCHING_MIGRATION_SQL).toContain('public.workshop_participants (workshop_id, last_seen_at DESC)');
     });
 });

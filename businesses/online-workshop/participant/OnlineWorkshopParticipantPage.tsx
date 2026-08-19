@@ -10,6 +10,7 @@ import { WorkshopContent } from '@/businesses/online-workshop/participant/Worksh
 import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
+import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
@@ -118,12 +119,15 @@ export function OnlineWorkshopParticipantPage({
                             <p className="hidden text-xs text-slate-500 sm:block">Online workshop · Promptbook</p>
                         </div>
                     </div>
-                    <WorkshopParticipantBadge
-                        fullname={state.participant.fullname}
-                        isInteractionBanned={state.participant.isInteractionBanned}
-                        isRefreshing={controller.isRefreshing}
-                        onChangeFullname={controller.changeFullname}
-                    />
+                    <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <WorkshopWatchingBadge watchingParticipantCount={state.watchingParticipantCount} />
+                        <WorkshopParticipantBadge
+                            fullname={state.participant.fullname}
+                            isInteractionBanned={state.participant.isInteractionBanned}
+                            isRefreshing={controller.isRefreshing}
+                            onChangeFullname={controller.changeFullname}
+                        />
+                    </div>
                 </div>
             </header>
 

@@ -68,6 +68,11 @@ export type WorkshopPublicState = {
     readonly serverTime: string;
     readonly workshop: WorkshopDetails;
     readonly participant: WorkshopParticipant;
+
+    /**
+     * How many participants had the room open recently, including the one this state was loaded for
+     */
+    readonly watchingParticipantCount: number;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly nextContentUnlockAt: string | null;
     readonly comments: readonly WorkshopComment[];

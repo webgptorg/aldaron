@@ -10,6 +10,7 @@ import {
     WORKSHOP_REACTION_TABLE_NAME,
     WORKSHOP_TABLE_NAME,
     WORKSHOP_UPVOTE_TABLE_NAME,
+    WORKSHOP_WATCHING_WINDOW_SECONDS,
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import type {
@@ -226,6 +227,32 @@ type LoadedWorkshopPublicState = {
     readonly errorMessage: string | null;
 };
 
+/**
+ * Counts the participants whose browser talked to the room within the watching window
+ *
+ * Note: Every authenticated request refreshes `last_seen_at`, so an open room keeps itself in this count through its
+ *       presence reports and state reloads, while a closed one falls out of it once the window passes.
+ * Note: An unavailable count must never take the whole room down with it, so a failure is reported as nobody watching.
+ */
+export async function countWatchingWorkshopParticipants(
+    supabase: SupabaseClient,
+    workshopId: string,
+): Promise<number> {
+    const watchingSince = new Date(Date.now() - WORKSHOP_WATCHING_WINDOW_SECONDS * 1_000).toISOString();
+    const { count, error } = await supabase
+        .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+        .select('id', { count: 'exact', head: true })
+        .eq('workshop_id', workshopId)
+        .gte('last_seen_at', watchingSince);
+
+    if (error) {
+        console.error('Failed to count the participants watching a workshop:', error.message);
+        return 0;
+    }
+
+    return count ?? 0;
+}
+
 export async function loadWorkshopPublicState(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
@@ -241,7 +268,14 @@ export async function loadWorkshopPublicState(
         .order('created_at', { ascending: false })
         .limit(MAXIMAL_VISIBLE_COMMENT_COUNT);
 
-    const [contentResult, nextUnlockResult, commentsResult, pendingCommentsResult, reactionsResult] = await Promise.all([
+    const [
+        contentResult,
+        nextUnlockResult,
+        commentsResult,
+        pendingCommentsResult,
+        reactionsResult,
+        watchingParticipantCount,
+    ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
             .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
@@ -274,6 +308,7 @@ export async function loadWorkshopPublicState(
             .eq('workshop_id', workshopRow.id)
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_RECENT_REACTION_COUNT),
+        countWatchingWorkshopParticipants(supabase, workshopRow.id),
     ]);
 
     const firstError =
@@ -313,6 +348,7 @@ export async function loadWorkshopPublicState(
             serverTime: new Date().toISOString(),
             workshop: mapWorkshopRow(workshopRow),
             participant,
+            watchingParticipantCount,
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
             comments: sortWorkshopComments(

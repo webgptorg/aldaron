@@ -120,7 +120,10 @@ export async function recordWorkshopMaterialLinkClick(workshopSlug: string, cont
     }
 }
 
-export async function reportWorkshopPresence(workshopSlug: string, activeDurationSeconds: number): Promise<void> {
+export async function reportWorkshopPresence(
+    workshopSlug: string,
+    activeDurationSeconds: number,
+): Promise<{ readonly watchingParticipantCount: number }> {
     const response = await fetch(getWorkshopApiUrl(workshopSlug, 'presence'), {
         method: 'POST',
         credentials: 'same-origin',
@@ -128,7 +131,5 @@ export async function reportWorkshopPresence(workshopSlug: string, activeDuratio
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activeDurationSeconds }),
     });
-    if (!response.ok) {
-        await readResponseJson(response);
-    }
+    return readResponseJson(response);
 }
