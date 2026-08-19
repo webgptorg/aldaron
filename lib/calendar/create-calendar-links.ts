@@ -17,6 +17,13 @@ const ENCODED_ICALENDAR_LINE_SEPARATOR = '%0D%0A';
  */
 export type CalendarEvent = {
     /**
+     * Stable identity of the event, so that a calendar updates the event it already knows instead of adding another one
+     *
+     * Note: When it is missing, the moment the event starts identifies it.
+     */
+    readonly id?: string;
+
+    /**
      * Headline of the event shown in the calendar
      */
     readonly title: string;
@@ -77,6 +84,14 @@ function escapeIcalendarText(text: string): string {
 }
 
 /**
+ * Joins the details of an event with its url, so that the link stays reachable in every calendar which shows only the
+ * description of an event
+ */
+function createEventDetails(event: CalendarEvent): string {
+    return `${event.description}\n\n${event.url}`;
+}
+
+/**
  * Builds the url opening the event prefilled in Google Calendar
  */
 function createGoogleCalendarUrl(event: CalendarEvent): string {
@@ -84,7 +99,7 @@ function createGoogleCalendarUrl(event: CalendarEvent): string {
         action: 'TEMPLATE',
         text: event.title,
         dates: `${formatUtcTimestamp(event.startsAt)}/${formatUtcTimestamp(event.endsAt)}`,
-        details: `${event.description}\n\n${event.url}`,
+        details: createEventDetails(event),
         location: event.url,
     });
 
@@ -107,12 +122,13 @@ function createIcalendarDataUrl(event: CalendarEvent): string {
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'BEGIN:VEVENT',
-        `UID:${startTimestamp}@${new URL(event.url).hostname}`,
+        `UID:${event.id ?? startTimestamp}@${new URL(event.url).hostname}`,
         `DTSTAMP:${startTimestamp}`,
         `DTSTART:${startTimestamp}`,
         `DTEND:${formatUtcTimestamp(event.endsAt)}`,
         `SUMMARY:${escapeIcalendarText(event.title)}`,
-        `DESCRIPTION:${escapeIcalendarText(event.description)}`,
+        `DESCRIPTION:${escapeIcalendarText(createEventDetails(event))}`,
+        `LOCATION:${escapeIcalendarText(event.url)}`,
         `URL:${escapeIcalendarText(event.url)}`,
         'END:VEVENT',
         'END:VCALENDAR',

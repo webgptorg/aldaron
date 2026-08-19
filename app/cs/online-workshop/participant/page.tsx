@@ -1,5 +1,5 @@
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
-import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { ONLINE_WORKSHOP_PARTICIPANT_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import { ONLINE_WORKSHOP_PARTICIPANT_METADATA } from '@/businesses/online-workshop/onlineWorkshopMetadata';
 import { readWorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 
@@ -27,6 +27,10 @@ export default async function OnlineWorkshopParticipantRoute({ searchParams }: O
                 description: onlineWorkshopConfig.participant.description,
                 dateLabel: `${onlineWorkshopConfig.date.weekdayLabel} ${onlineWorkshopConfig.date.dateLabel} · ${onlineWorkshopConfig.date.time}`,
                 durationLabel: onlineWorkshopConfig.date.durationLabel,
+            }}
+            calendarDetails={{
+                hostFullname: onlineWorkshopConfig.host.fullname,
+                participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
             }}
             initialEmail={participantIdentity.email}
             initialFullname={participantIdentity.fullname}

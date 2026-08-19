@@ -1,5 +1,6 @@
 'use client';
 
+import { WorkshopCalendarInvitation } from '@/businesses/online-workshop/participant/WorkshopCalendarInvitation';
 import { WorkshopChat } from '@/businesses/online-workshop/participant/WorkshopChat';
 import {
     WorkshopConnectionForm,
@@ -13,9 +14,18 @@ import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
 
+/**
+ * What it takes to offer this workshop to the calendar of a participant
+ */
+export type WorkshopCalendarDetails = {
+    readonly hostFullname: string;
+    readonly participantPath: string;
+};
+
 type OnlineWorkshopParticipantPageProps = {
     readonly workshopSlug: string;
     readonly connectionDetails: WorkshopConnectionDetails;
+    readonly calendarDetails: WorkshopCalendarDetails;
     readonly initialEmail: string;
     readonly initialFullname: string;
 };
@@ -23,10 +33,11 @@ type OnlineWorkshopParticipantPageProps = {
 export function OnlineWorkshopParticipantPage({
     workshopSlug,
     connectionDetails,
+    calendarDetails,
     initialEmail,
     initialFullname,
 }: OnlineWorkshopParticipantPageProps) {
-    const controller = useWorkshopParticipant(workshopSlug);
+    const controller = useWorkshopParticipant(workshopSlug, initialEmail);
 
     useEffect(() => {
         if (controller.state === null) {
@@ -135,6 +146,16 @@ export function OnlineWorkshopParticipantPage({
                         workshop={state.workshop}
                         serverTime={state.serverTime}
                         animatedReactions={controller.animatedReactions}
+                    />
+                    <WorkshopCalendarInvitation
+                        workshop={state.workshop}
+                        serverTime={state.serverTime}
+                        hostFullname={calendarDetails.hostFullname}
+                        participantPath={calendarDetails.participantPath}
+                        participantIdentity={{
+                            email: controller.participantEmail,
+                            fullname: state.participant.fullname,
+                        }}
                     />
                     <WorkshopReactions
                         emojis={state.workshop.allowedReactions}

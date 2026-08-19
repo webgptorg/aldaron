@@ -24,6 +24,10 @@ export const ONLINE_WORKSHOP_PARTICIPANT_PATH = `${ONLINE_WORKSHOP_PATH}/partici
 export const ONLINE_WORKSHOP_SLUG = 'online-workshop-2026-08-20';
 
 export const onlineWorkshopConfig = {
+    // Note: The first name of the host names the calendar event of every participant, such as `Karel <> Pavol - ...`.
+    host: {
+        fullname: 'Pavol Hejný',
+    },
     participant: {
         title: 'Produkční kód s AI agenty',
         description: 'Místnost pro účastníky workshopu s Pavolem Hejným a Jiřím Jahnem.',

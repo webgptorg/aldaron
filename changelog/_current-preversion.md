@@ -21,3 +21,4 @@
 - Added the download of the contacts as a CSV or a vCard file, which always exports the current view and says next to the buttons how many contacts that is.
 - Fixed the contacts CSV export mangling the diacritics in spreadsheet editors, and stopped a note being sent to the server on every single keystroke.
 - Added the reusable `/cs/online-workshop/participant` live room with participant sessions, a server-synchronized countdown and YouTube stream, timed Markdown materials, moderated chat, upvotes, animated reactions, an RLS-secured Supabase model, and workshop administration from the new `/admin` dashboard.
+- Offered the workshop to the calendar of a participant from the `/cs/online-workshop/participant` room as long as it has not started, as a `Karel <> Pavol - Produkční kód s AI agenty` event built from the live workshop details and carrying a prefilled link back into the room, and moved the registration confirmation onto the very same shared calendar code.

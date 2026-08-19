@@ -86,7 +86,7 @@
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $9.40 27 minutes; Testing a minute
 
 [✨🛳] Add option to add the workshop to the calendar in `/cs/online-workshop/participant`
 
@@ -159,3 +159,4 @@
 - But animations should work for any arbitrary text or action, just with generic animation as it is now.
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
+

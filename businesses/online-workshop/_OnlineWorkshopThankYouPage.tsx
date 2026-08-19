@@ -1,13 +1,21 @@
-import { ONLINE_WORKSHOP_THANK_YOU_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { ONLINE_WORKSHOP_PARTICIPANT_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { AddToCalendarButtons } from '@/components/calendar/AddToCalendarButtons';
 import { MetaPixelEvent } from '@/components/meta-pixel-event';
 import { MinimalFooter } from '@/components/minimal-footer';
 import { MinimalHeader } from '@/components/minimal-header';
 import { Button } from '@/components/ui/button';
-import { createCalendarLinks } from '@/lib/calendar/create-calendar-links';
-import { createAbsoluteUrl } from '@/lib/metadata/site-config';
+import {
+    createWorkshopCalendarEvent,
+    createWorkshopCalendarFileName,
+    type WorkshopCalendarOccurrence,
+} from '@/lib/workshops/workshopCalendar';
+import {
+    createWorkshopParticipantLink,
+    type WorkshopParticipantIdentity,
+} from '@/lib/workshops/workshopParticipantLink';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
-import { ArrowRight, BellRing, CalendarPlus, CheckCircle2, Download, Mail, Video } from 'lucide-react';
+import { ArrowRight, BellRing, CheckCircle2, Mail, Video } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -21,13 +29,19 @@ const REGISTRATION_META_PIXEL_EVENT_NAME = 'CompleteRegistration';
 
 const { weekdayLabel, dateLabel, time, durationLabel, startsAt, endsAt } = onlineWorkshopConfig.date;
 
-const { googleCalendarUrl, icalendarDataUrl } = createCalendarLinks({
-    title: 'Online workshop: Produkční kód s AI agenty',
-    description: `Bezplatný online workshop s Pavolem Hejným a Jiřím Jahnem. ${durationLabel}. Odkaz na připojení dorazí e-mailem.`,
+/**
+ * The workshop as this page knows it
+ *
+ * Note: The confirmation page never touches the workshop database, so it describes the very same occurrence which the
+ *       participant room later loads from there.
+ */
+const ONLINE_WORKSHOP_CALENDAR_OCCURRENCE: WorkshopCalendarOccurrence = {
+    slug: onlineWorkshopConfig.workshopSlug,
+    title: onlineWorkshopConfig.participant.title,
+    description: `Bezplatný online workshop s Pavolem Hejným a Jiřím Jahnem. ${durationLabel}.`,
     startsAt,
     endsAt,
-    url: createAbsoluteUrl(ONLINE_WORKSHOP_THANK_YOU_PATH),
-});
+};
 
 const NEXT_STEPS = [
     {
@@ -54,10 +68,18 @@ const NEXT_STEPS = [
  * Note: It lives on its own url, so that an ad campaign can optimize on real registrations instead of clicks.
  */
 type OnlineWorkshopThankYouPageProps = {
-    readonly participantLink: string | null;
+    readonly participantIdentity: WorkshopParticipantIdentity;
 };
 
-export function OnlineWorkshopThankYouPage({ participantLink }: OnlineWorkshopThankYouPageProps) {
+export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorkshopThankYouPageProps) {
+    const participantLink = createWorkshopParticipantLink(ONLINE_WORKSHOP_PARTICIPANT_PATH, participantIdentity);
+    const calendarEvent = createWorkshopCalendarEvent({
+        occurrence: ONLINE_WORKSHOP_CALENDAR_OCCURRENCE,
+        hostFullname: onlineWorkshopConfig.host.fullname,
+        participantIdentity,
+        participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
+    });
+
     return (
         <div className="flex min-h-screen flex-col bg-white">
             <MetaPixelEvent eventName={REGISTRATION_META_PIXEL_EVENT_NAME} />
@@ -96,23 +118,11 @@ export function OnlineWorkshopThankYouPage({ participantLink }: OnlineWorkshopTh
                         </div>
                     )}
 
-                    <div className="mx-auto mb-12 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
-                        <Button
-                            asChild
-                            className="h-12 rounded-full bg-promptbook-blue-dark px-6 text-base font-semibold text-white hover:bg-promptbook-blue-dark/90"
-                        >
-                            <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
-                                <CalendarPlus className="mr-2 h-5 w-5" />
-                                Přidat do Google Kalendáře
-                            </a>
-                        </Button>
-                        <Button asChild variant="outline" className="h-12 rounded-full px-6 text-base">
-                            <a href={icalendarDataUrl} download="promptbook-online-workshop.ics">
-                                <Download className="mr-2 h-5 w-5" />
-                                Stáhnout .ics
-                            </a>
-                        </Button>
-                    </div>
+                    <AddToCalendarButtons
+                        event={calendarEvent}
+                        downloadFileName={createWorkshopCalendarFileName(ONLINE_WORKSHOP_CALENDAR_OCCURRENCE.slug)}
+                        className="mx-auto mb-12 max-w-md sm:justify-center"
+                    />
 
                     <div className="mx-auto mb-16 max-w-md space-y-0">
                         {NEXT_STEPS.map((step, index) => {

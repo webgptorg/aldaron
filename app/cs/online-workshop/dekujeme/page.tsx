@@ -1,7 +1,6 @@
 import { OnlineWorkshopThankYouPage } from '@/businesses/online-workshop/_OnlineWorkshopThankYouPage';
-import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { ONLINE_WORKSHOP_THANK_YOU_METADATA } from '@/businesses/online-workshop/onlineWorkshopMetadata';
-import { createWorkshopParticipantLink, readWorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
+import { readWorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 
 type OnlineWorkshopThankYouRouteProps = {
     readonly searchParams: Promise<{
@@ -18,7 +17,5 @@ export default async function CsOnlineWorkshopThankYouRoute({ searchParams }: On
         resolvedSearchParams.email,
         resolvedSearchParams.fullname,
     );
-    const participantLink = createWorkshopParticipantLink(ONLINE_WORKSHOP_PARTICIPANT_PATH, participantIdentity);
-
-    return <OnlineWorkshopThankYouPage participantLink={participantLink} />;
+    return <OnlineWorkshopThankYouPage participantIdentity={participantIdentity} />;
 }
