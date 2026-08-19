@@ -97,7 +97,18 @@
 
 ---
 
-[ ]
+[ ] !!
+
+[✨🛳] Fix the mobile layout of `/cs/online-workshop/participant`
+
+- The app should look great on all devices.
+- it should look great both before the workshop starts and during the workshop
+
+![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-3.png)
+
+---
+
+[ ] !!
 
 [✨🛳] Link from `/cs/online-workshop/dekujeme` to `/cs/online-workshop/participant?email=...&fullname=...` with prefilled email and fullname
 
@@ -120,10 +131,8 @@
 
 [✨🛳] Show how many people watching in `/cs/online-workshop/participant`
 
-
 - Keep in mind the DRY _(don't repeat yourself)_ principle
 - Do a proper analysis of the current functionality of workshop logic before you start implementing.
-
 
 ---
 
@@ -131,12 +140,9 @@
 
 [✨🛳] Allow to reply in chat in `/cs/online-workshop/participant`
 
-
 - Keep in mind the DRY _(don't repeat yourself)_ principle
 - If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-3.sql`
 - Do a proper analysis of the current functionality of workshop logic before you start implementing.
-
-
 
 ---
 
