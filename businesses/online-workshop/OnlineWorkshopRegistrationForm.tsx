@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
+import { createWorkshopRegistrationThankYouPath } from '@/lib/workshops/workshopRegistrationTiming';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
@@ -47,6 +48,7 @@ export function OnlineWorkshopRegistrationForm() {
         setShowValidation(false);
         setIsSubmitting(true);
         setErrorMessage(null);
+        const registrationAtMilliseconds = Date.now();
 
         try {
             await subscribeToWaitlist({
@@ -61,7 +63,14 @@ export function OnlineWorkshopRegistrationForm() {
             //       a `PageView` of the thank you url, which is what the ad campaign optimizes on.
             //       `isSubmitting` intentionally stays `true`, so the form cannot be sent twice while the browser
             //       is still loading the thank you page.
-            window.location.assign(ONLINE_WORKSHOP_THANK_YOU_PATH);
+            window.location.assign(
+                createWorkshopRegistrationThankYouPath({
+                    thankYouPath: ONLINE_WORKSHOP_THANK_YOU_PATH,
+                    startsAt: onlineWorkshopConfig.date.startsAt,
+                    participantIdentity: { email, fullname },
+                    registrationAtMilliseconds,
+                }),
+            );
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
             setIsSubmitting(false);

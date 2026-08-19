@@ -108,7 +108,7 @@
 
 ---
 
-[ ] !!
+[x] by OpenAI Codex `gpt-5.6-luna` thinking `max` (ChatGPT account) - Implementation ~$0.5914 13 minutes; Testing a minute
 
 [✨🛳] Link from `/cs/online-workshop/dekujeme` to `/cs/online-workshop/participant?email=...&fullname=...` with prefilled email and fullname
 
@@ -154,4 +154,5 @@
 - But animations should work for any arbitrary text or action, just with generic animation as it is now.
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
+
 

@@ -53,7 +53,11 @@ const NEXT_STEPS = [
  *
  * Note: It lives on its own url, so that an ad campaign can optimize on real registrations instead of clicks.
  */
-export function OnlineWorkshopThankYouPage() {
+type OnlineWorkshopThankYouPageProps = {
+    readonly participantLink: string | null;
+};
+
+export function OnlineWorkshopThankYouPage({ participantLink }: OnlineWorkshopThankYouPageProps) {
     return (
         <div className="flex min-h-screen flex-col bg-white">
             <MetaPixelEvent eventName={REGISTRATION_META_PIXEL_EVENT_NAME} />
@@ -73,6 +77,24 @@ export function OnlineWorkshopThankYouPage() {
                         Uvidíme se {weekdayLabel} {dateLabel} v {time} online. Registrace je hotová, nic dalšího už
                         dělat nemusíš.
                     </p>
+
+                    {participantLink && (
+                        <div className="mx-auto mb-10 max-w-md rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-teal-50 p-6 text-left">
+                            <h2 className="text-[15px] font-bold text-[#0f172a]">Workshop začíná už brzy</h2>
+                            <p className="mt-1 text-[14px] leading-relaxed text-gray-500">
+                                Kdyby potvrzovací e-mail zapadl ve spamu, můžeš se do místnosti připojit rovnou tady.
+                            </p>
+                            <Button
+                                asChild
+                                className="mt-4 h-11 rounded-full bg-promptbook-blue-dark px-5 text-sm font-semibold text-white hover:bg-promptbook-blue-dark/90"
+                            >
+                                <Link href={participantLink}>
+                                    Připojit se k workshopu
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
+                        </div>
+                    )}
 
                     <div className="mx-auto mb-12 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
                         <Button

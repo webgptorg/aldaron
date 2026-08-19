@@ -1,11 +1,7 @@
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import { ONLINE_WORKSHOP_PARTICIPANT_METADATA } from '@/businesses/online-workshop/onlineWorkshopMetadata';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
-import {
-    MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
-    MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
-} from '@/lib/workshops/workshopConstants';
+import { readWorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 
 type OnlineWorkshopParticipantRouteProps = {
     readonly searchParams: Promise<{
@@ -16,12 +12,12 @@ type OnlineWorkshopParticipantRouteProps = {
 
 export const metadata = ONLINE_WORKSHOP_PARTICIPANT_METADATA;
 
-function readPrefilledValue(value: string | string[] | undefined, maximalLength: number): string {
-    return readFirstSearchParameter(value)?.trim().slice(0, maximalLength) ?? '';
-}
-
 export default async function OnlineWorkshopParticipantRoute({ searchParams }: OnlineWorkshopParticipantRouteProps) {
     const resolvedSearchParams = await searchParams;
+    const participantIdentity = readWorkshopParticipantIdentity(
+        resolvedSearchParams.email,
+        resolvedSearchParams.fullname,
+    );
 
     return (
         <OnlineWorkshopParticipantPage
@@ -32,11 +28,8 @@ export default async function OnlineWorkshopParticipantRoute({ searchParams }: O
                 dateLabel: `${onlineWorkshopConfig.date.weekdayLabel} ${onlineWorkshopConfig.date.dateLabel} · ${onlineWorkshopConfig.date.time}`,
                 durationLabel: onlineWorkshopConfig.date.durationLabel,
             }}
-            initialEmail={readPrefilledValue(resolvedSearchParams.email, MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH)}
-            initialFullname={readPrefilledValue(
-                resolvedSearchParams.fullname,
-                MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
-            )}
+            initialEmail={participantIdentity.email}
+            initialFullname={participantIdentity.fullname}
         />
     );
 }
