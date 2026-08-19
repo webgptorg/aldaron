@@ -1,6 +1,7 @@
 import type {
     WorkshopComment,
     WorkshopCommentSort,
+    WorkshopParticipant,
     WorkshopPublicState,
     WorkshopReaction,
 } from '@/lib/workshops/workshopTypes';
@@ -39,6 +40,19 @@ export async function connectToWorkshop(
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
+    });
+    return readResponseJson(response);
+}
+
+export async function changeWorkshopParticipantFullname(
+    workshopSlug: string,
+    fullname: string,
+): Promise<{ readonly participant: WorkshopParticipant }> {
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, 'participant'), {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullname }),
     });
     return readResponseJson(response);
 }

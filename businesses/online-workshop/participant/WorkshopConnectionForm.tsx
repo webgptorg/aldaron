@@ -8,6 +8,7 @@ import {
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
 } from '@/lib/workshops/workshopConstants';
+import { isWorkshopParticipantFullnameValid } from '@/lib/workshops/workshopParticipantFullname';
 import { ArrowRight, LockKeyhole, Radio } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
@@ -37,7 +38,7 @@ export function WorkshopConnectionForm({
     const [email, setEmail] = useState(initialEmail);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isValidationVisible, setIsValidationVisible] = useState(false);
-    const isFullnameValid = fullname.trim().length > 0;
+    const isFullnameValid = isWorkshopParticipantFullnameValid(fullname);
     const isEmailValid = isEmailAddressValid(email.trim());
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

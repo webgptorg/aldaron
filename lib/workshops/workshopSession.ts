@@ -10,13 +10,18 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createHash, randomBytes } from 'node:crypto';
 import type { NextRequest } from 'next/server';
 
-type WorkshopParticipantRow = {
+export type WorkshopParticipantRow = {
     readonly id: string;
     readonly fullname: string;
     readonly connected_at: string;
     readonly is_interaction_banned: boolean;
     readonly is_trusted: boolean;
 };
+
+/**
+ * Columns every query needs to describe a participant to the room, deliberately without their personal contact details
+ */
+export const WORKSHOP_PARTICIPANT_COLUMNS = 'id, fullname, connected_at, is_interaction_banned, is_trusted';
 
 export function createWorkshopSessionToken(): string {
     return randomBytes(WORKSHOP_SESSION_TOKEN_BYTES).toString('base64url');
@@ -58,7 +63,7 @@ export async function createWorkshopParticipant(
             ip_address: readClientIpAddress(request),
             user_agent: request.headers.get('user-agent')?.slice(0, MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH),
         })
-        .select('id, fullname, connected_at, is_interaction_banned, is_trusted')
+        .select(WORKSHOP_PARTICIPANT_COLUMNS)
         .single();
 
     if (error || data === null) {
@@ -83,7 +88,7 @@ export async function authenticateWorkshopParticipant(
 
     const { data, error } = await supabase
         .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-        .select('id, fullname, connected_at, is_interaction_banned, is_trusted')
+        .select(WORKSHOP_PARTICIPANT_COLUMNS)
         .eq('workshop_id', workshopId)
         .eq('session_token_hash', hashWorkshopSessionToken(sessionToken))
         .maybeSingle();

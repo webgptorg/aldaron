@@ -7,6 +7,7 @@ import {
     type WorkshopConnectionDetails,
 } from '@/businesses/online-workshop/participant/WorkshopConnectionForm';
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
+import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
@@ -117,13 +118,12 @@ export function OnlineWorkshopParticipantPage({
                             <p className="hidden text-xs text-slate-500 sm:block">Online workshop · Promptbook</p>
                         </div>
                     </div>
-                    <div className="flex min-w-0 max-w-full shrink items-center gap-2 self-end rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-medium leading-5 text-emerald-200 sm:self-auto">
-                        <Radio className="h-3.5 w-3.5 shrink-0" />
-                        <span className="min-w-0 break-words text-center">
-                            Připojen/a jako {state.participant.fullname}
-                        </span>
-                        {controller.isRefreshing && <RefreshCw className="h-3 w-3 animate-spin text-slate-500" />}
-                    </div>
+                    <WorkshopParticipantBadge
+                        fullname={state.participant.fullname}
+                        isInteractionBanned={state.participant.isInteractionBanned}
+                        isRefreshing={controller.isRefreshing}
+                        onChangeFullname={controller.changeFullname}
+                    />
                 </div>
             </header>
 

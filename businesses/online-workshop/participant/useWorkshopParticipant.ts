@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    changeWorkshopParticipantFullname,
     connectToWorkshop,
     fetchWorkshopState,
     recordWorkshopMaterialLinkClick,
@@ -64,6 +65,7 @@ type WorkshopParticipantController = {
     readonly animatedReactions: readonly AnimatedWorkshopReaction[];
     readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
     readonly connect: (values: { readonly fullname: string; readonly email: string }) => Promise<boolean>;
+    readonly changeFullname: (fullname: string) => Promise<boolean>;
     readonly refresh: () => Promise<boolean>;
     readonly changeCommentSort: (sort: WorkshopCommentSort) => void;
     readonly submitComment: (body: string) => Promise<boolean>;
@@ -472,6 +474,25 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         [processLoadedContentBlocks, processLoadedReactions, refresh, workshopSlug],
     );
 
+    const changeFullname = useCallback(
+        async (fullname: string): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                const { participant } = await changeWorkshopParticipantFullname(workshopSlug, fullname);
+                setState((currentState) => (currentState === null ? currentState : { ...currentState, participant }));
+                trackGoogleAnalyticsEvent('workshop_name_changed', { workshop_slug: workshopSlug });
+
+                // The comments of this participant carry the new name only after the room is loaded again.
+                void refresh();
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [refresh, workshopSlug],
+    );
+
     const submitComment = useCallback(
         async (body: string): Promise<boolean> => {
             setErrorMessage(null);
@@ -581,6 +602,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         animatedReactions,
         newlyUnlockedContentBlockIds,
         connect,
+        changeFullname,
         refresh,
         changeCommentSort,
         submitComment,

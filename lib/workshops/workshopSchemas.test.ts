@@ -5,6 +5,7 @@ import {
     workshopConnectionSchema,
     workshopContentCreateSchema,
     workshopCreateSchema,
+    workshopParticipantRenameSchema,
     workshopParticipantUpdateSchema,
     workshopPresenceSchema,
     workshopReactionSchema,
@@ -28,6 +29,13 @@ describe('workshop request validation', () => {
             fullname: 'Jana Nováková',
             email: 'jana@example.com',
         });
+    });
+
+    it('renames a participant under the very same rule the connection form uses', () => {
+        expect(workshopParticipantRenameSchema.parse({ fullname: '  Jana Nová  ' })).toEqual({ fullname: 'Jana Nová' });
+        expect(workshopParticipantRenameSchema.safeParse({ fullname: '   ' }).success).toBe(false);
+        expect(workshopParticipantRenameSchema.safeParse({ fullname: 'A'.repeat(201) }).success).toBe(false);
+        expect(workshopParticipantRenameSchema.safeParse({}).success).toBe(false);
     });
 
     it('accepts a YouTube URL and stores only its stable video ID', () => {

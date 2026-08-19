@@ -3,16 +3,23 @@ import {
     MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT,
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
-    MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
 } from '@/lib/workshops/workshopConstants';
+import {
+    isWorkshopParticipantFullnameValid,
+    normalizeWorkshopParticipantFullname,
+} from '@/lib/workshops/workshopParticipantFullname';
 import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 import { z } from 'zod';
 
 const WORKSHOP_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const nullableTimestampSchema = z.string().datetime({ offset: true }).nullable();
+const workshopParticipantFullnameSchema = z
+    .string()
+    .transform(normalizeWorkshopParticipantFullname)
+    .refine(isWorkshopParticipantFullnameValid, 'A participant name is required');
 const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_REACTION_LENGTH);
 const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
 const workshopAllowedReactionsSchema = z
@@ -34,7 +41,7 @@ const nullableYoutubeVideoIdSchema = z.union([z.string().trim().max(2_000), z.nu
 });
 
 export const workshopConnectionSchema = z.object({
-    fullname: z.string().trim().min(1).max(MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH),
+    fullname: workshopParticipantFullnameSchema,
     email: z
         .string()
         .trim()
@@ -56,7 +63,7 @@ export const workshopCommentModerationSchema = z.object({
 });
 
 export const workshopArtificialCommentSchema = z.object({
-    authorName: z.string().trim().min(1).max(MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH),
+    authorName: workshopParticipantFullnameSchema,
     body: workshopCommentBodySchema,
 });
 
@@ -69,6 +76,10 @@ export const workshopCommentArtificialUpvoteSchema = z.object({
         .min(-MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT)
         .max(MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT)
         .refine((value) => value !== 0, 'Artificial upvote adjustment cannot be zero'),
+});
+
+export const workshopParticipantRenameSchema = z.object({
+    fullname: workshopParticipantFullnameSchema,
 });
 
 export const workshopParticipantUpdateSchema = z
