@@ -92,8 +92,8 @@ export function OnlineWorkshopParticipantPage({
     return (
         <div className="min-h-screen bg-[#06131b] text-slate-200">
             <header className="border-b border-white/[0.07] bg-[#071820]/90 backdrop-blur">
-                <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-                    <div className="flex items-center gap-3">
+                <div className="mx-auto flex max-w-[1500px] flex-col items-stretch gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
                         <Image
                             src="/logo/promptbook-logo-blue-white-256.png"
                             alt="Promptbook"
@@ -101,27 +101,30 @@ export function OnlineWorkshopParticipantPage({
                             height={36}
                             className="h-9 w-9 rounded-lg"
                         />
-                        <div>
-                            <p className="text-sm font-bold text-white">{state.workshop.title}</p>
+                        <div className="min-w-0">
+                            <p className="break-words text-sm font-bold text-white">{state.workshop.title}</p>
                             <p className="hidden text-xs text-slate-500 sm:block">Online workshop · Promptbook</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-medium text-emerald-200">
-                        <Radio className="h-3.5 w-3.5" /> Připojen/a jako {state.participant.fullname}
+                    <div className="flex min-w-0 max-w-full shrink items-center gap-2 self-end rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-medium leading-5 text-emerald-200 sm:self-auto">
+                        <Radio className="h-3.5 w-3.5 shrink-0" />
+                        <span className="min-w-0 break-words text-center">
+                            Připojen/a jako {state.participant.fullname}
+                        </span>
                         {controller.isRefreshing && <RefreshCw className="h-3 w-3 animate-spin text-slate-500" />}
                     </div>
                 </div>
             </header>
 
-            <main className="mx-auto grid max-w-[1500px] gap-5 px-4 py-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_390px]">
-                <div className="min-w-0">
+            <main className="mx-auto grid w-full min-w-0 max-w-[1500px] grid-cols-1 gap-5 px-4 py-4 sm:px-8 sm:py-5 lg:grid-cols-[minmax(0,1fr)_390px]">
+                <div className="min-w-0 lg:col-start-1 lg:row-start-1">
                     {controller.errorMessage && (
-                        <div className="mb-4 flex items-center justify-between gap-4 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-sm text-rose-200">
-                            <span>{controller.errorMessage}</span>
+                        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-sm text-rose-200">
+                            <span className="min-w-0 flex-1 break-words">{controller.errorMessage}</span>
                             <button
                                 type="button"
                                 onClick={() => void controller.refresh()}
-                                className="font-semibold underline underline-offset-4"
+                                className="shrink-0 font-semibold underline underline-offset-4"
                             >
                                 Zkusit znovu
                             </button>
@@ -138,6 +141,19 @@ export function OnlineWorkshopParticipantPage({
                         isInteractionBanned={state.participant.isInteractionBanned}
                         onReact={controller.react}
                     />
+                </div>
+
+                <WorkshopChat
+                    className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1"
+                    comments={state.comments}
+                    commentSort={controller.commentSort}
+                    isInteractionBanned={state.participant.isInteractionBanned}
+                    onChangeSort={controller.changeCommentSort}
+                    onSubmitComment={controller.submitComment}
+                    onUpvoteComment={controller.upvoteComment}
+                />
+
+                <div className="min-w-0 lg:col-start-1 lg:row-start-2">
                     <WorkshopContent
                         workshopSlug={workshopSlug}
                         contentBlocks={state.contentBlocks}
@@ -146,15 +162,6 @@ export function OnlineWorkshopParticipantPage({
                         onMaterialLinkClick={controller.recordMaterialLinkClick}
                     />
                 </div>
-
-                <WorkshopChat
-                    comments={state.comments}
-                    commentSort={controller.commentSort}
-                    isInteractionBanned={state.participant.isInteractionBanned}
-                    onChangeSort={controller.changeCommentSort}
-                    onSubmitComment={controller.submitComment}
-                    onUpvoteComment={controller.upvoteComment}
-                />
             </main>
         </div>
     );

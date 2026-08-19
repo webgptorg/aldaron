@@ -55,12 +55,12 @@ export function WorkshopConnectionForm({
     };
 
     return (
-        <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07151d] px-5 py-12 text-white">
+        <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07151d] px-4 py-8 text-white sm:px-5 sm:py-12">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(48,168,189,0.22),transparent_34%),radial-gradient(circle_at_80%_80%,rgba(122,255,235,0.12),transparent_30%)]" />
             <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:48px_48px]" />
 
             <div className="relative grid w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 shadow-2xl backdrop-blur-xl md:grid-cols-[0.9fr_1.1fr]">
-                <section className="border-b border-white/10 bg-cyan-400/5 p-8 md:border-b-0 md:border-r md:p-10">
+                <section className="border-b border-white/10 bg-cyan-400/5 p-6 sm:p-8 md:border-b-0 md:border-r md:p-10">
                     <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
                         <Radio className="h-3.5 w-3.5" /> Živě online
                     </span>
@@ -80,11 +80,11 @@ export function WorkshopConnectionForm({
                     </dl>
                 </section>
 
-                <form onSubmit={handleSubmit} className="p-8 md:p-10">
+                <form onSubmit={handleSubmit} className="p-6 sm:p-8 md:p-10">
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-300/10 text-cyan-200">
                         <LockKeyhole className="h-5 w-5" />
                     </div>
-                    <h2 className="mt-5 text-2xl font-bold">Připojit se k workshopu</h2>
+                    <h2 className="mt-5 text-2xl font-bold sm:text-3xl">Připojit se k workshopu</h2>
                     <p className="mt-2 text-sm leading-6 text-slate-400">
                         Jméno se zobrazí u vašich komentářů. E-mail ostatní účastníci neuvidí.
                     </p>
@@ -132,7 +132,7 @@ export function WorkshopConnectionForm({
                     </div>
 
                     {errorMessage && (
-                        <p className="mt-5 rounded-lg border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
+                        <p className="mt-5 break-words rounded-lg border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
                             {errorMessage}
                         </p>
                     )}

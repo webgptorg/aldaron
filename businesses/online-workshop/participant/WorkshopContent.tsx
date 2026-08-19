@@ -72,11 +72,11 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
     };
 
     return (
-        <div ref={materialBodyReference} onClickCapture={handleMaterialLinkClick}>
+        <div ref={materialBodyReference} onClickCapture={handleMaterialLinkClick} className="min-w-0 break-words">
             <MarkdownContent
                 content={contentBlock.bodyMarkdown}
                 theme="DARK"
-                className="max-w-none leading-7 text-slate-200 [&_a]:text-cyan-300 [&_a]:underline [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white"
+                className="max-w-none leading-7 text-slate-200 [&_a]:text-cyan-300 [&_a]:underline [&_code]:break-words [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
             />
         </div>
     );
@@ -113,7 +113,7 @@ export function WorkshopContent({
                             initial={isNewlyUnlocked && !isReducedMotionPreferred ? { opacity: 0, y: 24, scale: 0.97 } : false}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ duration: isReducedMotionPreferred ? 0 : 0.55, ease: 'easeOut' }}
-                            className={`relative overflow-hidden rounded-2xl border bg-white/[0.045] p-6 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 shadow-cyan-300/10' : 'border-white/10'}`}
+                            className={`relative overflow-hidden rounded-2xl border bg-white/[0.045] p-5 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 pt-16 shadow-cyan-300/10 sm:pt-8' : 'border-white/10'}`}
                         >
                             {isNewlyUnlocked && (
                                 <span className="absolute right-4 top-4 rounded-full bg-cyan-300 px-3 py-1 text-xs font-bold text-slate-950 shadow-lg">
@@ -133,10 +133,12 @@ export function WorkshopContent({
                 })}
 
                 {nextContentUnlockAt && (
-                    <div className="flex items-center gap-3 rounded-xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.04] px-5 py-4 text-sm text-slate-400">
+                    <div className="flex items-start gap-3 rounded-xl border border-dashed border-cyan-300/20 bg-cyan-300/[0.04] px-5 py-4 text-sm text-slate-400">
                         <Clock3 className="h-5 w-5 shrink-0 text-cyan-300" />
-                        Další materiál se automaticky odemkne{' '}
-                        {CZECH_DATE_TIME_FORMAT.format(new Date(nextContentUnlockAt))}.
+                        <span className="min-w-0">
+                            Další materiál se automaticky odemkne{' '}
+                            {CZECH_DATE_TIME_FORMAT.format(new Date(nextContentUnlockAt))}.
+                        </span>
                     </div>
                 )}
             </div>

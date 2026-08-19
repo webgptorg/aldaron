@@ -28,8 +28,10 @@ export function WorkshopReactions({ emojis, isInteractionBanned, onReact }: Work
     };
 
     return (
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-3">
-            <span className="mr-2 text-xs font-medium uppercase tracking-wider text-slate-500">Reakce</span>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-3 sm:p-4">
+            <span className="w-full text-center text-xs font-medium uppercase tracking-wider text-slate-500 sm:mr-2 sm:w-auto">
+                Reakce
+            </span>
             {emojis.map((emoji) => (
                 <button
                     key={emoji}

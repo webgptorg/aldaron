@@ -70,7 +70,9 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
 
     return (
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#081a24] shadow-2xl">
-            <div className="relative aspect-video min-h-[260px]">
+            <div
+                className={`relative min-w-0 w-full max-w-full aspect-video ${isWorkshopStarted ? 'min-h-[220px] sm:min-h-[260px]' : 'min-h-[280px] sm:min-h-[260px]'}`}
+            >
                 {isWorkshopStarted && workshop.youtubeVideoId ? (
                     <iframe
                         ref={videoFrameReference}
@@ -98,17 +100,17 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                         </p>
                     </div>
                 ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[radial-gradient(circle_at_50%_35%,rgba(122,235,255,.16),transparent_42%)] px-5">
-                        <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[radial-gradient(circle_at_50%_35%,rgba(122,235,255,.16),transparent_42%)] px-4 py-5 text-center sm:px-5">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase leading-5 tracking-[0.16em] text-cyan-200 sm:text-xs sm:tracking-[0.18em]">
                             <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300" /> Začínáme za
                         </span>
-                        <div className="mt-7 grid grid-cols-4 gap-2 sm:gap-4">
+                        <div className="mt-5 grid w-full max-w-[19rem] grid-cols-2 gap-2 sm:mt-7 sm:w-auto sm:max-w-none sm:grid-cols-4 sm:gap-4">
                             {countdownSegments.map((segment) => (
                                 <div
                                     key={segment.label}
-                                    className="min-w-[58px] rounded-xl border border-white/10 bg-white/5 px-2 py-4 text-center sm:min-w-[82px] sm:px-4"
+                                    className="min-w-0 rounded-xl border border-white/10 bg-white/5 px-2 py-2.5 text-center sm:min-w-[82px] sm:px-4 sm:py-4"
                                 >
-                                    <div className="font-mono text-2xl font-bold tabular-nums text-white sm:text-4xl">
+                                    <div className="font-mono text-3xl font-bold tabular-nums text-white sm:text-4xl">
                                         {String(segment.value).padStart(2, '0')}
                                     </div>
                                     <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-500 sm:text-xs">
@@ -117,7 +119,7 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                                 </div>
                             ))}
                         </div>
-                        <p className="mt-6 text-sm text-slate-400">
+                        <p className="mt-4 w-full max-w-[25rem] px-2 text-sm leading-6 text-slate-400 sm:mt-6">
                             Stránku nemusíte obnovovat. Stream se spustí automaticky.
                         </p>
                     </div>
@@ -155,7 +157,7 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                     <motion.div
                         initial={isReducedMotionPreferred ? false : { opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute bottom-5 left-4 z-20 max-w-xs rounded-2xl border border-cyan-200/40 bg-slate-950/95 p-4 shadow-2xl backdrop-blur sm:left-6"
+                        className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl border border-cyan-200/40 bg-slate-950/95 p-3 shadow-2xl backdrop-blur sm:bottom-5 sm:left-6 sm:right-auto sm:max-w-xs sm:p-4"
                     >
                         <div className="flex items-start gap-3">
                             <ArrowDownLeft

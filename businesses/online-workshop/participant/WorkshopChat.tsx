@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { Textarea } from '@/components/ui/textarea';
 import { MAXIMAL_WORKSHOP_COMMENT_LENGTH } from '@/lib/workshops/workshopConstants';
+import { cn } from '@/lib/utils';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
 import { Clock3, MessageCircle, Send, ThumbsUp } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 type WorkshopChatProps = {
+    readonly className?: string;
     readonly comments: readonly WorkshopComment[];
     readonly commentSort: WorkshopCommentSort;
     readonly isInteractionBanned: boolean;
@@ -20,6 +22,7 @@ type WorkshopChatProps = {
 const CZECH_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 
 export function WorkshopChat({
+    className,
     comments,
     commentSort,
     isInteractionBanned,
@@ -58,7 +61,13 @@ export function WorkshopChat({
     };
 
     return (
-        <aside className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1c26] shadow-2xl lg:sticky lg:top-5 lg:h-[calc(100dvh-6.5rem)] lg:min-h-0">
+        <aside
+            className={cn(
+                'flex h-[min(70dvh,38rem)] min-h-[28rem] min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1c26] shadow-2xl',
+                'lg:sticky lg:top-5 lg:h-[calc(100dvh-6.5rem)] lg:min-h-0',
+                className,
+            )}
+        >
             <header className="border-b border-white/10 px-5 py-4">
                 <div className="flex items-center gap-2">
                     <MessageCircle className="h-5 w-5 text-cyan-300" />
@@ -82,7 +91,7 @@ export function WorkshopChat({
                 </div>
             </header>
 
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
                 {comments.length === 0 ? (
                     <div className="flex h-full min-h-48 flex-col items-center justify-center px-6 text-center">
                         <MessageCircle className="h-8 w-8 text-slate-700" />
@@ -94,11 +103,11 @@ export function WorkshopChat({
                         return (
                             <article
                                 key={comment.id}
-                                className="rounded-xl border border-white/[0.07] bg-white/[0.035] p-4"
+                                className="min-w-0 rounded-xl border border-white/[0.07] bg-white/[0.035] p-4"
                             >
                                 <div className="flex items-start justify-between gap-3">
-                                    <div>
-                                        <p className="text-sm font-semibold text-slate-100">{comment.authorName}</p>
+                                    <div className="min-w-0">
+                                        <p className="break-words text-sm font-semibold text-slate-100">{comment.authorName}</p>
                                         <time className="text-[11px] text-slate-600" dateTime={comment.createdAt}>
                                             {CZECH_TIME_FORMAT.format(new Date(comment.createdAt))}
                                         </time>
@@ -136,13 +145,13 @@ export function WorkshopChat({
                     maxLength={MAXIMAL_WORKSHOP_COMMENT_LENGTH}
                     className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
                 />
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="mt-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-[11px] text-slate-600">Tučně **text**, kurzíva *text*, podtržení __text__.</p>
                     <Button
                         type="submit"
                         size="sm"
                         disabled={isSubmitting || !commentBody.trim()}
-                        className="rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200"
+                        className="w-full rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200 sm:w-auto"
                     >
                         <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
                     </Button>
