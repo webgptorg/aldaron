@@ -86,7 +86,65 @@
 
 ---
 
-[-]
+[ ]
+
+[✨🛳] Add option to add the workshop to the calendar in `/cs/online-workshop/participant`
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+    - there is already this feature in `/cs/online-workshop/dekujeme`, share the code and make it reusable.
+- the calendar should be generated dynamically based on the information in the workshop
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Link from `/cs/online-workshop/dekujeme` to `/cs/online-workshop/participant?email=...&fullname=...` with prefilled email and fullname
+
+- when the user registers less than 24 hours before the workshop, there isn't the link directly to the participant page. When it registers less than 24 hours before the workshop, there should be a direct link to the participant page because it can happen that the email with the link will be sent to the spam folder and the user will not find it in short time.
+- This should be a universal pattern for all workshops
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Allow to change your name in `/cs/online-workshop/participant`
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Show how many people watching in `/cs/online-workshop/participant`
+
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+
+---
+
+[ ]
+
+[✨🛳] Allow to reply in chat in `/cs/online-workshop/participant`
+
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-3.sql`
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+
+
+---
+
+[ ]
 
 [✨🛳] Each emoji in `/admin/workshops` Should have its own unique reaction animation
 
+- Do emoji animations for the theese emoji reactions 👍 ❤️ 👏 🔥 💡 😂 </> ✨ 🐍 👀
+- But animations should work for any arbitrary text or action, just with generic animation as it is now.
+- For especially these reactions, there should be unique animations.
+- Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
