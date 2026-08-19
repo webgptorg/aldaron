@@ -6,6 +6,16 @@ import type {
     WorkshopReaction,
 } from '@/lib/workshops/workshopTypes';
 
+/**
+ * What the room sends when a participant writes into the chat
+ *
+ * Note: A `parentCommentId` turns the message into a reply below that very comment.
+ */
+export type WorkshopCommentValues = {
+    readonly body: string;
+    readonly parentCommentId: string | null;
+};
+
 export class WorkshopApiError extends Error {
     public constructor(
         message: string,
@@ -71,13 +81,13 @@ export async function fetchWorkshopState(
 
 export async function submitWorkshopComment(
     workshopSlug: string,
-    body: string,
+    values: WorkshopCommentValues,
 ): Promise<{ readonly comment: WorkshopComment }> {
     const response = await fetch(getWorkshopApiUrl(workshopSlug, 'comments'), {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify(values),
     });
     return readResponseJson(response);
 }

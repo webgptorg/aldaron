@@ -10,6 +10,7 @@ import {
     submitWorkshopComment,
     upvoteWorkshopComment,
     WorkshopApiError,
+    type WorkshopCommentValues,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { getSupabaseForBrowser } from '@/lib/supabase';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
@@ -68,7 +69,7 @@ type WorkshopParticipantController = {
     readonly changeFullname: (fullname: string) => Promise<boolean>;
     readonly refresh: () => Promise<boolean>;
     readonly changeCommentSort: (sort: WorkshopCommentSort) => void;
-    readonly submitComment: (body: string) => Promise<boolean>;
+    readonly submitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly upvoteComment: (commentId: string) => Promise<void>;
     readonly react: (emoji: string) => Promise<void>;
     readonly recordMaterialLinkClick: (contentId: string) => void;
@@ -507,10 +508,10 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
     );
 
     const submitComment = useCallback(
-        async (body: string): Promise<boolean> => {
+        async (values: WorkshopCommentValues): Promise<boolean> => {
             setErrorMessage(null);
             try {
-                const { comment } = await submitWorkshopComment(workshopSlug, body);
+                const { comment } = await submitWorkshopComment(workshopSlug, values);
                 invalidatePendingRefresh();
                 if (comment.status !== 'rejected') {
                     setState((currentState) => {
@@ -528,6 +529,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                 trackGoogleAnalyticsEvent('workshop_comment_submitted', {
                     workshop_slug: workshopSlug,
                     comment_status: comment.status,
+                    is_reply: comment.parentCommentId !== null,
                 });
                 return true;
             } catch (error) {

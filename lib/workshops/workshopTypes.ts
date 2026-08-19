@@ -56,6 +56,21 @@ export type WorkshopComment = {
     readonly upvoteCount: number;
     readonly isUpvotedByParticipant: boolean;
     readonly createdAt: string;
+
+    /**
+     * The comment this one answers, or `null` when it opens its own thread
+     */
+    readonly parentCommentId: string | null;
+};
+
+/**
+ * A comment together with the answers it received
+ *
+ * Note: The chat is exactly one level deep, so a reply never carries replies of its own.
+ */
+export type WorkshopCommentThread = {
+    readonly comment: WorkshopComment;
+    readonly replies: readonly WorkshopComment[];
 };
 
 export type WorkshopReaction = {
@@ -79,11 +94,21 @@ export type WorkshopPublicState = {
     readonly recentReactions: readonly WorkshopReaction[];
 };
 
+/**
+ * As much of an answered comment as the moderation of a reply needs to judge it
+ */
+export type WorkshopCommentReference = {
+    readonly id: string;
+    readonly authorName: string;
+    readonly body: string;
+};
+
 export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant'> & {
     readonly participantId: string | null;
     readonly isArtificial: boolean;
     readonly realUpvoteCount: number;
     readonly artificialUpvoteCount: number;
+    readonly parentComment: WorkshopCommentReference | null;
 };
 
 export type WorkshopAdminSnapshot = {

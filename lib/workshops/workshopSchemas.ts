@@ -52,6 +52,11 @@ export const workshopConnectionSchema = z.object({
 
 export const workshopCommentSchema = z.object({
     body: workshopCommentBodySchema,
+
+    /**
+     * The comment this one answers, left out or `null` when it opens its own thread
+     */
+    parentCommentId: z.string().uuid().nullable().default(null),
 });
 
 export const workshopReactionSchema = z.object({

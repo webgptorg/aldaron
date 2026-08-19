@@ -1,13 +1,13 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
-import { Textarea } from '@/components/ui/textarea';
-import { MAXIMAL_WORKSHOP_COMMENT_LENGTH } from '@/lib/workshops/workshopConstants';
+import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/WorkshopChatComposer';
+import { WorkshopChatThread } from '@/businesses/online-workshop/participant/WorkshopChatThread';
+import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { cn } from '@/lib/utils';
+import { buildWorkshopCommentThreads } from '@/lib/workshops/workshopCommentThreads';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
-import { Clock3, MessageCircle, Send, ThumbsUp } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { Clock3, MessageCircle, ThumbsUp } from 'lucide-react';
+import { useMemo } from 'react';
 
 type WorkshopChatProps = {
     readonly className?: string;
@@ -15,11 +15,9 @@ type WorkshopChatProps = {
     readonly commentSort: WorkshopCommentSort;
     readonly isInteractionBanned: boolean;
     readonly onChangeSort: (sort: WorkshopCommentSort) => void;
-    readonly onSubmitComment: (body: string) => Promise<boolean>;
+    readonly onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly onUpvoteComment: (commentId: string) => Promise<void>;
 };
-
-const CZECH_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 
 export function WorkshopChat({
     className,
@@ -30,35 +28,7 @@ export function WorkshopChat({
     onSubmitComment,
     onUpvoteComment,
 }: WorkshopChatProps) {
-    const [commentBody, setCommentBody] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [upvotingCommentIds, setUpvotingCommentIds] = useState<ReadonlySet<string>>(new Set());
-
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!commentBody.trim()) {
-            return;
-        }
-        setIsSubmitting(true);
-        const isSubmitted = await onSubmitComment(commentBody);
-        if (isSubmitted) {
-            setCommentBody('');
-        }
-        setIsSubmitting(false);
-    };
-
-    const handleUpvote = async (commentId: string) => {
-        setUpvotingCommentIds((currentIds) => new Set(currentIds).add(commentId));
-        try {
-            await onUpvoteComment(commentId);
-        } finally {
-            setUpvotingCommentIds((currentIds) => {
-                const nextIds = new Set(currentIds);
-                nextIds.delete(commentId);
-                return nextIds;
-            });
-        }
-    };
+    const threads = useMemo(() => buildWorkshopCommentThreads(comments, commentSort), [comments, commentSort]);
 
     return (
         <aside
@@ -92,71 +62,30 @@ export function WorkshopChat({
             </header>
 
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-                {comments.length === 0 ? (
+                {threads.length === 0 ? (
                     <div className="flex h-full min-h-48 flex-col items-center justify-center px-6 text-center">
                         <MessageCircle className="h-8 w-8 text-slate-700" />
                         <p className="mt-3 text-sm text-slate-500">Zatím je tu klid. Položte první otázku.</p>
                     </div>
                 ) : (
-                    comments.map((comment) => {
-                        const isUpvoting = upvotingCommentIds.has(comment.id);
-                        return (
-                            <article
-                                key={comment.id}
-                                className="min-w-0 rounded-xl border border-white/[0.07] bg-white/[0.035] p-4"
-                            >
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="break-words text-sm font-semibold text-slate-100">{comment.authorName}</p>
-                                        <time className="text-[11px] text-slate-600" dateTime={comment.createdAt}>
-                                            {CZECH_TIME_FORMAT.format(new Date(comment.createdAt))}
-                                        </time>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        disabled={
-                                            comment.status !== 'approved' ||
-                                            isInteractionBanned ||
-                                            comment.isUpvotedByParticipant ||
-                                            isUpvoting
-                                        }
-                                        onClick={() => void handleUpvote(comment.id)}
-                                        className={`inline-flex min-w-12 items-center justify-center gap-1 rounded-full border px-2.5 py-1 text-xs transition ${comment.isUpvotedByParticipant ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-200' : 'border-white/10 text-slate-500 hover:border-cyan-300/30 hover:text-cyan-200'} disabled:cursor-default`}
-                                        aria-label={`Hlasovat pro komentář od ${comment.authorName}`}
-                                    >
-                                        <ThumbsUp className="h-3 w-3" /> {comment.upvoteCount}
-                                    </button>
-                                </div>
-                                <WorkshopCommentMarkdown
-                                    content={comment.body}
-                                    className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300"
-                                />
-                            </article>
-                        );
-                    })
+                    threads.map((thread) => (
+                        <WorkshopChatThread
+                            key={thread.comment.id}
+                            thread={thread}
+                            isInteractionBanned={isInteractionBanned}
+                            onSubmitComment={onSubmitComment}
+                            onUpvoteComment={onUpvoteComment}
+                        />
+                    ))
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="border-t border-white/10 p-4">
-                <Textarea
-                    value={commentBody}
-                    onChange={(event) => setCommentBody(event.target.value)}
-                    placeholder="Napište otázku nebo komentář…"
-                    maxLength={MAXIMAL_WORKSHOP_COMMENT_LENGTH}
-                    className="min-h-24 resize-none border-white/10 bg-white/[0.04] text-sm text-white placeholder:text-slate-600 focus-visible:ring-cyan-300/50"
-                />
-                <div className="mt-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-[11px] text-slate-600">Tučně **text**, kurzíva *text*, podtržení __text__.</p>
-                    <Button
-                        type="submit"
-                        size="sm"
-                        disabled={isSubmitting || !commentBody.trim()}
-                        className="w-full rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200 sm:w-auto"
-                    >
-                        <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
-                    </Button>
-                </div>
-            </form>
+            <WorkshopChatComposer
+                className="border-t border-white/10 p-4"
+                label="Nová zpráva do chatu"
+                placeholder="Napište otázku nebo komentář…"
+                onSubmit={(body) => onSubmitComment({ body, parentCommentId: null })}
+            />
         </aside>
     );
 }

@@ -2,6 +2,7 @@ import {
     workshopArtificialCommentSchema,
     workshopArtificialReactionSchema,
     workshopCommentArtificialUpvoteSchema,
+    workshopCommentSchema,
     workshopConnectionSchema,
     workshopContentCreateSchema,
     workshopCreateSchema,
@@ -36,6 +37,21 @@ describe('workshop request validation', () => {
         expect(workshopParticipantRenameSchema.safeParse({ fullname: '   ' }).success).toBe(false);
         expect(workshopParticipantRenameSchema.safeParse({ fullname: 'A'.repeat(201) }).success).toBe(false);
         expect(workshopParticipantRenameSchema.safeParse({}).success).toBe(false);
+    });
+
+    it('reads a chat message as a reply only when it names the comment it answers', () => {
+        expect(workshopCommentSchema.parse({ body: '  Kdy bude záznam?  ' })).toEqual({
+            body: 'Kdy bude záznam?',
+            parentCommentId: null,
+        });
+        expect(
+            workshopCommentSchema.parse({
+                body: 'Díky!',
+                parentCommentId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
+            }),
+        ).toEqual({ body: 'Díky!', parentCommentId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde' });
+        expect(workshopCommentSchema.safeParse({ body: 'Díky!', parentCommentId: 'question' }).success).toBe(false);
+        expect(workshopCommentSchema.safeParse({ body: '   ' }).success).toBe(false);
     });
 
     it('accepts a YouTube URL and stores only its stable video ID', () => {

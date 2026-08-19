@@ -8,8 +8,8 @@ const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-0
 const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
 const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql');
 const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
-const WATCHING_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
-const WATCHING_MIGRATION_SQL = readFileSync(WATCHING_MIGRATION_PATH, 'utf8');
+const WATCHING_AND_REPLY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
+const WATCHING_AND_REPLY_MIGRATION_SQL = readFileSync(WATCHING_AND_REPLY_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -87,7 +87,23 @@ describe('workshop database migration', () => {
     });
 
     it('indexes the participants seen recently so the watching count stays cheap', () => {
-        expect(WATCHING_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshop_participants_watching_idx');
-        expect(WATCHING_MIGRATION_SQL).toContain('public.workshop_participants (workshop_id, last_seen_at DESC)');
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain(
+            'CREATE INDEX IF NOT EXISTS workshop_participants_watching_idx',
+        );
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain(
+            'public.workshop_participants (workshop_id, last_seen_at DESC)',
+        );
+    });
+
+    it('answers a comment within the same workshop and keeps the chat one level deep', () => {
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS parent_comment_id uuid');
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain(
+            'ADD CONSTRAINT workshop_comments_parent_fk FOREIGN KEY (parent_comment_id, workshop_id)',
+        );
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain(
+            'REFERENCES public.workshop_comments(id, workshop_id) ON DELETE CASCADE',
+        );
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain('WORKSHOP_COMMENT_REPLY_TOO_DEEP');
+        expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain('workshop_comments_enforce_reply_depth');
     });
 });

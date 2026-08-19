@@ -18,6 +18,7 @@ import type {
     WorkshopAdminParticipant,
     WorkshopAdminSnapshot,
     WorkshopComment,
+    WorkshopCommentReference,
     WorkshopCommentSort,
     WorkshopCommentStatus,
     WorkshopContentBlock,
@@ -55,9 +56,10 @@ type WorkshopContentRow = {
     readonly updated_at: string;
 };
 
-type WorkshopCommentRow = {
+export type WorkshopCommentRow = {
     readonly id: string;
     readonly participant_id: string | null;
+    readonly parent_comment_id: string | null;
     readonly author_name: string;
     readonly body: string;
     readonly status: 'pending' | 'approved' | 'rejected';
@@ -66,6 +68,12 @@ type WorkshopCommentRow = {
     readonly is_artificial: boolean;
     readonly created_at: string;
 };
+
+/**
+ * Everything a `WorkshopCommentRow` needs, so that a new comment field is selected everywhere at once
+ */
+export const WORKSHOP_COMMENT_COLUMNS =
+    'id, participant_id, parent_comment_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at';
 
 type WorkshopAdminParticipantRow = {
     readonly id: string;
@@ -156,7 +164,7 @@ export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 
     };
 }
 
-function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: boolean): WorkshopComment {
+export function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: boolean): WorkshopComment {
     return {
         id: row.id,
         authorName: row.author_name,
@@ -165,6 +173,7 @@ function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: 
         upvoteCount: getDisplayedWorkshopCommentUpvoteCount(row.upvote_count, row.artificial_upvote_count),
         isUpvotedByParticipant,
         createdAt: row.created_at,
+        parentCommentId: row.parent_comment_id,
     };
 }
 
@@ -262,7 +271,7 @@ export async function loadWorkshopPublicState(
     const contentVisibilityCutoff = new Date().toISOString();
     const commentsQuery = supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
-        .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
+        .select(WORKSHOP_COMMENT_COLUMNS)
         .eq('workshop_id', workshopRow.id)
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
@@ -296,7 +305,7 @@ export async function loadWorkshopPublicState(
         commentsQuery,
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
+            .select(WORKSHOP_COMMENT_COLUMNS)
             .eq('workshop_id', workshopRow.id)
             .eq('participant_id', participant.id)
             .eq('status', 'pending')
@@ -361,6 +370,47 @@ export async function loadWorkshopPublicState(
     };
 }
 
+/**
+ * Loads the comments answered by the listed ones, so moderation of a reply sees the question it answers
+ *
+ * Note: The listed comments are filtered by one moderation status, so an answered comment is almost never among them.
+ * Note: Missing context must never take the whole administration down with it, so a failure is reported as no context.
+ */
+async function loadAnsweredWorkshopComments(
+    supabase: SupabaseClient,
+    workshopId: string,
+    commentRows: readonly WorkshopCommentRow[],
+): Promise<ReadonlyMap<string, WorkshopCommentReference>> {
+    const answeredCommentIds = Array.from(
+        new Set(
+            commentRows
+                .map((commentRow) => commentRow.parent_comment_id)
+                .filter((parentCommentId): parentCommentId is string => parentCommentId !== null),
+        ),
+    );
+    if (answeredCommentIds.length === 0) {
+        return new Map();
+    }
+
+    const { data, error } = await supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select('id, author_name, body')
+        .eq('workshop_id', workshopId)
+        .in('id', answeredCommentIds);
+
+    if (error) {
+        console.error('Failed to load the answered comments of a workshop:', error.message);
+        return new Map();
+    }
+
+    return new Map(
+        ((data ?? []) as readonly { readonly id: string; readonly author_name: string; readonly body: string }[]).map(
+            (commentRow) =>
+                [commentRow.id, { id: commentRow.id, authorName: commentRow.author_name, body: commentRow.body }] as const,
+        ),
+    );
+}
+
 export async function loadWorkshopAdminSnapshot(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
@@ -385,7 +435,7 @@ export async function loadWorkshopAdminSnapshot(
             .order('unlock_at', { ascending: true }),
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select('id, participant_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at')
+            .select(WORKSHOP_COMMENT_COLUMNS)
             .eq('workshop_id', workshopRow.id)
             .eq('status', commentStatus)
             .order('created_at', { ascending: false })
@@ -432,12 +482,15 @@ export async function loadWorkshopAdminSnapshot(
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
+    const answeredCommentById = await loadAnsweredWorkshopComments(supabase, workshopRow.id, commentRows);
     const comments = commentRows.map((row): WorkshopAdminComment => ({
         ...mapWorkshopCommentRow(row, false),
         participantId: row.participant_id,
         isArtificial: row.is_artificial,
         realUpvoteCount: row.upvote_count,
         artificialUpvoteCount: row.artificial_upvote_count,
+        parentComment:
+            row.parent_comment_id === null ? null : (answeredCommentById.get(row.parent_comment_id) ?? null),
     }));
     const activityTotalsByParticipantId = new Map<string, WorkshopParticipantActivityTotalsRow>(
         ((participantActivityTotalsResult.data ?? []) as WorkshopParticipantActivityTotalsRow[]).map(

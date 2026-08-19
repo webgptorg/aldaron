@@ -139,6 +139,17 @@ export function WorkshopCommentModeration({
                                     </span>
                                 </div>
                             </div>
+                            {comment.parentComment !== null && (
+                                <div className="mt-3 rounded-lg border-l-2 border-slate-300 bg-slate-50 px-3 py-2">
+                                    <p className="text-xs font-semibold text-slate-500">
+                                        Odpověď na komentář od {comment.parentComment.authorName}
+                                    </p>
+                                    <WorkshopCommentMarkdown
+                                        content={comment.parentComment.body}
+                                        className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-xs leading-5 text-slate-500"
+                                    />
+                                </div>
+                            )}
                             <WorkshopCommentMarkdown
                                 content={comment.body}
                                 className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700"
