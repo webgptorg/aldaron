@@ -132,7 +132,7 @@
 
 ---
 
-[ ]
+[^] by Claude Code `claude-opus-5` thinking `max` - Implementation in progress
 
 [✨🛳] Show how many people watching in `/cs/online-workshop/participant`
 
@@ -143,7 +143,7 @@
 
 [ ]
 
-[✨🛳] Allow to reply in chat in `/cs/online-workshop/participant`
+[✨🛳] Allow to reply in chat and also for admin allow to pin one message in `/cs/online-workshop/participant`
 
 - Keep in mind the DRY _(don't repeat yourself)_ principle
 - If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-3.sql`
@@ -159,5 +159,3 @@
 - But animations should work for any arbitrary text or action, just with generic animation as it is now.
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
-
-
