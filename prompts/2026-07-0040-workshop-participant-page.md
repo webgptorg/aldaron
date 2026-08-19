@@ -90,6 +90,11 @@
 
 [✨🛳] Add option to add the workshop to the calendar in `/cs/online-workshop/participant`
 
+- the calendar event should have the title "Karel <> Pavol - Produkční kód s AI agenty"
+    - "Karel" is the first name of the participant for whom the calendar event is generated
+    - "Pavol" is the first name of the host of the workshop
+    - "Produkcní kód s AI agenty" is the title of the workshop
+- in the event, there should be a personalized link to join the workshop `/cs/online-workshop/participant?email=...&fullname=...`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
     - there is already this feature in `/cs/online-workshop/dekujeme`, share the code and make it reusable.
 - the calendar should be generated dynamically based on the information in the workshop
@@ -154,5 +159,3 @@
 - But animations should work for any arbitrary text or action, just with generic animation as it is now.
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
-
-
