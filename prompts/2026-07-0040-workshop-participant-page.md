@@ -198,6 +198,13 @@
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
 
+---
 
+[ ]
 
+[✨🛳] Make links in materials more visible `/cs/online-workshop/participant`
 
+- Now they are faded in blue, but they should be more visible, Light underlined text
+- Also, when there is only one link, there should be a call to action button alongside the material.
+
+![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-4.png)
