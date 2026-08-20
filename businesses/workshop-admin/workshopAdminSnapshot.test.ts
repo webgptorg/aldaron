@@ -31,6 +31,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
             },
         ],
         comments: [],
+        pinnedComment: null,
         participants: [],
         participantCount: 0,
         commentCount: 0,

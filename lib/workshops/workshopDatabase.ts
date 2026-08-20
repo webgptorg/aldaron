@@ -41,6 +41,11 @@ export type WorkshopRow = {
     readonly youtube_video_id: string | null;
     readonly is_published: boolean;
     readonly allowed_reactions: string[];
+
+    /**
+     * The message pinned on top of the chat of this workshop, or `null` when nothing is pinned
+     */
+    readonly pinned_comment_id: string | null;
     readonly created_at: string;
     readonly updated_at: string;
 };
@@ -74,6 +79,18 @@ export type WorkshopCommentRow = {
  */
 export const WORKSHOP_COMMENT_COLUMNS =
     'id, participant_id, parent_comment_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at';
+
+type WorkshopCommentReferenceRow = {
+    readonly id: string;
+    readonly author_name: string;
+    readonly body: string;
+};
+
+/**
+ * As little of a comment as it takes to recognize it outside of the chat, so in the moderation of a reply or in the
+ * pinned message of the administration
+ */
+const WORKSHOP_COMMENT_REFERENCE_COLUMNS = 'id, author_name, body';
 
 type WorkshopAdminParticipantRow = {
     readonly id: string;
@@ -164,7 +181,11 @@ export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 
     };
 }
 
-export function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByParticipant: boolean): WorkshopComment {
+export function mapWorkshopCommentRow(
+    row: WorkshopCommentRow,
+    isUpvotedByParticipant: boolean,
+    pinnedCommentId: string | null,
+): WorkshopComment {
     return {
         id: row.id,
         authorName: row.author_name,
@@ -174,7 +195,12 @@ export function mapWorkshopCommentRow(row: WorkshopCommentRow, isUpvotedByPartic
         isUpvotedByParticipant,
         createdAt: row.created_at,
         parentCommentId: row.parent_comment_id,
+        isPinned: row.id === pinnedCommentId,
     };
+}
+
+function mapWorkshopCommentReferenceRow(row: WorkshopCommentReferenceRow): WorkshopCommentReference {
+    return { id: row.id, authorName: row.author_name, body: row.body };
 }
 
 function mapWorkshopAdminParticipantRow(
@@ -262,6 +288,83 @@ export async function countWatchingWorkshopParticipants(
     return count ?? 0;
 }
 
+/**
+ * Loads the message pinned on top of a chat, whatever its age and moderation state
+ *
+ * Note: The pin belongs to the workshop, so the pinned message can be far outside the recent ones and still has to
+ *       reach both the room and the administration.
+ * Note: A pin which could not be loaded must never take the whole room down with it, so a failure is reported as
+ *       nothing being pinned.
+ */
+async function loadPinnedWorkshopCommentRowOrNull(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<WorkshopCommentRow | null> {
+    if (workshopRow.pinned_comment_id === null) {
+        return null;
+    }
+
+    const { data, error } = await supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select(WORKSHOP_COMMENT_COLUMNS)
+        .eq('id', workshopRow.pinned_comment_id)
+        .eq('workshop_id', workshopRow.id)
+        .maybeSingle();
+
+    if (error) {
+        console.error('Failed to load the pinned comment of a workshop:', error.message);
+        return null;
+    }
+
+    return data as WorkshopCommentRow | null;
+}
+
+/**
+ * Adds the pinned message to the loaded ones, so the room keeps a pin on top however old it is
+ *
+ * Note: Only a message the whole room sees can hold the top of the chat, so a pin which lost its approval is left out.
+ */
+function withPinnedWorkshopCommentRow(
+    commentRows: readonly WorkshopCommentRow[],
+    pinnedCommentRow: WorkshopCommentRow | null,
+): readonly WorkshopCommentRow[] {
+    if (
+        pinnedCommentRow === null ||
+        pinnedCommentRow.status !== 'approved' ||
+        commentRows.some(({ id }) => id === pinnedCommentRow.id)
+    ) {
+        return commentRows;
+    }
+
+    return [...commentRows, pinnedCommentRow];
+}
+
+/**
+ * Pins one message on top of a chat or releases the top of that chat again
+ *
+ * Note: The workshop remembers a single pin, so pinning a message releases the previously pinned one in the same write.
+ * Note: Releasing the top only clears this very message, so it never drops a pin which another tab set meanwhile.
+ */
+export async function updatePinnedWorkshopComment(
+    supabase: SupabaseClient,
+    workshopId: string,
+    commentId: string,
+    isPinned: boolean,
+): Promise<{ readonly errorMessage: string | null }> {
+    const pinnedCommentQuery = supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .update({ pinned_comment_id: isPinned ? commentId : null })
+        .eq('id', workshopId);
+
+    const { error } = await (isPinned ? pinnedCommentQuery : pinnedCommentQuery.eq('pinned_comment_id', commentId));
+    if (error) {
+        console.error('Failed to change the pinned comment of a workshop:', error.message);
+        return { errorMessage: 'Pinned comment could not be changed' };
+    }
+
+    return { errorMessage: null };
+}
+
 export async function loadWorkshopPublicState(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
@@ -284,6 +387,7 @@ export async function loadWorkshopPublicState(
         pendingCommentsResult,
         reactionsResult,
         watchingParticipantCount,
+        pinnedCommentRow,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -318,6 +422,7 @@ export async function loadWorkshopPublicState(
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_RECENT_REACTION_COUNT),
         countWatchingWorkshopParticipants(supabase, workshopRow.id),
+        loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
     ]);
 
     const firstError =
@@ -330,10 +435,13 @@ export async function loadWorkshopPublicState(
         return { state: null, errorMessage: firstError.message };
     }
 
-    const commentRows = [
-        ...((commentsResult.data ?? []) as WorkshopCommentRow[]),
-        ...((pendingCommentsResult.data ?? []) as WorkshopCommentRow[]),
-    ];
+    const commentRows = withPinnedWorkshopCommentRow(
+        [
+            ...((commentsResult.data ?? []) as WorkshopCommentRow[]),
+            ...((pendingCommentsResult.data ?? []) as WorkshopCommentRow[]),
+        ],
+        pinnedCommentRow,
+    );
     const commentIds = commentRows.map(({ id }) => id);
     let upvotedCommentIds = new Set<string>();
 
@@ -361,7 +469,9 @@ export async function loadWorkshopPublicState(
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
             comments: sortWorkshopComments(
-                commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id))),
+                commentRows.map((row) =>
+                    mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), workshopRow.pinned_comment_id),
+                ),
                 commentSort,
             ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
@@ -394,7 +504,7 @@ async function loadAnsweredWorkshopComments(
 
     const { data, error } = await supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
-        .select('id, author_name, body')
+        .select(WORKSHOP_COMMENT_REFERENCE_COLUMNS)
         .eq('workshop_id', workshopId)
         .in('id', answeredCommentIds);
 
@@ -404,9 +514,8 @@ async function loadAnsweredWorkshopComments(
     }
 
     return new Map(
-        ((data ?? []) as readonly { readonly id: string; readonly author_name: string; readonly body: string }[]).map(
-            (commentRow) =>
-                [commentRow.id, { id: commentRow.id, authorName: commentRow.author_name, body: commentRow.body }] as const,
+        ((data ?? []) as readonly WorkshopCommentReferenceRow[]).map(
+            (commentRow) => [commentRow.id, mapWorkshopCommentReferenceRow(commentRow)] as const,
         ),
     );
 }
@@ -426,6 +535,7 @@ export async function loadWorkshopAdminSnapshot(
         contentLinkClickTotalsResult,
         reactionsResult,
         artificialReactionsResult,
+        pinnedCommentRow,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -465,6 +575,7 @@ export async function loadWorkshopAdminSnapshot(
             .select('id', { count: 'exact', head: true })
             .eq('workshop_id', workshopRow.id)
             .eq('is_artificial', true),
+        loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
     ]);
 
     const firstError =
@@ -484,7 +595,7 @@ export async function loadWorkshopAdminSnapshot(
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
     const answeredCommentById = await loadAnsweredWorkshopComments(supabase, workshopRow.id, commentRows);
     const comments = commentRows.map((row): WorkshopAdminComment => ({
-        ...mapWorkshopCommentRow(row, false),
+        ...mapWorkshopCommentRow(row, false, workshopRow.pinned_comment_id),
         participantId: row.participant_id,
         isArtificial: row.is_artificial,
         realUpvoteCount: row.upvote_count,
@@ -511,6 +622,7 @@ export async function loadWorkshopAdminSnapshot(
                 mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
             ),
             comments,
+            pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
             participants: ((participantsResult.data ?? []) as WorkshopAdminParticipantRow[]).map((participant) =>
                 mapWorkshopAdminParticipantRow(participant, activityTotalsByParticipantId.get(participant.id)),
             ),

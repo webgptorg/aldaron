@@ -3,6 +3,8 @@
 import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/WorkshopChatComposer';
 import { WorkshopChatMessage } from '@/businesses/online-workshop/participant/WorkshopChatMessage';
 import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
+import { cn } from '@/lib/utils';
+import { isWorkshopCommentThreadPinned } from '@/lib/workshops/workshopCommentThreads';
 import type { WorkshopCommentThread } from '@/lib/workshops/workshopTypes';
 import { Reply } from 'lucide-react';
 import { useState } from 'react';
@@ -38,7 +40,14 @@ export function WorkshopChatThread({
     };
 
     return (
-        <div className="min-w-0 rounded-xl border border-white/[0.07] bg-white/[0.035] p-4">
+        <div
+            className={cn(
+                'min-w-0 rounded-xl border p-4',
+                isWorkshopCommentThreadPinned(thread)
+                    ? 'border-cyan-300/30 bg-cyan-300/[0.07]'
+                    : 'border-white/[0.07] bg-white/[0.035]',
+            )}
+        >
             <WorkshopChatMessage
                 comment={comment}
                 isInteractionBanned={isInteractionBanned}

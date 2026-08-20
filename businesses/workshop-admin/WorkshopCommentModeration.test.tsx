@@ -3,7 +3,7 @@
  */
 
 import { WorkshopCommentModeration } from '@/businesses/workshop-admin/WorkshopCommentModeration';
-import type { WorkshopAdminComment } from '@/lib/workshops/workshopTypes';
+import type { WorkshopAdminComment, WorkshopCommentReference } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,22 +20,33 @@ const COMMENT: WorkshopAdminComment = {
     createdAt: '2026-08-20T19:00:00.000Z',
     parentCommentId: null,
     parentComment: null,
+    isPinned: false,
+};
+const PINNED_COMMENT: WorkshopCommentReference = {
+    id: 'pinned-question',
+    authorName: 'Karel Novák',
+    body: 'Odkaz na materiály najdete níže.',
 };
 const CORRECTED_BODY = 'Jak nasadit agenta do produkce?';
 const EDIT_BUTTON_LABEL = 'Upravit komentář od Jana Nováková';
 const EDITOR_LABEL = 'Text komentáře od Jana Nováková';
+const PIN_BUTTON_LABEL = 'Připnout komentář od Jana Nováková';
 
 function renderModeration(
     onEditBody: (commentId: string, body: string) => Promise<boolean>,
     comments: readonly WorkshopAdminComment[] = [COMMENT],
+    onChangePin: (commentId: string, isPinned: boolean) => Promise<boolean> = vi.fn(),
+    pinnedComment: WorkshopCommentReference | null = null,
 ) {
     return render(
         <WorkshopCommentModeration
             comments={comments}
             commentStatus="pending"
+            pinnedComment={pinnedComment}
             onChangeCommentStatus={vi.fn()}
             onModerate={vi.fn()}
             onEditBody={onEditBody}
+            onChangePin={onChangePin}
             onAdjustArtificialUpvotes={vi.fn()}
             onDelete={vi.fn()}
         />,
@@ -71,9 +82,11 @@ describe('workshop comment moderation', () => {
             <WorkshopCommentModeration
                 comments={[{ ...COMMENT, upvoteCount: 3, realUpvoteCount: 3 }]}
                 commentStatus="pending"
+                pinnedComment={null}
                 onChangeCommentStatus={vi.fn()}
                 onModerate={vi.fn()}
                 onEditBody={vi.fn()}
+                onChangePin={vi.fn()}
                 onAdjustArtificialUpvotes={vi.fn()}
                 onDelete={vi.fn()}
             />,
@@ -91,6 +104,25 @@ describe('workshop comment moderation', () => {
 
         await waitFor(() => expect(onEditBody).toHaveBeenCalledTimes(1));
         expect(screen.getByRole('textbox', { name: EDITOR_LABEL })).toHaveProperty('value', CORRECTED_BODY);
+    });
+
+    it('pins a message on top of the chat of the room', () => {
+        const onChangePin = vi.fn().mockResolvedValue(true);
+        renderModeration(vi.fn(), [COMMENT], onChangePin);
+
+        fireEvent.click(screen.getByRole('button', { name: PIN_BUTTON_LABEL }));
+
+        expect(onChangePin).toHaveBeenCalledWith('question', true);
+    });
+
+    it('releases the top of the chat from the message which holds it, whatever the list shows', () => {
+        const onChangePin = vi.fn().mockResolvedValue(true);
+        renderModeration(vi.fn(), [COMMENT], onChangePin, PINNED_COMMENT);
+
+        expect(screen.getByText(PINNED_COMMENT.body)).not.toBeNull();
+        fireEvent.click(screen.getByRole('button', { name: `Odepnout komentář od ${PINNED_COMMENT.authorName}` }));
+
+        expect(onChangePin).toHaveBeenCalledWith(PINNED_COMMENT.id, false);
     });
 
     it('gives up a correction on cancel and shows the message as the room sees it', () => {

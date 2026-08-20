@@ -66,16 +66,26 @@ export const workshopReactionSchema = z.object({
 /**
  * Every change an admin can make to a comment which is already in the chat
  *
- * Note: Moderating a comment and correcting its text share this one request, so that both reach the room the same way.
+ * Note: Moderating a comment, correcting its text, and pinning it share this one request, so that all of them reach
+ *       the room the same way.
  */
 export const workshopCommentUpdateSchema = z
     .object({
         status: z.enum(['approved', 'rejected']).optional(),
         body: workshopCommentBodySchema.optional(),
+
+        /**
+         * Whether this message holds the top of the chat, which releases the previously pinned one
+         */
+        isPinned: z.boolean().optional(),
     })
     .refine(
-        (value) => value.status !== undefined || value.body !== undefined,
+        (value) => value.status !== undefined || value.body !== undefined || value.isPinned !== undefined,
         'At least one comment field is required',
+    )
+    .refine(
+        (value) => !(value.isPinned === true && value.status === 'rejected'),
+        'A rejected comment cannot be pinned on top of the chat',
     );
 
 export const workshopArtificialCommentSchema = z.object({

@@ -64,12 +64,28 @@ export function createWorkshopContentUpdateDatabaseValues(values: WorkshopConten
 
 /**
  * Note: Only a decision about the comment is a moderation, a corrected text leaves the moderation timestamp alone.
+ * Note: A pinned message is there for the whole room to read, so pinning approves the message together with pinning it.
  */
 export function createWorkshopCommentUpdateDatabaseValues(values: WorkshopCommentUpdateValues) {
+    const status = values.status ?? (values.isPinned === true ? 'approved' : undefined);
+
     return {
-        ...(values.status === undefined ? {} : { status: values.status, moderated_at: new Date().toISOString() }),
+        ...(status === undefined ? {} : { status, moderated_at: new Date().toISOString() }),
         ...(values.body === undefined ? {} : { body: values.body }),
     };
+}
+
+/**
+ * Whether an admin change pins the comment on top of the chat, releases the top again, or leaves the pin alone
+ *
+ * Note: A rejected message leaves the top of the chat, because the room does not see it anymore.
+ */
+export function getWorkshopCommentPinChange(values: WorkshopCommentUpdateValues): boolean | null {
+    if (values.status === 'rejected') {
+        return false;
+    }
+
+    return values.isPinned ?? null;
 }
 
 export function createWorkshopArtificialCommentDatabaseValues(values: WorkshopArtificialCommentValues) {

@@ -14,6 +14,7 @@ import {
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
     moderateAdminWorkshopComment,
+    pinAdminWorkshopComment,
     sendAdminWorkshopArtificialReaction,
     updateAdminWorkshop,
     updateAdminWorkshopContent,
@@ -190,6 +191,10 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
         snapshot === null
             ? Promise.resolve(false)
             : runAndReload(() => editAdminWorkshopCommentBody(adminToken, snapshot.workshop.id, commentId, body));
+    const handleChangeCommentPin = (commentId: string, isPinned: boolean) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => pinAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, isPinned));
     const handleDeleteComment = async (commentId: string) => {
         if (snapshot !== null) {
             await runAndReload(() => deleteAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId));
@@ -337,9 +342,11 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                         <WorkshopCommentModeration
                             comments={snapshot.comments}
                             commentStatus={commentStatus}
+                            pinnedComment={snapshot.pinnedComment}
                             onChangeCommentStatus={setCommentStatus}
                             onModerate={handleModerateComment}
                             onEditBody={handleEditCommentBody}
+                            onChangePin={handleChangeCommentPin}
                             onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
                             onDelete={handleDeleteComment}
                         />

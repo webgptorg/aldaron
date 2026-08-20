@@ -1,20 +1,27 @@
 'use client';
 
 import { WorkshopCommentEditor } from '@/businesses/workshop-admin/WorkshopCommentEditor';
+import { WorkshopPinnedComment } from '@/businesses/workshop-admin/WorkshopPinnedComment';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT } from '@/lib/workshops/workshopConstants';
-import type { WorkshopAdminComment, WorkshopCommentStatus } from '@/lib/workshops/workshopTypes';
-import { Check, Clock3, MessageCircle, Pencil, ThumbsUp, Trash2, X } from 'lucide-react';
+import type {
+    WorkshopAdminComment,
+    WorkshopCommentReference,
+    WorkshopCommentStatus,
+} from '@/lib/workshops/workshopTypes';
+import { Check, Clock3, MessageCircle, Pencil, Pin, PinOff, ThumbsUp, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkshopCommentModerationProps = {
     readonly comments: readonly WorkshopAdminComment[];
     readonly commentStatus: WorkshopCommentStatus;
+    readonly pinnedComment: WorkshopCommentReference | null;
     readonly onChangeCommentStatus: (commentStatus: WorkshopCommentStatus) => void;
     readonly onModerate: (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => Promise<void>;
     readonly onEditBody: (commentId: string, body: string) => Promise<boolean>;
+    readonly onChangePin: (commentId: string, isPinned: boolean) => Promise<boolean>;
     readonly onAdjustArtificialUpvotes: (commentId: string, artificialUpvoteAdjustment: number) => Promise<boolean>;
     readonly onDelete: (commentId: string) => Promise<void>;
 };
@@ -33,9 +40,11 @@ function formatSignedNumber(value: number): string {
 export function WorkshopCommentModeration({
     comments,
     commentStatus,
+    pinnedComment,
     onChangeCommentStatus,
     onModerate,
     onEditBody,
+    onChangePin,
     onAdjustArtificialUpvotes,
     onDelete,
 }: WorkshopCommentModerationProps) {
@@ -66,6 +75,9 @@ export function WorkshopCommentModeration({
                 setEditedCommentId(null);
             }
         });
+
+    const handleChangePin = (commentId: string, isPinned: boolean) =>
+        runCommentAction(commentId, () => onChangePin(commentId, isPinned));
 
     const handleArtificialUpvoteAdjustment = async (commentId: string) => {
         const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[commentId] ?? '');
@@ -114,6 +126,12 @@ export function WorkshopCommentModeration({
                 </label>
             </div>
 
+            <WorkshopPinnedComment
+                pinnedComment={pinnedComment}
+                isProcessing={pinnedComment !== null && processingCommentIds.has(pinnedComment.id)}
+                onUnpin={(commentId) => void handleChangePin(commentId, false)}
+            />
+
             <div className="mt-6 space-y-3">
                 {comments.length === 0 && (
                     <div className="rounded-xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
@@ -140,6 +158,11 @@ export function WorkshopCommentModeration({
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap justify-end gap-2">
+                                    {comment.isPinned && (
+                                        <span className="flex items-center gap-1 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800">
+                                            <Pin className="h-3 w-3" /> Připnuto
+                                        </span>
+                                    )}
                                     {comment.isArtificial && (
                                         <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">
                                             Umělý komentář
@@ -224,6 +247,24 @@ export function WorkshopCommentModeration({
                                         <Pencil className="mr-1.5 h-4 w-4" /> Upravit
                                     </Button>
                                 )}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isProcessing}
+                                    onClick={() => void handleChangePin(comment.id, !comment.isPinned)}
+                                    aria-label={`${comment.isPinned ? 'Odepnout' : 'Připnout'} komentář od ${comment.authorName}`}
+                                >
+                                    {comment.isPinned ? (
+                                        <>
+                                            <PinOff className="mr-1.5 h-4 w-4" /> Odepnout
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Pin className="mr-1.5 h-4 w-4" /> Připnout
+                                        </>
+                                    )}
+                                </Button>
                                 {comment.status !== 'rejected' && (
                                     <Button
                                         type="button"

@@ -3,7 +3,7 @@
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { cn } from '@/lib/utils';
 import type { WorkshopComment } from '@/lib/workshops/workshopTypes';
-import { ThumbsUp } from 'lucide-react';
+import { Pin, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkshopChatMessageProps = {
@@ -32,6 +32,11 @@ export function WorkshopChatMessage({ className, comment, isInteractionBanned, o
 
     return (
         <article className={cn('min-w-0', className)}>
+            {comment.isPinned && (
+                <p className="mb-2 inline-flex items-center gap-1 rounded-full bg-cyan-300/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-200">
+                    <Pin className="h-3 w-3" /> Připnuto
+                </p>
+            )}
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <p className="break-words text-sm font-semibold text-slate-100">{comment.authorName}</p>

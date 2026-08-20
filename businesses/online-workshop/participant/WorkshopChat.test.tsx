@@ -17,6 +17,7 @@ const QUESTION: WorkshopComment = {
     isUpvotedByParticipant: false,
     createdAt: '2026-08-20T19:00:00.000Z',
     parentCommentId: null,
+    isPinned: false,
 };
 const ANSWER: WorkshopComment = {
     ...QUESTION,
@@ -33,6 +34,13 @@ const PENDING_QUESTION: WorkshopComment = {
     body: 'Tahle zpráva čeká na schválení.',
     status: 'pending',
     createdAt: '2026-08-20T19:20:00.000Z',
+};
+const PINNED_QUESTION: WorkshopComment = {
+    ...QUESTION,
+    id: 'pinned-question',
+    body: 'Tahle zpráva drží začátek chatu.',
+    createdAt: '2026-08-20T18:30:00.000Z',
+    isPinned: true,
 };
 const NEW_MESSAGE_LABEL = 'Nová zpráva do chatu';
 const ANSWER_LABEL = 'Odpověď na komentář od Jana Nováková';
@@ -124,6 +132,15 @@ describe('workshop chat', () => {
 
         expect(screen.queryByRole('textbox', { name: ANSWER_LABEL })).toBeNull();
         expect(screen.getByRole('button', { name: ANSWER_BUTTON_LABEL })).not.toBeNull();
+    });
+
+    it('holds the pinned message on top of the chat however old it is and marks it for the room', () => {
+        renderChat(vi.fn(), [QUESTION, PINNED_QUESTION]);
+
+        const messages = screen.getAllByRole('article');
+        expect(messages[0]?.textContent).toContain(PINNED_QUESTION.body);
+        expect(messages[0]?.textContent).toContain('Připnuto');
+        expect(messages[1]?.textContent).toContain(QUESTION.body);
     });
 
     it('does not offer answering a message which the room does not see yet', () => {

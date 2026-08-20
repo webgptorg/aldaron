@@ -45,6 +45,27 @@ function sortWorkshopCommentRepliesChronologically(
     );
 }
 
+/**
+ * Whether an admin pinned this conversation, so its opening message or one of its answers
+ */
+export function isWorkshopCommentThreadPinned(thread: WorkshopCommentThread): boolean {
+    return thread.comment.isPinned || thread.replies.some((reply) => reply.isPinned);
+}
+
+/**
+ * Lifts the pinned conversation above all the others without disturbing the order the room asked for
+ */
+function sortPinnedWorkshopCommentThreadsFirst(
+    threads: readonly WorkshopCommentThread[],
+): readonly WorkshopCommentThread[] {
+    const pinnedThreads = threads.filter(isWorkshopCommentThreadPinned);
+    if (pinnedThreads.length === 0) {
+        return threads;
+    }
+
+    return [...pinnedThreads, ...threads.filter((thread) => !isWorkshopCommentThreadPinned(thread))];
+}
+
 function getWorkshopThreadActivityTime(thread: WorkshopCommentThread): number {
     return thread.replies.reduce(
         (latestActivityTime, reply) => Math.max(latestActivityTime, Date.parse(reply.createdAt)),
@@ -59,6 +80,7 @@ function getWorkshopThreadActivityTime(thread: WorkshopCommentThread): number {
  *       the whole conversation instead of hiding below the questions asked meanwhile. Sorting by upvotes keeps ranking
  *       the threads by the votes of the comment which opened them, so a vote is what decides the order the room asked
  *       for.
+ * Note: A pinned conversation stays on top of both orders, because an admin pins a message exactly to keep it there.
  */
 export function buildWorkshopCommentThreads(
     comments: readonly WorkshopComment[],
@@ -77,11 +99,13 @@ export function buildWorkshopCommentThreads(
     }));
 
     if (commentSort !== 'recent') {
-        return threads;
+        return sortPinnedWorkshopCommentThreadsFirst(threads);
     }
 
-    return [...threads].sort(
-        (firstThread, secondThread) =>
-            getWorkshopThreadActivityTime(secondThread) - getWorkshopThreadActivityTime(firstThread),
+    return sortPinnedWorkshopCommentThreadsFirst(
+        [...threads].sort(
+            (firstThread, secondThread) =>
+                getWorkshopThreadActivityTime(secondThread) - getWorkshopThreadActivityTime(firstThread),
+        ),
     );
 }

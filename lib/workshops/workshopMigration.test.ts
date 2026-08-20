@@ -10,6 +10,8 @@ const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07
 const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
 const WATCHING_AND_REPLY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
 const WATCHING_AND_REPLY_MIGRATION_SQL = readFileSync(WATCHING_AND_REPLY_MIGRATION_PATH, 'utf8');
+const PINNED_COMMENT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-4.sql');
+const PINNED_COMMENT_MIGRATION_SQL = readFileSync(PINNED_COMMENT_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -105,5 +107,24 @@ describe('workshop database migration', () => {
         );
         expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain('WORKSHOP_COMMENT_REPLY_TOO_DEEP');
         expect(WATCHING_AND_REPLY_MIGRATION_SQL).toContain('workshop_comments_enforce_reply_depth');
+    });
+
+    it('remembers a single pinned message per workshop and releases it with its message', () => {
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS pinned_comment_id uuid');
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain(
+            'ADD CONSTRAINT workshops_pinned_comment_fk FOREIGN KEY (pinned_comment_id)',
+        );
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('REFERENCES public.workshop_comments(id) ON DELETE SET NULL');
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshops_pinned_comment_idx');
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('WORKSHOP_PINNED_COMMENT_FOREIGN');
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('workshops_enforce_pinned_comment_identity');
+    });
+
+    it('keeps a pin out of the revision of the workshop the administration edits', () => {
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('set_workshop_updated_at_except_pin');
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain(
+            "to_jsonb(NEW) - 'pinned_comment_id' - 'updated_at' = to_jsonb(OLD) - 'pinned_comment_id' - 'updated_at'",
+        );
+        expect(PINNED_COMMENT_MIGRATION_SQL).toContain('NEW.updated_at = OLD.updated_at');
     });
 });

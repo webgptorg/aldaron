@@ -145,7 +145,11 @@ async function updateAdminWorkshopComment(
     adminToken: string,
     workshopId: string,
     commentId: string,
-    values: { readonly status?: Exclude<WorkshopCommentStatus, 'pending'>; readonly body?: string },
+    values: {
+        readonly status?: Exclude<WorkshopCommentStatus, 'pending'>;
+        readonly body?: string;
+        readonly isPinned?: boolean;
+    },
 ): Promise<void> {
     await requestAdminJson(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}`, adminToken),
@@ -172,6 +176,20 @@ export async function editAdminWorkshopCommentBody(
     body: string,
 ): Promise<void> {
     await updateAdminWorkshopComment(adminToken, workshopId, commentId, { body });
+}
+
+/**
+ * Holds one message on top of the chat for the whole room, or releases the top again
+ *
+ * Note: A pinned message is approved together with pinning it, so the room really sees what is held on its top.
+ */
+export async function pinAdminWorkshopComment(
+    adminToken: string,
+    workshopId: string,
+    commentId: string,
+    isPinned: boolean,
+): Promise<void> {
+    await updateAdminWorkshopComment(adminToken, workshopId, commentId, { isPinned });
 }
 
 export async function createAdminWorkshopArtificialComment(

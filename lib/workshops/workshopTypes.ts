@@ -61,6 +61,13 @@ export type WorkshopComment = {
      * The comment this one answers, or `null` when it opens its own thread
      */
     readonly parentCommentId: string | null;
+
+    /**
+     * Whether an admin pinned this message to the top of the chat
+     *
+     * Note: A room has at most one pinned message, because the pin is remembered by the workshop itself.
+     */
+    readonly isPinned: boolean;
 };
 
 /**
@@ -115,6 +122,11 @@ export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly comments: readonly WorkshopAdminComment[];
+
+    /**
+     * The message pinned on top of the chat, whatever moderation state the administration is listing
+     */
+    readonly pinnedComment: WorkshopCommentReference | null;
     readonly participants: readonly WorkshopAdminParticipant[];
     readonly participantCount: number;
     readonly commentCount: number;

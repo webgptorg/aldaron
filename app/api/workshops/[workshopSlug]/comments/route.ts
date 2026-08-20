@@ -105,7 +105,11 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         return NextResponse.json({ error: 'Comment could not be saved' }, { status: 500 });
     }
 
-    const comment = mapWorkshopCommentRow(data as WorkshopCommentRow, false);
+    const comment = mapWorkshopCommentRow(
+        data as WorkshopCommentRow,
+        false,
+        authenticatedRequest.workshopRow.pinned_comment_id,
+    );
 
     if (commentStatus === 'approved') {
         await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, { kind: 'state-changed' });

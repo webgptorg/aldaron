@@ -11,6 +11,7 @@ function createComment(values: Partial<WorkshopComment> & { readonly id: string 
         isUpvotedByParticipant: false,
         createdAt: '2026-08-20T19:00:00.000Z',
         parentCommentId: null,
+        isPinned: false,
         ...values,
     };
 }
@@ -68,6 +69,35 @@ describe('workshop comment threads', () => {
             'orphan-answer',
             'other-question',
             'question',
+        ]);
+    });
+
+    it('keeps the pinned conversation on top of both orders the room can ask for', () => {
+        const pinnedQuestion = createComment({
+            id: 'pinned-question',
+            createdAt: '2026-08-20T18:50:00.000Z',
+            upvoteCount: 0,
+            isPinned: true,
+        });
+
+        expect(getThreadIds([QUESTION, OTHER_QUESTION, pinnedQuestion], 'recent')).toEqual([
+            'pinned-question',
+            'other-question',
+            'question',
+        ]);
+        expect(getThreadIds([QUESTION, OTHER_QUESTION, pinnedQuestion], 'upvotes')).toEqual([
+            'pinned-question',
+            'other-question',
+            'question',
+        ]);
+    });
+
+    it('lifts the whole conversation when its pinned message is an answer', () => {
+        const pinnedAnswer = { ...EARLY_ANSWER, isPinned: true };
+
+        expect(getThreadIds([OTHER_QUESTION, QUESTION, pinnedAnswer], 'upvotes')).toEqual([
+            'question',
+            'other-question',
         ]);
     });
 

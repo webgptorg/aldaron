@@ -70,6 +70,12 @@ describe('workshop request validation', () => {
         expect(workshopCommentUpdateSchema.safeParse({ status: 'pending' }).success).toBe(false);
     });
 
+    it('pins a message on its own but never pins a message the room does not see', () => {
+        expect(workshopCommentUpdateSchema.parse({ isPinned: true })).toEqual({ isPinned: true });
+        expect(workshopCommentUpdateSchema.parse({ isPinned: false })).toEqual({ isPinned: false });
+        expect(workshopCommentUpdateSchema.safeParse({ isPinned: true, status: 'rejected' }).success).toBe(false);
+    });
+
     it('accepts a YouTube URL and stores only its stable video ID', () => {
         const workshop = workshopCreateSchema.parse({
             ...VALID_WORKSHOP,
