@@ -153,13 +153,47 @@
 
 [ ]
 
+[✨🛳] Allow to edit a message in the admin panel, so that we can fix typos or add some information to the message for `/cs/online-workshop/participant`
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Allow to pin one message in `/cs/online-workshop/participant`
+
+- In admin allow to pin one message, so that it is always on the top of the chat and all participants can see it.
+- Pinned messages are always on top of the chat, even if they are not the most recent one or most upvoted one.
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-4.sql`
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Allow to enable/disable panels in `/cs/online-workshop/participant`
+
+- Allow to enable/disable the following panels in the participant page:
+    - Chat
+    - Reactions (disabled just for the participants to send reactions, but the admin can still send reactions and participants can see them)
+    - How many people are watching
+- Disabled chat should still be visible, but the user cannot write any comments or reactions.
+- Disabled chat should fade out, other disabled panels should be hidden and dont take any space on the page.
+- Design it a such way that it can be easily extended in the future with more panels.
+- Keep in mind the DRY _(don't repeat yourself)_ principle
+- If you need a change in the database migration, do it in file `migrations/2026-07-0040-workshop-page-5.sql`
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
 [✨🛳] Each emoji in `/admin/workshops` Should have its own unique reaction animation
 
-- Do emoji animations for the theese emoji reactions 👍 ❤️ 👏 🔥 💡 😂 </> ✨ 🐍 👀
+- Do emoji animations for the theese emoji reactions 👍 ❤️ 👏 🔥 💡 😂 </> ✨ 🐍 👀 🎉 🎆 👩‍💻
 - But animations should work for any arbitrary text or action, just with generic animation as it is now.
 - For especially these reactions, there should be unique animations.
 - Do some system for these animations. Use abstractions. Keep in mind the DRY _(don't repeat yourself)_ principle. Keep in mind that the animations should be reusable for other workshops in the future and also production-ready for 1000+ participants in any device.
-
-
-
-
