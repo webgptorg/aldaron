@@ -1,3 +1,4 @@
+import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import { AddToCalendarButtons } from '@/components/calendar/AddToCalendarButtons';
 import { MetaPixelEvent } from '@/components/meta-pixel-event';
@@ -179,13 +180,13 @@ export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorksh
                             Chceš to projít do hloubky s vlastním týmem?
                         </h2>
                         <p className="mt-1 text-[14px] leading-relaxed text-gray-500">
-                            Celodenní workshop AI Supervize Mini navazuje tam, kde těch 60 minut skončí.
+                            Praktický workshop AI Supervize Mini navazuje tam, kde těch 60 minut skončí.
                         </p>
                         <Link
-                            href="/ai-supervize-mini"
+                            href={AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH}
                             className="mt-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-cyan-700 underline-offset-4 hover:underline"
                         >
-                            Prohlédnout celodenní workshop
+                            Prohlédnout navazující workshop
                             <ArrowRight className="h-4 w-4" />
                         </Link>
                     </div>

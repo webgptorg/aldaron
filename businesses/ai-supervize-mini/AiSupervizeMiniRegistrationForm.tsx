@@ -1,7 +1,22 @@
 'use client';
 
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
-import { getAiSupervizeMiniDiscountCode } from '@/businesses/ai-supervize-mini/discountCode';
+import {
+    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
+    AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME,
+    getAiSupervizeMiniWorkshopDateById,
+} from '@/businesses/ai-supervize-mini/config';
+import { getAiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
+import {
+    AiSupervizeMiniWorkshopRegistrationError,
+    submitAiSupervizeMiniWorkshopRegistration,
+} from '@/businesses/ai-supervize-mini/workshopRegistrationApi';
+import {
+    createAiSupervizeMiniWorkshopPrice,
+    formatCzechKoruna,
+    getAiSupervizeMiniWorkshopAvailabilityByDateId,
+    type AiSupervizeMiniInvoiceType,
+    type AiSupervizeMiniWorkshopAvailability,
+} from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,9 +27,8 @@ import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
 import { BadgePercent, CheckCircle2, Loader2, Users } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
-type InvoiceType = 'company' | 'individual';
 type InterestReason = 'date-does-not-work' | 'price-too-high' | 'different-format' | 'other';
 type ContactFieldsState = {
     fullname: string;
@@ -166,31 +180,58 @@ function ContactFields({
     );
 }
 
-function formatCzk(amount: number) {
-    return `${amount.toLocaleString('cs-CZ')} Kč`;
+function clampParticipantCount(value: number, maximumParticipantCount: number): number {
+    if (!Number.isFinite(value)) {
+        return 1;
+    }
+
+    return Math.min(Math.max(Math.round(value), 1), Math.max(1, maximumParticipantCount));
 }
 
-function clampParticipants(value: number, max: number) {
-    if (!Number.isFinite(value)) return 1;
-    return Math.min(Math.max(Math.round(value), 1), max);
+function getParticipantCountError(
+    isAvailabilityKnown: boolean,
+    availableSeatCount: number,
+    participantCount: number,
+): string | null {
+    if (!isAvailabilityKnown) {
+        return 'Aktuální počet volných míst se nepodařilo ověřit.';
+    }
+
+    if (availableSeatCount === 0) {
+        return 'Tento termín je momentálně bez volných míst.';
+    }
+
+    return participantCount < 1 || participantCount > availableSeatCount
+        ? `Počet účastníků musí být mezi 1 a ${availableSeatCount}.`
+        : null;
 }
 
-export function AiSupervizeMiniRegistrationForm() {
-    const [selectedDateId, setSelectedDateId] = useState<string>(aiSupervizeMiniWorkshopConfig.dates[0]!.id);
-    const selectedDate =
-        aiSupervizeMiniWorkshopConfig.dates.find((date) => date.id === selectedDateId) ??
-        aiSupervizeMiniWorkshopConfig.dates[0]!;
-    const availableSeats = Math.min(
-        aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop,
-        selectedDate.remainingSeats,
-    );
+type AiSupervizeMiniRegistrationFormProps = {
+    readonly initialDiscountCode: string;
+    readonly initialWorkshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
+};
+
+export function AiSupervizeMiniRegistrationForm({
+    initialDiscountCode,
+    initialWorkshopAvailabilities,
+}: AiSupervizeMiniRegistrationFormProps) {
+    const [selectedDateId, setSelectedDateId] = useState<string>(AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!.id);
+    const selectedWorkshopDate =
+        getAiSupervizeMiniWorkshopDateById(selectedDateId) ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
+    const [workshopAvailabilities, setWorkshopAvailabilities] = useState(initialWorkshopAvailabilities);
+    const selectedWorkshopAvailability =
+        workshopAvailabilities === null
+            ? null
+            : getAiSupervizeMiniWorkshopAvailabilityByDateId(workshopAvailabilities, selectedWorkshopDate.id);
+    const isAvailabilityKnown = selectedWorkshopAvailability !== null;
+    const availableSeatCount = selectedWorkshopAvailability?.remainingSeatCount ?? 0;
     const [participantCount, setParticipantCount] = useState(1);
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [company, setCompany] = useState('');
-    const [invoiceType, setInvoiceType] = useState<InvoiceType>('company');
+    const [invoiceType, setInvoiceType] = useState<AiSupervizeMiniInvoiceType>('company');
     const [billingDetails, setBillingDetails] = useState('');
-    const [discountCode, setDiscountCode] = useState('');
+    const [discountCode, setDiscountCode] = useState(initialDiscountCode);
     const [note, setNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -210,32 +251,28 @@ export function AiSupervizeMiniRegistrationForm() {
     const [showInterestValidation, setShowInterestValidation] = useState(false);
 
     useEffect(() => {
-        setParticipantCount((count) => clampParticipants(count, availableSeats));
-    }, [availableSeats]);
+        setWorkshopAvailabilities(initialWorkshopAvailabilities);
+    }, [initialWorkshopAvailabilities]);
 
-    const appliedDiscountCode = getAiSupervizeMiniDiscountCode(discountCode);
-    const discountApplied = appliedDiscountCode !== null;
+    useEffect(() => {
+        setDiscountCode(initialDiscountCode);
+    }, [initialDiscountCode]);
+
+    useEffect(() => {
+        setParticipantCount((count) => clampParticipantCount(count, availableSeatCount));
+    }, [availableSeatCount]);
+
+    const activeDiscount = getAiSupervizeMiniActiveDiscount(discountCode);
+    const isDiscountApplied = activeDiscount !== null;
     const price = useMemo(() => {
-        const basePrice = selectedDate.pricePerParticipantCzk * participantCount;
-        const discountAmount = discountApplied
-            ? Math.round((basePrice * aiSupervizeMiniWorkshopConfig.discount.percent) / 100)
-            : 0;
-        return {
-            basePrice,
-            discountAmount,
-            finalPrice: basePrice - discountAmount,
-        };
-    }, [discountApplied, participantCount, selectedDate.pricePerParticipantCzk]);
+        return createAiSupervizeMiniWorkshopPrice(selectedWorkshopDate, participantCount, activeDiscount);
+    }, [activeDiscount, participantCount, selectedWorkshopDate]);
 
-    const participantError =
-        participantCount < 1 || participantCount > availableSeats
-            ? availableSeats > 0
-                ? `Počet účastníků musí být mezi 1 a ${availableSeats}.`
-                : 'Tento termín je momentálně bez volných míst.'
-            : null;
+    const participantError = getParticipantCountError(isAvailabilityKnown, availableSeatCount, participantCount);
     const { fullnameError, emailError, companyError } = getContactFieldErrors({ fullname, email, company });
     const billingDetailsError = billingDetails.trim() ? null : 'Vyplňte fakturační údaje.';
-    const canSubmit = !participantError && !fullnameError && !emailError && !companyError && !billingDetailsError;
+    const canSubmit =
+        isAvailabilityKnown && !participantError && !fullnameError && !emailError && !companyError && !billingDetailsError;
     const interestFieldErrors = getContactFieldErrors(interestForm);
     const interestReasonsError =
         interestReasons.length > 0 ? null : 'Vyberte alespoň jeden důvod, proč se nemůžete zúčastnit.';
@@ -266,7 +303,7 @@ export function AiSupervizeMiniRegistrationForm() {
         setIsInterestSubmitting(false);
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!canSubmit) {
@@ -279,64 +316,32 @@ export function AiSupervizeMiniRegistrationForm() {
         setIsSubmitting(true);
         setError(null);
 
-        const payload = {
-            workshop: 'AI Supervize Mini',
-            selectedDate: selectedDate.label,
-            selectedDateId: selectedDate.id,
-            selectedFormat: selectedDate.formatLabel,
-            place: selectedDate.placeLabel,
-            timeRange: aiSupervizeMiniWorkshopConfig.timeRange,
-            remainingSeatsAtSubmit: selectedDate.remainingSeats,
-            participantCount,
-            fullname,
-            email,
-            company,
-            invoiceType,
-            billingDetails,
-            userNote: note,
-            discountCodeEntered: discountCode.trim() || null,
-            discountCodeUsed: appliedDiscountCode,
-            discountPercentApplied: discountApplied ? aiSupervizeMiniWorkshopConfig.discount.percent : 0,
-            unitPriceCzk: selectedDate.pricePerParticipantCzk,
-            basePriceCzk: price.basePrice,
-            discountAmountCzk: price.discountAmount,
-            computedFinalPriceCzk: price.finalPrice,
-        };
-
-        const contactNote = buildContactNote(
-            'AI Supervize Mini registration',
-            [
-                `Workshop date: ${payload.selectedDate}`,
-                `Workshop format: ${payload.selectedFormat}`,
-                `Workshop place: ${payload.place}`,
-                `Participants: ${payload.participantCount}`,
-                `Unit price CZK: ${payload.unitPriceCzk}`,
-                `Base price CZK: ${payload.basePriceCzk}`,
-                `Discount code entered: ${payload.discountCodeEntered ?? '(none)'}`,
-                `Discount code used: ${payload.discountCodeUsed ?? '(none)'}`,
-                `Discount percent applied: ${payload.discountPercentApplied}`,
-                `Discount amount CZK: ${payload.discountAmountCzk}`,
-                `Computed final price CZK: ${payload.computedFinalPriceCzk}`,
-            ],
-            payload,
-        );
-
         try {
-            await subscribeToWaitlist({
+            const registrationResult = await submitAiSupervizeMiniWorkshopRegistration({
+                selectedDateId: selectedWorkshopDate.id,
+                participantCount,
                 fullname,
                 email,
-                placeName: 'AiSupervizeMiniWorkshopRegistration',
-                note: contactNote,
+                company,
+                invoiceType,
+                billingDetails,
+                userNote: note,
+                discountCode,
             });
+            setWorkshopAvailabilities(registrationResult.workshopAvailabilities);
             setSuccess(true);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
+        } catch (error) {
+            if (error instanceof AiSupervizeMiniWorkshopRegistrationError && error.workshopAvailabilities !== null) {
+                setWorkshopAvailabilities(error.workshopAvailabilities);
+            }
+
+            setError(error instanceof Error ? error.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleInterestSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleInterestSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!canSubmitInterest) {
@@ -377,7 +382,7 @@ export function AiSupervizeMiniRegistrationForm() {
             await subscribeToWaitlist({
                 fullname: interestForm.fullname,
                 email: interestForm.email,
-                placeName: 'AiSupervizeMiniWorkshopRegistration',
+                placeName: AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME,
                 note: contactNote,
             });
             setInterestSuccess(true);
@@ -410,10 +415,10 @@ export function AiSupervizeMiniRegistrationForm() {
                     <h2 className="mt-2 text-2xl font-bold text-slate-950">Vyberte termín a formát</h2>
                 </div>
                 <div className="rounded-xl bg-slate-950 px-4 py-3 text-white">
-                    <div className="text-xs text-slate-300">{selectedDate.formatLabel}</div>
-                    <div className="text-2xl font-bold">{formatCzk(price.finalPrice)}</div>
-                    {discountApplied && (
-                        <div className="text-xs text-cyan-300">Sleva {aiSupervizeMiniWorkshopConfig.discount.percent} % započtena</div>
+                    <div className="text-xs text-slate-300">{selectedWorkshopDate.formatLabel}</div>
+                    <div className="text-2xl font-bold">{formatCzechKoruna(price.finalPriceCzk)}</div>
+                    {activeDiscount !== null && (
+                        <div className="text-xs text-cyan-300">Sleva {activeDiscount.percent} % započtena</div>
                     )}
                 </div>
             </div>
@@ -422,33 +427,43 @@ export function AiSupervizeMiniRegistrationForm() {
                 <div>
                     <label className="text-sm font-semibold text-slate-700">Termín workshopu</label>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        {aiSupervizeMiniWorkshopConfig.dates.map((date) => {
-                            const selected = selectedDateId === date.id;
+                        {AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map((workshopDate) => {
+                            const isSelected = selectedDateId === workshopDate.id;
+                            const workshopAvailability =
+                                workshopAvailabilities === null
+                                    ? null
+                                    : getAiSupervizeMiniWorkshopAvailabilityByDateId(
+                                          workshopAvailabilities,
+                                          workshopDate.id,
+                                      );
                             return (
                                 <button
                                     type="button"
-                                    key={date.id}
-                                    aria-pressed={selected}
-                                    onClick={() => setSelectedDateId(date.id)}
+                                    key={workshopDate.id}
+                                    aria-pressed={isSelected}
+                                    onClick={() => setSelectedDateId(workshopDate.id)}
                                     className={`rounded-xl border p-4 text-left transition-all ${
-                                        selected
+                                        isSelected
                                             ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
                                             : 'border-slate-200 bg-white hover:border-cyan-200'
                                     }`}
                                 >
-                                    <div className="text-lg font-bold text-slate-950">{date.label}</div>
+                                    <div className="text-lg font-bold text-slate-950">
+                                        {workshopDate.label} · {workshopDate.timeRange}
+                                    </div>
                                     <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                            {date.formatLabel}
+                                            {workshopDate.formatLabel}
                                         </span>
                                         <span className="font-medium text-slate-700">
-                                            {formatCzk(date.pricePerParticipantCzk)}
+                                            {formatCzechKoruna(workshopDate.pricePerParticipantCzk)}
                                         </span>
                                     </div>
                                     <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
                                         <Users className="h-4 w-4 text-cyan-600" />
-                                        Zbývá {date.remainingSeats} míst z{' '}
-                                        {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop}
+                                        {workshopAvailability === null
+                                            ? 'Kapacitu ověřujeme'
+                                            : `Zbývá ${workshopAvailability.remainingSeatCount} míst z ${workshopDate.maximumParticipantCount}`}
                                     </div>
                                 </button>
                             );
@@ -466,11 +481,14 @@ export function AiSupervizeMiniRegistrationForm() {
                             name="participants"
                             type="number"
                             min={1}
-                            max={availableSeats}
+                            max={Math.max(1, availableSeatCount)}
                             value={participantCount}
                             onChange={(event) =>
-                                setParticipantCount(clampParticipants(Number(event.target.value), availableSeats))
+                                setParticipantCount(
+                                    clampParticipantCount(Number(event.target.value), availableSeatCount),
+                                )
                             }
+                            disabled={!isAvailabilityKnown}
                             aria-invalid={showValidation && !!participantError}
                             className={cn(
                                 'mt-2 h-11',
@@ -487,7 +505,9 @@ export function AiSupervizeMiniRegistrationForm() {
                         >
                             {showValidation && participantError
                                 ? participantError
-                                : `Maximum pro tento termín: ${availableSeats}`}
+                                : isAvailabilityKnown
+                                ? `Maximum pro tento termín: ${availableSeatCount}`
+                                : 'Kapacitu ověřujeme.'}
                         </p>
                     </div>
                     <div>
@@ -509,8 +529,8 @@ export function AiSupervizeMiniRegistrationForm() {
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
                             {discountCode.trim()
-                                ? discountApplied
-                                    ? `Aktivní sleva ${aiSupervizeMiniWorkshopConfig.discount.percent} %.`
+                                ? activeDiscount !== null
+                                    ? `Aktivní sleva ${activeDiscount.percent} %. Platí jen dnes.`
                                     : 'Tento kód není aktivní.'
                                 : 'Volitelné.'}
                         </p>
@@ -583,25 +603,26 @@ export function AiSupervizeMiniRegistrationForm() {
                 <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
                     <div className="flex justify-between gap-4">
                         <span>Základní cena</span>
-                        <strong className="text-slate-900">{formatCzk(price.basePrice)}</strong>
+                        <strong className="text-slate-900">{formatCzechKoruna(price.basePriceCzk)}</strong>
                     </div>
                     <div className="mt-2 flex justify-between gap-4">
                         <span>Sleva</span>
-                        <strong className={discountApplied ? 'text-emerald-700' : 'text-slate-900'}>
-                            {discountApplied ? `-${formatCzk(price.discountAmount)}` : '0 Kč'}
+                        <strong className={isDiscountApplied ? 'text-emerald-700' : 'text-slate-900'}>
+                            {isDiscountApplied ? `-${formatCzechKoruna(price.discountAmountCzk)}` : '0 Kč'}
                         </strong>
                     </div>
                     <div className="mt-3 flex justify-between gap-4 border-t border-slate-200 pt-3 text-base">
                         <span className="font-semibold text-slate-900">Celkem</span>
-                        <strong className="text-slate-950">{formatCzk(price.finalPrice)}</strong>
+                        <strong className="text-slate-950">{formatCzechKoruna(price.finalPriceCzk)}</strong>
                     </div>
+                    <p className="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-500">Nejsme plátci DPH.</p>
                 </div>
 
                 {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={!canSubmit || isSubmitting}
                     className="h-12 w-full rounded-xl bg-promptbook-blue-dark text-base font-semibold text-white hover:bg-promptbook-blue-dark/90"
                 >
                     {isSubmitting ? (

@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~.12 23 minutes; Testing a few seconds
 
 [✨👿] Uprav stránku `/ai-supervize-mini` aby fungovala jako follow-up pro dnešní online workshop.
 
@@ -13,3 +13,4 @@
 - Zruš staré termíny, které tam jsou.
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
+

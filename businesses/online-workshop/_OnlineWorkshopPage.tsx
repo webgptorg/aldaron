@@ -1,6 +1,7 @@
 'use client';
 
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
+import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
 import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import {
     onlineWorkshopContentItems,
@@ -37,7 +38,7 @@ export function OnlineWorkshopPage() {
             <Header
                 getStartedText="Rezervovat místo"
                 primaryAction={{ label: 'Rezervovat místo', href: '#registrace', mobileLabel: 'Chci místo' }}
-                secondaryAction={{ label: 'AI Supervize Mini', href: '/ai-supervize-mini' }}
+                secondaryAction={{ label: 'AI Supervize Mini', href: AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH }}
                 centerContent={
                     <>
                         <span>🔥</span>
@@ -103,7 +104,9 @@ export function OnlineWorkshopPage() {
                                     variant="outline"
                                     className="rounded-full border-white/20 bg-white/10 px-8 py-6 text-center text-lg text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:text-white"
                                 >
-                                    <Link href="/ai-supervize-mini">Placený celodenní workshop</Link>
+                                    <Link href={AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH}>
+                                        Placený navazující workshop
+                                    </Link>
                                 </Button>
                             </div>
 

@@ -1,10 +1,19 @@
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
+import {
+    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
+    getAiSupervizeMiniWorkshopDateByFormat,
+} from '@/businesses/ai-supervize-mini/config';
 import { FAQ } from '@/components/faq-section';
-import { Bot, Code2, GitPullRequest, Link, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
+import { Bot, Code2, GitPullRequest, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
+import Link from 'next/link';
+
+const ONSITE_WORKSHOP_DATE =
+    getAiSupervizeMiniWorkshopDateByFormat('onsite') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
+const ONLINE_WORKSHOP_DATE =
+    getAiSupervizeMiniWorkshopDateByFormat('online') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[1]!;
 
 export const aiSupervizeMiniHeroBullets = [
     'Prezenčně v Praze i online',
-    'Max 10 účastníků',
+    `Max ${ONSITE_WORKSHOP_DATE.maximumParticipantCount} prezenčně / ${ONLINE_WORKSHOP_DATE.maximumParticipantCount} online`,
     'Pro TypeScript / JavaScript produktový vývoj',
 ];
 
@@ -109,9 +118,10 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
         question: 'Jak dlouho workshop trvá a jak je strukturovaný?',
         answer: (
             <p>
-                Workshop trvá jeden den od {aiSupervizeMiniWorkshopConfig.timeRange} s přestávkou na oběd. Je rozdělený
-                do několika bloků: mindset a rizika, tooling, PRD a zadávání práce AI, verzování, testování, code review
-                a měření dopadu. Každý blok kombinuje vysvětlení s praktickým cvičením.
+                Prezenční workshop {ONSITE_WORKSHOP_DATE.label} běží od {ONSITE_WORKSHOP_DATE.timeRange}, online
+                workshop {ONLINE_WORKSHOP_DATE.label} od {ONLINE_WORKSHOP_DATE.timeRange}. Oba jsou rozdělené do
+                praktických bloků: mindset a rizika, tooling, PRD a zadávání práce AI, verzování, testování, code
+                review a měření dopadu.
             </p>
         ),
     },
@@ -129,9 +139,9 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
         question: 'Může firma poslat víc lidí najednou?',
         answer: (
             <p>
-                Ano. Formulář umožňuje vybrat počet účastníků podle zbývající kapacity konkrétního termínu. Workshop je
-                pořád vedený pro jednotlivce a malé skupiny, takže držíme maximálně{' '}
-                {aiSupervizeMiniWorkshopConfig.maxParticipantsPerWorkshop} lidí na termín.
+                Ano. Formulář umožňuje vybrat počet účastníků podle zbývající kapacity konkrétního termínu. V Praze je
+                workshop vedený pro malou skupinu s maximem {ONSITE_WORKSHOP_DATE.maximumParticipantCount} lidí;
+                online se může připojit až {ONLINE_WORKSHOP_DATE.maximumParticipantCount} lidí.
                 <br />
                 <br />
                 Zároveň však nabízíme <Link href="/ai-supervize">AI Supervizi i pro celé firmy</Link>, kde přizpůsobíme
@@ -161,14 +171,14 @@ export const aiSupervizeMiniFaqs: FAQ[] = [
     },
 
     {
-        question: 'Proč je cena 12 000 Kč prezenčně a 9 000 Kč online, když jiné kurzy a školení o AI bývají levnější?',
+        question: `Proč je cena ${ONSITE_WORKSHOP_DATE.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč prezenčně a ${ONLINE_WORKSHOP_DATE.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč online, když jiné kurzy a školení o AI bývají levnější?`,
         answer: (
             <p>
                 AI Supervize není běžný kurz o AI, kterých je na trhu spousta. Je to komplexní a praktický workshop
                 zaměřený na konkrétní výzvy a řešení v AI vývoji, včetně rizik, testování, verzování a code review. Cena
                 odráží hloubku obsahu, praktickou hodnotu a individuální přístup v malých skupinách s expertem s
-                reálnými zkušenostmi z AI vývoje. Online termín je levnější, protože odpadá cestování a fyzické zázemí,
-                ale obsahově zůstává stejně náročný. Konkrétně máme několik důvodů pro nastavení této ceny:
+                reálnými zkušenostmi z AI vývoje. Online termín je levnější díky online formátu a kratšímu programu.
+                Ceny jsou konečné, nejsme plátci DPH. Konkrétně máme několik důvodů pro nastavení této ceny:
                 <ul>
                     <li>
                         AI Supervizí Vás provází Pavol Hejný, který má za sebou 15+ let zkušeností s vývojem a

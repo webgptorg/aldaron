@@ -1,3 +1,4 @@
+import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
 import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import type { FAQ } from '@/components/faq-section';
 import type { LucideIcon } from 'lucide-react';
@@ -238,8 +239,11 @@ export const onlineWorkshopFaqs: FAQ[] = [
         question: 'Budete něco prodávat?',
         answer: (
             <p>
-                Na konci ukážeme navazující celodenní placený workshop{' '}
-                <Link href="/ai-supervize-mini" className="font-semibold text-cyan-700 underline-offset-4 hover:underline">
+                Na konci ukážeme navazující placený workshop{' '}
+                <Link
+                    href={AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH}
+                    className="font-semibold text-cyan-700 underline-offset-4 hover:underline"
+                >
                     AI Supervize Mini
                 </Link>
                 . Zabere to pár minut na závěr, zbytek je čistý obsah.

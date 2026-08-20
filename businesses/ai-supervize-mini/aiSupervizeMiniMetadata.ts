@@ -6,13 +6,13 @@ import type { Metadata } from 'next';
 export const AI_SUPERVIZE_MINI_PAGE_DEFINITION: PageMetadataDefinition = {
     path: '/ai-supervize-mini',
     language: 'cs',
-    title: 'AI Supervize Mini | Celodenní workshop pro jednotlivce',
-    socialTitle: 'AI Supervize Mini - celodenní workshop',
+    title: 'AI Supervize Mini | Praktický workshop pro jednotlivce',
+    socialTitle: 'AI Supervize Mini - praktický workshop',
     description:
-        'Hands-on workshop pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu: nástroje, rizika, verzování, testování a code quality v AI vývoji, prezenčně v Praze i online.',
+        'Hands-on workshop pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu: nástroje, rizika, verzování, testování a code quality v AI vývoji. 4. září prezenčně v Praze, 9. září online.',
     socialDescription:
-        'Jednodenní workshop, jak komplexně přemýšlet nad AI vývojem od zadání po merge. Praha i online, max 10 účastníků.',
-    socialPreviewImageAlt: 'AI Supervize Mini - celodenní workshop pro vývojáře a produkťáky',
+        'Praktické workshopy, jak komplexně přemýšlet nad AI vývojem od zadání po merge. Praha pro 10 lidí nebo online pro 50 lidí.',
+    socialPreviewImageAlt: 'AI Supervize Mini - praktický workshop pro vývojáře a produkťáky',
     keywords: ['AI workshop', 'školení AI', 'vývojáři', 'TypeScript', 'JavaScript', 'Praha', 'Promptbook'],
     isSocialPreviewImageGenerated: true,
     sitemapPriority: 0.8,
@@ -22,13 +22,13 @@ export const AI_SUPERVIZE_MINI_PAGE_DEFINITION: PageMetadataDefinition = {
 export const AI_SUPERVIZE_MINI_METADATA: Metadata = createPageMetadata(AI_SUPERVIZE_MINI_PAGE_DEFINITION);
 
 export const AI_SUPERVIZE_MINI_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(AI_SUPERVIZE_MINI_PAGE_DEFINITION, {
-    eyebrow: 'Jednodenní workshop',
+    eyebrow: 'Praktický workshop',
     audienceLabel: 'Pro vývojáře a produkťáky',
-    bullets: ['Praha i online', 'Max 10 účastníků', 'TypeScript / JavaScript'],
+    bullets: ['4. 9. Praha / 9. 9. online', '10 prezenčně / 50 online', 'TypeScript / JavaScript'],
     stats: [
-        { label: 'Formát', value: 'Celý den hands-on' },
+        { label: 'Formát', value: 'Praha i online' },
         { label: 'Obsah', value: 'Od zadání po merge' },
-        { label: 'Kapacita', value: 'Max 10 lidí' },
+        { label: 'Kapacita', value: '10 / 50 lidí' },
     ],
     callToActionLabel: 'Rezervovat místo',
     paletteSeed: {

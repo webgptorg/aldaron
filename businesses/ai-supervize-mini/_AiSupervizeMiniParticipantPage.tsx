@@ -1,5 +1,8 @@
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
-import { aiSupervizeMiniWorkshopConfig } from '@/businesses/ai-supervize-mini/config';
+import {
+    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
+    getAiSupervizeMiniWorkshopDateByFormat,
+} from '@/businesses/ai-supervize-mini/config';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
@@ -47,8 +50,7 @@ type FaqItem = {
 };
 
 const workshopDate =
-    aiSupervizeMiniWorkshopConfig.dates.find((date) => date.format === 'onsite') ??
-    aiSupervizeMiniWorkshopConfig.dates[0]!;
+    getAiSupervizeMiniWorkshopDateByFormat('onsite') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
 const workshopLocation = {
     city: 'Praha',
     venue: 'Scott.Weber Workspace - The Flow Building',
@@ -71,7 +73,7 @@ const infoItems: InfoItem[] = [
     {
         icon: Clock,
         label: 'Čas',
-        value: aiSupervizeMiniWorkshopConfig.timeRange.replace('-', ' - '),
+        value: workshopDate.timeRange,
         description: 'Doporučujeme dorazit pár minut před začátkem, abychom mohli začít včas.',
     },
     {
@@ -84,35 +86,35 @@ const infoItems: InfoItem[] = [
 
 const scheduleItems: ScheduleItem[] = [
     {
-        time: '9:30 - 10:00',
+        time: '10:00 - 10:15',
         title: 'Obecné zahájení',
         description: 'Seznámení, očekávání účastníků, rámec dne a nastavení společného pracovního tempa.',
         icon: Sparkles,
         badgeClassName: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
     },
     {
-        time: '10:00 - 12:30',
+        time: '10:15 - 12:30',
         title: 'První blok',
         description: 'Praktické workflow pro zadávání práce AI, rozpad úkolů, PRD, issue a kontrolované změny v kódu.',
         icon: NotebookTabs,
         badgeClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
     },
     {
-        time: '12:30 - 13:30',
+        time: '12:30 - 13:15',
         title: 'Přestávka na oběd',
         description: 'Volná pauza na oběd a krátký reset. V okolí Václavského náměstí je dost možností.',
         icon: Coffee,
         badgeClassName: 'bg-amber-50 text-amber-700 ring-amber-200',
     },
     {
-        time: '13:30 - 16:00',
+        time: '13:15 - 15:30',
         title: 'Druhý blok',
         description: 'Testování, code review, kvalita výstupu, práce s riziky a rozhodování nad nástroji a modely.',
         icon: ShieldCheck,
         badgeClassName: 'bg-sky-50 text-sky-700 ring-sky-200',
     },
     {
-        time: '16:00 - 17:00',
+        time: '15:30 - 16:00',
         title: 'Diskuse, dotazy a další',
         description: 'Konkrétní situace účastníků, otevřené otázky, další kroky a doporučené workflow po workshopu.',
         icon: MessageSquareText,
