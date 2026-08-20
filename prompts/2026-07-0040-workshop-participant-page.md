@@ -200,7 +200,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3041 7 minutes; Testing a few seconds
 
 [✨🛳] Make links in materials more visible `/cs/online-workshop/participant`
 
@@ -208,3 +208,4 @@
 - Also, when there is only one link, there should be a call to action button alongside the material.
 
 ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-4.png)
+

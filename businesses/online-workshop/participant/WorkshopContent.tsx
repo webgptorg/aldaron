@@ -4,8 +4,8 @@ import { MarkdownContent } from '@/components/markdown-content';
 import { createWorkshopMaterialTrackingUrl } from '@/lib/workshops/workshopMaterialLinks';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Clock3, Sparkles } from 'lucide-react';
-import { useEffect, useRef, type MouseEvent } from 'react';
+import { Clock3, ExternalLink, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 
 type WorkshopContentProps = {
     readonly workshopSlug: string;
@@ -21,11 +21,18 @@ type WorkshopMaterialBodyProps = {
     readonly onMaterialLinkClick: (contentId: string) => void;
 };
 
+type WorkshopMaterialLink = {
+    readonly href: string;
+    readonly label: string;
+};
+
 const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Europe/Prague',
 });
+const MATERIAL_CALL_TO_ACTION_LABEL = 'Otevřít materiál';
+const MATERIAL_LINK_SELECTOR = 'a[href]:not([data-workshop-material-call-to-action])';
 
 function configureMaterialLink(linkElement: HTMLAnchorElement, workshopSlug: string, contentBlockId: string): void {
     const originalHref = linkElement.dataset.workshopOriginalHref ?? linkElement.getAttribute('href');
@@ -39,8 +46,31 @@ function configureMaterialLink(linkElement: HTMLAnchorElement, workshopSlug: str
     linkElement.rel = 'noopener noreferrer';
 }
 
+function getSingleWorkshopMaterialLink(linkElements: readonly HTMLAnchorElement[]): WorkshopMaterialLink | null {
+    if (linkElements.length !== 1) {
+        return null;
+    }
+
+    const [linkElement] = linkElements;
+    return {
+        href: linkElement.href,
+        label: linkElement.textContent?.trim() || MATERIAL_CALL_TO_ACTION_LABEL,
+    };
+}
+
+function areWorkshopMaterialLinksEqual(
+    currentMaterialLink: WorkshopMaterialLink | null,
+    nextMaterialLink: WorkshopMaterialLink | null,
+): boolean {
+    return (
+        currentMaterialLink?.href === nextMaterialLink?.href &&
+        currentMaterialLink?.label === nextMaterialLink?.label
+    );
+}
+
 function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick }: WorkshopMaterialBodyProps) {
     const materialBodyReference = useRef<HTMLDivElement>(null);
+    const [singleMaterialLink, setSingleMaterialLink] = useState<WorkshopMaterialLink | null>(null);
 
     useEffect(() => {
         const materialBodyElement = materialBodyReference.current;
@@ -49,9 +79,17 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
         }
 
         const configureMaterialLinks = () => {
-            materialBodyElement.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((linkElement) => {
+            const linkElements = Array.from(materialBodyElement.querySelectorAll<HTMLAnchorElement>(MATERIAL_LINK_SELECTOR));
+            linkElements.forEach((linkElement) => {
                 configureMaterialLink(linkElement, workshopSlug, contentBlock.id);
             });
+
+            const nextSingleMaterialLink = getSingleWorkshopMaterialLink(linkElements);
+            setSingleMaterialLink((currentMaterialLink) =>
+                areWorkshopMaterialLinksEqual(currentMaterialLink, nextSingleMaterialLink)
+                    ? currentMaterialLink
+                    : nextSingleMaterialLink,
+            );
         };
 
         configureMaterialLinks();
@@ -65,7 +103,7 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
             return;
         }
 
-        const linkElement = event.target.closest('a[href]');
+        const linkElement = event.target.closest(MATERIAL_LINK_SELECTOR);
         if (linkElement !== null && materialBodyReference.current?.contains(linkElement)) {
             onMaterialLinkClick(contentBlock.id);
         }
@@ -76,8 +114,24 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
             <MarkdownContent
                 content={contentBlock.bodyMarkdown}
                 theme="DARK"
-                className="max-w-none leading-7 text-slate-200 [&_a]:text-cyan-300 [&_a]:underline [&_code]:break-words [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
+                className="max-w-none leading-7 text-slate-200 [--chat-md-link-color:#f1f5f9] [&_a]:font-semibold [&_code]:break-words [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
             />
+            {singleMaterialLink && (
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <a
+                        href={singleMaterialLink.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => onMaterialLinkClick(contentBlock.id)}
+                        data-workshop-material-call-to-action
+                        aria-label={`${MATERIAL_CALL_TO_ACTION_LABEL}: ${singleMaterialLink.label}`}
+                        className="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/10 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
+                    >
+                        {MATERIAL_CALL_TO_ACTION_LABEL}
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                </div>
+            )}
         </div>
     );
 }
