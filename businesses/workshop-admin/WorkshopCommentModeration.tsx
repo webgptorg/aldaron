@@ -1,11 +1,12 @@
 'use client';
 
+import { WorkshopCommentEditor } from '@/businesses/workshop-admin/WorkshopCommentEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT } from '@/lib/workshops/workshopConstants';
 import type { WorkshopAdminComment, WorkshopCommentStatus } from '@/lib/workshops/workshopTypes';
-import { Check, Clock3, MessageCircle, ThumbsUp, Trash2, X } from 'lucide-react';
+import { Check, Clock3, MessageCircle, Pencil, ThumbsUp, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkshopCommentModerationProps = {
@@ -13,6 +14,7 @@ type WorkshopCommentModerationProps = {
     readonly commentStatus: WorkshopCommentStatus;
     readonly onChangeCommentStatus: (commentStatus: WorkshopCommentStatus) => void;
     readonly onModerate: (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => Promise<void>;
+    readonly onEditBody: (commentId: string, body: string) => Promise<boolean>;
     readonly onAdjustArtificialUpvotes: (commentId: string, artificialUpvoteAdjustment: number) => Promise<boolean>;
     readonly onDelete: (commentId: string) => Promise<void>;
 };
@@ -33,11 +35,13 @@ export function WorkshopCommentModeration({
     commentStatus,
     onChangeCommentStatus,
     onModerate,
+    onEditBody,
     onAdjustArtificialUpvotes,
     onDelete,
 }: WorkshopCommentModerationProps) {
     const [processingCommentIds, setProcessingCommentIds] = useState<ReadonlySet<string>>(new Set());
     const [artificialUpvoteAdjustments, setArtificialUpvoteAdjustments] = useState<Readonly<Record<string, string>>>({});
+    const [editedCommentId, setEditedCommentId] = useState<string | null>(null);
 
     const runCommentAction = async (commentId: string, action: () => Promise<unknown>) => {
         setProcessingCommentIds((currentIds) => new Set(currentIds).add(commentId));
@@ -54,6 +58,14 @@ export function WorkshopCommentModeration({
 
     const handleModeration = (commentId: string, status: 'approved' | 'rejected') =>
         runCommentAction(commentId, () => onModerate(commentId, status));
+
+    const handleEditBody = (commentId: string, body: string) =>
+        runCommentAction(commentId, async () => {
+            const isEdited = await onEditBody(commentId, body);
+            if (isEdited) {
+                setEditedCommentId(null);
+            }
+        });
 
     const handleArtificialUpvoteAdjustment = async (commentId: string) => {
         const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[commentId] ?? '');
@@ -111,6 +123,7 @@ export function WorkshopCommentModeration({
                 )}
                 {comments.map((comment) => {
                     const isProcessing = processingCommentIds.has(comment.id);
+                    const isBeingEdited = editedCommentId === comment.id;
                     const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[comment.id] ?? '');
                     const isArtificialUpvoteAdjustmentValid =
                         Number.isSafeInteger(artificialUpvoteAdjustment) && artificialUpvoteAdjustment !== 0;
@@ -150,10 +163,19 @@ export function WorkshopCommentModeration({
                                     />
                                 </div>
                             )}
-                            <WorkshopCommentMarkdown
-                                content={comment.body}
-                                className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700"
-                            />
+                            {isBeingEdited ? (
+                                <WorkshopCommentEditor
+                                    label={`Text komentáře od ${comment.authorName}`}
+                                    initialBody={comment.body}
+                                    onCancel={() => setEditedCommentId(null)}
+                                    onSave={(body) => handleEditBody(comment.id, body)}
+                                />
+                            ) : (
+                                <WorkshopCommentMarkdown
+                                    content={comment.body}
+                                    className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700"
+                                />
+                            )}
                             <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50/50 p-3">
                                 <p className="text-xs text-slate-600">
                                     Skutečné hlasy: {comment.realUpvoteCount} · Umělá změna hlasů:{' '}
@@ -190,6 +212,18 @@ export function WorkshopCommentModeration({
                                 </div>
                             </div>
                             <div className="mt-4 flex flex-wrap justify-end gap-2">
+                                {!isBeingEdited && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={isProcessing}
+                                        onClick={() => setEditedCommentId(comment.id)}
+                                        aria-label={`Upravit komentář od ${comment.authorName}`}
+                                    >
+                                        <Pencil className="mr-1.5 h-4 w-4" /> Upravit
+                                    </Button>
+                                )}
                                 {comment.status !== 'rejected' && (
                                     <Button
                                         type="button"

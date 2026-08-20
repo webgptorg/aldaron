@@ -10,6 +10,7 @@ import {
     deleteAdminWorkshopComment,
     deleteAdminWorkshopContent,
     deleteAdminWorkshopParticipant,
+    editAdminWorkshopCommentBody,
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
     moderateAdminWorkshopComment,
@@ -185,6 +186,10 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             await runAndReload(() => moderateAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, status));
         }
     };
+    const handleEditCommentBody = (commentId: string, body: string) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => editAdminWorkshopCommentBody(adminToken, snapshot.workshop.id, commentId, body));
     const handleDeleteComment = async (commentId: string) => {
         if (snapshot !== null) {
             await runAndReload(() => deleteAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId));
@@ -334,6 +339,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                             commentStatus={commentStatus}
                             onChangeCommentStatus={setCommentStatus}
                             onModerate={handleModerateComment}
+                            onEditBody={handleEditCommentBody}
                             onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
                             onDelete={handleDeleteComment}
                         />

@@ -3,7 +3,8 @@ import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
-import { workshopCommentModerationSchema } from '@/lib/workshops/workshopSchemas';
+import { workshopCommentUpdateSchema } from '@/lib/workshops/workshopSchemas';
+import { createWorkshopCommentUpdateDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
 
 type AdminWorkshopCommentRouteContext = {
@@ -17,9 +18,12 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopCommentR
     }
 
     const body = await readJsonObjectOrNull(request);
-    const parsedResult = workshopCommentModerationSchema.safeParse(body);
+    const parsedResult = workshopCommentUpdateSchema.safeParse(body);
     if (!parsedResult.success) {
-        return NextResponse.json({ error: 'Comment status must be approved or rejected' }, { status: 400 });
+        return NextResponse.json(
+            { error: 'Comment update must set a status or a text of 1 to 2,000 characters' },
+            { status: 400 },
+        );
     }
 
     const { workshopId, commentId } = await context.params;
@@ -30,10 +34,10 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopCommentR
 
     const { data, error } = await workshopData.supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
-        .update({ status: parsedResult.data.status, moderated_at: new Date().toISOString() })
+        .update(createWorkshopCommentUpdateDatabaseValues(parsedResult.data))
         .eq('id', commentId)
         .eq('workshop_id', workshopId)
-        .select('id, status')
+        .select('id, status, body')
         .maybeSingle();
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -43,7 +47,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopCommentR
     }
 
     await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
-    return NextResponse.json({ commentId: data.id, status: data.status });
+    return NextResponse.json({ commentId: data.id, status: data.status, body: data.body });
 }
 
 export async function DELETE(request: NextRequest, context: AdminWorkshopCommentRouteContext) {

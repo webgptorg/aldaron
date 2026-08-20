@@ -3,6 +3,7 @@ import {
     workshopArtificialReactionSchema,
     workshopCommentArtificialUpvoteSchema,
     workshopCommentSchema,
+    workshopCommentUpdateSchema,
     workshopConnectionSchema,
     workshopContentCreateSchema,
     workshopCreateSchema,
@@ -52,6 +53,21 @@ describe('workshop request validation', () => {
         ).toEqual({ body: 'Díky!', parentCommentId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde' });
         expect(workshopCommentSchema.safeParse({ body: 'Díky!', parentCommentId: 'question' }).success).toBe(false);
         expect(workshopCommentSchema.safeParse({ body: '   ' }).success).toBe(false);
+    });
+
+    it('moderates a comment, corrects its text, or does both in one admin request', () => {
+        expect(workshopCommentUpdateSchema.parse({ status: 'approved' })).toEqual({ status: 'approved' });
+        expect(workshopCommentUpdateSchema.parse({ body: '  Kdy bude záznam?  ' })).toEqual({
+            body: 'Kdy bude záznam?',
+        });
+        expect(workshopCommentUpdateSchema.parse({ status: 'rejected', body: 'Opraveno.' })).toEqual({
+            status: 'rejected',
+            body: 'Opraveno.',
+        });
+        expect(workshopCommentUpdateSchema.safeParse({}).success).toBe(false);
+        expect(workshopCommentUpdateSchema.safeParse({ body: '   ' }).success).toBe(false);
+        expect(workshopCommentUpdateSchema.safeParse({ body: 'A'.repeat(2001) }).success).toBe(false);
+        expect(workshopCommentUpdateSchema.safeParse({ status: 'pending' }).success).toBe(false);
     });
 
     it('accepts a YouTube URL and stores only its stable video ID', () => {

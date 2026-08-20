@@ -2,6 +2,7 @@ import type { z } from 'zod';
 import type {
     workshopArtificialCommentSchema,
     workshopArtificialReactionSchema,
+    workshopCommentUpdateSchema,
     workshopContentCreateSchema,
     workshopContentUpdateSchema,
     workshopCreateSchema,
@@ -12,6 +13,7 @@ type WorkshopCreateValues = z.infer<typeof workshopCreateSchema>;
 type WorkshopUpdateValues = z.infer<typeof workshopUpdateSchema>;
 type WorkshopContentCreateValues = z.infer<typeof workshopContentCreateSchema>;
 type WorkshopContentUpdateValues = z.infer<typeof workshopContentUpdateSchema>;
+type WorkshopCommentUpdateValues = z.infer<typeof workshopCommentUpdateSchema>;
 type WorkshopArtificialCommentValues = z.infer<typeof workshopArtificialCommentSchema>;
 type WorkshopArtificialReactionValues = z.infer<typeof workshopArtificialReactionSchema>;
 
@@ -57,6 +59,16 @@ export function createWorkshopContentUpdateDatabaseValues(values: WorkshopConten
         ...(values.unlockAt === undefined ? {} : { unlock_at: values.unlockAt }),
         ...(values.sortOrder === undefined ? {} : { sort_order: values.sortOrder }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
+    };
+}
+
+/**
+ * Note: Only a decision about the comment is a moderation, a corrected text leaves the moderation timestamp alone.
+ */
+export function createWorkshopCommentUpdateDatabaseValues(values: WorkshopCommentUpdateValues) {
+    return {
+        ...(values.status === undefined ? {} : { status: values.status, moderated_at: new Date().toISOString() }),
+        ...(values.body === undefined ? {} : { body: values.body }),
     };
 }
 

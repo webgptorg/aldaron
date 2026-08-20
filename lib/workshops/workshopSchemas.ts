@@ -63,9 +63,20 @@ export const workshopReactionSchema = z.object({
     emoji: workshopReactionEmojiSchema,
 });
 
-export const workshopCommentModerationSchema = z.object({
-    status: z.enum(['approved', 'rejected']),
-});
+/**
+ * Every change an admin can make to a comment which is already in the chat
+ *
+ * Note: Moderating a comment and correcting its text share this one request, so that both reach the room the same way.
+ */
+export const workshopCommentUpdateSchema = z
+    .object({
+        status: z.enum(['approved', 'rejected']).optional(),
+        body: workshopCommentBodySchema.optional(),
+    })
+    .refine(
+        (value) => value.status !== undefined || value.body !== undefined,
+        'At least one comment field is required',
+    );
 
 export const workshopArtificialCommentSchema = z.object({
     authorName: workshopParticipantFullnameSchema,

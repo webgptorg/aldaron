@@ -141,16 +141,37 @@ export async function deleteAdminWorkshopComment(
     );
 }
 
+async function updateAdminWorkshopComment(
+    adminToken: string,
+    workshopId: string,
+    commentId: string,
+    values: { readonly status?: Exclude<WorkshopCommentStatus, 'pending'>; readonly body?: string },
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}`, adminToken),
+        createJsonMutation('PATCH', values),
+    );
+}
+
 export async function moderateAdminWorkshopComment(
     adminToken: string,
     workshopId: string,
     commentId: string,
     status: Exclude<WorkshopCommentStatus, 'pending'>,
 ): Promise<void> {
-    await requestAdminJson(
-        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments/${encodeURIComponent(commentId)}`, adminToken),
-        createJsonMutation('PATCH', { status }),
-    );
+    await updateAdminWorkshopComment(adminToken, workshopId, commentId, { status });
+}
+
+/**
+ * Corrects the text of a message which is already in the chat, for example to fix a typo or add information
+ */
+export async function editAdminWorkshopCommentBody(
+    adminToken: string,
+    workshopId: string,
+    commentId: string,
+    body: string,
+): Promise<void> {
+    await updateAdminWorkshopComment(adminToken, workshopId, commentId, { body });
 }
 
 export async function createAdminWorkshopArtificialComment(
