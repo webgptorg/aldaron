@@ -1,3 +1,5 @@
+import type { WorkshopRow } from '@/lib/workshops/workshopDatabase';
+import { isWorkshopPanelEnabled, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import type { WorkshopCommentStatus, WorkshopParticipant } from '@/lib/workshops/workshopTypes';
 import { NextResponse } from 'next/server';
 
@@ -16,4 +18,20 @@ export function getWorkshopInteractionBanResponseOrNull(participant: WorkshopPar
               { status: 403 },
           )
         : null;
+}
+
+/**
+ * Refuses an action of a participant which the room does not offer anymore
+ *
+ * Note: The room already takes a switched-off panel away, so this only rejects a stale or a forged request.
+ * Note: Only participants are held back here. The administration writes through its own routes and therefore keeps
+ *       reacting and moderating in a room whose panels are switched off.
+ */
+export function getDisabledWorkshopPanelResponseOrNull(
+    workshopRow: WorkshopRow,
+    panelKey: WorkshopPanelKey,
+): NextResponse | null {
+    return isWorkshopPanelEnabled(workshopRow.disabled_panels, panelKey)
+        ? null
+        : NextResponse.json({ error: 'Tato část workshopu je právě vypnutá.' }, { status: 403 });
 }

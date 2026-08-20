@@ -1,7 +1,10 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { getDisplayedWorkshopCommentUpvoteCount } from '@/lib/workshops/workshopCommentValues';
 import { WORKSHOP_COMMENT_TABLE_NAME, WORKSHOP_UPVOTE_TABLE_NAME } from '@/lib/workshops/workshopConstants';
-import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
+import {
+    getDisabledWorkshopPanelResponseOrNull,
+    getWorkshopInteractionBanResponseOrNull,
+} from '@/lib/workshops/workshopParticipantInteraction';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { getAuthenticatedWorkshopRequest, isAuthenticatedWorkshopRequest } from '@/lib/workshops/workshopRequest';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,6 +23,11 @@ export async function POST(request: NextRequest, context: WorkshopUpvoteRouteCon
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const disabledChatResponse = getDisabledWorkshopPanelResponseOrNull(authenticatedRequest.workshopRow, 'chat');
+    if (disabledChatResponse) {
+        return disabledChatResponse;
     }
 
     const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);

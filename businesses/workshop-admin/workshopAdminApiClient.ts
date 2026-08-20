@@ -1,3 +1,4 @@
+import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminSnapshot,
     WorkshopCommentStatus,
@@ -15,6 +16,7 @@ export type WorkshopWriteValues = {
     readonly youtubeVideoId: string | null;
     readonly isPublished: boolean;
     readonly allowedReactions: readonly string[];
+    readonly disabledPanels: readonly WorkshopPanelKey[];
 };
 
 export type WorkshopCreateValues = WorkshopWriteValues & {

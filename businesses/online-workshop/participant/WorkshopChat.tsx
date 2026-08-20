@@ -2,17 +2,24 @@
 
 import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/WorkshopChatComposer';
 import { WorkshopChatThread } from '@/businesses/online-workshop/participant/WorkshopChatThread';
+import { WORKSHOP_FADED_PANEL_CLASS_NAME } from '@/businesses/online-workshop/participant/workshopPanelAppearance';
 import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { cn } from '@/lib/utils';
+import { getWorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
 import { buildWorkshopCommentThreads } from '@/lib/workshops/workshopCommentThreads';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
-import { Clock3, MessageCircle, ThumbsUp } from 'lucide-react';
+import { Clock3, Lock, MessageCircle, ThumbsUp } from 'lucide-react';
 import { useMemo } from 'react';
 
 type WorkshopChatProps = {
     readonly className?: string;
     readonly comments: readonly WorkshopComment[];
     readonly commentSort: WorkshopCommentSort;
+
+    /**
+     * Whether the chat still belongs to the participants, or only stays on the page to be read
+     */
+    readonly isEnabled: boolean;
     readonly isInteractionBanned: boolean;
     readonly onChangeSort: (sort: WorkshopCommentSort) => void;
     readonly onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>;
@@ -23,18 +30,21 @@ export function WorkshopChat({
     className,
     comments,
     commentSort,
+    isEnabled,
     isInteractionBanned,
     onChangeSort,
     onSubmitComment,
     onUpvoteComment,
 }: WorkshopChatProps) {
     const threads = useMemo(() => buildWorkshopCommentThreads(comments, commentSort), [comments, commentSort]);
+    const interactivity = getWorkshopChatInteractivity({ isChatEnabled: isEnabled, isInteractionBanned });
 
     return (
         <aside
             className={cn(
                 'flex h-[min(70dvh,38rem)] min-h-[28rem] min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0a1c26] shadow-2xl',
                 'lg:sticky lg:top-5 lg:h-[calc(100dvh-6.5rem)] lg:min-h-0',
+                !isEnabled && WORKSHOP_FADED_PANEL_CLASS_NAME,
                 className,
             )}
         >
@@ -72,7 +82,7 @@ export function WorkshopChat({
                         <WorkshopChatThread
                             key={thread.comment.id}
                             thread={thread}
-                            isInteractionBanned={isInteractionBanned}
+                            interactivity={interactivity}
                             onSubmitComment={onSubmitComment}
                             onUpvoteComment={onUpvoteComment}
                         />
@@ -80,12 +90,18 @@ export function WorkshopChat({
                 )}
             </div>
 
-            <WorkshopChatComposer
-                className="border-t border-white/10 p-4"
-                label="Nová zpráva do chatu"
-                placeholder="Napište otázku nebo komentář…"
-                onSubmit={(body) => onSubmitComment({ body, parentCommentId: null })}
-            />
+            {interactivity.isWritingOffered ? (
+                <WorkshopChatComposer
+                    className="border-t border-white/10 p-4"
+                    label="Nová zpráva do chatu"
+                    placeholder="Napište otázku nebo komentář…"
+                    onSubmit={(body) => onSubmitComment({ body, parentCommentId: null })}
+                />
+            ) : (
+                <p className="flex items-center justify-center gap-2 border-t border-white/10 px-4 py-4 text-sm text-slate-500">
+                    <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Chat je teď jen pro čtení.
+                </p>
+            )}
         </aside>
     );
 }

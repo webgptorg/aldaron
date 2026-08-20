@@ -27,6 +27,7 @@ export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
         youtube_video_id: values.youtubeVideoId,
         is_published: values.isPublished,
         allowed_reactions: values.allowedReactions,
+        disabled_panels: values.disabledPanels,
     };
 }
 
@@ -39,6 +40,7 @@ export function createWorkshopUpdateDatabaseValues(values: WorkshopUpdateValues)
         ...(values.youtubeVideoId === undefined ? {} : { youtube_video_id: values.youtubeVideoId }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
         ...(values.allowedReactions === undefined ? {} : { allowed_reactions: values.allowedReactions }),
+        ...(values.disabledPanels === undefined ? {} : { disabled_panels: values.disabledPanels }),
     };
 }
 

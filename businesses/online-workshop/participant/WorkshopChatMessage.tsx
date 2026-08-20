@@ -2,6 +2,7 @@
 
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { cn } from '@/lib/utils';
+import type { WorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
 import type { WorkshopComment } from '@/lib/workshops/workshopTypes';
 import { Pin, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
@@ -9,7 +10,7 @@ import { useState } from 'react';
 type WorkshopChatMessageProps = {
     readonly className?: string;
     readonly comment: WorkshopComment;
-    readonly isInteractionBanned: boolean;
+    readonly interactivity: WorkshopChatInteractivity;
     readonly onUpvote: (commentId: string) => Promise<void>;
 };
 
@@ -18,7 +19,7 @@ const CZECH_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { hour: '2-digit', mi
 /**
  * A single message of the chat, whether it opened a thread or answered one
  */
-export function WorkshopChatMessage({ className, comment, isInteractionBanned, onUpvote }: WorkshopChatMessageProps) {
+export function WorkshopChatMessage({ className, comment, interactivity, onUpvote }: WorkshopChatMessageProps) {
     const [isUpvoting, setIsUpvoting] = useState(false);
 
     const handleUpvote = async () => {
@@ -48,7 +49,7 @@ export function WorkshopChatMessage({ className, comment, isInteractionBanned, o
                     type="button"
                     disabled={
                         comment.status !== 'approved' ||
-                        isInteractionBanned ||
+                        !interactivity.isUpvotingOffered ||
                         comment.isUpvotedByParticipant ||
                         isUpvoting
                     }

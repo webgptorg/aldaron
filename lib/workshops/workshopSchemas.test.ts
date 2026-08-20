@@ -11,6 +11,7 @@ import {
     workshopParticipantUpdateSchema,
     workshopPresenceSchema,
     workshopReactionSchema,
+    workshopUpdateSchema,
 } from '@/lib/workshops/workshopSchemas';
 import { describe, expect, it } from 'vitest';
 
@@ -95,6 +96,22 @@ describe('workshop request validation', () => {
                 endsAt: '2026-08-20T18:59:59+02:00',
             }).success,
         ).toBe(false);
+    });
+
+    it('offers every panel to a workshop which switched none of them off', () => {
+        expect(workshopCreateSchema.parse(VALID_WORKSHOP).disabledPanels).toEqual([]);
+        expect(
+            workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, disabledPanels: ['chat', 'watching-count'] }).success,
+        ).toBe(true);
+    });
+
+    it('refuses an unknown or a repeated panel instead of storing it', () => {
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, disabledPanels: ['stage'] }).success).toBe(false);
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, disabledPanels: ['chat', 'chat'] }).success).toBe(
+            false,
+        );
+        expect(workshopUpdateSchema.safeParse({ disabledPanels: ['chat'] }).success).toBe(true);
+        expect(workshopUpdateSchema.safeParse({ disabledPanels: [null] }).success).toBe(false);
     });
 
     it('allows content to unlock days after a workshop', () => {

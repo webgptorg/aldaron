@@ -1,3 +1,5 @@
+import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
+
 export type WorkshopCommentStatus = 'pending' | 'approved' | 'rejected';
 export type WorkshopCommentSort = 'recent' | 'upvotes';
 
@@ -14,6 +16,13 @@ export type WorkshopDetails = WorkshopSummary & {
     readonly description: string;
     readonly youtubeVideoId: string | null;
     readonly allowedReactions: readonly string[];
+
+    /**
+     * The panels of the room an admin switched off for this workshop
+     *
+     * Note: Everything not listed here is offered, so a panel added later starts switched on for every workshop.
+     */
+    readonly disabledPanels: readonly WorkshopPanelKey[];
     readonly createdAt: string;
     readonly updatedAt: string;
 };

@@ -6,7 +6,10 @@ import {
     WORKSHOP_COMMENT_COLUMNS,
     type WorkshopCommentRow,
 } from '@/lib/workshops/workshopDatabase';
-import { getWorkshopCommentStatusForParticipant } from '@/lib/workshops/workshopParticipantInteraction';
+import {
+    getDisabledWorkshopPanelResponseOrNull,
+    getWorkshopCommentStatusForParticipant,
+} from '@/lib/workshops/workshopParticipantInteraction';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import {
     getAuthenticatedWorkshopRequest,
@@ -69,6 +72,11 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const disabledChatResponse = getDisabledWorkshopPanelResponseOrNull(authenticatedRequest.workshopRow, 'chat');
+    if (disabledChatResponse) {
+        return disabledChatResponse;
     }
 
     const { parentCommentId } = parsedResult.data;

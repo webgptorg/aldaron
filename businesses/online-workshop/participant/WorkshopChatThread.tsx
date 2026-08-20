@@ -4,6 +4,7 @@ import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/W
 import { WorkshopChatMessage } from '@/businesses/online-workshop/participant/WorkshopChatMessage';
 import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { cn } from '@/lib/utils';
+import type { WorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
 import { isWorkshopCommentThreadPinned } from '@/lib/workshops/workshopCommentThreads';
 import type { WorkshopCommentThread } from '@/lib/workshops/workshopTypes';
 import { Reply } from 'lucide-react';
@@ -11,7 +12,7 @@ import { useState } from 'react';
 
 type WorkshopChatThreadProps = {
     readonly thread: WorkshopCommentThread;
-    readonly isInteractionBanned: boolean;
+    readonly interactivity: WorkshopChatInteractivity;
     readonly onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly onUpvoteComment: (commentId: string) => Promise<void>;
 };
@@ -21,7 +22,7 @@ type WorkshopChatThreadProps = {
  */
 export function WorkshopChatThread({
     thread,
-    isInteractionBanned,
+    interactivity,
     onSubmitComment,
     onUpvoteComment,
 }: WorkshopChatThreadProps) {
@@ -29,7 +30,8 @@ export function WorkshopChatThread({
     const { comment, replies } = thread;
 
     // Note: Only a message the whole room sees can be answered, and an answer is never answered again.
-    const isReplyOffered = comment.status === 'approved' && comment.parentCommentId === null;
+    const isReplyOffered =
+        interactivity.isWritingOffered && comment.status === 'approved' && comment.parentCommentId === null;
 
     const handleSubmitReply = async (body: string): Promise<boolean> => {
         const isSubmitted = await onSubmitComment({ body, parentCommentId: comment.id });
@@ -48,11 +50,7 @@ export function WorkshopChatThread({
                     : 'border-white/[0.07] bg-white/[0.035]',
             )}
         >
-            <WorkshopChatMessage
-                comment={comment}
-                isInteractionBanned={isInteractionBanned}
-                onUpvote={onUpvoteComment}
-            />
+            <WorkshopChatMessage comment={comment} interactivity={interactivity} onUpvote={onUpvoteComment} />
 
             {replies.length > 0 && (
                 <div className="mt-4 space-y-4 border-l border-white/10 pl-4">
@@ -60,7 +58,7 @@ export function WorkshopChatThread({
                         <WorkshopChatMessage
                             key={reply.id}
                             comment={reply}
-                            isInteractionBanned={isInteractionBanned}
+                            interactivity={interactivity}
                             onUpvote={onUpvoteComment}
                         />
                     ))}

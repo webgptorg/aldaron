@@ -40,7 +40,7 @@ export async function POST(request: NextRequest, context: WorkshopPresenceRouteC
     // Answering the heartbeat with the live audience keeps the count fresh without a poll of its own.
     const watchingParticipantCount = await countWatchingWorkshopParticipants(
         authenticatedRequest.supabase,
-        authenticatedRequest.workshopRow.id,
+        authenticatedRequest.workshopRow,
     );
 
     return NextResponse.json({ watchingParticipantCount }, { headers: { 'Cache-Control': 'no-store' } });

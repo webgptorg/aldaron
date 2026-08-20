@@ -2,6 +2,7 @@
 
 import type { WorkshopWriteValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/businesses/workshop-admin/workshopAdminDateTime';
+import { WorkshopPanelSettings } from '@/businesses/workshop-admin/WorkshopPanelSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
     const [endsAt, setEndsAt] = useState(() => toDateTimeLocalValue(workshop.endsAt));
     const [youtubeVideoId, setYoutubeVideoId] = useState(workshop.youtubeVideoId ?? '');
     const [reactionText, setReactionText] = useState(workshop.allowedReactions.join(' '));
+    const [disabledPanels, setDisabledPanels] = useState(workshop.disabledPanels);
     const [isPublished, setIsPublished] = useState(workshop.isPublished);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -31,6 +33,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
         setEndsAt(toDateTimeLocalValue(workshop.endsAt));
         setYoutubeVideoId(workshop.youtubeVideoId ?? '');
         setReactionText(workshop.allowedReactions.join(' '));
+        setDisabledPanels(workshop.disabledPanels);
         setIsPublished(workshop.isPublished);
     }, [workshop]);
 
@@ -50,6 +53,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
             youtubeVideoId: youtubeVideoId.trim() || null,
             isPublished,
             allowedReactions: reactionText.trim().split(/\s+/).filter(Boolean),
+            disabledPanels,
         });
         setIsSaving(false);
     };
@@ -121,6 +125,9 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
                         className="mt-2"
                     />
                 </label>
+                <div className="md:col-span-2">
+                    <WorkshopPanelSettings disabledPanels={disabledPanels} onChange={setDisabledPanels} />
+                </div>
             </div>
 
             <div className="mt-6 flex justify-end">

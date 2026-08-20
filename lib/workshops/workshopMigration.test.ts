@@ -12,6 +12,8 @@ const WATCHING_AND_REPLY_MIGRATION_PATH = path.resolve(process.cwd(), 'migration
 const WATCHING_AND_REPLY_MIGRATION_SQL = readFileSync(WATCHING_AND_REPLY_MIGRATION_PATH, 'utf8');
 const PINNED_COMMENT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-4.sql');
 const PINNED_COMMENT_MIGRATION_SQL = readFileSync(PINNED_COMMENT_MIGRATION_PATH, 'utf8');
+const DISABLED_PANEL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-5.sql');
+const DISABLED_PANEL_MIGRATION_SQL = readFileSync(DISABLED_PANEL_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -118,6 +120,18 @@ describe('workshop database migration', () => {
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshops_pinned_comment_idx');
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('WORKSHOP_PINNED_COMMENT_FOREIGN');
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('workshops_enforce_pinned_comment_identity');
+    });
+
+    it('remembers the switched-off panels of a workshop and offers every other one without a backfill', () => {
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain(
+            "ADD COLUMN IF NOT EXISTS disabled_panels text[] NOT NULL DEFAULT ARRAY[]::text[]",
+        );
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain('workshops_disabled_panels_keys');
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain('cardinality(disabled_panels) <= 50');
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain('array_to_string(disabled_panels, \',\')');
+
+        // Note: Joining the array leaves a NULL element out instead of failing on it, so it is asked for on its own.
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain('array_position(disabled_panels, NULL::text) IS NULL');
     });
 
     it('keeps a pin out of the revision of the workshop the administration edits', () => {

@@ -49,11 +49,13 @@ const ANSWER_BUTTON_LABEL = 'Odpovědět na komentář od Jana Nováková';
 function renderChat(
     onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>,
     comments: readonly WorkshopComment[] = [QUESTION, ANSWER],
+    isEnabled = true,
 ) {
     return render(
         <WorkshopChat
             comments={comments}
             commentSort="recent"
+            isEnabled={isEnabled}
             isInteractionBanned={false}
             onChangeSort={vi.fn()}
             onSubmitComment={onSubmitComment}
@@ -148,5 +150,17 @@ describe('workshop chat', () => {
 
         expect(screen.getByText('Tahle zpráva čeká na schválení.')).not.toBeNull();
         expect(screen.queryByRole('button', { name: /^Odpovědět na komentář/ })).toBeNull();
+    });
+
+    it('keeps a switched-off chat readable but takes away every way of writing into it', () => {
+        renderChat(vi.fn(), [QUESTION, ANSWER], false);
+
+        expect(screen.getByText(QUESTION.body)).not.toBeNull();
+        expect(screen.getByText('Chat je teď jen pro čtení.')).not.toBeNull();
+        expect(screen.queryByRole('textbox', { name: NEW_MESSAGE_LABEL })).toBeNull();
+        expect(screen.queryByRole('button', { name: /^Odpovědět na komentář/ })).toBeNull();
+        screen
+            .getAllByRole('button', { name: /^Hlasovat pro komentář/ })
+            .forEach((upvoteButton) => expect(upvoteButton).toHaveProperty('disabled', true));
     });
 });

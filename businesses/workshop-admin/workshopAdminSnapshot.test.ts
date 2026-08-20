@@ -14,6 +14,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
             youtubeVideoId: null,
             isPublished: true,
             allowedReactions: ['👏'],
+            disabledPanels: [],
             createdAt: '2026-08-01T17:00:00.000Z',
             updatedAt: workshopUpdatedAt,
         },

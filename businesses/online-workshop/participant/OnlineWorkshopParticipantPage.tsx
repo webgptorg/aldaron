@@ -12,6 +12,7 @@ import { WorkshopReactions } from '@/businesses/online-workshop/participant/Work
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
+import { isWorkshopPanelEnabled, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -102,6 +103,10 @@ export function OnlineWorkshopParticipantPage({
 
     const { state } = controller;
 
+    // Note: A panel switched off in the administration is asked for here once, so a new panel is one line of the room.
+    const isPanelEnabled = (panelKey: WorkshopPanelKey) =>
+        isWorkshopPanelEnabled(state.workshop.disabledPanels, panelKey);
+
     return (
         <div className="min-h-screen bg-[#06131b] text-slate-200">
             <header className="border-b border-white/[0.07] bg-[#071820]/90 backdrop-blur">
@@ -120,7 +125,9 @@ export function OnlineWorkshopParticipantPage({
                         </div>
                     </div>
                     <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
-                        <WorkshopWatchingBadge watchingParticipantCount={state.watchingParticipantCount} />
+                        {isPanelEnabled('watching-count') && (
+                            <WorkshopWatchingBadge watchingParticipantCount={state.watchingParticipantCount} />
+                        )}
                         <WorkshopParticipantBadge
                             fullname={state.participant.fullname}
                             isInteractionBanned={state.participant.isInteractionBanned}
@@ -161,17 +168,20 @@ export function OnlineWorkshopParticipantPage({
                             fullname: state.participant.fullname,
                         }}
                     />
-                    <WorkshopReactions
-                        emojis={state.workshop.allowedReactions}
-                        isInteractionBanned={state.participant.isInteractionBanned}
-                        onReact={controller.react}
-                    />
+                    {isPanelEnabled('reactions') && (
+                        <WorkshopReactions
+                            emojis={state.workshop.allowedReactions}
+                            isInteractionBanned={state.participant.isInteractionBanned}
+                            onReact={controller.react}
+                        />
+                    )}
                 </div>
 
                 <WorkshopChat
                     className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1"
                     comments={state.comments}
                     commentSort={controller.commentSort}
+                    isEnabled={isPanelEnabled('chat')}
                     isInteractionBanned={state.participant.isInteractionBanned}
                     onChangeSort={controller.changeCommentSort}
                     onSubmitComment={controller.submitComment}

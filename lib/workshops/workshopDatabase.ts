@@ -13,6 +13,7 @@ import {
     WORKSHOP_WATCHING_WINDOW_SECONDS,
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
+import { isWorkshopPanelEnabled, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminComment,
     WorkshopAdminParticipant,
@@ -41,6 +42,11 @@ export type WorkshopRow = {
     readonly youtube_video_id: string | null;
     readonly is_published: boolean;
     readonly allowed_reactions: string[];
+
+    /**
+     * The keys of the panels this workshop switched off for its participants
+     */
+    readonly disabled_panels: string[];
 
     /**
      * The message pinned on top of the chat of this workshop, or `null` when nothing is pinned
@@ -150,6 +156,7 @@ export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
         youtubeVideoId: row.youtube_video_id,
         isPublished: row.is_published,
         allowedReactions: row.allowed_reactions,
+        disabledPanels: normalizeWorkshopDisabledPanels(row.disabled_panels),
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
@@ -267,17 +274,23 @@ type LoadedWorkshopPublicState = {
  *
  * Note: Every authenticated request refreshes `last_seen_at`, so an open room keeps itself in this count through its
  *       presence reports and state reloads, while a closed one falls out of it once the window passes.
+ * Note: A room which does not show the count does not pay for it. Every state reload and every heartbeat of every
+ *       participant would otherwise count the whole audience for nobody to read.
  * Note: An unavailable count must never take the whole room down with it, so a failure is reported as nobody watching.
  */
 export async function countWatchingWorkshopParticipants(
     supabase: SupabaseClient,
-    workshopId: string,
+    workshopRow: WorkshopRow,
 ): Promise<number> {
+    if (!isWorkshopPanelEnabled(workshopRow.disabled_panels, 'watching-count')) {
+        return 0;
+    }
+
     const watchingSince = new Date(Date.now() - WORKSHOP_WATCHING_WINDOW_SECONDS * 1_000).toISOString();
     const { count, error } = await supabase
         .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
         .select('id', { count: 'exact', head: true })
-        .eq('workshop_id', workshopId)
+        .eq('workshop_id', workshopRow.id)
         .gte('last_seen_at', watchingSince);
 
     if (error) {
@@ -421,7 +434,7 @@ export async function loadWorkshopPublicState(
             .eq('workshop_id', workshopRow.id)
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_RECENT_REACTION_COUNT),
-        countWatchingWorkshopParticipants(supabase, workshopRow.id),
+        countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
     ]);
 

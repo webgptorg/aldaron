@@ -10,6 +10,7 @@ import {
     isWorkshopParticipantFullnameValid,
     normalizeWorkshopParticipantFullname,
 } from '@/lib/workshops/workshopParticipantFullname';
+import { isWorkshopPanelKey, WORKSHOP_PANEL_DEFINITIONS, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 import { z } from 'zod';
 
@@ -27,6 +28,16 @@ const workshopAllowedReactionsSchema = z
     .min(1)
     .max(12)
     .refine((reactions) => new Set(reactions).size === reactions.length, 'Workshop reactions must be unique');
+
+/**
+ * The panels an admin switched off, validated against the very registry the room reads
+ *
+ * Note: A key nothing knows is refused instead of stored, so a typo cannot silently hide a panel of the room.
+ */
+const workshopDisabledPanelsSchema = z
+    .array(z.custom<WorkshopPanelKey>(isWorkshopPanelKey, 'Unknown workshop panel'))
+    .max(WORKSHOP_PANEL_DEFINITIONS.length)
+    .refine((panelKeys) => new Set(panelKeys).size === panelKeys.length, 'Workshop panels must be unique');
 const nullableYoutubeVideoIdSchema = z.union([z.string().trim().max(2_000), z.null()]).transform((value, context) => {
     if (!value) {
         return null;
@@ -131,6 +142,7 @@ export const workshopCreateSchema = z
         youtubeVideoId: nullableYoutubeVideoIdSchema.default(null),
         isPublished: z.boolean().default(false),
         allowedReactions: workshopAllowedReactionsSchema.default([...DEFAULT_WORKSHOP_REACTIONS]),
+        disabledPanels: workshopDisabledPanelsSchema.default([]),
     })
     .refine(({ startsAt, endsAt }) => endsAt === null || Date.parse(endsAt) > Date.parse(startsAt), {
         message: 'Workshop end must be after its start',
@@ -146,6 +158,7 @@ export const workshopUpdateSchema = z
         youtubeVideoId: nullableYoutubeVideoIdSchema.optional(),
         isPublished: z.boolean().optional(),
         allowedReactions: workshopAllowedReactionsSchema.optional(),
+        disabledPanels: workshopDisabledPanelsSchema.optional(),
     })
     .refine((value) => Object.keys(value).length > 0, 'At least one workshop field is required');
 

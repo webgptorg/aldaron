@@ -43,6 +43,9 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
             youtubeVideoId: null,
             isPublished: false,
             allowedReactions: DEFAULT_REACTIONS.split(' '),
+
+            // A new workshop offers every panel of the room, the administration switches them off one by one.
+            disabledPanels: [],
         });
         setIsSaving(false);
         if (isCreated) {

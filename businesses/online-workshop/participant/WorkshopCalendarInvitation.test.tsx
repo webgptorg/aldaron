@@ -25,6 +25,7 @@ const WORKSHOP: WorkshopDetails = {
     youtubeVideoId: null,
     isPublished: true,
     allowedReactions: ['👍'],
+    disabledPanels: [],
     createdAt: '2026-08-01T10:00:00+02:00',
     updatedAt: '2026-08-01T10:00:00+02:00',
 };
