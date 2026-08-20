@@ -1,0 +1,908 @@
+/*
+ * The vocabulary of the reaction animations of a workshop room.
+ *
+ * One flying reaction is a root element which travels (a "flight"), the reaction itself which behaves while it travels
+ * (a "flourish") and at most three characters which fly alongside it (a "decoration"). The registry in
+ * `lib/workshops/workshopReactionAnimations.ts` composes those three into the animation of a single reaction, so a new
+ * reaction usually needs no new keyframes at all, and this file never needs to know which emoji asked for what.
+ *
+ * Everything animated here is a transform, an opacity or a static filter, which the browser hands to the compositor.
+ * A full stage therefore costs no JavaScript and no layout, which is what keeps the room smooth on a cheap phone in a
+ * workshop with thousands of participants. `will-change` is deliberately not used: a running transform animation is
+ * promoted by the browser anyway, while asking for a layer per reaction would only spend memory.
+ */
+
+.workshop-reaction {
+    --workshop-reaction-duration: 2600ms;
+    --workshop-reaction-rise: -220px;
+    --workshop-reaction-drift: 0px;
+    --workshop-reaction-spin: 0deg;
+    --workshop-reaction-scale: 1;
+    --workshop-reaction-decoration-drift: 40px;
+    --workshop-reaction-decoration-rise: -60px;
+
+    position: absolute;
+    bottom: 0.75rem;
+    line-height: 1;
+    white-space: nowrap;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
+    animation-duration: var(--workshop-reaction-duration);
+    animation-timing-function: cubic-bezier(0.21, 0.6, 0.35, 1);
+    animation-fill-mode: both;
+    animation-iteration-count: 1;
+}
+
+.workshop-reaction__body {
+    display: inline-block;
+    animation-duration: var(--workshop-reaction-duration);
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+    animation-iteration-count: 1;
+}
+
+.workshop-reaction__decoration {
+    position: absolute;
+    left: 50%;
+    top: 25%;
+    font-size: 0.55em;
+    animation-duration: var(--workshop-reaction-duration);
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+    animation-iteration-count: 1;
+}
+
+/* How the reaction itself is drawn */
+
+.workshop-reaction-appearance--emoji {
+    font-size: calc(2.25rem * var(--workshop-reaction-scale));
+}
+
+.workshop-reaction-appearance--code {
+    font-size: calc(1.05rem * var(--workshop-reaction-scale));
+}
+
+.workshop-reaction-appearance--code .workshop-reaction__body {
+    padding: 0.25em 0.5em;
+    border: 1px solid rgba(122, 235, 255, 0.35);
+    border-radius: 0.5rem;
+    background: rgba(8, 26, 36, 0.88);
+    color: #7aebff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+}
+
+/* The flights: how a reaction travels over the stage */
+
+.workshop-reaction-flight--float {
+    animation-name: workshop-reaction-flight-float;
+}
+
+@keyframes workshop-reaction-flight-float {
+    0% {
+        transform: translate3d(0, 18px, 0);
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-drift), var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--bob {
+    animation-name: workshop-reaction-flight-bob;
+}
+
+@keyframes workshop-reaction-flight-bob {
+    0% {
+        transform: translate3d(0, 22px, 0);
+        opacity: 0;
+    }
+    12% {
+        transform: translate3d(0, -14px, 0);
+        opacity: 1;
+    }
+    24% {
+        transform: translate3d(0, 2px, 0);
+    }
+    38% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.25),
+            calc(var(--workshop-reaction-rise) * 0.2),
+            0
+        );
+    }
+    50% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.35),
+            calc(var(--workshop-reaction-rise) * 0.14),
+            0
+        );
+    }
+    72% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-drift), var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--sway {
+    animation-name: workshop-reaction-flight-sway;
+}
+
+@keyframes workshop-reaction-flight-sway {
+    0% {
+        transform: translate3d(0, 16px, 0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    25% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -1),
+            calc(var(--workshop-reaction-rise) * 0.28),
+            0
+        );
+    }
+    50% {
+        transform: translate3d(var(--workshop-reaction-drift), calc(var(--workshop-reaction-rise) * 0.52), 0);
+    }
+    75% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -0.6),
+            calc(var(--workshop-reaction-rise) * 0.78),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--drift {
+    animation-name: workshop-reaction-flight-drift;
+    animation-timing-function: ease-out;
+}
+
+@keyframes workshop-reaction-flight-drift {
+    0% {
+        transform: translate3d(0, 14px, 0);
+        opacity: 0;
+    }
+    14% {
+        opacity: 1;
+    }
+    55% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 1.4),
+            calc(var(--workshop-reaction-rise) * 0.55),
+            0
+        );
+    }
+    84% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 1.1),
+            calc(var(--workshop-reaction-rise) * 0.86),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-drift), var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--roll {
+    animation-name: workshop-reaction-flight-roll;
+}
+
+@keyframes workshop-reaction-flight-roll {
+    0% {
+        transform: translate3d(0, 18px, 0);
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    55% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 1.5),
+            calc(var(--workshop-reaction-rise) * 0.45),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 2.6),
+            calc(var(--workshop-reaction-rise) * 0.72),
+            0
+        );
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--hover {
+    animation-name: workshop-reaction-flight-hover;
+}
+
+@keyframes workshop-reaction-flight-hover {
+    0% {
+        transform: translate3d(0, 20px, 0);
+        opacity: 0;
+    }
+    16% {
+        transform: translate3d(0, calc(var(--workshop-reaction-rise) * 0.22), 0);
+        opacity: 1;
+    }
+    74% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.4),
+            calc(var(--workshop-reaction-rise) * 0.3),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.6),
+            calc(var(--workshop-reaction-rise) * 0.42),
+            0
+        );
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--updraft {
+    animation-name: workshop-reaction-flight-updraft;
+    animation-timing-function: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+@keyframes workshop-reaction-flight-updraft {
+    0% {
+        transform: translate3d(0, 16px, 0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    32% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.6),
+            calc(var(--workshop-reaction-rise) * 0.12),
+            0
+        );
+    }
+    62% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -0.4),
+            calc(var(--workshop-reaction-rise) * 0.45),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.2),
+            calc(var(--workshop-reaction-rise) * 1.15),
+            0
+        );
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--flutter {
+    animation-name: workshop-reaction-flight-flutter;
+    animation-timing-function: ease-in-out;
+}
+
+@keyframes workshop-reaction-flight-flutter {
+    0% {
+        transform: translate3d(0, 12px, 0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    30% {
+        transform: translate3d(var(--workshop-reaction-drift), calc(var(--workshop-reaction-rise) * 0.3), 0);
+    }
+    50% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -0.8),
+            calc(var(--workshop-reaction-rise) * 0.5),
+            0
+        );
+    }
+    72% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.7),
+            calc(var(--workshop-reaction-rise) * 0.72),
+            0
+        );
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(calc(var(--workshop-reaction-drift) * -0.3), var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--slither {
+    animation-name: workshop-reaction-flight-slither;
+    animation-timing-function: ease-in-out;
+}
+
+@keyframes workshop-reaction-flight-slither {
+    0% {
+        transform: translate3d(0, 14px, 0);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    22% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 1.8),
+            calc(var(--workshop-reaction-rise) * 0.2),
+            0
+        );
+    }
+    44% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -1.8),
+            calc(var(--workshop-reaction-rise) * 0.42),
+            0
+        );
+    }
+    66% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 1.5),
+            calc(var(--workshop-reaction-rise) * 0.64),
+            0
+        );
+        opacity: 1;
+    }
+    88% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * -1.1),
+            calc(var(--workshop-reaction-rise) * 0.86),
+            0
+        );
+    }
+    100% {
+        transform: translate3d(0, var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--launch {
+    animation-name: workshop-reaction-flight-launch;
+    animation-timing-function: cubic-bezier(0.12, 0.85, 0.32, 1);
+}
+
+@keyframes workshop-reaction-flight-launch {
+    0% {
+        transform: translate3d(0, 22px, 0);
+        opacity: 0;
+    }
+    6% {
+        opacity: 1;
+    }
+    38% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.5),
+            calc(var(--workshop-reaction-rise) * 0.92),
+            0
+        );
+    }
+    56% {
+        transform: translate3d(calc(var(--workshop-reaction-drift) * 0.8), var(--workshop-reaction-rise), 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-drift), calc(var(--workshop-reaction-rise) * 0.9), 0);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-flight--stagger {
+    animation-name: workshop-reaction-flight-stagger;
+    animation-timing-function: linear;
+}
+
+@keyframes workshop-reaction-flight-stagger {
+    0% {
+        transform: translate3d(0, 14px, 0);
+        opacity: 0;
+    }
+    10% {
+        transform: translate3d(0, calc(var(--workshop-reaction-rise) * 0.16), 0);
+        opacity: 1;
+    }
+    28% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.25),
+            calc(var(--workshop-reaction-rise) * 0.2),
+            0
+        );
+    }
+    30% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.25),
+            calc(var(--workshop-reaction-rise) * 0.42),
+            0
+        );
+    }
+    52% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.5),
+            calc(var(--workshop-reaction-rise) * 0.46),
+            0
+        );
+    }
+    54% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.5),
+            calc(var(--workshop-reaction-rise) * 0.68),
+            0
+        );
+    }
+    76% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.75),
+            calc(var(--workshop-reaction-rise) * 0.72),
+            0
+        );
+        opacity: 1;
+    }
+    78% {
+        transform: translate3d(
+            calc(var(--workshop-reaction-drift) * 0.75),
+            calc(var(--workshop-reaction-rise) * 0.94),
+            0
+        );
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-drift), var(--workshop-reaction-rise), 0);
+        opacity: 0;
+    }
+}
+
+/*
+ * The flight of a room which was asked for less motion: the reaction only appears where it was sent and fades away
+ * again, without travelling anywhere.
+ */
+
+.workshop-reaction-flight--calm {
+    animation-name: workshop-reaction-flight-calm;
+}
+
+@keyframes workshop-reaction-flight-calm {
+    0% {
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* The flourishes: what a reaction does with itself while it travels */
+
+.workshop-reaction-flourish--swell {
+    animation-name: workshop-reaction-flourish-swell;
+}
+
+@keyframes workshop-reaction-flourish-swell {
+    0% {
+        transform: scale(0.6) rotate(calc(var(--workshop-reaction-spin) * -1));
+    }
+    22% {
+        transform: scale(1.24) rotate(calc(var(--workshop-reaction-spin) * 0.4));
+    }
+    100% {
+        transform: scale(1) rotate(var(--workshop-reaction-spin));
+    }
+}
+
+.workshop-reaction-flourish--pump {
+    animation-name: workshop-reaction-flourish-pump;
+}
+
+@keyframes workshop-reaction-flourish-pump {
+    0% {
+        transform: scale(0.55) rotate(-18deg);
+    }
+    18% {
+        transform: scale(1.3) rotate(6deg);
+    }
+    32% {
+        transform: scale(0.94) rotate(-4deg);
+    }
+    46% {
+        transform: scale(1.14) rotate(3deg);
+    }
+    100% {
+        transform: scale(1) rotate(var(--workshop-reaction-spin));
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--heartbeat {
+    animation-name: workshop-reaction-flourish-heartbeat;
+    animation-duration: 900ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-heartbeat {
+    0%,
+    24%,
+    50%,
+    100% {
+        transform: scale(1);
+    }
+    12% {
+        transform: scale(1.28);
+    }
+    36% {
+        transform: scale(1.16);
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--clap {
+    animation-name: workshop-reaction-flourish-clap;
+    animation-duration: 260ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-clap {
+    0%,
+    100% {
+        transform: rotate(-16deg) scale(0.96);
+    }
+    50% {
+        transform: rotate(16deg) scale(1.08);
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--flicker {
+    animation-name: workshop-reaction-flourish-flicker;
+    animation-duration: 420ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-flicker {
+    0%,
+    100% {
+        transform: scale(1) skewX(-3deg);
+        opacity: 1;
+    }
+    25% {
+        transform: scale(1.12) skewX(3deg);
+        opacity: 0.92;
+    }
+    50% {
+        transform: scale(0.94) skewX(-2deg);
+        opacity: 1;
+    }
+    75% {
+        transform: scale(1.08) skewX(4deg);
+        opacity: 0.86;
+    }
+}
+
+/*
+ * The glow of an idea is a static filter, so the browser paints the shadow once and only animates the transform of the
+ * bulb itself.
+ */
+
+.workshop-reaction__body.workshop-reaction-flourish--blink {
+    animation-name: workshop-reaction-flourish-blink;
+    animation-duration: 1100ms;
+    animation-iteration-count: infinite;
+    filter: drop-shadow(0 0 10px rgba(255, 224, 130, 0.65));
+}
+
+@keyframes workshop-reaction-flourish-blink {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.86;
+    }
+    30% {
+        transform: scale(1.18);
+        opacity: 1;
+    }
+    62% {
+        transform: scale(1);
+        opacity: 0.94;
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--tumble {
+    animation-name: workshop-reaction-flourish-tumble;
+    animation-duration: 720ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-tumble {
+    0%,
+    100% {
+        transform: rotate(-24deg) scale(1);
+    }
+    30% {
+        transform: rotate(18deg) scale(1.1);
+    }
+    65% {
+        transform: rotate(-12deg) scale(0.96);
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--twinkle {
+    animation-name: workshop-reaction-flourish-twinkle;
+    animation-duration: 1600ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes workshop-reaction-flourish-twinkle {
+    0% {
+        transform: rotate(0deg) scale(0.7);
+        opacity: 0.85;
+    }
+    35% {
+        transform: rotate(120deg) scale(1.2);
+        opacity: 1;
+    }
+    70% {
+        transform: rotate(240deg) scale(0.85);
+        opacity: 0.8;
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--wriggle {
+    animation-name: workshop-reaction-flourish-wriggle;
+    animation-duration: 700ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-wriggle {
+    0%,
+    100% {
+        transform: skewX(10deg) rotate(-6deg);
+    }
+    50% {
+        transform: skewX(-10deg) rotate(6deg);
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--dart {
+    animation-name: workshop-reaction-flourish-dart;
+    animation-duration: 900ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-dart {
+    0%,
+    100% {
+        transform: translate3d(-6px, 0, 0) scale(1);
+    }
+    20% {
+        transform: translate3d(7px, 0, 0) scale(1.06);
+    }
+    40% {
+        transform: translate3d(-7px, 0, 0) scale(1);
+    }
+    60% {
+        transform: translate3d(5px, -3px, 0) scale(1.08);
+    }
+    80% {
+        transform: translate3d(-4px, 2px, 0) scale(1);
+    }
+}
+
+.workshop-reaction-flourish--burst {
+    animation-name: workshop-reaction-flourish-burst;
+}
+
+@keyframes workshop-reaction-flourish-burst {
+    0% {
+        transform: scale(0.35) rotate(-30deg);
+    }
+    18% {
+        transform: scale(1.45) rotate(12deg);
+    }
+    34% {
+        transform: scale(1.05) rotate(-6deg);
+    }
+    100% {
+        transform: scale(1.15) rotate(var(--workshop-reaction-spin));
+    }
+}
+
+.workshop-reaction-flourish--explode {
+    animation-name: workshop-reaction-flourish-explode;
+}
+
+@keyframes workshop-reaction-flourish-explode {
+    0% {
+        transform: scale(0.25);
+        opacity: 0.6;
+    }
+    30% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    52% {
+        transform: scale(1.7);
+        opacity: 1;
+    }
+    72% {
+        transform: scale(1.35);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1.9);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--glitch {
+    animation-name: workshop-reaction-flourish-glitch;
+    animation-duration: 620ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-glitch {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+    20% {
+        transform: translate3d(-2px, 1px, 0) skewX(-6deg);
+    }
+    40% {
+        transform: translate3d(3px, -1px, 0) skewX(5deg);
+    }
+    60% {
+        transform: translate3d(-1px, 0, 0);
+    }
+    80% {
+        transform: translate3d(2px, 1px, 0) skewX(-3deg);
+    }
+}
+
+.workshop-reaction__body.workshop-reaction-flourish--keyboard {
+    animation-name: workshop-reaction-flourish-keyboard;
+    animation-duration: 820ms;
+    animation-iteration-count: infinite;
+}
+
+@keyframes workshop-reaction-flourish-keyboard {
+    0%,
+    100% {
+        transform: rotate(-5deg) translate3d(0, 0, 0);
+    }
+    25% {
+        transform: rotate(4deg) translate3d(0, -3px, 0);
+    }
+    50% {
+        transform: rotate(-3deg) translate3d(0, 1px, 0);
+    }
+    75% {
+        transform: rotate(5deg) translate3d(0, -2px, 0);
+    }
+}
+
+/* The decorations: the few characters which fly alongside a reaction */
+
+.workshop-reaction-decoration--scatter {
+    animation-name: workshop-reaction-decoration-scatter;
+}
+
+@keyframes workshop-reaction-decoration-scatter {
+    0% {
+        transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-decoration-drift), var(--workshop-reaction-decoration-rise), 0)
+            scale(1) rotate(300deg);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction-decoration--spark {
+    animation-name: workshop-reaction-decoration-spark;
+}
+
+@keyframes workshop-reaction-decoration-spark {
+    0% {
+        transform: translate3d(0, 0, 0) scale(0.2);
+        opacity: 0;
+    }
+    18% {
+        transform: translate3d(
+                calc(var(--workshop-reaction-decoration-drift) * 0.4),
+                calc(var(--workshop-reaction-decoration-rise) * 0.4),
+                0
+            )
+            scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(var(--workshop-reaction-decoration-drift), var(--workshop-reaction-decoration-rise), 0)
+            scale(0.3);
+        opacity: 0;
+    }
+}
+
+.workshop-reaction__decoration.workshop-reaction-decoration--caret {
+    left: auto;
+    right: -0.1em;
+    top: 0.2em;
+    font-size: 0.9em;
+    color: #7aebff;
+    animation-name: workshop-reaction-decoration-caret;
+    animation-duration: 900ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(1, end);
+}
+
+@keyframes workshop-reaction-decoration-caret {
+    0%,
+    45% {
+        opacity: 1;
+    }
+    50%,
+    95% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/*
+ * The safety net of a participant who asked the operating system for less motion. The room already resolves such a
+ * reaction to the calm animation, and this net catches the moment before the browser answered that question. It is
+ * last in the file on purpose, because it wins over a flourish of the same specificity by its order.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+    .workshop-reaction[class] {
+        animation-name: workshop-reaction-flight-calm;
+    }
+
+    .workshop-reaction__body[class] {
+        animation-name: none;
+        transform: none;
+    }
+
+    .workshop-reaction__decoration[class] {
+        display: none;
+    }
+}

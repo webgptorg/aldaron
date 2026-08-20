@@ -1,3 +1,7 @@
+import {
+    DEFAULT_WORKSHOP_REACTIONS,
+    MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
+} from '@/lib/workshops/workshopConstants';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -14,6 +18,8 @@ const PINNED_COMMENT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/20
 const PINNED_COMMENT_MIGRATION_SQL = readFileSync(PINNED_COMMENT_MIGRATION_PATH, 'utf8');
 const DISABLED_PANEL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-5.sql');
 const DISABLED_PANEL_MIGRATION_SQL = readFileSync(DISABLED_PANEL_MIGRATION_PATH, 'utf8');
+const REACTION_ANIMATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-6.sql');
+const REACTION_ANIMATION_MIGRATION_SQL = readFileSync(REACTION_ANIMATION_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -132,6 +138,17 @@ describe('workshop database migration', () => {
 
         // Note: Joining the array leaves a NULL element out instead of failing on it, so it is asked for on its own.
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain('array_position(disabled_panels, NULL::text) IS NULL');
+    });
+
+    it('leaves room for every reaction which is celebrated its own way', () => {
+        expect(REACTION_ANIMATION_MIGRATION_SQL).toContain('DROP CONSTRAINT IF EXISTS workshops_reactions_count');
+        expect(REACTION_ANIMATION_MIGRATION_SQL).toContain(
+            `CHECK (cardinality(allowed_reactions) BETWEEN 1 AND ${MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT})`,
+        );
+        expect(DEFAULT_WORKSHOP_REACTIONS.length).toBeLessThanOrEqual(MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT);
+        DEFAULT_WORKSHOP_REACTIONS.forEach((reaction) => {
+            expect(REACTION_ANIMATION_MIGRATION_SQL).toContain(reaction);
+        });
     });
 
     it('keeps a pin out of the revision of the workshop the administration edits', () => {

@@ -4,6 +4,7 @@ import type { WorkshopCreateValues } from '@/businesses/workshop-admin/workshopA
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/businesses/workshop-admin/workshopAdminDateTime';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEFAULT_WORKSHOP_REACTIONS } from '@/lib/workshops/workshopConstants';
 import { Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
@@ -12,7 +13,6 @@ type CreateWorkshopFormProps = {
 };
 
 const DEFAULT_WORKSHOP_DURATION_MILLISECONDS = 90 * 60 * 1000;
-const DEFAULT_REACTIONS = '👍 ❤️ 👏 🔥 💡 😂';
 
 export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
     const defaultStart = Date.now() + 24 * 60 * 60 * 1000;
@@ -42,7 +42,7 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
             endsAt: endsAtIso,
             youtubeVideoId: null,
             isPublished: false,
-            allowedReactions: DEFAULT_REACTIONS.split(' '),
+            allowedReactions: [...DEFAULT_WORKSHOP_REACTIONS],
 
             // A new workshop offers every panel of the room, the administration switches them off one by one.
             disabledPanels: [],

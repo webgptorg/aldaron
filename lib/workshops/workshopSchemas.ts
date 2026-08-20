@@ -1,6 +1,7 @@
 import {
     DEFAULT_WORKSHOP_REACTIONS,
     MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT,
+    MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
@@ -26,7 +27,7 @@ const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_
 const workshopAllowedReactionsSchema = z
     .array(workshopReactionEmojiSchema)
     .min(1)
-    .max(12)
+    .max(MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT)
     .refine((reactions) => new Set(reactions).size === reactions.length, 'Workshop reactions must be unique');
 
 /**

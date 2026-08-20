@@ -3,6 +3,7 @@
 import type { WorkshopWriteValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/businesses/workshop-admin/workshopAdminDateTime';
 import { WorkshopPanelSettings } from '@/businesses/workshop-admin/WorkshopPanelSettings';
+import { WorkshopReactionAnimationPreview } from '@/businesses/workshop-admin/WorkshopReactionAnimationPreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +15,16 @@ type WorkshopSettingsFormProps = {
     readonly workshop: WorkshopDetails;
     readonly onSave: (values: WorkshopWriteValues) => Promise<boolean>;
 };
+
+/**
+ * The reactions an admin wrote into one line
+ *
+ * Note: The preview and the save read the very same line the very same way, so what an admin previews is exactly what
+ *       the room offers afterwards.
+ */
+function parseWorkshopReactions(reactionText: string): readonly string[] {
+    return reactionText.trim().split(/\s+/).filter(Boolean);
+}
 
 export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormProps) {
     const [title, setTitle] = useState(workshop.title);
@@ -52,7 +63,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
             endsAt: fromDateTimeLocalValue(endsAt),
             youtubeVideoId: youtubeVideoId.trim() || null,
             isPublished,
-            allowedReactions: reactionText.trim().split(/\s+/).filter(Boolean),
+            allowedReactions: parseWorkshopReactions(reactionText),
             disabledPanels,
         });
         setIsSaving(false);
@@ -125,6 +136,9 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
                         className="mt-2"
                     />
                 </label>
+                <div className="md:col-span-2">
+                    <WorkshopReactionAnimationPreview reactions={parseWorkshopReactions(reactionText)} />
+                </div>
                 <div className="md:col-span-2">
                     <WorkshopPanelSettings disabledPanels={disabledPanels} onChange={setDisabledPanels} />
                 </div>

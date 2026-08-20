@@ -13,6 +13,13 @@ export const MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH = 200;
 export const MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH = 320;
 export const MAXIMAL_WORKSHOP_PARTICIPANT_USER_AGENT_LENGTH = 2_000;
 export const MAXIMAL_WORKSHOP_REACTION_LENGTH = 16;
+
+/**
+ * How many reactions a single workshop may offer at once
+ *
+ * Note: The database guards the very same number, so both of them are changed together.
+ */
+export const MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT = 16;
 export const MAXIMAL_WORKSHOP_COMMENT_LENGTH = 2_000;
 export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
 
@@ -32,7 +39,26 @@ export const MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT = 1_000_000;
 export const WORKSHOP_REALTIME_TOPIC_PREFIX = 'workshop:';
 export const WORKSHOP_REALTIME_EVENT_NAME = 'workshop-event';
 
-export const DEFAULT_WORKSHOP_REACTIONS = ['👍', '❤️', '👏', '🔥', '💡', '😂'] as const;
+/**
+ * The reactions a workshop offers until an admin says otherwise
+ *
+ * Note: Every one of them is celebrated by an animation of its own, see `workshopReactionAnimations`.
+ */
+export const DEFAULT_WORKSHOP_REACTIONS = [
+    '👍',
+    '❤️',
+    '👏',
+    '🔥',
+    '💡',
+    '😂',
+    '</>',
+    '✨',
+    '🐍',
+    '👀',
+    '🎉',
+    '🎆',
+    '👩‍💻',
+] as const;
 
 export function getWorkshopSessionCookieName(workshopSlug: string): string {
     return `${WORKSHOP_SESSION_COOKIE_PREFIX}${workshopSlug}`;

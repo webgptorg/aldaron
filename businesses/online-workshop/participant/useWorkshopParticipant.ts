@@ -1,6 +1,10 @@
 'use client';
 
 import {
+    useWorkshopReactionAnimations,
+    type SubscribeToWorkshopReactions,
+} from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
+import {
     changeWorkshopParticipantFullname,
     connectToWorkshop,
     fetchWorkshopState,
@@ -24,12 +28,7 @@ import {
     isWorkshopRealtimeEvent,
 } from '@/lib/workshops/workshopClientState';
 import { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
-import type {
-    WorkshopCommentSort,
-    WorkshopContentBlock,
-    WorkshopPublicState,
-    WorkshopReaction,
-} from '@/lib/workshops/workshopTypes';
+import type { WorkshopCommentSort, WorkshopContentBlock, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS = 25_000;
@@ -37,16 +36,8 @@ const DISCONNECTED_REFRESH_JITTER_MILLISECONDS = 10_000;
 const CONNECTED_REFRESH_MINIMUM_MILLISECONDS = 120_000;
 const CONNECTED_REFRESH_JITTER_MILLISECONDS = 30_000;
 const REALTIME_INVALIDATION_JITTER_MILLISECONDS = 1_250;
-const REACTION_ANIMATION_DURATION_MILLISECONDS = 2_800;
-const MAXIMAL_REMEMBERED_REACTION_COUNT = 500;
-const MAXIMAL_FALLBACK_ANIMATED_REACTION_COUNT = 6;
-const MAXIMAL_SIMULTANEOUS_ANIMATED_REACTION_COUNT = 24;
 const WORKSHOP_PRESENCE_REPORT_INTERVAL_MILLISECONDS = 30_000;
 const NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS = 8_000;
-
-export type AnimatedWorkshopReaction = WorkshopReaction & {
-    readonly animationId: string;
-};
 
 type WorkshopParticipantController = {
     readonly state: WorkshopPublicState | null;
@@ -63,7 +54,10 @@ type WorkshopParticipantController = {
     readonly isConnectionRequired: boolean;
     readonly isRefreshing: boolean;
     readonly errorMessage: string | null;
-    readonly animatedReactions: readonly AnimatedWorkshopReaction[];
+    /**
+     * Offers the stage the reactions which deserve to fly over it
+     */
+    readonly subscribeToReactions: SubscribeToWorkshopReactions;
     readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
     readonly connect: (values: { readonly fullname: string; readonly email: string }) => Promise<boolean>;
     readonly changeFullname: (fullname: string) => Promise<boolean>;
@@ -106,12 +100,9 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [animatedReactions, setAnimatedReactions] = useState<readonly AnimatedWorkshopReaction[]>([]);
     const [newlyUnlockedContentBlockIds, setNewlyUnlockedContentBlockIds] = useState<ReadonlySet<string>>(new Set());
+    const { subscribeToReactions, showReaction, showLoadedReactions } = useWorkshopReactionAnimations();
     const refreshSequenceRef = useRef(0);
-    const rememberedReactionIdsRef = useRef(new Set<string>());
-    const rememberedReactionIdOrderRef = useRef<string[]>([]);
-    const isReactionHistoryLoadedRef = useRef(false);
     const realtimeRefreshTimeoutRef = useRef<number | null>(null);
     const isContentHistoryLoadedRef = useRef(false);
     const knownContentBlockIdsRef = useRef(new Set<string>());
@@ -123,69 +114,6 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         refreshSequenceRef.current += 1;
         setIsRefreshing(false);
     }, []);
-
-    const rememberReactionId = useCallback((reactionId: string): boolean => {
-        if (rememberedReactionIdsRef.current.has(reactionId)) {
-            return false;
-        }
-
-        rememberedReactionIdsRef.current.add(reactionId);
-        rememberedReactionIdOrderRef.current.push(reactionId);
-        if (rememberedReactionIdOrderRef.current.length > MAXIMAL_REMEMBERED_REACTION_COUNT) {
-            const forgottenReactionId = rememberedReactionIdOrderRef.current.shift();
-            if (forgottenReactionId !== undefined) {
-                rememberedReactionIdsRef.current.delete(forgottenReactionId);
-            }
-        }
-        return true;
-    }, []);
-
-    const addAnimatedReaction = useCallback(
-        (reaction: WorkshopReaction) => {
-            if (!rememberReactionId(reaction.id)) {
-                return;
-            }
-
-            const animationId = `${reaction.id}-${Date.now()}`;
-            setAnimatedReactions((currentReactions) =>
-                [...currentReactions, { ...reaction, animationId }].slice(
-                    -MAXIMAL_SIMULTANEOUS_ANIMATED_REACTION_COUNT,
-                ),
-            );
-            window.setTimeout(() => {
-                setAnimatedReactions((currentReactions) =>
-                    currentReactions.filter((currentReaction) => currentReaction.animationId !== animationId),
-                );
-            }, REACTION_ANIMATION_DURATION_MILLISECONDS);
-        },
-        [rememberReactionId],
-    );
-
-    const processLoadedReactions = useCallback(
-        (loadedReactions: readonly WorkshopReaction[]) => {
-            if (!isReactionHistoryLoadedRef.current) {
-                loadedReactions.forEach((reaction) => rememberReactionId(reaction.id));
-                isReactionHistoryLoadedRef.current = true;
-                return;
-            }
-
-            const unseenReactions = loadedReactions.filter(
-                (reaction) => !rememberedReactionIdsRef.current.has(reaction.id),
-            );
-            const animatedReactionIds = new Set(
-                unseenReactions.slice(0, MAXIMAL_FALLBACK_ANIMATED_REACTION_COUNT).map((reaction) => reaction.id),
-            );
-
-            unseenReactions
-                .filter((reaction) => !animatedReactionIds.has(reaction.id))
-                .forEach((reaction) => rememberReactionId(reaction.id));
-            unseenReactions
-                .filter((reaction) => animatedReactionIds.has(reaction.id))
-                .reverse()
-                .forEach(addAnimatedReaction);
-        },
-        [addAnimatedReaction, rememberReactionId],
-    );
 
     const processLoadedContentBlocks = useCallback(
         (contentBlocks: readonly WorkshopContentBlock[]) => {
@@ -234,7 +162,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             if (refreshSequence !== refreshSequenceRef.current) {
                 return false;
             }
-            processLoadedReactions(loadedState.recentReactions);
+            showLoadedReactions(loadedState.recentReactions);
             processLoadedContentBlocks(loadedState.contentBlocks);
             setState(loadedState);
             setIsConnectionRequired(false);
@@ -262,7 +190,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                 setIsRefreshing(false);
             }
         }
-    }, [commentSort, processLoadedContentBlocks, processLoadedReactions, workshopSlug]);
+    }, [commentSort, processLoadedContentBlocks, showLoadedReactions, workshopSlug]);
 
     const scheduleRealtimeRefresh = useCallback(() => {
         if (realtimeRefreshTimeoutRef.current !== null) {
@@ -415,7 +343,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                     return;
                 }
                 if (payload.kind === 'reaction') {
-                    addAnimatedReaction(payload.reaction);
+                    showReaction(payload.reaction);
                     return;
                 }
                 setState((currentState) => {
@@ -459,7 +387,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             }
             void supabase.removeChannel(channel);
         };
-    }, [addAnimatedReaction, commentSort, isConnected, scheduleRealtimeRefresh, workshopSlug]);
+    }, [commentSort, isConnected, scheduleRealtimeRefresh, showReaction, workshopSlug]);
 
     const connect = useCallback(
         async (values: { readonly fullname: string; readonly email: string }): Promise<boolean> => {
@@ -469,7 +397,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                 setParticipantEmail(values.email);
                 setIsConnectionRequired(false);
                 if (connection.state !== null) {
-                    processLoadedReactions(connection.state.recentReactions);
+                    showLoadedReactions(connection.state.recentReactions);
                     processLoadedContentBlocks(connection.state.contentBlocks);
                     setState(connection.state);
                     setIsCheckingConnection(false);
@@ -485,7 +413,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                 return false;
             }
         },
-        [processLoadedContentBlocks, processLoadedReactions, refresh, workshopSlug],
+        [processLoadedContentBlocks, refresh, showLoadedReactions, workshopSlug],
     );
 
     const changeFullname = useCallback(
@@ -588,13 +516,13 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         async (emoji: string) => {
             try {
                 const { reaction } = await sendWorkshopReaction(workshopSlug, emoji);
-                addAnimatedReaction(reaction);
+                showReaction(reaction);
                 trackGoogleAnalyticsEvent('workshop_reaction_sent', { workshop_slug: workshopSlug, emoji });
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
             }
         },
-        [addAnimatedReaction, workshopSlug],
+        [showReaction, workshopSlug],
     );
 
     const recordMaterialLinkClick = useCallback(
@@ -614,7 +542,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         isConnectionRequired,
         isRefreshing,
         errorMessage,
-        animatedReactions,
+        subscribeToReactions,
         newlyUnlockedContentBlockIds,
         connect,
         changeFullname,

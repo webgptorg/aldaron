@@ -1,10 +1,12 @@
 'use client';
 
-import type { AnimatedWorkshopReaction } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
+import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
+import { useWorkshopReactionStream } from '@/components/workshops/useWorkshopReactionStream';
+import { WorkshopReactionStream } from '@/components/workshops/WorkshopReactionStream';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDownLeft, Radio, Volume2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -13,7 +15,13 @@ const CLOCK_TICK_MILLISECONDS = 1000;
 type WorkshopStageProps = {
     readonly workshop: WorkshopDetails;
     readonly serverTime: string;
-    readonly animatedReactions: readonly AnimatedWorkshopReaction[];
+
+    /**
+     * Where the reactions of the room come from
+     *
+     * Note: The stage keeps the flying reactions itself, so a busy room re-renders nothing but the stage they fly over.
+     */
+    readonly subscribeToReactions: SubscribeToWorkshopReactions;
 };
 
 function getRemainingSegments(remainingMilliseconds: number) {
@@ -26,11 +34,6 @@ function getRemainingSegments(remainingMilliseconds: number) {
     ];
 }
 
-function getReactionHorizontalPosition(reactionId: string): number {
-    const hash = Array.from(reactionId).reduce((total, character) => total + character.charCodeAt(0), 0);
-    return 8 + (hash % 80);
-}
-
 function unmuteYoutubeVideo(videoFrame: HTMLIFrameElement | null): void {
     const playerWindow = videoFrame?.contentWindow;
     if (playerWindow === null || playerWindow === undefined) {
@@ -41,12 +44,15 @@ function unmuteYoutubeVideo(videoFrame: HTMLIFrameElement | null): void {
     playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
 }
 
-export function WorkshopStage({ workshop, serverTime, animatedReactions }: WorkshopStageProps) {
+export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
     const serverClockOffset = useMemo(() => Date.parse(serverTime) - Date.now(), [serverTime]);
     const [currentTime, setCurrentTime] = useState(() => Date.now() + serverClockOffset);
     const [isVideoUnmuted, setIsVideoUnmuted] = useState(false);
     const videoFrameReference = useRef<HTMLIFrameElement>(null);
+    const { flyingReactions, launchReaction } = useWorkshopReactionStream();
+
+    useEffect(() => subscribeToReactions(launchReaction), [launchReaction, subscribeToReactions]);
 
     useEffect(() => {
         setCurrentTime(Date.now() + serverClockOffset);
@@ -125,33 +131,7 @@ export function WorkshopStage({ workshop, serverTime, animatedReactions }: Works
                     </div>
                 )}
 
-                <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
-                    <AnimatePresence>
-                        {animatedReactions.map((reaction) => (
-                            <motion.span
-                                key={reaction.animationId}
-                                aria-hidden="true"
-                                className="absolute bottom-3 text-4xl drop-shadow-xl"
-                                style={{ left: `${getReactionHorizontalPosition(reaction.id)}%` }}
-                                initial={{ opacity: 0, y: isReducedMotionPreferred ? 0 : 20, scale: 0.6, rotate: -12 }}
-                                animate={
-                                    isReducedMotionPreferred
-                                        ? { opacity: [0, 1, 0], scale: [0.9, 1, 1] }
-                                        : {
-                                              opacity: [0, 1, 1, 0],
-                                              y: -230,
-                                              scale: [0.6, 1.25, 1],
-                                              rotate: [0, 8, -5],
-                                          }
-                                }
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: isReducedMotionPreferred ? 0.8 : 2.6, ease: 'easeOut' }}
-                            >
-                                {reaction.emoji}
-                            </motion.span>
-                        ))}
-                    </AnimatePresence>
-                </div>
+                <WorkshopReactionStream reactions={flyingReactions} />
 
                 {isWorkshopStarted && workshop.youtubeVideoId && !isVideoUnmuted && (
                     <motion.div

@@ -173,3 +173,19 @@ Do not add a browser policy to any `public.workshop_*` table. Participants alway
 HttpOnly session; opening a table to `anon` would expose identities or moderation data. Realtime events contain only
 invalidation signals, reaction emoji and public vote totals, so the database remains the source of truth if a client
 misses an event.
+
+---
+
+# Make room for the reactions which have an animation of their own
+
+Thirteen reactions (👍 ❤️ 👏 🔥 💡 😂 `</>` ✨ 🐍 👀 🎉 🎆 👩‍💻) are now celebrated their own way in the room. A
+workshop which wants to offer all of them at once did not fit into the twelve reactions the table allowed, so one more
+migration is waiting:
+
+1. In Supabase **SQL Editor**, run [`migrations/2026-07-0040-workshop-page-6.sql`](migrations/2026-07-0040-workshop-page-6.sql).
+   It raises the guard on `workshops.allowed_reactions` to sixteen and offers the whole animated set as the default of
+   the column.
+2. Until it is run, saving more than twelve reactions in `/admin/workshops` fails on the database, and everything else
+   keeps working exactly as before. Workshops which already exist keep the reactions they have.
+3. The animations themselves need no migration at all — they are decided in the browser from the text of the reaction,
+   so any reaction, including one sent from the administration, flies without the database knowing about it.

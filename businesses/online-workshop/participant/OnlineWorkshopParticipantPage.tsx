@@ -156,7 +156,7 @@ export function OnlineWorkshopParticipantPage({
                     <WorkshopStage
                         workshop={state.workshop}
                         serverTime={state.serverTime}
-                        animatedReactions={controller.animatedReactions}
+                        subscribeToReactions={controller.subscribeToReactions}
                     />
                     <WorkshopCalendarInvitation
                         workshop={state.workshop}
