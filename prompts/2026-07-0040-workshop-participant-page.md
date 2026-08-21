@@ -86,6 +86,25 @@
 
 ---
 
+[ ]
+
+[✨🛳] Do some changes and fixes of `/cs/online-workshop/participant`
+
+- Video should be able to be played in fullscreen mode
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
+[ ]
+
+[✨🛳] Show the number of each emoji or action in `/cs/online-workshop/participant`
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality of workshop logic before you start implementing.
+
+---
+
 [x] by Claude Code `claude-opus-5` thinking `max` - Implementation $9.40 27 minutes; Testing a minute
 
 [✨🛳] Add option to add the workshop to the calendar in `/cs/online-workshop/participant`
@@ -208,4 +227,3 @@
 - Also, when there is only one link, there should be a call to action button alongside the material.
 
 ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-4.png)
-
