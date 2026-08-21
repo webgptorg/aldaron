@@ -20,6 +20,11 @@ const DISABLED_PANEL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/20
 const DISABLED_PANEL_MIGRATION_SQL = readFileSync(DISABLED_PANEL_MIGRATION_PATH, 'utf8');
 const REACTION_ANIMATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-6.sql');
 const REACTION_ANIMATION_MIGRATION_SQL = readFileSync(REACTION_ANIMATION_MIGRATION_PATH, 'utf8');
+const MULTIPLE_TERMS_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-0100-online-workshop-multiple-terms.sql',
+);
+const MULTIPLE_TERMS_MIGRATION_SQL = readFileSync(MULTIPLE_TERMS_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -152,6 +157,12 @@ describe('workshop database migration', () => {
         DEFAULT_WORKSHOP_REACTIONS.forEach((reaction) => {
             expect(REACTION_ANIMATION_MIGRATION_SQL).toContain(reaction);
         });
+    });
+
+    it('indexes published terms by their start for the public term list and legacy-room fallback', () => {
+        expect(MULTIPLE_TERMS_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshops_published_starts_at_idx');
+        expect(MULTIPLE_TERMS_MIGRATION_SQL).toContain('ON public.workshops (starts_at ASC)');
+        expect(MULTIPLE_TERMS_MIGRATION_SQL).toContain('WHERE is_published');
     });
 
     it('keeps a pin out of the revision of the workshop the administration edits', () => {

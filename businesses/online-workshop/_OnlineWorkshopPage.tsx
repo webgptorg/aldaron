@@ -2,12 +2,11 @@
 
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
 import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
-import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import {
     onlineWorkshopContentItems,
     onlineWorkshopFaqs,
     onlineWorkshopFitCards,
-    onlineWorkshopHeroBullets,
+    createOnlineWorkshopHeroBullets,
     onlineWorkshopImpactMetrics,
     onlineWorkshopPainPoints,
     onlineWorkshopScheduleItems,
@@ -23,6 +22,12 @@ import { Header } from '@/components/header';
 import { SectionIntro } from '@/components/section-intro';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
+import {
+    formatCzechWorkshopDate,
+    formatCzechWorkshopDuration,
+    formatCzechWorkshopTime,
+} from '@/lib/workshops/workshopDate';
+import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import { motion } from 'framer-motion';
@@ -30,8 +35,21 @@ import { ArrowRight, CalendarDays, CheckCircle, Clock, Users } from 'lucide-reac
 import Image from 'next/image';
 import Link from 'next/link';
 
-export function OnlineWorkshopPage() {
-    const { weekdayLabel, dateLabel, time, durationLabel } = onlineWorkshopConfig.date;
+type OnlineWorkshopPageProps = {
+    readonly workshops: readonly WorkshopSummary[];
+};
+
+export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
+    const nearestUpcomingWorkshop = workshops[0] ?? null;
+    const nearestWorkshopDateLabel =
+        nearestUpcomingWorkshop === null ? null : formatCzechWorkshopDate(nearestUpcomingWorkshop.startsAt);
+    const nearestWorkshopTimeLabel =
+        nearestUpcomingWorkshop === null ? null : formatCzechWorkshopTime(nearestUpcomingWorkshop.startsAt);
+    const nearestWorkshopDurationLabel =
+        nearestUpcomingWorkshop === null
+            ? '60 minut + Q&A'
+            : formatCzechWorkshopDuration(nearestUpcomingWorkshop.startsAt, nearestUpcomingWorkshop.endsAt);
+    const heroBullets = createOnlineWorkshopHeroBullets(nearestWorkshopDurationLabel);
 
     return (
         <main className="min-h-screen bg-white">
@@ -45,7 +63,9 @@ export function OnlineWorkshopPage() {
                         <span>
                             Online workshop zdarma ·{' '}
                             <strong className="text-gray-900">
-                                {weekdayLabel} {dateLabel} v {time}
+                                {nearestWorkshopDateLabel === null
+                                    ? 'další termíny připravujeme'
+                                    : `${nearestWorkshopDateLabel} v ${nearestWorkshopTimeLabel}`}
                             </strong>
                         </span>
                     </>
@@ -71,7 +91,10 @@ export function OnlineWorkshopPage() {
                             <div className="space-y-5">
                                 <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
                                     <CalendarDays className="h-4 w-4" />
-                                    Online workshop zdarma · {weekdayLabel} {dateLabel} · {time}
+                                    Online workshop zdarma ·{' '}
+                                    {nearestWorkshopDateLabel === null
+                                        ? 'další termíny připravujeme'
+                                        : `${nearestWorkshopDateLabel} · ${nearestWorkshopTimeLabel}`}
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
@@ -83,7 +106,8 @@ export function OnlineWorkshopPage() {
 
                                 <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
                                     Pavol Hejný ukáže naživo celé workflow od issue po merge na reálném repu. Za{' '}
-                                    {durationLabel} uvidíš, kde přesně se agenti lámou a čím to podchytit.
+                                    {nearestWorkshopDurationLabel} uvidíš, kde přesně se agenti lámou a čím to
+                                    podchytit.
                                 </p>
                             </div>
 
@@ -111,7 +135,7 @@ export function OnlineWorkshopPage() {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4 text-sm text-white/75 sm:gap-5">
-                                {onlineWorkshopHeroBullets.map((bullet) => (
+                                {heroBullets.map((bullet) => (
                                     <div key={bullet} className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
                                         {bullet}
@@ -127,7 +151,7 @@ export function OnlineWorkshopPage() {
                             className="min-w-0"
                         >
                             <AiSupervizeTerminal
-                                titleBarText="claude - online-workshop - 19:00"
+                                titleBarText={`claude - online-workshop - ${nearestWorkshopTimeLabel ?? 'brzy'}`}
                                 commandName="claude"
                                 commandAction="implement"
                                 commandArgs="--issue 142 --branch feat/pdf-export"
@@ -317,9 +341,11 @@ export function OnlineWorkshopPage() {
                 <div className="container mx-auto px-4">
                     <div className="mb-12 max-w-3xl">
                         <p className="text-sm font-semibold uppercase text-cyan-700">Registrace</p>
-                        <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Rezervuj si místo</h2>
+                        <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Vyber si termín</h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            {weekdayLabel} {dateLabel} v {time} · online · zdarma
+                            {workshops.length === 0
+                                ? 'Další online workshopy právě připravujeme.'
+                                : 'Každý workshop je zdarma, probíhá online a odkaz na připojení dostaneš e-mailem.'}
                         </p>
                     </div>
 
@@ -329,15 +355,17 @@ export function OnlineWorkshopPage() {
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <CalendarDays className="h-6 w-6 text-cyan-700" />
                                     <h3 className="mt-3 font-bold text-slate-950">
-                                        {weekdayLabel} {dateLabel}
+                                        {nearestWorkshopDateLabel ?? 'Další termíny brzy'}
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                        Workshop proběhne online v {time}. Odkaz na připojení dostaneš e-mailem.
+                                        {nearestWorkshopTimeLabel === null
+                                            ? 'Nech nám chvíli: nový termín sem doplníme hned, jak ho vypíšeme.'
+                                            : `Nejbližší workshop začíná v ${nearestWorkshopTimeLabel}. Odkaz na připojení dostaneš e-mailem.`}
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <Clock className="h-6 w-6 text-cyan-700" />
-                                    <h3 className="mt-3 font-bold text-slate-950">{durationLabel}</h3>
+                                    <h3 className="mt-3 font-bold text-slate-950">{nearestWorkshopDurationLabel}</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         Krátké a soustředěné. Program držíme v jasném rytmu, ať máš čas i na dotazy.
                                     </p>
@@ -387,7 +415,18 @@ export function OnlineWorkshopPage() {
                             </p>
                         </div>
 
-                        <OnlineWorkshopRegistrationForm />
+                        <div className="space-y-6">
+                            {workshops.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">
+                                    Zatím není vypsaný žádný další termín. Sleduj Promptbook, nový workshop sem
+                                    přidáme hned po zveřejnění.
+                                </div>
+                            ) : (
+                                workshops.map((workshop) => (
+                                    <OnlineWorkshopRegistrationForm key={workshop.id} workshop={workshop} />
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             </section>

@@ -1,5 +1,5 @@
 import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
-import { ONLINE_WORKSHOP_PARTICIPANT_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import { ONLINE_WORKSHOP_HOST_FULLNAME, ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { AddToCalendarButtons } from '@/components/calendar/AddToCalendarButtons';
 import { MetaPixelEvent } from '@/components/meta-pixel-event';
 import { MinimalFooter } from '@/components/minimal-footer';
@@ -8,12 +8,17 @@ import { Button } from '@/components/ui/button';
 import {
     createWorkshopCalendarEvent,
     createWorkshopCalendarFileName,
-    type WorkshopCalendarOccurrence,
 } from '@/lib/workshops/workshopCalendar';
 import {
     createWorkshopParticipantLink,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
+import {
+    formatCzechWorkshopDate,
+    formatCzechWorkshopDuration,
+    formatCzechWorkshopTime,
+} from '@/lib/workshops/workshopDate';
+import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
 import { ArrowRight, BellRing, CheckCircle2, Mail, Video } from 'lucide-react';
@@ -28,40 +33,26 @@ import Link from 'next/link';
  */
 const REGISTRATION_META_PIXEL_EVENT_NAME = 'CompleteRegistration';
 
-const { weekdayLabel, dateLabel, time, durationLabel, startsAt, endsAt } = onlineWorkshopConfig.date;
-
-/**
- * The workshop as this page knows it
- *
- * Note: The confirmation page never touches the workshop database, so it describes the very same occurrence which the
- *       participant room later loads from there.
- */
-const ONLINE_WORKSHOP_CALENDAR_OCCURRENCE: WorkshopCalendarOccurrence = {
-    slug: onlineWorkshopConfig.workshopSlug,
-    title: onlineWorkshopConfig.participant.title,
-    description: `Bezplatný online workshop s Pavolem Hejným a Jiřím Jahnem. ${durationLabel}.`,
-    startsAt,
-    endsAt,
-};
-
-const NEXT_STEPS = [
-    {
-        icon: Mail,
-        title: 'Potvrzovací e-mail už je na cestě',
-        description:
-            'Najdeš v něm odkaz na připojení. Kdyby nedorazil do pár minut, mrkni do spamu a do složky Hromadné.',
-    },
-    {
-        icon: BellRing,
-        title: 'Připomeneme se den předem',
-        description: 'Pošleme krátkou připomínku, ať ti workshop neuteče mezi meetingy.',
-    },
-    {
-        icon: Video,
-        title: `${durationLabel} naživo`,
-        description: 'Celé workflow od issue po merge na reálném repu, na konci prostor na tvoje otázky.',
-    },
-];
+function createNextSteps(durationLabel: string) {
+    return [
+        {
+            icon: Mail,
+            title: 'Potvrzovací e-mail už je na cestě',
+            description:
+                'Najdeš v něm odkaz na připojení. Kdyby nedorazil do pár minut, mrkni do spamu a do složky Hromadné.',
+        },
+        {
+            icon: BellRing,
+            title: 'Připomeneme se den předem',
+            description: 'Pošleme krátkou připomínku, ať ti workshop neuteče mezi meetingy.',
+        },
+        {
+            icon: Video,
+            title: `${durationLabel} naživo`,
+            description: 'Celé workflow od issue po merge na reálném repu, na konci prostor na tvoje otázky.',
+        },
+    ] as const;
+}
 
 /**
  * Page confirming a finished registration for the online workshop
@@ -69,14 +60,23 @@ const NEXT_STEPS = [
  * Note: It lives on its own url, so that an ad campaign can optimize on real registrations instead of clicks.
  */
 type OnlineWorkshopThankYouPageProps = {
+    readonly workshop: WorkshopDetails;
     readonly participantIdentity: WorkshopParticipantIdentity;
 };
 
-export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorkshopThankYouPageProps) {
-    const participantLink = createWorkshopParticipantLink(ONLINE_WORKSHOP_PARTICIPANT_PATH, participantIdentity);
+export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: OnlineWorkshopThankYouPageProps) {
+    const dateLabel = formatCzechWorkshopDate(workshop.startsAt);
+    const timeLabel = formatCzechWorkshopTime(workshop.startsAt);
+    const durationLabel = formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt);
+    const nextSteps = createNextSteps(durationLabel);
+    const participantLink = createWorkshopParticipantLink(
+        ONLINE_WORKSHOP_PARTICIPANT_PATH,
+        participantIdentity,
+        workshop.slug,
+    );
     const calendarEvent = createWorkshopCalendarEvent({
-        occurrence: ONLINE_WORKSHOP_CALENDAR_OCCURRENCE,
-        hostFullname: onlineWorkshopConfig.host.fullname,
+        occurrence: workshop,
+        hostFullname: ONLINE_WORKSHOP_HOST_FULLNAME,
         participantIdentity,
         participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
     });
@@ -94,10 +94,10 @@ export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorksh
                     </div>
 
                     <h1 className="mb-4 text-[32px] font-extrabold tracking-tight text-[#0f172a] sm:text-[40px] leading-tight">
-                        Máš místo na workshopu.
+                        Máš místo na workshopu „{workshop.title}“.
                     </h1>
                     <p className="mx-auto mb-10 max-w-lg text-[16px] leading-relaxed text-gray-500 sm:text-[18px]">
-                        Uvidíme se {weekdayLabel} {dateLabel} v {time} online. Registrace je hotová, nic dalšího už
+                        Uvidíme se {dateLabel} v {timeLabel} online. Registrace je hotová, nic dalšího už
                         dělat nemusíš.
                     </p>
 
@@ -121,13 +121,13 @@ export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorksh
 
                     <AddToCalendarButtons
                         event={calendarEvent}
-                        downloadFileName={createWorkshopCalendarFileName(ONLINE_WORKSHOP_CALENDAR_OCCURRENCE.slug)}
+                        downloadFileName={createWorkshopCalendarFileName(workshop.slug)}
                         className="mx-auto mb-12 max-w-md sm:justify-center"
                     />
 
                     <div className="mx-auto mb-16 max-w-md space-y-0">
-                        {NEXT_STEPS.map((step, index) => {
-                            const isLast = index === NEXT_STEPS.length - 1;
+                        {nextSteps.map((step, index) => {
+                            const isLast = index === nextSteps.length - 1;
 
                             return (
                                 <div key={step.title} className="flex gap-4 text-left">
@@ -180,7 +180,7 @@ export function OnlineWorkshopThankYouPage({ participantIdentity }: OnlineWorksh
                             Chceš to projít do hloubky s vlastním týmem?
                         </h2>
                         <p className="mt-1 text-[14px] leading-relaxed text-gray-500">
-                            Praktický workshop AI Supervize Mini navazuje tam, kde těch 60 minut skončí.
+                            Praktický workshop AI Supervize Mini navazuje tam, kde tento workshop skončí.
                         </p>
                         <Link
                             href={AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH}

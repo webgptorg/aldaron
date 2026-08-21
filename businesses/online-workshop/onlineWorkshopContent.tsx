@@ -1,5 +1,4 @@
 import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
-import { onlineWorkshopConfig } from '@/businesses/online-workshop/config';
 import type { FAQ } from '@/components/faq-section';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -18,11 +17,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-export const onlineWorkshopHeroBullets = [
-    onlineWorkshopConfig.date.durationLabel,
-    'Zdarma, naživo',
-    'TypeScript · Claude Code · Codex · Cursor',
-];
+export function createOnlineWorkshopHeroBullets(durationLabel: string): readonly string[] {
+    return [
+        durationLabel,
+        'Zdarma, naživo',
+        'TypeScript · Claude Code · Codex · Cursor',
+    ];
+}
 
 export const onlineWorkshopTerminalMetrics = [
     { metric: 'Nejasná zadání', before: 8, after: 3, unit: '×' },

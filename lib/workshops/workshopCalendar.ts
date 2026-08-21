@@ -3,14 +3,14 @@ import { getFirstName } from '@/lib/getFirstName';
 import { createAbsoluteUrl } from '@/lib/metadata/site-config';
 import {
     createWorkshopParticipantLink,
+    createWorkshopSelectionPath,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
+import { DEFAULT_WORKSHOP_DURATION_MINUTES } from '@/lib/workshops/workshopConstants';
 
 /**
  * Length of a workshop which does not say when it ends
  */
-const DEFAULT_WORKSHOP_DURATION_MINUTES = 60;
-
 const MILLISECONDS_PER_MINUTE = 60 * 1000;
 
 /**
@@ -21,8 +21,7 @@ const WORKSHOP_MEETING_SEPARATOR = ' <> ';
 /**
  * Everything a calendar needs to know about one occurrence of a workshop
  *
- * Note: A workshop loaded from the database satisfies this shape, and so does a workshop described only by the static
- *       configuration of its landing page.
+ * Note: A workshop loaded from the database satisfies this shape without carrying any participant data.
  */
 export type WorkshopCalendarOccurrence = {
     readonly slug: string;
@@ -97,7 +96,7 @@ export function createWorkshopCalendarEvent({
     participantIdentity,
     participantPath,
 }: WorkshopCalendarEventOptions): CalendarEvent {
-    const participantLink = createWorkshopParticipantLink(participantPath, participantIdentity);
+    const participantLink = createWorkshopParticipantLink(participantPath, participantIdentity, occurrence.slug);
 
     return {
         id: occurrence.slug,
@@ -105,7 +104,7 @@ export function createWorkshopCalendarEvent({
         description: occurrence.description,
         startsAt: occurrence.startsAt,
         endsAt: getWorkshopEndsAt(occurrence),
-        url: createAbsoluteUrl(participantLink ?? participantPath),
+        url: createAbsoluteUrl(participantLink ?? createWorkshopSelectionPath(participantPath, occurrence.slug)),
     };
 }
 

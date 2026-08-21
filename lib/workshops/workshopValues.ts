@@ -33,6 +33,7 @@ export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
 
 export function createWorkshopUpdateDatabaseValues(values: WorkshopUpdateValues) {
     return {
+        ...(values.slug === undefined ? {} : { slug: values.slug }),
         ...(values.title === undefined ? {} : { title: values.title }),
         ...(values.description === undefined ? {} : { description: values.description }),
         ...(values.startsAt === undefined ? {} : { starts_at: values.startsAt }),

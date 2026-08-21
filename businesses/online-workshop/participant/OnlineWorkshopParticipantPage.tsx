@@ -13,6 +13,7 @@ import { WorkshopStage } from '@/businesses/online-workshop/participant/Workshop
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { isWorkshopPanelEnabled, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
+import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -48,9 +49,12 @@ export function OnlineWorkshopParticipantPage({
         }
 
         const sanitizedUrl = new URL(window.location.href);
-        const isUrlChanged = sanitizedUrl.searchParams.has('email') || sanitizedUrl.searchParams.has('fullname');
+        const isWorkshopSelectionChanged = sanitizedUrl.searchParams.get(WORKSHOP_SEARCH_PARAMETER_NAME) !== workshopSlug;
+        const isUrlChanged =
+            isWorkshopSelectionChanged || sanitizedUrl.searchParams.has('email') || sanitizedUrl.searchParams.has('fullname');
         sanitizedUrl.searchParams.delete('email');
         sanitizedUrl.searchParams.delete('fullname');
+        sanitizedUrl.searchParams.set(WORKSHOP_SEARCH_PARAMETER_NAME, workshopSlug);
         if (isUrlChanged) {
             window.history.replaceState(
                 window.history.state,
@@ -58,7 +62,7 @@ export function OnlineWorkshopParticipantPage({
                 `${sanitizedUrl.pathname}${sanitizedUrl.search}${sanitizedUrl.hash}`,
             );
         }
-    }, [controller.state]);
+    }, [controller.state, workshopSlug]);
 
     if (controller.isCheckingConnection && controller.state === null) {
         return (

@@ -1,5 +1,6 @@
 import {
     createWorkshopCommentUpdateDatabaseValues,
+    createWorkshopUpdateDatabaseValues,
     getWorkshopCommentPinChange,
 } from '@/lib/workshops/workshopValues';
 import { describe, expect, it } from 'vitest';
@@ -26,5 +27,13 @@ describe('workshop admin comment values', () => {
         expect(getWorkshopCommentPinChange({ isPinned: false })).toBe(false);
         expect(getWorkshopCommentPinChange({ status: 'approved' })).toBeNull();
         expect(getWorkshopCommentPinChange({ body: 'Opraveno.' })).toBeNull();
+    });
+});
+
+describe('workshop admin values', () => {
+    it('writes a changed URL slug to the workshop row', () => {
+        expect(createWorkshopUpdateDatabaseValues({ slug: 'production-ai-september-2026' })).toEqual({
+            slug: 'production-ai-september-2026',
+        });
     });
 });

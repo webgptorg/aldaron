@@ -9,6 +9,7 @@ import type {
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 
 export type WorkshopWriteValues = {
+    readonly slug: string;
     readonly title: string;
     readonly description: string;
     readonly startsAt: string;
@@ -19,9 +20,7 @@ export type WorkshopWriteValues = {
     readonly disabledPanels: readonly WorkshopPanelKey[];
 };
 
-export type WorkshopCreateValues = WorkshopWriteValues & {
-    readonly slug: string;
-};
+export type WorkshopCreateValues = WorkshopWriteValues;
 
 export type WorkshopContentWriteValues = {
     readonly title: string;

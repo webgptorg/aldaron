@@ -59,7 +59,7 @@ describe('workshop calendar invitation', () => {
         );
         expect(googleCalendarUrl.searchParams.get('text')).toBe('Karel <> Pavol - Produkční kód s AI agenty');
         expect(googleCalendarUrl.searchParams.get('location')).toBe(
-            'https://ptbk.io/cs/online-workshop/participant?email=karel%40firma.cz&fullname=Karel+Nov%C3%A1k',
+            'https://ptbk.io/cs/online-workshop/participant?workshop=online-workshop-2026-08-20&email=karel%40firma.cz&fullname=Karel+Nov%C3%A1k',
         );
 
         const icalendarLink = screen.getByRole('link', { name: /Stáhnout \.ics/ });

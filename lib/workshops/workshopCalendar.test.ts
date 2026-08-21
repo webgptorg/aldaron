@@ -41,6 +41,7 @@ describe('workshop calendar event', () => {
 
         const eventUrl = new URL(event.url);
         expect(eventUrl.pathname).toBe(PARTICIPANT_PATH);
+        expect(eventUrl.searchParams.get('workshop')).toBe(ONLINE_WORKSHOP_OCCURRENCE.slug);
         expect(eventUrl.searchParams.get('email')).toBe('karel@firma.cz');
         expect(eventUrl.searchParams.get('fullname')).toBe('Karel Novák');
         expect(event.title).toBe('Karel <> Pavol - Produkční kód s AI agenty');
@@ -56,7 +57,7 @@ describe('workshop calendar event', () => {
             participantPath: PARTICIPANT_PATH,
         });
 
-        expect(new URL(event.url).search).toBe('');
+        expect(new URL(event.url).searchParams.get('workshop')).toBe(ONLINE_WORKSHOP_OCCURRENCE.slug);
         expect(event.title).toBe('Karel <> Pavol - Produkční kód s AI agenty');
     });
 

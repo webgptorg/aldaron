@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopRouteCon
         .select('*')
         .maybeSingle();
     if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error.message }, { status: error.code === '23505' ? 409 : 500 });
     }
     if (data === null) {
         return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });

@@ -56,6 +56,14 @@ export type WorkshopRow = {
     readonly updated_at: string;
 };
 
+type WorkshopSummaryRow = Pick<WorkshopRow, 'id' | 'slug' | 'title' | 'starts_at' | 'ends_at' | 'is_published'>;
+
+/**
+ * Fields the public list and the administration selector need to identify one occurrence without exposing its live
+ * room configuration.
+ */
+export const WORKSHOP_SUMMARY_COLUMNS = 'id, slug, title, starts_at, ends_at, is_published';
+
 type WorkshopContentRow = {
     readonly id: string;
     readonly title: string;
@@ -162,15 +170,14 @@ export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
     };
 }
 
-export function mapWorkshopSummaryRow(row: WorkshopRow): WorkshopSummary {
-    const workshop = mapWorkshopRow(row);
+export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary {
     return {
-        id: workshop.id,
-        slug: workshop.slug,
-        title: workshop.title,
-        startsAt: workshop.startsAt,
-        endsAt: workshop.endsAt,
-        isPublished: workshop.isPublished,
+        id: row.id,
+        slug: row.slug,
+        title: row.title,
+        startsAt: row.starts_at,
+        endsAt: row.ends_at,
+        isPublished: row.is_published,
     };
 }
 
@@ -248,6 +255,49 @@ export async function findWorkshopBySlug(
     const { data, error } = await workshopQuery.maybeSingle();
     if (error) {
         console.error(`Failed to load workshop "${workshopSlug}":`, error.message);
+        return null;
+    }
+
+    return data as WorkshopRow | null;
+}
+
+/**
+ * Lists terms which have not started yet in chronological order, which is the order visitors should choose from on
+ * the landing page.
+ */
+export async function findUpcomingPublishedWorkshops(
+    supabase: SupabaseClient,
+    currentTime = new Date().toISOString(),
+): Promise<readonly WorkshopSummaryRow[]> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .select(WORKSHOP_SUMMARY_COLUMNS)
+        .eq('is_published', true)
+        .gt('starts_at', currentTime)
+        .order('starts_at', { ascending: true });
+
+    if (error) {
+        console.error('Failed to load upcoming workshops:', error.message);
+        return [];
+    }
+
+    return (data ?? []) as WorkshopSummaryRow[];
+}
+
+/**
+ * Resolves legacy public URLs which did not name an occurrence to the workshop with the newest start date.
+ */
+export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient): Promise<WorkshopRow | null> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .select('*')
+        .eq('is_published', true)
+        .order('starts_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (error) {
+        console.error('Failed to load the most recent workshop:', error.message);
         return null;
     }
 

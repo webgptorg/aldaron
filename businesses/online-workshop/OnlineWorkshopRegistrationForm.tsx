@@ -1,12 +1,21 @@
 'use client';
 
-import { ONLINE_WORKSHOP_THANK_YOU_PATH, onlineWorkshopConfig } from '@/businesses/online-workshop/config';
+import {
+    ONLINE_WORKSHOP_REGISTRATION_PLACE_NAME,
+    ONLINE_WORKSHOP_THANK_YOU_PATH,
+} from '@/businesses/online-workshop/config';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
+import {
+    formatCzechWorkshopDate,
+    formatCzechWorkshopDuration,
+    formatCzechWorkshopTime,
+} from '@/lib/workshops/workshopDate';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { createWorkshopRegistrationThankYouPath } from '@/lib/workshops/workshopRegistrationTiming';
+import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
@@ -25,7 +34,20 @@ function getFieldErrors({ fullname, email }: { fullname: string; email: string }
     };
 }
 
-export function OnlineWorkshopRegistrationForm() {
+function createOnlineWorkshopRegistrationNote(workshop: WorkshopSummary): string {
+    return [
+        'Online workshop registration',
+        `Workshop: ${workshop.title}`,
+        `Workshop URL slug: ${workshop.slug}`,
+        `Date: ${formatCzechWorkshopDate(workshop.startsAt)} ${formatCzechWorkshopTime(workshop.startsAt)}`,
+    ].join('\n');
+}
+
+type OnlineWorkshopRegistrationFormProps = {
+    readonly workshop: WorkshopSummary;
+};
+
+export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegistrationFormProps) {
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -35,6 +57,10 @@ export function OnlineWorkshopRegistrationForm() {
 
     const { fullnameError, emailError } = getFieldErrors({ fullname, email });
     const canSubmit = !fullnameError && !emailError;
+    const dateLabel = formatCzechWorkshopDate(workshop.startsAt);
+    const timeLabel = formatCzechWorkshopTime(workshop.startsAt);
+    const durationLabel = formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt);
+    const fieldIdPrefix = `workshop-${workshop.slug}`;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -55,8 +81,8 @@ export function OnlineWorkshopRegistrationForm() {
                 fullname,
                 email,
                 phone: phone.trim() || undefined,
-                placeName: onlineWorkshopConfig.registrationPlaceName,
-                note: `Online workshop registration\nDate: ${onlineWorkshopConfig.date.weekdayLabel} ${onlineWorkshopConfig.date.dateLabel} ${onlineWorkshopConfig.date.time}`,
+                placeName: ONLINE_WORKSHOP_REGISTRATION_PLACE_NAME,
+                note: createOnlineWorkshopRegistrationNote(workshop),
             });
 
             // Note: A full page load, not a client side route change - only that runs the Meta Pixel again and reports
@@ -66,7 +92,8 @@ export function OnlineWorkshopRegistrationForm() {
             window.location.assign(
                 createWorkshopRegistrationThankYouPath({
                     thankYouPath: ONLINE_WORKSHOP_THANK_YOU_PATH,
-                    startsAt: onlineWorkshopConfig.date.startsAt,
+                    workshopSlug: workshop.slug,
+                    startsAt: workshop.startsAt,
                     participantIdentity: { email, fullname },
                     registrationAtMilliseconds,
                 }),
@@ -100,21 +127,20 @@ export function OnlineWorkshopRegistrationForm() {
                     />
                 </span>
                 <div>
-                    <p className="text-sm font-semibold text-slate-950">Vedou Pavol Hejný a Jiří Jahn</p>
+                    <p className="text-sm font-semibold text-slate-950">{workshop.title}</p>
                     <p className="text-xs text-slate-400">
-                        {onlineWorkshopConfig.date.weekdayLabel} {onlineWorkshopConfig.date.dateLabel} ·{' '}
-                        {onlineWorkshopConfig.date.time} · online
+                        {dateLabel} · {timeLabel} · {durationLabel} · online
                     </p>
                 </div>
             </div>
 
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="workshop-fullname" className="text-sm font-semibold text-slate-700">
+                    <label htmlFor={`${fieldIdPrefix}-fullname`} className="text-sm font-semibold text-slate-700">
                         Jméno
                     </label>
                     <Input
-                        id="workshop-fullname"
+                        id={`${fieldIdPrefix}-fullname`}
                         name="fullname"
                         value={fullname}
                         onChange={(event) => setFullname(event.target.value)}
@@ -130,11 +156,11 @@ export function OnlineWorkshopRegistrationForm() {
                 </div>
 
                 <div>
-                    <label htmlFor="workshop-email" className="text-sm font-semibold text-slate-700">
+                    <label htmlFor={`${fieldIdPrefix}-email`} className="text-sm font-semibold text-slate-700">
                         E-mail
                     </label>
                     <Input
-                        id="workshop-email"
+                        id={`${fieldIdPrefix}-email`}
                         name="email"
                         type="email"
                         inputMode="email"
@@ -152,11 +178,11 @@ export function OnlineWorkshopRegistrationForm() {
                 </div>
 
                 <div>
-                    <label htmlFor="workshop-phone" className="text-sm font-semibold text-slate-700">
+                    <label htmlFor={`${fieldIdPrefix}-phone`} className="text-sm font-semibold text-slate-700">
                         Telefon <span className="font-normal text-slate-400">(nepovinné, pro SMS připomínku)</span>
                     </label>
                     <Input
-                        id="workshop-phone"
+                        id={`${fieldIdPrefix}-phone`}
                         name="phone"
                         type="tel"
                         inputMode="tel"

@@ -1,4 +1,4 @@
-[ ] !
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.2213 8 minutes; Testing a minute
 
 [✨🥥] landing page of workshops should list all upcoming workshops, not only the one hardcoded.
 
@@ -10,3 +10,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

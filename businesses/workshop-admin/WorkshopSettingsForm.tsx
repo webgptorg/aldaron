@@ -27,6 +27,7 @@ function parseWorkshopReactions(reactionText: string): readonly string[] {
 }
 
 export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormProps) {
+    const [slug, setSlug] = useState(workshop.slug);
     const [title, setTitle] = useState(workshop.title);
     const [description, setDescription] = useState(workshop.description);
     const [startsAt, setStartsAt] = useState(() => toDateTimeLocalValue(workshop.startsAt));
@@ -38,6 +39,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
+        setSlug(workshop.slug);
         setTitle(workshop.title);
         setDescription(workshop.description);
         setStartsAt(toDateTimeLocalValue(workshop.startsAt));
@@ -51,12 +53,13 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const startsAtIso = fromDateTimeLocalValue(startsAt);
-        if (!startsAtIso) {
+        if (!startsAtIso || !title.trim() || !slug.trim()) {
             return;
         }
 
         setIsSaving(true);
         await onSave({
+            slug,
             title,
             description,
             startsAt: startsAtIso,
@@ -74,7 +77,7 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="text-xl font-bold text-slate-950">Nastavení workshopu</h2>
-                    <p className="mt-1 font-mono text-xs text-slate-400">{workshop.slug}</p>
+                    <p className="mt-1 text-xs text-slate-400">URL místnosti a odkazů můžeš upravit níže.</p>
                 </div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                     <input
@@ -88,6 +91,19 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
             </div>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
+                <label className="text-sm font-medium text-slate-700 md:col-span-2">
+                    URL slug
+                    <Input
+                        value={slug}
+                        onChange={(event) => setSlug(event.target.value)}
+                        className="mt-2 font-mono"
+                        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                        required
+                    />
+                    <span className="mt-1 block text-xs font-normal text-slate-400">
+                        Používá se jako <code>?workshop={slug || 'slug-workshopu'}</code> v odkazu do místnosti.
+                    </span>
+                </label>
                 <label className="text-sm font-medium text-slate-700 md:col-span-2">
                     Název
                     <Input value={title} onChange={(event) => setTitle(event.target.value)} className="mt-2" required />

@@ -1,5 +1,6 @@
 import {
     createWorkshopParticipantSearchParameters,
+    createWorkshopSelectionPath,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
 
@@ -33,6 +34,7 @@ export function isWorkshopRegistrationWithinDirectParticipantLinkWindow(
 
 type WorkshopRegistrationThankYouPathOptions = {
     readonly thankYouPath: string;
+    readonly workshopSlug: string;
     readonly startsAt: string;
     readonly participantIdentity: WorkshopParticipantIdentity;
     readonly registrationAtMilliseconds?: number;
@@ -43,14 +45,19 @@ type WorkshopRegistrationThankYouPathOptions = {
  */
 export function createWorkshopRegistrationThankYouPath({
     thankYouPath,
+    workshopSlug,
     startsAt,
     participantIdentity,
     registrationAtMilliseconds,
 }: WorkshopRegistrationThankYouPathOptions): string {
     if (!isWorkshopRegistrationWithinDirectParticipantLinkWindow(startsAt, registrationAtMilliseconds)) {
-        return thankYouPath;
+        return createWorkshopSelectionPath(thankYouPath, workshopSlug);
     }
 
     const searchParameters = createWorkshopParticipantSearchParameters(participantIdentity);
-    return searchParameters === null ? thankYouPath : `${thankYouPath}?${searchParameters.toString()}`;
+    if (searchParameters === null) {
+        return createWorkshopSelectionPath(thankYouPath, workshopSlug);
+    }
+
+    return createWorkshopSelectionPath(thankYouPath, workshopSlug, searchParameters);
 }

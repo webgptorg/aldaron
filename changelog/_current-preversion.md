@@ -1,5 +1,8 @@
 # Current preversion
 
+- Made `/cs/online-workshop` load and present every upcoming published workshop from the shared workshop data, with a separate registration form and selected-term contact note for each date instead of one hardcoded occurrence.
+- Carried the selected workshop as `?workshop=<slug>` through registration confirmation, direct room links, and calendar invitations; `/cs/online-workshop/participant` and `/cs/online-workshop/dekujeme` now resolve it, while old links without it use the most recent published workshop.
+- Let `/admin/workshops` edit a workshop URL slug with the same validation and uniqueness handling used when creating it, and indexed published workshop dates for the public term list and legacy-link fallback.
 - Fixed the cookie consent customization flow so the modal opens again and saving preferences dismisses the cookie bar.
 - Improved landing page CTA flow so pricing cards keep the selected plan context and the Pro trial CTA goes straight to purchase instead of a generic waitlist modal.
 - Reduced mobile hero/header overflow by tightening responsive header sizing and constraining hero text, hint pills, mocked chat, and AI Supervize terminal animation.

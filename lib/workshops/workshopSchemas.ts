@@ -18,6 +18,7 @@ import { z } from 'zod';
 const WORKSHOP_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const nullableTimestampSchema = z.string().datetime({ offset: true }).nullable();
+const WORKSHOP_SLUG_SCHEMA = z.string().trim().min(1).max(100).regex(WORKSHOP_SLUG_PATTERN);
 const workshopParticipantFullnameSchema = z
     .string()
     .transform(normalizeWorkshopParticipantFullname)
@@ -135,7 +136,7 @@ export const workshopPresenceSchema = z.object({
 
 export const workshopCreateSchema = z
     .object({
-        slug: z.string().trim().min(1).max(100).regex(WORKSHOP_SLUG_PATTERN),
+        slug: WORKSHOP_SLUG_SCHEMA,
         title: z.string().trim().min(1).max(200),
         description: z.string().trim().max(2000).default(''),
         startsAt: z.string().datetime({ offset: true }),
@@ -152,6 +153,7 @@ export const workshopCreateSchema = z
 
 export const workshopUpdateSchema = z
     .object({
+        slug: WORKSHOP_SLUG_SCHEMA.optional(),
         title: z.string().trim().min(1).max(200).optional(),
         description: z.string().trim().max(2000).optional(),
         startsAt: z.string().datetime({ offset: true }).optional(),

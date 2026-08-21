@@ -105,6 +105,13 @@ describe('workshop request validation', () => {
         ).toBe(true);
     });
 
+    it('validates a changed workshop URL slug with the same rule as creation', () => {
+        expect(workshopUpdateSchema.parse({ slug: 'production-ai-september-2026' })).toEqual({
+            slug: 'production-ai-september-2026',
+        });
+        expect(workshopUpdateSchema.safeParse({ slug: 'Production AI' }).success).toBe(false);
+    });
+
     it('refuses an unknown or a repeated panel instead of storing it', () => {
         expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, disabledPanels: ['stage'] }).success).toBe(false);
         expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, disabledPanels: ['chat', 'chat'] }).success).toBe(
