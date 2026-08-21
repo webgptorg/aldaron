@@ -26,33 +26,67 @@ import {
     type WorkshopCreateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
-import { WorkshopArtificialActivity } from '@/businesses/workshop-admin/WorkshopArtificialActivity';
+import { WorkshopAggregateTimeline } from '@/businesses/workshop-admin/WorkshopAggregateTimeline';
+import { WorkshopArtificialComment } from '@/businesses/workshop-admin/WorkshopArtificialComment';
+import { WorkshopArtificialReaction } from '@/businesses/workshop-admin/WorkshopArtificialReaction';
 import { WorkshopCommentModeration } from '@/businesses/workshop-admin/WorkshopCommentModeration';
 import { WorkshopContentAdmin } from '@/businesses/workshop-admin/WorkshopContentAdmin';
+import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExportButton';
 import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
+import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopReactionSummary';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { WorkshopAdminSnapshot, WorkshopCommentStatus, WorkshopSummary } from '@/lib/workshops/workshopTypes';
-import { MessageCircle, Radio, RefreshCw, Users } from 'lucide-react';
+import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
+const WORKSHOP_ADMIN_SECTION_VALUES = [
+    'overview',
+    'participants',
+    'comments',
+    'reactions',
+    'content',
+    'settings',
+] as const;
+
+type WorkshopAdminSection = (typeof WORKSHOP_ADMIN_SECTION_VALUES)[number];
+
+const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
+    readonly value: WorkshopAdminSection;
+    readonly label: string;
+    readonly icon: typeof BarChart3;
+}[] = [
+    { value: 'overview', label: 'Přehled', icon: BarChart3 },
+    { value: 'participants', label: 'Účastníci', icon: Users },
+    { value: 'comments', label: 'Komentáře', icon: MessageCircle },
+    { value: 'reactions', label: 'Reakce', icon: Radio },
+    { value: 'content', label: 'Obsah', icon: BookOpenText },
+    { value: 'settings', label: 'Nastavení', icon: Settings2 },
+];
 
 type WorkshopAdminDashboardProps = {
     readonly adminToken: string;
     readonly initialWorkshopSlug: string | null;
 };
 
+function isWorkshopAdminSection(value: string): value is WorkshopAdminSection {
+    return WORKSHOP_ADMIN_SECTION_VALUES.some((sectionValue) => sectionValue === value);
+}
+
 export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: WorkshopAdminDashboardProps) {
     const [workshops, setWorkshops] = useState<readonly WorkshopSummary[]>([]);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
+    const [selectedSection, setSelectedSection] = useState<WorkshopAdminSection>('overview');
     const [snapshot, setSnapshot] = useState<WorkshopAdminSnapshot | null>(null);
     const [commentStatus, setCommentStatus] = useState<WorkshopCommentStatus>('pending');
+    const [snapshotRefreshVersion, setSnapshotRefreshVersion] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const snapshotLoadSequenceRef = useRef(0);
+    const snapshotLoadSequenceReference = useRef(0);
 
     const loadWorkshopList = useCallback(async () => {
         try {
@@ -77,7 +111,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
     }, [adminToken, initialWorkshopSlug]);
 
     const loadSnapshot = useCallback(async () => {
-        const snapshotLoadSequence = ++snapshotLoadSequenceRef.current;
+        const snapshotLoadSequence = ++snapshotLoadSequenceReference.current;
         if (!selectedWorkshopId) {
             setSnapshot(null);
             setIsSnapshotLoading(false);
@@ -89,22 +123,29 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
         );
         setIsSnapshotLoading(true);
         try {
-            const loadedSnapshot = await fetchAdminWorkshopSnapshot(adminToken, selectedWorkshopId, commentStatus);
-            if (snapshotLoadSequence !== snapshotLoadSequenceRef.current) {
+            const loadedSnapshot = await fetchAdminWorkshopSnapshot(
+                adminToken,
+                selectedWorkshopId,
+                commentStatus,
+                selectedSection === 'comments',
+            );
+            if (snapshotLoadSequence !== snapshotLoadSequenceReference.current) {
                 return;
             }
+
             setSnapshot((currentSnapshot) => mergeWorkshopAdminSnapshot(currentSnapshot, loadedSnapshot));
+            setSnapshotRefreshVersion((currentVersion) => currentVersion + 1);
             setErrorMessage(null);
         } catch (error) {
-            if (snapshotLoadSequence === snapshotLoadSequenceRef.current) {
+            if (snapshotLoadSequence === snapshotLoadSequenceReference.current) {
                 setErrorMessage((error as Error).message);
             }
         } finally {
-            if (snapshotLoadSequence === snapshotLoadSequenceRef.current) {
+            if (snapshotLoadSequence === snapshotLoadSequenceReference.current) {
                 setIsSnapshotLoading(false);
             }
         }
-    }, [adminToken, commentStatus, selectedWorkshopId]);
+    }, [adminToken, commentStatus, selectedSection, selectedWorkshopId]);
 
     useEffect(() => void loadWorkshopList(), [loadWorkshopList]);
     useEffect(() => void loadSnapshot(), [loadSnapshot]);
@@ -248,6 +289,12 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             ? Promise.resolve(false)
             : runAndReload(() => clearAdminWorkshopReactions(adminToken, snapshot.workshop.id));
 
+    const handleSectionChange = (value: string) => {
+        if (isWorkshopAdminSection(value)) {
+            setSelectedSection(value);
+        }
+    };
+
     return (
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_minmax(0,1fr)]">
             <aside className="space-y-4">
@@ -285,7 +332,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
             </aside>
 
             <div className="min-w-0 space-y-6">
-                {errorMessage && (
+                {errorMessage !== null && (
                     <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {errorMessage}
                     </div>
@@ -299,58 +346,135 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                         Vytvořte první workshop.
                     </div>
                 ) : (
-                    <>
-                        <div className="grid gap-4 sm:grid-cols-3">
-                            {[
-                                { label: 'Účastníci', value: snapshot.participantCount, icon: Users },
-                                { label: 'Komentáře', value: snapshot.commentCount, icon: MessageCircle },
-                                { label: 'Reakce', value: snapshot.reactionCount, icon: Radio },
-                            ].map((stat) => (
-                                <div
-                                    key={stat.label}
-                                    className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                                >
-                                    <stat.icon className="h-5 w-5 text-cyan-600" />
-                                    <p className="mt-3 text-2xl font-bold text-slate-950">{stat.value}</p>
-                                    <p className="text-xs text-slate-500">{stat.label}</p>
-                                </div>
-                            ))}
-                        </div>
-                        <WorkshopSettingsForm workshop={snapshot.workshop} onSave={handleSaveWorkshop} />
-                        <WorkshopParticipantList
-                            participantCount={snapshot.participantCount}
-                            participants={snapshot.participants}
-                            onChangeInteractionBan={handleChangeParticipantInteractionBan}
-                            onChangeTrusted={handleChangeParticipantTrusted}
-                            onDelete={handleDeleteParticipant}
-                        />
-                        <WorkshopArtificialActivity
-                            reactionCount={snapshot.reactionCount}
-                            artificialReactionCount={snapshot.artificialReactionCount}
-                            onCreateArtificialComment={handleCreateArtificialComment}
-                            onSendArtificialReaction={handleSendArtificialReaction}
-                            onClearReactions={handleClearReactions}
-                        />
-                        <WorkshopContentAdmin
-                            workshopStartsAt={snapshot.workshop.startsAt}
-                            contentBlocks={snapshot.contentBlocks}
-                            onCreate={handleCreateContent}
-                            onUpdate={handleUpdateContent}
-                            onDelete={handleDeleteContent}
-                            onUnlockNow={handleUnlockContentNow}
-                        />
-                        <WorkshopCommentModeration
-                            comments={snapshot.comments}
-                            commentStatus={commentStatus}
-                            pinnedComment={snapshot.pinnedComment}
-                            onChangeCommentStatus={setCommentStatus}
-                            onModerate={handleModerateComment}
-                            onEditBody={handleEditCommentBody}
-                            onChangePin={handleChangeCommentPin}
-                            onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
-                            onDelete={handleDeleteComment}
-                        />
-                    </>
+                    <Tabs value={selectedSection} onValueChange={handleSectionChange}>
+                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-6">
+                            {WORKSHOP_ADMIN_SECTION_DEFINITIONS.map((sectionDefinition) => {
+                                const SectionIcon = sectionDefinition.icon;
+                                return (
+                                    <TabsTrigger
+                                        key={sectionDefinition.value}
+                                        value={sectionDefinition.value}
+                                        className="gap-1.5 px-2.5 py-2"
+                                    >
+                                        <SectionIcon className="h-4 w-4" /> {sectionDefinition.label}
+                                    </TabsTrigger>
+                                );
+                            })}
+                        </TabsList>
+
+                        <TabsContent value="overview" className="space-y-6">
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                {[
+                                    { label: 'Účastníci', value: snapshot.participantCount, icon: Users },
+                                    { label: 'Komentáře', value: snapshot.commentCount, icon: MessageCircle },
+                                    { label: 'Reakce', value: snapshot.reactionCount, icon: Radio },
+                                ].map((statistic) => (
+                                    <div
+                                        key={statistic.label}
+                                        className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                                    >
+                                        <statistic.icon className="h-5 w-5 text-cyan-600" />
+                                        <p className="mt-3 text-2xl font-bold text-slate-950">{statistic.value}</p>
+                                        <p className="text-xs text-slate-500">{statistic.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <WorkshopAggregateTimeline
+                                adminToken={adminToken}
+                                workshopId={snapshot.workshop.id}
+                                refreshVersion={snapshotRefreshVersion}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="participants">
+                            <WorkshopParticipantList
+                                adminToken={adminToken}
+                                workshopId={snapshot.workshop.id}
+                                workshopStartsAt={snapshot.workshop.startsAt}
+                                workshopEndsAt={snapshot.workshop.endsAt}
+                                refreshVersion={snapshotRefreshVersion}
+                                onChangeInteractionBan={handleChangeParticipantInteractionBan}
+                                onChangeTrusted={handleChangeParticipantTrusted}
+                                onDelete={handleDeleteParticipant}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="comments" className="space-y-4">
+                            <div className="flex justify-end">
+                                <WorkshopExportButton
+                                    adminToken={adminToken}
+                                    workshopId={snapshot.workshop.id}
+                                    exportKind="comments"
+                                    label="Exportovat komentáře CSV"
+                                />
+                            </div>
+                            <WorkshopCommentModeration
+                                comments={snapshot.comments}
+                                commentStatus={commentStatus}
+                                pinnedComment={snapshot.pinnedComment}
+                                onChangeCommentStatus={setCommentStatus}
+                                onModerate={handleModerateComment}
+                                onEditBody={handleEditCommentBody}
+                                onChangePin={handleChangeCommentPin}
+                                onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
+                                onDelete={handleDeleteComment}
+                            />
+                            <WorkshopArtificialComment onCreate={handleCreateArtificialComment} />
+                        </TabsContent>
+
+                        <TabsContent value="reactions" className="space-y-4">
+                            <div className="flex justify-end">
+                                <WorkshopExportButton
+                                    adminToken={adminToken}
+                                    workshopId={snapshot.workshop.id}
+                                    exportKind="reactions"
+                                    label="Exportovat reakce CSV"
+                                />
+                            </div>
+                            <WorkshopReactionSummary
+                                adminToken={adminToken}
+                                workshopId={snapshot.workshop.id}
+                                refreshVersion={snapshotRefreshVersion}
+                            />
+                            <WorkshopArtificialReaction
+                                reactionCount={snapshot.reactionCount}
+                                artificialReactionCount={snapshot.artificialReactionCount}
+                                onSend={handleSendArtificialReaction}
+                                onClear={handleClearReactions}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="content" className="space-y-4">
+                            <div className="flex justify-end">
+                                <WorkshopExportButton
+                                    adminToken={adminToken}
+                                    workshopId={snapshot.workshop.id}
+                                    exportKind="content"
+                                    label="Exportovat obsah CSV"
+                                />
+                            </div>
+                            <WorkshopContentAdmin
+                                workshopStartsAt={snapshot.workshop.startsAt}
+                                contentBlocks={snapshot.contentBlocks}
+                                onCreate={handleCreateContent}
+                                onUpdate={handleUpdateContent}
+                                onDelete={handleDeleteContent}
+                                onUnlockNow={handleUnlockContentNow}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="settings" className="space-y-4">
+                            <div className="flex justify-end">
+                                <WorkshopExportButton
+                                    adminToken={adminToken}
+                                    workshopId={snapshot.workshop.id}
+                                    exportKind="settings"
+                                    label="Exportovat nastavení CSV"
+                                />
+                            </div>
+                            <WorkshopSettingsForm workshop={snapshot.workshop} onSave={handleSaveWorkshop} />
+                        </TabsContent>
+                    </Tabs>
                 )}
             </div>
         </div>

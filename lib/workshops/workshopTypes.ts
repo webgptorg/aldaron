@@ -45,6 +45,80 @@ export type WorkshopAdminParticipant = WorkshopParticipant & {
     readonly upvoteCount: number;
 };
 
+/**
+ * One server-paged slice of participants, keeping large workshops responsive in the administration.
+ */
+export type WorkshopAdminParticipantPage = {
+    readonly participants: readonly WorkshopAdminParticipant[];
+    readonly totalCount: number;
+};
+
+/**
+ * One timestamped activity attributable to a participant.
+ *
+ * Note: These are assembled from the existing audited source records. They deliberately do not introduce a second
+ * event store which could disagree with comments, reactions, votes, or material clicks.
+ */
+export type WorkshopParticipantTimelineEvent =
+    | {
+          readonly kind: 'joined' | 'last-seen';
+          readonly id: string;
+          readonly occurredAt: string;
+      }
+    | {
+          readonly kind: 'comment';
+          readonly id: string;
+          readonly occurredAt: string;
+          readonly body: string;
+          readonly status: WorkshopCommentStatus;
+      }
+    | {
+          readonly kind: 'reaction';
+          readonly id: string;
+          readonly occurredAt: string;
+          readonly emoji: string;
+      }
+    | {
+          readonly kind: 'upvote';
+          readonly id: string;
+          readonly occurredAt: string;
+          readonly commentId: string;
+          readonly commentAuthorName: string | null;
+          readonly commentBody: string | null;
+      }
+    | {
+          readonly kind: 'content-link-click';
+          readonly id: string;
+          readonly occurredAt: string;
+          readonly contentBlockId: string;
+          readonly contentBlockTitle: string | null;
+      };
+
+export type WorkshopAdminParticipantTimeline = {
+    readonly participant: WorkshopAdminParticipant;
+    readonly events: readonly WorkshopParticipantTimelineEvent[];
+};
+
+/**
+ * Activity totals inside one compact bucket of the workshop-wide timeline.
+ */
+export type WorkshopAdminTimelinePoint = {
+    readonly startsAt: string;
+    readonly participantCount: number;
+    readonly commentCount: number;
+    readonly reactionCount: number;
+    readonly upvoteCount: number;
+    readonly linkClickCount: number;
+};
+
+export type WorkshopAdminAnalytics = {
+    readonly timelineStartsAt: string;
+    readonly timelineEndsAt: string;
+    readonly bucketDurationSeconds: number;
+    readonly timeline: readonly WorkshopAdminTimelinePoint[];
+    readonly reactionCounts: readonly WorkshopReactionCount[];
+};
+
 export type WorkshopContentBlock = {
     readonly id: string;
     readonly title: string;

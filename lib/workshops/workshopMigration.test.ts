@@ -1,7 +1,4 @@
-import {
-    DEFAULT_WORKSHOP_REACTIONS,
-    MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
-} from '@/lib/workshops/workshopConstants';
+import { DEFAULT_WORKSHOP_REACTIONS, MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT } from '@/lib/workshops/workshopConstants';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -20,13 +17,21 @@ const DISABLED_PANEL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/20
 const DISABLED_PANEL_MIGRATION_SQL = readFileSync(DISABLED_PANEL_MIGRATION_PATH, 'utf8');
 const REACTION_ANIMATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-6.sql');
 const REACTION_ANIMATION_MIGRATION_SQL = readFileSync(REACTION_ANIMATION_MIGRATION_PATH, 'utf8');
-const REACTION_COUNT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-0200-workshop-reaction-counts.sql');
+const REACTION_COUNT_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-0200-workshop-reaction-counts.sql',
+);
 const REACTION_COUNT_MIGRATION_SQL = readFileSync(REACTION_COUNT_MIGRATION_PATH, 'utf8');
 const MULTIPLE_TERMS_MIGRATION_PATH = path.resolve(
     process.cwd(),
     'migrations/2026-08-0100-online-workshop-multiple-terms.sql',
 );
 const MULTIPLE_TERMS_MIGRATION_SQL = readFileSync(MULTIPLE_TERMS_MIGRATION_PATH, 'utf8');
+const ADMIN_ANALYTICS_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-0300-workshop-admin-analytics.sql',
+);
+const ADMIN_ANALYTICS_MIGRATION_SQL = readFileSync(ADMIN_ANALYTICS_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -140,11 +145,11 @@ describe('workshop database migration', () => {
 
     it('remembers the switched-off panels of a workshop and offers every other one without a backfill', () => {
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain(
-            "ADD COLUMN IF NOT EXISTS disabled_panels text[] NOT NULL DEFAULT ARRAY[]::text[]",
+            'ADD COLUMN IF NOT EXISTS disabled_panels text[] NOT NULL DEFAULT ARRAY[]::text[]',
         );
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain('workshops_disabled_panels_keys');
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain('cardinality(disabled_panels) <= 50');
-        expect(DISABLED_PANEL_MIGRATION_SQL).toContain('array_to_string(disabled_panels, \',\')');
+        expect(DISABLED_PANEL_MIGRATION_SQL).toContain("array_to_string(disabled_panels, ',')");
 
         // Note: Joining the array leaves a NULL element out instead of failing on it, so it is asked for on its own.
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain('array_position(disabled_panels, NULL::text) IS NULL');
@@ -163,9 +168,7 @@ describe('workshop database migration', () => {
 
     it('counts each reaction text efficiently and returns the new total with its stored action', () => {
         expect(REACTION_COUNT_MIGRATION_SQL).toContain('workshop_reactions_emoji_count_idx');
-        expect(REACTION_COUNT_MIGRATION_SQL).toContain(
-            'ON public.workshop_reactions (workshop_id, emoji)',
-        );
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('ON public.workshop_reactions (workshop_id, emoji)');
         expect(REACTION_COUNT_MIGRATION_SQL).toContain('get_workshop_reaction_counts');
         expect(REACTION_COUNT_MIGRATION_SQL).toContain('GROUP BY workshop_reaction.emoji');
         expect(REACTION_COUNT_MIGRATION_SQL).toContain('create_workshop_reaction');
@@ -187,5 +190,28 @@ describe('workshop database migration', () => {
             "to_jsonb(NEW) - 'pinned_comment_id' - 'updated_at' = to_jsonb(OLD) - 'pinned_comment_id' - 'updated_at'",
         );
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('NEW.updated_at = OLD.updated_at');
+    });
+
+    it('pages and orders a large workshop audience in the database while keeping timeline queries indexed', () => {
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('get_workshop_admin_participant_page');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('target_limit integer DEFAULT 50');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('target_offset integer DEFAULT 0');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('WORKSHOP_PARTICIPANT_SORT_INVALID');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_participants_admin_filter_idx');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_participants_fullname_trigram_idx');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_participants_email_trigram_idx');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_comments_participant_timeline_idx');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_reactions_participant_timeline_idx');
+    });
+
+    it('aggregates workshop actions into private time buckets for the administration', () => {
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('get_workshop_admin_timeline');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('date_bin(');
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'participant'::text AS event_kind");
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'comment'::text");
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'reaction'::text");
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'upvote'::text");
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'link_click'::text");
+        expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('GRANT EXECUTE ON FUNCTION public.get_workshop_admin_timeline');
     });
 });

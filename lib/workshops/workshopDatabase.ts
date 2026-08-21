@@ -1,10 +1,10 @@
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import {
-    MAXIMAL_ADMIN_PARTICIPANT_LIST_COUNT,
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
     MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
+    WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME,
     WORKSHOP_CONTENT_TABLE_NAME,
     WORKSHOP_PARTICIPANT_TABLE_NAME,
     WORKSHOP_REACTION_TABLE_NAME,
@@ -16,8 +16,12 @@ import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/
 import { isWorkshopPanelEnabled, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminComment,
+    WorkshopAdminAnalytics,
     WorkshopAdminParticipant,
+    WorkshopAdminParticipantPage,
+    WorkshopAdminParticipantTimeline,
     WorkshopAdminSnapshot,
+    WorkshopAdminTimelinePoint,
     WorkshopComment,
     WorkshopCommentReference,
     WorkshopCommentSort,
@@ -25,11 +29,13 @@ import type {
     WorkshopContentBlock,
     WorkshopDetails,
     WorkshopParticipant,
+    WorkshopParticipantTimelineEvent,
     WorkshopPublicState,
     WorkshopReaction,
     WorkshopReactionCount,
     WorkshopSummary,
 } from '@/lib/workshops/workshopTypes';
+import type { WorkshopAdminParticipantQuery } from '@/lib/workshops/workshopAdminParticipantQuery';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
@@ -118,6 +124,11 @@ type WorkshopAdminParticipantRow = {
     readonly active_duration_seconds: number;
 };
 
+type WorkshopAdminParticipantPageRow = WorkshopAdminParticipantRow &
+    WorkshopParticipantActivityTotalsRow & {
+        readonly total_count: number | string;
+    };
+
 type WorkshopParticipantActivityTotalsRow = {
     readonly participant_id: string;
     readonly comment_count: number | string;
@@ -129,6 +140,48 @@ type WorkshopParticipantActivityTotalsRow = {
 type WorkshopContentLinkClickTotalsRow = {
     readonly content_block_id: string;
     readonly link_click_count: number | string;
+};
+
+type WorkshopCommentUpvoteRow = {
+    readonly id: string;
+    readonly comment_id: string;
+    readonly created_at: string;
+};
+
+type WorkshopContentLinkClickRow = {
+    readonly id: string;
+    readonly content_block_id: string;
+    readonly created_at: string;
+};
+
+type WorkshopParticipantTimelineCommentRow = Pick<WorkshopCommentRow, 'id' | 'body' | 'status' | 'created_at'>;
+
+type WorkshopParticipantTimelineContentRow = Pick<WorkshopContentRow, 'id' | 'title'>;
+
+type WorkshopParticipantTimelineCommentReferenceRow = Pick<WorkshopCommentRow, 'id' | 'author_name' | 'body'>;
+
+type WorkshopAdminTimelinePointRow = {
+    readonly bucket_starts_at: string;
+    readonly participant_count: number | string;
+    readonly comment_count: number | string;
+    readonly reaction_count: number | string;
+    readonly upvote_count: number | string;
+    readonly link_click_count: number | string;
+};
+
+type WorkshopAdminReactionExportRow = {
+    readonly id: string;
+    readonly participant_id: string | null;
+    readonly emoji: string;
+    readonly created_at: string;
+    readonly is_artificial: boolean;
+};
+
+type WorkshopAdminParticipantIdentityRow = Pick<WorkshopAdminParticipantRow, 'id' | 'fullname' | 'email'>;
+
+type WorkshopDatabasePage<Row> = {
+    readonly data: readonly Row[] | null;
+    readonly error: { readonly message: string } | null;
 };
 
 type WorkshopReactionRow = {
@@ -148,10 +201,64 @@ type CreatedWorkshopReactionRow = WorkshopReactionRow & {
 
 const WORKSHOP_DATABASE_UNAVAILABLE_MESSAGE = 'Workshop database is not configured';
 const MAXIMAL_ADMIN_COMMENT_LIST_COUNT = 1_000;
+const WORKSHOP_DATABASE_PAGE_SIZE = 1_000;
 
 function getNonNegativeWholeNumber(value: number | string | undefined): number {
     const numberValue = Number(value);
     return Number.isSafeInteger(numberValue) && numberValue >= 0 ? numberValue : 0;
+}
+
+/**
+ * Reads every stable page of a workshop table instead of silently accepting the database's default response limit.
+ */
+async function loadAllWorkshopRows<Row>(
+    loadPage: (fromIndex: number, toIndex: number) => PromiseLike<WorkshopDatabasePage<Row>>,
+): Promise<{ readonly rows: readonly Row[] | null; readonly errorMessage: string | null }> {
+    const rows: Row[] = [];
+    let fromIndex = 0;
+
+    while (true) {
+        const toIndex = fromIndex + WORKSHOP_DATABASE_PAGE_SIZE - 1;
+        const { data, error } = await loadPage(fromIndex, toIndex);
+        if (error) {
+            return { rows: null, errorMessage: error.message };
+        }
+
+        const pageRows = data ?? [];
+        rows.push(...pageRows);
+        if (pageRows.length < WORKSHOP_DATABASE_PAGE_SIZE) {
+            return { rows, errorMessage: null };
+        }
+
+        fromIndex += WORKSHOP_DATABASE_PAGE_SIZE;
+    }
+}
+
+/**
+ * Splits a set of foreign keys into database-safe batches. It avoids PostgREST's response limit truncating an
+ * otherwise complete participant timeline or a large reaction export.
+ */
+async function loadWorkshopRowsByIds<Row>(
+    rowIds: readonly string[],
+    loadRows: (pageRowIds: readonly string[]) => PromiseLike<WorkshopDatabasePage<Row>>,
+): Promise<{ readonly rows: readonly Row[] | null; readonly errorMessage: string | null }> {
+    const distinctRowIds = Array.from(new Set(rowIds));
+    if (distinctRowIds.length === 0) {
+        return { rows: [], errorMessage: null };
+    }
+
+    const rows: Row[] = [];
+    for (let fromIndex = 0; fromIndex < distinctRowIds.length; fromIndex += WORKSHOP_DATABASE_PAGE_SIZE) {
+        const pageRowIds = distinctRowIds.slice(fromIndex, fromIndex + WORKSHOP_DATABASE_PAGE_SIZE);
+        const { data, error } = await loadRows(pageRowIds);
+        if (error) {
+            return { rows: null, errorMessage: error.message };
+        }
+
+        rows.push(...(data ?? []));
+    }
+
+    return { rows, errorMessage: null };
 }
 
 export function getWorkshopDatabaseOrNull(): SupabaseClient | null {
@@ -227,7 +334,7 @@ function mapWorkshopCommentReferenceRow(row: WorkshopCommentReferenceRow): Works
     return { id: row.id, authorName: row.author_name, body: row.body };
 }
 
-function mapWorkshopAdminParticipantRow(
+export function mapWorkshopAdminParticipantRow(
     row: WorkshopAdminParticipantRow,
     activityTotals: WorkshopParticipantActivityTotalsRow | undefined,
 ): WorkshopAdminParticipant {
@@ -244,6 +351,51 @@ function mapWorkshopAdminParticipantRow(
         reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
         linkClickCount: getNonNegativeWholeNumber(activityTotals?.link_click_count),
         upvoteCount: getNonNegativeWholeNumber(activityTotals?.upvote_count),
+    };
+}
+
+function mapWorkshopAdminParticipantPageRow(row: WorkshopAdminParticipantPageRow): WorkshopAdminParticipant {
+    return mapWorkshopAdminParticipantRow(row, row);
+}
+
+function getWorkshopAdminTimelineBucketDurationSeconds(workshopRow: WorkshopRow): number {
+    const startsAtMilliseconds = Date.parse(workshopRow.starts_at);
+    const currentMilliseconds = Date.now();
+    const configuredEndsAtMilliseconds =
+        workshopRow.ends_at === null ? currentMilliseconds : Date.parse(workshopRow.ends_at);
+    const endsAtMilliseconds = Math.max(startsAtMilliseconds, configuredEndsAtMilliseconds);
+    const durationMilliseconds = endsAtMilliseconds - startsAtMilliseconds;
+
+    if (durationMilliseconds <= 2 * 60 * 60 * 1_000) {
+        return 300;
+    }
+
+    if (durationMilliseconds <= 8 * 60 * 60 * 1_000) {
+        return 900;
+    }
+
+    if (durationMilliseconds <= 3 * 24 * 60 * 60 * 1_000) {
+        return 3_600;
+    }
+
+    return 86_400;
+}
+
+function getWorkshopAdminTimelineEndsAt(workshopRow: WorkshopRow): string {
+    const startsAtMilliseconds = Date.parse(workshopRow.starts_at);
+    const endsAtMilliseconds = workshopRow.ends_at === null ? Date.now() : Date.parse(workshopRow.ends_at);
+
+    return new Date(Math.max(startsAtMilliseconds, endsAtMilliseconds)).toISOString();
+}
+
+function mapWorkshopAdminTimelinePointRow(row: WorkshopAdminTimelinePointRow): WorkshopAdminTimelinePoint {
+    return {
+        startsAt: row.bucket_starts_at,
+        participantCount: getNonNegativeWholeNumber(row.participant_count),
+        commentCount: getNonNegativeWholeNumber(row.comment_count),
+        reactionCount: getNonNegativeWholeNumber(row.reaction_count),
+        upvoteCount: getNonNegativeWholeNumber(row.upvote_count),
+        linkClickCount: getNonNegativeWholeNumber(row.link_click_count),
     };
 }
 
@@ -430,6 +582,450 @@ async function loadWorkshopReactionCounts(
 
     return {
         reactionCounts: ((data ?? []) as WorkshopReactionCountRow[]).map(mapWorkshopReactionCountRow),
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads one page of participants together with the activity totals used for its sortable columns.
+ *
+ * Note: The database applies the filters and sort before it limits the result, so a large workshop never needs to send
+ * every participant to the browser just to display one page.
+ */
+export async function loadWorkshopAdminParticipantPage(
+    supabase: SupabaseClient,
+    workshopId: string,
+    query: WorkshopAdminParticipantQuery,
+): Promise<{ readonly page: WorkshopAdminParticipantPage | null; readonly errorMessage: string | null }> {
+    const { data, error } = await supabase.rpc('get_workshop_admin_participant_page', {
+        target_workshop_id: workshopId,
+        target_search_query: query.searchQuery,
+        target_is_trusted: query.isTrusted,
+        target_is_interaction_banned: query.isInteractionBanned,
+        target_registered_from: query.registeredFrom,
+        target_registered_to: query.registeredTo,
+        target_sort_by: query.sortBy,
+        target_sort_direction: query.sortDirection,
+        target_limit: query.pageSize,
+        target_offset: (query.page - 1) * query.pageSize,
+    });
+    if (error) {
+        return { page: null, errorMessage: error.message };
+    }
+
+    const participantRows = (data ?? []) as WorkshopAdminParticipantPageRow[];
+    return {
+        page: {
+            participants: participantRows.map(mapWorkshopAdminParticipantPageRow),
+            totalCount: getNonNegativeWholeNumber(participantRows[0]?.total_count),
+        },
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads the exact actions of one participant from their existing source records.
+ *
+ * Note: Registration and last activity are participant fields rather than action rows, so they are added as two
+ * explicit timeline events next to comments, reactions, votes, and material clicks.
+ */
+export async function loadWorkshopAdminParticipantTimeline(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+    participantId: string,
+): Promise<{ readonly timeline: WorkshopAdminParticipantTimeline | null; readonly errorMessage: string | null }> {
+    const [participantResult, commentsResult, reactionsResult, upvotesResult, linkClicksResult] = await Promise.all([
+        supabase
+            .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+            .select(
+                'id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, active_duration_seconds',
+            )
+            .eq('workshop_id', workshopRow.id)
+            .eq('id', participantId)
+            .maybeSingle(),
+        loadAllWorkshopRows<WorkshopParticipantTimelineCommentRow>((fromIndex, toIndex) =>
+            supabase
+                .from(WORKSHOP_COMMENT_TABLE_NAME)
+                .select('id, body, status, created_at')
+                .eq('workshop_id', workshopRow.id)
+                .eq('participant_id', participantId)
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(fromIndex, toIndex),
+        ),
+        loadAllWorkshopRows<WorkshopReactionRow>((fromIndex, toIndex) =>
+            supabase
+                .from(WORKSHOP_REACTION_TABLE_NAME)
+                .select('id, emoji, created_at')
+                .eq('workshop_id', workshopRow.id)
+                .eq('participant_id', participantId)
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(fromIndex, toIndex),
+        ),
+        loadAllWorkshopRows<WorkshopCommentUpvoteRow>((fromIndex, toIndex) =>
+            supabase
+                .from(WORKSHOP_UPVOTE_TABLE_NAME)
+                .select('id, comment_id, created_at')
+                .eq('workshop_id', workshopRow.id)
+                .eq('participant_id', participantId)
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(fromIndex, toIndex),
+        ),
+        loadAllWorkshopRows<WorkshopContentLinkClickRow>((fromIndex, toIndex) =>
+            supabase
+                .from(WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME)
+                .select('id, content_block_id, created_at')
+                .eq('workshop_id', workshopRow.id)
+                .eq('participant_id', participantId)
+                .order('created_at', { ascending: true })
+                .order('id', { ascending: true })
+                .range(fromIndex, toIndex),
+        ),
+    ]);
+
+    const firstErrorMessage =
+        participantResult.error?.message ??
+        commentsResult.errorMessage ??
+        reactionsResult.errorMessage ??
+        upvotesResult.errorMessage ??
+        linkClicksResult.errorMessage ??
+        null;
+    if (firstErrorMessage !== null) {
+        return { timeline: null, errorMessage: firstErrorMessage };
+    }
+
+    if (participantResult.data === null) {
+        return { timeline: null, errorMessage: null };
+    }
+
+    const participant = participantResult.data as WorkshopAdminParticipantRow;
+    const commentRows = commentsResult.rows ?? [];
+    const reactionRows = reactionsResult.rows ?? [];
+    const upvoteRows = upvotesResult.rows ?? [];
+    const linkClickRows = linkClicksResult.rows ?? [];
+    const upvotedCommentIds = Array.from(new Set(upvoteRows.map((upvote) => upvote.comment_id)));
+    const clickedContentBlockIds = Array.from(new Set(linkClickRows.map((linkClick) => linkClick.content_block_id)));
+
+    const [upvotedCommentsResult, clickedContentBlocksResult] = await Promise.all([
+        loadWorkshopRowsByIds<WorkshopParticipantTimelineCommentReferenceRow>(upvotedCommentIds, (pageCommentIds) =>
+            supabase
+                .from(WORKSHOP_COMMENT_TABLE_NAME)
+                .select('id, author_name, body')
+                .eq('workshop_id', workshopRow.id)
+                .in('id', pageCommentIds),
+        ),
+        loadWorkshopRowsByIds<WorkshopParticipantTimelineContentRow>(clickedContentBlockIds, (pageContentBlockIds) =>
+            supabase
+                .from(WORKSHOP_CONTENT_TABLE_NAME)
+                .select('id, title')
+                .eq('workshop_id', workshopRow.id)
+                .in('id', pageContentBlockIds),
+        ),
+    ]);
+    const contextErrorMessage = upvotedCommentsResult.errorMessage ?? clickedContentBlocksResult.errorMessage;
+    if (contextErrorMessage !== null) {
+        return { timeline: null, errorMessage: contextErrorMessage };
+    }
+
+    const upvotedCommentById = new Map<string, WorkshopParticipantTimelineCommentReferenceRow>(
+        (upvotedCommentsResult.rows ?? []).map((comment) => [comment.id, comment] as const),
+    );
+    const clickedContentBlockById = new Map<string, WorkshopParticipantTimelineContentRow>(
+        (clickedContentBlocksResult.rows ?? []).map((contentBlock) => [contentBlock.id, contentBlock] as const),
+    );
+    const events: WorkshopParticipantTimelineEvent[] = [
+        { kind: 'joined' as const, id: `joined-${participant.id}`, occurredAt: participant.connected_at },
+        { kind: 'last-seen' as const, id: `last-seen-${participant.id}`, occurredAt: participant.last_seen_at },
+        ...commentRows.map((comment): WorkshopParticipantTimelineEvent => ({
+            kind: 'comment',
+            id: comment.id,
+            occurredAt: comment.created_at,
+            body: comment.body,
+            status: comment.status,
+        })),
+        ...reactionRows.map((reaction): WorkshopParticipantTimelineEvent => ({
+            kind: 'reaction',
+            id: reaction.id,
+            occurredAt: reaction.created_at,
+            emoji: reaction.emoji,
+        })),
+        ...upvoteRows.map((upvote): WorkshopParticipantTimelineEvent => {
+            const comment = upvotedCommentById.get(upvote.comment_id);
+            return {
+                kind: 'upvote',
+                id: upvote.id,
+                occurredAt: upvote.created_at,
+                commentId: upvote.comment_id,
+                commentAuthorName: comment?.author_name ?? null,
+                commentBody: comment?.body ?? null,
+            };
+        }),
+        ...linkClickRows.map((linkClick): WorkshopParticipantTimelineEvent => ({
+            kind: 'content-link-click',
+            id: linkClick.id,
+            occurredAt: linkClick.created_at,
+            contentBlockId: linkClick.content_block_id,
+            contentBlockTitle: clickedContentBlockById.get(linkClick.content_block_id)?.title ?? null,
+        })),
+    ].sort(
+        (firstEvent, secondEvent) =>
+            firstEvent.occurredAt.localeCompare(secondEvent.occurredAt) || firstEvent.id.localeCompare(secondEvent.id),
+    );
+
+    return {
+        timeline: {
+            participant: mapWorkshopAdminParticipantRow(participant, {
+                participant_id: participant.id,
+                comment_count: commentRows.length,
+                reaction_count: reactionRows.length,
+                link_click_count: linkClickRows.length,
+                upvote_count: upvoteRows.length,
+            }),
+            events,
+        },
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads compact workshop-wide timeline buckets and reaction totals for the overview and reactions sections.
+ */
+export async function loadWorkshopAdminAnalytics(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<{ readonly analytics: WorkshopAdminAnalytics | null; readonly errorMessage: string | null }> {
+    const bucketDurationSeconds = getWorkshopAdminTimelineBucketDurationSeconds(workshopRow);
+    const [timelineResult, reactionCountsResult] = await Promise.all([
+        supabase.rpc('get_workshop_admin_timeline', {
+            target_workshop_id: workshopRow.id,
+            target_bucket_seconds: bucketDurationSeconds,
+        }),
+        supabase.rpc('get_workshop_reaction_counts', { target_workshop_id: workshopRow.id }),
+    ]);
+    const firstError = timelineResult.error ?? reactionCountsResult.error;
+    if (firstError) {
+        return { analytics: null, errorMessage: firstError.message };
+    }
+
+    return {
+        analytics: {
+            timelineStartsAt: workshopRow.starts_at,
+            timelineEndsAt: getWorkshopAdminTimelineEndsAt(workshopRow),
+            bucketDurationSeconds,
+            timeline: ((timelineResult.data ?? []) as WorkshopAdminTimelinePointRow[]).map(
+                mapWorkshopAdminTimelinePointRow,
+            ),
+            reactionCounts: ((reactionCountsResult.data ?? []) as WorkshopReactionCountRow[]).map(
+                mapWorkshopReactionCountRow,
+            ),
+        },
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads every participant which matches the administration filter for a file export.
+ *
+ * Note: The export keeps the exact same filter and sort as the participant table, while intentionally ignoring its
+ * current page so a spreadsheet always contains the complete selected audience.
+ */
+export async function loadWorkshopAdminParticipantsForExport(
+    supabase: SupabaseClient,
+    workshopId: string,
+    query: WorkshopAdminParticipantQuery,
+): Promise<{
+    readonly participants: readonly WorkshopAdminParticipant[] | null;
+    readonly errorMessage: string | null;
+}> {
+    const exportQuery: WorkshopAdminParticipantQuery = {
+        ...query,
+        page: 1,
+        pageSize: WORKSHOP_DATABASE_PAGE_SIZE,
+    };
+    const firstPageResult = await loadWorkshopAdminParticipantPage(supabase, workshopId, exportQuery);
+    if (firstPageResult.page === null) {
+        return { participants: null, errorMessage: firstPageResult.errorMessage };
+    }
+
+    const participants = [...firstPageResult.page.participants];
+    const totalPageCount = Math.ceil(firstPageResult.page.totalCount / exportQuery.pageSize);
+    for (let currentPage = 2; currentPage <= totalPageCount; currentPage += 1) {
+        const pageResult = await loadWorkshopAdminParticipantPage(supabase, workshopId, {
+            ...exportQuery,
+            page: currentPage,
+        });
+        if (pageResult.page === null) {
+            return { participants: null, errorMessage: pageResult.errorMessage };
+        }
+
+        participants.push(...pageResult.page.participants);
+    }
+
+    return { participants, errorMessage: null };
+}
+
+/**
+ * Loads all comments for a CSV export, without inheriting the short moderation list used by the interactive screen.
+ */
+export async function loadWorkshopAdminCommentsForExport(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<{ readonly comments: readonly WorkshopAdminComment[] | null; readonly errorMessage: string | null }> {
+    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopCommentRow>((fromIndex, toIndex) =>
+        supabase
+            .from(WORKSHOP_COMMENT_TABLE_NAME)
+            .select(WORKSHOP_COMMENT_COLUMNS)
+            .eq('workshop_id', workshopRow.id)
+            .order('created_at', { ascending: true })
+            .order('id', { ascending: true })
+            .range(fromIndex, toIndex),
+    );
+    if (rows === null) {
+        return { comments: null, errorMessage };
+    }
+
+    return {
+        comments: rows.map((row): WorkshopAdminComment => ({
+            ...mapWorkshopCommentRow(row, false, workshopRow.pinned_comment_id),
+            participantId: row.participant_id,
+            isArtificial: row.is_artificial,
+            realUpvoteCount: row.upvote_count,
+            artificialUpvoteCount: row.artificial_upvote_count,
+            parentComment: null,
+        })),
+        errorMessage: null,
+    };
+}
+
+/**
+ * Reads enough participant identity to make exported reactions understandable, including artificial reactions whose
+ * participant is intentionally absent.
+ */
+async function loadWorkshopParticipantIdentities(
+    supabase: SupabaseClient,
+    workshopId: string,
+    participantIds: readonly string[],
+): Promise<{
+    readonly identityByParticipantId: ReadonlyMap<string, WorkshopAdminParticipantIdentityRow> | null;
+    readonly errorMessage: string | null;
+}> {
+    const { rows, errorMessage } = await loadWorkshopRowsByIds<WorkshopAdminParticipantIdentityRow>(
+        participantIds,
+        (pageParticipantIds) =>
+            supabase
+                .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+                .select('id, fullname, email')
+                .eq('workshop_id', workshopId)
+                .in('id', pageParticipantIds),
+    );
+    if (rows === null) {
+        return { identityByParticipantId: null, errorMessage };
+    }
+
+    return {
+        identityByParticipantId: new Map(rows.map((participant) => [participant.id, participant] as const)),
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads every reaction with the optional human identity which sent it, for the reactions CSV export.
+ */
+export async function loadWorkshopAdminReactionsForExport(
+    supabase: SupabaseClient,
+    workshopId: string,
+): Promise<
+    | {
+          readonly reactions: readonly {
+              readonly id: string;
+              readonly occurredAt: string;
+              readonly emoji: string;
+              readonly participantFullname: string | null;
+              readonly participantEmail: string | null;
+              readonly isArtificial: boolean;
+          }[];
+          readonly errorMessage: null;
+      }
+    | { readonly reactions: null; readonly errorMessage: string | null }
+> {
+    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopAdminReactionExportRow>((fromIndex, toIndex) =>
+        supabase
+            .from(WORKSHOP_REACTION_TABLE_NAME)
+            .select('id, participant_id, emoji, created_at, is_artificial')
+            .eq('workshop_id', workshopId)
+            .order('created_at', { ascending: true })
+            .order('id', { ascending: true })
+            .range(fromIndex, toIndex),
+    );
+    if (rows === null) {
+        return { reactions: null, errorMessage };
+    }
+
+    const participantIds = rows
+        .map((reaction) => reaction.participant_id)
+        .filter((participantId): participantId is string => participantId !== null);
+    const { identityByParticipantId, errorMessage: identityErrorMessage } = await loadWorkshopParticipantIdentities(
+        supabase,
+        workshopId,
+        participantIds,
+    );
+    if (identityByParticipantId === null) {
+        return { reactions: null, errorMessage: identityErrorMessage };
+    }
+
+    return {
+        reactions: rows.map((reaction) => {
+            const participant =
+                reaction.participant_id === null ? undefined : identityByParticipantId.get(reaction.participant_id);
+            return {
+                id: reaction.id,
+                occurredAt: reaction.created_at,
+                emoji: reaction.emoji,
+                participantFullname: participant?.fullname ?? null,
+                participantEmail: participant?.email ?? null,
+                isArtificial: reaction.is_artificial,
+            };
+        }),
+        errorMessage: null,
+    };
+}
+
+/**
+ * Loads all content blocks with their measured material-link clicks for the content CSV export.
+ */
+export async function loadWorkshopAdminContentForExport(
+    supabase: SupabaseClient,
+    workshopId: string,
+): Promise<{ readonly contentBlocks: readonly WorkshopContentBlock[] | null; readonly errorMessage: string | null }> {
+    const [contentResult, contentLinkClickTotalsResult] = await Promise.all([
+        supabase
+            .from(WORKSHOP_CONTENT_TABLE_NAME)
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+            .eq('workshop_id', workshopId)
+            .order('sort_order', { ascending: true })
+            .order('unlock_at', { ascending: true }),
+        supabase.rpc('get_workshop_content_link_click_totals', { target_workshop_id: workshopId }),
+    ]);
+    const firstError = contentResult.error ?? contentLinkClickTotalsResult.error;
+    if (firstError) {
+        return { contentBlocks: null, errorMessage: firstError.message };
+    }
+
+    const linkClickCountByContentBlockId = new Map<string, number>(
+        ((contentLinkClickTotalsResult.data ?? []) as WorkshopContentLinkClickTotalsRow[]).map(
+            (linkClickTotals) =>
+                [
+                    linkClickTotals.content_block_id,
+                    getNonNegativeWholeNumber(linkClickTotals.link_click_count),
+                ] as const,
+        ),
+    );
+    return {
+        contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map((contentBlock) =>
+            mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
+        ),
         errorMessage: null,
     };
 }
@@ -670,18 +1266,24 @@ async function loadAnsweredWorkshopComments(
     );
 }
 
+type WorkshopAdminSnapshotOptions = {
+    /**
+     * Whether the currently opened administration section needs the list of moderated comments.
+     */
+    readonly isCommentsIncluded: boolean;
+};
+
 export async function loadWorkshopAdminSnapshot(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
     commentStatus: WorkshopCommentStatus,
+    options: WorkshopAdminSnapshotOptions = { isCommentsIncluded: true },
 ): Promise<{ readonly snapshot: WorkshopAdminSnapshot | null; readonly errorMessage: string | null }> {
     const [
         contentResult,
         commentsResult,
         commentsCountResult,
         participantCountResult,
-        participantsResult,
-        participantActivityTotalsResult,
         contentLinkClickTotalsResult,
         reactionsResult,
         artificialReactionsResult,
@@ -693,13 +1295,15 @@ export async function loadWorkshopAdminSnapshot(
             .eq('workshop_id', workshopRow.id)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
-        supabase
-            .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select(WORKSHOP_COMMENT_COLUMNS)
-            .eq('workshop_id', workshopRow.id)
-            .eq('status', commentStatus)
-            .order('created_at', { ascending: false })
-            .limit(MAXIMAL_ADMIN_COMMENT_LIST_COUNT),
+        options.isCommentsIncluded
+            ? supabase
+                  .from(WORKSHOP_COMMENT_TABLE_NAME)
+                  .select(WORKSHOP_COMMENT_COLUMNS)
+                  .eq('workshop_id', workshopRow.id)
+                  .eq('status', commentStatus)
+                  .order('created_at', { ascending: false })
+                  .limit(MAXIMAL_ADMIN_COMMENT_LIST_COUNT)
+            : Promise.resolve({ data: [], error: null }),
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
             .select('id', { count: 'exact', head: true })
@@ -708,13 +1312,6 @@ export async function loadWorkshopAdminSnapshot(
             .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
             .select('id', { count: 'exact', head: true })
             .eq('workshop_id', workshopRow.id),
-        supabase
-            .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-            .select('id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, active_duration_seconds')
-            .eq('workshop_id', workshopRow.id)
-            .order('connected_at', { ascending: false })
-            .limit(MAXIMAL_ADMIN_PARTICIPANT_LIST_COUNT),
-        supabase.rpc('get_workshop_participant_activity_totals', { target_workshop_id: workshopRow.id }),
         supabase.rpc('get_workshop_content_link_click_totals', { target_workshop_id: workshopRow.id }),
         supabase
             .from(WORKSHOP_REACTION_TABLE_NAME)
@@ -725,7 +1322,7 @@ export async function loadWorkshopAdminSnapshot(
             .select('id', { count: 'exact', head: true })
             .eq('workshop_id', workshopRow.id)
             .eq('is_artificial', true),
-        loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
+        options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
     ]);
 
     const firstError =
@@ -733,8 +1330,6 @@ export async function loadWorkshopAdminSnapshot(
         commentsResult.error ??
         commentsCountResult.error ??
         participantCountResult.error ??
-        participantsResult.error ??
-        participantActivityTotalsResult.error ??
         contentLinkClickTotalsResult.error ??
         reactionsResult.error ??
         artificialReactionsResult.error;
@@ -750,18 +1345,15 @@ export async function loadWorkshopAdminSnapshot(
         isArtificial: row.is_artificial,
         realUpvoteCount: row.upvote_count,
         artificialUpvoteCount: row.artificial_upvote_count,
-        parentComment:
-            row.parent_comment_id === null ? null : (answeredCommentById.get(row.parent_comment_id) ?? null),
+        parentComment: row.parent_comment_id === null ? null : (answeredCommentById.get(row.parent_comment_id) ?? null),
     }));
-    const activityTotalsByParticipantId = new Map<string, WorkshopParticipantActivityTotalsRow>(
-        ((participantActivityTotalsResult.data ?? []) as WorkshopParticipantActivityTotalsRow[]).map(
-            (activityTotals) => [activityTotals.participant_id, activityTotals] as const,
-        ),
-    );
     const linkClickCountByContentBlockId = new Map<string, number>(
         ((contentLinkClickTotalsResult.data ?? []) as WorkshopContentLinkClickTotalsRow[]).map(
             (linkClickTotals) =>
-                [linkClickTotals.content_block_id, getNonNegativeWholeNumber(linkClickTotals.link_click_count)] as const,
+                [
+                    linkClickTotals.content_block_id,
+                    getNonNegativeWholeNumber(linkClickTotals.link_click_count),
+                ] as const,
         ),
     );
 
@@ -773,9 +1365,7 @@ export async function loadWorkshopAdminSnapshot(
             ),
             comments,
             pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
-            participants: ((participantsResult.data ?? []) as WorkshopAdminParticipantRow[]).map((participant) =>
-                mapWorkshopAdminParticipantRow(participant, activityTotalsByParticipantId.get(participant.id)),
-            ),
+            participants: [],
             participantCount: participantCountResult.count ?? 0,
             commentCount: commentsCountResult.count ?? 0,
             reactionCount: reactionsResult.count ?? 0,

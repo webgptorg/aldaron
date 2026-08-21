@@ -1,5 +1,6 @@
 # Current preversion
 
+- Rebuilt `/admin/workshops` around focused overview, participant, comment, reaction, content, and settings sections; large audiences now have server-side filtering, sorting, paging, per-person activity histories, a workshop-wide activity timeline, and CSV exports for every section plus filtered participant vCards.
 - Made `/cs/online-workshop` load and present every upcoming published workshop from the shared workshop data, with a separate registration form and selected-term contact note for each date instead of one hardcoded occurrence.
 - Carried the selected workshop as `?workshop=<slug>` through registration confirmation, direct room links, and calendar invitations; `/cs/online-workshop/participant` and `/cs/online-workshop/dekujeme` now resolve it, while old links without it use the most recent published workshop.
 - Let `/admin/workshops` edit a workshop URL slug with the same validation and uniqueness handling used when creating it, and indexed published workshop dates for the public term list and legacy-link fallback.

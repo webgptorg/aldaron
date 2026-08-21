@@ -41,10 +41,13 @@ export async function GET(request: NextRequest, context: AdminWorkshopRouteConte
         return NextResponse.json({ error: 'Invalid comment status' }, { status: 400 });
     }
 
+    const isCommentsIncluded = request.nextUrl.searchParams.get('includeComments') !== 'false';
+
     const { snapshot, errorMessage } = await loadWorkshopAdminSnapshot(
         supabase,
         workshopRow,
         requestedCommentStatus ?? 'pending',
+        { isCommentsIncluded },
     );
     if (snapshot === null) {
         return NextResponse.json({ error: errorMessage }, { status: 500 });

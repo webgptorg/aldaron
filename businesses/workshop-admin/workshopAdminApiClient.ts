@@ -1,5 +1,8 @@
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import type {
+    WorkshopAdminAnalytics,
+    WorkshopAdminParticipantPage,
+    WorkshopAdminParticipantTimeline,
     WorkshopAdminSnapshot,
     WorkshopCommentStatus,
     WorkshopContentBlock,
@@ -7,6 +10,11 @@ import type {
     WorkshopSummary,
 } from '@/lib/workshops/workshopTypes';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
+import {
+    serializeWorkshopAdminParticipantQuery,
+    type WorkshopAdminParticipantQuery,
+} from '@/lib/workshops/workshopAdminParticipantQuery';
+import type { WorkshopAdminExportKind } from '@/lib/workshops/workshopAdminExports';
 
 export type WorkshopWriteValues = {
     readonly slug: string;
@@ -71,8 +79,68 @@ export async function fetchAdminWorkshopSnapshot(
     adminToken: string,
     workshopId: string,
     commentStatus: WorkshopCommentStatus = 'pending',
+    isCommentsIncluded = true,
 ): Promise<WorkshopAdminSnapshot> {
-    return requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}`, adminToken, { commentStatus }));
+    return requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}`, adminToken, {
+            commentStatus,
+            includeComments: String(isCommentsIncluded),
+        }),
+    );
+}
+
+export async function fetchAdminWorkshopParticipantPage(
+    adminToken: string,
+    workshopId: string,
+    query: WorkshopAdminParticipantQuery,
+): Promise<WorkshopAdminParticipantPage> {
+    const queryParameters = Object.fromEntries(serializeWorkshopAdminParticipantQuery(query).entries());
+    return requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/participants`, adminToken, queryParameters),
+    );
+}
+
+export async function fetchAdminWorkshopParticipantTimeline(
+    adminToken: string,
+    workshopId: string,
+    participantId: string,
+): Promise<WorkshopAdminParticipantTimeline> {
+    return requestAdminJson(
+        createAdminApiUrl(
+            `/${encodeURIComponent(workshopId)}/participants/${encodeURIComponent(participantId)}/timeline`,
+            adminToken,
+        ),
+    );
+}
+
+export async function fetchAdminWorkshopAnalytics(
+    adminToken: string,
+    workshopId: string,
+): Promise<WorkshopAdminAnalytics> {
+    return requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}/analytics`, adminToken));
+}
+
+/**
+ * Builds a download URL for one workshop administration section.
+ */
+export function buildAdminWorkshopExportUrl(
+    adminToken: string,
+    workshopId: string,
+    exportKind: WorkshopAdminExportKind,
+    participantQuery?: WorkshopAdminParticipantQuery,
+): string {
+    const exportParameters = participantQuery === undefined
+        ? {}
+        : Object.fromEntries(serializeWorkshopAdminParticipantQuery(participantQuery).entries());
+
+    delete exportParameters.page;
+    delete exportParameters.pageSize;
+
+    return createAdminApiUrl(
+        `/${encodeURIComponent(workshopId)}/exports/${encodeURIComponent(exportKind)}`,
+        adminToken,
+        exportParameters,
+    );
 }
 
 export async function createAdminWorkshop(adminToken: string, values: WorkshopCreateValues): Promise<WorkshopDetails> {
