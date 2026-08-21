@@ -1,9 +1,9 @@
 import { COMMUNITY_ADMIN_PATH } from '@/businesses/community/config';
 import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
-import { isAdminTokenValid } from '@/lib/admin/adminApiGuard';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
-import { ContactRound, Radio, ShieldCheck, UsersRound } from 'lucide-react';
+import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
+import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
+import { ContactRound, Link2, Radio, ShieldCheck, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 
 type AdminDashboardPageProps = {
@@ -29,11 +29,17 @@ const ADMIN_PAGE_CARDS = [
         description: 'Kontakty získané z registračních a poptávkových formulářů.',
         icon: ContactRound,
     },
+    {
+        path: ADMIN_SHORTENER_PATH,
+        title: 'Zkracovač odkazů',
+        description: 'Vytváření veřejných krátkých odkazů a QR kódů.',
+        icon: Link2,
+    },
 ] as const;
 
 export default async function AdminDashboardPage({ searchParams }: AdminDashboardPageProps) {
-    const adminToken = readFirstSearchParameter((await searchParams).token);
-    if (adminToken === null || !isAdminTokenValid(adminToken)) {
+    const adminToken = getValidAdminTokenOrNull((await searchParams).token);
+    if (adminToken === null) {
         return <AdminAccessRequired actionPath="/admin" />;
     }
 

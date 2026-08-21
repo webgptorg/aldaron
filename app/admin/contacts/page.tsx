@@ -1,7 +1,6 @@
 import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
-import { isAdminTokenValid } from '@/lib/admin/adminApiGuard';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
 import { Suspense } from 'react';
 import AdminContactsComponent from './AdminContactsComponent';
 
@@ -10,8 +9,8 @@ type AdminContactsPageProps = {
 };
 
 export default async function AdminContactsPage({ searchParams }: AdminContactsPageProps) {
-    const adminToken = readFirstSearchParameter((await searchParams).token);
-    if (adminToken === null || !isAdminTokenValid(adminToken)) {
+    const adminToken = getValidAdminTokenOrNull((await searchParams).token);
+    if (adminToken === null) {
         return <AdminAccessRequired actionPath="/admin/contacts" />;
     }
 

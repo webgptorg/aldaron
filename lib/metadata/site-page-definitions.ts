@@ -1,5 +1,6 @@
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
+import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
 import type { Metadata } from 'next';
 
 /**
@@ -43,8 +44,8 @@ export const DATA_DELETION_PAGE_DEFINITION: PageMetadataDefinition = {
     sitemapChangeFrequency: 'yearly',
 };
 
-export const SHORTENER_PAGE_DEFINITION: PageMetadataDefinition = {
-    path: '/shortener',
+export const ADMIN_SHORTENER_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: ADMIN_SHORTENER_PATH,
     language: 'en',
     title: 'Link shortener | Promptbook',
     description: 'Internal tool for creating short Promptbook links with their own landing page and click tracking.',
@@ -70,6 +71,6 @@ export const ADMIN_CONTACTS_PAGE_DEFINITION: PageMetadataDefinition = {
 export const BRANDING_METADATA: Metadata = createPageMetadata(BRANDING_PAGE_DEFINITION);
 export const CONTACT_METADATA: Metadata = createPageMetadata(CONTACT_PAGE_DEFINITION);
 export const DATA_DELETION_METADATA: Metadata = createPageMetadata(DATA_DELETION_PAGE_DEFINITION);
-export const SHORTENER_METADATA: Metadata = createPageMetadata(SHORTENER_PAGE_DEFINITION);
+export const ADMIN_SHORTENER_METADATA: Metadata = createPageMetadata(ADMIN_SHORTENER_PAGE_DEFINITION);
 export const THANK_YOU_METADATA: Metadata = createPageMetadata(THANK_YOU_PAGE_DEFINITION);
 export const ADMIN_CONTACTS_METADATA: Metadata = createPageMetadata(ADMIN_CONTACTS_PAGE_DEFINITION);

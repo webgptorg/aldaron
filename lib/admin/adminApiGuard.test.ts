@@ -1,4 +1,5 @@
 import { getUnauthorizedResponseOrNull, isAdminTokenValid } from '@/lib/admin/adminApiGuard';
+import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
 import { afterEach, describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
 
@@ -25,6 +26,13 @@ describe('shared admin token guard', () => {
         delete process.env.ADMIN_TOKEN;
 
         expect(isAdminTokenValid('any-value')).toBe(false);
+    });
+
+    it('extracts only a valid first page token through the shared page helper', () => {
+        process.env.ADMIN_TOKEN = 'expected-token';
+
+        expect(getValidAdminTokenOrNull(['expected-token', 'another-token'])).toBe('expected-token');
+        expect(getValidAdminTokenOrNull('incorrect-token')).toBeNull();
     });
 
     it('returns an unauthorized response before an admin API reaches the database', () => {

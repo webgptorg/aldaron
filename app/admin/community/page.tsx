@@ -2,8 +2,7 @@ import { COMMUNITY_ADMIN_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/comm
 import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
 import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
-import { isAdminTokenValid } from '@/lib/admin/adminApiGuard';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
 
 type AdminCommunityPageProps = {
     readonly searchParams: Promise<{
@@ -16,8 +15,8 @@ type AdminCommunityPageProps = {
  * so workshop occurrences cannot be edited accidentally from this route and a second community cannot be created.
  */
 export default async function AdminCommunityPage({ searchParams }: AdminCommunityPageProps) {
-    const adminToken = readFirstSearchParameter((await searchParams).token);
-    if (adminToken === null || !isAdminTokenValid(adminToken)) {
+    const adminToken = getValidAdminTokenOrNull((await searchParams).token);
+    if (adminToken === null) {
         return <AdminAccessRequired actionPath={COMMUNITY_ADMIN_PATH} />;
     }
 

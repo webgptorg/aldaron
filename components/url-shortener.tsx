@@ -1,18 +1,42 @@
 'use client';
 
-import { useUserSession } from '@/hooks/use-user-session';
 import { classNames } from '@/lib/classNames';
-import { getSupabaseForBrowser } from '@/lib/supabase';
+import { createAdminShortcodeLink } from '@/lib/shortener/shortcodeLinkAdminApiClient';
+import { isAbsoluteUrl } from '@/lib/shortener/isAbsoluteUrl';
 import { titleToName } from '@promptbook/utils';
 import dynamic from 'next/dynamic';
-import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 
-const PromptbookQrCode = dynamic(() => import('@promptbook/components').then((module) => module.PromptbookQrCode), {
+const PROMPTBOOK_QR_CODE = dynamic(() => import('@promptbook/components').then((module) => module.PromptbookQrCode), {
     ssr: false,
 });
 
+const SHORTCODE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const SHORTCODE_LENGTH = 6;
+const SHORTCODE_PREVIEW_COUNT = 5;
+
+function generateShortcode(): string {
+    let shortcode = '';
+
+    for (let index = 0; index < SHORTCODE_LENGTH; index++) {
+        shortcode += SHORTCODE_CHARACTERS.charAt(Math.floor(Math.random() * SHORTCODE_CHARACTERS.length));
+    }
+
+    return shortcode;
+}
+
+function createShortcodePreviews(customPrefix: string): string[] {
+    const prefix = customPrefix ? titleToName(customPrefix) + '-' : '';
+
+    return Array.from({ length: SHORTCODE_PREVIEW_COUNT }, () => prefix + generateShortcode());
+}
+
 type UrlShortenerProps = {
+    /**
+     * Shared token verified by the protected admin page and used for shortcode creation requests.
+     */
+    readonly adminToken: string;
+
     /**
      * Optional CSS class name which will be added to root <div> element
      */
@@ -23,16 +47,7 @@ type UrlShortenerProps = {
  * Renders a URL Shortener app
  */
 export function UrlShortener(props: UrlShortenerProps) {
-    const { className } = props;
-
-    const generateShortCode = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < 6; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    };
+    const { adminToken, className } = props;
 
     const [urls, setUrls] = useState<string[]>(['']);
     const [displayText, setDisplayText] = useState('');
@@ -44,9 +59,7 @@ export function UrlShortener(props: UrlShortenerProps) {
     const [shortCode, setShortCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [useUtm, setUseUtm] = useState(false);
-    const [previewShortcodes, setPreviewShortcodes] = useState(() =>
-        Array.from({ length: 5 }, () => generateShortCode()),
-    );
+    const [previewShortcodes, setPreviewShortcodes] = useState(() => createShortcodePreviews(''));
     const [selectedShortcode, setSelectedShortcode] = useState(previewShortcodes[0]);
     const [customPrefix, setCustomPrefix] = useState('');
     const [utmParams, setUtmParams] = useState({
@@ -57,13 +70,10 @@ export function UrlShortener(props: UrlShortenerProps) {
         content: '',
     });
 
-    const userSession = useUserSession();
-
     const regenerateShortcodes = useCallback(() => {
-        const prefix = customPrefix ? titleToName(customPrefix) + '-' : '';
-        const newCodes = Array.from({ length: 5 }, () => prefix + generateShortCode());
-        setPreviewShortcodes(newCodes);
-        setSelectedShortcode(newCodes[0]);
+        const newShortcodes = createShortcodePreviews(customPrefix);
+        setPreviewShortcodes(newShortcodes);
+        setSelectedShortcode(newShortcodes[0]);
     }, [customPrefix]);
 
     // Debounced version of regenerateShortcodes
@@ -124,7 +134,9 @@ export function UrlShortener(props: UrlShortenerProps) {
         try {
             // Validate all URLs
             for (const url of validUrls) {
-                new URL(url.trim());
+                if (!isAbsoluteUrl(url.trim())) {
+                    throw new Error('Every URL must be a valid absolute URL');
+                }
             }
             setError('');
             setIsLoading(true);
@@ -140,29 +152,13 @@ export function UrlShortener(props: UrlShortenerProps) {
             const processedUrls = validUrls.map((url) => addUtmParams(url.trim()));
 
             if (isShortener) {
-                const supabase = getSupabaseForBrowser();
-
-                if (!supabase) {
-                    throw new Error('Supabase is not configured');
-                }
-
                 // Use the selected shortcode or generate a new one if none selected
-                const shortcode = selectedShortcode || generateShortCode();
-                const { error } = await supabase
-                    .from('ShortcodeLink')
-                    .insert({
-                        type: 'CUSTOM',
-                        shortcode,
-                        url: processedUrls,
-                        ownerEmail: userSession?.email || null,
-                    });
-
-                if (error) {
-                    throw error;
-                }
-
-                const shortUrl = `https://ptbk.io/${shortcode}`;
-                setShortCode(shortcode);
+                const createdShortcode = await createAdminShortcodeLink(adminToken, {
+                    shortcode: selectedShortcode || generateShortcode(),
+                    urls: processedUrls,
+                });
+                const shortUrl = 'https://ptbk.io/' + createdShortcode;
+                setShortCode(createdShortcode);
                 setLinkHtml(`<a href="${shortUrl}">${text}</a>`);
                 setLinkMarkdown(`[${text}](${shortUrl})`);
 
@@ -246,11 +242,6 @@ export function UrlShortener(props: UrlShortenerProps) {
     return (
         <div className={classNames('url-shortener', className)}>
             <div className="container mx-auto my-12 max-w-4xl space-y-12">
-                <Head>
-                    <title>URL Shortener</title>
-                    <meta name="description" content="Create short URLs and track clicks" />
-                </Head>
-
                 <div className="space-y-2">
                     <h1>🔗 URL Shortener</h1>
                     <p>Create a custom text link that wraps any URL or generate a short URL.</p>
@@ -484,7 +475,7 @@ export function UrlShortener(props: UrlShortenerProps) {
                             <div className="text-center">
                                 <h3 className="text-lg font-medium">QR Code</h3>
                                 <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
-                                    <PromptbookQrCode value={`https://ptbk.io/${shortCode}`} />
+                                    <PROMPTBOOK_QR_CODE value={`https://ptbk.io/${shortCode}`} />
                                 </div>
                             </div>
                         )}

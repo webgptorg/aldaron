@@ -2,6 +2,7 @@
 
 - Added the Czech-only `/cs/komunita` member room with the workshop waiting-room flow, GET-prefilled name and e-mail, a configurable shared stage, and identity-prefilled links to every published workshop.
 - Added `/admin/community`, reusing the workshop moderation, participants, reactions, content, analytics, and settings dashboard while keeping its stable community URL read-only.
+- Moved the URL shortener into `/admin/shortener`, added it to the admin dashboard, and made database-backed short-link creation require the shared admin token while generated links remain public.
 - Extended the live-room data model with a database-enforced singleton community kind, keeping it separate from workshop terms and their public/admin lists without duplicating the secure participant-room infrastructure.
 - Rebuilt `/admin/workshops` around focused overview, participant, comment, reaction, content, and settings sections; large audiences now have server-side filtering, sorting, paging, per-person activity histories, a workshop-wide activity timeline, and CSV exports for every section plus filtered participant vCards.
 - Made `/cs/online-workshop` load and present every upcoming published workshop from the shared workshop data, with a separate registration form and selected-term contact note for each date instead of one hardcoded occurrence.
@@ -17,7 +18,7 @@
 - Generated on-brand sharing preview images for every landing page (`/cs`, `/en`, `/pro-mesta`, `/for-agro`, `/for-industry`, `/ai-supervize`, `/ai-supervize-mini`, `/cs/online-workshop`, `/hackathon-factory`, `/cs/pavol`, `/en/pavol`) from a derived palette, and dropped the duplicated `twitter-image` routes.
 - Added `/sitemap.xml` built from the same page definitions, so the sitemap advertised by `robots.txt` finally exists.
 - Added Organization, WebSite and Person structured data for Google, and removed the placeholder Google site verification tag that shipped to production.
-- Gave metadata to the pages which had none (`/contact`, `/privacy`, `/terms`, `/data-deletion`, `/for-industry`) and kept `/old`, `/dekujeme`, `/shortener` and `/admin/contacts` out of search results.
+- Gave metadata to the pages which had none (`/contact`, `/privacy`, `/terms`, `/data-deletion`, `/for-industry`) and kept `/old`, `/dekujeme`, `/admin/shortener` and `/admin/contacts` out of search results.
 - Replaced the static `manifest.json` and `robots.txt` with generated routes, aligning the app manifest theme color with the browser theme color and dropping the dead `browserconfig.xml` reference.
 - Moved the online workshop registration confirmation onto its own `/cs/online-workshop/dekujeme` url reached by a full page load, so the Meta Pixel reports a `PageView` of it and an ad campaign can optimize on real registrations instead of clicks.
 - Added "add to calendar" links and the follow-up steps to the online workshop confirmation, and reported it to the Meta Pixel as a `CompleteRegistration` event.

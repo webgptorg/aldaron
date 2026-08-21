@@ -1,16 +1,17 @@
-import { UrlShortener } from '@/components/url-shortener';
-import { SHORTENER_METADATA } from '@/lib/metadata/site-page-definitions';
-import { Metadata } from 'next';
+import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
+import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
+import { redirect } from 'next/navigation';
 
-// Force static generation for static export
-export const dynamic = 'force-static';
-
-export const metadata: Metadata = SHORTENER_METADATA;
-
-export default function ShortenerPage() {
-    return <UrlShortener />;
-}
+type LegacyShortenerPageProps = {
+    readonly searchParams: Promise<{ readonly token?: string | string[] }>;
+};
 
 /**
- * TODO: Prompt: Shortener page should make metadata dynamic based on the landing page content stored in Supabase or the linked URL.
+ * Keep bookmarks working while moving the creator behind the protected admin route.
  */
+export default async function LegacyShortenerPage({ searchParams }: LegacyShortenerPageProps) {
+    const adminToken = readFirstSearchParameter((await searchParams).token);
+
+    redirect(adminToken === null ? ADMIN_SHORTENER_PATH : buildAdminUrl(ADMIN_SHORTENER_PATH, adminToken));
+}

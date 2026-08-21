@@ -1,6 +1,7 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { MarkdownContent } from '@/components/markdown-content';
+import { SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
 import { supabase } from '@/lib/supabase';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
@@ -15,7 +16,7 @@ interface PageProps {
 async function getShortcodeLink(shortcode: string) {
     if (!supabase) return null;
     const result = await supabase
-        .from('ShortcodeLink')
+        .from(SHORTCODE_LINK_TABLE_NAME)
         .select('id, url, landingPage')
         .eq('shortcode', shortcode)
         .single();
