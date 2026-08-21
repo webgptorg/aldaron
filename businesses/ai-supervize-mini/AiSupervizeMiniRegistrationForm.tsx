@@ -5,7 +5,11 @@ import {
     AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME,
     getAiSupervizeMiniWorkshopDateById,
 } from '@/businesses/ai-supervize-mini/config';
-import { getAiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
+import {
+    normalizeAiSupervizeMiniDiscountCode,
+    type AiSupervizeMiniActiveDiscount,
+} from '@/businesses/ai-supervize-mini/discountCode';
+import { validateAiSupervizeMiniDiscountCode } from '@/businesses/ai-supervize-mini/discountCodeApi';
 import {
     AiSupervizeMiniWorkshopRegistrationError,
     submitAiSupervizeMiniWorkshopRegistration,
@@ -208,11 +212,13 @@ function getParticipantCountError(
 
 type AiSupervizeMiniRegistrationFormProps = {
     readonly initialDiscountCode: string;
+    readonly initialActiveDiscount?: AiSupervizeMiniActiveDiscount | null;
     readonly initialWorkshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
 };
 
 export function AiSupervizeMiniRegistrationForm({
     initialDiscountCode,
+    initialActiveDiscount = null,
     initialWorkshopAvailabilities,
 }: AiSupervizeMiniRegistrationFormProps) {
     const [selectedDateId, setSelectedDateId] = useState<string>(AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!.id);
@@ -232,6 +238,11 @@ export function AiSupervizeMiniRegistrationForm({
     const [invoiceType, setInvoiceType] = useState<AiSupervizeMiniInvoiceType>('company');
     const [billingDetails, setBillingDetails] = useState('');
     const [discountCode, setDiscountCode] = useState(initialDiscountCode);
+    const [validatedActiveDiscount, setValidatedActiveDiscount] = useState<AiSupervizeMiniActiveDiscount | null>(
+        initialActiveDiscount,
+    );
+    const [isDiscountCodeValidationPending, setIsDiscountCodeValidationPending] = useState(false);
+    const [discountCodeValidationError, setDiscountCodeValidationError] = useState<string | null>(null);
     const [note, setNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -256,14 +267,76 @@ export function AiSupervizeMiniRegistrationForm({
 
     useEffect(() => {
         setDiscountCode(initialDiscountCode);
-    }, [initialDiscountCode]);
+        setValidatedActiveDiscount(initialActiveDiscount);
+        setIsDiscountCodeValidationPending(false);
+        setDiscountCodeValidationError(null);
+    }, [initialActiveDiscount, initialDiscountCode]);
 
     useEffect(() => {
         setParticipantCount((count) => clampParticipantCount(count, availableSeatCount));
     }, [availableSeatCount]);
 
-    const activeDiscount = getAiSupervizeMiniActiveDiscount(discountCode);
+    const normalizedDiscountCode = normalizeAiSupervizeMiniDiscountCode(discountCode);
+    const activeDiscount =
+        validatedActiveDiscount !== null && validatedActiveDiscount.code === normalizedDiscountCode
+            ? validatedActiveDiscount
+            : null;
     const isDiscountApplied = activeDiscount !== null;
+
+    useEffect(() => {
+        if (!normalizedDiscountCode) {
+            setValidatedActiveDiscount(null);
+            setIsDiscountCodeValidationPending(false);
+            setDiscountCodeValidationError(null);
+            return;
+        }
+
+        const isInitialActiveDiscountCurrent =
+            initialActiveDiscount !== null &&
+            normalizedDiscountCode === normalizeAiSupervizeMiniDiscountCode(initialDiscountCode) &&
+            initialActiveDiscount.code === normalizedDiscountCode;
+        if (isInitialActiveDiscountCurrent) {
+            setValidatedActiveDiscount(initialActiveDiscount);
+            setIsDiscountCodeValidationPending(false);
+            setDiscountCodeValidationError(null);
+            return;
+        }
+
+        let isDiscountCodeValidationCurrent = true;
+        setIsDiscountCodeValidationPending(true);
+        setDiscountCodeValidationError(null);
+        const validationTimeoutId = window.setTimeout(() => {
+            void validateAiSupervizeMiniDiscountCode(discountCode)
+                .then((loadedActiveDiscount) => {
+                    if (!isDiscountCodeValidationCurrent) {
+                        return;
+                    }
+
+                    setValidatedActiveDiscount(loadedActiveDiscount);
+                })
+                .catch((error: unknown) => {
+                    if (!isDiscountCodeValidationCurrent) {
+                        return;
+                    }
+
+                    setValidatedActiveDiscount(null);
+                    setDiscountCodeValidationError(
+                        error instanceof Error ? error.message : 'Slevový kód se nepodařilo ověřit.',
+                    );
+                })
+                .finally(() => {
+                    if (isDiscountCodeValidationCurrent) {
+                        setIsDiscountCodeValidationPending(false);
+                    }
+                });
+        }, 300);
+
+        return () => {
+            isDiscountCodeValidationCurrent = false;
+            window.clearTimeout(validationTimeoutId);
+        };
+    }, [discountCode, initialActiveDiscount, initialDiscountCode, normalizedDiscountCode]);
+
     const price = useMemo(() => {
         return createAiSupervizeMiniWorkshopPrice(selectedWorkshopDate, participantCount, activeDiscount);
     }, [activeDiscount, participantCount, selectedWorkshopDate]);
@@ -529,8 +602,12 @@ export function AiSupervizeMiniRegistrationForm({
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
                             {discountCode.trim()
-                                ? activeDiscount !== null
-                                    ? `Aktivní sleva ${activeDiscount.percent} %. Platí jen dnes.`
+                                ? isDiscountCodeValidationPending
+                                    ? 'Ověřuji slevový kód…'
+                                    : discountCodeValidationError !== null
+                                    ? 'Slevový kód se nepodařilo ověřit. Při odeslání jej ověříme znovu.'
+                                    : activeDiscount !== null
+                                    ? `Aktivní sleva ${activeDiscount.percent} %.`
                                     : 'Tento kód není aktivní.'
                                 : 'Volitelné.'}
                         </p>

@@ -1,5 +1,6 @@
 # Current preversion
 
+- Moved AI Supervize Mini discount codes from source configuration into a private, RLS-protected database table and added `/admin/discount-codes` for creating, editing, disabling, selecting, and deleting them; both price previews and registration-time totals now validate the same database-backed code, while online-workshop follow-up links resolve the administrator-selected promotion without embedding a code.
 - Added the Czech-only `/cs/komunita` member room with the workshop waiting-room flow, GET-prefilled name and e-mail, a configurable shared stage, and identity-prefilled links to every published workshop.
 - Added `/admin/community`, reusing the workshop moderation, participants, reactions, content, analytics, and settings dashboard while keeping its stable community URL read-only.
 - Moved the URL shortener into `/admin/shortener`, added it to the admin dashboard, and made database-backed short-link creation require the shared admin token while generated links remain public.

@@ -1,9 +1,9 @@
 'use client';
 
 import type { WorkshopCreateValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
-import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/businesses/workshop-admin/workshopAdminDateTime';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
 import { DEFAULT_WORKSHOP_REACTIONS } from '@/lib/workshops/workshopConstants';
 import { Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';

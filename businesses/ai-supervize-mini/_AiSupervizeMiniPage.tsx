@@ -14,6 +14,7 @@ import {
     AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
     getAiSupervizeMiniWorkshopDateByFormat,
 } from '@/businesses/ai-supervize-mini/config';
+import type { AiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
 import type { AiSupervizeMiniWorkshopAvailability } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { FAQSection } from '@/components/faq-section';
@@ -29,6 +30,7 @@ import Link from 'next/link';
 
 type AiSupervizeMiniPageProps = {
     readonly initialDiscountCode: string;
+    readonly initialActiveDiscount: AiSupervizeMiniActiveDiscount | null;
     readonly workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
 };
 
@@ -48,6 +50,7 @@ function getWorkshopSeatSummary(workshopAvailabilities: readonly AiSupervizeMini
 
 export function AiSupervizeMiniPage({
     initialDiscountCode,
+    initialActiveDiscount,
     workshopAvailabilities,
 }: AiSupervizeMiniPageProps) {
     const dateSummary = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates
@@ -234,6 +237,7 @@ export function AiSupervizeMiniPage({
 
                         <AiSupervizeMiniRegistrationForm
                             initialDiscountCode={initialDiscountCode}
+                            initialActiveDiscount={initialActiveDiscount}
                             initialWorkshopAvailabilities={workshopAvailabilities}
                         />
                     </div>

@@ -5,11 +5,13 @@ const {
     createContactsUnreachableResponseMock,
     getContactsTableOrNullMock,
     insertContactMock,
+    loadActiveDiscountMock,
     loadWorkshopAvailabilityMock,
 } = vi.hoisted(() => ({
     createContactsUnreachableResponseMock: vi.fn(),
     getContactsTableOrNullMock: vi.fn(),
     insertContactMock: vi.fn(),
+    loadActiveDiscountMock: vi.fn(),
     loadWorkshopAvailabilityMock: vi.fn(),
 }));
 
@@ -21,6 +23,10 @@ vi.mock('@/lib/contacts/contactsDatabase', () => ({
 
 vi.mock('@/businesses/ai-supervize-mini/workshopRegistrationDatabase', () => ({
     loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable: loadWorkshopAvailabilityMock,
+}));
+
+vi.mock('@/businesses/ai-supervize-mini/discountCodeDatabase', () => ({
+    loadAiSupervizeMiniActiveDiscount: loadActiveDiscountMock,
 }));
 
 import { POST } from './route';
@@ -57,6 +63,7 @@ describe('AI Supervize Mini registration endpoint', () => {
         createContactsUnreachableResponseMock.mockReset();
         getContactsTableOrNullMock.mockReset();
         insertContactMock.mockReset();
+        loadActiveDiscountMock.mockReset();
         loadWorkshopAvailabilityMock.mockReset();
         getContactsTableOrNullMock.mockReturnValue(CONTACTS_TABLE);
         loadWorkshopAvailabilityMock.mockResolvedValue({
@@ -64,6 +71,10 @@ describe('AI Supervize Mini registration endpoint', () => {
             errorMessage: null,
         });
         insertContactMock.mockResolvedValue({ contact: { id: 1 }, errorMessage: null });
+        loadActiveDiscountMock.mockResolvedValue({
+            activeDiscount: { code: 'WEBINAR_2026_08_20', percent: 25 },
+            errorMessage: null,
+        });
     });
 
     afterEach(() => {
@@ -79,6 +90,7 @@ describe('AI Supervize Mini registration endpoint', () => {
 
         expect(response.status).toBe(200);
         expect(loadWorkshopAvailabilityMock).toHaveBeenCalledWith(CONTACTS_TABLE);
+        expect(loadActiveDiscountMock).toHaveBeenCalledWith('webinar-2026-08-20');
         expect(insertContactMock).toHaveBeenCalledTimes(1);
         expect(responseBody.workshopPrice).toEqual({
             basePriceCzk: 24000,
@@ -117,6 +129,15 @@ describe('AI Supervize Mini registration endpoint', () => {
         expect(response.status).toBe(409);
         expect(responseBody.error).toBe('V tomto termínu zbývá už jen 8 míst.');
         expect(responseBody.workshopAvailabilities).toEqual(WORKSHOP_AVAILABILITIES);
+        expect(insertContactMock).not.toHaveBeenCalled();
+    });
+
+    it('does not store a registration when its submitted discount cannot be verified', async () => {
+        loadActiveDiscountMock.mockResolvedValue({ activeDiscount: null, errorMessage: 'Database not configured' });
+
+        const response = await POST(createRegistrationRequest());
+
+        expect(response.status).toBe(503);
         expect(insertContactMock).not.toHaveBeenCalled();
     });
 });

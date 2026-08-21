@@ -2,7 +2,7 @@ import {
     AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME,
     getAiSupervizeMiniWorkshopDateById,
 } from '@/businesses/ai-supervize-mini/config';
-import { getAiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
+import { loadAiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCodeDatabase';
 import {
     createAiSupervizeMiniStoredWorkshopRegistration,
     createAiSupervizeMiniWorkshopAvailabilityAfterRegistration,
@@ -28,6 +28,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const INVALID_REGISTRATION_ERROR_MESSAGE = 'Vyplňte prosím všechny povinné údaje správně.';
 const REGISTRATION_NOT_WRITTEN_ERROR_MESSAGE = 'Registraci se nepodařilo uložit. Zkuste to prosím znovu.';
 const AVAILABILITY_NOT_LOADED_ERROR_MESSAGE = 'Aktuální počet volných míst se nepodařilo ověřit. Zkuste to prosím znovu.';
+const DISCOUNT_CODE_NOT_LOADED_ERROR_MESSAGE = 'Slevový kód se nepodařilo ověřit. Zkuste to prosím znovu.';
 
 function readTextValue(value: unknown): string | null {
     return typeof value === 'string' && value.length <= MAXIMAL_CONTACT_TEXT_LENGTH ? value : null;
@@ -151,7 +152,14 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const activeDiscount = getAiSupervizeMiniActiveDiscount(registrationRequest.discountCode);
+    const { activeDiscount, errorMessage: discountCodeErrorMessage } = await loadAiSupervizeMiniActiveDiscount(
+        registrationRequest.discountCode,
+    );
+    if (discountCodeErrorMessage !== null) {
+        console.error('Failed to validate AI Supervize Mini registration discount code:', discountCodeErrorMessage);
+        return NextResponse.json({ error: DISCOUNT_CODE_NOT_LOADED_ERROR_MESSAGE }, { status: 503 });
+    }
+
     const storedRegistration = createAiSupervizeMiniStoredWorkshopRegistration(
         registrationRequest,
         workshopDate,

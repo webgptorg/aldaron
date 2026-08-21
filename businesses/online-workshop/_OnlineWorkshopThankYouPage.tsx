@@ -1,4 +1,4 @@
-import { AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
+import { AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
 import { ONLINE_WORKSHOP_HOST_FULLNAME, ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { AddToCalendarButtons } from '@/components/calendar/AddToCalendarButtons';
 import { MetaPixelEvent } from '@/components/meta-pixel-event';
@@ -183,7 +183,7 @@ export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: On
                             Praktický workshop AI Supervize Mini navazuje tam, kde tento workshop skončí.
                         </p>
                         <Link
-                            href={AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH}
+                            href={AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH}
                             className="mt-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-cyan-700 underline-offset-4 hover:underline"
                         >
                             Prohlédnout navazující workshop

@@ -11,13 +11,6 @@ export type AiSupervizeMiniWorkshopDate = {
     readonly maximumParticipantCount: number;
 };
 
-export type AiSupervizeMiniWorkshopDiscount = {
-    readonly code: string;
-    readonly percent: number;
-    readonly startsAt: string;
-    readonly endsAt: string;
-};
-
 /**
  * The discriminator makes a workshop registration distinguishable from other
  * contacts gathered by the same landing page.
@@ -32,9 +25,14 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME = 'AiSupervizeMi
 
 export const AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME = 'AiSupervizeMiniWorkshopInterest';
 
-export const AI_SUPERVIZE_MINI_WEBINAR_DISCOUNT_CODE = 'webinar-2026-08-20';
-export const AI_SUPERVIZE_MINI_WEBINAR_FOLLOW_UP_PATH =
-    `/ai-supervize-mini?code=${AI_SUPERVIZE_MINI_WEBINAR_DISCOUNT_CODE}`;
+/**
+ * The online-workshop follow-up link resolves its currently selected discount
+ * code from the database. It deliberately carries a source, never a code,
+ * so the administrator can change the promotion without a deployment.
+ */
+export const AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE = 'online-workshop';
+export const AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH =
+    `/ai-supervize-mini?source=${AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE}`;
 
 export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
     title: 'AI Supervize Mini',
@@ -61,15 +59,6 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
             maximumParticipantCount: 50,
         },
     ] as const satisfies readonly AiSupervizeMiniWorkshopDate[],
-    discounts: [
-        {
-            code: AI_SUPERVIZE_MINI_WEBINAR_DISCOUNT_CODE,
-            percent: 25,
-            // The webinar discount is valid for the complete calendar day in Prague (CEST).
-            startsAt: '2026-08-20T00:00:00+02:00',
-            endsAt: '2026-08-20T23:59:59.999+02:00',
-        },
-    ] as const satisfies readonly AiSupervizeMiniWorkshopDiscount[],
 } as const;
 
 export function getAiSupervizeMiniWorkshopDateById(workshopDateId: string): AiSupervizeMiniWorkshopDate | null {

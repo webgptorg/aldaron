@@ -10,6 +10,10 @@ vi.mock('@/businesses/ai-supervize-mini/workshopRegistrationApi', () => ({
     submitAiSupervizeMiniWorkshopRegistration: vi.fn(),
 }));
 
+vi.mock('@/businesses/ai-supervize-mini/discountCodeApi', () => ({
+    validateAiSupervizeMiniDiscountCode: vi.fn().mockResolvedValue(null),
+}));
+
 import { AiSupervizeMiniRegistrationForm } from './AiSupervizeMiniRegistrationForm';
 
 describe('AI Supervize Mini registration form', () => {

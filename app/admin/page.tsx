@@ -3,7 +3,7 @@ import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
 import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
-import { ContactRound, Link2, Radio, ShieldCheck, UsersRound } from 'lucide-react';
+import { ContactRound, Link2, Radio, ShieldCheck, TicketPercent, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 
 type AdminDashboardPageProps = {
@@ -34,6 +34,12 @@ const ADMIN_PAGE_CARDS = [
         title: 'Zkracovač odkazů',
         description: 'Vytváření veřejných krátkých odkazů a QR kódů.',
         icon: Link2,
+    },
+    {
+        path: '/admin/discount-codes',
+        title: 'Slevové kódy',
+        description: 'Platnost a výše slev pro registraci na AI Supervizi Mini.',
+        icon: TicketPercent,
     },
 ] as const;
 

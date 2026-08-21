@@ -1,9 +1,26 @@
-import { AI_SUPERVIZE_MINI_WORKSHOP_CONFIG } from '@/businesses/ai-supervize-mini/config';
-
 export type AiSupervizeMiniActiveDiscount = {
     readonly code: string;
     readonly percent: number;
 };
+
+export type AiSupervizeMiniDiscountCodeValues = {
+    readonly code: string;
+    readonly percent: number;
+    readonly startsAt: string;
+    readonly endsAt: string;
+    readonly isEnabled: boolean;
+    readonly isOnlineWorkshopFollowUp: boolean;
+};
+
+export type AiSupervizeMiniDiscountCode = AiSupervizeMiniDiscountCodeValues & {
+    readonly id: string;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
+export const MAXIMAL_AI_SUPERVIZE_MINI_DISCOUNT_CODE_LENGTH = 100;
+export const MAXIMAL_AI_SUPERVIZE_MINI_DISCOUNT_CODE_INPUT_LENGTH = 200;
+const AI_SUPERVIZE_MINI_NORMALIZED_DISCOUNT_CODE_PATTERN = /^[A-Z0-9]+(?:_[A-Z0-9]+)*$/;
 
 export function normalizeAiSupervizeMiniDiscountCode(value: string): string {
     return value
@@ -15,38 +32,31 @@ export function normalizeAiSupervizeMiniDiscountCode(value: string): string {
         .replace(/_+/g, '_');
 }
 
-function isAiSupervizeMiniDiscountActive(startsAt: string, endsAt: string, currentDate: Date): boolean {
-    const startsAtMilliseconds = Date.parse(startsAt);
-    const endsAtMilliseconds = Date.parse(endsAt);
-    const currentMilliseconds = currentDate.getTime();
-
-    return currentMilliseconds >= startsAtMilliseconds && currentMilliseconds <= endsAtMilliseconds;
+/**
+ * Validates the normalized representation stored in the database. Keeping this
+ * rule next to normalization makes the admin input and public lookup agree.
+ */
+export function isAiSupervizeMiniDiscountCodeNormalized(value: string): boolean {
+    return (
+        value.length <= MAXIMAL_AI_SUPERVIZE_MINI_DISCOUNT_CODE_LENGTH &&
+        AI_SUPERVIZE_MINI_NORMALIZED_DISCOUNT_CODE_PATTERN.test(value)
+    );
 }
 
 /**
- * Return a discount only while its code and Prague-day validity both match.
- * The server calls the same function again before it writes the registration.
+ * A discount is usable only inside its configured inclusive validity window.
  */
-export function getAiSupervizeMiniActiveDiscount(
-    value: string,
-    currentDate: Date = new Date(),
-): AiSupervizeMiniActiveDiscount | null {
-    const normalizedDiscountCode = normalizeAiSupervizeMiniDiscountCode(value);
-
-    if (!normalizedDiscountCode) {
-        return null;
+export function isAiSupervizeMiniDiscountActive(
+    discountCode: Pick<AiSupervizeMiniDiscountCodeValues, 'startsAt' | 'endsAt' | 'isEnabled'>,
+    currentDate: Date,
+): boolean {
+    if (!discountCode.isEnabled) {
+        return false;
     }
 
-    const matchingDiscount = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.discounts.find((discount) => {
-        const normalizedConfiguredCode = normalizeAiSupervizeMiniDiscountCode(discount.code);
+    const startsAtMilliseconds = Date.parse(discountCode.startsAt);
+    const endsAtMilliseconds = Date.parse(discountCode.endsAt);
+    const currentMilliseconds = currentDate.getTime();
 
-        return (
-            normalizedConfiguredCode === normalizedDiscountCode &&
-            isAiSupervizeMiniDiscountActive(discount.startsAt, discount.endsAt, currentDate)
-        );
-    });
-
-    return matchingDiscount === undefined
-        ? null
-        : { code: normalizedDiscountCode, percent: matchingDiscount.percent };
+    return currentMilliseconds >= startsAtMilliseconds && currentMilliseconds <= endsAtMilliseconds;
 }

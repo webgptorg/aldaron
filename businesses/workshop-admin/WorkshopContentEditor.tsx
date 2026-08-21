@@ -1,10 +1,10 @@
 'use client';
 
 import type { WorkshopContentWriteValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
-import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/businesses/workshop-admin/workshopAdminDateTime';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 import { MousePointerClick, Save, Trash2, Unlock } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
