@@ -1,3 +1,5 @@
+Following information is from file `AGENTS.md`, if you need to update it, do it:
+
 ## Context
 
 This is the landing page for the Promtpbook, there are multiple landing pages for different businesses, use cases, and audiences.
@@ -17,3 +19,5 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/cs/pavol` - The Czech personal page of Pavol Hejný.
 - `/en/pavol` - The English personal page of Pavol Hejný.
 - ...
+
+- If you need a change in the database migration, do it in file `migrations/*.sql`
