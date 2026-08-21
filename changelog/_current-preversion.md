@@ -23,6 +23,7 @@
 - Moved the online workshop registration confirmation onto its own `/cs/online-workshop/dekujeme` url reached by a full page load, so the Meta Pixel reports a `PageView` of it and an ad campaign can optimize on real registrations instead of clicks.
 - Added "add to calendar" links and the follow-up steps to the online workshop confirmation, and reported it to the Meta Pixel as a `CompleteRegistration` event.
 - Rebuilt the `/admin/contacts` dashboard around one shared list of column definitions, so the table, the sorting, the fulltext search and both exports describe every column exactly once instead of repeating it.
+- Joined the private contact and workshop-participant views by normalized e-mail, including case-insensitive and `+tag` aliases: `/admin/contacts` now groups duplicate Contact rows and shows workshop attendance, while workshop participant lists, timelines, CSV exports, and vCards include the matching Contact details such as phone numbers without changing stored data.
 - Made the columns of the contacts table resizable by dragging the right edge of their header, which decides how much of the value is shown before the ellipsis "...", and remembered the widths for the next visit.
 - Made every column of the contacts table sortable, with the empty values kept at the end in both directions and the whole values still readable in a tooltip.
 - Added filtering of the contacts by a fulltext search, a created date range, the presence of the email, the phone or the user note, and by whether the contact was already contacted.

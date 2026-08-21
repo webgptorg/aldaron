@@ -7,6 +7,11 @@ import type {
     WorkshopContentBlock,
     WorkshopDetails,
 } from '@/lib/workshops/workshopTypes';
+import {
+    formatAdminContactRecords,
+    formatAdminWorkshopParticipations,
+    getAdminContactPhoneNumbers,
+} from '@/lib/admin/adminContactJoin';
 
 export const WORKSHOP_ADMIN_EXPORT_KINDS = [
     'settings',
@@ -74,6 +79,18 @@ export function serializeWorkshopAdminParticipantsAsCsv(participants: readonly W
             { header: 'Hlasy', getValue: (participant) => participant.upvoteCount },
             { header: 'Důvěryhodný', getValue: (participant) => formatBoolean(participant.isTrusted) },
             { header: 'Interakce zakázány', getValue: (participant) => formatBoolean(participant.isInteractionBanned) },
+            {
+                header: 'Telefon kontaktu',
+                getValue: (participant) => getAdminContactPhoneNumbers(participant.contactGroup).join(', '),
+            },
+            {
+                header: 'Záznamy kontaktu',
+                getValue: (participant) => formatAdminContactRecords(participant.contactGroup),
+            },
+            {
+                header: 'Účasti ve workshopech',
+                getValue: (participant) => formatAdminWorkshopParticipations(participant.contactGroup),
+            },
         ],
     );
 }
@@ -83,17 +100,28 @@ export function serializeWorkshopAdminParticipantsAsVcard(
     participants: readonly WorkshopAdminParticipant[],
 ): string {
     return serializeVcards(
-        participants.map((participant) => ({
-            uid: `workshop-participant-${participant.id}`,
-            fullname: participant.fullname,
-            email: participant.email,
-            note: [
-                `${workshop.kind === 'community' ? 'Člen komunity' : 'Účastník workshopu'}: ${workshop.title}`,
-                `Registrace: ${participant.connectedAt}`,
-                `Aktivní čas: ${participant.activeDurationSeconds} s`,
-            ].join('\n'),
-            revision: participant.lastSeenAt,
-        })),
+        participants.map((participant) => {
+            const phoneNumbers = getAdminContactPhoneNumbers(participant.contactGroup);
+            const contactRecords = formatAdminContactRecords(participant.contactGroup);
+            const workshopParticipations = formatAdminWorkshopParticipations(participant.contactGroup);
+
+            return {
+                uid: `workshop-participant-${participant.id}`,
+                fullname: participant.fullname,
+                email: participant.email,
+                phone: phoneNumbers[0] ?? null,
+                note: [
+                    `${workshop.kind === 'community' ? 'Člen komunity' : 'Účastník workshopu'}: ${workshop.title}`,
+                    `Registrace: ${participant.connectedAt}`,
+                    `Aktivní čas: ${participant.activeDurationSeconds} s`,
+                    contactRecords === '' ? '' : `Záznamy kontaktu:\n${contactRecords}`,
+                    workshopParticipations === '' ? '' : `Účasti ve workshopech:\n${workshopParticipations}`,
+                ]
+                    .filter(Boolean)
+                    .join('\n'),
+                revision: participant.lastSeenAt,
+            };
+        }),
     );
 }
 

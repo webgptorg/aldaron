@@ -1,4 +1,5 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { loadAdminJoinedContacts } from '@/lib/admin/adminContactDatabase';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import {
     CONTACT_DRAFT_FIELD_NAMES,
@@ -9,9 +10,9 @@ import {
     createContactsUnreachableResponse,
     getContactsTableOrNull,
     insertContact,
-    loadContacts,
 } from '@/lib/contacts/contactsDatabase';
 import { readContactTextFields } from '@/lib/contacts/readContactTextFields';
+import { getWorkshopDatabaseOrNull } from '@/lib/workshops/workshopDatabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 const MANUAL_CONTACT_USER_AGENT = 'Manual entry';
@@ -62,13 +63,13 @@ export async function GET(request: NextRequest) {
         return unauthorizedResponse;
     }
 
-    const contactsTable = getContactsTableOrNull();
-    if (contactsTable === null) {
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
         return createContactsUnreachableResponse();
     }
 
     const isLoadingAll = request.nextUrl.searchParams.get('showAll') === 'true';
-    const { contacts, errorMessage } = await loadContacts(contactsTable, { isLoadingAll });
+    const { contacts, errorMessage } = await loadAdminJoinedContacts(supabase, { isLoadingAll });
     return contacts === null
         ? NextResponse.json({ error: errorMessage }, { status: 500 })
         : NextResponse.json({ contacts }, { headers: { 'Cache-Control': 'no-store' } });

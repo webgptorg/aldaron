@@ -1,7 +1,7 @@
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import { downloadTextFile } from '@/lib/downloadTextFile';
 import moment from 'moment';
-import type { Contact } from './Contact';
 import type { ContactsExportFormat } from './contactsExportFormats';
 import type { ContactsSelection } from './contactsSelection';
 import { DEFAULT_CONTACTS_VIEW_STATE, serializeContactsViewState } from './contactsViewState';
@@ -69,7 +69,7 @@ export function buildContactsExportUrl(
  * Note: The caller decides the export scope by supplying the contacts to serialize, so the downloaded file holds
  *       exactly the contacts which the dashboard shows at that moment
  */
-export function downloadContactsExport(contacts: readonly Contact[], format: ContactsExportFormat): void {
+export function downloadContactsExport(contacts: readonly AdminJoinedContact[], format: ContactsExportFormat): void {
     downloadTextFile({
         fileName: buildContactsExportFileName(format),
         mimeType: format.mimeType,

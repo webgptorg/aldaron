@@ -1,4 +1,5 @@
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
+import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } from '@/lib/supabase/loadAllSupabaseRows';
 import {
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
@@ -184,11 +185,6 @@ type WorkshopAdminReactionExportRow = {
 
 type WorkshopAdminParticipantIdentityRow = Pick<WorkshopAdminParticipantRow, 'id' | 'fullname' | 'email'>;
 
-type WorkshopDatabasePage<Row> = {
-    readonly data: readonly Row[] | null;
-    readonly error: { readonly message: string } | null;
-};
-
 type WorkshopReactionRow = {
     readonly id: string;
     readonly emoji: string;
@@ -206,37 +202,9 @@ type CreatedWorkshopReactionRow = WorkshopReactionRow & {
 
 const WORKSHOP_DATABASE_UNAVAILABLE_MESSAGE = 'Workshop database is not configured';
 const MAXIMAL_ADMIN_COMMENT_LIST_COUNT = 1_000;
-const WORKSHOP_DATABASE_PAGE_SIZE = 1_000;
-
 function getNonNegativeWholeNumber(value: number | string | undefined): number {
     const numberValue = Number(value);
     return Number.isSafeInteger(numberValue) && numberValue >= 0 ? numberValue : 0;
-}
-
-/**
- * Reads every stable page of a workshop table instead of silently accepting the database's default response limit.
- */
-async function loadAllWorkshopRows<Row>(
-    loadPage: (fromIndex: number, toIndex: number) => PromiseLike<WorkshopDatabasePage<Row>>,
-): Promise<{ readonly rows: readonly Row[] | null; readonly errorMessage: string | null }> {
-    const rows: Row[] = [];
-    let fromIndex = 0;
-
-    while (true) {
-        const toIndex = fromIndex + WORKSHOP_DATABASE_PAGE_SIZE - 1;
-        const { data, error } = await loadPage(fromIndex, toIndex);
-        if (error) {
-            return { rows: null, errorMessage: error.message };
-        }
-
-        const pageRows = data ?? [];
-        rows.push(...pageRows);
-        if (pageRows.length < WORKSHOP_DATABASE_PAGE_SIZE) {
-            return { rows, errorMessage: null };
-        }
-
-        fromIndex += WORKSHOP_DATABASE_PAGE_SIZE;
-    }
 }
 
 /**
@@ -245,7 +213,7 @@ async function loadAllWorkshopRows<Row>(
  */
 async function loadWorkshopRowsByIds<Row>(
     rowIds: readonly string[],
-    loadRows: (pageRowIds: readonly string[]) => PromiseLike<WorkshopDatabasePage<Row>>,
+    loadRows: (pageRowIds: readonly string[]) => PromiseLike<SupabaseRowsPage<Row>>,
 ): Promise<{ readonly rows: readonly Row[] | null; readonly errorMessage: string | null }> {
     const distinctRowIds = Array.from(new Set(rowIds));
     if (distinctRowIds.length === 0) {
@@ -253,8 +221,8 @@ async function loadWorkshopRowsByIds<Row>(
     }
 
     const rows: Row[] = [];
-    for (let fromIndex = 0; fromIndex < distinctRowIds.length; fromIndex += WORKSHOP_DATABASE_PAGE_SIZE) {
-        const pageRowIds = distinctRowIds.slice(fromIndex, fromIndex + WORKSHOP_DATABASE_PAGE_SIZE);
+    for (let fromIndex = 0; fromIndex < distinctRowIds.length; fromIndex += SUPABASE_ROW_PAGE_SIZE) {
+        const pageRowIds = distinctRowIds.slice(fromIndex, fromIndex + SUPABASE_ROW_PAGE_SIZE);
         const { data, error } = await loadRows(pageRowIds);
         if (error) {
             return { rows: null, errorMessage: error.message };
@@ -521,7 +489,7 @@ export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient):
  * terms stay available as useful community history.
  */
 export async function findPublishedWorkshops(supabase: SupabaseClient): Promise<readonly WorkshopSummaryRow[]> {
-    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopSummaryRow>((fromIndex, toIndex) =>
+    const { rows, errorMessage } = await loadAllSupabaseRows<WorkshopSummaryRow>((fromIndex, toIndex) =>
         supabase
             .from(WORKSHOP_TABLE_NAME)
             .select(WORKSHOP_SUMMARY_COLUMNS)
@@ -696,7 +664,7 @@ export async function loadWorkshopAdminParticipantTimeline(
             .eq('workshop_id', workshopRow.id)
             .eq('id', participantId)
             .maybeSingle(),
-        loadAllWorkshopRows<WorkshopParticipantTimelineCommentRow>((fromIndex, toIndex) =>
+        loadAllSupabaseRows<WorkshopParticipantTimelineCommentRow>((fromIndex, toIndex) =>
             supabase
                 .from(WORKSHOP_COMMENT_TABLE_NAME)
                 .select('id, body, status, created_at')
@@ -706,7 +674,7 @@ export async function loadWorkshopAdminParticipantTimeline(
                 .order('id', { ascending: true })
                 .range(fromIndex, toIndex),
         ),
-        loadAllWorkshopRows<WorkshopReactionRow>((fromIndex, toIndex) =>
+        loadAllSupabaseRows<WorkshopReactionRow>((fromIndex, toIndex) =>
             supabase
                 .from(WORKSHOP_REACTION_TABLE_NAME)
                 .select('id, emoji, created_at')
@@ -716,7 +684,7 @@ export async function loadWorkshopAdminParticipantTimeline(
                 .order('id', { ascending: true })
                 .range(fromIndex, toIndex),
         ),
-        loadAllWorkshopRows<WorkshopCommentUpvoteRow>((fromIndex, toIndex) =>
+        loadAllSupabaseRows<WorkshopCommentUpvoteRow>((fromIndex, toIndex) =>
             supabase
                 .from(WORKSHOP_UPVOTE_TABLE_NAME)
                 .select('id, comment_id, created_at')
@@ -726,7 +694,7 @@ export async function loadWorkshopAdminParticipantTimeline(
                 .order('id', { ascending: true })
                 .range(fromIndex, toIndex),
         ),
-        loadAllWorkshopRows<WorkshopContentLinkClickRow>((fromIndex, toIndex) =>
+        loadAllSupabaseRows<WorkshopContentLinkClickRow>((fromIndex, toIndex) =>
             supabase
                 .from(WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME)
                 .select('id, content_block_id, created_at')
@@ -895,7 +863,7 @@ export async function loadWorkshopAdminParticipantsForExport(
     const exportQuery: WorkshopAdminParticipantQuery = {
         ...query,
         page: 1,
-        pageSize: WORKSHOP_DATABASE_PAGE_SIZE,
+        pageSize: SUPABASE_ROW_PAGE_SIZE,
     };
     const firstPageResult = await loadWorkshopAdminParticipantPage(supabase, workshopId, exportQuery);
     if (firstPageResult.page === null) {
@@ -926,7 +894,7 @@ export async function loadWorkshopAdminCommentsForExport(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
 ): Promise<{ readonly comments: readonly WorkshopAdminComment[] | null; readonly errorMessage: string | null }> {
-    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopCommentRow>((fromIndex, toIndex) =>
+    const { rows, errorMessage } = await loadAllSupabaseRows<WorkshopCommentRow>((fromIndex, toIndex) =>
         supabase
             .from(WORKSHOP_COMMENT_TABLE_NAME)
             .select(WORKSHOP_COMMENT_COLUMNS)
@@ -1003,7 +971,7 @@ export async function loadWorkshopAdminReactionsForExport(
       }
     | { readonly reactions: null; readonly errorMessage: string | null }
 > {
-    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopAdminReactionExportRow>((fromIndex, toIndex) =>
+    const { rows, errorMessage } = await loadAllSupabaseRows<WorkshopAdminReactionExportRow>((fromIndex, toIndex) =>
         supabase
             .from(WORKSHOP_REACTION_TABLE_NAME)
             .select('id, participant_id, emoji, created_at, is_artificial')

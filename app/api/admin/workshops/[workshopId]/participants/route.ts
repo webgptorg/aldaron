@@ -1,4 +1,6 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { joinAdminContactGroup } from '@/lib/admin/adminContactJoin';
+import { loadAdminContactGroups } from '@/lib/admin/adminContactDatabase';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { loadWorkshopAdminParticipantPage } from '@/lib/workshops/workshopDatabase';
 import { parseWorkshopAdminParticipantQuery } from '@/lib/workshops/workshopAdminParticipantQuery';
@@ -24,10 +26,31 @@ export async function GET(request: NextRequest, context: AdminWorkshopParticipan
     }
 
     const query = parseWorkshopAdminParticipantQuery(request.nextUrl.searchParams);
-    const { page, errorMessage } = await loadWorkshopAdminParticipantPage(workshopData.supabase, workshopId, query);
+    const [participantPageResult, contactGroupsResult] = await Promise.all([
+        loadWorkshopAdminParticipantPage(workshopData.supabase, workshopId, query),
+        loadAdminContactGroups(workshopData.supabase, {
+            isLoadingAll: true,
+            isWorkshopParticipationsIncluded: false,
+        }),
+    ]);
+    const { page, errorMessage } = participantPageResult;
     if (page === null) {
         return NextResponse.json({ error: errorMessage ?? 'Participants could not be loaded' }, { status: 500 });
     }
+    if (contactGroupsResult.groups === null) {
+        return NextResponse.json(
+            { error: contactGroupsResult.errorMessage ?? 'Contact information could not be loaded' },
+            { status: 500 },
+        );
+    }
 
-    return NextResponse.json(page, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(
+        {
+            ...page,
+            participants: page.participants.map((participant) =>
+                joinAdminContactGroup(participant, contactGroupsResult.groups ?? []),
+            ),
+        },
+        { headers: { 'Cache-Control': 'no-store' } },
+    );
 }

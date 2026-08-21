@@ -1,4 +1,6 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { joinAdminContactGroup } from '@/lib/admin/adminContactJoin';
+import { loadAdminContactGroups } from '@/lib/admin/adminContactDatabase';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { loadWorkshopAdminParticipantTimeline } from '@/lib/workshops/workshopDatabase';
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,16 +24,28 @@ export async function GET(request: NextRequest, context: AdminWorkshopParticipan
         return workshopData.response;
     }
 
-    const { timeline, errorMessage } = await loadWorkshopAdminParticipantTimeline(
-        workshopData.supabase,
-        workshopData.workshopRow,
-        participantId,
-    );
+    const [participantTimelineResult, contactGroupsResult] = await Promise.all([
+        loadWorkshopAdminParticipantTimeline(workshopData.supabase, workshopData.workshopRow, participantId),
+        loadAdminContactGroups(workshopData.supabase),
+    ]);
+    const { timeline, errorMessage } = participantTimelineResult;
     if (timeline === null) {
         return errorMessage === null
             ? NextResponse.json({ error: 'Participant not found' }, { status: 404 })
             : NextResponse.json({ error: errorMessage }, { status: 500 });
     }
+    if (contactGroupsResult.groups === null) {
+        return NextResponse.json(
+            { error: contactGroupsResult.errorMessage ?? 'Contact information could not be loaded' },
+            { status: 500 },
+        );
+    }
 
-    return NextResponse.json(timeline, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(
+        {
+            ...timeline,
+            participant: joinAdminContactGroup(timeline.participant, contactGroupsResult.groups ?? []),
+        },
+        { headers: { 'Cache-Control': 'no-store' } },
+    );
 }

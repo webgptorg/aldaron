@@ -186,7 +186,10 @@ function matchesContactsFilter(
  *
  * @returns New array, the given contacts are never mutated
  */
-export function filterContacts(contacts: readonly Contact[], filter: ContactsFilter): Contact[] {
+export function filterContacts<ContactType extends Contact>(
+    contacts: readonly ContactType[],
+    filter: ContactsFilter,
+): ContactType[] {
     const contactOriginSelections = normalizeContactOriginSelections(filter.contactOriginSelections);
 
     return contacts.filter((contact) => matchesContactsFilter(contact, filter, contactOriginSelections));

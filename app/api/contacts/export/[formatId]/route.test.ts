@@ -1,19 +1,23 @@
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import { NextRequest, NextResponse } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { createSupabaseServiceRoleClientMock, getUnauthorizedResponseOrNullMock } = vi.hoisted(() => ({
-    createSupabaseServiceRoleClientMock: vi.fn(),
+const { getWorkshopDatabaseOrNullMock, getUnauthorizedResponseOrNullMock, loadAdminJoinedContactsMock } = vi.hoisted(() => ({
+    getWorkshopDatabaseOrNullMock: vi.fn(),
     getUnauthorizedResponseOrNullMock: vi.fn(),
+    loadAdminJoinedContactsMock: vi.fn(),
 }));
 
 vi.mock('@/lib/admin/adminApiGuard', () => ({
     getUnauthorizedResponseOrNull: getUnauthorizedResponseOrNullMock,
 }));
 
-// Note: Only the key with which the database is opened is mocked, so that the tests really go through the one place
-//       which reaches the contacts and would notice if it stopped asking for the service role key.
-vi.mock('@/lib/supabase', () => ({
-    createSupabaseServiceRoleClient: createSupabaseServiceRoleClientMock,
+vi.mock('@/lib/admin/adminContactDatabase', () => ({
+    loadAdminJoinedContacts: loadAdminJoinedContactsMock,
+}));
+
+vi.mock('@/lib/workshops/workshopDatabase', () => ({
+    getWorkshopDatabaseOrNull: getWorkshopDatabaseOrNullMock,
 }));
 
 import { GET } from './route';
@@ -45,11 +49,19 @@ const ALREADY_ANSWERED = {
  * Let the database answer with the given contacts, in the order in which they are gathered
  */
 function serveContacts(contacts: ReadonlyArray<Readonly<Record<string, unknown>>>): void {
-    const order = vi.fn().mockResolvedValue({ data: contacts, error: null });
-    const select = vi.fn(() => ({ order }));
-    const from = vi.fn(() => ({ select }));
+    const joinedContacts = contacts.map(
+        (contact) =>
+            ({
+                ...contact,
+                contactGroup: {
+                    normalizedEmail: typeof contact.email === 'string' ? contact.email.toLowerCase() : null,
+                    contacts: [contact],
+                    workshopParticipations: [],
+                },
+            }) as unknown as AdminJoinedContact,
+    );
 
-    createSupabaseServiceRoleClientMock.mockReturnValue({ from });
+    loadAdminJoinedContactsMock.mockResolvedValue({ contacts: joinedContacts, errorMessage: null });
 }
 
 /**
@@ -65,9 +77,11 @@ function requestContactsExport(formatId: string, viewSearchParams = ''): Promise
 
 describe('the export of the contacts served in a new tab', () => {
     beforeEach(() => {
-        createSupabaseServiceRoleClientMock.mockReset();
+        getWorkshopDatabaseOrNullMock.mockReset();
         getUnauthorizedResponseOrNullMock.mockReset();
+        loadAdminJoinedContactsMock.mockReset();
         getUnauthorizedResponseOrNullMock.mockReturnValue(null);
+        getWorkshopDatabaseOrNullMock.mockReturnValue({});
         serveContacts([CAPEK, NOVAK, ALREADY_ANSWERED]);
     });
 
@@ -79,7 +93,7 @@ describe('the export of the contacts served in a new tab', () => {
         const response = await requestContactsExport('CSV');
 
         expect(response.status).toBe(401);
-        expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
+        expect(getWorkshopDatabaseOrNullMock).not.toHaveBeenCalled();
     });
 
     it('serves the CSV file of the contacts which the link asks for', async () => {
@@ -145,7 +159,7 @@ describe('the export of the contacts served in a new tab', () => {
     });
 
     it('says that the contacts cannot be reached without the service role key', async () => {
-        createSupabaseServiceRoleClientMock.mockReturnValue(null);
+        getWorkshopDatabaseOrNullMock.mockReturnValue(null);
 
         const response = await requestContactsExport('CSV');
 

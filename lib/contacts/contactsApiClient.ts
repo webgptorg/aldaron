@@ -1,3 +1,4 @@
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import type { Contact, ContactChanges, ContactDraft } from './Contact';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 
@@ -50,11 +51,11 @@ async function sendContactsApiMutation<ResponsePayload>(
  *
  * Note: All contacts are loaded at once so the browser can filter, sort and paginate the table while exports include every contact
  */
-export async function fetchContacts(adminToken: string | null): Promise<Array<Contact>> {
+export async function fetchContacts(adminToken: string | null): Promise<Array<AdminJoinedContact>> {
     const response = await fetch(buildContactsApiUrl(adminToken, { showAll: 'true' }));
     await assertResponseIsOk(response);
 
-    const payload = (await response.json()) as { contacts?: Array<Contact> | null };
+    const payload = (await response.json()) as { contacts?: Array<AdminJoinedContact> | null };
     return payload.contacts || [];
 }
 

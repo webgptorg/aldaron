@@ -54,8 +54,8 @@ export function toggleContactsSortState(sortState: ContactsSortState, columnKey:
  * Note: The value is read once per contact and not again in every single comparison, because reading it means parsing
  *       the date the contact carries
  */
-type ContactWithSortValue = {
-    readonly contact: Contact;
+type ContactWithSortValue<ContactType extends Contact> = {
+    readonly contact: ContactType;
     readonly sortValue: string | number | null;
 };
 
@@ -64,9 +64,9 @@ type ContactWithSortValue = {
  *
  * Note: Contacts with an empty value stay at the end in both directions, because they carry no information
  */
-function compareContactsWithSortValue(
-    contactA: ContactWithSortValue,
-    contactB: ContactWithSortValue,
+function compareContactsWithSortValue<ContactType extends Contact>(
+    contactA: ContactWithSortValue<ContactType>,
+    contactB: ContactWithSortValue<ContactType>,
     direction: ContactsSortDirection,
 ): number {
     const { sortValue: sortValueA } = contactA;
@@ -88,8 +88,11 @@ function compareContactsWithSortValue(
  *
  * @returns New array, the given contacts are never mutated
  */
-export function sortContacts(contacts: readonly Contact[], sortState: ContactsSortState): Contact[] {
-    const contactsWithSortValue = contacts.map((contact): ContactWithSortValue => {
+export function sortContacts<ContactType extends Contact>(
+    contacts: readonly ContactType[],
+    sortState: ContactsSortState,
+): ContactType[] {
+    const contactsWithSortValue = contacts.map((contact): ContactWithSortValue<ContactType> => {
         return { contact, sortValue: getContactSortValue(contact, sortState.columnKey) };
     });
 

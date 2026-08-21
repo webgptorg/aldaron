@@ -1,5 +1,6 @@
 import type { Contact, NewContact } from '@/lib/contacts/Contact';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
+import { loadAllSupabaseRows } from '@/lib/supabase/loadAllSupabaseRows';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
@@ -51,6 +52,11 @@ export function createContactsUnreachableResponse(): NextResponse {
 const CONTACT_CREATED_AT_COLUMN = 'createdAt';
 
 /**
+ * Unique stable ordering tie-breaker for contacts with the same creation timestamp.
+ */
+const CONTACT_ID_COLUMN = 'id';
+
+/**
  * Column which says whether we have already answered the contact
  */
 const CONTACT_IS_CONTACTED_COLUMN = 'isContacted';
@@ -76,23 +82,38 @@ type LoadContactsOptions = {
  * Note: This is the one place which says in which order the contacts arrive, so that the dashboard and every export
  *       start from the very same list
  */
+function createContactsQuery(contactsTable: ContactsTable, options: LoadContactsOptions) {
+    const contactsQuery = contactsTable
+        .select('*')
+        .order(CONTACT_CREATED_AT_COLUMN, { ascending: false })
+        .order(CONTACT_ID_COLUMN, { ascending: false });
+
+    if (!options.isLoadingAll) {
+        return contactsQuery.eq(CONTACT_IS_CONTACTED_COLUMN, false);
+    }
+
+    return contactsQuery;
+}
+
+/**
+ * Read the gathered contacts, the newest first.
+ *
+ * Note: Every page uses the same deterministic order, so an admin join or export never silently loses contacts past
+ *       the database response cap.
+ */
 export async function loadContacts(
     contactsTable: ContactsTable,
     options: LoadContactsOptions,
 ): Promise<LoadedContacts> {
-    let contactsQuery = contactsTable.select('*').order(CONTACT_CREATED_AT_COLUMN, { ascending: false });
+    const { rows, errorMessage } = await loadAllSupabaseRows<Contact>((fromIndex, toIndex) =>
+        createContactsQuery(contactsTable, options).range(fromIndex, toIndex),
+    );
 
-    if (!options.isLoadingAll) {
-        contactsQuery = contactsQuery.eq(CONTACT_IS_CONTACTED_COLUMN, false);
+    if (rows === null) {
+        return { contacts: null, errorMessage };
     }
 
-    const { data, error } = await contactsQuery;
-
-    if (error) {
-        return { contacts: null, errorMessage: error.message };
-    }
-
-    return { contacts: (data ?? []) as Contact[], errorMessage: null };
+    return { contacts: rows, errorMessage: null };
 }
 
 /**

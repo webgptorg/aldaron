@@ -4,6 +4,7 @@ import {
     formatWorkshopActiveDuration,
     formatWorkshopAdminDateTime,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { WorkshopAdminParticipantTimeline, WorkshopParticipantTimelineEvent } from '@/lib/workshops/workshopTypes';
 import { Clock3, LogIn, MessageCircle, MousePointerClick, Radio, ThumbsUp } from 'lucide-react';
@@ -120,6 +121,16 @@ export function WorkshopParticipantTimeline({
                     </div>
                 ) : timeline === null || participant === undefined || timelineEndsAt === null ? null : (
                     <div className="space-y-6">
+                        <section>
+                            <h3 className="text-sm font-semibold text-slate-900">Kontaktní údaje a účasti</h3>
+                            <div className="mt-3 rounded-xl border border-slate-200 p-4">
+                                <AdminContactDetails
+                                    contactGroup={participant.contactGroup}
+                                    isContactRecordsIncluded
+                                    isWorkshopParticipationsIncluded
+                                />
+                            </div>
+                        </section>
                         <section className="rounded-xl border border-cyan-100 bg-cyan-50/50 p-4">
                             <div className="flex flex-wrap justify-between gap-3 text-sm">
                                 <div>

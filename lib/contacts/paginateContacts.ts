@@ -33,8 +33,8 @@ export function parseContactsPerPage(contactsPerPageValue: string): ContactsPerP
 /**
  * One valid slice of the filtered and sorted contacts table, together with the information needed to render its controls
  */
-export type ContactsPage = {
-    readonly pageContacts: readonly Contact[];
+export type ContactsPage<ContactType extends Contact = Contact> = {
+    readonly pageContacts: readonly ContactType[];
     readonly currentPage: number;
     readonly totalPages: number;
     readonly totalContactsCount: number;
@@ -67,11 +67,11 @@ function getValidCurrentPage(currentPage: number, totalPages: number): number {
 /**
  * Select one page of contacts without changing the complete filtered and sorted result
  */
-export function paginateContacts(
-    contacts: readonly Contact[],
+export function paginateContacts<ContactType extends Contact>(
+    contacts: readonly ContactType[],
     currentPage: number,
     contactsPerPage: ContactsPerPage,
-): ContactsPage {
+): ContactsPage<ContactType> {
     const totalContactsCount = contacts.length;
     const totalPages = getTotalPages(totalContactsCount, contactsPerPage);
     const validCurrentPage = getValidCurrentPage(currentPage, totalPages);

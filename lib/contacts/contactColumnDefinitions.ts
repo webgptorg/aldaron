@@ -71,6 +71,11 @@ export const MAXIMAL_CONTACT_COLUMN_WIDTH = 900;
 export const CONTACT_ACTIONS_COLUMN_WIDTH = 170;
 
 /**
+ * Width of the admin-only workshop attendance column, which is derived from another source rather than Contact fields.
+ */
+export const CONTACT_WORKSHOP_PARTICIPATIONS_COLUMN_WIDTH = 260;
+
+/**
  * How many lines of a `MULTILINE_TEXT` column are shown before the text is cut by the ellipsis "..."
  */
 export const MULTILINE_CONTACT_CELL_LINE_COUNT = 3;

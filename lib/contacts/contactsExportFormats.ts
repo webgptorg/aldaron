@@ -1,6 +1,6 @@
-import type { Contact } from './Contact';
-import { serializeContactsAsCsv } from './serializeContactsAsCsv';
-import { serializeContactsAsVcard } from './serializeContactsAsVcard';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
+import { serializeAdminJoinedContactsAsCsv } from './serializeContactsAsCsv';
+import { serializeAdminJoinedContactsAsVcard } from './serializeContactsAsVcard';
 
 /**
  * One file format the contacts can be exported to
@@ -12,7 +12,7 @@ export type ContactsExportFormat = {
     readonly label: string;
     readonly fileExtension: string;
     readonly mimeType: string;
-    readonly serialize: (contacts: readonly Contact[]) => string;
+    readonly serialize: (contacts: readonly AdminJoinedContact[]) => string;
 };
 
 /**
@@ -24,14 +24,14 @@ export const CONTACTS_EXPORT_FORMATS: readonly ContactsExportFormat[] = [
         label: 'CSV',
         fileExtension: 'csv',
         mimeType: 'text/csv;charset=utf-8',
-        serialize: serializeContactsAsCsv,
+        serialize: serializeAdminJoinedContactsAsCsv,
     },
     {
         id: 'VCARD',
         label: 'vCard',
         fileExtension: 'vcf',
         mimeType: 'text/vcard;charset=utf-8',
-        serialize: serializeContactsAsVcard,
+        serialize: serializeAdminJoinedContactsAsVcard,
     },
 ];
 

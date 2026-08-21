@@ -19,6 +19,9 @@ export type ContactsSelection = Pick<ContactsViewState, 'filter' | 'sortState'>;
  *
  * @returns New array, the given contacts are never mutated
  */
-export function selectContacts(contacts: readonly Contact[], selection: ContactsSelection): Contact[] {
+export function selectContacts<ContactType extends Contact>(
+    contacts: readonly ContactType[],
+    selection: ContactsSelection,
+): ContactType[] {
     return sortContacts(filterContacts(contacts, selection.filter), selection.sortState);
 }

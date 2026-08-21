@@ -1,3 +1,4 @@
+import type { AdminContactJoin } from '@/lib/admin/adminContactJoin';
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 
 /**
@@ -48,7 +49,8 @@ export type WorkshopParticipant = {
     readonly isTrusted: boolean;
 };
 
-export type WorkshopAdminParticipant = WorkshopParticipant & {
+export type WorkshopAdminParticipant = WorkshopParticipant &
+    AdminContactJoin & {
     readonly email: string;
     readonly lastSeenAt: string;
     readonly activeDurationSeconds: number;

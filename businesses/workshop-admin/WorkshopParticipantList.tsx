@@ -12,6 +12,7 @@ import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExport
 import { WorkshopParticipantFilters } from '@/businesses/workshop-admin/WorkshopParticipantFilters';
 import { WorkshopParticipantPagination } from '@/businesses/workshop-admin/WorkshopParticipantPagination';
 import { WorkshopParticipantTimeline } from '@/businesses/workshop-admin/WorkshopParticipantTimeline';
+import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -273,10 +274,11 @@ export function WorkshopParticipantList({
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-slate-200">
-                        <Table className="min-w-[1120px]">
+                        <Table className="min-w-[1380px]">
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Účastník</TableHead>
+                                    <TableHead>Kontaktní údaje</TableHead>
                                     <TableHead>Čas v místnosti</TableHead>
                                     <TableHead>Aktivně</TableHead>
                                     <TableHead>Komentáře</TableHead>
@@ -297,6 +299,13 @@ export function WorkshopParticipantList({
                                                 <p className="mt-1 flex items-center gap-1.5 break-all text-xs text-slate-500">
                                                     <Mail className="h-3.5 w-3.5 shrink-0" /> {participant.email}
                                                 </p>
+                                            </TableCell>
+                                            <TableCell className="min-w-64 align-top">
+                                                <AdminContactDetails
+                                                    contactGroup={participant.contactGroup}
+                                                    isContactRecordsIncluded
+                                                    isWorkshopParticipationsIncluded={false}
+                                                />
                                             </TableCell>
                                             <TableCell className="min-w-56 align-top text-xs text-slate-600">
                                                 <p>Od {formatWorkshopAdminDateTime(participant.connectedAt)}</p>

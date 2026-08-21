@@ -1,10 +1,16 @@
 'use client';
 
+import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useSynchronizedHorizontalScroll } from '@/hooks/useSynchronizedHorizontalScroll';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import type { Contact, ContactChanges, ContactColumnKey } from '@/lib/contacts/Contact';
-import { CONTACT_ACTIONS_COLUMN_WIDTH, CONTACT_COLUMN_DEFINITIONS } from '@/lib/contacts/contactColumnDefinitions';
+import {
+    CONTACT_ACTIONS_COLUMN_WIDTH,
+    CONTACT_COLUMN_DEFINITIONS,
+    CONTACT_WORKSHOP_PARTICIPATIONS_COLUMN_WIDTH,
+} from '@/lib/contacts/contactColumnDefinitions';
 import type { ContactsSortState } from '@/lib/contacts/sortContacts';
 import type { ColumnWidths } from '@/hooks/useResizableColumnWidths';
 import type { PointerEvent } from 'react';
@@ -13,7 +19,7 @@ import { ContactsTableCell } from './ContactsTableCell';
 import { ContactsTableHeaderCell } from './ContactsTableHeaderCell';
 
 type ContactsTableProps = {
-    readonly contacts: readonly Contact[];
+    readonly contacts: readonly AdminJoinedContact[];
     readonly columnWidths: ColumnWidths;
     readonly sortState: ContactsSortState;
     readonly onToggleSort: (columnKey: ContactColumnKey) => void;
@@ -42,7 +48,7 @@ export function ContactsTable(props: ContactsTableProps) {
 
     const tableWidth = CONTACT_COLUMN_DEFINITIONS.reduce(
         (totalWidth, column) => totalWidth + (columnWidths[column.key] ?? column.defaultWidth),
-        CONTACT_ACTIONS_COLUMN_WIDTH,
+        CONTACT_ACTIONS_COLUMN_WIDTH + CONTACT_WORKSHOP_PARTICIPATIONS_COLUMN_WIDTH,
     );
 
     const { topScrollContainerRef, bottomScrollContainerRef, handleTopScroll, handleBottomScroll } =
@@ -78,6 +84,7 @@ export function ContactsTable(props: ContactsTableProps) {
                         {CONTACT_COLUMN_DEFINITIONS.map((column) => (
                             <col key={column.key} style={{ width: columnWidths[column.key] ?? column.defaultWidth }} />
                         ))}
+                        <col style={{ width: CONTACT_WORKSHOP_PARTICIPATIONS_COLUMN_WIDTH }} />
                         <col style={{ width: CONTACT_ACTIONS_COLUMN_WIDTH }} />
                     </colgroup>
                     <TableHeader>
@@ -92,6 +99,7 @@ export function ContactsTable(props: ContactsTableProps) {
                                     />
                                 </TableHead>
                             ))}
+                            <TableHead className="px-4">Spojené údaje a účasti</TableHead>
                             <TableHead className="px-4">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -107,6 +115,13 @@ export function ContactsTable(props: ContactsTableProps) {
                                         />
                                     </TableCell>
                                 ))}
+                                <TableCell className="p-2 align-top">
+                                    <AdminContactDetails
+                                        contactGroup={contact.contactGroup}
+                                        isContactRecordsIncluded={contact.contactGroup.contacts.length > 1}
+                                        isWorkshopParticipationsIncluded
+                                    />
+                                </TableCell>
                                 <TableCell className="p-2 align-top">
                                     <ContactActions
                                         contact={contact}

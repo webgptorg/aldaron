@@ -1,6 +1,6 @@
 'use client';
 
-import type { Contact } from '@/lib/contacts/Contact';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import { CONTACTS_EXPORT_FORMATS } from '@/lib/contacts/contactsExportFormats';
 import type { ContactsSelection } from '@/lib/contacts/contactsSelection';
 import { buildContactsExportUrl, describeContactsExportScope } from '@/lib/contacts/exportContacts';
@@ -12,7 +12,7 @@ type ContactsExportBarProps = {
      *
      * Note: The pages of the table never narrow this down, every matching contact is exported
      */
-    readonly exportedContacts: readonly Contact[];
+    readonly exportedContacts: readonly AdminJoinedContact[];
 
     /**
      * How many contacts the dashboard has loaded altogether, to say how much of them the current view is

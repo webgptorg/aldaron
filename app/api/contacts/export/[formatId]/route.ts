@@ -1,14 +1,12 @@
 // app/api/contacts/export/[formatId]/route.ts
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
-import {
-    createContactsUnreachableResponse,
-    getContactsTableOrNull,
-    loadContacts,
-} from '@/lib/contacts/contactsDatabase';
+import { loadAdminJoinedContacts } from '@/lib/admin/adminContactDatabase';
+import { createContactsUnreachableResponse } from '@/lib/contacts/contactsDatabase';
 import { getContactsExportFormatOrNull } from '@/lib/contacts/contactsExportFormats';
 import { selectContacts } from '@/lib/contacts/contactsSelection';
 import { parseContactsViewState } from '@/lib/contacts/contactsViewState';
 import { buildContactsExportFileName } from '@/lib/contacts/exportContacts';
+import { getWorkshopDatabaseOrNull } from '@/lib/workshops/workshopDatabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -47,13 +45,13 @@ export async function GET(request: NextRequest, context: ContactsExportRouteCont
         return NextResponse.json({ error: `There is no "${formatId}" export format` }, { status: 404 });
     }
 
-    const contactsTable = getContactsTableOrNull();
-    if (contactsTable === null) {
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
         return createContactsUnreachableResponse();
     }
 
     // Note: Every contact is read, the filter of the view decides on its own which of them the export contains
-    const { contacts, errorMessage } = await loadContacts(contactsTable, { isLoadingAll: true });
+    const { contacts, errorMessage } = await loadAdminJoinedContacts(supabase);
     if (contacts === null) {
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }

@@ -1,6 +1,7 @@
 'use client';
 
-import type { Contact, ContactChanges, ContactDraft, ContactTextValues } from '@/lib/contacts/Contact';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
+import type { ContactChanges, ContactDraft, ContactTextValues } from '@/lib/contacts/Contact';
 import {
     createContact,
     deleteContact as deleteContactRequest,
@@ -11,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDebouncedContactSaver } from './useDebouncedContactSaver';
 
 type UseContactsResult = {
-    readonly contacts: readonly Contact[];
+    readonly contacts: readonly AdminJoinedContact[];
     readonly isLoading: boolean;
     readonly errorMessage: string | null;
     readonly changeContact: (contactId: number, contactChanges: ContactChanges) => void;
@@ -26,17 +27,32 @@ type UseContactsResult = {
  * Note: A change is shown immediately and saved a moment later, so that typing a note is not sent letter by letter
  */
 export function useContacts(adminToken: string | null): UseContactsResult {
-    const [contacts, setContacts] = useState<readonly Contact[]>([]);
+    const [contacts, setContacts] = useState<readonly AdminJoinedContact[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const { saveContactChanges, takePendingContactChanges } = useDebouncedContactSaver(adminToken, setErrorMessage);
 
-    useEffect(() => {
-        let isLoadingActive = true;
+    const reloadContacts = useCallback(async (): Promise<boolean> => {
         setIsLoading(true);
 
-        fetchContacts(adminToken)
+        try {
+            const loadedContacts = await fetchContacts(adminToken);
+            setContacts(loadedContacts);
+            setErrorMessage(null);
+            return true;
+        } catch (error) {
+            setErrorMessage((error as Error).message);
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [adminToken]);
+
+    useEffect(() => {
+        let isLoadingActive = true;
+
+        void fetchContacts(adminToken)
             .then((loadedContacts) => {
                 if (!isLoadingActive) {
                     return;
@@ -78,16 +94,14 @@ export function useContacts(adminToken: string | null): UseContactsResult {
     const addContact = useCallback(
         async (contactDraft: ContactDraft): Promise<boolean> => {
             try {
-                const addedContact = await createContact(adminToken, contactDraft);
-                setContacts((previousContacts) => [addedContact, ...previousContacts]);
-                setErrorMessage(null);
-                return true;
+                await createContact(adminToken, contactDraft);
+                return reloadContacts();
             } catch (error) {
                 setErrorMessage((error as Error).message);
                 return false;
             }
         },
-        [adminToken],
+        [adminToken, reloadContacts],
     );
 
     const editContact = useCallback(
@@ -97,21 +111,17 @@ export function useContacts(adminToken: string | null): UseContactsResult {
             const pendingContactChanges = takePendingContactChanges(contactId);
 
             try {
-                const updatedContact = await updateContact(adminToken, contactId, {
+                await updateContact(adminToken, contactId, {
                     ...pendingContactChanges,
                     ...contactValues,
                 });
-                setContacts((previousContacts) =>
-                    previousContacts.map((contact) => (contact.id === contactId ? updatedContact : contact)),
-                );
-                setErrorMessage(null);
-                return true;
+                return reloadContacts();
             } catch (error) {
                 setErrorMessage((error as Error).message);
                 return false;
             }
         },
-        [adminToken, takePendingContactChanges],
+        [adminToken, reloadContacts, takePendingContactChanges],
     );
 
     const deleteContact = useCallback(
@@ -121,15 +131,13 @@ export function useContacts(adminToken: string | null): UseContactsResult {
 
             try {
                 await deleteContactRequest(adminToken, contactId);
-                setContacts((previousContacts) => previousContacts.filter((contact) => contact.id !== contactId));
-                setErrorMessage(null);
-                return true;
+                return reloadContacts();
             } catch (error) {
                 setErrorMessage((error as Error).message);
                 return false;
             }
         },
-        [adminToken, takePendingContactChanges],
+        [adminToken, reloadContacts, takePendingContactChanges],
     );
 
     return { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact };

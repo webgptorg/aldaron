@@ -39,6 +39,48 @@ const PARTICIPANT: WorkshopAdminParticipant = {
     upvoteCount: 3,
 };
 
+const PARTICIPANT_WITH_JOINED_CONTACT: WorkshopAdminParticipant = {
+    ...PARTICIPANT,
+    contactGroup: {
+        normalizedEmail: 'jana@example.com',
+        contacts: [
+            {
+                id: 12,
+                createdAt: '2026-08-10T10:00:00.000Z',
+                fullname: 'Jana Nováková',
+                email: 'Jana+lead@EXAMPLE.COM',
+                phone: '+420 777 000 111',
+                userNote: 'Chci materiály.',
+                isContacted: false,
+                ourNote: 'Ozvat se po workshopu.',
+                userAgent: null,
+                ipAddress: null,
+                referrer: null,
+                appName: 'Landing page',
+                placeName: 'Online workshop',
+                url: null,
+            },
+        ],
+        workshopParticipations: [
+            {
+                participantId: PARTICIPANT.id,
+                workshopId: WORKSHOP.id,
+                workshopKind: WORKSHOP.kind,
+                workshopTitle: WORKSHOP.title,
+                workshopStartsAt: WORKSHOP.startsAt,
+                workshopEndsAt: WORKSHOP.endsAt,
+                fullname: PARTICIPANT.fullname,
+                email: PARTICIPANT.email,
+                connectedAt: PARTICIPANT.connectedAt,
+                lastSeenAt: PARTICIPANT.lastSeenAt,
+                activeDurationSeconds: PARTICIPANT.activeDurationSeconds,
+                isInteractionBanned: PARTICIPANT.isInteractionBanned,
+                isTrusted: PARTICIPANT.isTrusted,
+            },
+        ],
+    },
+};
+
 describe('workshop admin exports', () => {
     it('offers a deliberately finite export for each workshop administration section', () => {
         expect(WORKSHOP_ADMIN_EXPORT_KINDS).toEqual([
@@ -69,6 +111,18 @@ describe('workshop admin exports', () => {
         expect(vcard).toContain('EMAIL;TYPE=INTERNET:jana@example.com');
         expect(vcard).toContain('UID:workshop-participant-participant-id');
         expect(vcard).toContain('Účastník workshopu: Produkční kód s AI agenty');
+    });
+
+    it('joins Contact-table values and workshop history into participant CSV and vCard exports', () => {
+        const csv = serializeWorkshopAdminParticipantsAsCsv([PARTICIPANT_WITH_JOINED_CONTACT]);
+        const vcard = serializeWorkshopAdminParticipantsAsVcard(WORKSHOP, [PARTICIPANT_WITH_JOINED_CONTACT]);
+
+        expect(csv).toContain('Telefon kontaktu');
+        expect(csv).toContain('+420 777 000 111');
+        expect(csv).toContain('Ozvat se po workshopu.');
+        expect(csv).toContain('Účasti ve workshopech');
+        expect(vcard).toContain('TEL;TYPE=CELL:+420 777 000 111');
+        expect(vcard).toContain('Záznamy kontaktu');
     });
 
     it('uses the matching MIME type and filename for participant vCards', () => {

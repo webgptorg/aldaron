@@ -1,4 +1,6 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
+import { joinAdminContactGroup } from '@/lib/admin/adminContactJoin';
+import { loadAdminContactGroups } from '@/lib/admin/adminContactDatabase';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import {
     buildWorkshopAdminExportFileName,
@@ -54,16 +56,27 @@ export async function GET(request: NextRequest, context: AdminWorkshopExportRout
         case 'participants':
         case 'participants-vcard': {
             const query = parseWorkshopAdminParticipantQuery(request.nextUrl.searchParams);
-            const { participants, errorMessage } = await loadWorkshopAdminParticipantsForExport(
-                workshopData.supabase,
-                workshopId,
-                query,
-            );
+            const [participantsResult, contactGroupsResult] = await Promise.all([
+                loadWorkshopAdminParticipantsForExport(workshopData.supabase, workshopId, query),
+                loadAdminContactGroups(workshopData.supabase, {
+                    isLoadingAll: true,
+                    isWorkshopParticipationsIncluded: false,
+                }),
+            ]);
+            const { participants, errorMessage } = participantsResult;
             if (participants === null) {
                 return createWorkshopExportErrorResponse(errorMessage);
             }
+            if (contactGroupsResult.groups === null) {
+                return createWorkshopExportErrorResponse(contactGroupsResult.errorMessage);
+            }
 
-            exportFile = createWorkshopAdminExportFile(rawExportKind, { workshop, participants });
+            exportFile = createWorkshopAdminExportFile(rawExportKind, {
+                workshop,
+                participants: participants.map((participant) =>
+                    joinAdminContactGroup(participant, contactGroupsResult.groups ?? []),
+                ),
+            });
             break;
         }
         case 'comments': {

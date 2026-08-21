@@ -7,7 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Contact } from '@/lib/contacts/Contact';
+import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import type { ContactsExportFormat } from '@/lib/contacts/contactsExportFormats';
 import { downloadContactsExport } from '@/lib/contacts/exportContacts';
 import { ChevronDown, Download, ExternalLink } from 'lucide-react';
@@ -21,7 +21,7 @@ type ContactsExportButtonProps = {
     /**
      * The contacts of the current view, which are the ones the downloaded file holds
      */
-    readonly exportedContacts: readonly Contact[];
+    readonly exportedContacts: readonly AdminJoinedContact[];
 
     /**
      * Address which serves the very same export, opened in a new tab
