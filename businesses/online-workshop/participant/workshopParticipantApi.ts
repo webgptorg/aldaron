@@ -106,7 +106,7 @@ export async function upvoteWorkshopComment(
 export async function sendWorkshopReaction(
     workshopSlug: string,
     emoji: string,
-): Promise<{ readonly reaction: WorkshopReaction }> {
+): Promise<{ readonly reaction: WorkshopReaction; readonly reactionCount: number }> {
     const response = await fetch(getWorkshopApiUrl(workshopSlug, 'reactions'), {
         method: 'POST',
         credentials: 'same-origin',

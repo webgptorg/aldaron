@@ -96,7 +96,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.4964 17 minutes; Testing 2 minutes
 
 [✨🛳] Show the number of each emoji or action in `/cs/online-workshop/participant`
 
@@ -227,4 +227,5 @@
 - Also, when there is only one link, there should be a call to action button alongside the material.
 
 ![alt text](prompts/screenshots/2026-07-0040-workshop-participant-page-4.png)
+
 

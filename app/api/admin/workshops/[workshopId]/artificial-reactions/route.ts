@@ -1,11 +1,9 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import { WORKSHOP_REACTION_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
-import { mapWorkshopReactionRow } from '@/lib/workshops/workshopDatabase';
+import { createWorkshopReaction } from '@/lib/workshops/workshopDatabase';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopArtificialReactionSchema } from '@/lib/workshops/workshopSchemas';
-import { createWorkshopArtificialReactionDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
 
 type AdminWorkshopArtificialReactionsRouteContext = {
@@ -30,20 +28,24 @@ export async function POST(request: NextRequest, context: AdminWorkshopArtificia
         return workshopData.response;
     }
 
-    const { data, error } = await workshopData.supabase
-        .from(WORKSHOP_REACTION_TABLE_NAME)
-        .insert({
-            workshop_id: workshopId,
-            ...createWorkshopArtificialReactionDatabaseValues(parsedResult.data),
-        })
-        .select('id, emoji, created_at')
-        .single();
-    if (error || data === null) {
-        console.error('Failed to send an artificial workshop reaction:', error?.message ?? 'No reaction returned');
+    const createdReaction = await createWorkshopReaction(
+        workshopData.supabase,
+        workshopId,
+        null,
+        parsedResult.data.emoji,
+    );
+    if (createdReaction.reaction === null) {
+        console.error('Failed to send an artificial workshop reaction:', createdReaction.errorMessage);
         return NextResponse.json({ error: 'Artificial reaction could not be sent' }, { status: 500 });
     }
 
-    const reaction = mapWorkshopReactionRow(data);
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'reaction', reaction });
-    return NextResponse.json({ reaction }, { status: 201 });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, {
+        kind: 'reaction',
+        reaction: createdReaction.reaction,
+        reactionCount: createdReaction.reactionCount,
+    });
+    return NextResponse.json(
+        { reaction: createdReaction.reaction, reactionCount: createdReaction.reactionCount },
+        { status: 201 },
+    );
 }

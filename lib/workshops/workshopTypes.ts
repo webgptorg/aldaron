@@ -95,6 +95,17 @@ export type WorkshopReaction = {
     readonly createdAt: string;
 };
 
+/**
+ * The number of times one exact reaction has been sent in a workshop
+ *
+ * Note: This counts reaction actions, rather than distinct people. A participant who reacts twice therefore adds two
+ *       to the total, exactly as the room celebrated two reactions.
+ */
+export type WorkshopReactionCount = {
+    readonly emoji: string;
+    readonly count: number;
+};
+
 export type WorkshopPublicState = {
     readonly serverTime: string;
     readonly workshop: WorkshopDetails;
@@ -108,6 +119,7 @@ export type WorkshopPublicState = {
     readonly nextContentUnlockAt: string | null;
     readonly comments: readonly WorkshopComment[];
     readonly recentReactions: readonly WorkshopReaction[];
+    readonly reactionCounts: readonly WorkshopReactionCount[];
 };
 
 /**
@@ -145,5 +157,5 @@ export type WorkshopAdminSnapshot = {
 
 export type WorkshopRealtimeEvent =
     | { readonly kind: 'state-changed' }
-    | { readonly kind: 'reaction'; readonly reaction: WorkshopReaction }
+    | { readonly kind: 'reaction'; readonly reaction: WorkshopReaction; readonly reactionCount: number }
     | { readonly kind: 'upvote'; readonly commentId: string; readonly upvoteCount: number };

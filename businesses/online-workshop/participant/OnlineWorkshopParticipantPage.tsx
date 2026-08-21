@@ -175,6 +175,7 @@ export function OnlineWorkshopParticipantPage({
                     {isPanelEnabled('reactions') && (
                         <WorkshopReactions
                             emojis={state.workshop.allowedReactions}
+                            reactionCounts={state.reactionCounts}
                             isInteractionBanned={state.participant.isInteractionBanned}
                             onReact={controller.react}
                         />

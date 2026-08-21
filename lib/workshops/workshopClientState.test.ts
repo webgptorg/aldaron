@@ -61,6 +61,7 @@ describe('workshop realtime events', () => {
             isWorkshopRealtimeEvent({
                 kind: 'reaction',
                 reaction: { id: 'reaction-1', emoji: '👏', createdAt: '2026-08-20T17:00:00.000Z' },
+                reactionCount: 7,
             }),
         ).toBe(true);
         expect(isWorkshopRealtimeEvent({ kind: 'upvote', commentId: 'comment-1', upvoteCount: 7 })).toBe(true);
@@ -68,6 +69,19 @@ describe('workshop realtime events', () => {
 
     it('rejects malformed broadcast payloads before they reach the UI', () => {
         expect(isWorkshopRealtimeEvent({ kind: 'reaction' })).toBe(false);
+        expect(
+            isWorkshopRealtimeEvent({
+                kind: 'reaction',
+                reaction: { id: 'reaction-1', emoji: '👏', createdAt: '2026-08-20T17:00:00.000Z' },
+            }),
+        ).toBe(false);
+        expect(
+            isWorkshopRealtimeEvent({
+                kind: 'reaction',
+                reaction: { id: 'reaction-1', emoji: '👏', createdAt: '2026-08-20T17:00:00.000Z' },
+                reactionCount: -1,
+            }),
+        ).toBe(false);
         expect(isWorkshopRealtimeEvent({ kind: 'upvote', commentId: 'comment-1', upvoteCount: -1 })).toBe(false);
         expect(isWorkshopRealtimeEvent({ kind: 'unknown' })).toBe(false);
     });

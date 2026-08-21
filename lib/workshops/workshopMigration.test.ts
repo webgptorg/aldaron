@@ -20,6 +20,8 @@ const DISABLED_PANEL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/20
 const DISABLED_PANEL_MIGRATION_SQL = readFileSync(DISABLED_PANEL_MIGRATION_PATH, 'utf8');
 const REACTION_ANIMATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-6.sql');
 const REACTION_ANIMATION_MIGRATION_SQL = readFileSync(REACTION_ANIMATION_MIGRATION_PATH, 'utf8');
+const REACTION_COUNT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-0200-workshop-reaction-counts.sql');
+const REACTION_COUNT_MIGRATION_SQL = readFileSync(REACTION_COUNT_MIGRATION_PATH, 'utf8');
 const MULTIPLE_TERMS_MIGRATION_PATH = path.resolve(
     process.cwd(),
     'migrations/2026-08-0100-online-workshop-multiple-terms.sql',
@@ -157,6 +159,20 @@ describe('workshop database migration', () => {
         DEFAULT_WORKSHOP_REACTIONS.forEach((reaction) => {
             expect(REACTION_ANIMATION_MIGRATION_SQL).toContain(reaction);
         });
+    });
+
+    it('counts each reaction text efficiently and returns the new total with its stored action', () => {
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('workshop_reactions_emoji_count_idx');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain(
+            'ON public.workshop_reactions (workshop_id, emoji)',
+        );
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('get_workshop_reaction_counts');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('GROUP BY workshop_reaction.emoji');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('create_workshop_reaction');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('target_participant_id IS NULL');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('workshop-reaction-count:');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('pg_advisory_xact_lock');
+        expect(REACTION_COUNT_MIGRATION_SQL).toContain('total_reaction_count');
     });
 
     it('indexes published terms by their start for the public term list and legacy-room fallback', () => {

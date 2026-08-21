@@ -1,7 +1,6 @@
 import type { z } from 'zod';
 import type {
     workshopArtificialCommentSchema,
-    workshopArtificialReactionSchema,
     workshopCommentUpdateSchema,
     workshopContentCreateSchema,
     workshopContentUpdateSchema,
@@ -15,7 +14,6 @@ type WorkshopContentCreateValues = z.infer<typeof workshopContentCreateSchema>;
 type WorkshopContentUpdateValues = z.infer<typeof workshopContentUpdateSchema>;
 type WorkshopCommentUpdateValues = z.infer<typeof workshopCommentUpdateSchema>;
 type WorkshopArtificialCommentValues = z.infer<typeof workshopArtificialCommentSchema>;
-type WorkshopArtificialReactionValues = z.infer<typeof workshopArtificialReactionSchema>;
 
 export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
     return {
@@ -99,13 +97,5 @@ export function createWorkshopArtificialCommentDatabaseValues(values: WorkshopAr
         status: 'approved',
         is_artificial: true,
         moderated_at: new Date().toISOString(),
-    };
-}
-
-export function createWorkshopArtificialReactionDatabaseValues(values: WorkshopArtificialReactionValues) {
-    return {
-        participant_id: null,
-        emoji: values.emoji,
-        is_artificial: true,
     };
 }

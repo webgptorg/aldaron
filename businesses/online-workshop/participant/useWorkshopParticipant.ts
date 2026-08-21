@@ -228,6 +228,28 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         );
     }, []);
 
+    const applyReactionCount = useCallback((emoji: string, reactionCount: number) => {
+        if (!Number.isSafeInteger(reactionCount) || reactionCount < 0) {
+            return;
+        }
+
+        setState((currentState) => {
+            if (currentState === null) {
+                return currentState;
+            }
+
+            const isReactionCountKnown = currentState.reactionCounts.some(
+                (currentReactionCount) => currentReactionCount.emoji === emoji,
+            );
+            const reactionCounts = isReactionCountKnown
+                ? currentState.reactionCounts.map((currentReactionCount) =>
+                      currentReactionCount.emoji === emoji ? { emoji, count: reactionCount } : currentReactionCount,
+                  )
+                : [...currentState.reactionCounts, { emoji, count: reactionCount }];
+            return { ...currentState, reactionCounts };
+        });
+    }, []);
+
     const reportCurrentPresence = useCallback(() => {
         const reportedAtMilliseconds = Date.now();
         const previousReportAtMilliseconds = lastPresenceReportAtRef.current;
@@ -344,6 +366,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
                 }
                 if (payload.kind === 'reaction') {
                     showReaction(payload.reaction);
+                    applyReactionCount(payload.reaction.emoji, payload.reactionCount);
                     return;
                 }
                 setState((currentState) => {
@@ -387,7 +410,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             }
             void supabase.removeChannel(channel);
         };
-    }, [commentSort, isConnected, scheduleRealtimeRefresh, showReaction, workshopSlug]);
+    }, [applyReactionCount, commentSort, isConnected, scheduleRealtimeRefresh, showReaction, workshopSlug]);
 
     const connect = useCallback(
         async (values: { readonly fullname: string; readonly email: string }): Promise<boolean> => {
@@ -515,14 +538,15 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
     const react = useCallback(
         async (emoji: string) => {
             try {
-                const { reaction } = await sendWorkshopReaction(workshopSlug, emoji);
+                const { reaction, reactionCount } = await sendWorkshopReaction(workshopSlug, emoji);
                 showReaction(reaction);
+                applyReactionCount(reaction.emoji, reactionCount);
                 trackGoogleAnalyticsEvent('workshop_reaction_sent', { workshop_slug: workshopSlug, emoji });
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
             }
         },
-        [showReaction, workshopSlug],
+        [applyReactionCount, showReaction, workshopSlug],
     );
 
     const recordMaterialLinkClick = useCallback(

@@ -1,7 +1,6 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import { WORKSHOP_REACTION_TABLE_NAME } from '@/lib/workshops/workshopConstants';
-import { mapWorkshopReactionRow } from '@/lib/workshops/workshopDatabase';
+import { createWorkshopReaction } from '@/lib/workshops/workshopDatabase';
 import {
     getDisabledWorkshopPanelResponseOrNull,
     getWorkshopInteractionBanResponseOrNull,
@@ -52,25 +51,28 @@ export async function POST(request: NextRequest, context: WorkshopReactionsRoute
         return NextResponse.json({ error: 'Unsupported reaction' }, { status: 400 });
     }
 
-    const { data, error } = await authenticatedRequest.supabase
-        .from(WORKSHOP_REACTION_TABLE_NAME)
-        .insert({
-            workshop_id: authenticatedRequest.workshopRow.id,
-            participant_id: authenticatedRequest.participant.id,
-            emoji: parsedResult.data.emoji,
-        })
-        .select('id, emoji, created_at')
-        .single();
+    const createdReaction = await createWorkshopReaction(
+        authenticatedRequest.supabase,
+        authenticatedRequest.workshopRow.id,
+        authenticatedRequest.participant.id,
+        parsedResult.data.emoji,
+    );
+    if (createdReaction.reaction === null) {
+        if (createdReaction.errorMessage.includes(REACTION_RATE_LIMIT_ERROR)) {
+            return NextResponse.json({ error: 'Too many reactions' }, { status: 429 });
+        }
 
-    if (error?.message.includes(REACTION_RATE_LIMIT_ERROR)) {
-        return NextResponse.json({ error: 'Too many reactions' }, { status: 429 });
-    }
-    if (error || data === null) {
-        console.error('Failed to store a workshop reaction:', error?.message ?? 'No reaction returned');
+        console.error('Failed to store a workshop reaction:', createdReaction.errorMessage);
         return NextResponse.json({ error: 'Reaction could not be saved' }, { status: 500 });
     }
 
-    const reaction = mapWorkshopReactionRow(data);
-    await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, { kind: 'reaction', reaction });
-    return NextResponse.json({ reaction }, { status: 201 });
+    await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, {
+        kind: 'reaction',
+        reaction: createdReaction.reaction,
+        reactionCount: createdReaction.reactionCount,
+    });
+    return NextResponse.json(
+        { reaction: createdReaction.reaction, reactionCount: createdReaction.reactionCount },
+        { status: 201 },
+    );
 }

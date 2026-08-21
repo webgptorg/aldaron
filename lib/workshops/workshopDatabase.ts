@@ -27,6 +27,7 @@ import type {
     WorkshopParticipant,
     WorkshopPublicState,
     WorkshopReaction,
+    WorkshopReactionCount,
     WorkshopSummary,
 } from '@/lib/workshops/workshopTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -136,6 +137,15 @@ type WorkshopReactionRow = {
     readonly created_at: string;
 };
 
+type WorkshopReactionCountRow = {
+    readonly emoji: string;
+    readonly reaction_count: number | string;
+};
+
+type CreatedWorkshopReactionRow = WorkshopReactionRow & {
+    readonly reaction_count: number | string;
+};
+
 const WORKSHOP_DATABASE_UNAVAILABLE_MESSAGE = 'Workshop database is not configured';
 const MAXIMAL_ADMIN_COMMENT_LIST_COUNT = 1_000;
 
@@ -239,6 +249,47 @@ function mapWorkshopAdminParticipantRow(
 
 export function mapWorkshopReactionRow(row: WorkshopReactionRow): WorkshopReaction {
     return { id: row.id, emoji: row.emoji, createdAt: row.created_at };
+}
+
+function mapWorkshopReactionCountRow(row: WorkshopReactionCountRow): WorkshopReactionCount {
+    return { emoji: row.emoji, count: getNonNegativeWholeNumber(row.reaction_count) };
+}
+
+/**
+ * Stores one reaction and returns the total for its exact text as one atomic database operation
+ *
+ * Note: The total travels with the persisted reaction rather than being incremented in a browser. That keeps every
+ *       room correct when several participants react at once, when a room reconnects, or when its own broadcast comes
+ *       back to it.
+ */
+export async function createWorkshopReaction(
+    supabase: SupabaseClient,
+    workshopId: string,
+    participantId: string | null,
+    emoji: string,
+): Promise<
+    | { readonly reaction: WorkshopReaction; readonly reactionCount: number; readonly errorMessage: null }
+    | { readonly reaction: null; readonly reactionCount: null; readonly errorMessage: string }
+> {
+    const { data, error } = await supabase.rpc('create_workshop_reaction', {
+        target_workshop_id: workshopId,
+        target_participant_id: participantId,
+        target_emoji: emoji,
+    });
+    const createdReactionRow = (data as readonly CreatedWorkshopReactionRow[] | null)?.[0];
+    if (error || createdReactionRow === undefined) {
+        return {
+            reaction: null,
+            reactionCount: null,
+            errorMessage: error?.message ?? 'No reaction returned',
+        };
+    }
+
+    return {
+        reaction: mapWorkshopReactionRow(createdReactionRow),
+        reactionCount: getNonNegativeWholeNumber(createdReactionRow.reaction_count),
+        errorMessage: null,
+    };
 }
 
 export async function findWorkshopBySlug(
@@ -351,6 +402,38 @@ export async function countWatchingWorkshopParticipants(
     return count ?? 0;
 }
 
+type LoadedWorkshopReactionCounts = {
+    readonly reactionCounts: readonly WorkshopReactionCount[];
+    readonly errorMessage: string | null;
+};
+
+/**
+ * Loads the totals shown beside the reactions which a room currently offers
+ *
+ * Note: When the reactions panel is hidden, nobody can read these totals. Skipping the aggregation then keeps an
+ *       unused panel from making every room refresh more expensive.
+ */
+async function loadWorkshopReactionCounts(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<LoadedWorkshopReactionCounts> {
+    if (!isWorkshopPanelEnabled(workshopRow.disabled_panels, 'reactions')) {
+        return { reactionCounts: [], errorMessage: null };
+    }
+
+    const { data, error } = await supabase.rpc('get_workshop_reaction_counts', {
+        target_workshop_id: workshopRow.id,
+    });
+    if (error) {
+        return { reactionCounts: [], errorMessage: error.message };
+    }
+
+    return {
+        reactionCounts: ((data ?? []) as WorkshopReactionCountRow[]).map(mapWorkshopReactionCountRow),
+        errorMessage: null,
+    };
+}
+
 /**
  * Loads the message pinned on top of a chat, whatever its age and moderation state
  *
@@ -449,6 +532,7 @@ export async function loadWorkshopPublicState(
         commentsResult,
         pendingCommentsResult,
         reactionsResult,
+        reactionCountsResult,
         watchingParticipantCount,
         pinnedCommentRow,
     ] = await Promise.all([
@@ -484,18 +568,20 @@ export async function loadWorkshopPublicState(
             .eq('workshop_id', workshopRow.id)
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_RECENT_REACTION_COUNT),
+        loadWorkshopReactionCounts(supabase, workshopRow),
         countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
     ]);
 
-    const firstError =
+    const stateQueryError =
         contentResult.error ??
         nextUnlockResult.error ??
         commentsResult.error ??
         pendingCommentsResult.error ??
         reactionsResult.error;
-    if (firstError) {
-        return { state: null, errorMessage: firstError.message };
+    const errorMessage = stateQueryError?.message ?? reactionCountsResult.errorMessage;
+    if (errorMessage !== null) {
+        return { state: null, errorMessage };
     }
 
     const commentRows = withPinnedWorkshopCommentRow(
@@ -538,6 +624,7 @@ export async function loadWorkshopPublicState(
                 commentSort,
             ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
+            reactionCounts: reactionCountsResult.reactionCounts,
         },
         errorMessage: null,
     };

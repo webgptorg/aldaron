@@ -28,7 +28,12 @@ export function isWorkshopRealtimeEvent(value: unknown): value is WorkshopRealti
     }
 
     if (value.kind === 'reaction') {
-        return isWorkshopReaction(value.reaction);
+        return (
+            isWorkshopReaction(value.reaction) &&
+            typeof value.reactionCount === 'number' &&
+            Number.isSafeInteger(value.reactionCount) &&
+            value.reactionCount >= 0
+        );
     }
 
     return (
