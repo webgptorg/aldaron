@@ -28,6 +28,7 @@ import type {
     WorkshopCommentStatus,
     WorkshopContentBlock,
     WorkshopDetails,
+    WorkshopKind,
     WorkshopParticipant,
     WorkshopParticipantTimelineEvent,
     WorkshopPublicState,
@@ -41,6 +42,7 @@ import { NextResponse } from 'next/server';
 
 export type WorkshopRow = {
     readonly id: string;
+    readonly room_kind: WorkshopKind;
     readonly slug: string;
     readonly title: string;
     readonly description: string;
@@ -63,13 +65,16 @@ export type WorkshopRow = {
     readonly updated_at: string;
 };
 
-type WorkshopSummaryRow = Pick<WorkshopRow, 'id' | 'slug' | 'title' | 'starts_at' | 'ends_at' | 'is_published'>;
+type WorkshopSummaryRow = Pick<
+    WorkshopRow,
+    'id' | 'room_kind' | 'slug' | 'title' | 'starts_at' | 'ends_at' | 'is_published'
+>;
 
 /**
  * Fields the public list and the administration selector need to identify one occurrence without exposing its live
  * room configuration.
  */
-export const WORKSHOP_SUMMARY_COLUMNS = 'id, slug, title, starts_at, ends_at, is_published';
+export const WORKSHOP_SUMMARY_COLUMNS = 'id, room_kind, slug, title, starts_at, ends_at, is_published';
 
 type WorkshopContentRow = {
     readonly id: string;
@@ -273,6 +278,7 @@ export function createWorkshopDatabaseUnavailableResponse(): NextResponse {
 export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
     return {
         id: row.id,
+        kind: row.room_kind,
         slug: row.slug,
         title: row.title,
         description: row.description,
@@ -290,6 +296,7 @@ export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
 export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary {
     return {
         id: row.id,
+        kind: row.room_kind,
         slug: row.slug,
         title: row.title,
         startsAt: row.starts_at,
@@ -475,6 +482,7 @@ export async function findUpcomingPublishedWorkshops(
     const { data, error } = await supabase
         .from(WORKSHOP_TABLE_NAME)
         .select(WORKSHOP_SUMMARY_COLUMNS)
+        .eq('room_kind', 'workshop')
         .eq('is_published', true)
         .gt('starts_at', currentTime)
         .order('starts_at', { ascending: true });
@@ -494,6 +502,7 @@ export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient):
     const { data, error } = await supabase
         .from(WORKSHOP_TABLE_NAME)
         .select('*')
+        .eq('room_kind', 'workshop')
         .eq('is_published', true)
         .order('starts_at', { ascending: false })
         .limit(1)
@@ -501,6 +510,50 @@ export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient):
 
     if (error) {
         console.error('Failed to load the most recent workshop:', error.message);
+        return null;
+    }
+
+    return data as WorkshopRow | null;
+}
+
+/**
+ * Lists every published workshop occurrence for the persistent community room. Drafts stay private, while past
+ * terms stay available as useful community history.
+ */
+export async function findPublishedWorkshops(supabase: SupabaseClient): Promise<readonly WorkshopSummaryRow[]> {
+    const { rows, errorMessage } = await loadAllWorkshopRows<WorkshopSummaryRow>((fromIndex, toIndex) =>
+        supabase
+            .from(WORKSHOP_TABLE_NAME)
+            .select(WORKSHOP_SUMMARY_COLUMNS)
+            .eq('room_kind', 'workshop')
+            .eq('is_published', true)
+            .order('starts_at', { ascending: false })
+            .order('id', { ascending: false })
+            .range(fromIndex, toIndex),
+    );
+
+    if (rows === null) {
+        console.error('Failed to load published workshops:', errorMessage ?? 'Unknown database error');
+        return [];
+    }
+
+    return rows;
+}
+
+/**
+ * Resolves the one community room. The database allows at most one such row, so `maybeSingle` turns an absent
+ * configuration into an ordinary unavailable public page instead of picking an arbitrary room.
+ */
+export async function findPublishedCommunity(supabase: SupabaseClient): Promise<WorkshopRow | null> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .select('*')
+        .eq('room_kind', 'community')
+        .eq('is_published', true)
+        .maybeSingle();
+
+    if (error) {
+        console.error('Failed to load the community room:', error.message);
         return null;
     }
 

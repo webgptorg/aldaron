@@ -1,5 +1,8 @@
 # Current preversion
 
+- Added the Czech-only `/cs/komunita` member room with the workshop waiting-room flow, GET-prefilled name and e-mail, a configurable shared stage, and identity-prefilled links to every published workshop.
+- Added `/admin/community`, reusing the workshop moderation, participants, reactions, content, analytics, and settings dashboard while keeping its stable community URL read-only.
+- Extended the live-room data model with a database-enforced singleton community kind, keeping it separate from workshop terms and their public/admin lists without duplicating the secure participant-room infrastructure.
 - Rebuilt `/admin/workshops` around focused overview, participant, comment, reaction, content, and settings sections; large audiences now have server-side filtering, sorting, paging, per-person activity histories, a workshop-wide activity timeline, and CSV exports for every section plus filtered participant vCards.
 - Made `/cs/online-workshop` load and present every upcoming published workshop from the shared workshop data, with a separate registration form and selected-term contact note for each date instead of one hardcoded occurrence.
 - Carried the selected workshop as `?workshop=<slug>` through registration confirmation, direct room links, and calendar invitations; `/cs/online-workshop/participant` and `/cs/online-workshop/dekujeme` now resolve it, while old links without it use the most recent published workshop.

@@ -6,6 +6,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
     return {
         workshop: {
             id: 'workshop-1',
+            kind: 'workshop',
             slug: 'workshop-1',
             title: 'Workshop',
             description: '',

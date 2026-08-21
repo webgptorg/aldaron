@@ -38,7 +38,12 @@ import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettin
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { WorkshopAdminSnapshot, WorkshopCommentStatus, WorkshopSummary } from '@/lib/workshops/workshopTypes';
+import type {
+    WorkshopAdminSnapshot,
+    WorkshopCommentStatus,
+    WorkshopKind,
+    WorkshopSummary,
+} from '@/lib/workshops/workshopTypes';
 import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -70,13 +75,28 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
 type WorkshopAdminDashboardProps = {
     readonly adminToken: string;
     readonly initialWorkshopSlug: string | null;
+    readonly workshopKind?: WorkshopKind;
+    readonly isWorkshopCreationEnabled?: boolean;
+    readonly selectorLabel?: string;
+    readonly subjectLabel?: string;
+    readonly emptyStateMessage?: string;
+    readonly isSlugEditable?: boolean;
 };
 
 function isWorkshopAdminSection(value: string): value is WorkshopAdminSection {
     return WORKSHOP_ADMIN_SECTION_VALUES.some((sectionValue) => sectionValue === value);
 }
 
-export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: WorkshopAdminDashboardProps) {
+export function WorkshopAdminDashboard({
+    adminToken,
+    initialWorkshopSlug,
+    workshopKind = 'workshop',
+    isWorkshopCreationEnabled = true,
+    selectorLabel = 'Workshop',
+    subjectLabel = 'workshopu',
+    emptyStateMessage = 'Vytvořte první workshop.',
+    isSlugEditable = true,
+}: WorkshopAdminDashboardProps) {
     const [workshops, setWorkshops] = useState<readonly WorkshopSummary[]>([]);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
     const [selectedSection, setSelectedSection] = useState<WorkshopAdminSection>('overview');
@@ -90,7 +110,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
 
     const loadWorkshopList = useCallback(async () => {
         try {
-            const loadedWorkshops = await fetchAdminWorkshopList(adminToken);
+            const loadedWorkshops = await fetchAdminWorkshopList(adminToken, workshopKind);
             setWorkshops(loadedWorkshops);
             setSelectedWorkshopId((currentId) => {
                 if (currentId && loadedWorkshops.some(({ id }) => id === currentId)) {
@@ -108,7 +128,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
         } finally {
             setIsLoading(false);
         }
-    }, [adminToken, initialWorkshopSlug]);
+    }, [adminToken, initialWorkshopSlug, workshopKind]);
 
     const loadSnapshot = useCallback(async () => {
         const snapshotLoadSequence = ++snapshotLoadSequenceReference.current;
@@ -303,7 +323,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                         htmlFor="workshop-selector"
                         className="text-xs font-semibold uppercase tracking-wider text-slate-500"
                     >
-                        Workshop
+                        {selectorLabel}
                     </label>
                     <select
                         id="workshop-selector"
@@ -328,7 +348,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                         Obnovit data
                     </Button>
                 </div>
-                <CreateWorkshopForm onCreate={handleCreateWorkshop} />
+                {isWorkshopCreationEnabled && <CreateWorkshopForm onCreate={handleCreateWorkshop} />}
             </aside>
 
             <div className="min-w-0 space-y-6">
@@ -343,7 +363,7 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                     </div>
                 ) : snapshot === null ? (
                     <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-20 text-center text-slate-500">
-                        Vytvořte první workshop.
+                        {emptyStateMessage}
                     </div>
                 ) : (
                     <Tabs value={selectedSection} onValueChange={handleSectionChange}>
@@ -472,7 +492,12 @@ export function WorkshopAdminDashboard({ adminToken, initialWorkshopSlug }: Work
                                     label="Exportovat nastavení CSV"
                                 />
                             </div>
-                            <WorkshopSettingsForm workshop={snapshot.workshop} onSave={handleSaveWorkshop} />
+                            <WorkshopSettingsForm
+                                workshop={snapshot.workshop}
+                                onSave={handleSaveWorkshop}
+                                subjectLabel={subjectLabel}
+                                isSlugEditable={isSlugEditable}
+                            />
                         </TabsContent>
                     </Tabs>
                 )}

@@ -1,4 +1,6 @@
 import {
+    findPublishedCommunity,
+    findPublishedWorkshops,
     findMostRecentPublishedWorkshop,
     findUpcomingPublishedWorkshops,
     findWorkshopBySlug,
@@ -39,5 +41,37 @@ export async function loadSelectedPublishedWorkshop(
             ? await findMostRecentPublishedWorkshop(supabase)
             : await findWorkshopBySlug(supabase, requestedWorkshopSlug, true);
 
-    return workshopRow === null ? null : mapWorkshopRow(workshopRow);
+    if (workshopRow === null || workshopRow.room_kind !== 'workshop') {
+        return null;
+    }
+
+    return mapWorkshopRow(workshopRow);
+}
+
+/**
+ * Loads the one published community room. Its data model is shared with workshops so participants get the same
+ * secure live-room capabilities without a second copy of the session and moderation model.
+ */
+export async function loadPublishedCommunity(): Promise<WorkshopDetails | null> {
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
+        return null;
+    }
+
+    const communityRow = await findPublishedCommunity(supabase);
+    return communityRow === null ? null : mapWorkshopRow(communityRow);
+}
+
+/**
+ * Lists every published workshop occurrence for the community, including past terms but never the community room
+ * itself or unpublished drafts.
+ */
+export async function loadPublishedWorkshopSummaries(): Promise<readonly WorkshopSummary[]> {
+    const supabase = getWorkshopDatabaseOrNull();
+    if (supabase === null) {
+        return [];
+    }
+
+    const workshopRows = await findPublishedWorkshops(supabase);
+    return workshopRows.map(mapWorkshopSummaryRow);
 }

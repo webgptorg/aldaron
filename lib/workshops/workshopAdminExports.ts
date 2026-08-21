@@ -43,6 +43,7 @@ function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
     return serializeRowsAsCsv(
         [workshop],
         [
+            { header: 'Typ místnosti', getValue: (item) => item.kind },
             { header: 'Název', getValue: (item) => item.title },
             { header: 'Slug', getValue: (item) => item.slug },
             { header: 'Popis', getValue: (item) => item.description },
@@ -87,7 +88,7 @@ export function serializeWorkshopAdminParticipantsAsVcard(
             fullname: participant.fullname,
             email: participant.email,
             note: [
-                `Účastník workshopu: ${workshop.title}`,
+                `${workshop.kind === 'community' ? 'Člen komunity' : 'Účastník workshopu'}: ${workshop.title}`,
                 `Registrace: ${participant.connectedAt}`,
                 `Aktivní čas: ${participant.activeDurationSeconds} s`,
             ].join('\n'),

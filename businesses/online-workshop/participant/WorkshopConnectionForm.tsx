@@ -4,6 +4,7 @@ import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentN
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
+import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 import {
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
@@ -25,6 +26,11 @@ export type WorkshopConnectionDetails = {
     readonly description: string;
     readonly dateLabel: string;
     readonly durationLabel: string;
+    readonly roomLabel?: string;
+    readonly connectionHeading?: string;
+    readonly connectionDescription?: string;
+    readonly submitLabel?: string;
+    readonly language?: SupportedHomepageLanguage;
 };
 
 export function WorkshopConnectionForm({
@@ -40,6 +46,11 @@ export function WorkshopConnectionForm({
     const [isValidationVisible, setIsValidationVisible] = useState(false);
     const isFullnameValid = isWorkshopParticipantFullnameValid(fullname);
     const isEmailValid = isEmailAddressValid(email.trim());
+    const roomLabel = connectionDetails.roomLabel ?? 'Živě online';
+    const connectionHeading = connectionDetails.connectionHeading ?? 'Připojit se k workshopu';
+    const connectionDescription =
+        connectionDetails.connectionDescription ?? 'Jméno se zobrazí u vašich komentářů. E-mail ostatní účastníci neuvidí.';
+    const submitLabel = connectionDetails.submitLabel ?? 'Vstoupit do místnosti';
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -63,7 +74,7 @@ export function WorkshopConnectionForm({
             <div className="relative grid w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 shadow-2xl backdrop-blur-xl md:grid-cols-[0.9fr_1.1fr]">
                 <section className="border-b border-white/10 bg-cyan-400/5 p-6 sm:p-8 md:border-b-0 md:border-r md:p-10">
                     <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
-                        <Radio className="h-3.5 w-3.5" /> Živě online
+                        <Radio className="h-3.5 w-3.5" /> {roomLabel}
                     </span>
                     <h1 className="mt-7 text-3xl font-extrabold leading-tight sm:text-4xl">
                         {connectionDetails.title}
@@ -85,10 +96,8 @@ export function WorkshopConnectionForm({
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-300/10 text-cyan-200">
                         <LockKeyhole className="h-5 w-5" />
                     </div>
-                    <h2 className="mt-5 text-2xl font-bold sm:text-3xl">Připojit se k workshopu</h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-400">
-                        Jméno se zobrazí u vašich komentářů. E-mail ostatní účastníci neuvidí.
-                    </p>
+                    <h2 className="mt-5 text-2xl font-bold sm:text-3xl">{connectionHeading}</h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-400">{connectionDescription}</p>
 
                     <div className="mt-7 space-y-5">
                         <div>
@@ -147,12 +156,12 @@ export function WorkshopConnectionForm({
                             'Připojuji…'
                         ) : (
                             <>
-                                Vstoupit do místnosti <ArrowRight className="ml-2 h-4 w-4" />
+                                {submitLabel} <ArrowRight className="ml-2 h-4 w-4" />
                             </>
                         )}
                     </Button>
                     <PersonalDataConsentNote
-                        language="cs"
+                        language={connectionDetails.language ?? 'cs'}
                         addressForm="formal"
                         className="mt-4 text-center text-xs text-slate-500"
                     />

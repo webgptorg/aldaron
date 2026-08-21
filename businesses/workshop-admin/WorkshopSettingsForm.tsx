@@ -14,6 +14,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 type WorkshopSettingsFormProps = {
     readonly workshop: WorkshopDetails;
     readonly onSave: (values: WorkshopWriteValues) => Promise<boolean>;
+    readonly subjectLabel?: string;
+    readonly isSlugEditable?: boolean;
 };
 
 /**
@@ -26,7 +28,12 @@ function parseWorkshopReactions(reactionText: string): readonly string[] {
     return reactionText.trim().split(/\s+/).filter(Boolean);
 }
 
-export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormProps) {
+export function WorkshopSettingsForm({
+    workshop,
+    onSave,
+    subjectLabel = 'workshopu',
+    isSlugEditable = true,
+}: WorkshopSettingsFormProps) {
     const [slug, setSlug] = useState(workshop.slug);
     const [title, setTitle] = useState(workshop.title);
     const [description, setDescription] = useState(workshop.description);
@@ -76,8 +83,12 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
         <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-950">Nastavení workshopu</h2>
-                    <p className="mt-1 text-xs text-slate-400">URL místnosti a odkazů můžeš upravit níže.</p>
+                    <h2 className="text-xl font-bold text-slate-950">Nastavení {subjectLabel}</h2>
+                    <p className="mt-1 text-xs text-slate-400">
+                        {isSlugEditable
+                            ? 'URL místnosti a odkazů můžete upravit níže.'
+                            : 'Stálá URL komunity zůstává stejná, ostatní nastavení můžete upravit níže.'}
+                    </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                     <input
@@ -99,9 +110,17 @@ export function WorkshopSettingsForm({ workshop, onSave }: WorkshopSettingsFormP
                         className="mt-2 font-mono"
                         pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
                         required
+                        readOnly={!isSlugEditable}
                     />
                     <span className="mt-1 block text-xs font-normal text-slate-400">
-                        Používá se jako <code>?workshop={slug || 'slug-workshopu'}</code> v odkazu do místnosti.
+                        {isSlugEditable ? (
+                            <>
+                                Používá se jako <code>?workshop={slug || 'slug-workshopu'}</code> v odkazu do
+                                místnosti.
+                            </>
+                        ) : (
+                            <>Používá se ve stálém odkazu na komunitu.</>
+                        )}
                     </span>
                 </label>
                 <label className="text-sm font-medium text-slate-700 md:col-span-2">

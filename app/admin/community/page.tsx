@@ -1,0 +1,39 @@
+import { COMMUNITY_ADMIN_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
+import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
+import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
+import { AdminNavigation } from '@/components/admin/AdminNavigation';
+import { isAdminTokenValid } from '@/lib/admin/adminApiGuard';
+import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+
+type AdminCommunityPageProps = {
+    readonly searchParams: Promise<{
+        readonly token?: string | string[];
+    }>;
+};
+
+/**
+ * Administration of the one persistent community. The reusable dashboard is restricted to the `community` room kind
+ * so workshop occurrences cannot be edited accidentally from this route and a second community cannot be created.
+ */
+export default async function AdminCommunityPage({ searchParams }: AdminCommunityPageProps) {
+    const adminToken = readFirstSearchParameter((await searchParams).token);
+    if (adminToken === null || !isAdminTokenValid(adminToken)) {
+        return <AdminAccessRequired actionPath={COMMUNITY_ADMIN_PATH} />;
+    }
+
+    return (
+        <main className="min-h-screen bg-slate-50">
+            <AdminNavigation adminToken={adminToken} title="Komunita Promptbooku" />
+            <WorkshopAdminDashboard
+                adminToken={adminToken}
+                initialWorkshopSlug={COMMUNITY_WORKSHOP_SLUG}
+                workshopKind="community"
+                isWorkshopCreationEnabled={false}
+                selectorLabel="Komunita"
+                subjectLabel="komunity"
+                emptyStateMessage="Komunita zatím není vytvořená. Spusťte databázovou migraci pro komunitu."
+                isSlugEditable={false}
+            />
+        </main>
+    );
+}

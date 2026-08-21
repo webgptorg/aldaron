@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
+    kind: 'workshop',
     slug: 'online-workshop-2026-08-20',
     title: 'Produkční kód s AI agenty',
     description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem.',

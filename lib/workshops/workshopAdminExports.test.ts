@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 const WORKSHOP: WorkshopDetails = {
     id: 'workshop-id',
+    kind: 'workshop',
     slug: 'production-code-with-agents',
     title: 'Produkční kód s AI agenty',
     description: 'Praktický online workshop.',

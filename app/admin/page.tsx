@@ -1,8 +1,9 @@
+import { COMMUNITY_ADMIN_PATH } from '@/businesses/community/config';
 import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { isAdminTokenValid } from '@/lib/admin/adminApiGuard';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
-import { ContactRound, Radio, ShieldCheck } from 'lucide-react';
+import { ContactRound, Radio, ShieldCheck, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 
 type AdminDashboardPageProps = {
@@ -15,6 +16,12 @@ const ADMIN_PAGE_CARDS = [
         title: 'Živé workshopy',
         description: 'Stream, časovaný Markdown obsah, účastníci a moderace chatu.',
         icon: Radio,
+    },
+    {
+        path: COMMUNITY_ADMIN_PATH,
+        title: 'Komunita',
+        description: 'Stálá komunitní místnost, její jeviště, účastníci a moderace.',
+        icon: UsersRound,
     },
     {
         path: '/admin/contacts',

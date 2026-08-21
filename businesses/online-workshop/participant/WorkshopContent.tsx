@@ -13,6 +13,7 @@ type WorkshopContentProps = {
     readonly nextContentUnlockAt: string | null;
     readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
     readonly onMaterialLinkClick: (contentId: string) => void;
+    readonly title?: string;
 };
 
 type WorkshopMaterialBodyProps = {
@@ -142,6 +143,7 @@ export function WorkshopContent({
     nextContentUnlockAt,
     newlyUnlockedContentBlockIds,
     onMaterialLinkClick,
+    title = 'Materiály z workshopu',
 }: WorkshopContentProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
 
@@ -154,7 +156,7 @@ export function WorkshopContent({
             <div className="mb-4 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-cyan-300" />
                 <h2 id="workshop-materials-title" className="text-xl font-bold text-white">
-                    Materiály z workshopu
+                    {title}
                 </h2>
             </div>
 

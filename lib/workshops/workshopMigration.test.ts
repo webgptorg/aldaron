@@ -1,4 +1,5 @@
 import { DEFAULT_WORKSHOP_REACTIONS, MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT } from '@/lib/workshops/workshopConstants';
+import { WORKSHOP_KIND_VALUES } from '@/lib/workshops/workshopTypes';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -32,6 +33,8 @@ const ADMIN_ANALYTICS_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-0300-workshop-admin-analytics.sql',
 );
 const ADMIN_ANALYTICS_MIGRATION_SQL = readFileSync(ADMIN_ANALYTICS_MIGRATION_PATH, 'utf8');
+const COMMUNITY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-0400-community.sql');
+const COMMUNITY_MIGRATION_SQL = readFileSync(COMMUNITY_MIGRATION_PATH, 'utf8');
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -213,5 +216,15 @@ describe('workshop database migration', () => {
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'upvote'::text");
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'link_click'::text");
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('GRANT EXECUTE ON FUNCTION public.get_workshop_admin_timeline');
+    });
+
+    it('keeps one persistent community separate from workshop occurrences', () => {
+        expect(COMMUNITY_MIGRATION_SQL).toContain("ADD COLUMN IF NOT EXISTS room_kind text NOT NULL DEFAULT 'workshop'");
+        expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_room_kind');
+        WORKSHOP_KIND_VALUES.forEach((workshopKind) => expect(COMMUNITY_MIGRATION_SQL).toContain(`'${workshopKind}'`));
+        expect(COMMUNITY_MIGRATION_SQL).toContain('CREATE UNIQUE INDEX IF NOT EXISTS workshops_one_community_idx');
+        expect(COMMUNITY_MIGRATION_SQL).toContain("WHERE room_kind = 'community'");
+        expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_community_slug');
+        expect(COMMUNITY_MIGRATION_SQL).toContain("'komunita'");
     });
 });

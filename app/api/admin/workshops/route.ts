@@ -9,6 +9,7 @@ import {
     type WorkshopRow,
 } from '@/lib/workshops/workshopDatabase';
 import { workshopCreateSchema } from '@/lib/workshops/workshopSchemas';
+import { isWorkshopKind, type WorkshopKind } from '@/lib/workshops/workshopTypes';
 import { createWorkshopDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -23,9 +24,16 @@ export async function GET(request: NextRequest) {
         return createWorkshopDatabaseUnavailableResponse();
     }
 
+    const requestedWorkshopKind = request.nextUrl.searchParams.get('kind');
+    if (requestedWorkshopKind !== null && !isWorkshopKind(requestedWorkshopKind)) {
+        return NextResponse.json({ error: 'Invalid workshop kind' }, { status: 400 });
+    }
+    const workshopKind: WorkshopKind = requestedWorkshopKind ?? 'workshop';
+
     const { data, error } = await supabase
         .from(WORKSHOP_TABLE_NAME)
         .select('*')
+        .eq('room_kind', workshopKind)
         .order('starts_at', { ascending: false });
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

@@ -9,11 +9,13 @@ import {
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
-import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
+import { WorkshopStage, type WorkshopStageEmptyState } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
+import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
 import { isWorkshopPanelEnabled, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
+import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -26,12 +28,32 @@ export type WorkshopCalendarDetails = {
     readonly participantPath: string;
 };
 
+/**
+ * Optional hand-off from a persistent room to individual workshop rooms. The shared participant room only needs the
+ * data required to keep a participant identity in those links, never business-specific UI knowledge.
+ */
+export type WorkshopNavigationDetails = {
+    readonly workshops: readonly WorkshopSummary[];
+    readonly participantPath: string;
+    readonly title: string;
+    readonly description: string;
+    readonly emptyMessage: string;
+    readonly locale: string;
+    readonly timeZone: string;
+};
+
 type OnlineWorkshopParticipantPageProps = {
     readonly workshopSlug: string;
     readonly connectionDetails: WorkshopConnectionDetails;
-    readonly calendarDetails: WorkshopCalendarDetails;
+    readonly calendarDetails: WorkshopCalendarDetails | null;
     readonly initialEmail: string;
     readonly initialFullname: string;
+    readonly roomSubtitle?: string;
+    readonly isWorkshopSelectionInUrl?: boolean;
+    readonly workshopNavigation?: WorkshopNavigationDetails;
+    readonly emptyStage?: WorkshopStageEmptyState;
+    readonly materialsTitle?: string;
+    readonly unavailableConnectionMessage?: string;
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -40,6 +62,12 @@ export function OnlineWorkshopParticipantPage({
     calendarDetails,
     initialEmail,
     initialFullname,
+    roomSubtitle = 'Online workshop · Promptbook',
+    isWorkshopSelectionInUrl = true,
+    workshopNavigation,
+    emptyStage,
+    materialsTitle,
+    unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug, initialEmail);
 
@@ -51,10 +79,17 @@ export function OnlineWorkshopParticipantPage({
         const sanitizedUrl = new URL(window.location.href);
         const isWorkshopSelectionChanged = sanitizedUrl.searchParams.get(WORKSHOP_SEARCH_PARAMETER_NAME) !== workshopSlug;
         const isUrlChanged =
-            isWorkshopSelectionChanged || sanitizedUrl.searchParams.has('email') || sanitizedUrl.searchParams.has('fullname');
+            (isWorkshopSelectionInUrl && isWorkshopSelectionChanged) ||
+            (!isWorkshopSelectionInUrl && sanitizedUrl.searchParams.has(WORKSHOP_SEARCH_PARAMETER_NAME)) ||
+            sanitizedUrl.searchParams.has('email') ||
+            sanitizedUrl.searchParams.has('fullname');
         sanitizedUrl.searchParams.delete('email');
         sanitizedUrl.searchParams.delete('fullname');
-        sanitizedUrl.searchParams.set(WORKSHOP_SEARCH_PARAMETER_NAME, workshopSlug);
+        if (isWorkshopSelectionInUrl) {
+            sanitizedUrl.searchParams.set(WORKSHOP_SEARCH_PARAMETER_NAME, workshopSlug);
+        } else {
+            sanitizedUrl.searchParams.delete(WORKSHOP_SEARCH_PARAMETER_NAME);
+        }
         if (isUrlChanged) {
             window.history.replaceState(
                 window.history.state,
@@ -62,7 +97,7 @@ export function OnlineWorkshopParticipantPage({
                 `${sanitizedUrl.pathname}${sanitizedUrl.search}${sanitizedUrl.hash}`,
             );
         }
-    }, [controller.state, workshopSlug]);
+    }, [controller.state, isWorkshopSelectionInUrl, workshopSlug]);
 
     if (controller.isCheckingConnection && controller.state === null) {
         return (
@@ -91,7 +126,7 @@ export function OnlineWorkshopParticipantPage({
                     <Radio className="mx-auto h-9 w-9 text-cyan-300" />
                     <h1 className="mt-5 text-2xl font-bold text-white">Místnost teď není dostupná</h1>
                     <p className="mt-3 text-sm leading-6 text-slate-400">
-                        {controller.errorMessage ?? 'Připojení k workshopu se nepodařilo ověřit.'}
+                        {controller.errorMessage ?? unavailableConnectionMessage}
                     </p>
                     <button
                         type="button"
@@ -125,7 +160,7 @@ export function OnlineWorkshopParticipantPage({
                         />
                         <div className="min-w-0">
                             <p className="break-words text-sm font-bold text-white">{state.workshop.title}</p>
-                            <p className="hidden text-xs text-slate-500 sm:block">Online workshop · Promptbook</p>
+                            <p className="hidden text-xs text-slate-500 sm:block">{roomSubtitle}</p>
                         </div>
                     </div>
                     <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
@@ -160,18 +195,36 @@ export function OnlineWorkshopParticipantPage({
                     <WorkshopStage
                         workshop={state.workshop}
                         serverTime={state.serverTime}
+                        emptyStage={emptyStage}
                         subscribeToReactions={controller.subscribeToReactions}
                     />
-                    <WorkshopCalendarInvitation
-                        workshop={state.workshop}
-                        serverTime={state.serverTime}
-                        hostFullname={calendarDetails.hostFullname}
-                        participantPath={calendarDetails.participantPath}
-                        participantIdentity={{
-                            email: controller.participantEmail,
-                            fullname: state.participant.fullname,
-                        }}
-                    />
+                    {calendarDetails !== null && (
+                        <WorkshopCalendarInvitation
+                            workshop={state.workshop}
+                            serverTime={state.serverTime}
+                            hostFullname={calendarDetails.hostFullname}
+                            participantPath={calendarDetails.participantPath}
+                            participantIdentity={{
+                                email: controller.participantEmail,
+                                fullname: state.participant.fullname,
+                            }}
+                        />
+                    )}
+                    {workshopNavigation !== undefined && (
+                        <WorkshopLinksPanel
+                            workshops={workshopNavigation.workshops}
+                            participantPath={workshopNavigation.participantPath}
+                            participantIdentity={{
+                                email: controller.participantEmail,
+                                fullname: state.participant.fullname,
+                            }}
+                            title={workshopNavigation.title}
+                            description={workshopNavigation.description}
+                            emptyMessage={workshopNavigation.emptyMessage}
+                            locale={workshopNavigation.locale}
+                            timeZone={workshopNavigation.timeZone}
+                        />
+                    )}
                     {isPanelEnabled('reactions') && (
                         <WorkshopReactions
                             emojis={state.workshop.allowedReactions}
@@ -200,6 +253,7 @@ export function OnlineWorkshopParticipantPage({
                         nextContentUnlockAt={state.nextContentUnlockAt}
                         newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
                         onMaterialLinkClick={controller.recordMaterialLinkClick}
+                        title={materialsTitle}
                     />
                 </div>
             </main>
