@@ -42,7 +42,7 @@ describe('workshop database migration', () => {
         expect(MIGRATION_SQL).toContain('GRANT ALL ON TABLE public.%I TO service_role');
     });
 
-    it('persists timestamps and user identity for participant activity', () => {
+    it('records each participant action with a server timestamp and identity', () => {
         expect(MIGRATION_SQL).toMatch(/workshop_participants[\s\S]*connected_at timestamptz NOT NULL DEFAULT now\(\)/);
         expect(MIGRATION_SQL).toMatch(/workshop_comments[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/);
         expect(MIGRATION_SQL).toMatch(
@@ -50,6 +50,9 @@ describe('workshop database migration', () => {
         );
         expect(MIGRATION_SQL).toMatch(
             /workshop_reactions[\s\S]*participant_id uuid NOT NULL[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/,
+        );
+        expect(ANALYTICS_MIGRATION_SQL).toMatch(
+            /workshop_content_link_clicks[\s\S]*participant_id uuid NOT NULL[\s\S]*created_at timestamptz NOT NULL DEFAULT now\(\)/,
         );
     });
 
