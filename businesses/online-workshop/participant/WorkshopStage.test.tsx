@@ -6,8 +6,8 @@ import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import type { FlyingWorkshopReaction } from '@/lib/workshops/workshopReactionAnimations';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
-import { act, cleanup, render, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
@@ -22,6 +22,11 @@ const WORKSHOP: WorkshopDetails = {
     disabledPanels: [],
     createdAt: '2026-08-01T10:00:00+02:00',
     updatedAt: '2026-08-01T10:00:00+02:00',
+};
+
+const WORKSHOP_WITH_VIDEO: WorkshopDetails = {
+    ...WORKSHOP,
+    youtubeVideoId: 'dQw4w9WgXcQ',
 };
 
 /**
@@ -77,5 +82,28 @@ describe('workshop stage', () => {
 
         unmount();
         expect(reactionSource.listenerCount()).toBe(0);
+    });
+
+    it('offers the active video in fullscreen mode', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T19:10:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+            />,
+        );
+        const videoFrame = container.querySelector('iframe');
+        const requestFullscreen = vi.fn().mockResolvedValue(undefined);
+
+        expect(videoFrame).not.toBeNull();
+        Object.defineProperty(videoFrame, 'requestFullscreen', { value: requestFullscreen });
+
+        expect(videoFrame?.getAttribute('allow')).toContain('fullscreen');
+        expect(videoFrame?.allowFullscreen).toBe(true);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Přehrát video na celé obrazovce' }));
+
+        expect(requestFullscreen).toHaveBeenCalledOnce();
     });
 });

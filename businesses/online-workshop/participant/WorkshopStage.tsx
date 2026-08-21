@@ -7,7 +7,7 @@ import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowDownLeft, Radio, Volume2 } from 'lucide-react';
+import { ArrowDownLeft, Maximize, Radio, Volume2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const CLOCK_TICK_MILLISECONDS = 1000;
@@ -44,6 +44,15 @@ function unmuteYoutubeVideo(videoFrame: HTMLIFrameElement | null): void {
     playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
 }
 
+function requestVideoFullscreen(videoFrame: HTMLIFrameElement | null): void {
+    const requestFullscreen = videoFrame?.requestFullscreen;
+    if (requestFullscreen === undefined || videoFrame === null) {
+        return;
+    }
+
+    void requestFullscreen.call(videoFrame).catch(() => undefined);
+}
+
 export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
     const serverClockOffset = useMemo(() => Date.parse(serverTime) - Date.now(), [serverTime]);
@@ -73,6 +82,7 @@ export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: Wo
         setIsVideoUnmuted(true);
         trackGoogleAnalyticsEvent('workshop_video_unmuted', { workshop_slug: workshop.slug });
     };
+    const handleVideoFullscreen = () => requestVideoFullscreen(videoFrameReference.current);
 
     return (
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#081a24] shadow-2xl">
@@ -93,7 +103,7 @@ export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: Wo
                             isJavaScriptApiEnabled: true,
                         })}
                         title={workshop.title}
-                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                         referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
                     />
@@ -132,6 +142,18 @@ export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: Wo
                 )}
 
                 <WorkshopReactionStream reactions={flyingReactions} />
+
+                {isWorkshopStarted && workshop.youtubeVideoId && (
+                    <button
+                        type="button"
+                        onClick={handleVideoFullscreen}
+                        aria-label="Přehrát video na celé obrazovce"
+                        className="absolute right-3 top-3 z-20 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/90 px-3 py-2 text-xs font-semibold text-white shadow-lg transition hover:border-cyan-200/70 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 sm:right-5 sm:top-5"
+                    >
+                        <Maximize className="h-4 w-4" aria-hidden="true" />
+                        <span className="hidden sm:inline">Celá obrazovka</span>
+                    </button>
+                )}
 
                 {isWorkshopStarted && workshop.youtubeVideoId && !isVideoUnmuted && (
                     <motion.div
