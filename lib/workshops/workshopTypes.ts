@@ -26,6 +26,16 @@ export type WorkshopSummary = {
     readonly isPublished: boolean;
 };
 
+/**
+ * One occurrence as the administration lists it, together with the audience it gathered
+ *
+ * Note: The participant count deliberately stays out of `WorkshopSummary`, so no public list of terms exposes how
+ *       many people registered for them.
+ */
+export type WorkshopAdminSummary = WorkshopSummary & {
+    readonly participantCount: number;
+};
+
 export type WorkshopDetails = WorkshopSummary & {
     readonly description: string;
     readonly youtubeVideoId: string | null;

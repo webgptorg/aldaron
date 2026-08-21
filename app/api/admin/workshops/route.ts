@@ -4,8 +4,8 @@ import { WORKSHOP_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import {
     createWorkshopDatabaseUnavailableResponse,
     getWorkshopDatabaseOrNull,
+    loadWorkshopAdminSummaries,
     mapWorkshopRow,
-    mapWorkshopSummaryRow,
     type WorkshopRow,
 } from '@/lib/workshops/workshopDatabase';
 import { workshopCreateSchema } from '@/lib/workshops/workshopSchemas';
@@ -30,19 +30,12 @@ export async function GET(request: NextRequest) {
     }
     const workshopKind: WorkshopKind = requestedWorkshopKind ?? 'workshop';
 
-    const { data, error } = await supabase
-        .from(WORKSHOP_TABLE_NAME)
-        .select('*')
-        .eq('room_kind', workshopKind)
-        .order('starts_at', { ascending: false });
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    const { workshops, errorMessage } = await loadWorkshopAdminSummaries(supabase, workshopKind);
+    if (workshops === null) {
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
-    return NextResponse.json(
-        { workshops: ((data ?? []) as WorkshopRow[]).map(mapWorkshopSummaryRow) },
-        { headers: { 'Cache-Control': 'no-store' } },
-    );
+    return NextResponse.json({ workshops }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function POST(request: NextRequest) {

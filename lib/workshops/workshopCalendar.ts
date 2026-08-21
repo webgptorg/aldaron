@@ -6,12 +6,7 @@ import {
     createWorkshopSelectionPath,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
-import { DEFAULT_WORKSHOP_DURATION_MINUTES } from '@/lib/workshops/workshopConstants';
-
-/**
- * Length of a workshop which does not say when it ends
- */
-const MILLISECONDS_PER_MINUTE = 60 * 1000;
+import { getWorkshopEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
 
 /**
  * Separator between the two sides of the meeting in the name of the event
@@ -74,13 +69,7 @@ export function createWorkshopCalendarEventTitle(
  * Moment a workshop ends, taken from its usual length whenever the workshop itself does not say
  */
 function getWorkshopEndsAt(occurrence: WorkshopCalendarOccurrence): string {
-    if (occurrence.endsAt !== null) {
-        return occurrence.endsAt;
-    }
-
-    const endsAtMilliseconds =
-        Date.parse(occurrence.startsAt) + DEFAULT_WORKSHOP_DURATION_MINUTES * MILLISECONDS_PER_MINUTE;
-    return new Date(endsAtMilliseconds).toISOString();
+    return occurrence.endsAt ?? new Date(getWorkshopEndsAtMilliseconds(occurrence)).toISOString();
 }
 
 /**

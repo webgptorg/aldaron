@@ -1,5 +1,6 @@
 # Current preversion
 
+- Replaced the workshop selector of `/admin/workshops` with a card for every occurrence, saying when the term is, whether it is upcoming, ongoing or already over, and how many participants it gathered; a running room leads the list, the prepared terms follow it, and the history closes it.
 - Moved AI Supervize Mini discount codes from source configuration into a private, RLS-protected database table and added `/admin/discount-codes` for creating, editing, disabling, selecting, and deleting them; both price previews and registration-time totals now validate the same database-backed code, while online-workshop follow-up links resolve the administrator-selected promotion without embedding a code.
 - Added the Czech-only `/cs/komunita` member room with the workshop waiting-room flow, GET-prefilled name and e-mail, a configurable shared stage, and identity-prefilled links to every published workshop.
 - Added `/admin/community`, reusing the workshop moderation, participants, reactions, content, analytics, and settings dashboard while keeping its stable community URL read-only.

@@ -22,6 +22,7 @@ import type {
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
     WorkshopAdminSnapshot,
+    WorkshopAdminSummary,
     WorkshopAdminTimelinePoint,
     WorkshopComment,
     WorkshopCommentReference,
@@ -148,6 +149,11 @@ type WorkshopContentLinkClickTotalsRow = {
     readonly link_click_count: number | string;
 };
 
+type WorkshopParticipantCountRow = {
+    readonly workshop_id: string;
+    readonly participant_count: number | string;
+};
+
 type WorkshopCommentUpvoteRow = {
     readonly id: string;
     readonly comment_id: string;
@@ -271,6 +277,10 @@ export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary 
         endsAt: row.ends_at,
         isPublished: row.is_published,
     };
+}
+
+function mapWorkshopAdminSummaryRow(row: WorkshopSummaryRow, participantCount: number): WorkshopAdminSummary {
+    return { ...mapWorkshopSummaryRow(row), participantCount };
 }
 
 export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 0): WorkshopContentBlock {
@@ -536,6 +546,63 @@ export async function findWorkshopById(supabase: SupabaseClient, workshopId: str
     }
 
     return data as WorkshopRow | null;
+}
+
+/**
+ * Counts the audience of every occurrence of one room kind at once
+ *
+ * Note: The database aggregates all the counts in a single statement, so listing a hundred terms never costs a
+ *       hundred count queries.
+ * Note: An unavailable count must never take the whole list of occurrences down with it, so a failure is reported as
+ *       no counted audience at all.
+ */
+async function countWorkshopParticipantsByWorkshop(
+    supabase: SupabaseClient,
+    workshopKind: WorkshopKind,
+): Promise<ReadonlyMap<string, number>> {
+    const { data, error } = await supabase.rpc('get_workshop_participant_counts', { target_room_kind: workshopKind });
+    if (error) {
+        console.error('Failed to count the participants of the listed workshops:', error.message);
+        return new Map();
+    }
+
+    return new Map(
+        ((data ?? []) as WorkshopParticipantCountRow[]).map(
+            (participantCounts) =>
+                [
+                    participantCounts.workshop_id,
+                    getNonNegativeWholeNumber(participantCounts.participant_count),
+                ] as const,
+        ),
+    );
+}
+
+/**
+ * Lists every occurrence of one room kind for the administration, together with the audience each of them gathered.
+ */
+export async function loadWorkshopAdminSummaries(
+    supabase: SupabaseClient,
+    workshopKind: WorkshopKind,
+): Promise<{ readonly workshops: readonly WorkshopAdminSummary[] | null; readonly errorMessage: string | null }> {
+    const [workshopsResult, participantCountByWorkshopId] = await Promise.all([
+        supabase
+            .from(WORKSHOP_TABLE_NAME)
+            .select(WORKSHOP_SUMMARY_COLUMNS)
+            .eq('room_kind', workshopKind)
+            .order('starts_at', { ascending: false }),
+        countWorkshopParticipantsByWorkshop(supabase, workshopKind),
+    ]);
+
+    if (workshopsResult.error) {
+        return { workshops: null, errorMessage: workshopsResult.error.message };
+    }
+
+    return {
+        workshops: ((workshopsResult.data ?? []) as WorkshopSummaryRow[]).map((workshopRow) =>
+            mapWorkshopAdminSummaryRow(workshopRow, participantCountByWorkshopId.get(workshopRow.id) ?? 0),
+        ),
+        errorMessage: null,
+    };
 }
 
 type LoadedWorkshopPublicState = {

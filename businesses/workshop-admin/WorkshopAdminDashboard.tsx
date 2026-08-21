@@ -34,15 +34,16 @@ import { WorkshopContentAdmin } from '@/businesses/workshop-admin/WorkshopConten
 import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExportButton';
 import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
 import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopReactionSummary';
+import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type {
     WorkshopAdminSnapshot,
+    WorkshopAdminSummary,
     WorkshopCommentStatus,
     WorkshopKind,
-    WorkshopSummary,
 } from '@/lib/workshops/workshopTypes';
 import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -97,7 +98,7 @@ export function WorkshopAdminDashboard({
     emptyStateMessage = 'Vytvořte první workshop.',
     isSlugEditable = true,
 }: WorkshopAdminDashboardProps) {
-    const [workshops, setWorkshops] = useState<readonly WorkshopSummary[]>([]);
+    const [workshops, setWorkshops] = useState<readonly WorkshopAdminSummary[]>([]);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
     const [selectedSection, setSelectedSection] = useState<WorkshopAdminSection>('overview');
     const [snapshot, setSnapshot] = useState<WorkshopAdminSnapshot | null>(null);
@@ -316,38 +317,26 @@ export function WorkshopAdminDashboard({
     };
 
     return (
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[320px_minmax(0,1fr)]">
             <aside className="space-y-4">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <label
-                        htmlFor="workshop-selector"
-                        className="text-xs font-semibold uppercase tracking-wider text-slate-500"
-                    >
-                        {selectorLabel}
-                    </label>
-                    <select
-                        id="workshop-selector"
-                        value={selectedWorkshopId ?? ''}
-                        onChange={(event) => setSelectedWorkshopId(event.target.value || null)}
-                        className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
-                    >
-                        {workshops.map((workshop) => (
-                            <option key={workshop.id} value={workshop.id}>
-                                {workshop.title}
-                            </option>
-                        ))}
-                    </select>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2 w-full"
-                        onClick={() => void loadSnapshot()}
-                    >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Obnovit data
-                    </Button>
-                </div>
+                <WorkshopSelectorCardList
+                    label={selectorLabel}
+                    workshops={workshops}
+                    selectedWorkshopId={selectedWorkshopId}
+                    isLoading={isLoading}
+                    emptyMessage={emptyStateMessage}
+                    onSelect={setSelectedWorkshopId}
+                />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => void Promise.all([loadSnapshot(), loadWorkshopList()])}
+                >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Obnovit data
+                </Button>
                 {isWorkshopCreationEnabled && <CreateWorkshopForm onCreate={handleCreateWorkshop} />}
             </aside>
 

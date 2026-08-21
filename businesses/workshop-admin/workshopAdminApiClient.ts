@@ -4,11 +4,11 @@ import type {
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
     WorkshopAdminSnapshot,
+    WorkshopAdminSummary,
     WorkshopCommentStatus,
     WorkshopContentBlock,
     WorkshopDetails,
     WorkshopKind,
-    WorkshopSummary,
 } from '@/lib/workshops/workshopTypes';
 import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 import {
@@ -72,8 +72,8 @@ function createJsonMutation(method: 'POST' | 'PATCH', body: unknown): RequestIni
 export async function fetchAdminWorkshopList(
     adminToken: string,
     workshopKind: WorkshopKind = 'workshop',
-): Promise<readonly WorkshopSummary[]> {
-    const result = await requestAdminJson<{ readonly workshops: readonly WorkshopSummary[] }>(
+): Promise<readonly WorkshopAdminSummary[]> {
+    const result = await requestAdminJson<{ readonly workshops: readonly WorkshopAdminSummary[] }>(
         createAdminApiUrl('', adminToken, { kind: workshopKind }),
     );
     return result.workshops;

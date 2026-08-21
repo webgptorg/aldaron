@@ -8,6 +8,19 @@ export function formatWorkshopAdminDateTime(timestamp: string): string {
 }
 
 /**
+ * Names an audience in the Czech grammatical number which belongs to its size.
+ */
+export function formatWorkshopParticipantCount(participantCount: number): string {
+    if (participantCount === 1) {
+        return '1 účastník';
+    }
+
+    return participantCount >= 2 && participantCount <= 4
+        ? `${participantCount} účastníci`
+        : `${participantCount} účastníků`;
+}
+
+/**
  * Turns active seconds into a compact, human-readable duration.
  */
 export function formatWorkshopActiveDuration(activeDurationSeconds: number): string {

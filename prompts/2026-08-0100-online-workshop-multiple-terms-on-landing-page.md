@@ -13,10 +13,11 @@
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $7.11 24 minutes; Testing a minute
 
 [✨🥥] Show cards for all workshops in `/admin/workshops`
 
 - Show it instead of select
 - On the card, show the workshop name, date, upcomming/ongoing/past, and the number of participants.
 - Order the cards by ongoing first, then upcoming, then past. Within each group, order by date.
+
