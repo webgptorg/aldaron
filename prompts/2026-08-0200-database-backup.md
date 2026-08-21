@@ -1,6 +1,6 @@
-[-]
+[ ]
 
-[✨👍] foo
+[✨👍] Do the script to backup entire database
 
 - @@@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
