@@ -11,3 +11,12 @@
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
+
+[ ]
+
+[✨🥥] Show cards for all workshops in `/admin/workshops`
+
+- Show it instead of select
+- On the card, show the workshop name, date, upcomming/ongoing/past, and the number of participants.
+- Order the cards by ongoing first, then upcoming, then past. Within each group, order by date.

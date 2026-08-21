@@ -14,3 +14,8 @@
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
+
+[✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
+
+![alt text](prompts/screenshots/2026-08-0170-join-contacts.png)
