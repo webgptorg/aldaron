@@ -8,3 +8,12 @@
 -   Use Privacy policy in the registration forms across the pages
 -   Keep in mind the DRY _(don't repeat yourself)_ principle.
 -   Do a proper analysis of the current functionality before you start implementing.
+
+---
+
+[ ]
+
+[✨🛅] Do not show the primary button "Zarezervovat hovor zdarma" in the terms and privacy policy pages.
+
+![alt text](prompts/screenshots/2026-08-0020-privacy-policy.png)
+

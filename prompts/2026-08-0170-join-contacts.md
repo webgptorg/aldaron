@@ -18,7 +18,13 @@
 
 [x] by Claude Code `claude-opus-5` thinking `max` - Implementation $4.75 14 minutes; Testing a minute
 
+---
+
+[ ] !!!!!
+
 [✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
 
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts.png)
-
+![alt text](prompts/screenshots/2026-08-0170-join-contacts-1.png)
+![alt text](prompts/screenshots/2026-08-0170-join-contacts-2.png)
+![alt text](prompts/screenshots/2026-08-0170-join-contacts-3.png)
