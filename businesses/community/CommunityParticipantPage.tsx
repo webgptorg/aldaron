@@ -1,5 +1,4 @@
 import {
-    CZECH_COMMUNITY_EMPTY_STAGE,
     CZECH_COMMUNITY_ROOM_COPY,
     CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
     createCzechCommunityConnectionDetails,
@@ -17,7 +16,8 @@ type CommunityParticipantPageProps = {
 
 /**
  * Community-specific data and Czech copy on top of the shared participant room. The room itself remains the same
- * audited, live workshop infrastructure rather than a parallel implementation.
+ * audited workshop infrastructure rather than a parallel implementation, while the `community` kind of the room takes
+ * away what only a live occurrence has: its stage, its schedule, and its live updates.
  */
 export function CommunityParticipantPage({
     community,
@@ -34,7 +34,6 @@ export function CommunityParticipantPage({
             initialFullname={initialFullname}
             roomSubtitle={CZECH_COMMUNITY_ROOM_COPY.roomSubtitle}
             isWorkshopSelectionInUrl={false}
-            emptyStage={CZECH_COMMUNITY_EMPTY_STAGE}
             materialsTitle={CZECH_COMMUNITY_ROOM_COPY.materialsTitle}
             unavailableConnectionMessage={CZECH_COMMUNITY_ROOM_COPY.unavailableConnectionMessage}
             workshopNavigation={{

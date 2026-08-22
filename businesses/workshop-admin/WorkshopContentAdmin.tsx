@@ -3,7 +3,10 @@ import { WorkshopContentEditor } from '@/businesses/workshop-admin/WorkshopConte
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 
 type WorkshopContentAdminProps = {
-    readonly workshopStartsAt: string;
+    /**
+     * When a newly written material unlocks unless an admin picks another moment
+     */
+    readonly defaultUnlockAt: string;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly onCreate: (values: WorkshopContentWriteValues) => Promise<boolean>;
     readonly onUpdate: (contentId: string, values: WorkshopContentWriteValues) => Promise<boolean>;
@@ -12,7 +15,7 @@ type WorkshopContentAdminProps = {
 };
 
 export function WorkshopContentAdmin({
-    workshopStartsAt,
+    defaultUnlockAt,
     contentBlocks,
     onCreate,
     onUpdate,
@@ -30,7 +33,7 @@ export function WorkshopContentAdmin({
                     <WorkshopContentEditor
                         key={contentBlock.id}
                         contentBlock={contentBlock}
-                        defaultUnlockAt={workshopStartsAt}
+                        defaultUnlockAt={defaultUnlockAt}
                         defaultSortOrder={contentBlock.sortOrder}
                         onSave={(values) => onUpdate(contentBlock.id, values)}
                         onDelete={() => onDelete(contentBlock.id)}
@@ -39,7 +42,7 @@ export function WorkshopContentAdmin({
                 ))}
                 <WorkshopContentEditor
                     contentBlock={null}
-                    defaultUnlockAt={workshopStartsAt}
+                    defaultUnlockAt={defaultUnlockAt}
                     defaultSortOrder={contentBlocks.length * 10}
                     onSave={onCreate}
                 />

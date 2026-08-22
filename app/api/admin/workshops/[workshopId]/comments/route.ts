@@ -45,6 +45,6 @@ export async function POST(request: NextRequest, context: AdminWorkshopCommentsR
         return NextResponse.json({ error: 'Artificial comment could not be created' }, { status: 500 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ commentId: data.id }, { status: 201 });
 }

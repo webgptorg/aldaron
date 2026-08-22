@@ -12,6 +12,7 @@ import {
     formatAdminWorkshopParticipations,
     getAdminContactPhoneNumbers,
 } from '@/lib/admin/adminContactJoin';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 
 export const WORKSHOP_ADMIN_EXPORT_KINDS = [
     'settings',
@@ -44,7 +45,13 @@ function formatBoolean(value: boolean): string {
     return value ? 'ano' : 'ne';
 }
 
+/**
+ * Note: A setting which the kind of the room does not have is left out of its export as well, so a spreadsheet never
+ *       states a start, an end, or a stage which nothing in that room ever used.
+ */
 function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
+    const roomCapabilities = getWorkshopKindCapabilities(workshop.kind);
+
     return serializeRowsAsCsv(
         [workshop],
         [
@@ -52,11 +59,24 @@ function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
             { header: 'Název', getValue: (item) => item.title },
             { header: 'Slug', getValue: (item) => item.slug },
             { header: 'Popis', getValue: (item) => item.description },
-            { header: 'Začíná', getValue: (item) => item.startsAt },
-            { header: 'Končí', getValue: (item) => item.endsAt },
+            ...(roomCapabilities.isScheduled
+                ? [
+                      { header: 'Začíná', getValue: (item: WorkshopDetails) => item.startsAt },
+                      { header: 'Končí', getValue: (item: WorkshopDetails) => item.endsAt },
+                  ]
+                : []),
             { header: 'Publikováno', getValue: (item) => formatBoolean(item.isPublished) },
-            { header: 'YouTube video ID', getValue: (item) => item.youtubeVideoId },
-            { header: 'Povolené reakce', getValue: (item) => item.allowedReactions.join(' ') },
+            ...(roomCapabilities.isStageOffered
+                ? [{ header: 'YouTube video ID', getValue: (item: WorkshopDetails) => item.youtubeVideoId }]
+                : []),
+            ...(roomCapabilities.isRealtime
+                ? [
+                      {
+                          header: 'Povolené reakce',
+                          getValue: (item: WorkshopDetails) => item.allowedReactions.join(' '),
+                      },
+                  ]
+                : []),
             { header: 'Vypnuté panely', getValue: (item) => item.disabledPanels.join(', ') },
             { header: 'Vytvořeno', getValue: (item) => item.createdAt },
             { header: 'Aktualizováno', getValue: (item) => item.updatedAt },

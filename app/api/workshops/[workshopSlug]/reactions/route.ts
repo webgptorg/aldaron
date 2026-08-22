@@ -66,7 +66,7 @@ export async function POST(request: NextRequest, context: WorkshopReactionsRoute
         return NextResponse.json({ error: 'Reaction could not be saved' }, { status: 500 });
     }
 
-    await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, {
+    await broadcastWorkshopEvent(authenticatedRequest.supabase, authenticatedRequest.workshopRow, {
         kind: 'reaction',
         reaction: createdReaction.reaction,
         reactionCount: createdReaction.reactionCount,

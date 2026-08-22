@@ -10,6 +10,7 @@ import {
     type WorkshopRow,
 } from '@/lib/workshops/workshopDatabase';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
+import { getUnsupportedWorkshopKindFieldNames } from '@/lib/workshops/workshopKindCapabilities';
 import { isWorkshopCommentStatus } from '@/lib/workshops/workshopCommentStatus';
 import { workshopUpdateSchema } from '@/lib/workshops/workshopSchemas';
 import { createWorkshopUpdateDatabaseValues } from '@/lib/workshops/workshopValues';
@@ -82,6 +83,14 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopRouteCon
         return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
     }
 
+    const unsupportedFieldNames = getUnsupportedWorkshopKindFieldNames(existingWorkshop.room_kind, parsedResult.data);
+    if (unsupportedFieldNames.length > 0) {
+        return NextResponse.json(
+            { error: `A ${existingWorkshop.room_kind} room has no ${unsupportedFieldNames.join(', ')}` },
+            { status: 400 },
+        );
+    }
+
     const startsAt = parsedResult.data.startsAt ?? existingWorkshop.starts_at;
     const endsAt = parsedResult.data.endsAt === undefined ? existingWorkshop.ends_at : parsedResult.data.endsAt;
     if (endsAt !== null && Date.parse(endsAt) <= Date.parse(startsAt)) {
@@ -101,7 +110,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopRouteCon
         return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
     }
 
-    const workshop = mapWorkshopRow(data as WorkshopRow);
-    await broadcastWorkshopEvent(supabase, workshop.slug, { kind: 'state-changed' });
-    return NextResponse.json({ workshop });
+    const updatedWorkshopRow = data as WorkshopRow;
+    await broadcastWorkshopEvent(supabase, updatedWorkshopRow, { kind: 'state-changed' });
+    return NextResponse.json({ workshop: mapWorkshopRow(updatedWorkshopRow) });
 }

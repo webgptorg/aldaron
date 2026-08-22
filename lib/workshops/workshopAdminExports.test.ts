@@ -125,6 +125,23 @@ describe('workshop admin exports', () => {
         expect(vcard).toContain('Záznamy kontaktu');
     });
 
+    it('exports of a permanent room leave out the settings its kind never had', () => {
+        const workshopSettingsCsv = createWorkshopAdminExportFile('settings', { workshop: WORKSHOP }).content;
+        const communitySettingsCsv = createWorkshopAdminExportFile('settings', {
+            workshop: { ...WORKSHOP, kind: 'community', slug: 'komunita' },
+        }).content;
+
+        expect(workshopSettingsCsv).toContain('"Začíná","Končí"');
+        expect(workshopSettingsCsv).toContain('YouTube video ID');
+        expect(workshopSettingsCsv).toContain('Povolené reakce');
+        expect(communitySettingsCsv).toContain('"Typ místnosti"');
+        expect(communitySettingsCsv).toContain('Vypnuté panely');
+        expect(communitySettingsCsv).not.toContain('Začíná');
+        expect(communitySettingsCsv).not.toContain('Končí');
+        expect(communitySettingsCsv).not.toContain('YouTube video ID');
+        expect(communitySettingsCsv).not.toContain('Povolené reakce');
+    });
+
     it('uses the matching MIME type and filename for participant vCards', () => {
         const exportFile = createWorkshopAdminExportFile('participants-vcard', {
             workshop: WORKSHOP,

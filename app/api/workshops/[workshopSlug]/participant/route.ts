@@ -48,7 +48,9 @@ export async function PATCH(request: NextRequest, context: WorkshopParticipantRo
 
     // Nobody else needs a fresh snapshot when the new name stayed inside the room of the renamed participant.
     if (renameResult.isVisibleCommentRenamed) {
-        await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, { kind: 'state-changed' });
+        await broadcastWorkshopEvent(authenticatedRequest.supabase, authenticatedRequest.workshopRow, {
+            kind: 'state-changed',
+        });
     }
 
     const response = NextResponse.json({ participant: renameResult.participant });

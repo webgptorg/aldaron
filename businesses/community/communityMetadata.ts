@@ -17,6 +17,7 @@ export const COMMUNITY_PAGE_DEFINITION: PageMetadataDefinition = {
 
 export const COMMUNITY_METADATA: Metadata = {
     ...createPageMetadata(COMMUNITY_PAGE_DEFINITION),
-    // YouTube requires a referrer for its embedded player, but the query parameters can contain a participant e-mail.
+    // An invitation link can carry a participant e-mail in its query parameters, so nothing outside this site learns
+    // more than the origin the visitor came from.
     referrer: 'strict-origin-when-cross-origin',
 };

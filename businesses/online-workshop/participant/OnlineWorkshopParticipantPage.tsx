@@ -9,11 +9,12 @@ import {
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
-import { WorkshopStage, type WorkshopStageEmptyState } from '@/businesses/online-workshop/participant/WorkshopStage';
+import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
-import { isWorkshopPanelEnabled, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
@@ -51,7 +52,6 @@ type OnlineWorkshopParticipantPageProps = {
     readonly roomSubtitle?: string;
     readonly isWorkshopSelectionInUrl?: boolean;
     readonly workshopNavigation?: WorkshopNavigationDetails;
-    readonly emptyStage?: WorkshopStageEmptyState;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
 };
@@ -65,7 +65,6 @@ export function OnlineWorkshopParticipantPage({
     roomSubtitle = 'Online workshop · Promptbook',
     isWorkshopSelectionInUrl = true,
     workshopNavigation,
-    emptyStage,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
 }: OnlineWorkshopParticipantPageProps) {
@@ -141,10 +140,12 @@ export function OnlineWorkshopParticipantPage({
     }
 
     const { state } = controller;
+    const roomCapabilities = getWorkshopKindCapabilities(state.workshop.kind);
 
-    // Note: A panel switched off in the administration is asked for here once, so a new panel is one line of the room.
-    const isPanelEnabled = (panelKey: WorkshopPanelKey) =>
-        isWorkshopPanelEnabled(state.workshop.disabledPanels, panelKey);
+    // Note: What the kind of this room has and what an administrator switched off is asked here once, so a new panel
+    //       is one line of the room.
+    const isPanelOffered = (panelKey: WorkshopPanelKey) =>
+        isWorkshopPanelOffered(state.workshop.kind, state.workshop.disabledPanels, panelKey);
 
     return (
         <div className="min-h-screen bg-[#06131b] text-slate-200">
@@ -164,7 +165,7 @@ export function OnlineWorkshopParticipantPage({
                         </div>
                     </div>
                     <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
-                        {isPanelEnabled('watching-count') && (
+                        {isPanelOffered('watching-count') && (
                             <WorkshopWatchingBadge watchingParticipantCount={state.watchingParticipantCount} />
                         )}
                         <WorkshopParticipantBadge
@@ -192,12 +193,13 @@ export function OnlineWorkshopParticipantPage({
                         </div>
                     )}
 
-                    <WorkshopStage
-                        workshop={state.workshop}
-                        serverTime={state.serverTime}
-                        emptyStage={emptyStage}
-                        subscribeToReactions={controller.subscribeToReactions}
-                    />
+                    {roomCapabilities.isStageOffered && (
+                        <WorkshopStage
+                            workshop={state.workshop}
+                            serverTime={state.serverTime}
+                            subscribeToReactions={controller.subscribeToReactions}
+                        />
+                    )}
                     {calendarDetails !== null && (
                         <WorkshopCalendarInvitation
                             workshop={state.workshop}
@@ -225,7 +227,7 @@ export function OnlineWorkshopParticipantPage({
                             timeZone={workshopNavigation.timeZone}
                         />
                     )}
-                    {isPanelEnabled('reactions') && (
+                    {isPanelOffered('reactions') && (
                         <WorkshopReactions
                             emojis={state.workshop.allowedReactions}
                             reactionCounts={state.reactionCounts}
@@ -239,7 +241,7 @@ export function OnlineWorkshopParticipantPage({
                     className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1"
                     comments={state.comments}
                     commentSort={controller.commentSort}
-                    isEnabled={isPanelEnabled('chat')}
+                    isEnabled={isPanelOffered('chat')}
                     isInteractionBanned={state.participant.isInteractionBanned}
                     onChangeSort={controller.changeCommentSort}
                     onSubmitComment={controller.submitComment}

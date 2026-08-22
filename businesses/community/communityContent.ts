@@ -1,5 +1,4 @@
 import type { WorkshopConnectionDetails } from '@/businesses/online-workshop/participant/WorkshopConnectionForm';
-import type { WorkshopStageEmptyState } from '@/businesses/online-workshop/participant/WorkshopStage';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 
 /**
@@ -19,11 +18,6 @@ export function createCzechCommunityConnectionDetails(community: WorkshopDetails
         language: 'cs',
     };
 }
-
-export const CZECH_COMMUNITY_EMPTY_STAGE: WorkshopStageEmptyState = {
-    title: 'Na komunitním jevišti teď není živý stream',
-    description: 'Až moderátor spustí YouTube stream, objeví se tady automaticky.',
-};
 
 export const CZECH_COMMUNITY_ROOM_COPY = {
     roomSubtitle: 'Komunita Promptbooku',

@@ -47,7 +47,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopParticip
         return NextResponse.json({ error: 'Participant not found' }, { status: 404 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({
         participantId: data.id,
         isInteractionBanned: data.is_interaction_banned,
@@ -81,6 +81,6 @@ export async function DELETE(request: NextRequest, context: AdminWorkshopPartici
         return NextResponse.json({ error: 'Participant not found' }, { status: 404 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ participantId: data.id });
 }

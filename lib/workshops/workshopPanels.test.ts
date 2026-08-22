@@ -1,6 +1,8 @@
 import {
+    getWorkshopKindPanelDefinitions,
     isWorkshopPanelEnabled,
     isWorkshopPanelKey,
+    isWorkshopPanelOffered,
     normalizeWorkshopDisabledPanels,
     withWorkshopPanelEnabled,
     WORKSHOP_PANEL_DEFINITIONS,
@@ -52,5 +54,25 @@ describe('workshop panels', () => {
 
     it('drops an unknown key while switching, so a stored typo cannot survive a save', () => {
         expect(withWorkshopPanelEnabled(['stage', 'chat'], 'reactions', false)).toEqual(['chat', 'reactions']);
+    });
+
+    it('leaves the panels of a live room out of a calm one', () => {
+        expect(getWorkshopKindPanelDefinitions('workshop').map((panelDefinition) => panelDefinition.key)).toEqual([
+            'chat',
+            'reactions',
+            'watching-count',
+        ]);
+        expect(getWorkshopKindPanelDefinitions('community').map((panelDefinition) => panelDefinition.key)).toEqual([
+            'chat',
+        ]);
+    });
+
+    it('offers a panel only when the kind of the room has it and nobody switched it off', () => {
+        expect(isWorkshopPanelOffered('workshop', [], 'reactions')).toBe(true);
+        expect(isWorkshopPanelOffered('workshop', ['reactions'], 'reactions')).toBe(false);
+        expect(isWorkshopPanelOffered('community', [], 'chat')).toBe(true);
+        expect(isWorkshopPanelOffered('community', ['chat'], 'chat')).toBe(false);
+        expect(isWorkshopPanelOffered('community', [], 'reactions')).toBe(false);
+        expect(isWorkshopPanelOffered('community', [], 'watching-count')).toBe(false);
     });
 });

@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopContentI
         return NextResponse.json({ error: 'Content block not found' }, { status: 404 });
     }
 
-    await broadcastWorkshopEvent(workshopResult.supabase, workshopResult.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopResult.supabase, workshopResult.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ contentBlock: mapWorkshopContentRow(data) });
 }
 
@@ -93,6 +93,6 @@ export async function DELETE(request: NextRequest, context: AdminWorkshopContent
         return NextResponse.json({ error: 'Content block not found' }, { status: 404 });
     }
 
-    await broadcastWorkshopEvent(workshopResult.supabase, workshopResult.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopResult.supabase, workshopResult.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ success: true });
 }

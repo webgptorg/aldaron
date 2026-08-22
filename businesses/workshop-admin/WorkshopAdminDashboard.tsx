@@ -26,6 +26,7 @@ import {
     type WorkshopCreateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { WorkshopAdminRefreshButton } from '@/businesses/workshop-admin/WorkshopAdminRefreshButton';
 import { WorkshopAggregateTimeline } from '@/businesses/workshop-admin/WorkshopAggregateTimeline';
 import { WorkshopArtificialComment } from '@/businesses/workshop-admin/WorkshopArtificialComment';
 import { WorkshopArtificialReaction } from '@/businesses/workshop-admin/WorkshopArtificialReaction';
@@ -37,8 +38,8 @@ import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopRea
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import type {
     WorkshopAdminSnapshot,
     WorkshopAdminSummary,
@@ -46,7 +47,7 @@ import type {
     WorkshopKind,
 } from '@/lib/workshops/workshopTypes';
 import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Users } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
 const WORKSHOP_ADMIN_SECTION_VALUES = [
@@ -77,11 +78,9 @@ type WorkshopAdminDashboardProps = {
     readonly adminToken: string;
     readonly initialWorkshopSlug: string | null;
     readonly workshopKind?: WorkshopKind;
-    readonly isWorkshopCreationEnabled?: boolean;
     readonly selectorLabel?: string;
     readonly subjectLabel?: string;
     readonly emptyStateMessage?: string;
-    readonly isSlugEditable?: boolean;
 };
 
 function isWorkshopAdminSection(value: string): value is WorkshopAdminSection {
@@ -92,12 +91,14 @@ export function WorkshopAdminDashboard({
     adminToken,
     initialWorkshopSlug,
     workshopKind = 'workshop',
-    isWorkshopCreationEnabled = true,
     selectorLabel = 'Workshop',
     subjectLabel = 'workshopu',
     emptyStateMessage = 'Vytvořte první workshop.',
-    isSlugEditable = true,
 }: WorkshopAdminDashboardProps) {
+    // Note: There is only ever one room of a singleton kind, so nothing offers a choice between rooms of that kind or
+    //       the creation of a second one.
+    const { isSingleton, isScheduled: isRoomScheduled } = getWorkshopKindCapabilities(workshopKind);
+    const isRoomSelectionOffered = !isSingleton;
     const [workshops, setWorkshops] = useState<readonly WorkshopAdminSummary[]>([]);
     const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
     const [selectedSection, setSelectedSection] = useState<WorkshopAdminSection>('overview');
@@ -316,31 +317,39 @@ export function WorkshopAdminDashboard({
         }
     };
 
+    const handleRefresh = () => void Promise.all([loadSnapshot(), loadWorkshopList()]);
+
+    // Note: A room without a schedule unlocks new material as soon as it is written, rather than at a date it never
+    //       had. The moment is taken once per room, so a reload of the administration never rewrites a form being
+    //       filled in.
+    const currentUnlockAt = useMemo(() => new Date().toISOString(), [selectedWorkshopId]);
+    const scheduleStartsAt = isRoomScheduled && snapshot !== null ? snapshot.workshop.startsAt : null;
+
     return (
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="space-y-4">
-                <WorkshopSelectorCardList
-                    label={selectorLabel}
-                    workshops={workshops}
-                    selectedWorkshopId={selectedWorkshopId}
-                    isLoading={isLoading}
-                    emptyMessage={emptyStateMessage}
-                    onSelect={setSelectedWorkshopId}
-                />
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => void Promise.all([loadSnapshot(), loadWorkshopList()])}
-                >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Obnovit data
-                </Button>
-                {isWorkshopCreationEnabled && <CreateWorkshopForm onCreate={handleCreateWorkshop} />}
-            </aside>
+        <div
+            className={`mx-auto grid max-w-7xl gap-6 px-6 py-8 ${isRoomSelectionOffered ? 'lg:grid-cols-[320px_minmax(0,1fr)]' : ''}`}
+        >
+            {isRoomSelectionOffered && (
+                <aside className="space-y-4">
+                    <WorkshopSelectorCardList
+                        label={selectorLabel}
+                        workshops={workshops}
+                        selectedWorkshopId={selectedWorkshopId}
+                        isLoading={isLoading}
+                        emptyMessage={emptyStateMessage}
+                        onSelect={setSelectedWorkshopId}
+                    />
+                    <WorkshopAdminRefreshButton className="w-full" onRefresh={handleRefresh} />
+                    <CreateWorkshopForm onCreate={handleCreateWorkshop} />
+                </aside>
+            )}
 
             <div className="min-w-0 space-y-6">
+                {!isRoomSelectionOffered && (
+                    <div className="flex justify-end">
+                        <WorkshopAdminRefreshButton onRefresh={handleRefresh} />
+                    </div>
+                )}
                 {errorMessage !== null && (
                     <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {errorMessage}
@@ -399,7 +408,7 @@ export function WorkshopAdminDashboard({
                             <WorkshopParticipantList
                                 adminToken={adminToken}
                                 workshopId={snapshot.workshop.id}
-                                workshopStartsAt={snapshot.workshop.startsAt}
+                                workshopStartsAt={scheduleStartsAt}
                                 workshopEndsAt={snapshot.workshop.endsAt}
                                 refreshVersion={snapshotRefreshVersion}
                                 onChangeInteractionBan={handleChangeParticipantInteractionBan}
@@ -463,7 +472,7 @@ export function WorkshopAdminDashboard({
                                 />
                             </div>
                             <WorkshopContentAdmin
-                                workshopStartsAt={snapshot.workshop.startsAt}
+                                defaultUnlockAt={scheduleStartsAt ?? currentUnlockAt}
                                 contentBlocks={snapshot.contentBlocks}
                                 onCreate={handleCreateContent}
                                 onUpdate={handleUpdateContent}
@@ -485,7 +494,6 @@ export function WorkshopAdminDashboard({
                                 workshop={snapshot.workshop}
                                 onSave={handleSaveWorkshop}
                                 subjectLabel={subjectLabel}
-                                isSlugEditable={isSlugEditable}
                             />
                         </TabsContent>
                     </Tabs>

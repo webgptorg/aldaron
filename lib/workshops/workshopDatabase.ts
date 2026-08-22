@@ -14,7 +14,7 @@ import {
     WORKSHOP_WATCHING_WINDOW_SECONDS,
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
-import { isWorkshopPanelEnabled, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
+import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminComment,
     WorkshopAdminAnalytics,
@@ -623,7 +623,7 @@ export async function countWatchingWorkshopParticipants(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
 ): Promise<number> {
-    if (!isWorkshopPanelEnabled(workshopRow.disabled_panels, 'watching-count')) {
+    if (!isWorkshopPanelOffered(workshopRow.room_kind, workshopRow.disabled_panels, 'watching-count')) {
         return 0;
     }
 
@@ -657,7 +657,7 @@ async function loadWorkshopReactionCounts(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
 ): Promise<LoadedWorkshopReactionCounts> {
-    if (!isWorkshopPanelEnabled(workshopRow.disabled_panels, 'reactions')) {
+    if (!isWorkshopPanelOffered(workshopRow.room_kind, workshopRow.disabled_panels, 'reactions')) {
         return { reactionCounts: [], errorMessage: null };
     }
 
@@ -1202,6 +1202,14 @@ export async function loadWorkshopPublicState(
     commentSort: WorkshopCommentSort,
 ): Promise<LoadedWorkshopPublicState> {
     const contentVisibilityCutoff = new Date().toISOString();
+
+    // Note: The reactions which flew over the stage recently are replayed for somebody entering the room. A room
+    //       without that panel therefore does not load them, exactly as it does not count them.
+    const isReactionsPanelOffered = isWorkshopPanelOffered(
+        workshopRow.room_kind,
+        workshopRow.disabled_panels,
+        'reactions',
+    );
     const commentsQuery = supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
         .select(WORKSHOP_COMMENT_COLUMNS)
@@ -1246,12 +1254,14 @@ export async function loadWorkshopPublicState(
             .eq('status', 'pending')
             .order('created_at', { ascending: false })
             .limit(MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT),
-        supabase
-            .from(WORKSHOP_REACTION_TABLE_NAME)
-            .select('id, emoji, created_at')
-            .eq('workshop_id', workshopRow.id)
-            .order('created_at', { ascending: false })
-            .limit(MAXIMAL_RECENT_REACTION_COUNT),
+        isReactionsPanelOffered
+            ? supabase
+                  .from(WORKSHOP_REACTION_TABLE_NAME)
+                  .select('id, emoji, created_at')
+                  .eq('workshop_id', workshopRow.id)
+                  .order('created_at', { ascending: false })
+                  .limit(MAXIMAL_RECENT_REACTION_COUNT)
+            : Promise.resolve({ data: [], error: null }),
         loadWorkshopReactionCounts(supabase, workshopRow),
         countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),

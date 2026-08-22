@@ -17,19 +17,30 @@ import {
 } from '@/lib/workshops/workshopAdminParticipantQuery';
 import type { WorkshopAdminExportKind } from '@/lib/workshops/workshopAdminExports';
 
+/**
+ * The settings of a room as its administration writes them
+ *
+ * Note: A setting which the kind of the room does not have is left out instead of being sent as an empty value, so a
+ *       calm room never receives a schedule, a stage, or reactions it could not offer anyway.
+ */
 export type WorkshopWriteValues = {
     readonly slug: string;
     readonly title: string;
     readonly description: string;
-    readonly startsAt: string;
-    readonly endsAt: string | null;
-    readonly youtubeVideoId: string | null;
     readonly isPublished: boolean;
-    readonly allowedReactions: readonly string[];
     readonly disabledPanels: readonly WorkshopPanelKey[];
+    readonly startsAt?: string;
+    readonly endsAt?: string | null;
+    readonly youtubeVideoId?: string | null;
+    readonly allowedReactions?: readonly string[];
 };
 
-export type WorkshopCreateValues = WorkshopWriteValues;
+/**
+ * A new room always starts as an occurrence in time, so its creation says when it happens.
+ */
+export type WorkshopCreateValues = WorkshopWriteValues & {
+    readonly startsAt: string;
+};
 
 export type WorkshopContentWriteValues = {
     readonly title: string;

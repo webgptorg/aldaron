@@ -51,6 +51,6 @@ export async function POST(request: NextRequest, context: AdminWorkshopContentRo
         return NextResponse.json({ error: error?.message ?? 'Content was not returned' }, { status: 500 });
     }
 
-    await broadcastWorkshopEvent(supabase, workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(supabase, workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ contentBlock: mapWorkshopContentRow(data) }, { status: 201 });
 }

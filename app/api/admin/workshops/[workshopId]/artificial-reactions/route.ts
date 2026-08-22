@@ -39,7 +39,7 @@ export async function POST(request: NextRequest, context: AdminWorkshopArtificia
         return NextResponse.json({ error: 'Artificial reaction could not be sent' }, { status: 500 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, {
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, {
         kind: 'reaction',
         reaction: createdReaction.reaction,
         reactionCount: createdReaction.reactionCount,

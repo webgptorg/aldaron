@@ -15,7 +15,6 @@ const CLOCK_TICK_MILLISECONDS = 1000;
 type WorkshopStageProps = {
     readonly workshop: WorkshopDetails;
     readonly serverTime: string;
-    readonly emptyStage?: WorkshopStageEmptyState;
 
     /**
      * Where the reactions of the room come from
@@ -23,14 +22,6 @@ type WorkshopStageProps = {
      * Note: The stage keeps the flying reactions itself, so a busy room re-renders nothing but the stage they fly over.
      */
     readonly subscribeToReactions: SubscribeToWorkshopReactions;
-};
-
-/**
- * Copy shown when a room is already open but its administrator has not scheduled a YouTube stream yet.
- */
-export type WorkshopStageEmptyState = {
-    readonly title: string;
-    readonly description: string;
 };
 
 function getRemainingSegments(remainingMilliseconds: number) {
@@ -62,7 +53,7 @@ function requestVideoFullscreen(videoFrame: HTMLIFrameElement | null): void {
     void requestFullscreen.call(videoFrame).catch(() => undefined);
 }
 
-export function WorkshopStage({ workshop, serverTime, emptyStage, subscribeToReactions }: WorkshopStageProps) {
+export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
     const serverClockOffset = useMemo(() => Date.parse(serverTime) - Date.now(), [serverTime]);
     const [currentTime, setCurrentTime] = useState(() => Date.now() + serverClockOffset);
@@ -119,12 +110,9 @@ export function WorkshopStage({ workshop, serverTime, emptyStage, subscribeToRea
                 ) : isWorkshopStarted ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,rgba(48,168,189,.24),transparent_52%)] px-8 text-center">
                         <Radio className="h-11 w-11 animate-pulse text-cyan-300" />
-                        <h2 className="mt-5 text-2xl font-bold text-white">
-                            {emptyStage?.title ?? 'Stream právě připravujeme'}
-                        </h2>
+                        <h2 className="mt-5 text-2xl font-bold text-white">Stream právě připravujeme</h2>
                         <p className="mt-2 max-w-md text-sm text-slate-400">
-                            {emptyStage?.description ??
-                                'Video se zde objeví automaticky, jakmile administrátor vloží YouTube stream.'}
+                            Video se zde objeví automaticky, jakmile administrátor vloží YouTube stream.
                         </p>
                     </div>
                 ) : (

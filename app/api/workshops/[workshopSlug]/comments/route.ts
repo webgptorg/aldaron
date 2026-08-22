@@ -120,7 +120,9 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
     );
 
     if (commentStatus === 'approved') {
-        await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, { kind: 'state-changed' });
+        await broadcastWorkshopEvent(authenticatedRequest.supabase, authenticatedRequest.workshopRow, {
+            kind: 'state-changed',
+        });
     }
 
     return NextResponse.json(

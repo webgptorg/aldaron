@@ -44,7 +44,11 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 type WorkshopParticipantListProps = {
     readonly adminToken: string;
     readonly workshopId: string;
-    readonly workshopStartsAt: string;
+
+    /**
+     * Start of the schedule an attendance is measured against, or `null` in a room which has no schedule
+     */
+    readonly workshopStartsAt: string | null;
     readonly workshopEndsAt: string | null;
     readonly refreshVersion: number;
     readonly onChangeInteractionBan: (participantId: string, isInteractionBanned: boolean) => Promise<void>;

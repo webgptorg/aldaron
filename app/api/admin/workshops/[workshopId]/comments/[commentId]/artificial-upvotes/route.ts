@@ -83,7 +83,7 @@ export async function POST(request: NextRequest, context: AdminWorkshopArtificia
         typedUpdatedComment.upvote_count,
         typedUpdatedComment.artificial_upvote_count,
     );
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, {
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, {
         kind: 'upvote',
         commentId: typedUpdatedComment.id,
         upvoteCount,

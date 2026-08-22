@@ -28,6 +28,6 @@ export async function DELETE(request: NextRequest, context: AdminWorkshopReactio
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ success: true });
 }

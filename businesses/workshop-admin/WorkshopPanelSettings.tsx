@@ -1,13 +1,15 @@
 'use client';
 
 import {
+    getWorkshopKindPanelDefinitions,
     isWorkshopPanelEnabled,
     withWorkshopPanelEnabled,
-    WORKSHOP_PANEL_DEFINITIONS,
     type WorkshopPanelKey,
 } from '@/lib/workshops/workshopPanels';
+import type { WorkshopKind } from '@/lib/workshops/workshopTypes';
 
 type WorkshopPanelSettingsProps = {
+    readonly workshopKind: WorkshopKind;
     readonly disabledPanels: readonly WorkshopPanelKey[];
     readonly onChange: (disabledPanels: readonly WorkshopPanelKey[]) => void;
 };
@@ -15,14 +17,15 @@ type WorkshopPanelSettingsProps = {
 /**
  * The switches which decide what the participant room offers its participants
  *
- * Note: Every panel of the registry gets a switch here, so a panel added later needs no change of this form.
+ * Note: Every panel the kind of this room can offer gets a switch here, so a panel added later needs no change of
+ *       this form.
  */
-export function WorkshopPanelSettings({ disabledPanels, onChange }: WorkshopPanelSettingsProps) {
+export function WorkshopPanelSettings({ workshopKind, disabledPanels, onChange }: WorkshopPanelSettingsProps) {
     return (
         <fieldset className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
             <legend className="px-1 text-sm font-medium text-slate-700">Panely v místnosti</legend>
             <div className="space-y-3">
-                {WORKSHOP_PANEL_DEFINITIONS.map((panelDefinition) => (
+                {getWorkshopKindPanelDefinitions(workshopKind).map((panelDefinition) => (
                     <label key={panelDefinition.key} className="flex items-start gap-3">
                         <input
                             type="checkbox"

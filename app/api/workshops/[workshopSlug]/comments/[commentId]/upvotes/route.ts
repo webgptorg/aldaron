@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, context: WorkshopUpvoteRouteCon
         updatedComment.artificial_upvote_count as number,
     );
     if (!upvoteError) {
-        await broadcastWorkshopEvent(authenticatedRequest.supabase, workshopSlug, {
+        await broadcastWorkshopEvent(authenticatedRequest.supabase, authenticatedRequest.workshopRow, {
             kind: 'upvote',
             commentId,
             upvoteCount,

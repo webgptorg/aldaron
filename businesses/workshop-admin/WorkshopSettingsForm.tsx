@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { isWorkshopPanelOfferedByKind } from '@/lib/workshops/workshopPanels';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { Save } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
@@ -15,7 +17,6 @@ type WorkshopSettingsFormProps = {
     readonly workshop: WorkshopDetails;
     readonly onSave: (values: WorkshopWriteValues) => Promise<boolean>;
     readonly subjectLabel?: string;
-    readonly isSlugEditable?: boolean;
 };
 
 /**
@@ -28,12 +29,10 @@ function parseWorkshopReactions(reactionText: string): readonly string[] {
     return reactionText.trim().split(/\s+/).filter(Boolean);
 }
 
-export function WorkshopSettingsForm({
-    workshop,
-    onSave,
-    subjectLabel = 'workshopu',
-    isSlugEditable = true,
-}: WorkshopSettingsFormProps) {
+export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'workshopu' }: WorkshopSettingsFormProps) {
+    const roomCapabilities = getWorkshopKindCapabilities(workshop.kind);
+    const isSlugEditable = !roomCapabilities.isSlugFixed;
+    const isReactionSettingOffered = isWorkshopPanelOfferedByKind(workshop.kind, 'reactions');
     const [slug, setSlug] = useState(workshop.slug);
     const [title, setTitle] = useState(workshop.title);
     const [description, setDescription] = useState(workshop.description);
@@ -60,7 +59,7 @@ export function WorkshopSettingsForm({
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const startsAtIso = fromDateTimeLocalValue(startsAt);
-        if (!startsAtIso || !title.trim() || !slug.trim()) {
+        if (!title.trim() || !slug.trim() || (roomCapabilities.isScheduled && !startsAtIso)) {
             return;
         }
 
@@ -69,12 +68,13 @@ export function WorkshopSettingsForm({
             slug,
             title,
             description,
-            startsAt: startsAtIso,
-            endsAt: fromDateTimeLocalValue(endsAt),
-            youtubeVideoId: youtubeVideoId.trim() || null,
             isPublished,
-            allowedReactions: parseWorkshopReactions(reactionText),
             disabledPanels,
+            ...(roomCapabilities.isScheduled && startsAtIso
+                ? { startsAt: startsAtIso, endsAt: fromDateTimeLocalValue(endsAt) }
+                : {}),
+            ...(roomCapabilities.isStageOffered ? { youtubeVideoId: youtubeVideoId.trim() || null } : {}),
+            ...(isReactionSettingOffered ? { allowedReactions: parseWorkshopReactions(reactionText) } : {}),
         });
         setIsSaving(false);
     };
@@ -135,47 +135,61 @@ export function WorkshopSettingsForm({
                         className="mt-2"
                     />
                 </label>
-                <label className="text-sm font-medium text-slate-700">
-                    Začátek
-                    <Input
-                        type="datetime-local"
-                        value={startsAt}
-                        onChange={(event) => setStartsAt(event.target.value)}
-                        className="mt-2"
-                        required
-                    />
-                </label>
-                <label className="text-sm font-medium text-slate-700">
-                    Konec
-                    <Input
-                        type="datetime-local"
-                        value={endsAt}
-                        onChange={(event) => setEndsAt(event.target.value)}
-                        className="mt-2"
-                    />
-                </label>
-                <label className="text-sm font-medium text-slate-700">
-                    YouTube URL nebo video ID
-                    <Input
-                        value={youtubeVideoId}
-                        onChange={(event) => setYoutubeVideoId(event.target.value)}
-                        className="mt-2 font-mono"
-                        placeholder="https://youtube.com/live/…"
-                    />
-                </label>
-                <label className="text-sm font-medium text-slate-700">
-                    Reakce oddělené mezerou
-                    <Input
-                        value={reactionText}
-                        onChange={(event) => setReactionText(event.target.value)}
-                        className="mt-2"
-                    />
-                </label>
+                {roomCapabilities.isScheduled && (
+                    <>
+                        <label className="text-sm font-medium text-slate-700">
+                            Začátek
+                            <Input
+                                type="datetime-local"
+                                value={startsAt}
+                                onChange={(event) => setStartsAt(event.target.value)}
+                                className="mt-2"
+                                required
+                            />
+                        </label>
+                        <label className="text-sm font-medium text-slate-700">
+                            Konec
+                            <Input
+                                type="datetime-local"
+                                value={endsAt}
+                                onChange={(event) => setEndsAt(event.target.value)}
+                                className="mt-2"
+                            />
+                        </label>
+                    </>
+                )}
+                {roomCapabilities.isStageOffered && (
+                    <label className="text-sm font-medium text-slate-700">
+                        YouTube URL nebo video ID
+                        <Input
+                            value={youtubeVideoId}
+                            onChange={(event) => setYoutubeVideoId(event.target.value)}
+                            className="mt-2 font-mono"
+                            placeholder="https://youtube.com/live/…"
+                        />
+                    </label>
+                )}
+                {isReactionSettingOffered && (
+                    <>
+                        <label className="text-sm font-medium text-slate-700">
+                            Reakce oddělené mezerou
+                            <Input
+                                value={reactionText}
+                                onChange={(event) => setReactionText(event.target.value)}
+                                className="mt-2"
+                            />
+                        </label>
+                        <div className="md:col-span-2">
+                            <WorkshopReactionAnimationPreview reactions={parseWorkshopReactions(reactionText)} />
+                        </div>
+                    </>
+                )}
                 <div className="md:col-span-2">
-                    <WorkshopReactionAnimationPreview reactions={parseWorkshopReactions(reactionText)} />
-                </div>
-                <div className="md:col-span-2">
-                    <WorkshopPanelSettings disabledPanels={disabledPanels} onChange={setDisabledPanels} />
+                    <WorkshopPanelSettings
+                        workshopKind={workshop.kind}
+                        disabledPanels={disabledPanels}
+                        onChange={setDisabledPanels}
+                    />
                 </div>
             </div>
 

@@ -27,6 +27,7 @@ import {
     getContentUnlockRefreshDelay,
     isWorkshopRealtimeEvent,
 } from '@/lib/workshops/workshopClientState';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import type { WorkshopCommentSort, WorkshopContentBlock, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -109,6 +110,10 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
     const lastPresenceReportAtRef = useRef<number | null>(null);
     const isConnectionReportedRef = useRef(false);
     const isConnected = state !== null;
+
+    // Note: A calm room such as the community never waits for a broadcast, so it neither opens a channel for one nor
+    //       polls quickly to make up for a channel which is not connected.
+    const isRoomRealtime = state !== null && getWorkshopKindCapabilities(state.workshop.kind).isRealtime;
 
     const invalidatePendingRefresh = useCallback(() => {
         refreshSequenceRef.current += 1;
@@ -223,8 +228,11 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             return;
         }
 
+        // Note: An unchanged count keeps the very same state, so a room which does not show it renders nothing again.
         setState((currentState) =>
-            currentState === null ? currentState : { ...currentState, watchingParticipantCount },
+            currentState === null || currentState.watchingParticipantCount === watchingParticipantCount
+                ? currentState
+                : { ...currentState, watchingParticipantCount },
         );
     }, []);
 
@@ -308,16 +316,17 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             return;
         }
 
-        const refreshInterval = isRealtimeConnected
-            ? CONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * CONNECTED_REFRESH_JITTER_MILLISECONDS
-            : DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * DISCONNECTED_REFRESH_JITTER_MILLISECONDS;
+        const isLiveUpdateMissing = isRoomRealtime && !isRealtimeConnected;
+        const refreshInterval = isLiveUpdateMissing
+            ? DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * DISCONNECTED_REFRESH_JITTER_MILLISECONDS
+            : CONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * CONNECTED_REFRESH_JITTER_MILLISECONDS;
         const intervalId = window.setInterval(() => {
             if (document.visibilityState === 'visible') {
                 void refresh();
             }
         }, refreshInterval);
         return () => window.clearInterval(intervalId);
-    }, [isConnected, isRealtimeConnected, refresh]);
+    }, [isConnected, isRealtimeConnected, isRoomRealtime, refresh]);
 
     useEffect(() => {
         if (!isConnected) {
@@ -344,7 +353,7 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
     }, [refresh, state?.nextContentUnlockAt, state?.serverTime]);
 
     useEffect(() => {
-        if (!isConnected) {
+        if (!isConnected || !isRoomRealtime) {
             return;
         }
 
@@ -410,7 +419,15 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             }
             void supabase.removeChannel(channel);
         };
-    }, [applyReactionCount, commentSort, isConnected, scheduleRealtimeRefresh, showReaction, workshopSlug]);
+    }, [
+        applyReactionCount,
+        commentSort,
+        isConnected,
+        isRoomRealtime,
+        scheduleRealtimeRefresh,
+        showReaction,
+        workshopSlug,
+    ]);
 
     const connect = useCallback(
         async (values: { readonly fullname: string; readonly email: string }): Promise<boolean> => {

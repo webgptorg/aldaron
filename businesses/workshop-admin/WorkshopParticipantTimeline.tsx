@@ -16,7 +16,11 @@ type WorkshopParticipantTimelineProps = {
     readonly timeline: WorkshopAdminParticipantTimeline | null;
     readonly isLoading: boolean;
     readonly errorMessage: string | null;
-    readonly workshopStartsAt: string;
+
+    /**
+     * Start of the schedule this attendance is measured against, or `null` in a room which has no schedule
+     */
+    readonly workshopStartsAt: string | null;
     readonly workshopEndsAt: string | null;
 };
 
@@ -99,6 +103,10 @@ export function WorkshopParticipantTimeline({
     const participant = timeline?.participant;
     const timelineEndsAt = participant === undefined ? null : getTimelineEndsAt(workshopEndsAt, participant.lastSeenAt);
 
+    // Note: A room without a schedule is measured from the moment this participant entered it, so their interval is
+    //       read against their own attendance instead of against a date the room never had.
+    const timelineStartsAt = workshopStartsAt ?? participant?.connectedAt ?? null;
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[calc(100vh-2rem)] max-w-3xl overflow-y-auto">
@@ -119,7 +127,10 @@ export function WorkshopParticipantTimeline({
                     <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                         {errorMessage}
                     </div>
-                ) : timeline === null || participant === undefined || timelineEndsAt === null ? null : (
+                ) : timeline === null ||
+                  participant === undefined ||
+                  timelineEndsAt === null ||
+                  timelineStartsAt === null ? null : (
                     <div className="space-y-6">
                         <section>
                             <h3 className="text-sm font-semibold text-slate-900">Kontaktní údaje a účasti</h3>
@@ -151,8 +162,8 @@ export function WorkshopParticipantTimeline({
                                 <div
                                     className="absolute top-0 h-3 rounded-full bg-cyan-600"
                                     style={{
-                                        left: `${getTimelinePositionPercent(participant.connectedAt, workshopStartsAt, timelineEndsAt)}%`,
-                                        right: `${100 - getTimelinePositionPercent(participant.lastSeenAt, workshopStartsAt, timelineEndsAt)}%`,
+                                        left: `${getTimelinePositionPercent(participant.connectedAt, timelineStartsAt, timelineEndsAt)}%`,
+                                        right: `${100 - getTimelinePositionPercent(participant.lastSeenAt, timelineStartsAt, timelineEndsAt)}%`,
                                     }}
                                 />
                             </div>

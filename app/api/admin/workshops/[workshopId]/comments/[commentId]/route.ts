@@ -106,7 +106,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopCommentR
         }
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ commentId: data.id, status: data.status, body: data.body });
 }
 
@@ -136,6 +136,6 @@ export async function DELETE(request: NextRequest, context: AdminWorkshopComment
         return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
     }
 
-    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow.slug, { kind: 'state-changed' });
+    await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
     return NextResponse.json({ commentId: data.id });
 }
