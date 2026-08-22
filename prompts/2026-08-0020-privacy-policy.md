@@ -13,8 +13,7 @@
 
 [ ]
 
-[✨🛅] Fix "Add privacy policy and \"Obchodní podmínky\""
+[✨🛅] Do not show the primary button "Zarezervovat hovor zdarma" in the terms and privacy policy pages.
 
--   @@@
--   You have implemented the "Add privacy policy and \"Obchodní podmínky\"" feature, but it is not working, fix it
+![alt text](prompts/screenshots/2026-08-0020-privacy-policy.png)
 
