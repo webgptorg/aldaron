@@ -35,6 +35,7 @@ import {
     Radio,
     RefreshCw,
     ShieldCheck,
+    ShieldPlus,
     ThumbsUp,
     Trash2,
     Users,
@@ -52,6 +53,11 @@ type WorkshopParticipantListProps = {
     readonly refreshVersion: number;
     readonly onChangeInteractionBan: (participantId: string, isInteractionBanned: boolean) => Promise<void>;
     readonly onChangeTrusted: (participantId: string, isTrusted: boolean) => Promise<void>;
+
+    /**
+     * Appoints a moderator of the room or dismisses them, which only the administration ever does
+     */
+    readonly onChangeModerator: (participantId: string, isModerator: boolean) => Promise<void>;
     readonly onDelete: (participantId: string) => Promise<void>;
 };
 
@@ -69,6 +75,7 @@ export function WorkshopParticipantList({
     refreshVersion,
     onChangeInteractionBan,
     onChangeTrusted,
+    onChangeModerator,
     onDelete,
 }: WorkshopParticipantListProps) {
     const [participantQuery, setParticipantQuery] = useState<WorkshopAdminParticipantQuery>(
@@ -90,6 +97,7 @@ export function WorkshopParticipantList({
         () => ({
             searchQuery: deferredSearchQuery,
             isTrusted: participantQuery.isTrusted,
+            isModerator: participantQuery.isModerator,
             isInteractionBanned: participantQuery.isInteractionBanned,
             registeredFrom: participantQuery.registeredFrom,
             registeredTo: participantQuery.registeredTo,
@@ -101,6 +109,7 @@ export function WorkshopParticipantList({
         [
             deferredSearchQuery,
             participantQuery.isInteractionBanned,
+            participantQuery.isModerator,
             participantQuery.isTrusted,
             participantQuery.page,
             participantQuery.pageSize,
@@ -344,6 +353,11 @@ export function WorkshopParticipantList({
                                             </TableCell>
                                             <TableCell className="min-w-36 align-top">
                                                 <div className="flex flex-col items-start gap-1">
+                                                    {participant.isModerator && (
+                                                        <span className="rounded-full bg-violet-100 px-2 py-1 text-xs font-semibold text-violet-800">
+                                                            Moderátor
+                                                        </span>
+                                                    )}
                                                     {participant.isTrusted && (
                                                         <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">
                                                             Důvěryhodný
@@ -354,9 +368,11 @@ export function WorkshopParticipantList({
                                                             Interakce zakázány
                                                         </span>
                                                     )}
-                                                    {!participant.isTrusted && !participant.isInteractionBanned && (
-                                                        <span className="text-xs text-slate-400">Bez omezení</span>
-                                                    )}
+                                                    {!participant.isTrusted &&
+                                                        !participant.isModerator &&
+                                                        !participant.isInteractionBanned && (
+                                                            <span className="text-xs text-slate-400">Bez omezení</span>
+                                                        )}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="min-w-64 align-top">
@@ -382,6 +398,25 @@ export function WorkshopParticipantList({
                                                     >
                                                         <ShieldCheck className="mr-1.5 h-4 w-4" />
                                                         {participant.isTrusted ? 'Odebrat důvěru' : 'Důvěřovat'}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant={participant.isModerator ? 'outline' : 'secondary'}
+                                                        size="sm"
+                                                        disabled={isProcessing}
+                                                        onClick={() =>
+                                                            void runParticipantAction(participant.id, () =>
+                                                                onChangeModerator(
+                                                                    participant.id,
+                                                                    !participant.isModerator,
+                                                                ),
+                                                            )
+                                                        }
+                                                    >
+                                                        <ShieldPlus className="mr-1.5 h-4 w-4" />
+                                                        {participant.isModerator
+                                                            ? 'Odebrat moderování'
+                                                            : 'Udělat moderátorem'}
                                                     </Button>
                                                     <Button
                                                         type="button"

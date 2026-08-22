@@ -2,6 +2,7 @@
 
 import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/WorkshopChatComposer';
 import { WorkshopChatMessage } from '@/businesses/online-workshop/participant/WorkshopChatMessage';
+import type { WorkshopChatModerationHandlers } from '@/businesses/online-workshop/participant/WorkshopChatMessageModeration';
 import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { cn } from '@/lib/utils';
 import type { WorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
@@ -13,6 +14,11 @@ import { useState } from 'react';
 type WorkshopChatThreadProps = {
     readonly thread: WorkshopCommentThread;
     readonly interactivity: WorkshopChatInteractivity;
+
+    /**
+     * What a moderator of the room does with the messages of this conversation, or `null` for everybody else
+     */
+    readonly moderation: WorkshopChatModerationHandlers | null;
     readonly onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly onUpvoteComment: (commentId: string) => Promise<void>;
 };
@@ -23,6 +29,7 @@ type WorkshopChatThreadProps = {
 export function WorkshopChatThread({
     thread,
     interactivity,
+    moderation,
     onSubmitComment,
     onUpvoteComment,
 }: WorkshopChatThreadProps) {
@@ -50,7 +57,12 @@ export function WorkshopChatThread({
                     : 'border-white/[0.07] bg-white/[0.035]',
             )}
         >
-            <WorkshopChatMessage comment={comment} interactivity={interactivity} onUpvote={onUpvoteComment} />
+            <WorkshopChatMessage
+                comment={comment}
+                interactivity={interactivity}
+                moderation={moderation}
+                onUpvote={onUpvoteComment}
+            />
 
             {replies.length > 0 && (
                 <div className="mt-4 space-y-4 border-l border-white/10 pl-4">
@@ -59,6 +71,7 @@ export function WorkshopChatThread({
                             key={reply.id}
                             comment={reply}
                             interactivity={interactivity}
+                            moderation={moderation}
                             onUpvote={onUpvoteComment}
                         />
                     ))}

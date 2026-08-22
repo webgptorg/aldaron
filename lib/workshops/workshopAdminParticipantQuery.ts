@@ -19,6 +19,7 @@ export type WorkshopAdminParticipantSortDirection = (typeof WORKSHOP_ADMIN_PARTI
 export type WorkshopAdminParticipantFilters = {
     readonly searchQuery: string;
     readonly isTrusted: boolean | null;
+    readonly isModerator: boolean | null;
     readonly isInteractionBanned: boolean | null;
     readonly registeredFrom: string | null;
     readonly registeredTo: string | null;
@@ -34,6 +35,7 @@ export type WorkshopAdminParticipantQuery = WorkshopAdminParticipantFilters & {
 export const DEFAULT_WORKSHOP_ADMIN_PARTICIPANT_QUERY: WorkshopAdminParticipantQuery = {
     searchQuery: '',
     isTrusted: null,
+    isModerator: null,
     isInteractionBanned: null,
     registeredFrom: null,
     registeredTo: null,
@@ -97,6 +99,7 @@ export function parseWorkshopAdminParticipantQuery(searchParams: URLSearchParams
     return {
         searchQuery: searchParams.get('search')?.trim().slice(0, 200) ?? '',
         isTrusted: readBooleanOrNull(searchParams.get('trusted')),
+        isModerator: readBooleanOrNull(searchParams.get('moderator')),
         isInteractionBanned: readBooleanOrNull(searchParams.get('interactionBanned')),
         registeredFrom: readIsoTimestampOrNull(searchParams.get('registeredFrom')),
         registeredTo: readIsoTimestampOrNull(searchParams.get('registeredTo')),
@@ -130,6 +133,7 @@ export function serializeWorkshopAdminParticipantQuery(
     const queryValues: Readonly<Record<string, string | null>> = {
         search: query.searchQuery || null,
         trusted: query.isTrusted === null ? null : String(query.isTrusted),
+        moderator: query.isModerator === null ? null : String(query.isModerator),
         interactionBanned: query.isInteractionBanned === null ? null : String(query.isInteractionBanned),
         registeredFrom: query.registeredFrom,
         registeredTo: query.registeredTo,

@@ -1,14 +1,19 @@
 'use client';
 
 import { WorkshopChatComposer } from '@/businesses/online-workshop/participant/WorkshopChatComposer';
+import type { WorkshopChatModerationHandlers } from '@/businesses/online-workshop/participant/WorkshopChatMessageModeration';
 import { WorkshopChatThread } from '@/businesses/online-workshop/participant/WorkshopChatThread';
 import { WORKSHOP_FADED_PANEL_CLASS_NAME } from '@/businesses/online-workshop/participant/workshopPanelAppearance';
-import type { WorkshopCommentValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
+import type {
+    WorkshopAuthorModerationValues,
+    WorkshopCommentModerationValues,
+    WorkshopCommentValues,
+} from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { cn } from '@/lib/utils';
 import { getWorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
 import { buildWorkshopCommentThreads } from '@/lib/workshops/workshopCommentThreads';
 import type { WorkshopComment, WorkshopCommentSort } from '@/lib/workshops/workshopTypes';
-import { Clock3, Lock, MessageCircle, ThumbsUp } from 'lucide-react';
+import { Clock3, Lock, MessageCircle, ShieldCheck, ThumbsUp } from 'lucide-react';
 import { useMemo } from 'react';
 
 type WorkshopChatProps = {
@@ -21,9 +26,16 @@ type WorkshopChatProps = {
      */
     readonly isEnabled: boolean;
     readonly isInteractionBanned: boolean;
+
+    /**
+     * Whether this participant moderates the room, see `isWorkshopParticipantModerating`
+     */
+    readonly isModerating: boolean;
     readonly onChangeSort: (sort: WorkshopCommentSort) => void;
     readonly onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly onUpvoteComment: (commentId: string) => Promise<void>;
+    readonly onModerateComment: (commentId: string, values: WorkshopCommentModerationValues) => Promise<boolean>;
+    readonly onModerateAuthor: (participantId: string, values: WorkshopAuthorModerationValues) => Promise<boolean>;
 };
 
 export function WorkshopChat({
@@ -32,12 +44,24 @@ export function WorkshopChat({
     commentSort,
     isEnabled,
     isInteractionBanned,
+    isModerating,
     onChangeSort,
     onSubmitComment,
     onUpvoteComment,
+    onModerateComment,
+    onModerateAuthor,
 }: WorkshopChatProps) {
     const threads = useMemo(() => buildWorkshopCommentThreads(comments, commentSort), [comments, commentSort]);
-    const interactivity = getWorkshopChatInteractivity({ isChatEnabled: isEnabled, isInteractionBanned });
+    const interactivity = getWorkshopChatInteractivity({
+        isChatEnabled: isEnabled,
+        isInteractionBanned,
+        isModerating,
+    });
+
+    // Note: Whether this chat is moderated is decided once here, so no message below has to judge it again.
+    const moderation: WorkshopChatModerationHandlers | null = interactivity.isModerationOffered
+        ? { onModerateComment, onModerateAuthor }
+        : null;
 
     return (
         <aside
@@ -49,9 +73,14 @@ export function WorkshopChat({
             )}
         >
             <header className="border-b border-white/10 px-5 py-4">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <MessageCircle className="h-5 w-5 text-cyan-300" />
                     <h2 className="font-bold text-white">Živý chat</h2>
+                    {interactivity.isModerationOffered && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-violet-300/10 px-2 py-0.5 text-[11px] font-semibold text-violet-200">
+                            <ShieldCheck className="h-3 w-3" /> Moderujete tuto místnost
+                        </span>
+                    )}
                 </div>
                 <div className="mt-3 flex rounded-lg bg-white/5 p-1 text-xs">
                     <button
@@ -83,6 +112,7 @@ export function WorkshopChat({
                             key={thread.comment.id}
                             thread={thread}
                             interactivity={interactivity}
+                            moderation={moderation}
                             onSubmitComment={onSubmitComment}
                             onUpvoteComment={onUpvoteComment}
                         />

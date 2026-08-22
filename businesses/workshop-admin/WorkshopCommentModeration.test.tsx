@@ -18,6 +18,8 @@ const COMMENT: WorkshopAdminComment = {
     artificialUpvoteCount: 0,
     isArtificial: false,
     createdAt: '2026-08-20T19:00:00.000Z',
+    isAuthorModerator: false,
+    moderatedAuthor: null,
     parentCommentId: null,
     parentComment: null,
     isPinned: false,

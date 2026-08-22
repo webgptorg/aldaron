@@ -7,21 +7,36 @@ import { MAXIMAL_WORKSHOP_COMMENT_LENGTH } from '@/lib/workshops/workshopConstan
 import { Send } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
+/**
+ * What the button of the form says while it waits to be pressed and while it is working
+ */
+export type WorkshopChatComposerLabels = {
+    readonly idle: string;
+    readonly pending: string;
+};
+
 type WorkshopChatComposerProps = {
     readonly className?: string;
     readonly label: string;
     readonly placeholder: string;
 
     /**
+     * The text this form starts with, which is how a moderator corrects a message which is already in the chat
+     */
+    readonly initialBody?: string;
+
+    /**
      * Whether this is the smaller form of a reply instead of the main form of the chat
      */
     readonly isCompact?: boolean;
     readonly isAutoFocused?: boolean;
+    readonly submitLabels?: WorkshopChatComposerLabels;
     readonly onCancel?: () => void;
     readonly onSubmit: (body: string) => Promise<boolean>;
 };
 
 const MARKDOWN_FORMATTING_HINT = 'Tučně **text**, kurzíva *text*, podtržení __text__.';
+const WORKSHOP_CHAT_SUBMIT_LABELS: WorkshopChatComposerLabels = { idle: 'Odeslat', pending: 'Odesílám…' };
 
 /**
  * The one form which writes into the chat, both as a new message and as a reply
@@ -32,12 +47,14 @@ export function WorkshopChatComposer({
     className,
     label,
     placeholder,
+    initialBody = '',
     isCompact = false,
     isAutoFocused = false,
+    submitLabels = WORKSHOP_CHAT_SUBMIT_LABELS,
     onCancel,
     onSubmit,
 }: WorkshopChatComposerProps) {
-    const [commentBody, setCommentBody] = useState('');
+    const [commentBody, setCommentBody] = useState(initialBody);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -92,7 +109,8 @@ export function WorkshopChatComposer({
                         disabled={isSubmitting || !commentBody.trim()}
                         className="w-full rounded-full bg-cyan-300 text-slate-950 hover:bg-cyan-200 sm:w-auto"
                     >
-                        <Send className="mr-1.5 h-3.5 w-3.5" /> {isSubmitting ? 'Odesílám…' : 'Odeslat'}
+                        <Send className="mr-1.5 h-3.5 w-3.5" />{' '}
+                        {isSubmitting ? submitLabels.pending : submitLabels.idle}
                     </Button>
                 </div>
             </div>

@@ -19,6 +19,7 @@ import {
     updateAdminWorkshop,
     updateAdminWorkshopContent,
     updateAdminWorkshopParticipantInteractionBan,
+    updateAdminWorkshopParticipantModerator,
     updateAdminWorkshopParticipantTrusted,
     type WorkshopArtificialCommentValues,
     type WorkshopArtificialReactionValues,
@@ -292,6 +293,13 @@ export function WorkshopAdminDashboard({
             );
         }
     };
+    const handleChangeParticipantModerator = async (participantId: string, isModerator: boolean) => {
+        if (snapshot !== null) {
+            await runAndReload(() =>
+                updateAdminWorkshopParticipantModerator(snapshot.workshop.id, participantId, isModerator),
+            );
+        }
+    };
     const handleDeleteParticipant = async (participantId: string) => {
         if (snapshot !== null) {
             await runAndReload(() => deleteAdminWorkshopParticipant(snapshot.workshop.id, participantId));
@@ -402,6 +410,7 @@ export function WorkshopAdminDashboard({
                                 refreshVersion={snapshotRefreshVersion}
                                 onChangeInteractionBan={handleChangeParticipantInteractionBan}
                                 onChangeTrusted={handleChangeParticipantTrusted}
+                                onChangeModerator={handleChangeParticipantModerator}
                                 onDelete={handleDeleteParticipant}
                             />
                         </TabsContent>

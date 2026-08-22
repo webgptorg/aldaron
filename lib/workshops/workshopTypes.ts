@@ -56,7 +56,19 @@ export type WorkshopParticipant = {
     readonly fullname: string;
     readonly connectedAt: string;
     readonly isInteractionBanned: boolean;
+
+    /**
+     * Whether the messages of this participant are approved as they are written
+     *
+     * Note: Trust stays invisible in the room. Nothing but the approval of their own messages tells a participant or
+     *       anybody else that they were trusted.
+     */
     readonly isTrusted: boolean;
+
+    /**
+     * Whether this participant moderates the room, which the room says with a badge
+     */
+    readonly isModerator: boolean;
 };
 
 export type WorkshopAdminParticipant = WorkshopParticipant &
@@ -156,6 +168,19 @@ export type WorkshopContentBlock = {
     readonly linkClickCount: number;
 };
 
+/**
+ * Who wrote a message, as far as somebody moderating the room may know them
+ *
+ * Note: Only a moderator receives this, so an ordinary participant never learns which invisible moderation state the
+ *       author of a message carries, nor the identity behind their name.
+ */
+export type WorkshopCommentAuthor = {
+    readonly participantId: string;
+    readonly isTrusted: boolean;
+    readonly isInteractionBanned: boolean;
+    readonly isModerator: boolean;
+};
+
 export type WorkshopComment = {
     readonly id: string;
     readonly authorName: string;
@@ -164,6 +189,16 @@ export type WorkshopComment = {
     readonly upvoteCount: number;
     readonly isUpvotedByParticipant: boolean;
     readonly createdAt: string;
+
+    /**
+     * Whether a moderator of the room wrote this message, which the whole room sees on it
+     */
+    readonly isAuthorModerator: boolean;
+
+    /**
+     * The author as a moderator of the room may act on them, or `null` for everybody else
+     */
+    readonly moderatedAuthor: WorkshopCommentAuthor | null;
 
     /**
      * The comment this one answers, or `null` when it opens its own thread

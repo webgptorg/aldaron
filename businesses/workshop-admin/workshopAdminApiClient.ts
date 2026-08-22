@@ -283,7 +283,11 @@ export async function clearAdminWorkshopReactions(workshopId: string): Promise<v
 async function updateAdminWorkshopParticipant(
     workshopId: string,
     participantId: string,
-    values: { readonly isInteractionBanned?: boolean; readonly isTrusted?: boolean },
+    values: {
+        readonly isInteractionBanned?: boolean;
+        readonly isTrusted?: boolean;
+        readonly isModerator?: boolean;
+    },
 ): Promise<void> {
     await requestAdminJson(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/participants/${encodeURIComponent(participantId)}`),
@@ -305,6 +309,20 @@ export async function updateAdminWorkshopParticipantTrusted(
     isTrusted: boolean,
 ): Promise<void> {
     await updateAdminWorkshopParticipant(workshopId, participantId, { isTrusted });
+}
+
+/**
+ * Appoints one participant as a moderator of the room, or dismisses them again
+ *
+ * Note: Only the administration does this. A moderator of the room can trust and ban, but never hand their own
+ *       moderation on.
+ */
+export async function updateAdminWorkshopParticipantModerator(
+    workshopId: string,
+    participantId: string,
+    isModerator: boolean,
+): Promise<void> {
+    await updateAdminWorkshopParticipant(workshopId, participantId, { isModerator });
 }
 
 export async function deleteAdminWorkshopParticipant(workshopId: string, participantId: string): Promise<void> {

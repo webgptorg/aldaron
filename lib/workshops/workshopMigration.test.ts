@@ -44,6 +44,8 @@ const PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-0800-workshop-admin-participant-page-ordering.sql',
 );
 const PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL = readFileSync(PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH, 'utf8');
+const MODERATOR_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-1000-workshop-moderators.sql');
+const MODERATOR_MIGRATION_SQL = readFileSync(MODERATOR_MIGRATION_PATH, 'utf8');
 const PARTICIPANT_PAGE_ROW_SOURCE = 'participant_page';
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
@@ -251,6 +253,30 @@ describe('workshop database migration', () => {
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'upvote'::text");
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain("'link_click'::text");
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('GRANT EXECUTE ON FUNCTION public.get_workshop_admin_timeline');
+    });
+
+    it('remembers who moderates a room and lists them without scanning its whole audience', () => {
+        expect(MODERATOR_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS is_moderator boolean NOT NULL DEFAULT false');
+        expect(MODERATOR_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshop_participants_moderator_idx');
+        expect(MODERATOR_MIGRATION_SQL).toContain('WHERE is_moderator');
+    });
+
+    it('returns and filters the moderator in the paged participant administration, without a second overload', () => {
+        // Note: An added parameter creates a new function instead of replacing the old one, so both would be offered
+        //       to a request naming its arguments.
+        expect(MODERATOR_MIGRATION_SQL).toContain('DROP FUNCTION IF EXISTS public.get_workshop_admin_participant_page');
+        expect(MODERATOR_MIGRATION_SQL).toContain('target_is_moderator boolean DEFAULT NULL');
+        expect(MODERATOR_MIGRATION_SQL).toContain(
+            'AND (target_is_moderator IS NULL OR workshop_participant.is_moderator = target_is_moderator)',
+        );
+        expect(MODERATOR_MIGRATION_SQL).toContain('workshop_participant.is_moderator,');
+
+        // Note: The ordering keeps naming its row source, exactly as the superseded function already had to.
+        WORKSHOP_ADMIN_PARTICIPANT_SORT_BY_VALUES.forEach((sortBy) => {
+            const sortColumnName = getParticipantSortColumnName(sortBy);
+            expect(MODERATOR_MIGRATION_SQL).toContain(`THEN ${PARTICIPANT_PAGE_ROW_SOURCE}.${sortColumnName}`);
+            expect(MODERATOR_MIGRATION_SQL).not.toMatch(new RegExp(`THEN\\s+${sortColumnName}\\b`));
+        });
     });
 
     it('keeps one persistent community separate from workshop occurrences', () => {

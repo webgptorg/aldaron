@@ -4,6 +4,7 @@ import { WORKSHOP_PARTICIPANT_TABLE_NAME } from '@/lib/workshops/workshopConstan
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopParticipantUpdateSchema } from '@/lib/workshops/workshopSchemas';
+import { updateModeratedWorkshopParticipant } from '@/lib/workshops/workshopParticipantModeration';
 import { NextRequest, NextResponse } from 'next/server';
 
 type AdminWorkshopParticipantRouteContext = {
@@ -28,31 +29,22 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopParticip
         return workshopData.response;
     }
 
-    const { data, error } = await workshopData.supabase
-        .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-        .update({
-            ...(parsedResult.data.isInteractionBanned === undefined
-                ? {}
-                : { is_interaction_banned: parsedResult.data.isInteractionBanned }),
-            ...(parsedResult.data.isTrusted === undefined ? {} : { is_trusted: parsedResult.data.isTrusted }),
-        })
-        .eq('id', participantId)
-        .eq('workshop_id', workshopId)
-        .select('id, is_interaction_banned, is_trusted')
-        .maybeSingle();
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    // Note: The administration may write every moderation state there is, including who moderates the room itself.
+    const { participant, errorMessage } = await updateModeratedWorkshopParticipant(
+        workshopData.supabase,
+        workshopId,
+        participantId,
+        parsedResult.data,
+    );
+    if (errorMessage !== null) {
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
-    if (data === null) {
+    if (participant === null) {
         return NextResponse.json({ error: 'Participant not found' }, { status: 404 });
     }
 
     await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });
-    return NextResponse.json({
-        participantId: data.id,
-        isInteractionBanned: data.is_interaction_banned,
-        isTrusted: data.is_trusted,
-    });
+    return NextResponse.json(participant);
 }
 
 export async function DELETE(request: NextRequest, context: AdminWorkshopParticipantRouteContext) {

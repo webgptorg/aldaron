@@ -9,11 +9,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 function renderBadge(
     onChangeFullname: (fullname: string) => Promise<boolean>,
     isInteractionBanned = false,
+    isModerating = false,
 ) {
     return render(
         <WorkshopParticipantBadge
             fullname="Karel Novák"
             isInteractionBanned={isInteractionBanned}
+            isModerating={isModerating}
             isRefreshing={false}
             onChangeFullname={onChangeFullname}
         />,
@@ -88,5 +90,15 @@ describe('workshop participant badge', () => {
 
         expect(screen.queryByRole('button', { name: 'Změnit jméno' })).toBeNull();
         expect(screen.getByText(/Připojen\/a jako/).textContent).toBe('Připojen/a jako Karel Novák');
+    });
+
+    it('says who moderates the room, and says nothing about anybody else', () => {
+        renderBadge(vi.fn(), false, true);
+        expect(screen.queryByText('Moderátor')).not.toBeNull();
+
+        cleanup();
+        renderBadge(vi.fn());
+
+        expect(screen.queryByText('Moderátor')).toBeNull();
     });
 });

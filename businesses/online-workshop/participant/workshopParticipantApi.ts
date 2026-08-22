@@ -1,6 +1,7 @@
 import type {
     WorkshopComment,
     WorkshopCommentSort,
+    WorkshopCommentStatus,
     WorkshopParticipant,
     WorkshopPublicState,
     WorkshopReaction,
@@ -14,6 +15,25 @@ import type {
 export type WorkshopCommentValues = {
     readonly body: string;
     readonly parentCommentId: string | null;
+};
+
+/**
+ * What a moderator changes about one message of the chat, see `workshopCommentUpdateSchema`
+ */
+export type WorkshopCommentModerationValues = {
+    readonly status?: Exclude<WorkshopCommentStatus, 'pending'>;
+    readonly body?: string;
+    readonly isPinned?: boolean;
+};
+
+/**
+ * What a moderator changes about one author of the chat, see `workshopParticipantUpdateSchema`
+ *
+ * Note: A moderator never appoints another moderator, so nothing here can carry that.
+ */
+export type WorkshopAuthorModerationValues = {
+    readonly isTrusted?: boolean;
+    readonly isInteractionBanned?: boolean;
 };
 
 export class WorkshopApiError extends Error {
@@ -99,6 +119,40 @@ export async function upvoteWorkshopComment(
     const response = await fetch(getWorkshopApiUrl(workshopSlug, `comments/${encodeURIComponent(commentId)}/upvotes`), {
         method: 'POST',
         credentials: 'same-origin',
+    });
+    return readResponseJson(response);
+}
+
+/**
+ * Moderates one message of the chat as the moderator of this very room
+ */
+export async function moderateWorkshopComment(
+    workshopSlug: string,
+    commentId: string,
+    values: WorkshopCommentModerationValues,
+): Promise<{ readonly commentId: string; readonly status: WorkshopCommentStatus; readonly body: string }> {
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, `comments/${encodeURIComponent(commentId)}`), {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+    });
+    return readResponseJson(response);
+}
+
+/**
+ * Trusts the author of a message or takes their interactions away, as the moderator of this very room
+ */
+export async function moderateWorkshopAuthor(
+    workshopSlug: string,
+    participantId: string,
+    values: WorkshopAuthorModerationValues,
+): Promise<{ readonly participantId: string; readonly isTrusted: boolean; readonly isInteractionBanned: boolean }> {
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, `participants/${encodeURIComponent(participantId)}`), {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
     });
     return readResponseJson(response);
 }

@@ -16,6 +16,8 @@ const QUESTION: WorkshopComment = {
     upvoteCount: 2,
     isUpvotedByParticipant: false,
     createdAt: '2026-08-20T19:00:00.000Z',
+    isAuthorModerator: false,
+    moderatedAuthor: null,
     parentCommentId: null,
     isPinned: false,
 };
@@ -42,14 +44,38 @@ const PINNED_QUESTION: WorkshopComment = {
     createdAt: '2026-08-20T18:30:00.000Z',
     isPinned: true,
 };
+const MODERATED_QUESTION: WorkshopComment = {
+    ...PENDING_QUESTION,
+    id: 'moderated-question',
+    body: 'Tahle zpráva čeká na moderátora.',
+    moderatedAuthor: {
+        participantId: 'jana',
+        isTrusted: false,
+        isInteractionBanned: false,
+        isModerator: false,
+    },
+};
 const NEW_MESSAGE_LABEL = 'Nová zpráva do chatu';
 const ANSWER_LABEL = 'Odpověď na komentář od Jana Nováková';
 const ANSWER_BUTTON_LABEL = 'Odpovědět na komentář od Jana Nováková';
 
+type WorkshopChatOptions = {
+    readonly comments?: readonly WorkshopComment[];
+    readonly isEnabled?: boolean;
+    readonly isModerating?: boolean;
+    readonly onModerateComment?: (commentId: string, values: unknown) => Promise<boolean>;
+    readonly onModerateAuthor?: (participantId: string, values: unknown) => Promise<boolean>;
+};
+
 function renderChat(
     onSubmitComment: (values: WorkshopCommentValues) => Promise<boolean>,
-    comments: readonly WorkshopComment[] = [QUESTION, ANSWER],
-    isEnabled = true,
+    {
+        comments = [QUESTION, ANSWER],
+        isEnabled = true,
+        isModerating = false,
+        onModerateComment = vi.fn().mockResolvedValue(true),
+        onModerateAuthor = vi.fn().mockResolvedValue(true),
+    }: WorkshopChatOptions = {},
 ) {
     return render(
         <WorkshopChat
@@ -57,9 +83,12 @@ function renderChat(
             commentSort="recent"
             isEnabled={isEnabled}
             isInteractionBanned={false}
+            isModerating={isModerating}
             onChangeSort={vi.fn()}
             onSubmitComment={onSubmitComment}
             onUpvoteComment={vi.fn()}
+            onModerateComment={onModerateComment}
+            onModerateAuthor={onModerateAuthor}
         />,
     );
 }
@@ -73,10 +102,10 @@ function getComposer(label: string): HTMLElement {
     return composer;
 }
 
-function sendMessage(label: string, body: string) {
+function sendMessage(label: string, body: string, submitLabel = 'Odeslat') {
     const composer = getComposer(label);
     fireEvent.change(within(composer).getByRole('textbox'), { target: { value: body } });
-    fireEvent.click(within(composer).getByRole('button', { name: 'Odeslat' }));
+    fireEvent.click(within(composer).getByRole('button', { name: submitLabel }));
 }
 
 describe('workshop chat', () => {
@@ -137,7 +166,7 @@ describe('workshop chat', () => {
     });
 
     it('holds the pinned message on top of the chat however old it is and marks it for the room', () => {
-        renderChat(vi.fn(), [QUESTION, PINNED_QUESTION]);
+        renderChat(vi.fn(), { comments: [QUESTION, PINNED_QUESTION] });
 
         const messages = screen.getAllByRole('article');
         expect(messages[0]?.textContent).toContain(PINNED_QUESTION.body);
@@ -146,14 +175,14 @@ describe('workshop chat', () => {
     });
 
     it('does not offer answering a message which the room does not see yet', () => {
-        renderChat(vi.fn(), [PENDING_QUESTION]);
+        renderChat(vi.fn(), { comments: [PENDING_QUESTION] });
 
         expect(screen.getByText('Tahle zpráva čeká na schválení.')).not.toBeNull();
         expect(screen.queryByRole('button', { name: /^Odpovědět na komentář/ })).toBeNull();
     });
 
     it('keeps a switched-off chat readable but takes away every way of writing into it', () => {
-        renderChat(vi.fn(), [QUESTION, ANSWER], false);
+        renderChat(vi.fn(), { comments: [QUESTION, ANSWER], isEnabled: false });
 
         expect(screen.getByText(QUESTION.body)).not.toBeNull();
         expect(screen.getByText('Chat je teď jen pro čtení.')).not.toBeNull();
@@ -162,5 +191,70 @@ describe('workshop chat', () => {
         screen
             .getAllByRole('button', { name: /^Hlasovat pro komentář/ })
             .forEach((upvoteButton) => expect(upvoteButton).toHaveProperty('disabled', true));
+    });
+
+    it('offers nothing of the moderation to an ordinary participant', () => {
+        renderChat(vi.fn(), { comments: [MODERATED_QUESTION] });
+
+        expect(screen.queryByText('Moderujete tuto místnost')).toBeNull();
+        expect(screen.queryByRole('button', { name: /^Schválit komentář/ })).toBeNull();
+        expect(screen.queryByRole('button', { name: /^Důvěřovat účastníkovi/ })).toBeNull();
+    });
+
+    it('lets a moderator decide about a message which the room does not see yet', () => {
+        const onModerateComment = vi.fn().mockResolvedValue(true);
+        renderChat(vi.fn(), { comments: [MODERATED_QUESTION], isModerating: true, onModerateComment });
+
+        expect(screen.getByText('Moderujete tuto místnost')).not.toBeNull();
+        expect(screen.getByText('Čeká na schválení')).not.toBeNull();
+        fireEvent.click(screen.getByRole('button', { name: 'Schválit komentář od Jana Nováková' }));
+
+        expect(onModerateComment).toHaveBeenCalledWith(MODERATED_QUESTION.id, { status: 'approved' });
+    });
+
+    it('lets a moderator pin a message and correct its text', async () => {
+        const onModerateComment = vi.fn().mockResolvedValue(true);
+        renderChat(vi.fn(), { comments: [MODERATED_QUESTION], isModerating: true, onModerateComment });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Připnout komentář od Jana Nováková' }));
+        await waitFor(() => expect(onModerateComment).toHaveBeenCalledWith(MODERATED_QUESTION.id, { isPinned: true }));
+
+        fireEvent.click(screen.getByRole('button', { name: 'Upravit komentář od Jana Nováková' }));
+        const editorLabel = 'Text komentáře od Jana Nováková';
+        expect(screen.getByRole('textbox', { name: editorLabel })).toHaveProperty('value', MODERATED_QUESTION.body);
+        sendMessage(editorLabel, 'Opravený text zprávy.', 'Uložit text');
+
+        expect(onModerateComment).toHaveBeenCalledWith(MODERATED_QUESTION.id, { body: 'Opravený text zprávy.' });
+        await waitFor(() => expect(screen.queryByRole('textbox', { name: editorLabel })).toBeNull());
+    });
+
+    it('lets a moderator trust the author of a message and take their interactions away', async () => {
+        const onModerateAuthor = vi.fn().mockResolvedValue(true);
+        renderChat(vi.fn(), { comments: [MODERATED_QUESTION], isModerating: true, onModerateAuthor });
+
+        fireEvent.click(screen.getByRole('button', { name: 'Důvěřovat účastníkovi Jana Nováková' }));
+        await waitFor(() => expect(onModerateAuthor).toHaveBeenNthCalledWith(1, 'jana', { isTrusted: true }));
+
+        fireEvent.click(screen.getByRole('button', { name: 'Zakázat interakce účastníkovi Jana Nováková' }));
+
+        await waitFor(() => expect(onModerateAuthor).toHaveBeenNthCalledWith(2, 'jana', { isInteractionBanned: true }));
+    });
+
+    it('leaves the author of another moderator to the administration alone', () => {
+        renderChat(vi.fn(), {
+            comments: [
+                {
+                    ...MODERATED_QUESTION,
+                    isAuthorModerator: true,
+                    moderatedAuthor: { ...MODERATED_QUESTION.moderatedAuthor!, isModerator: true },
+                },
+            ],
+            isModerating: true,
+        });
+
+        expect(screen.getByText('Moderátor')).not.toBeNull();
+        expect(screen.getByRole('button', { name: 'Schválit komentář od Jana Nováková' })).not.toBeNull();
+        expect(screen.queryByRole('button', { name: /^Důvěřovat účastníkovi/ })).toBeNull();
+        expect(screen.queryByRole('button', { name: /^Zakázat interakce účastníkovi/ })).toBeNull();
     });
 });

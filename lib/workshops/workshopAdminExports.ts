@@ -98,6 +98,7 @@ export function serializeWorkshopAdminParticipantsAsCsv(participants: readonly W
             { header: 'Kliknutí na materiály', getValue: (participant) => participant.linkClickCount },
             { header: 'Hlasy', getValue: (participant) => participant.upvoteCount },
             { header: 'Důvěryhodný', getValue: (participant) => formatBoolean(participant.isTrusted) },
+            { header: 'Moderátor', getValue: (participant) => formatBoolean(participant.isModerator) },
             { header: 'Interakce zakázány', getValue: (participant) => formatBoolean(participant.isInteractionBanned) },
             {
                 header: 'Telefon kontaktu',

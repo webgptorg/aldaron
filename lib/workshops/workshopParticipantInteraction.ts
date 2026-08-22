@@ -3,12 +3,16 @@ import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/w
 import type { WorkshopCommentStatus, WorkshopParticipant } from '@/lib/workshops/workshopTypes';
 import { NextResponse } from 'next/server';
 
+/**
+ * Note: A moderator writes into the room they moderate, so their own message never waits for the moderation they would
+ *       do themselves.
+ */
 export function getWorkshopCommentStatusForParticipant(participant: WorkshopParticipant): WorkshopCommentStatus {
     if (participant.isInteractionBanned) {
         return 'rejected';
     }
 
-    return participant.isTrusted ? 'approved' : 'pending';
+    return participant.isTrusted || participant.isModerator ? 'approved' : 'pending';
 }
 
 export function getWorkshopInteractionBanResponseOrNull(participant: WorkshopParticipant): NextResponse | null {

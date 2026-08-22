@@ -5,6 +5,7 @@ import type {
     workshopContentCreateSchema,
     workshopContentUpdateSchema,
     workshopCreateSchema,
+    workshopParticipantUpdateSchema,
     workshopUpdateSchema,
 } from '@/lib/workshops/workshopSchemas';
 
@@ -13,6 +14,7 @@ type WorkshopUpdateValues = z.infer<typeof workshopUpdateSchema>;
 type WorkshopContentCreateValues = z.infer<typeof workshopContentCreateSchema>;
 type WorkshopContentUpdateValues = z.infer<typeof workshopContentUpdateSchema>;
 type WorkshopCommentUpdateValues = z.infer<typeof workshopCommentUpdateSchema>;
+type WorkshopParticipantUpdateValues = z.infer<typeof workshopParticipantUpdateSchema>;
 type WorkshopArtificialCommentValues = z.infer<typeof workshopArtificialCommentSchema>;
 
 export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
@@ -87,6 +89,19 @@ export function getWorkshopCommentPinChange(values: WorkshopCommentUpdateValues)
     }
 
     return values.isPinned ?? null;
+}
+
+/**
+ * The written moderation state of one participant, whether the administration or a moderator of the room wrote it
+ */
+export function createWorkshopParticipantUpdateDatabaseValues(values: WorkshopParticipantUpdateValues) {
+    return {
+        ...(values.isInteractionBanned === undefined
+            ? {}
+            : { is_interaction_banned: values.isInteractionBanned }),
+        ...(values.isTrusted === undefined ? {} : { is_trusted: values.isTrusted }),
+        ...(values.isModerator === undefined ? {} : { is_moderator: values.isModerator }),
+    };
 }
 
 export function createWorkshopArtificialCommentDatabaseValues(values: WorkshopArtificialCommentValues) {

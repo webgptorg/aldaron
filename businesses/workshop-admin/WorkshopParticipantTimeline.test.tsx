@@ -17,6 +17,7 @@ const PARTICIPANT_TIMELINE: WorkshopAdminParticipantTimeline = {
         activeDurationSeconds: 900,
         isInteractionBanned: false,
         isTrusted: false,
+        isModerator: false,
         commentCount: 1,
         reactionCount: 0,
         linkClickCount: 0,

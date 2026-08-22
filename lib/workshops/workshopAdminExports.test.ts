@@ -32,6 +32,7 @@ const PARTICIPANT: WorkshopAdminParticipant = {
     lastSeenAt: '2026-08-20T18:25:00.000Z',
     isInteractionBanned: false,
     isTrusted: true,
+    isModerator: true,
     activeDurationSeconds: 4_800,
     commentCount: 2,
     reactionCount: 5,
@@ -104,7 +105,7 @@ describe('workshop admin exports', () => {
         expect(csv.charCodeAt(0)).toBe(0xfeff);
         expect(csv).toContain('"Jméno","E-mail","Registrace","Naposledy aktivní"');
         expect(csv).toContain('"Jana Nováková","jana@example.com"');
-        expect(csv).toContain('"4800","2","5","1","3","ano","ne"');
+        expect(csv).toContain('"4800","2","5","1","3","ano","ano","ne"');
     });
 
     it('writes a useful contact card for each filtered participant', () => {

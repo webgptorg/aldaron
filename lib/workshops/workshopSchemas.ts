@@ -121,12 +121,19 @@ export const workshopParticipantRenameSchema = z.object({
     fullname: workshopParticipantFullnameSchema,
 });
 
+/**
+ * Every change a moderating role can make to one participant of a room
+ *
+ * Note: Who may make which of them is decided by `workshopModeration`, so a moderator of the room and the
+ *       administration send the very same request and only differ in what it is allowed to carry.
+ */
 export const workshopParticipantUpdateSchema = z
     .object({
         isInteractionBanned: z.boolean().optional(),
         isTrusted: z.boolean().optional(),
+        isModerator: z.boolean().optional(),
     })
-    .refine((value) => value.isInteractionBanned !== undefined || value.isTrusted !== undefined, {
+    .refine((value) => Object.values(value).some((fieldValue) => fieldValue !== undefined), {
         message: 'At least one participant field is required',
     });
 

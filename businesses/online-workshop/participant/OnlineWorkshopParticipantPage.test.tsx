@@ -54,6 +54,7 @@ function renderParticipantRoom(workshop: WorkshopDetails) {
             connectedAt: '2026-08-21T19:20:00+02:00',
             isInteractionBanned: false,
             isTrusted: true,
+            isModerator: false,
         },
         watchingParticipantCount: 3,
         contentBlocks: [],
@@ -79,6 +80,8 @@ function renderParticipantRoom(workshop: WorkshopDetails) {
         changeCommentSort: () => undefined,
         submitComment: async () => true,
         upvoteComment: async () => undefined,
+        moderateComment: async () => true,
+        moderateAuthor: async () => true,
         react: async () => undefined,
         recordMaterialLinkClick: () => undefined,
     };

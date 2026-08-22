@@ -55,6 +55,7 @@ function isParticipantFilterActive(query: WorkshopAdminParticipantQuery): boolea
     return (
         query.searchQuery !== '' ||
         query.isTrusted !== null ||
+        query.isModerator !== null ||
         query.isInteractionBanned !== null ||
         query.registeredFrom !== null ||
         query.registeredTo !== null
@@ -120,6 +121,18 @@ export function WorkshopParticipantFilters({ query, onChange }: WorkshopParticip
                     </select>
                 </label>
                 <label className="text-xs font-medium text-slate-600">
+                    Moderování
+                    <select
+                        value={query.isModerator === null ? '' : String(query.isModerator)}
+                        onChange={(event) => onChange({ isModerator: getBooleanFilterValue(event.target.value) })}
+                        className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800"
+                    >
+                        <option value="">Všichni</option>
+                        <option value="true">Moderátoři</option>
+                        <option value="false">Bez moderování</option>
+                    </select>
+                </label>
+                <label className="text-xs font-medium text-slate-600">
                     Interakce
                     <select
                         value={query.isInteractionBanned === null ? '' : String(query.isInteractionBanned)}
@@ -175,6 +188,7 @@ export function WorkshopParticipantFilters({ query, onChange }: WorkshopParticip
                         onChange({
                             searchQuery: '',
                             isTrusted: null,
+                            isModerator: null,
                             isInteractionBanned: null,
                             registeredFrom: null,
                             registeredTo: null,

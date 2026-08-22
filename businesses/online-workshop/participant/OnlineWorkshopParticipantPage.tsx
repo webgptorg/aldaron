@@ -14,6 +14,7 @@ import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
@@ -141,6 +142,7 @@ export function OnlineWorkshopParticipantPage({
 
     const { state } = controller;
     const roomCapabilities = getWorkshopKindCapabilities(state.workshop.kind);
+    const isModerating = isWorkshopParticipantModerating(state.participant);
 
     // Note: What the kind of this room has and what an administrator switched off is asked here once, so a new panel
     //       is one line of the room.
@@ -171,6 +173,7 @@ export function OnlineWorkshopParticipantPage({
                         <WorkshopParticipantBadge
                             fullname={state.participant.fullname}
                             isInteractionBanned={state.participant.isInteractionBanned}
+                            isModerating={isModerating}
                             isRefreshing={controller.isRefreshing}
                             onChangeFullname={controller.changeFullname}
                         />
@@ -243,9 +246,12 @@ export function OnlineWorkshopParticipantPage({
                     commentSort={controller.commentSort}
                     isEnabled={isPanelOffered('chat')}
                     isInteractionBanned={state.participant.isInteractionBanned}
+                    isModerating={isModerating}
                     onChangeSort={controller.changeCommentSort}
                     onSubmitComment={controller.submitComment}
                     onUpvoteComment={controller.upvoteComment}
+                    onModerateComment={controller.moderateComment}
+                    onModerateAuthor={controller.moderateAuthor}
                 />
 
                 <div className="min-w-0 lg:col-start-1 lg:row-start-2">

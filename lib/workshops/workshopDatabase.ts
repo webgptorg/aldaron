@@ -15,6 +15,7 @@ import {
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
+import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import type {
     WorkshopAdminComment,
     WorkshopAdminAnalytics,
@@ -25,6 +26,7 @@ import type {
     WorkshopAdminSummary,
     WorkshopAdminTimelinePoint,
     WorkshopComment,
+    WorkshopCommentAuthor,
     WorkshopCommentReference,
     WorkshopCommentSort,
     WorkshopCommentStatus,
@@ -108,6 +110,32 @@ export type WorkshopCommentRow = {
 export const WORKSHOP_COMMENT_COLUMNS =
     'id, participant_id, parent_comment_id, author_name, body, status, upvote_count, artificial_upvote_count, is_artificial, created_at';
 
+type WorkshopCommentAuthorRow = {
+    readonly id: string;
+    readonly is_trusted: boolean;
+    readonly is_interaction_banned: boolean;
+    readonly is_moderator: boolean;
+};
+
+/**
+ * As much of the author of a message as moderating it takes
+ */
+const WORKSHOP_COMMENT_AUTHOR_COLUMNS = 'id, is_trusted, is_interaction_banned, is_moderator';
+
+/**
+ * What every comment of one room is mapped against: the message holding its top, the people who wrote the comments,
+ * and whether the one reading them moderates the room
+ */
+export type WorkshopCommentRoomContext = {
+    readonly pinnedCommentId: string | null;
+    readonly authorByParticipantId: ReadonlyMap<string, WorkshopCommentAuthor>;
+
+    /**
+     * Whether the reader moderates the room, which is who learns more about an author than their moderator badge
+     */
+    readonly isModerationOffered: boolean;
+};
+
 type WorkshopCommentReferenceRow = {
     readonly id: string;
     readonly author_name: string;
@@ -128,8 +156,15 @@ type WorkshopAdminParticipantRow = {
     readonly last_seen_at: string;
     readonly is_interaction_banned: boolean;
     readonly is_trusted: boolean;
+    readonly is_moderator: boolean;
     readonly active_duration_seconds: number;
 };
+
+/**
+ * Everything the administration lists about one participant, so a new participant field is selected everywhere at once
+ */
+const WORKSHOP_ADMIN_PARTICIPANT_COLUMNS =
+    'id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, is_moderator, active_duration_seconds';
 
 type WorkshopAdminParticipantPageRow = WorkshopAdminParticipantRow &
     WorkshopParticipantActivityTotalsRow & {
@@ -300,8 +335,10 @@ export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 
 export function mapWorkshopCommentRow(
     row: WorkshopCommentRow,
     isUpvotedByParticipant: boolean,
-    pinnedCommentId: string | null,
+    roomContext: WorkshopCommentRoomContext,
 ): WorkshopComment {
+    const author = row.participant_id === null ? undefined : roomContext.authorByParticipantId.get(row.participant_id);
+
     return {
         id: row.id,
         authorName: row.author_name,
@@ -310,9 +347,66 @@ export function mapWorkshopCommentRow(
         upvoteCount: getDisplayedWorkshopCommentUpvoteCount(row.upvote_count, row.artificial_upvote_count),
         isUpvotedByParticipant,
         createdAt: row.created_at,
+        isAuthorModerator: author?.isModerator ?? false,
+        moderatedAuthor: roomContext.isModerationOffered ? (author ?? null) : null,
         parentCommentId: row.parent_comment_id,
-        isPinned: row.id === pinnedCommentId,
+        isPinned: row.id === roomContext.pinnedCommentId,
     };
+}
+
+function mapWorkshopCommentAuthorRow(row: WorkshopCommentAuthorRow): WorkshopCommentAuthor {
+    return {
+        participantId: row.id,
+        isTrusted: row.is_trusted,
+        isInteractionBanned: row.is_interaction_banned,
+        isModerator: row.is_moderator,
+    };
+}
+
+/**
+ * The author of a message which the very participant who wrote it just sent, so it needs no second read of them
+ */
+export function createWorkshopCommentAuthor(participant: WorkshopParticipant): WorkshopCommentAuthor {
+    return {
+        participantId: participant.id,
+        isTrusted: participant.isTrusted,
+        isInteractionBanned: participant.isInteractionBanned,
+        isModerator: participant.isModerator,
+    };
+}
+
+/**
+ * Loads the people who wrote the given comments, so every message says whether a moderator of the room wrote it
+ *
+ * Note: An artificial message of the administration has no author at all, and a deleted participant leaves their
+ *       messages behind, so a missing author is an ordinary answer rather than a failure.
+ * Note: Missing authors must never take the whole room down with them, so a failure is reported as nobody known, which
+ *       costs the moderator badges of one refresh and nothing else.
+ */
+async function loadWorkshopCommentAuthors(
+    supabase: SupabaseClient,
+    workshopId: string,
+    commentRows: readonly WorkshopCommentRow[],
+): Promise<ReadonlyMap<string, WorkshopCommentAuthor>> {
+    const authorParticipantIds = commentRows
+        .map((commentRow) => commentRow.participant_id)
+        .filter((participantId): participantId is string => participantId !== null);
+    const { rows, errorMessage } = await loadWorkshopRowsByIds<WorkshopCommentAuthorRow>(
+        authorParticipantIds,
+        (pageParticipantIds) =>
+            supabase
+                .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+                .select(WORKSHOP_COMMENT_AUTHOR_COLUMNS)
+                .eq('workshop_id', workshopId)
+                .in('id', pageParticipantIds),
+    );
+
+    if (rows === null) {
+        console.error('Failed to load the authors of the workshop comments:', errorMessage ?? 'Unknown database error');
+        return new Map();
+    }
+
+    return new Map(rows.map((row) => [row.id, mapWorkshopCommentAuthorRow(row)] as const));
 }
 
 function mapWorkshopCommentReferenceRow(row: WorkshopCommentReferenceRow): WorkshopCommentReference {
@@ -331,6 +425,7 @@ export function mapWorkshopAdminParticipantRow(
         lastSeenAt: row.last_seen_at,
         isInteractionBanned: row.is_interaction_banned,
         isTrusted: row.is_trusted,
+        isModerator: row.is_moderator,
         activeDurationSeconds: getNonNegativeWholeNumber(row.active_duration_seconds),
         commentCount: getNonNegativeWholeNumber(activityTotals?.comment_count),
         reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
@@ -689,6 +784,7 @@ export async function loadWorkshopAdminParticipantPage(
         target_workshop_id: workshopId,
         target_search_query: query.searchQuery,
         target_is_trusted: query.isTrusted,
+        target_is_moderator: query.isModerator,
         target_is_interaction_banned: query.isInteractionBanned,
         target_registered_from: query.registeredFrom,
         target_registered_to: query.registeredTo,
@@ -725,9 +821,7 @@ export async function loadWorkshopAdminParticipantTimeline(
     const [participantResult, commentsResult, reactionsResult, upvotesResult, linkClicksResult] = await Promise.all([
         supabase
             .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-            .select(
-                'id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, active_duration_seconds',
-            )
+            .select(WORKSHOP_ADMIN_PARTICIPANT_COLUMNS)
             .eq('workshop_id', workshopRow.id)
             .eq('id', participantId)
             .maybeSingle(),
@@ -974,9 +1068,17 @@ export async function loadWorkshopAdminCommentsForExport(
         return { comments: null, errorMessage };
     }
 
+    // Note: The exported file says who wrote a message and how the room saw it, never the invisible moderation state
+    //       of its author, so the authors are read for their badge alone.
+    const roomContext: WorkshopCommentRoomContext = {
+        pinnedCommentId: workshopRow.pinned_comment_id,
+        authorByParticipantId: await loadWorkshopCommentAuthors(supabase, workshopRow.id, rows),
+        isModerationOffered: false,
+    };
+
     return {
         comments: rows.map((row): WorkshopAdminComment => ({
-            ...mapWorkshopCommentRow(row, false, workshopRow.pinned_comment_id),
+            ...mapWorkshopCommentRow(row, false, roomContext),
             participantId: row.participant_id,
             isArtificial: row.is_artificial,
             realUpvoteCount: row.upvote_count,
@@ -1210,6 +1312,17 @@ export async function loadWorkshopPublicState(
         workshopRow.disabled_panels,
         'reactions',
     );
+
+    // Note: A moderator is shown every message which waits for a decision, because making that decision is exactly
+    //       what they are in the room for. Everybody else only ever sees the messages they wrote themselves.
+    const isModerationOffered = isWorkshopParticipantModerating(participant);
+    const pendingCommentsQuery = supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select(WORKSHOP_COMMENT_COLUMNS)
+        .eq('workshop_id', workshopRow.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT);
     const commentsQuery = supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)
         .select(WORKSHOP_COMMENT_COLUMNS)
@@ -1246,14 +1359,7 @@ export async function loadWorkshopPublicState(
             .limit(1)
             .maybeSingle(),
         commentsQuery,
-        supabase
-            .from(WORKSHOP_COMMENT_TABLE_NAME)
-            .select(WORKSHOP_COMMENT_COLUMNS)
-            .eq('workshop_id', workshopRow.id)
-            .eq('participant_id', participant.id)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false })
-            .limit(MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT),
+        isModerationOffered ? pendingCommentsQuery : pendingCommentsQuery.eq('participant_id', participant.id),
         isReactionsPanelOffered
             ? supabase
                   .from(WORKSHOP_REACTION_TABLE_NAME)
@@ -1303,6 +1409,12 @@ export async function loadWorkshopPublicState(
         upvotedCommentIds = new Set((upvoteRows ?? []).map(({ comment_id }) => comment_id as string));
     }
 
+    const roomContext: WorkshopCommentRoomContext = {
+        pinnedCommentId: workshopRow.pinned_comment_id,
+        authorByParticipantId: await loadWorkshopCommentAuthors(supabase, workshopRow.id, commentRows),
+        isModerationOffered,
+    };
+
     return {
         state: {
             serverTime: new Date().toISOString(),
@@ -1312,9 +1424,7 @@ export async function loadWorkshopPublicState(
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
             comments: sortWorkshopComments(
-                commentRows.map((row) =>
-                    mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), workshopRow.pinned_comment_id),
-                ),
+                commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), roomContext)),
                 commentSort,
             ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
@@ -1436,9 +1546,19 @@ export async function loadWorkshopAdminSnapshot(
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
-    const answeredCommentById = await loadAnsweredWorkshopComments(supabase, workshopRow.id, commentRows);
+    const [answeredCommentById, authorByParticipantId] = await Promise.all([
+        loadAnsweredWorkshopComments(supabase, workshopRow.id, commentRows),
+        loadWorkshopCommentAuthors(supabase, workshopRow.id, commentRows),
+    ]);
+
+    // Note: The administration moderates every room, so it reads the authors of the listed messages as they are.
+    const roomContext: WorkshopCommentRoomContext = {
+        pinnedCommentId: workshopRow.pinned_comment_id,
+        authorByParticipantId,
+        isModerationOffered: true,
+    };
     const comments = commentRows.map((row): WorkshopAdminComment => ({
-        ...mapWorkshopCommentRow(row, false, workshopRow.pinned_comment_id),
+        ...mapWorkshopCommentRow(row, false, roomContext),
         participantId: row.participant_id,
         isArtificial: row.is_artificial,
         realUpvoteCount: row.upvote_count,

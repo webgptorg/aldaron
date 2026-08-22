@@ -2,10 +2,12 @@ import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import {
+    createWorkshopCommentAuthor,
     mapWorkshopCommentRow,
     WORKSHOP_COMMENT_COLUMNS,
     type WorkshopCommentRow,
 } from '@/lib/workshops/workshopDatabase';
+import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import {
     getDisabledWorkshopPanelResponseOrNull,
     getWorkshopCommentStatusForParticipant,
@@ -113,11 +115,13 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         return NextResponse.json({ error: 'Comment could not be saved' }, { status: 500 });
     }
 
-    const comment = mapWorkshopCommentRow(
-        data as WorkshopCommentRow,
-        false,
-        authenticatedRequest.workshopRow.pinned_comment_id,
-    );
+    // The participant who just wrote this message is the only author it can have, so it is described from them.
+    const { participant } = authenticatedRequest;
+    const comment = mapWorkshopCommentRow(data as WorkshopCommentRow, false, {
+        pinnedCommentId: authenticatedRequest.workshopRow.pinned_comment_id,
+        authorByParticipantId: new Map([[participant.id, createWorkshopCommentAuthor(participant)]]),
+        isModerationOffered: isWorkshopParticipantModerating(participant),
+    });
 
     if (commentStatus === 'approved') {
         await broadcastWorkshopEvent(authenticatedRequest.supabase, authenticatedRequest.workshopRow, {

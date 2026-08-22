@@ -5,13 +5,14 @@ import {
 import type { WorkshopParticipant } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
 
-function createParticipant(isInteractionBanned: boolean, isTrusted = false): WorkshopParticipant {
+function createParticipant(isInteractionBanned: boolean, isTrusted = false, isModerator = false): WorkshopParticipant {
     return {
         id: 'participant-1',
         fullname: 'Jana Nováková',
         connectedAt: '2026-08-20T17:00:00.000Z',
         isInteractionBanned,
         isTrusted,
+        isModerator,
     };
 }
 
@@ -29,5 +30,10 @@ describe('workshop participant interaction bans', () => {
         expect(getWorkshopCommentStatusForParticipant(createParticipant(false))).toBe('pending');
         expect(getWorkshopCommentStatusForParticipant(createParticipant(false, true))).toBe('approved');
         expect(getWorkshopCommentStatusForParticipant(createParticipant(true, true))).toBe('rejected');
+    });
+
+    it('never lets a moderator wait for the moderation they would do themselves', () => {
+        expect(getWorkshopCommentStatusForParticipant(createParticipant(false, false, true))).toBe('approved');
+        expect(getWorkshopCommentStatusForParticipant(createParticipant(true, false, true))).toBe('rejected');
     });
 });

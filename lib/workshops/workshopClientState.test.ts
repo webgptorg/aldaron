@@ -17,6 +17,8 @@ function createComment(id: string, upvoteCount: number, createdAt: string): Work
         upvoteCount,
         isUpvotedByParticipant: false,
         createdAt,
+        isAuthorModerator: false,
+        moderatedAuthor: null,
         parentCommentId: null,
         isPinned: false,
     };

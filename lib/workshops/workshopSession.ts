@@ -16,12 +16,14 @@ export type WorkshopParticipantRow = {
     readonly connected_at: string;
     readonly is_interaction_banned: boolean;
     readonly is_trusted: boolean;
+    readonly is_moderator: boolean;
 };
 
 /**
  * Columns every query needs to describe a participant to the room, deliberately without their personal contact details
  */
-export const WORKSHOP_PARTICIPANT_COLUMNS = 'id, fullname, connected_at, is_interaction_banned, is_trusted';
+export const WORKSHOP_PARTICIPANT_COLUMNS =
+    'id, fullname, connected_at, is_interaction_banned, is_trusted, is_moderator';
 
 export function createWorkshopSessionToken(): string {
     return randomBytes(WORKSHOP_SESSION_TOKEN_BYTES).toString('base64url');
@@ -42,6 +44,7 @@ export function mapWorkshopParticipantRow(row: WorkshopParticipantRow): Workshop
         connectedAt: row.connected_at,
         isInteractionBanned: row.is_interaction_banned,
         isTrusted: row.is_trusted,
+        isModerator: row.is_moderator,
     };
 }
 

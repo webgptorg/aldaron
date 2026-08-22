@@ -8,12 +8,16 @@ import {
     changeWorkshopParticipantFullname,
     connectToWorkshop,
     fetchWorkshopState,
+    moderateWorkshopAuthor,
+    moderateWorkshopComment,
     recordWorkshopMaterialLinkClick,
     reportWorkshopPresence,
     sendWorkshopReaction,
     submitWorkshopComment,
     upvoteWorkshopComment,
     WorkshopApiError,
+    type WorkshopAuthorModerationValues,
+    type WorkshopCommentModerationValues,
     type WorkshopCommentValues,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { getSupabaseForBrowser } from '@/lib/supabase';
@@ -66,6 +70,16 @@ type WorkshopParticipantController = {
     readonly changeCommentSort: (sort: WorkshopCommentSort) => void;
     readonly submitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly upvoteComment: (commentId: string) => Promise<void>;
+
+    /**
+     * Moderates one message of the chat, which only a moderator of the room is offered
+     */
+    readonly moderateComment: (commentId: string, values: WorkshopCommentModerationValues) => Promise<boolean>;
+
+    /**
+     * Moderates the author of one message of the chat, which only a moderator of the room is offered
+     */
+    readonly moderateAuthor: (participantId: string, values: WorkshopAuthorModerationValues) => Promise<boolean>;
     readonly react: (emoji: string) => Promise<void>;
     readonly recordMaterialLinkClick: (contentId: string) => void;
 };
@@ -540,6 +554,47 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         [commentSort, workshopSlug],
     );
 
+    /**
+     * Note: A moderated message and a moderated author both change what the whole room sees, so the room is loaded
+     *       again instead of guessing the result of the decision which was just made.
+     */
+    const moderateComment = useCallback(
+        async (commentId: string, values: WorkshopCommentModerationValues): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                await moderateWorkshopComment(workshopSlug, commentId, values);
+                await refresh();
+                trackGoogleAnalyticsEvent('workshop_comment_moderated', {
+                    workshop_slug: workshopSlug,
+                    comment_status: values.status,
+                    is_body_edited: values.body !== undefined,
+                    is_pin_changed: values.isPinned !== undefined,
+                });
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [refresh, workshopSlug],
+    );
+
+    const moderateAuthor = useCallback(
+        async (participantId: string, values: WorkshopAuthorModerationValues): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                await moderateWorkshopAuthor(workshopSlug, participantId, values);
+                await refresh();
+                trackGoogleAnalyticsEvent('workshop_author_moderated', { workshop_slug: workshopSlug });
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [refresh, workshopSlug],
+    );
+
     const changeCommentSort = useCallback((nextCommentSort: WorkshopCommentSort) => {
         setCommentSort(nextCommentSort);
         setState((currentState) =>
@@ -591,6 +646,8 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
         changeCommentSort,
         submitComment,
         upvoteComment,
+        moderateComment,
+        moderateAuthor,
         react,
         recordMaterialLinkClick,
     };

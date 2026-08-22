@@ -11,6 +11,7 @@ describe('workshop admin participant query', () => {
             new URLSearchParams({
                 search: '  Jana Nováková  ',
                 trusted: 'TRUE',
+                moderator: 'false',
                 interactionBanned: 'false',
                 registeredFrom: '2026-08-20T17:00:00.000Z',
                 registeredTo: '2026-08-20T18:30:00.000Z',
@@ -24,6 +25,7 @@ describe('workshop admin participant query', () => {
         expect(query).toEqual({
             searchQuery: 'Jana Nováková',
             isTrusted: true,
+            isModerator: false,
             isInteractionBanned: false,
             registeredFrom: '2026-08-20T17:00:00.000Z',
             registeredTo: '2026-08-20T18:30:00.000Z',

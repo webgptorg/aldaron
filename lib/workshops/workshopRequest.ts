@@ -4,6 +4,7 @@ import {
     getWorkshopDatabaseOrNull,
     type WorkshopRow,
 } from '@/lib/workshops/workshopDatabase';
+import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { authenticateWorkshopParticipant } from '@/lib/workshops/workshopSession';
 import type { WorkshopParticipant } from '@/lib/workshops/workshopTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -35,6 +36,25 @@ export async function getAuthenticatedWorkshopRequest(
     }
 
     return { supabase, workshopRow, participant };
+}
+
+/**
+ * The very same request, but only from somebody who moderates this room
+ *
+ * Note: Moderating is refused for everybody else, so the room never has to hide a moderation route to keep it closed.
+ */
+export async function getModeratingWorkshopRequest(
+    request: NextRequest,
+    workshopSlug: string,
+): Promise<AuthenticatedWorkshopRequest | NextResponse> {
+    const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, workshopSlug);
+    if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
+        return authenticatedRequest;
+    }
+
+    return isWorkshopParticipantModerating(authenticatedRequest.participant)
+        ? authenticatedRequest
+        : NextResponse.json({ error: 'Moderování této místnosti není pro tento účet dostupné.' }, { status: 403 });
 }
 
 export function isAuthenticatedWorkshopRequest(
