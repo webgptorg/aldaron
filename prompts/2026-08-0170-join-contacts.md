@@ -16,6 +16,8 @@
 
 ---
 
+[ ] !!!!!!!!
+
 [✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
 
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts.png)

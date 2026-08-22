@@ -2,9 +2,20 @@
 
 [✨🎽] Enhance the `/admin/workshops` "Přehled"
 
-- @@@
-- @@@ blinking
-- @@@ graph
+- The page is blinking on every new data arrival. It should stay visually consistent during a load of the new data. For example, the graph should not blink, but should update smoothly.
+- The graph should show the number of participants in an XY graph, like a YouTube video shows the viewers across the time of the video.
+- The graph should be zoomable and interactive.
+- On the X axis, show the time
+- On the Y axis, show the number of participants and also events like comments, reactions, and so on.
+- The graph should be interactive. When the user hovers over the graph, show the number
+- By default, the graph should be zoomed exactly to the time of the workshop. But the user can zoom out to see the entire graph. For example reactions and viewers before the workshop started, and also after the workshop ended.
+- Allow to turn on different lines on the graph, like participants, comments, reactions, and so on.
+- Allow to show all the reactions, or only one kind of reaction
+- Save theese zoom settings and filters in the GET parameters, so the user can share the link to the graph with the same zoom settings.
+- Allow to export the graph to SVG, PNG, PDF or CSV. The CSV should contain the data of the graph, like the number of participants and events across the time.
+- Allow to add custom metric based on keywords. For example, the user can add a custom metric for the number of comments containing the word "help". The graph should show this metric as a separate line.
+    - Base this on Regex
+    - Save this also in the GET parameters, so the admins can share the link to the graph with the same custom metrics.
 - You are working with `/cs/online-workshop/participant`
 - You are working with `/admin/workshops`
 - If you need a change in the database migration, do it in file `migrations/*.sql`
