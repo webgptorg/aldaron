@@ -17,15 +17,25 @@
 ---
 
 [x] by Claude Code `claude-opus-5` thinking `max` - Implementation $4.75 14 minutes; Testing a minute
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.1291 2 minutes; Testing a few seconds
 
 ---
 
-[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.1291 2 minutes; Testing a few seconds
+[ ] !!!!!!!!
 
 [✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
+
+- This is probably a problem with joining a contacts
+    - lib/admin/adminContactJoin.ts
+- If you cannot fix this problem, at least show more useful info to npm run dev console when run in development mode.
 
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-1.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-2.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-3.png)
 
+```
+ GET /api/admin/workshops/00312639-8a58-49c1-ba6e-494427831955/participants?sortBy=connectedAt&sortDirection=DESCENDING&page=1&pageSize=50 500 in 1099ms
+ GET /api/admin/workshops/00312639-8a58-49c1-ba6e-494427831955?commentStatus=pending&includeComments=false 200 in 666ms
+ GET /api/admin/workshops/00312639-8a58-49c1-ba6e-494427831955/participants?sortBy=connectedAt&sortDirection=DESCENDING&page=1&pageSize=50 500 in 1825ms
+```
