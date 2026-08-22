@@ -11,9 +11,10 @@
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation .82 7 minutes; Testing a few seconds
 
 [✨🛅] Do not show the primary button "Zarezervovat hovor zdarma" in the terms and privacy policy pages.
 
 ![alt text](prompts/screenshots/2026-08-0020-privacy-policy.png)
+
 

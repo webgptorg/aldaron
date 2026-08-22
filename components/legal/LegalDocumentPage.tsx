@@ -59,7 +59,8 @@ export function LegalDocumentPage({
 
     return (
         <div className="min-h-screen bg-white">
-            <Header language={language} />
+            {/* Note: A legal document is not a place to sell, so the header keeps no call to action here */}
+            <Header language={language} isPrimaryActionShown={false} />
 
             <main className={`mx-auto max-w-3xl px-6 pb-24 pt-32 sm:pt-36 ${LEGAL_TEXT_CLASS_NAME}`}>
                 <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-700">

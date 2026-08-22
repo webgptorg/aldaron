@@ -33,6 +33,12 @@ type HeaderLanguageSwitcher = {
     items: HeaderLanguageSwitchItem[];
 };
 
+/**
+ * Look of the primary call to action, shared by both its link and its popup-opening variant
+ */
+const PRIMARY_ACTION_BUTTON_CLASS_NAME =
+    'bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90 hover:shadow-lg transition-all duration-300 shrink-0 text-[13px] sm:text-sm px-3 sm:px-4';
+
 interface HeaderProps {
     language?: HomepageLanguage;
     isBare?: boolean;
@@ -49,6 +55,7 @@ interface HeaderProps {
     navItems?: HeaderNavItem[];
     languageSwitcher?: HeaderLanguageSwitcher;
     primaryAction?: HeaderAction;
+    isPrimaryActionShown?: boolean;
     secondaryAction?: HeaderAction;
     containerClassName?: string;
 }
@@ -65,6 +72,7 @@ export function Header({
     navItems,
     languageSwitcher,
     primaryAction,
+    isPrimaryActionShown = true,
     secondaryAction,
     containerClassName,
 }: HeaderProps = {}) {
@@ -102,12 +110,8 @@ export function Header({
         </>
     );
 
-    const primaryButton = (
-        <Button
-            onClick={resolvedPrimaryAction.href ? undefined : handleCTAClick}
-            className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90 hover:shadow-lg transition-all duration-300 shrink-0 text-[13px] sm:text-sm px-3 sm:px-4"
-            id="header-cta"
-        >
+    const primaryButtonContent = (
+        <>
             {resolvedPrimaryAction.mobileLabel ? (
                 <>
                     <span className="sm:hidden">{resolvedPrimaryAction.mobileLabel}</span>
@@ -117,6 +121,16 @@ export function Header({
                 <span>{resolvedPrimaryAction.label}</span>
             )}
             <ArrowRight className="ml-1.5 w-4 h-4" />
+        </>
+    );
+
+    const primaryButton = resolvedPrimaryAction.href ? (
+        <Button asChild className={PRIMARY_ACTION_BUTTON_CLASS_NAME} id="header-cta">
+            <Link href={resolvedPrimaryAction.href}>{primaryButtonContent}</Link>
+        </Button>
+    ) : (
+        <Button onClick={handleCTAClick} className={PRIMARY_ACTION_BUTTON_CLASS_NAME} id="header-cta">
+            {primaryButtonContent}
         </Button>
     );
 
@@ -167,6 +181,7 @@ export function Header({
                     )}
 
                     {/* CTA Button */}
+                    {/* Note: The slot stays even when empty, so that the center content keeps its place */}
                     {!isBare && (
                         <div className="flex items-center gap-2">
                             {languageSwitcher && (
@@ -207,27 +222,7 @@ export function Header({
                                 </Button>
                             )}
 
-                            {resolvedPrimaryAction.href ? (
-                                <Button
-                                    asChild
-                                    className="bg-promptbook-blue-dark text-white hover:bg-promptbook-blue-dark/90 hover:shadow-lg transition-all duration-300 shrink-0 text-[13px] sm:text-sm px-3 sm:px-4"
-                                    id="header-cta"
-                                >
-                                    <Link href={resolvedPrimaryAction.href}>
-                                        {resolvedPrimaryAction.mobileLabel ? (
-                                            <>
-                                                <span className="sm:hidden">{resolvedPrimaryAction.mobileLabel}</span>
-                                                <span className="hidden sm:inline">{resolvedPrimaryAction.label}</span>
-                                            </>
-                                        ) : (
-                                            <span>{resolvedPrimaryAction.label}</span>
-                                        )}
-                                        <ArrowRight className="ml-1.5 w-4 h-4" />
-                                    </Link>
-                                </Button>
-                            ) : (
-                                primaryButton
-                            )}
+                            {isPrimaryActionShown && primaryButton}
                         </div>
                     )}
                 </div>
