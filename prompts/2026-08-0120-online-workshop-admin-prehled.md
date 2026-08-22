@@ -16,6 +16,7 @@
 - Allow to add custom metric based on keywords. For example, the user can add a custom metric for the number of comments containing the word "help". The graph should show this metric as a separate line.
     - Base this on Regex
     - Save this also in the GET parameters, so the admins can share the link to the graph with the same custom metrics.
+- Also save the selected tab and workshop in the GET parameters, so the admins can share the link to the same view (not only the graph, but also the selected tab and workshop)
 - You are working with `/cs/online-workshop/participant`
 - You are working with `/admin/workshops`
 - If you need a change in the database migration, do it in file `migrations/*.sql`
