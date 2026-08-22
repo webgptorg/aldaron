@@ -2,8 +2,8 @@
 
 [✨🐪] qux
 
-- @@@
-- You are working with `/cs/online-workshop/participant`
+- @@@@@
+- You are working with `/cs/online-workshop/participant` and `/cs/komunita/`
 - You are working with `/admin/workshops`
 - If you need a change in the database migration, do it in file `migrations/*.sql`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
