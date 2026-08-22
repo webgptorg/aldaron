@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
 
     const sessionValue = isAdminSignInAllowed(username, password) ? createAdminSessionValueOrNull() : null;
     if (sessionValue === null) {
-        return redirectAfterAdminForm(request, buildAdminLoginPath(redirectPath, true));
+        return redirectAfterAdminForm(buildAdminLoginPath(redirectPath, true));
     }
 
-    const response = redirectAfterAdminForm(request, redirectPath);
+    const response = redirectAfterAdminForm(redirectPath);
     response.cookies.set(ADMIN_SESSION_COOKIE_NAME, sessionValue, getAdminSessionCookieOptions());
 
     return response;

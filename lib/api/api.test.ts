@@ -86,9 +86,25 @@ describe('cookie-authenticated mutation origin checks', () => {
         expect(getCrossSiteResponseOrNull(request)).toBeNull();
     });
 
+    it('accepts a same-origin browser request when a proxy exposes a different public origin', () => {
+        const request = new NextRequest('http://localhost:4009/api/workshops/example/comments', {
+            headers: { origin: 'https://ptbk.io', 'sec-fetch-site': 'same-origin' },
+        });
+
+        expect(getCrossSiteResponseOrNull(request)).toBeNull();
+    });
+
     it('refuses a cross-site browser request', () => {
         const request = new NextRequest('https://promptbook.studio/api/workshops/example/comments', {
             headers: { origin: 'https://attacker.example', 'sec-fetch-site': 'cross-site' },
+        });
+
+        expect(getCrossSiteResponseOrNull(request)?.status).toBe(403);
+    });
+
+    it('refuses a request from a sibling origin even when the browser calls it same-site', () => {
+        const request = new NextRequest('https://promptbook.studio/api/workshops/example/comments', {
+            headers: { origin: 'https://other.promptbook.studio', 'sec-fetch-site': 'same-site' },
         });
 
         expect(getCrossSiteResponseOrNull(request)?.status).toBe(403);

@@ -9,12 +9,16 @@ const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 const ADMIN_TOKEN = 'correct-horse-battery-staple';
 const ADMIN_SESSION_API_URL = 'https://promptbook.studio/api/admin/session';
 
-function createSignInRequest(formFields: Readonly<Record<string, string>>): NextRequest {
+function createSignInRequest(
+    formFields: Readonly<Record<string, string>>,
+    requestUrl: string = ADMIN_SESSION_API_URL,
+    additionalHeaders: Readonly<Record<string, string>> = {},
+): NextRequest {
     const formData = new URLSearchParams(formFields);
 
-    return new NextRequest(ADMIN_SESSION_API_URL, {
+    return new NextRequest(requestUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...additionalHeaders },
         body: formData.toString(),
     });
 }
@@ -46,7 +50,21 @@ describe('signing in to the administration', () => {
         );
 
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('https://promptbook.studio/admin/contacts');
+        expect(response.headers.get('location')).toBe('/admin/contacts');
+        expect(isAdminSessionValueValid(readSessionCookieValue(response))).toBe(true);
+    });
+
+    it('opens a session for a same-origin form which reaches Next.js through a proxy', async () => {
+        const response = await POST(
+            createSignInRequest(
+                { username: ADMIN_USERNAME, password: ADMIN_TOKEN, redirectPath: '/admin' },
+                'http://localhost:4009/api/admin/session',
+                { origin: 'https://ptbk.io', 'sec-fetch-site': 'same-origin' },
+            ),
+        );
+
+        expect(response.status).toBe(303);
+        expect(response.headers.get('location')).toBe('/admin');
         expect(isAdminSessionValueValid(readSessionCookieValue(response))).toBe(true);
     });
 
@@ -66,7 +84,7 @@ describe('signing in to the administration', () => {
 
         expect(response.status).toBe(303);
         expect(response.headers.get('location')).toBe(
-            'https://promptbook.studio/admin/login?redirectPath=%2Fadmin%2Fcontacts&error=invalid-credentials',
+            '/admin/login?redirectPath=%2Fadmin%2Fcontacts&error=invalid-credentials',
         );
         expect(readSessionCookieValue(response)).toBeUndefined();
     });
@@ -93,7 +111,7 @@ describe('signing in to the administration', () => {
         const response = await SIGN_OUT(new NextRequest(`${ADMIN_SESSION_API_URL}/sign-out`, { method: 'POST' }));
 
         expect(response.status).toBe(303);
-        expect(response.headers.get('location')).toBe('https://promptbook.studio/admin/login?redirectPath=%2Fadmin');
+        expect(response.headers.get('location')).toBe('/admin/login?redirectPath=%2Fadmin');
         expect(readSessionCookieValue(response)).toBe('');
     });
 });

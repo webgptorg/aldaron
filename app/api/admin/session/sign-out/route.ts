@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         return crossSiteResponse;
     }
 
-    const response = redirectAfterAdminForm(request, buildAdminLoginPath(ADMIN_DASHBOARD_PATH));
+    const response = redirectAfterAdminForm(buildAdminLoginPath(ADMIN_DASHBOARD_PATH));
     response.cookies.set(ADMIN_SESSION_COOKIE_NAME, '', getExpiredAdminSessionCookieOptions());
 
     return response;
