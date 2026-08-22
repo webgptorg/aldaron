@@ -1,5 +1,6 @@
 # Current preversion
 
+- Fixed the participants of `/admin/workshops` answering `column reference "fullname" is ambiguous` instead of listing anybody, which took their CSV and vCard exports down with them: the paging function now says which row source each of its ordering columns comes from, so the database no longer has to choose between a column and the returned value of the very same name.
 - Made `/cs/komunita` the permanent room it is: no stage, no countdown towards a start it never had, no participant reactions and no watching count, and no realtime channel or fast poll behind them, so the community catches up calmly instead of pretending to be a live occurrence.
 - Took the community picker, the creation of a second community, and the start, end, stage, and reaction settings out of `/admin/community`, which now offers only what one permanent room has, while the administration API refuses a schedule or a stage written into such a room at all.
 - Described every room kind in one place — whether it is the only one of its kind, keeps a fixed URL, has a schedule, a stage, and live updates — so the participant room, its administration, the routes, and the data loading all ask the same question instead of naming the community, and a room which does not show a live panel neither counts nor broadcasts for it.

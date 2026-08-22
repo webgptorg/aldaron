@@ -1,3 +1,7 @@
+import {
+    WORKSHOP_ADMIN_PARTICIPANT_SORT_BY_VALUES,
+    type WorkshopAdminParticipantSortBy,
+} from '@/lib/workshops/workshopAdminParticipantQuery';
 import { DEFAULT_WORKSHOP_REACTIONS, MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT } from '@/lib/workshops/workshopConstants';
 import { WORKSHOP_KIND_VALUES } from '@/lib/workshops/workshopTypes';
 import { readFileSync } from 'node:fs';
@@ -35,6 +39,12 @@ const ADMIN_ANALYTICS_MIGRATION_PATH = path.resolve(
 const ADMIN_ANALYTICS_MIGRATION_SQL = readFileSync(ADMIN_ANALYTICS_MIGRATION_PATH, 'utf8');
 const COMMUNITY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-0400-community.sql');
 const COMMUNITY_MIGRATION_SQL = readFileSync(COMMUNITY_MIGRATION_PATH, 'utf8');
+const PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-0800-workshop-admin-participant-page-ordering.sql',
+);
+const PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL = readFileSync(PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH, 'utf8');
+const PARTICIPANT_PAGE_ROW_SOURCE = 'participant_page';
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
     'workshop_content_blocks',
@@ -43,6 +53,13 @@ const WORKSHOP_TABLE_NAMES = [
     'workshop_comment_upvotes',
     'workshop_reactions',
 ] as const;
+
+/**
+ * Names the database column behind one sortable column of the participant administration.
+ */
+function getParticipantSortColumnName(sortBy: WorkshopAdminParticipantSortBy): string {
+    return sortBy.replace(/[A-Z]/g, (upperCaseLetter) => `_${upperCaseLetter.toLowerCase()}`);
+}
 
 describe('workshop database migration', () => {
     it('creates every reusable workshop table', () => {
@@ -205,6 +222,24 @@ describe('workshop database migration', () => {
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_participants_email_trigram_idx');
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_comments_participant_timeline_idx');
         expect(ADMIN_ANALYTICS_MIGRATION_SQL).toContain('workshop_reactions_participant_timeline_idx');
+    });
+
+    it('orders that audience by columns which name their row source', () => {
+        expect(PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.get_workshop_admin_participant_page',
+        );
+
+        // Note: An unqualified name in the ordering could also mean the identically named `RETURNS TABLE` variable of
+        //       the function, which PostgreSQL refuses as an ambiguous column reference before it returns a single row.
+        WORKSHOP_ADMIN_PARTICIPANT_SORT_BY_VALUES.forEach((sortBy) => {
+            const sortColumnName = getParticipantSortColumnName(sortBy);
+            expect(PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL).toContain(
+                `THEN ${PARTICIPANT_PAGE_ROW_SOURCE}.${sortColumnName}`,
+            );
+            expect(PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL).not.toMatch(new RegExp(`THEN\\s+${sortColumnName}\\b`));
+        });
+
+        expect(PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL).toContain(`${PARTICIPANT_PAGE_ROW_SOURCE}.id ASC`);
     });
 
     it('aggregates workshop actions into private time buckets for the administration', () => {
