@@ -27,3 +27,4 @@
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-1.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-2.png)
+![alt text](prompts/screenshots/2026-08-0170-join-contacts-3.png)
