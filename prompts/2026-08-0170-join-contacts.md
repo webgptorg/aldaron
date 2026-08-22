@@ -20,7 +20,7 @@
 
 ---
 
-[ ] !!!!!
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.1291 2 minutes; Testing a few seconds
 
 [✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
 
@@ -28,3 +28,4 @@
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-1.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-2.png)
 ![alt text](prompts/screenshots/2026-08-0170-join-contacts-3.png)
+
