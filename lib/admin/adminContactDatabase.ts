@@ -35,6 +35,15 @@ type AdminContactWorkshopParticipantRow = {
     readonly is_trusted: boolean;
 };
 
+type AdminContactWorkshopParticipantActivityTotalsRow = {
+    readonly workshop_id: string;
+    readonly participant_id: string;
+    readonly comment_count: number | string;
+    readonly reaction_count: number | string;
+    readonly link_click_count: number | string;
+    readonly upvote_count: number | string;
+};
+
 type LoadedAdminContactGroups = {
     readonly groups: readonly AdminContactGroup[] | null;
     readonly errorMessage: string | null;
@@ -54,14 +63,28 @@ type LoadAdminContactGroupsOptions = {
     readonly isWorkshopParticipationsIncluded?: boolean;
 };
 
+function getNonNegativeWholeNumber(value: number | string | undefined): number {
+    const numericValue = typeof value === 'number' ? value : Number(value);
+    return Number.isSafeInteger(numericValue) && numericValue >= 0 ? numericValue : 0;
+}
+
+function createWorkshopParticipantActivityTotalsKey(workshopId: string, participantId: string): string {
+    return `${workshopId}:${participantId}`;
+}
+
 function mapAdminWorkshopParticipation(
     participantRow: AdminContactWorkshopParticipantRow,
     workshopById: ReadonlyMap<string, AdminContactWorkshopRow>,
+    activityTotalsByParticipationKey: ReadonlyMap<string, AdminContactWorkshopParticipantActivityTotalsRow>,
 ): AdminWorkshopParticipation | null {
     const workshopRow = workshopById.get(participantRow.workshop_id);
     if (workshopRow === undefined) {
         return null;
     }
+
+    const activityTotals = activityTotalsByParticipationKey.get(
+        createWorkshopParticipantActivityTotalsKey(participantRow.workshop_id, participantRow.id),
+    );
 
     return {
         participantId: participantRow.id,
@@ -75,9 +98,44 @@ function mapAdminWorkshopParticipation(
         connectedAt: participantRow.connected_at,
         lastSeenAt: participantRow.last_seen_at,
         activeDurationSeconds: participantRow.active_duration_seconds,
+        commentCount: getNonNegativeWholeNumber(activityTotals?.comment_count),
+        reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
+        linkClickCount: getNonNegativeWholeNumber(activityTotals?.link_click_count),
+        upvoteCount: getNonNegativeWholeNumber(activityTotals?.upvote_count),
         isInteractionBanned: participantRow.is_interaction_banned,
         isTrusted: participantRow.is_trusted,
     };
+}
+
+/**
+ * Read the already-aggregated activity of every workshop participant in one stable, paged query.
+ *
+ * The workshop participant page uses the very same database aggregate for one workshop. This multi-workshop variant
+ * lets the contact history stay complete without issuing a query for every workshop occurrence.
+ */
+async function loadAdminWorkshopParticipantActivityTotals(
+    supabase: SupabaseClient,
+    workshopIds: readonly string[],
+): Promise<{
+    readonly activityTotals: readonly AdminContactWorkshopParticipantActivityTotalsRow[] | null;
+    readonly errorMessage: string | null;
+}> {
+    if (workshopIds.length === 0) {
+        return { activityTotals: [], errorMessage: null };
+    }
+
+    const { rows, errorMessage } = await loadAllSupabaseRows<AdminContactWorkshopParticipantActivityTotalsRow>(
+        (fromIndex, toIndex) =>
+            supabase
+                .rpc('get_workshop_participant_activity_totals_for_workshops', {
+                    target_workshop_ids: workshopIds,
+                })
+                .order('workshop_id', { ascending: true })
+                .order('participant_id', { ascending: true })
+                .range(fromIndex, toIndex),
+    );
+
+    return { activityTotals: rows, errorMessage };
 }
 
 /**
@@ -106,16 +164,38 @@ async function loadAdminWorkshopParticipations(
         ),
     ]);
 
-    const errorMessage = workshopRowsResult.errorMessage ?? participantRowsResult.errorMessage;
-    if (errorMessage !== null) {
-        return { workshopParticipations: null, errorMessage };
+    const sourceErrorMessage = workshopRowsResult.errorMessage ?? participantRowsResult.errorMessage;
+    if (workshopRowsResult.rows === null || participantRowsResult.rows === null) {
+        return { workshopParticipations: null, errorMessage: sourceErrorMessage };
     }
 
     const workshopById = new Map<string, AdminContactWorkshopRow>(
-        (workshopRowsResult.rows ?? []).map((workshopRow) => [workshopRow.id, workshopRow] as const),
+        workshopRowsResult.rows.map((workshopRow) => [workshopRow.id, workshopRow] as const),
     );
-    const workshopParticipations = (participantRowsResult.rows ?? [])
-        .map((participantRow) => mapAdminWorkshopParticipation(participantRow, workshopById))
+    const activityTotalsResult = await loadAdminWorkshopParticipantActivityTotals(
+        supabase,
+        workshopRowsResult.rows.map((workshopRow) => workshopRow.id),
+    );
+    if (activityTotalsResult.activityTotals === null) {
+        return { workshopParticipations: null, errorMessage: activityTotalsResult.errorMessage };
+    }
+
+    const activityTotalsByParticipationKey = new Map<string, AdminContactWorkshopParticipantActivityTotalsRow>(
+        activityTotalsResult.activityTotals.map(
+            (activityTotals) =>
+                [
+                    createWorkshopParticipantActivityTotalsKey(
+                        activityTotals.workshop_id,
+                        activityTotals.participant_id,
+                    ),
+                    activityTotals,
+                ] as const,
+        ),
+    );
+    const workshopParticipations = participantRowsResult.rows
+        .map((participantRow) =>
+            mapAdminWorkshopParticipation(participantRow, workshopById, activityTotalsByParticipationKey),
+        )
         .filter((workshopParticipation): workshopParticipation is AdminWorkshopParticipation => workshopParticipation !== null);
 
     return { workshopParticipations, errorMessage: null };

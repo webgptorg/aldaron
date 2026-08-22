@@ -45,6 +45,10 @@ const WORKSHOP_PARTICIPATION: AdminWorkshopParticipation = {
     connectedAt: '2026-08-20T16:55:00.000Z',
     lastSeenAt: '2026-08-20T18:25:00.000Z',
     activeDurationSeconds: 4_800,
+    commentCount: 2,
+    reactionCount: 5,
+    linkClickCount: 1,
+    upvoteCount: 3,
     isInteractionBanned: false,
     isTrusted: true,
 };
@@ -89,6 +93,11 @@ describe('admin contact joining', () => {
         expect(getAdminContactPhoneNumbers(contactGroup)).toEqual(['+420 777 000 111']);
         expect(formatAdminContactRecords(contactGroup)).toContain('Our note: Zavolat po workshopu.');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Produkční kód s AI agenty');
+        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Participant email: JANA+workshop@EXAMPLE.COM');
+        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Comments: 2');
+        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Reactions: 5');
+        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Material link clicks: 1');
+        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Comment upvotes: 3');
     });
 
     it('never groups unrelated source rows that are missing an e-mail address', () => {

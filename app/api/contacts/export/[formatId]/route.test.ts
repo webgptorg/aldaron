@@ -115,6 +115,16 @@ describe('the export of the contacts served in a new tab', () => {
         expect(exportedFile).not.toContain('FN:Jan Novák');
     });
 
+    it('serves the Book context of the very same view', async () => {
+        const response = await requestContactsExport('book', 'search=%C4%8Dapek&contacted=ANY');
+        const exportedFile = await response.text();
+
+        expect(response.status).toBe(200);
+        expect(exportedFile).toMatch(/^Contacts \d{4}-\d{2}-\d{2}/);
+        expect(exportedFile).toContain('CONTACT Karel Čapek');
+        expect(exportedFile).not.toContain('CONTACT Jan Novák');
+    });
+
     it('sorts the exported contacts the way the link says', async () => {
         const response = await requestContactsExport('CSV', 'sortBy=fullname&sortDirection=ASCENDING');
         const exportedNames = (await response.text()).split('\r\n').slice(1, 3);
@@ -150,6 +160,12 @@ describe('the export of the contacts served in a new tab', () => {
         expect(response.headers.get('Content-Type')).toContain('text/plain');
         expect(response.headers.get('Cache-Control')).toBe('no-store');
         expect(response.headers.get('Content-Disposition')).toMatch(/^inline; filename="contacts-[\d-]+\.csv"$/);
+    });
+
+    it('keeps the Book extension when it is opened in a tab', async () => {
+        const response = await requestContactsExport('BOOK');
+
+        expect(response.headers.get('Content-Disposition')).toMatch(/^inline; filename="contacts-[\d-]+\.book"$/);
     });
 
     it('says that there is no such export instead of serving an empty one', async () => {

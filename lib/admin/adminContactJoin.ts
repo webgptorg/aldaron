@@ -19,6 +19,10 @@ export type AdminWorkshopParticipation = {
     readonly connectedAt: string;
     readonly lastSeenAt: string;
     readonly activeDurationSeconds: number;
+    readonly commentCount: number;
+    readonly reactionCount: number;
+    readonly linkClickCount: number;
+    readonly upvoteCount: number;
     readonly isInteractionBanned: boolean;
     readonly isTrusted: boolean;
 };
@@ -295,11 +299,19 @@ export function formatAdminWorkshopParticipations(contactGroup: AdminContactGrou
         .map((workshopParticipation) =>
             [
                 `${getWorkshopParticipationKindLabel(workshopParticipation.workshopKind)}: ${workshopParticipation.workshopTitle}`,
+                `Workshop ID: ${workshopParticipation.workshopId}`,
                 `Workshop starts at: ${workshopParticipation.workshopStartsAt}`,
                 `Workshop ends at: ${workshopParticipation.workshopEndsAt ?? ''}`,
+                `Participant ID: ${workshopParticipation.participantId}`,
+                `Participant full name: ${workshopParticipation.fullname}`,
+                `Participant email: ${workshopParticipation.email}`,
                 `Joined at: ${workshopParticipation.connectedAt}`,
                 `Last seen at: ${workshopParticipation.lastSeenAt}`,
                 `Active duration seconds: ${workshopParticipation.activeDurationSeconds}`,
+                `Comments: ${workshopParticipation.commentCount}`,
+                `Reactions: ${workshopParticipation.reactionCount}`,
+                `Material link clicks: ${workshopParticipation.linkClickCount}`,
+                `Comment upvotes: ${workshopParticipation.upvoteCount}`,
                 `Trusted: ${workshopParticipation.isTrusted ? 'yes' : 'no'}`,
                 `Interaction banned: ${workshopParticipation.isInteractionBanned ? 'yes' : 'no'}`,
             ].join('\n'),

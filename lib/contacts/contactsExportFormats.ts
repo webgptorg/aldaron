@@ -1,4 +1,5 @@
 import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
+import { serializeAdminJoinedContactsAsBook } from './serializeContactsAsBook';
 import { serializeAdminJoinedContactsAsCsv } from './serializeContactsAsCsv';
 import { serializeAdminJoinedContactsAsVcard } from './serializeContactsAsVcard';
 
@@ -32,6 +33,13 @@ export const CONTACTS_EXPORT_FORMATS: readonly ContactsExportFormat[] = [
         fileExtension: 'vcf',
         mimeType: 'text/vcard;charset=utf-8',
         serialize: serializeAdminJoinedContactsAsVcard,
+    },
+    {
+        id: 'BOOK',
+        label: 'AI context',
+        fileExtension: 'book',
+        mimeType: 'text/plain;charset=utf-8',
+        serialize: serializeAdminJoinedContactsAsBook,
     },
 ];
 

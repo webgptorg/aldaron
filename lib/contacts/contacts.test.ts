@@ -577,12 +577,13 @@ describe('the link which opens one export in a new tab', () => {
     }
 
     it('is offered for every format the dashboard exports to', () => {
-        expect(CONTACTS_EXPORT_FORMATS.map((format) => format.id)).toEqual(['CSV', 'VCARD']);
+        expect(CONTACTS_EXPORT_FORMATS.map((format) => format.id)).toEqual(['CSV', 'VCARD', 'BOOK']);
     });
 
     it('is understood no matter the letter case, so that it can also be written by hand', () => {
         expect(getContactsExportFormatOrNull('csv')?.id).toBe('CSV');
         expect(getContactsExportFormatOrNull(' VCard ')?.id).toBe('VCARD');
+        expect(getContactsExportFormatOrNull('book')?.id).toBe('BOOK');
         expect(getContactsExportFormatOrNull('xlsx')).toBeNull();
     });
 
