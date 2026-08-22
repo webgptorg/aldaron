@@ -1,30 +1,26 @@
 import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
-import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
-import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
+import { ADMIN_WORKSHOPS_PATH } from '@/lib/admin/adminConstants';
+import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
+import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
 import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
 
 type AdminWorkshopsPageProps = {
     readonly searchParams: Promise<{
-        readonly token?: string | string[];
         readonly workshop?: string | string[];
     }>;
 };
 
 export default async function AdminWorkshopsPage({ searchParams }: AdminWorkshopsPageProps) {
-    const resolvedSearchParams = await searchParams;
-    const adminToken = getValidAdminTokenOrNull(resolvedSearchParams.token);
-    if (adminToken === null) {
-        return <AdminAccessRequired actionPath="/admin/workshops" />;
-    }
+    const workshopSlug = readFirstSearchParameter((await searchParams).workshop);
+
+    // Note: The chosen workshop is named to the login as well, so signing in returns to the very workshop which was asked for
+    await requireAdminSignedIn(appendSearchParameters(ADMIN_WORKSHOPS_PATH, { workshop: workshopSlug ?? undefined }));
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <AdminNavigation adminToken={adminToken} title="Živé workshopy" />
-            <WorkshopAdminDashboard
-                adminToken={adminToken}
-                initialWorkshopSlug={readFirstSearchParameter(resolvedSearchParams.workshop)}
-            />
+            <AdminNavigation title="Živé workshopy" />
+            <WorkshopAdminDashboard initialWorkshopSlug={workshopSlug} />
         </main>
     );
 }

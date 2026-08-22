@@ -18,10 +18,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'medium', timeStyle: 'short' });
 
-type AiSupervizeMiniDiscountCodeAdminProps = {
-    readonly adminToken: string;
-};
-
 function formatDiscountCodeDateTime(timestamp: string): string {
     return CZECH_DATE_TIME_FORMAT.format(new Date(timestamp));
 }
@@ -47,7 +43,7 @@ function getDiscountCodeStatus(discountCode: AiSupervizeMiniDiscountCode): {
  * Holds the list state and mutations for the discount-code administration.
  * The focused form owns its field state, keeping list refreshes independent.
  */
-export function AiSupervizeMiniDiscountCodeAdmin({ adminToken }: AiSupervizeMiniDiscountCodeAdminProps) {
+export function AiSupervizeMiniDiscountCodeAdmin() {
     const [discountCodes, setDiscountCodes] = useState<readonly AiSupervizeMiniDiscountCode[]>([]);
     const [editingDiscountCode, setEditingDiscountCode] = useState<AiSupervizeMiniDiscountCode | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +54,7 @@ export function AiSupervizeMiniDiscountCodeAdmin({ adminToken }: AiSupervizeMini
         setIsLoading(true);
 
         try {
-            const loadedDiscountCodes = await fetchAdminAiSupervizeMiniDiscountCodes(adminToken);
+            const loadedDiscountCodes = await fetchAdminAiSupervizeMiniDiscountCodes();
             setDiscountCodes(loadedDiscountCodes);
             setErrorMessage(null);
             return true;
@@ -68,7 +64,7 @@ export function AiSupervizeMiniDiscountCodeAdmin({ adminToken }: AiSupervizeMini
         } finally {
             setIsLoading(false);
         }
-    }, [adminToken]);
+    }, []);
 
     useEffect(() => {
         void loadDiscountCodes();
@@ -77,9 +73,9 @@ export function AiSupervizeMiniDiscountCodeAdmin({ adminToken }: AiSupervizeMini
     const handleSave = async (values: AiSupervizeMiniDiscountCodeValues): Promise<boolean> => {
         try {
             if (editingDiscountCode === null) {
-                await createAdminAiSupervizeMiniDiscountCode(adminToken, values);
+                await createAdminAiSupervizeMiniDiscountCode(values);
             } else {
-                await updateAdminAiSupervizeMiniDiscountCode(adminToken, editingDiscountCode.id, values);
+                await updateAdminAiSupervizeMiniDiscountCode(editingDiscountCode.id, values);
             }
 
             setEditingDiscountCode(null);
@@ -98,7 +94,7 @@ export function AiSupervizeMiniDiscountCodeAdmin({ adminToken }: AiSupervizeMini
 
         setIsDeletingDiscountCodeId(discountCode.id);
         try {
-            await deleteAdminAiSupervizeMiniDiscountCode(adminToken, discountCode.id);
+            await deleteAdminAiSupervizeMiniDiscountCode(discountCode.id);
             if (editingDiscountCode?.id === discountCode.id) {
                 setEditingDiscountCode(null);
             }

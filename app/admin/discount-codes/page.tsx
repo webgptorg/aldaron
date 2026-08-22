@@ -1,22 +1,15 @@
 import { AiSupervizeMiniDiscountCodeAdmin } from '@/businesses/ai-supervize-mini/AiSupervizeMiniDiscountCodeAdmin';
-import { AdminAccessRequired } from '@/components/admin/AdminAccessRequired';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
-import { getValidAdminTokenOrNull } from '@/lib/admin/getValidAdminTokenOrNull';
+import { ADMIN_DISCOUNT_CODES_PATH } from '@/lib/admin/adminConstants';
+import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 
-type AdminDiscountCodesPageProps = {
-    readonly searchParams: Promise<{ readonly token?: string | string[] }>;
-};
-
-export default async function AdminDiscountCodesPage({ searchParams }: AdminDiscountCodesPageProps) {
-    const adminToken = getValidAdminTokenOrNull((await searchParams).token);
-    if (adminToken === null) {
-        return <AdminAccessRequired actionPath="/admin/discount-codes" />;
-    }
+export default async function AdminDiscountCodesPage() {
+    await requireAdminSignedIn(ADMIN_DISCOUNT_CODES_PATH);
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <AdminNavigation adminToken={adminToken} title="Slevové kódy" />
-            <AiSupervizeMiniDiscountCodeAdmin adminToken={adminToken} />
+            <AdminNavigation title="Slevové kódy" />
+            <AiSupervizeMiniDiscountCodeAdmin />
         </main>
     );
 }

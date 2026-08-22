@@ -42,7 +42,6 @@ import {
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 type WorkshopParticipantListProps = {
-    readonly adminToken: string;
     readonly workshopId: string;
 
     /**
@@ -64,7 +63,6 @@ function getParticipantPageCount(totalCount: number, pageSize: number): number {
  * Lists a server-paged audience and opens expensive per-person histories only when requested.
  */
 export function WorkshopParticipantList({
-    adminToken,
     workshopId,
     workshopStartsAt,
     workshopEndsAt,
@@ -118,7 +116,6 @@ export function WorkshopParticipantList({
         setIsParticipantsLoading(true);
         try {
             const loadedParticipantPage = await fetchAdminWorkshopParticipantPage(
-                adminToken,
                 workshopId,
                 requestedParticipantQuery,
             );
@@ -148,7 +145,7 @@ export function WorkshopParticipantList({
                 setIsParticipantsLoading(false);
             }
         }
-    }, [adminToken, requestedParticipantQuery, workshopId]);
+    }, [requestedParticipantQuery, workshopId]);
 
     useEffect(() => {
         void loadParticipantPage();
@@ -192,7 +189,7 @@ export function WorkshopParticipantList({
         setParticipantTimelineErrorMessage(null);
         setIsParticipantTimelineLoading(true);
 
-        void fetchAdminWorkshopParticipantTimeline(adminToken, workshopId, participantId)
+        void fetchAdminWorkshopParticipantTimeline(workshopId, participantId)
             .then((loadedParticipantTimeline) => {
                 if (loadSequence !== participantTimelineLoadSequenceReference.current) {
                     return;
@@ -244,14 +241,12 @@ export function WorkshopParticipantList({
                             {participantCount}
                         </span>
                         <WorkshopExportButton
-                            adminToken={adminToken}
                             workshopId={workshopId}
                             exportKind="participants"
                             participantQuery={participantQuery}
                             label="CSV"
                         />
                         <WorkshopExportButton
-                            adminToken={adminToken}
                             workshopId={workshopId}
                             exportKind="participants-vcard"
                             participantQuery={participantQuery}

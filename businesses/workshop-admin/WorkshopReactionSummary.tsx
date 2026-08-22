@@ -4,7 +4,6 @@ import { useWorkshopAdminAnalytics } from '@/businesses/workshop-admin/useWorksh
 import { Radio, RefreshCw } from 'lucide-react';
 
 type WorkshopReactionSummaryProps = {
-    readonly adminToken: string;
     readonly workshopId: string;
     readonly refreshVersion: number;
 };
@@ -16,9 +15,8 @@ function getReactionSharePercent(reactionCount: number, totalReactionCount: numb
 /**
  * Shows reaction volume by emoji without putting the full, potentially very large event stream into the admin page.
  */
-export function WorkshopReactionSummary({ adminToken, workshopId, refreshVersion }: WorkshopReactionSummaryProps) {
+export function WorkshopReactionSummary({ workshopId, refreshVersion }: WorkshopReactionSummaryProps) {
     const { analytics, errorMessage, isLoading } = useWorkshopAdminAnalytics({
-        adminToken,
         workshopId,
         refreshVersion,
     });

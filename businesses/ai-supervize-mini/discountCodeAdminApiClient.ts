@@ -2,7 +2,6 @@ import type {
     AiSupervizeMiniDiscountCode,
     AiSupervizeMiniDiscountCodeValues,
 } from '@/businesses/ai-supervize-mini/discountCode';
-import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
 
 const AI_SUPERVIZE_MINI_ADMIN_DISCOUNT_CODES_API_PATH = '/api/admin/ai-supervize-mini/discount-codes';
 
@@ -16,13 +15,10 @@ type AiSupervizeMiniDiscountCodeListResponse = {
     readonly error?: unknown;
 };
 
-function buildAiSupervizeMiniDiscountCodeAdminApiUrl(adminToken: string, discountCodeId?: string): string {
-    const pathname =
-        discountCodeId === undefined
-            ? AI_SUPERVIZE_MINI_ADMIN_DISCOUNT_CODES_API_PATH
-            : `${AI_SUPERVIZE_MINI_ADMIN_DISCOUNT_CODES_API_PATH}/${encodeURIComponent(discountCodeId)}`;
-
-    return buildAdminUrl(pathname, adminToken);
+function buildAiSupervizeMiniDiscountCodeAdminApiUrl(discountCodeId?: string): string {
+    return discountCodeId === undefined
+        ? AI_SUPERVIZE_MINI_ADMIN_DISCOUNT_CODES_API_PATH
+        : `${AI_SUPERVIZE_MINI_ADMIN_DISCOUNT_CODES_API_PATH}/${encodeURIComponent(discountCodeId)}`;
 }
 
 async function requestAiSupervizeMiniDiscountCodeJson<ResponseBody>(
@@ -51,22 +47,19 @@ function createAiSupervizeMiniDiscountCodeMutation(
     };
 }
 
-export async function fetchAdminAiSupervizeMiniDiscountCodes(
-    adminToken: string,
-): Promise<readonly AiSupervizeMiniDiscountCode[]> {
+export async function fetchAdminAiSupervizeMiniDiscountCodes(): Promise<readonly AiSupervizeMiniDiscountCode[]> {
     const response = await requestAiSupervizeMiniDiscountCodeJson<AiSupervizeMiniDiscountCodeListResponse>(
-        buildAiSupervizeMiniDiscountCodeAdminApiUrl(adminToken),
+        buildAiSupervizeMiniDiscountCodeAdminApiUrl(),
     );
 
     return response.discountCodes ?? [];
 }
 
 export async function createAdminAiSupervizeMiniDiscountCode(
-    adminToken: string,
     values: AiSupervizeMiniDiscountCodeValues,
 ): Promise<AiSupervizeMiniDiscountCode> {
     const response = await requestAiSupervizeMiniDiscountCodeJson<AiSupervizeMiniDiscountCodeResponse>(
-        buildAiSupervizeMiniDiscountCodeAdminApiUrl(adminToken),
+        buildAiSupervizeMiniDiscountCodeAdminApiUrl(),
         createAiSupervizeMiniDiscountCodeMutation('POST', values),
     );
     if (response.discountCode === undefined) {
@@ -77,12 +70,11 @@ export async function createAdminAiSupervizeMiniDiscountCode(
 }
 
 export async function updateAdminAiSupervizeMiniDiscountCode(
-    adminToken: string,
     discountCodeId: string,
     values: AiSupervizeMiniDiscountCodeValues,
 ): Promise<AiSupervizeMiniDiscountCode> {
     const response = await requestAiSupervizeMiniDiscountCodeJson<AiSupervizeMiniDiscountCodeResponse>(
-        buildAiSupervizeMiniDiscountCodeAdminApiUrl(adminToken, discountCodeId),
+        buildAiSupervizeMiniDiscountCodeAdminApiUrl(discountCodeId),
         createAiSupervizeMiniDiscountCodeMutation('PATCH', values),
     );
     if (response.discountCode === undefined) {
@@ -92,9 +84,8 @@ export async function updateAdminAiSupervizeMiniDiscountCode(
     return response.discountCode;
 }
 
-export async function deleteAdminAiSupervizeMiniDiscountCode(adminToken: string, discountCodeId: string): Promise<void> {
-    await requestAiSupervizeMiniDiscountCodeJson(
-        buildAiSupervizeMiniDiscountCodeAdminApiUrl(adminToken, discountCodeId),
-        { method: 'DELETE' },
-    );
+export async function deleteAdminAiSupervizeMiniDiscountCode(discountCodeId: string): Promise<void> {
+    await requestAiSupervizeMiniDiscountCodeJson(buildAiSupervizeMiniDiscountCodeAdminApiUrl(discountCodeId), {
+        method: 'DELETE',
+    });
 }

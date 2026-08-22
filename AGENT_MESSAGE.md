@@ -51,8 +51,9 @@ place, the contact forms and `/admin/contacts` would not work, so the key goes f
 5. **Redeploy** the site, so that the running server really has the variable. Environment variables are read when the
    server starts, an already running deployment will not see the new one.
 
-6. Check that the deployed `/admin/contacts?token=…` still lists the contacts. It now reads them through the service
-   role key. If it says `Database not configured`, the variable did not arrive — fix that before going on.
+6. Check that the deployed `/admin/contacts` still lists the contacts, signing in at `/admin/login` first. It now reads
+   them through the service role key. If it says `Database not configured`, the variable did not arrive — fix that
+   before going on.
 
 ---
 
@@ -101,7 +102,8 @@ place, the contact forms and `/admin/contacts` would not work, so the key goes f
     Expected: a `permission denied` answer, no new row.
 
 3. **A real contact form must still work.** Open the site, fill in for example the newsletter form in the footer, and
-   check that the contact appears in `/admin/contacts?token=…`. It goes through `/api/waitlist` now.
+   check that the contact appears in `/admin/contacts`, signing in at `/admin/login` first. It goes through
+   `/api/waitlist` now.
 
 4. **The dashboard must still work fully** — listing, adding by hand, editing a note, marking as contacted, deleting and
    both exports.
@@ -161,9 +163,9 @@ to be run against the Supabase project before the room can accept participants.
    expected audience. A room intended for more than 1,000 simultaneously connected participants needs limits of at
    least that size. Restricting the project to private channels is recommended; this room already subscribes as a
    private channel and authorizes reads through the migration policy.
-4. Open `/admin?token=<ADMIN_TOKEN>`, choose **Živé workshopy**, add the YouTube stream URL, check the start time and
-   publish the desired Markdown blocks with their unlock times. The video ID is validated and stored separately from
-   the URL.
+4. Sign in at `/admin/login` with the name `admin` and the `ADMIN_TOKEN` as the password, open `/admin`, choose **Živé
+   workshopy**, add the YouTube stream URL, check the start time and publish the desired Markdown blocks with their
+   unlock times. The video ID is validated and stored separately from the URL.
 5. Smoke-test in a private browser window with
    `/cs/online-workshop/participant?email=test@example.com&fullname=Test`. Confirm that the form is prefilled, a
    submitted comment first appears under moderation, approval makes it visible, and a reaction animates in a second

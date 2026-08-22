@@ -1,3 +1,4 @@
+import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -32,15 +33,18 @@ function createDiscountCodeRouteContext(discountCodeId: string = DISCOUNT_CODE_I
 
 function createDiscountCodeRequest(
     method: 'PATCH' | 'DELETE',
-    token: string | null,
+    isAdminSignedIn: boolean,
     body?: Readonly<Record<string, unknown>>,
 ): NextRequest {
-    const baseUrl = `https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes/${DISCOUNT_CODE_ID}`;
-    const url = token === null ? baseUrl : `${baseUrl}?token=${encodeURIComponent(token)}`;
+    const url = `https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes/${DISCOUNT_CODE_ID}`;
+    const headers: Record<string, string> = isAdminSignedIn ? { cookie: createAdminSessionCookieHeader() } : {};
+    if (body !== undefined) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     return new NextRequest(url, {
         method,
-        headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+        headers,
         body: body === undefined ? undefined : JSON.stringify(body),
     });
 }
@@ -83,7 +87,7 @@ describe('AI Supervize Mini discount-code admin item', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
         const response = await PATCH(
-            createDiscountCodeRequest('PATCH', ADMIN_TOKEN, createDiscountCodeValues()),
+            createDiscountCodeRequest('PATCH', true, createDiscountCodeValues()),
             createDiscountCodeRouteContext(),
         );
 
@@ -107,13 +111,16 @@ describe('AI Supervize Mini discount-code admin item', () => {
         const from = vi.fn(() => ({ delete: remove }));
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
-        const deleteResponse = await DELETE(createDiscountCodeRequest('DELETE', ADMIN_TOKEN), createDiscountCodeRouteContext());
+        const deleteResponse = await DELETE(
+            createDiscountCodeRequest('DELETE', true),
+            createDiscountCodeRouteContext(),
+        );
 
         expect(deleteResponse.status).toBe(200);
         expect(equal).toHaveBeenCalledWith('id', DISCOUNT_CODE_ID);
 
         const invalidIdResponse = await DELETE(
-            createDiscountCodeRequest('DELETE', ADMIN_TOKEN),
+            createDiscountCodeRequest('DELETE', true),
             createDiscountCodeRouteContext('not-a-uuid'),
         );
 

@@ -7,7 +7,6 @@ import type { WorkshopAdminParticipantQuery } from '@/lib/workshops/workshopAdmi
 import { Download } from 'lucide-react';
 
 type WorkshopExportButtonProps = {
-    readonly adminToken: string;
     readonly workshopId: string;
     readonly exportKind: WorkshopAdminExportKind;
     readonly label: string;
@@ -17,14 +16,8 @@ type WorkshopExportButtonProps = {
 /**
  * A regular download link styled as a button, so a browser can stream a large export without keeping it in React state.
  */
-export function WorkshopExportButton({
-    adminToken,
-    workshopId,
-    exportKind,
-    label,
-    participantQuery,
-}: WorkshopExportButtonProps) {
-    const exportUrl = buildAdminWorkshopExportUrl(adminToken, workshopId, exportKind, participantQuery);
+export function WorkshopExportButton({ workshopId, exportKind, label, participantQuery }: WorkshopExportButtonProps) {
+    const exportUrl = buildAdminWorkshopExportUrl(workshopId, exportKind, participantQuery);
 
     return (
         <Button asChild type="button" variant="outline" size="sm">

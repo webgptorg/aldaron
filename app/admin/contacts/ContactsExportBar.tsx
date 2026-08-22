@@ -23,18 +23,13 @@ type ContactsExportBarProps = {
      * The very same view written as a filter and a sorting, which the link to an export in a new tab carries
      */
     readonly contactsSelection: ContactsSelection;
-
-    /**
-     * Token which opens the dashboard, with which an export in a new tab authenticates itself as well
-     */
-    readonly adminToken: string | null;
 };
 
 /**
  * Export buttons of every format together with the scope of the contacts which are about to be exported
  */
 export function ContactsExportBar(props: ContactsExportBarProps) {
-    const { exportedContacts, totalContactsCount, contactsSelection, adminToken } = props;
+    const { exportedContacts, totalContactsCount, contactsSelection } = props;
 
     const exportScopeDescription = describeContactsExportScope(exportedContacts.length, totalContactsCount);
 
@@ -48,7 +43,7 @@ export function ContactsExportBar(props: ContactsExportBarProps) {
                     key={format.id}
                     format={format}
                     exportedContacts={exportedContacts}
-                    exportUrl={buildContactsExportUrl(format, adminToken, contactsSelection)}
+                    exportUrl={buildContactsExportUrl(format, contactsSelection)}
                     exportScopeDescription={exportScopeDescription}
                 />
             ))}

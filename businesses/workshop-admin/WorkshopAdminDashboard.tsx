@@ -75,7 +75,6 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
 ];
 
 type WorkshopAdminDashboardProps = {
-    readonly adminToken: string;
     readonly initialWorkshopSlug: string | null;
     readonly workshopKind?: WorkshopKind;
     readonly selectorLabel?: string;
@@ -88,7 +87,6 @@ function isWorkshopAdminSection(value: string): value is WorkshopAdminSection {
 }
 
 export function WorkshopAdminDashboard({
-    adminToken,
     initialWorkshopSlug,
     workshopKind = 'workshop',
     selectorLabel = 'Workshop',
@@ -112,7 +110,7 @@ export function WorkshopAdminDashboard({
 
     const loadWorkshopList = useCallback(async () => {
         try {
-            const loadedWorkshops = await fetchAdminWorkshopList(adminToken, workshopKind);
+            const loadedWorkshops = await fetchAdminWorkshopList(workshopKind);
             setWorkshops(loadedWorkshops);
             setSelectedWorkshopId((currentId) => {
                 if (currentId && loadedWorkshops.some(({ id }) => id === currentId)) {
@@ -130,7 +128,7 @@ export function WorkshopAdminDashboard({
         } finally {
             setIsLoading(false);
         }
-    }, [adminToken, initialWorkshopSlug, workshopKind]);
+    }, [initialWorkshopSlug, workshopKind]);
 
     const loadSnapshot = useCallback(async () => {
         const snapshotLoadSequence = ++snapshotLoadSequenceReference.current;
@@ -146,7 +144,6 @@ export function WorkshopAdminDashboard({
         setIsSnapshotLoading(true);
         try {
             const loadedSnapshot = await fetchAdminWorkshopSnapshot(
-                adminToken,
                 selectedWorkshopId,
                 commentStatus,
                 selectedSection === 'comments',
@@ -167,7 +164,7 @@ export function WorkshopAdminDashboard({
                 setIsSnapshotLoading(false);
             }
         }
-    }, [adminToken, commentStatus, selectedSection, selectedWorkshopId]);
+    }, [commentStatus, selectedSection, selectedWorkshopId]);
 
     useEffect(() => void loadWorkshopList(), [loadWorkshopList]);
     useEffect(() => void loadSnapshot(), [loadSnapshot]);
@@ -186,7 +183,7 @@ export function WorkshopAdminDashboard({
 
     const handleCreateWorkshop = async (values: WorkshopCreateValues): Promise<boolean> => {
         try {
-            const workshop = await createAdminWorkshop(adminToken, values);
+            const workshop = await createAdminWorkshop(values);
             await loadWorkshopList();
             setSelectedWorkshopId(workshop.id);
             return true;
@@ -211,18 +208,18 @@ export function WorkshopAdminDashboard({
     const handleSaveWorkshop = (values: WorkshopWriteValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => updateAdminWorkshop(adminToken, snapshot.workshop.id, values));
+            : runAndReload(() => updateAdminWorkshop(snapshot.workshop.id, values));
     const handleCreateContent = (values: WorkshopContentWriteValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => createAdminWorkshopContent(adminToken, snapshot.workshop.id, values));
+            : runAndReload(() => createAdminWorkshopContent(snapshot.workshop.id, values));
     const handleUpdateContent = (contentId: string, values: WorkshopContentWriteValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => updateAdminWorkshopContent(adminToken, snapshot.workshop.id, contentId, values));
+            : runAndReload(() => updateAdminWorkshopContent(snapshot.workshop.id, contentId, values));
     const handleDeleteContent = async (contentId: string) => {
         if (snapshot !== null) {
-            await runAndReload(() => deleteAdminWorkshopContent(adminToken, snapshot.workshop.id, contentId));
+            await runAndReload(() => deleteAdminWorkshopContent(snapshot.workshop.id, contentId));
         }
     };
     const handleUnlockContentNow = (contentId: string) => {
@@ -236,7 +233,7 @@ export function WorkshopAdminDashboard({
         }
 
         return runAndReload(() =>
-            updateAdminWorkshopContent(adminToken, snapshot.workshop.id, contentId, {
+            updateAdminWorkshopContent(snapshot.workshop.id, contentId, {
                 title: contentBlock.title,
                 bodyMarkdown: contentBlock.bodyMarkdown,
                 unlockAt: new Date().toISOString(),
@@ -247,20 +244,20 @@ export function WorkshopAdminDashboard({
     };
     const handleModerateComment = async (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => {
         if (snapshot !== null) {
-            await runAndReload(() => moderateAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, status));
+            await runAndReload(() => moderateAdminWorkshopComment(snapshot.workshop.id, commentId, status));
         }
     };
     const handleEditCommentBody = (commentId: string, body: string) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => editAdminWorkshopCommentBody(adminToken, snapshot.workshop.id, commentId, body));
+            : runAndReload(() => editAdminWorkshopCommentBody(snapshot.workshop.id, commentId, body));
     const handleChangeCommentPin = (commentId: string, isPinned: boolean) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => pinAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId, isPinned));
+            : runAndReload(() => pinAdminWorkshopComment(snapshot.workshop.id, commentId, isPinned));
     const handleDeleteComment = async (commentId: string) => {
         if (snapshot !== null) {
-            await runAndReload(() => deleteAdminWorkshopComment(adminToken, snapshot.workshop.id, commentId));
+            await runAndReload(() => deleteAdminWorkshopComment(snapshot.workshop.id, commentId));
         }
     };
     const handleAdjustArtificialUpvotes = (commentId: string, artificialUpvoteAdjustment: number) =>
@@ -268,7 +265,6 @@ export function WorkshopAdminDashboard({
             ? Promise.resolve(false)
             : runAndReload(() =>
                   adjustAdminWorkshopCommentArtificialUpvotes(
-                      adminToken,
                       snapshot.workshop.id,
                       commentId,
                       artificialUpvoteAdjustment,
@@ -277,39 +273,34 @@ export function WorkshopAdminDashboard({
     const handleCreateArtificialComment = (values: WorkshopArtificialCommentValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => createAdminWorkshopArtificialComment(adminToken, snapshot.workshop.id, values));
+            : runAndReload(() => createAdminWorkshopArtificialComment(snapshot.workshop.id, values));
     const handleSendArtificialReaction = (values: WorkshopArtificialReactionValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => sendAdminWorkshopArtificialReaction(adminToken, snapshot.workshop.id, values));
+            : runAndReload(() => sendAdminWorkshopArtificialReaction(snapshot.workshop.id, values));
     const handleChangeParticipantInteractionBan = async (participantId: string, isInteractionBanned: boolean) => {
         if (snapshot !== null) {
             await runAndReload(() =>
-                updateAdminWorkshopParticipantInteractionBan(
-                    adminToken,
-                    snapshot.workshop.id,
-                    participantId,
-                    isInteractionBanned,
-                ),
+                updateAdminWorkshopParticipantInteractionBan(snapshot.workshop.id, participantId, isInteractionBanned),
             );
         }
     };
     const handleChangeParticipantTrusted = async (participantId: string, isTrusted: boolean) => {
         if (snapshot !== null) {
             await runAndReload(() =>
-                updateAdminWorkshopParticipantTrusted(adminToken, snapshot.workshop.id, participantId, isTrusted),
+                updateAdminWorkshopParticipantTrusted(snapshot.workshop.id, participantId, isTrusted),
             );
         }
     };
     const handleDeleteParticipant = async (participantId: string) => {
         if (snapshot !== null) {
-            await runAndReload(() => deleteAdminWorkshopParticipant(adminToken, snapshot.workshop.id, participantId));
+            await runAndReload(() => deleteAdminWorkshopParticipant(snapshot.workshop.id, participantId));
         }
     };
     const handleClearReactions = () =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => clearAdminWorkshopReactions(adminToken, snapshot.workshop.id));
+            : runAndReload(() => clearAdminWorkshopReactions(snapshot.workshop.id));
 
     const handleSectionChange = (value: string) => {
         if (isWorkshopAdminSection(value)) {
@@ -398,7 +389,6 @@ export function WorkshopAdminDashboard({
                                 ))}
                             </div>
                             <WorkshopAggregateTimeline
-                                adminToken={adminToken}
                                 workshopId={snapshot.workshop.id}
                                 refreshVersion={snapshotRefreshVersion}
                             />
@@ -406,7 +396,6 @@ export function WorkshopAdminDashboard({
 
                         <TabsContent value="participants">
                             <WorkshopParticipantList
-                                adminToken={adminToken}
                                 workshopId={snapshot.workshop.id}
                                 workshopStartsAt={scheduleStartsAt}
                                 workshopEndsAt={snapshot.workshop.endsAt}
@@ -420,7 +409,6 @@ export function WorkshopAdminDashboard({
                         <TabsContent value="comments" className="space-y-4">
                             <div className="flex justify-end">
                                 <WorkshopExportButton
-                                    adminToken={adminToken}
                                     workshopId={snapshot.workshop.id}
                                     exportKind="comments"
                                     label="Exportovat komentáře CSV"
@@ -443,14 +431,12 @@ export function WorkshopAdminDashboard({
                         <TabsContent value="reactions" className="space-y-4">
                             <div className="flex justify-end">
                                 <WorkshopExportButton
-                                    adminToken={adminToken}
                                     workshopId={snapshot.workshop.id}
                                     exportKind="reactions"
                                     label="Exportovat reakce CSV"
                                 />
                             </div>
                             <WorkshopReactionSummary
-                                adminToken={adminToken}
                                 workshopId={snapshot.workshop.id}
                                 refreshVersion={snapshotRefreshVersion}
                             />
@@ -465,7 +451,6 @@ export function WorkshopAdminDashboard({
                         <TabsContent value="content" className="space-y-4">
                             <div className="flex justify-end">
                                 <WorkshopExportButton
-                                    adminToken={adminToken}
                                     workshopId={snapshot.workshop.id}
                                     exportKind="content"
                                     label="Exportovat obsah CSV"
@@ -484,7 +469,6 @@ export function WorkshopAdminDashboard({
                         <TabsContent value="settings" className="space-y-4">
                             <div className="flex justify-end">
                                 <WorkshopExportButton
-                                    adminToken={adminToken}
                                     workshopId={snapshot.workshop.id}
                                     exportKind="settings"
                                     label="Exportovat nastavení CSV"

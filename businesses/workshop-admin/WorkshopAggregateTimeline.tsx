@@ -17,7 +17,6 @@ import {
 import { useMemo } from 'react';
 
 type WorkshopAggregateTimelineProps = {
-    readonly adminToken: string;
     readonly workshopId: string;
     readonly refreshVersion: number;
 };
@@ -61,9 +60,8 @@ function getTimelineTotals(timeline: readonly WorkshopAdminTimelinePoint[]): Tim
     );
 }
 
-export function WorkshopAggregateTimeline({ adminToken, workshopId, refreshVersion }: WorkshopAggregateTimelineProps) {
+export function WorkshopAggregateTimeline({ workshopId, refreshVersion }: WorkshopAggregateTimelineProps) {
     const { analytics, errorMessage, isLoading } = useWorkshopAdminAnalytics({
-        adminToken,
         workshopId,
         refreshVersion,
     });
@@ -86,12 +84,7 @@ export function WorkshopAggregateTimeline({ adminToken, workshopId, refreshVersi
                         úseku.
                     </p>
                 </div>
-                <WorkshopExportButton
-                    adminToken={adminToken}
-                    workshopId={workshopId}
-                    exportKind="timeline"
-                    label="CSV časové osy"
-                />
+                <WorkshopExportButton workshopId={workshopId} exportKind="timeline" label="CSV časové osy" />
             </div>
 
             {isLoading ? (

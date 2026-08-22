@@ -33,11 +33,6 @@ function createShortcodePreviews(customPrefix: string): string[] {
 
 type UrlShortenerProps = {
     /**
-     * Shared token verified by the protected admin page and used for shortcode creation requests.
-     */
-    readonly adminToken: string;
-
-    /**
      * Optional CSS class name which will be added to root <div> element
      */
     readonly className?: string;
@@ -47,7 +42,7 @@ type UrlShortenerProps = {
  * Renders a URL Shortener app
  */
 export function UrlShortener(props: UrlShortenerProps) {
-    const { adminToken, className } = props;
+    const { className } = props;
 
     const [urls, setUrls] = useState<string[]>(['']);
     const [displayText, setDisplayText] = useState('');
@@ -153,7 +148,7 @@ export function UrlShortener(props: UrlShortenerProps) {
 
             if (isShortener) {
                 // Use the selected shortcode or generate a new one if none selected
-                const createdShortcode = await createAdminShortcodeLink(adminToken, {
+                const createdShortcode = await createAdminShortcodeLink({
                     shortcode: selectedShortcode || generateShortcode(),
                     urls: processedUrls,
                 });

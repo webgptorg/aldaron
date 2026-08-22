@@ -1,4 +1,4 @@
-import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
+import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
 import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import { downloadTextFile } from '@/lib/downloadTextFile';
 import moment from 'moment';
@@ -39,26 +39,21 @@ export function describeContactsExportScope(exportedContactsCount: number, total
 }
 
 /**
- * Address which serves the export of the given selection, opened by the very same admin token as the dashboard itself
+ * Address which serves the export of the given selection, opened by the very same session as the dashboard itself
  *
  * Note: The link carries the filter and the sorting and never the contacts themselves, so that opening it again -
  *       for example by reloading the tab it was opened in - exports the contacts as they are at that later moment
  *
  * Note: The page of the table is left out, because an export always contains the whole selection anyway
  */
-export function buildContactsExportUrl(
-    format: ContactsExportFormat,
-    adminToken: string | null,
-    selection: ContactsSelection,
-): string {
+export function buildContactsExportUrl(format: ContactsExportFormat, selection: ContactsSelection): string {
     const exportSearchParams = serializeContactsViewState(
         { ...DEFAULT_CONTACTS_VIEW_STATE, ...selection },
         new URLSearchParams(),
     );
 
-    return buildAdminUrl(
+    return appendSearchParameters(
         `${CONTACTS_EXPORT_API_PATH}/${format.id}`,
-        adminToken,
         Object.fromEntries(exportSearchParams.entries()),
     );
 }

@@ -1,3 +1,4 @@
+import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,17 +27,15 @@ function createShortcodeLinkDatabase(error: { readonly code?: string; readonly m
     return { from, insert };
 }
 
-function createShortcodeLinkRequest(
-    token: string | null,
-    body: Readonly<Record<string, unknown>>,
-): NextRequest {
-    const url = token === null
-        ? 'https://promptbook.studio/api/admin/shortener'
-        : 'https://promptbook.studio/api/admin/shortener?token=' + encodeURIComponent(token);
+function createShortcodeLinkRequest(isAdminSignedIn: boolean, body: Readonly<Record<string, unknown>>): NextRequest {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (isAdminSignedIn) {
+        headers.cookie = createAdminSessionCookieHeader();
+    }
 
-    return new NextRequest(url, {
+    return new NextRequest('https://promptbook.studio/api/admin/shortener', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(body),
     });
 }
@@ -59,9 +58,9 @@ describe('admin shortcode creation', () => {
         restoreAdminToken();
     });
 
-    it('refuses a request without the admin token before reaching the database', async () => {
+    it('refuses a request without the session of an administrator before reaching the database', async () => {
         const response = await POST(
-            createShortcodeLinkRequest(null, { shortcode: 'public-code', urls: ['https://example.com'] }),
+            createShortcodeLinkRequest(false, { shortcode: 'public-code', urls: ['https://example.com'] }),
         );
 
         expect(response.status).toBe(401);
@@ -73,7 +72,7 @@ describe('admin shortcode creation', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await POST(
-            createShortcodeLinkRequest(ADMIN_TOKEN, {
+            createShortcodeLinkRequest(true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
             }),
@@ -91,9 +90,7 @@ describe('admin shortcode creation', () => {
     });
 
     it('does not reach the database for an invalid short link request', async () => {
-        const response = await POST(
-            createShortcodeLinkRequest(ADMIN_TOKEN, { shortcode: 'not/a-code', urls: ['not a URL'] }),
-        );
+        const response = await POST(createShortcodeLinkRequest(true, { shortcode: 'not/a-code', urls: ['not a URL'] }));
 
         expect(response.status).toBe(400);
         expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
@@ -103,7 +100,7 @@ describe('admin shortcode creation', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue(null);
 
         const response = await POST(
-            createShortcodeLinkRequest(ADMIN_TOKEN, {
+            createShortcodeLinkRequest(true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
             }),
@@ -117,7 +114,7 @@ describe('admin shortcode creation', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await POST(
-            createShortcodeLinkRequest(ADMIN_TOKEN, {
+            createShortcodeLinkRequest(true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
             }),

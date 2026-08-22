@@ -573,7 +573,7 @@ describe('the link which opens one export in a new tab', () => {
      * Read one export link the way the server does, which is as the address it points to
      */
     function buildExportUrl(format: ContactsExportFormat, selection: ContactsSelection = EXPORTED_SELECTION): URL {
-        return new URL(buildContactsExportUrl(format, 'secret', selection), 'http://localhost');
+        return new URL(buildContactsExportUrl(format, selection), 'http://localhost');
     }
 
     it('is offered for every format the dashboard exports to', () => {
@@ -587,11 +587,11 @@ describe('the link which opens one export in a new tab', () => {
     });
 
     for (const format of CONTACTS_EXPORT_FORMATS) {
-        it(`carries the admin token and the whole narrowed down view of the ${format.label} export`, () => {
+        it(`carries the whole narrowed down view of the ${format.label} export and no credentials at all`, () => {
             const exportUrl = buildExportUrl(format);
 
             expect(exportUrl.pathname).toBe(`/api/contacts/export/${format.id}`);
-            expect(exportUrl.searchParams.get('token')).toBe('secret');
+            expect(exportUrl.searchParams.get('token')).toBeNull();
             expect(exportUrl.searchParams.get('search')).toBe('čapek');
             expect(exportUrl.searchParams.get('email')).toBe('MISSING');
             expect(exportUrl.searchParams.get('sortBy')).toBe('fullname');
@@ -624,7 +624,8 @@ describe('the link which opens one export in a new tab', () => {
             sortState: DEFAULT_CONTACTS_SORT_STATE,
         });
 
-        expect(exportUrl.search).toBe('?token=secret');
+        // Note: A view which narrows nothing down is written into no parameter at all
+        expect(exportUrl.search).toBe('');
         expect(
             selectContacts(ALL_CONTACTS, parseContactsViewState(exportUrl.searchParams)).map((contact) => contact.id),
         ).toEqual([1, 3]);

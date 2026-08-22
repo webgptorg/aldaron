@@ -1,19 +1,18 @@
 import type { AdminJoinedContact } from '@/lib/admin/adminContactJoin';
 import type { Contact, ContactChanges, ContactDraft } from './Contact';
-import { buildAdminUrl } from '@/lib/admin/buildAdminApiUrl';
+import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
 
 const CONTACTS_API_PATH = '/api/contacts';
 
 type ContactMutationMethod = 'POST' | 'PATCH' | 'DELETE';
 
 /**
- * Build the url of the contacts api with the admin token and the optional additional parameters
+ * Build the url of the contacts api with the optional additional parameters
+ *
+ * Note: The session of the administration is a cookie, so the address of the api carries no credentials at all
  */
-function buildContactsApiUrl(
-    adminToken: string | null,
-    additionalParameters: Readonly<Record<string, string>> = {},
-): string {
-    return buildAdminUrl(CONTACTS_API_PATH, adminToken, additionalParameters);
+function buildContactsApiUrl(additionalParameters: Readonly<Record<string, string>> = {}): string {
+    return appendSearchParameters(CONTACTS_API_PATH, additionalParameters);
 }
 
 /**
@@ -32,11 +31,10 @@ async function assertResponseIsOk(response: Response): Promise<void> {
  * Send one mutation to the contacts api and read its JSON response
  */
 async function sendContactsApiMutation<ResponsePayload>(
-    adminToken: string | null,
     method: ContactMutationMethod,
     contactValues: unknown,
 ): Promise<ResponsePayload> {
-    const response = await fetch(buildContactsApiUrl(adminToken), {
+    const response = await fetch(buildContactsApiUrl(), {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(contactValues),
@@ -51,8 +49,8 @@ async function sendContactsApiMutation<ResponsePayload>(
  *
  * Note: All contacts are loaded at once so the browser can filter, sort and paginate the table while exports include every contact
  */
-export async function fetchContacts(adminToken: string | null): Promise<Array<AdminJoinedContact>> {
-    const response = await fetch(buildContactsApiUrl(adminToken, { showAll: 'true' }));
+export async function fetchContacts(): Promise<Array<AdminJoinedContact>> {
+    const response = await fetch(buildContactsApiUrl({ showAll: 'true' }));
     await assertResponseIsOk(response);
 
     const payload = (await response.json()) as { contacts?: Array<AdminJoinedContact> | null };
@@ -62,24 +60,20 @@ export async function fetchContacts(adminToken: string | null): Promise<Array<Ad
 /**
  * Add one manually filled in contact
  */
-export async function createContact(adminToken: string | null, contactDraft: ContactDraft): Promise<Contact> {
-    return sendContactsApiMutation<Contact>(adminToken, 'POST', contactDraft);
+export async function createContact(contactDraft: ContactDraft): Promise<Contact> {
+    return sendContactsApiMutation<Contact>('POST', contactDraft);
 }
 
 /**
  * Save the fields of one contact which we maintain ourselves
  */
-export async function updateContact(
-    adminToken: string | null,
-    contactId: number,
-    contactChanges: ContactChanges,
-): Promise<Contact> {
-    return sendContactsApiMutation<Contact>(adminToken, 'PATCH', { id: contactId, ...contactChanges });
+export async function updateContact(contactId: number, contactChanges: ContactChanges): Promise<Contact> {
+    return sendContactsApiMutation<Contact>('PATCH', { id: contactId, ...contactChanges });
 }
 
 /**
  * Remove exactly one contact from the dashboard and the database
  */
-export async function deleteContact(adminToken: string | null, contactId: number): Promise<void> {
-    await sendContactsApiMutation(adminToken, 'DELETE', { id: contactId });
+export async function deleteContact(contactId: number): Promise<void> {
+    await sendContactsApiMutation('DELETE', { id: contactId });
 }

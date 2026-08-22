@@ -5,7 +5,6 @@ import type { WorkshopAdminAnalytics } from '@/lib/workshops/workshopTypes';
 import { useEffect, useState } from 'react';
 
 type UseWorkshopAdminAnalyticsOptions = {
-    readonly adminToken: string;
     readonly workshopId: string;
     readonly refreshVersion: number;
 };
@@ -20,7 +19,6 @@ type WorkshopAdminAnalyticsState = {
  * Keeps the independently refreshable analytics request consistent wherever workshop activity is presented.
  */
 export function useWorkshopAdminAnalytics({
-    adminToken,
     workshopId,
     refreshVersion,
 }: UseWorkshopAdminAnalyticsOptions): WorkshopAdminAnalyticsState {
@@ -32,7 +30,7 @@ export function useWorkshopAdminAnalytics({
         let isRequestCurrent = true;
         setIsLoading(true);
 
-        void fetchAdminWorkshopAnalytics(adminToken, workshopId)
+        void fetchAdminWorkshopAnalytics(workshopId)
             .then((loadedAnalytics) => {
                 if (!isRequestCurrent) {
                     return;
@@ -55,7 +53,7 @@ export function useWorkshopAdminAnalytics({
         return () => {
             isRequestCurrent = false;
         };
-    }, [adminToken, refreshVersion, workshopId]);
+    }, [refreshVersion, workshopId]);
 
     return { analytics, errorMessage, isLoading };
 }

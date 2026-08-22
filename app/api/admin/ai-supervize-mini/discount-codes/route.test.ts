@@ -1,3 +1,4 @@
+import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -27,15 +28,18 @@ const DISCOUNT_CODE_ROW = {
 
 function createAdminDiscountCodesRequest(
     method: 'GET' | 'POST',
-    token: string | null,
+    isAdminSignedIn: boolean,
     body?: Readonly<Record<string, unknown>>,
 ): NextRequest {
-    const baseUrl = 'https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes';
-    const url = token === null ? baseUrl : `${baseUrl}?token=${encodeURIComponent(token)}`;
+    const url = 'https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes';
+    const headers: Record<string, string> = isAdminSignedIn ? { cookie: createAdminSessionCookieHeader() } : {};
+    if (body !== undefined) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     return new NextRequest(url, {
         method,
-        headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+        headers,
         body: body === undefined ? undefined : JSON.stringify(body),
     });
 }
@@ -59,7 +63,7 @@ describe('AI Supervize Mini discount-code admin collection', () => {
     });
 
     it('refuses an unauthenticated request before it reaches the discount database', async () => {
-        const response = await GET(createAdminDiscountCodesRequest('GET', null));
+        const response = await GET(createAdminDiscountCodesRequest('GET', false));
 
         expect(response.status).toBe(401);
         expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
@@ -72,7 +76,7 @@ describe('AI Supervize Mini discount-code admin collection', () => {
         const from = vi.fn(() => ({ select }));
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
-        const response = await GET(createAdminDiscountCodesRequest('GET', ADMIN_TOKEN));
+        const response = await GET(createAdminDiscountCodesRequest('GET', true));
 
         expect(response.status).toBe(200);
         expect(await response.json()).toEqual({
@@ -100,7 +104,7 @@ describe('AI Supervize Mini discount-code admin collection', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
         const response = await POST(
-            createAdminDiscountCodesRequest('POST', ADMIN_TOKEN, {
+            createAdminDiscountCodesRequest('POST', true, {
                 code: ' webinar-2026-09-04 ',
                 percent: 25,
                 startsAt: '2026-09-04T00:00:00+02:00',
@@ -133,7 +137,7 @@ describe('AI Supervize Mini discount-code admin collection', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
         const response = await POST(
-            createAdminDiscountCodesRequest('POST', ADMIN_TOKEN, {
+            createAdminDiscountCodesRequest('POST', true, {
                 code: 'webinar-2026-09-04',
                 percent: 25,
                 startsAt: '2026-09-04T00:00:00+02:00',

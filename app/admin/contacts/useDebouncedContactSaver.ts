@@ -19,10 +19,7 @@ type DebouncedContactSaver = {
  *
  * Note: Changes made in the meantime are merged together, so no change of any field is ever lost
  */
-export function useDebouncedContactSaver(
-    adminToken: string | null,
-    onSaveError: (errorMessage: string) => void,
-): DebouncedContactSaver {
+export function useDebouncedContactSaver(onSaveError: (errorMessage: string) => void): DebouncedContactSaver {
     const pendingChangesRef = useRef(new Map<number, ContactChanges>());
     const pendingTimeoutsRef = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
@@ -59,13 +56,11 @@ export function useDebouncedContactSaver(
                         return;
                     }
 
-                    updateContact(adminToken, contactId, changesToSave).catch((error: Error) =>
-                        onSaveError(error.message),
-                    );
+                    updateContact(contactId, changesToSave).catch((error: Error) => onSaveError(error.message));
                 }, CONTACT_SAVE_DEBOUNCE_MILLISECONDS),
             );
         },
-        [adminToken, onSaveError],
+        [onSaveError],
     );
 
     /**

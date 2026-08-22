@@ -26,18 +26,18 @@ type UseContactsResult = {
  *
  * Note: A change is shown immediately and saved a moment later, so that typing a note is not sent letter by letter
  */
-export function useContacts(adminToken: string | null): UseContactsResult {
+export function useContacts(): UseContactsResult {
     const [contacts, setContacts] = useState<readonly AdminJoinedContact[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const { saveContactChanges, takePendingContactChanges } = useDebouncedContactSaver(adminToken, setErrorMessage);
+    const { saveContactChanges, takePendingContactChanges } = useDebouncedContactSaver(setErrorMessage);
 
     const reloadContacts = useCallback(async (): Promise<boolean> => {
         setIsLoading(true);
 
         try {
-            const loadedContacts = await fetchContacts(adminToken);
+            const loadedContacts = await fetchContacts();
             setContacts(loadedContacts);
             setErrorMessage(null);
             return true;
@@ -47,12 +47,12 @@ export function useContacts(adminToken: string | null): UseContactsResult {
         } finally {
             setIsLoading(false);
         }
-    }, [adminToken]);
+    }, []);
 
     useEffect(() => {
         let isLoadingActive = true;
 
-        void fetchContacts(adminToken)
+        void fetchContacts()
             .then((loadedContacts) => {
                 if (!isLoadingActive) {
                     return;
@@ -76,7 +76,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
         return () => {
             isLoadingActive = false;
         };
-    }, [adminToken]);
+    }, []);
 
     const changeContact = useCallback(
         (contactId: number, contactChanges: ContactChanges) => {
@@ -94,14 +94,14 @@ export function useContacts(adminToken: string | null): UseContactsResult {
     const addContact = useCallback(
         async (contactDraft: ContactDraft): Promise<boolean> => {
             try {
-                await createContact(adminToken, contactDraft);
+                await createContact(contactDraft);
                 return reloadContacts();
             } catch (error) {
                 setErrorMessage((error as Error).message);
                 return false;
             }
         },
-        [adminToken, reloadContacts],
+        [reloadContacts],
     );
 
     const editContact = useCallback(
@@ -111,7 +111,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
             const pendingContactChanges = takePendingContactChanges(contactId);
 
             try {
-                await updateContact(adminToken, contactId, {
+                await updateContact(contactId, {
                     ...pendingContactChanges,
                     ...contactValues,
                 });
@@ -121,7 +121,7 @@ export function useContacts(adminToken: string | null): UseContactsResult {
                 return false;
             }
         },
-        [adminToken, reloadContacts, takePendingContactChanges],
+        [reloadContacts, takePendingContactChanges],
     );
 
     const deleteContact = useCallback(
@@ -130,14 +130,14 @@ export function useContacts(adminToken: string | null): UseContactsResult {
             takePendingContactChanges(contactId);
 
             try {
-                await deleteContactRequest(adminToken, contactId);
+                await deleteContactRequest(contactId);
                 return reloadContacts();
             } catch (error) {
                 setErrorMessage((error as Error).message);
                 return false;
             }
         },
-        [adminToken, reloadContacts, takePendingContactChanges],
+        [reloadContacts, takePendingContactChanges],
     );
 
     return { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact };

@@ -18,6 +18,8 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/cs/online-workshop/participant` - The live room of one workshop occurrence: a countdown, a YouTube stage, reactions, a watching count, moderated chat, and timed materials.
 - `/cs/komunita` - The Czech-only room of the one permanent community, built on the very same participant room. Being a `community` room rather than a workshop occurrence, it has no schedule, no stage, and no live updates, so it offers the chat, the materials, and links into every published workshop.
 - `/admin/community` - The administration of that one community, which is the shared workshop dashboard restricted to the `community` room kind, therefore without a picker between rooms and without the settings a permanent room does not have.
+- `/admin/login` - The login of the whole administration, for the one hard-coded administrator `admin` whose password is the `ADMIN_TOKEN` of the server. It opens a signed session cookie, which is what every `/admin/*` page and every administration endpoint reads; a page therefore guards itself by `requireAdminSignedIn` and no address ever carries the token.
+- `/admin` - The dashboard which links to every administration page, reached after signing in.
 - `/pavol` - Redirects to `/cs/pavol` or `/en/pavol` based on the browser `Accept-Language` header.
 - `/cs/pavol` - The Czech personal page of Pavol Hejný.
 - `/en/pavol` - The English personal page of Pavol Hejný.

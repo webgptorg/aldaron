@@ -26,16 +26,11 @@ import { useContactsViewState } from './useContactsViewState';
  */
 const CONTACT_COLUMN_WIDTHS_STORAGE_KEY = 'admin-contacts-column-widths';
 
-type AdminContactsComponentProps = {
-    readonly adminToken: string;
-};
-
 /**
  * Dashboard which shows, filters, sorts and exports the gathered contacts and leads
  */
-export default function AdminContactsComponent({ adminToken }: AdminContactsComponentProps) {
-    const { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact } =
-        useContacts(adminToken);
+export default function AdminContactsComponent() {
+    const { contacts, isLoading, errorMessage, changeContact, addContact, editContact, deleteContact } = useContacts();
 
     const {
         filter,
@@ -109,7 +104,6 @@ export default function AdminContactsComponent({ adminToken }: AdminContactsComp
                     exportedContacts={filteredAndSortedContacts}
                     totalContactsCount={contacts.length}
                     contactsSelection={contactsSelection}
-                    adminToken={adminToken}
                 />
                 <div className="grow" />
                 <Button variant="ghost" onClick={resetWidths} title="Set the widths of all the columns back to default">
