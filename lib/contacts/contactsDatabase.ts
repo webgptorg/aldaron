@@ -105,8 +105,9 @@ export async function loadContacts(
     contactsTable: ContactsTable,
     options: LoadContactsOptions,
 ): Promise<LoadedContacts> {
-    const { rows, errorMessage } = await loadAllSupabaseRows<Contact>((fromIndex, toIndex) =>
-        createContactsQuery(contactsTable, options).range(fromIndex, toIndex),
+    const { rows, errorMessage } = await loadAllSupabaseRows<Contact>(
+        (fromIndex, toIndex) => createContactsQuery(contactsTable, options).range(fromIndex, toIndex),
+        `the gathered contacts, from \`${CONTACT_TABLE_NAME}\``,
     );
 
     if (rows === null) {

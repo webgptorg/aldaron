@@ -21,7 +21,7 @@
 
 ---
 
-[ ] !!!!!!!!
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $6.50 15 minutes; Testing a minute
 
 [✨🖕] Fix `column reference "fullname" is ambiguous` in `/admin/workshops`
 
@@ -39,3 +39,4 @@
  GET /api/admin/workshops/00312639-8a58-49c1-ba6e-494427831955?commentStatus=pending&includeComments=false 200 in 666ms
  GET /api/admin/workshops/00312639-8a58-49c1-ba6e-494427831955/participants?sortBy=connectedAt&sortDirection=DESCENDING&page=1&pageSize=50 500 in 1825ms
 ```
+

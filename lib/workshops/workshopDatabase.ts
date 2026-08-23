@@ -1,5 +1,6 @@
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } from '@/lib/supabase/loadAllSupabaseRows';
+import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import {
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
@@ -165,6 +166,11 @@ type WorkshopAdminParticipantRow = {
  */
 const WORKSHOP_ADMIN_PARTICIPANT_COLUMNS =
     'id, fullname, email, connected_at, last_seen_at, is_interaction_banned, is_trusted, is_moderator, active_duration_seconds';
+
+/**
+ * The database function which filters, sorts and pages a whole workshop audience, see `migrations/*.sql`
+ */
+const WORKSHOP_ADMIN_PARTICIPANT_PAGE_FUNCTION_NAME = 'get_workshop_admin_participant_page';
 
 type WorkshopAdminParticipantPageRow = WorkshopAdminParticipantRow &
     WorkshopParticipantActivityTotalsRow & {
@@ -780,7 +786,7 @@ export async function loadWorkshopAdminParticipantPage(
     workshopId: string,
     query: WorkshopAdminParticipantQuery,
 ): Promise<{ readonly page: WorkshopAdminParticipantPage | null; readonly errorMessage: string | null }> {
-    const { data, error } = await supabase.rpc('get_workshop_admin_participant_page', {
+    const participantPageParameters = {
         target_workshop_id: workshopId,
         target_search_query: query.searchQuery,
         target_is_trusted: query.isTrusted,
@@ -792,9 +798,20 @@ export async function loadWorkshopAdminParticipantPage(
         target_sort_direction: query.sortDirection,
         target_limit: query.pageSize,
         target_offset: (query.page - 1) * query.pageSize,
-    });
+    };
+    const { data, error } = await supabase.rpc(
+        WORKSHOP_ADMIN_PARTICIPANT_PAGE_FUNCTION_NAME,
+        participantPageParameters,
+    );
     if (error) {
-        return { page: null, errorMessage: error.message };
+        return {
+            page: null,
+            errorMessage: reportSupabaseError(
+                `\`${WORKSHOP_ADMIN_PARTICIPANT_PAGE_FUNCTION_NAME}\``,
+                error,
+                participantPageParameters,
+            ),
+        };
     }
 
     const participantRows = (data ?? []) as WorkshopAdminParticipantPageRow[];

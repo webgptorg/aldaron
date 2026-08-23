@@ -46,6 +46,26 @@ const PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH = path.resolve(
 const PARTICIPANT_PAGE_ORDERING_MIGRATION_SQL = readFileSync(PARTICIPANT_PAGE_ORDERING_MIGRATION_PATH, 'utf8');
 const MODERATOR_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-1000-workshop-moderators.sql');
 const MODERATOR_MIGRATION_SQL = readFileSync(MODERATOR_MIGRATION_PATH, 'utf8');
+const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-1100-workshop-admin-participant-page-variable-conflict.sql',
+);
+const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL = readFileSync(
+    PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_PATH,
+    'utf8',
+);
+
+/**
+ * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
+ */
+const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_STATEMENTS = PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL.replace(
+    /\s+/g,
+    ' ',
+);
+const PARTICIPANT_PAGE_FUNCTION_SIGNATURES = [
+    'uuid, text, boolean, boolean, timestamptz, timestamptz, text, text, integer, integer',
+    'uuid, text, boolean, boolean, boolean, timestamptz, timestamptz, text, text, integer, integer',
+] as const;
 const PARTICIPANT_PAGE_ROW_SOURCE = 'participant_page';
 const WORKSHOP_TABLE_NAMES = [
     'workshops',
@@ -277,6 +297,33 @@ describe('workshop database migration', () => {
             expect(MODERATOR_MIGRATION_SQL).toContain(`THEN ${PARTICIPANT_PAGE_ROW_SOURCE}.${sortColumnName}`);
             expect(MODERATOR_MIGRATION_SQL).not.toMatch(new RegExp(`THEN\\s+${sortColumnName}\\b`));
         });
+    });
+
+    it('settles the ambiguous participant ordering for the whole function, whatever the database still holds', () => {
+        // Note: A database left with an older body of the function keeps refusing the very same query however well the
+        //       migration files read, so this one decides the conflict for every line of it at once.
+        expect(PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL).toContain('#variable_conflict use_column');
+        expect(PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL).toContain(
+            'CREATE FUNCTION public.get_workshop_admin_participant_page',
+        );
+
+        // Note: An older signature left behind would be offered to a request next to the new one.
+        PARTICIPANT_PAGE_FUNCTION_SIGNATURES.forEach((functionSignature) => {
+            expect(PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_STATEMENTS).toContain(
+                `DROP FUNCTION IF EXISTS public.get_workshop_admin_participant_page( ${functionSignature} );`,
+            );
+        });
+
+        WORKSHOP_ADMIN_PARTICIPANT_SORT_BY_VALUES.forEach((sortBy) => {
+            const sortColumnName = getParticipantSortColumnName(sortBy);
+            expect(PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL).toContain(
+                `THEN ${PARTICIPANT_PAGE_ROW_SOURCE}.${sortColumnName}`,
+            );
+        });
+
+        expect(PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL).toContain(
+            'GRANT EXECUTE ON FUNCTION public.get_workshop_admin_participant_page',
+        );
     });
 
     it('keeps one persistent community separate from workshop occurrences', () => {

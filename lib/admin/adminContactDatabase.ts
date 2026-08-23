@@ -133,6 +133,7 @@ async function loadAdminWorkshopParticipantActivityTotals(
                 .order('workshop_id', { ascending: true })
                 .order('participant_id', { ascending: true })
                 .range(fromIndex, toIndex),
+        '`get_workshop_participant_activity_totals_for_workshops`',
     );
 
     return { activityTotals: rows, errorMessage };
@@ -148,19 +149,23 @@ async function loadAdminWorkshopParticipations(
     supabase: SupabaseClient,
 ): Promise<{ readonly workshopParticipations: readonly AdminWorkshopParticipation[] | null; readonly errorMessage: string | null }> {
     const [workshopRowsResult, participantRowsResult] = await Promise.all([
-        loadAllSupabaseRows<AdminContactWorkshopRow>((fromIndex, toIndex) =>
-            supabase
-                .from(WORKSHOP_TABLE_NAME)
-                .select(ADMIN_CONTACT_WORKSHOP_COLUMNS)
-                .order('starts_at', { ascending: false })
-                .range(fromIndex, toIndex),
+        loadAllSupabaseRows<AdminContactWorkshopRow>(
+            (fromIndex, toIndex) =>
+                supabase
+                    .from(WORKSHOP_TABLE_NAME)
+                    .select(ADMIN_CONTACT_WORKSHOP_COLUMNS)
+                    .order('starts_at', { ascending: false })
+                    .range(fromIndex, toIndex),
+            `the workshops of the contact join, from \`${WORKSHOP_TABLE_NAME}\``,
         ),
-        loadAllSupabaseRows<AdminContactWorkshopParticipantRow>((fromIndex, toIndex) =>
-            supabase
-                .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
-                .select(ADMIN_CONTACT_WORKSHOP_PARTICIPANT_COLUMNS)
-                .order('connected_at', { ascending: false })
-                .range(fromIndex, toIndex),
+        loadAllSupabaseRows<AdminContactWorkshopParticipantRow>(
+            (fromIndex, toIndex) =>
+                supabase
+                    .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+                    .select(ADMIN_CONTACT_WORKSHOP_PARTICIPANT_COLUMNS)
+                    .order('connected_at', { ascending: false })
+                    .range(fromIndex, toIndex),
+            `the attendances of the contact join, from \`${WORKSHOP_PARTICIPANT_TABLE_NAME}\``,
         ),
     ]);
 
