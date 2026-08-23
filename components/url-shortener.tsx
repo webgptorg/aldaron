@@ -33,6 +33,35 @@ function createShortcodePreviews(customPrefix: string): string[] {
     return Array.from({ length: SHORTCODE_PREVIEW_COUNT }, () => prefix + generateShortcode());
 }
 
+/**
+ * The link which has just been created, which is what the result of the form is shown and copied from
+ */
+type CreatedLink = {
+    /**
+     * The address of the created link itself, which is the short URL when the shortener was used and the wrapped
+     * destination otherwise
+     */
+    readonly url: string;
+
+    /**
+     * The text which the snippets show instead of the address
+     */
+    readonly text: string;
+
+    /**
+     * The shortcode of the created short link, or `null` when a destination was only wrapped into a text
+     */
+    readonly shortcode: string | null;
+};
+
+function createLinkHtml(createdLink: CreatedLink): string {
+    return `<a href="${createdLink.url}">${createdLink.text}</a>`;
+}
+
+function createLinkMarkdown(createdLink: CreatedLink): string {
+    return `[${createdLink.text}](${createdLink.url})`;
+}
+
 type UrlShortenerProps = {
     /**
      * Optional CSS class name which will be added to root <div> element
@@ -54,11 +83,8 @@ export function UrlShortener(props: UrlShortenerProps) {
     const [urls, setUrls] = useState<readonly string[]>(['']);
     const [displayText, setDisplayText] = useState('');
     const [error, setError] = useState('');
-    const [showResult, setShowResult] = useState(false);
-    const [linkHtml, setLinkHtml] = useState('');
-    const [linkMarkdown, setLinkMarkdown] = useState('');
+    const [createdLink, setCreatedLink] = useState<CreatedLink | null>(null);
     const [isShortener, setIsShortener] = useState(true);
-    const [shortCode, setShortCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [useUtm, setUseUtm] = useState(false);
     const [previewShortcodes, setPreviewShortcodes] = useState(() => createShortcodePreviews(''));
@@ -147,22 +173,19 @@ export function UrlShortener(props: UrlShortenerProps) {
                     note: null,
                     landingPage: null,
                 });
-                const shortUrl = createPublicShortcodeLinkUrl(createdShortcodeLink.shortcode);
-                setShortCode(createdShortcodeLink.shortcode);
-                setLinkHtml(`<a href="${shortUrl}">${text}</a>`);
-                setLinkMarkdown(`[${text}](${shortUrl})`);
+                setCreatedLink({
+                    url: createPublicShortcodeLinkUrl(createdShortcodeLink.shortcode),
+                    text,
+                    shortcode: createdShortcodeLink.shortcode,
+                });
 
                 // Regenerate shortcodes after successful creation
                 regenerateShortcodes();
                 onShortcodeLinkCreated?.(createdShortcodeLink);
             } else {
                 // Regular link wrapping - use first URL
-                const firstUrl = processedUrls[0] || '';
-                setLinkHtml(`<a href="${firstUrl}">${text}</a>`);
-                setLinkMarkdown(`[${text}](${firstUrl})`);
+                setCreatedLink({ url: processedUrls[0] || '', text, shortcode: null });
             }
-
-            setShowResult(true);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An error occurred');
         } finally {
@@ -183,16 +206,18 @@ export function UrlShortener(props: UrlShortenerProps) {
     };
 
     const handleCopyLink = async () => {
+        if (createdLink === null) {
+            return;
+        }
+
         try {
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = `<a href="${
-                isShortener ? createPublicShortcodeLinkUrl(shortCode) : urls[0]
-            }">${displayText}</a>`;
+            tempDiv.innerHTML = createLinkHtml(createdLink);
             const linkElement = tempDiv.firstChild;
 
             if (navigator.clipboard && navigator.clipboard.write) {
                 const html = new Blob([tempDiv.innerHTML], { type: 'text/html' });
-                const plain = new Blob([displayText], { type: 'text/plain' });
+                const plain = new Blob([createdLink.url], { type: 'text/plain' });
 
                 await navigator.clipboard.write([
                     new ClipboardItem({
@@ -219,16 +244,19 @@ export function UrlShortener(props: UrlShortenerProps) {
 
     const handleDownloadQR = () => {
         const canvas = document.querySelector('canvas');
-        if (!canvas) return;
+        if (!canvas || createdLink === null || createdLink.shortcode === null) return;
 
         const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
         const downloadLink = document.createElement('a');
         downloadLink.href = pngUrl;
-        downloadLink.download = `qrcode-${shortCode}.png`;
+        downloadLink.download = `qrcode-${createdLink.shortcode}.png`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
     };
+
+    const linkHtml = createdLink === null ? '' : createLinkHtml(createdLink);
+    const linkMarkdown = createdLink === null ? '' : createLinkMarkdown(createdLink);
 
     return (
         <div className={classNames('url-shortener', className)}>
@@ -400,16 +428,20 @@ export function UrlShortener(props: UrlShortenerProps) {
                     </button>
                 </div>
 
-                {showResult && (
+                {createdLink !== null && (
                     <div className="space-y-6 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
                         <h2 className="text-xl font-bold">
-                            Your {isShortener ? 'shortened' : 'wrapped'} link is ready!
+                            Your {createdLink.shortcode === null ? 'wrapped' : 'shortened'} link is ready!
                         </h2>
                         <div className="flex items-center justify-between rounded-md bg-gray-50 p-4">
-                            <p
-                                className="overflow-hidden text-ellipsis whitespace-nowrap text-blue-600"
-                                dangerouslySetInnerHTML={{ __html: linkHtml }}
-                            />
+                            <a
+                                href={createdLink.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="min-w-0 truncate text-blue-600 hover:underline"
+                            >
+                                {createdLink.url}
+                            </a>
                             <button
                                 onClick={handleCopyLink}
                                 className="ml-4 rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
@@ -425,11 +457,11 @@ export function UrlShortener(props: UrlShortenerProps) {
                             use the code below.
                         </div>
 
-                        {isShortener && (
+                        {createdLink.shortcode !== null && (
                             <div className="text-center">
                                 <h3 className="text-lg font-medium">QR Code</h3>
                                 <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
-                                    <PROMPTBOOK_QR_CODE value={createPublicShortcodeLinkUrl(shortCode)} />
+                                    <PROMPTBOOK_QR_CODE value={createdLink.url} />
                                 </div>
                             </div>
                         )}
