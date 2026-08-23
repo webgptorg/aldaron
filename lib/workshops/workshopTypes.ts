@@ -54,6 +54,14 @@ export type WorkshopDetails = WorkshopSummary & {
 export type WorkshopParticipant = {
     readonly id: string;
     readonly fullname: string;
+
+    /**
+     * Contact address this participant connected with
+     *
+     * Note: A room only ever describes the very participant reading it, so this address never reaches anybody else. It
+     *       is what lets a room hand a verified identity on, for example into the link leading to another room.
+     */
+    readonly email: string;
     readonly connectedAt: string;
     readonly isInteractionBanned: boolean;
 
@@ -73,7 +81,6 @@ export type WorkshopParticipant = {
 
 export type WorkshopAdminParticipant = WorkshopParticipant &
     AdminContactJoin & {
-    readonly email: string;
     readonly lastSeenAt: string;
     readonly activeDurationSeconds: number;
     readonly commentCount: number;

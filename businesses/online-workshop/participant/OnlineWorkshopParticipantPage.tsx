@@ -48,6 +48,13 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopSlug: string;
     readonly connectionDetails: WorkshopConnectionDetails;
     readonly calendarDetails: WorkshopCalendarDetails | null;
+
+    /**
+     * Identity carried here by the link which opened the room, offered to the connection form
+     *
+     * Note: This only ever prefills that form. A connected participant is described by the loaded room itself, so a
+     *       returning member who opened no such link is known just as well.
+     */
     readonly initialEmail: string;
     readonly initialFullname: string;
     readonly roomSubtitle?: string;
@@ -69,7 +76,7 @@ export function OnlineWorkshopParticipantPage({
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
 }: OnlineWorkshopParticipantPageProps) {
-    const controller = useWorkshopParticipant(workshopSlug, initialEmail);
+    const controller = useWorkshopParticipant(workshopSlug);
 
     useEffect(() => {
         if (controller.state === null) {
@@ -209,20 +216,14 @@ export function OnlineWorkshopParticipantPage({
                             serverTime={state.serverTime}
                             hostFullname={calendarDetails.hostFullname}
                             participantPath={calendarDetails.participantPath}
-                            participantIdentity={{
-                                email: controller.participantEmail,
-                                fullname: state.participant.fullname,
-                            }}
+                            participantIdentity={state.participant}
                         />
                     )}
                     {workshopNavigation !== undefined && (
                         <WorkshopLinksPanel
                             workshops={workshopNavigation.workshops}
                             participantPath={workshopNavigation.participantPath}
-                            participantIdentity={{
-                                email: controller.participantEmail,
-                                fullname: state.participant.fullname,
-                            }}
+                            participantIdentity={state.participant}
                             title={workshopNavigation.title}
                             description={workshopNavigation.description}
                             emptyMessage={workshopNavigation.emptyMessage}

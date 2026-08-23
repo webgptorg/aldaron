@@ -9,6 +9,7 @@ function createParticipant(isInteractionBanned: boolean, isTrusted = false, isMo
     return {
         id: 'participant-1',
         fullname: 'Jana Nováková',
+        email: 'jana@example.com',
         connectedAt: '2026-08-20T17:00:00.000Z',
         isInteractionBanned,
         isTrusted,

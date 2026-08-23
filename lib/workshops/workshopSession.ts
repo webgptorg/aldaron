@@ -13,6 +13,7 @@ import type { NextRequest } from 'next/server';
 export type WorkshopParticipantRow = {
     readonly id: string;
     readonly fullname: string;
+    readonly email: string;
     readonly connected_at: string;
     readonly is_interaction_banned: boolean;
     readonly is_trusted: boolean;
@@ -20,10 +21,14 @@ export type WorkshopParticipantRow = {
 };
 
 /**
- * Columns every query needs to describe a participant to the room, deliberately without their personal contact details
+ * Columns every query needs to describe a participant to themselves
+ *
+ * Note: These are only ever read for the participant making the request, so their own contact address is among them.
+ *       Everybody else in the room is described by the far smaller author of a message, which carries no contact
+ *       details at all.
  */
 export const WORKSHOP_PARTICIPANT_COLUMNS =
-    'id, fullname, connected_at, is_interaction_banned, is_trusted, is_moderator';
+    'id, fullname, email, connected_at, is_interaction_banned, is_trusted, is_moderator';
 
 export function createWorkshopSessionToken(): string {
     return randomBytes(WORKSHOP_SESSION_TOKEN_BYTES).toString('base64url');
@@ -41,6 +46,7 @@ export function mapWorkshopParticipantRow(row: WorkshopParticipantRow): Workshop
     return {
         id: row.id,
         fullname: row.fullname,
+        email: row.email,
         connectedAt: row.connected_at,
         isInteractionBanned: row.is_interaction_banned,
         isTrusted: row.is_trusted,

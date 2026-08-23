@@ -46,14 +46,6 @@ const NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS = 8_000;
 
 type WorkshopParticipantController = {
     readonly state: WorkshopPublicState | null;
-
-    /**
-     * E-mail the participant is connected with, as far as this browser knows it
-     *
-     * Note: The workshop state never carries the e-mail back, so it is remembered from the link which opened the room
-     *       or from the connection form. It stays empty for a participant returning on nothing but a session cookie.
-     */
-    readonly participantEmail: string;
     readonly commentSort: WorkshopCommentSort;
     readonly isCheckingConnection: boolean;
     readonly isConnectionRequired: boolean;
@@ -106,9 +98,8 @@ function getCzechApiErrorMessage(error: unknown): string {
     return error.message;
 }
 
-export function useWorkshopParticipant(workshopSlug: string, initialEmail: string): WorkshopParticipantController {
+export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipantController {
     const [state, setState] = useState<WorkshopPublicState | null>(null);
-    const [participantEmail, setParticipantEmail] = useState(initialEmail);
     const [commentSort, setCommentSort] = useState<WorkshopCommentSort>('recent');
     const [isCheckingConnection, setIsCheckingConnection] = useState(true);
     const [isConnectionRequired, setIsConnectionRequired] = useState(false);
@@ -448,7 +439,6 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
             setErrorMessage(null);
             try {
                 const connection = await connectToWorkshop(workshopSlug, values);
-                setParticipantEmail(values.email);
                 setIsConnectionRequired(false);
                 if (connection.state !== null) {
                     showLoadedReactions(connection.state.recentReactions);
@@ -632,7 +622,6 @@ export function useWorkshopParticipant(workshopSlug: string, initialEmail: strin
 
     return {
         state,
-        participantEmail,
         commentSort,
         isCheckingConnection,
         isConnectionRequired,

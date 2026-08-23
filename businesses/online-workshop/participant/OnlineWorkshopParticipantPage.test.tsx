@@ -2,7 +2,10 @@
  * @vitest-environment jsdom
  */
 
-import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
+import {
+    OnlineWorkshopParticipantPage,
+    type WorkshopNavigationDetails,
+} from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -44,13 +47,37 @@ const COMMUNITY: WorkshopDetails = {
     title: 'Komunita Promptbooku',
 };
 
-function renderParticipantRoom(workshop: WorkshopDetails) {
+/**
+ * The workshops a permanent room such as the community leads to
+ */
+const WORKSHOP_NAVIGATION: WorkshopNavigationDetails = {
+    workshops: [
+        {
+            id: WORKSHOP.id,
+            kind: WORKSHOP.kind,
+            slug: WORKSHOP.slug,
+            title: WORKSHOP.title,
+            startsAt: WORKSHOP.startsAt,
+            endsAt: WORKSHOP.endsAt,
+            isPublished: WORKSHOP.isPublished,
+        },
+    ],
+    participantPath: '/cs/online-workshop/participant',
+    title: 'Workshopy Promptbooku',
+    description: 'Vyberte si workshop.',
+    emptyMessage: 'Žádný workshop není dostupný.',
+    locale: 'cs-CZ',
+    timeZone: 'Europe/Prague',
+};
+
+function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: WorkshopNavigationDetails) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
         workshop,
         participant: {
             id: 'participant-id',
             fullname: 'Jana Nováková',
+            email: 'jana@example.com',
             connectedAt: '2026-08-21T19:20:00+02:00',
             isInteractionBanned: false,
             isTrusted: true,
@@ -66,7 +93,6 @@ function renderParticipantRoom(workshop: WorkshopDetails) {
 
     participantMocks.controller = {
         state,
-        participantEmail: 'jana@example.com',
         commentSort: 'recent',
         isCheckingConnection: false,
         isConnectionRequired: false,
@@ -86,6 +112,8 @@ function renderParticipantRoom(workshop: WorkshopDetails) {
         recordMaterialLinkClick: () => undefined,
     };
 
+    // Note: A member returning to a permanent room opens it without any parameters at all, so the room is rendered
+    //       without them here and every identity it shows can only have come from the loaded room itself.
     return render(
         <OnlineWorkshopParticipantPage
             workshopSlug={workshop.slug}
@@ -96,8 +124,9 @@ function renderParticipantRoom(workshop: WorkshopDetails) {
                 durationLabel: 'Stálý přístup',
             }}
             calendarDetails={null}
-            initialEmail="jana@example.com"
-            initialFullname="Jana Nováková"
+            initialEmail=""
+            initialFullname=""
+            workshopNavigation={workshopNavigation}
         />,
     );
 }
@@ -119,6 +148,14 @@ describe('online workshop participant room', () => {
         expect(container.querySelector('iframe')).toBeNull();
         expect(screen.queryByRole('button', { name: /Reagovat/ })).toBeNull();
         expect(screen.queryByText('Sledují 3 lidé')).toBeNull();
+    });
+
+    it('leads from a permanent room to a workshop with the identity the room already verified', () => {
+        renderParticipantRoom(COMMUNITY, WORKSHOP_NAVIGATION);
+
+        expect(screen.getByRole('link', { name: new RegExp(WORKSHOP.title) }).getAttribute('href')).toBe(
+            `/cs/online-workshop/participant?workshop=${WORKSHOP.slug}&email=jana%40example.com&fullname=Jana+Nov%C3%A1kov%C3%A1`,
+        );
     });
 
     it('keeps the chat and the materials of the shared room in a permanent room', () => {
