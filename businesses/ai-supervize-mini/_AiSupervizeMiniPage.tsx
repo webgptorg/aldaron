@@ -14,14 +14,16 @@ import {
     AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
     getAiSupervizeMiniWorkshopDateByFormat,
 } from '@/businesses/ai-supervize-mini/config';
-import type { AiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
 import type { AiSupervizeMiniWorkshopAvailability } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
+import { ScrollToRegistrationSection } from '@/components/discounts/ScrollToRegistrationSection';
 import { FAQSection } from '@/components/faq-section';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
+import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
+import { REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { motion } from 'framer-motion';
 import { ArrowRight, CalendarDays, CheckCircle, MapPin, Users } from 'lucide-react';
@@ -30,7 +32,7 @@ import Link from 'next/link';
 
 type AiSupervizeMiniPageProps = {
     readonly initialDiscountCode: string;
-    readonly initialActiveDiscount: AiSupervizeMiniActiveDiscount | null;
+    readonly initialActiveDiscountByPlaceId: ActiveDiscountByPlaceId;
     readonly workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
 };
 
@@ -50,7 +52,7 @@ function getWorkshopSeatSummary(workshopAvailabilities: readonly AiSupervizeMini
 
 export function AiSupervizeMiniPage({
     initialDiscountCode,
-    initialActiveDiscount,
+    initialActiveDiscountByPlaceId,
     workshopAvailabilities,
 }: AiSupervizeMiniPageProps) {
     const dateSummary = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates
@@ -66,9 +68,17 @@ export function AiSupervizeMiniPage({
 
     return (
         <main className="min-h-screen bg-white">
+            <ScrollToRegistrationSection
+                isScrollRequested={initialDiscountCode !== ''}
+                registrationSectionId={REGISTRATION_SECTION_ID}
+            />
             <Header
                 getStartedText="Přihlásit se"
-                primaryAction={{ label: 'Přihlásit se', href: '#registrace', mobileLabel: 'Přihlásit' }}
+                primaryAction={{
+                    label: 'Přihlásit se',
+                    href: `#${REGISTRATION_SECTION_ID}`,
+                    mobileLabel: 'Přihlásit',
+                }}
                 secondaryAction={{ label: 'Pro firmy', href: '/ai-supervize' }}
                 centerContent={
                     <>
@@ -129,7 +139,7 @@ export function AiSupervizeMiniPage({
                                     size="lg"
                                     className="rounded-full bg-promptbook-blue-dark px-8 py-6 text-center text-lg text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                                 >
-                                    <Link href="#registrace">
+                                    <Link href={`#${REGISTRATION_SECTION_ID}`}>
                                         Vybrat termín
                                         <ArrowRight className="ml-2 h-5 w-5" />
                                     </Link>
@@ -177,7 +187,7 @@ export function AiSupervizeMiniPage({
                 </div>
             </section>
 
-            <section id="registrace" className="bg-slate-50 py-20">
+            <section id={REGISTRATION_SECTION_ID} className="bg-slate-50 py-20">
                 <div className="container mx-auto px-4">
                     <div className="mb-12 max-w-3xl">
                         <p className="text-sm font-semibold uppercase text-cyan-700">Registrace na workshop</p>
@@ -237,7 +247,7 @@ export function AiSupervizeMiniPage({
 
                         <AiSupervizeMiniRegistrationForm
                             initialDiscountCode={initialDiscountCode}
-                            initialActiveDiscount={initialActiveDiscount}
+                            initialActiveDiscountByPlaceId={initialActiveDiscountByPlaceId}
                             initialWorkshopAvailabilities={workshopAvailabilities}
                         />
                     </div>
@@ -311,7 +321,7 @@ export function AiSupervizeMiniPage({
                                     asChild
                                     className="rounded-full bg-slate-950 px-6 text-white hover:bg-slate-800"
                                 >
-                                    <Link href="#registrace">Přihlásit se</Link>
+                                    <Link href={`#${REGISTRATION_SECTION_ID}`}>Přihlásit se</Link>
                                 </Button>
                                 <Button asChild variant="outline" className="rounded-full px-6">
                                     <Link href="mailto:pavol@ptbk.io">pavol@ptbk.io</Link>

@@ -39,7 +39,7 @@ const ADMIN_PAGE_CARDS = [
     {
         path: ADMIN_DISCOUNT_CODES_PATH,
         title: 'Slevové kódy',
-        description: 'Platnost a výše slev pro registraci na AI Supervizi Mini.',
+        description: 'Platnost, místa a použití slevových kódů pro placené registrace.',
         icon: TicketPercent,
     },
 ] as const;

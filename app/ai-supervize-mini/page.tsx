@@ -1,50 +1,38 @@
 import { AiSupervizeMiniPage } from '@/businesses/ai-supervize-mini/_AiSupervizeMiniPage';
 import { AI_SUPERVIZE_MINI_METADATA } from '@/businesses/ai-supervize-mini/aiSupervizeMiniMetadata';
-import {
-    AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE,
-} from '@/businesses/ai-supervize-mini/config';
-import {
-    loadAiSupervizeMiniActiveDiscount,
-    loadAiSupervizeMiniOnlineWorkshopFollowUpDiscount,
-} from '@/businesses/ai-supervize-mini/discountCodeDatabase';
+import { AI_SUPERVIZE_MINI_WORKSHOP_CONFIG } from '@/businesses/ai-supervize-mini/config';
 import { loadAiSupervizeMiniWorkshopAvailability } from '@/businesses/ai-supervize-mini/workshopRegistrationDatabase';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+import { readFirstSearchParameter, type SearchParameterValue } from '@/lib/api/readFirstSearchParameter';
+import { DISCOUNT_CODE_QUERY_PARAMETER } from '@/lib/discounts/discountCodeConstants';
+import { loadActiveDiscountsByPlace } from '@/lib/discounts/discountCodeDatabase';
 
 export const metadata = AI_SUPERVIZE_MINI_METADATA;
 export const dynamic = 'force-dynamic';
 
+const AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map(
+    (workshopDate) => workshopDate.discountPlaceId,
+);
+
 type AiSupervizeMiniRouteProps = {
-    readonly searchParams: Promise<{
-        readonly code?: string | string[];
-        readonly source?: string | string[];
-    }>;
+    readonly searchParams: Promise<Readonly<Record<string, SearchParameterValue>>>;
 };
 
 export default async function AiSupervizeMiniRoute({ searchParams }: AiSupervizeMiniRouteProps) {
     const resolvedSearchParams = await searchParams;
-    const enteredDiscountCode = readFirstSearchParameter(resolvedSearchParams.code) ?? '';
-    const isOnlineWorkshopFollowUp =
-        readFirstSearchParameter(resolvedSearchParams.source) === AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE;
-    const initialDiscountLoad = enteredDiscountCode
-        ? loadAiSupervizeMiniActiveDiscount(enteredDiscountCode)
-        : isOnlineWorkshopFollowUp
-        ? loadAiSupervizeMiniOnlineWorkshopFollowUpDiscount()
-        : Promise.resolve({ activeDiscount: null, errorMessage: null });
+    const initialDiscountCode = readFirstSearchParameter(resolvedSearchParams[DISCOUNT_CODE_QUERY_PARAMETER]) ?? '';
     const [workshopAvailabilities, initialDiscountResult] = await Promise.all([
         loadAiSupervizeMiniWorkshopAvailability(),
-        initialDiscountLoad,
+        loadActiveDiscountsByPlace(initialDiscountCode, AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS),
     ]);
 
     if (initialDiscountResult.errorMessage !== null) {
         console.error('Failed to load the initial AI Supervize Mini discount:', initialDiscountResult.errorMessage);
     }
 
-    const initialDiscountCode = enteredDiscountCode || initialDiscountResult.activeDiscount?.code || '';
-
     return (
         <AiSupervizeMiniPage
             initialDiscountCode={initialDiscountCode}
-            initialActiveDiscount={initialDiscountResult.activeDiscount}
+            initialActiveDiscountByPlaceId={initialDiscountResult.activeDiscountByPlaceId}
             workshopAvailabilities={workshopAvailabilities}
         />
     );

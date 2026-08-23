@@ -2,7 +2,6 @@ import {
     AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME,
     getAiSupervizeMiniWorkshopDateById,
 } from '@/businesses/ai-supervize-mini/config';
-import { loadAiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCodeDatabase';
 import {
     createAiSupervizeMiniStoredWorkshopRegistration,
     createAiSupervizeMiniWorkshopAvailabilityAfterRegistration,
@@ -22,6 +21,8 @@ import {
     getContactsTableOrNull,
     insertContact,
 } from '@/lib/contacts/contactsDatabase';
+import { consumeDiscountCode } from '@/lib/discounts/discountCodeDatabase';
+import { EXHAUSTED_DISCOUNT_CODE_ERROR_MESSAGE } from '@/lib/discounts/discountCodeMessages';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -152,13 +153,27 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { activeDiscount, errorMessage: discountCodeErrorMessage } = await loadAiSupervizeMiniActiveDiscount(
+    // A limited code is consumed in the same database statement which checks its remaining count,
+    // so concurrent registrations cannot both receive its last use.
+    const discountCodeConsumption = await consumeDiscountCode(
         registrationRequest.discountCode,
+        workshopDate.discountPlaceId,
     );
-    if (discountCodeErrorMessage !== null) {
-        console.error('Failed to validate AI Supervize Mini registration discount code:', discountCodeErrorMessage);
+    if (discountCodeConsumption.errorMessage !== null) {
+        console.error(
+            'Failed to validate AI Supervize Mini registration discount code:',
+            discountCodeConsumption.errorMessage,
+        );
         return NextResponse.json({ error: DISCOUNT_CODE_NOT_LOADED_ERROR_MESSAGE }, { status: 503 });
     }
+    if (discountCodeConsumption.status === 'exhausted') {
+        return NextResponse.json(
+            { error: EXHAUSTED_DISCOUNT_CODE_ERROR_MESSAGE, workshopAvailabilities },
+            { status: 409 },
+        );
+    }
+
+    const activeDiscount = discountCodeConsumption.activeDiscount;
 
     const storedRegistration = createAiSupervizeMiniStoredWorkshopRegistration(
         registrationRequest,

@@ -1,15 +1,15 @@
-import { aiSupervizeMiniDiscountCodeValuesSchema } from '@/businesses/ai-supervize-mini/discountCodeSchema';
-import {
-    AI_SUPERVIZE_MINI_DISCOUNT_CODE_TABLE_NAME,
-    createAiSupervizeMiniDiscountCodeMutationErrorResponse,
-    createAiSupervizeMiniDiscountCodeDatabaseUnavailableResponse,
-    createAiSupervizeMiniDiscountCodeDatabaseValues,
-    getAiSupervizeMiniDiscountCodeDatabaseOrNull,
-    mapAiSupervizeMiniDiscountCodeRow,
-    type AiSupervizeMiniDiscountCodeRow,
-} from '@/businesses/ai-supervize-mini/discountCodeDatabase';
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import { DISCOUNT_CODE_TABLE_NAME } from '@/lib/discounts/discountCodeConstants';
+import {
+    createDiscountCodeDatabaseUnavailableResponse,
+    createDiscountCodeDatabaseValues,
+    createDiscountCodeMutationErrorResponse,
+    getDiscountCodeDatabaseOrNull,
+    mapDiscountCodeRow,
+    type DiscountCodeRow,
+} from '@/lib/discounts/discountCodeDatabase';
+import { discountCodeValuesSchema } from '@/lib/discounts/discountCodeSchema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest, context: DiscountCodeRouteCont
     }
 
     const body = await readJsonObjectOrNull(request);
-    const parsedResult = aiSupervizeMiniDiscountCodeValuesSchema.safeParse(body);
+    const parsedResult = discountCodeValuesSchema.safeParse(body);
     if (!parsedResult.success) {
         return NextResponse.json(
             { error: parsedResult.error.issues[0]?.message ?? INVALID_DISCOUNT_CODE_ERROR_MESSAGE },
@@ -46,25 +46,25 @@ export async function PATCH(request: NextRequest, context: DiscountCodeRouteCont
         return NextResponse.json({ error: DISCOUNT_CODE_NOT_FOUND_ERROR_MESSAGE }, { status: 404 });
     }
 
-    const supabase = getAiSupervizeMiniDiscountCodeDatabaseOrNull();
+    const supabase = getDiscountCodeDatabaseOrNull();
     if (supabase === null) {
-        return createAiSupervizeMiniDiscountCodeDatabaseUnavailableResponse();
+        return createDiscountCodeDatabaseUnavailableResponse();
     }
 
     const { data, error } = await supabase
-        .from(AI_SUPERVIZE_MINI_DISCOUNT_CODE_TABLE_NAME)
-        .update(createAiSupervizeMiniDiscountCodeDatabaseValues(parsedResult.data))
+        .from(DISCOUNT_CODE_TABLE_NAME)
+        .update(createDiscountCodeDatabaseValues(parsedResult.data))
         .eq('id', discountCodeId)
         .select('*')
         .maybeSingle();
     if (error !== null) {
-        return createAiSupervizeMiniDiscountCodeMutationErrorResponse(error);
+        return createDiscountCodeMutationErrorResponse(error);
     }
     if (data === null) {
         return NextResponse.json({ error: DISCOUNT_CODE_NOT_FOUND_ERROR_MESSAGE }, { status: 404 });
     }
 
-    return NextResponse.json({ discountCode: mapAiSupervizeMiniDiscountCodeRow(data as AiSupervizeMiniDiscountCodeRow) });
+    return NextResponse.json({ discountCode: mapDiscountCodeRow(data as DiscountCodeRow) });
 }
 
 export async function DELETE(request: NextRequest, context: DiscountCodeRouteContext) {
@@ -78,19 +78,19 @@ export async function DELETE(request: NextRequest, context: DiscountCodeRouteCon
         return NextResponse.json({ error: DISCOUNT_CODE_NOT_FOUND_ERROR_MESSAGE }, { status: 404 });
     }
 
-    const supabase = getAiSupervizeMiniDiscountCodeDatabaseOrNull();
+    const supabase = getDiscountCodeDatabaseOrNull();
     if (supabase === null) {
-        return createAiSupervizeMiniDiscountCodeDatabaseUnavailableResponse();
+        return createDiscountCodeDatabaseUnavailableResponse();
     }
 
     const { data, error } = await supabase
-        .from(AI_SUPERVIZE_MINI_DISCOUNT_CODE_TABLE_NAME)
+        .from(DISCOUNT_CODE_TABLE_NAME)
         .delete()
         .eq('id', discountCodeId)
         .select('id')
         .maybeSingle();
     if (error !== null) {
-        return createAiSupervizeMiniDiscountCodeMutationErrorResponse(error);
+        return createDiscountCodeMutationErrorResponse(error);
     }
 
     return data === null

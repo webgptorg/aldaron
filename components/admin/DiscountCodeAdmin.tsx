@@ -1,18 +1,22 @@
 'use client';
 
-import { AiSupervizeMiniDiscountCodeForm } from '@/businesses/ai-supervize-mini/AiSupervizeMiniDiscountCodeForm';
-import {
-    createAdminAiSupervizeMiniDiscountCode,
-    deleteAdminAiSupervizeMiniDiscountCode,
-    fetchAdminAiSupervizeMiniDiscountCodes,
-    updateAdminAiSupervizeMiniDiscountCode,
-} from '@/businesses/ai-supervize-mini/discountCodeAdminApiClient';
-import {
-    isAiSupervizeMiniDiscountActive,
-    type AiSupervizeMiniDiscountCode,
-    type AiSupervizeMiniDiscountCodeValues,
-} from '@/businesses/ai-supervize-mini/discountCode';
+import { DiscountCodeForm } from '@/components/admin/DiscountCodeForm';
 import { Button } from '@/components/ui/button';
+import {
+    getRemainingDiscountCodeUseCount,
+    isDiscountCodeActive,
+    isDiscountCodeExhausted,
+    isDiscountCodeValidForAllPlaces,
+    type DiscountCode,
+    type DiscountCodeValues,
+} from '@/lib/discounts/discountCode';
+import {
+    createAdminDiscountCode,
+    deleteAdminDiscountCode,
+    fetchAdminDiscountCodes,
+    updateAdminDiscountCode,
+} from '@/lib/discounts/discountCodeAdminApiClient';
+import { createDiscountCodeUrl, getDiscountCodePlaces, getDiscountPlaceLabel } from '@/lib/discounts/discountPlaces';
 import { Loader2, Pencil, TicketPercent, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -22,7 +26,7 @@ function formatDiscountCodeDateTime(timestamp: string): string {
     return CZECH_DATE_TIME_FORMAT.format(new Date(timestamp));
 }
 
-function getDiscountCodeStatus(discountCode: AiSupervizeMiniDiscountCode): {
+function getDiscountCodeStatus(discountCode: DiscountCode): {
     readonly label: string;
     readonly className: string;
 } {
@@ -30,7 +34,11 @@ function getDiscountCodeStatus(discountCode: AiSupervizeMiniDiscountCode): {
         return { label: 'Vypnutý', className: 'bg-slate-100 text-slate-600' };
     }
 
-    if (isAiSupervizeMiniDiscountActive(discountCode, new Date())) {
+    if (isDiscountCodeExhausted(discountCode)) {
+        return { label: 'Vyčerpaný', className: 'bg-rose-100 text-rose-700' };
+    }
+
+    if (isDiscountCodeActive(discountCode, new Date())) {
         return { label: 'Aktivní', className: 'bg-emerald-100 text-emerald-700' };
     }
 
@@ -39,13 +47,20 @@ function getDiscountCodeStatus(discountCode: AiSupervizeMiniDiscountCode): {
         : { label: 'Skončený', className: 'bg-rose-100 text-rose-700' };
 }
 
+function getDiscountCodeUseSummary(discountCode: DiscountCode): string {
+    const remainingUseCount = getRemainingDiscountCodeUseCount(discountCode);
+
+    return remainingUseCount === null
+        ? `${discountCode.useCount}× · bez omezení`
+        : `${discountCode.useCount} z ${discountCode.maximumUseCount} · zbývá ${remainingUseCount}`;
+}
+
 /**
- * Holds the list state and mutations for the discount-code administration.
- * The focused form owns its field state, keeping list refreshes independent.
+ * Holds list state and mutations for the shared discount-code administration.
  */
-export function AiSupervizeMiniDiscountCodeAdmin() {
-    const [discountCodes, setDiscountCodes] = useState<readonly AiSupervizeMiniDiscountCode[]>([]);
-    const [editingDiscountCode, setEditingDiscountCode] = useState<AiSupervizeMiniDiscountCode | null>(null);
+export function DiscountCodeAdmin() {
+    const [discountCodes, setDiscountCodes] = useState<readonly DiscountCode[]>([]);
+    const [editingDiscountCode, setEditingDiscountCode] = useState<DiscountCode | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDeletingDiscountCodeId, setIsDeletingDiscountCodeId] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,7 +69,7 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
         setIsLoading(true);
 
         try {
-            const loadedDiscountCodes = await fetchAdminAiSupervizeMiniDiscountCodes();
+            const loadedDiscountCodes = await fetchAdminDiscountCodes();
             setDiscountCodes(loadedDiscountCodes);
             setErrorMessage(null);
             return true;
@@ -70,12 +85,12 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
         void loadDiscountCodes();
     }, [loadDiscountCodes]);
 
-    const handleSave = async (values: AiSupervizeMiniDiscountCodeValues): Promise<boolean> => {
+    const handleSave = async (values: DiscountCodeValues): Promise<boolean> => {
         try {
             if (editingDiscountCode === null) {
-                await createAdminAiSupervizeMiniDiscountCode(values);
+                await createAdminDiscountCode(values);
             } else {
-                await updateAdminAiSupervizeMiniDiscountCode(editingDiscountCode.id, values);
+                await updateAdminDiscountCode(editingDiscountCode.id, values);
             }
 
             setEditingDiscountCode(null);
@@ -86,7 +101,7 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
         }
     };
 
-    const handleDelete = async (discountCode: AiSupervizeMiniDiscountCode) => {
+    const handleDelete = async (discountCode: DiscountCode) => {
         const isDeletionConfirmed = window.confirm(`Opravdu chcete trvale smazat slevový kód ${discountCode.code}?`);
         if (!isDeletionConfirmed) {
             return;
@@ -94,7 +109,7 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
 
         setIsDeletingDiscountCodeId(discountCode.id);
         try {
-            await deleteAdminAiSupervizeMiniDiscountCode(discountCode.id);
+            await deleteAdminDiscountCode(discountCode.id);
             if (editingDiscountCode?.id === discountCode.id) {
                 setEditingDiscountCode(null);
             }
@@ -114,16 +129,17 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
                         <TicketPercent className="h-6 w-6" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-slate-950">Slevy pro AI Supervize Mini</h2>
+                        <h2 className="text-xl font-bold text-slate-950">Slevové kódy</h2>
                         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                            Registrace ověřuje každý kód na serveru z této databáze, takže změny zde platí i pro ručně
-                            zadané kódy. URL z online workshopu neobsahuje pevný kód a použije právě vybranou nabídku.
+                            Každý kód se ověřuje na serveru z této databáze. Kód platí buď všude, nebo jen ve vybraných
+                            místech, a odkaz s <code>?code=</code> ho rovnou předvyplní do registračního formuláře daného
+                            místa.
                         </p>
                     </div>
                 </div>
             </section>
 
-            <AiSupervizeMiniDiscountCodeForm
+            <DiscountCodeForm
                 discountCode={editingDiscountCode}
                 onSave={handleSave}
                 onCancelEditing={() => setEditingDiscountCode(null)}
@@ -150,14 +166,15 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
                     <p className="px-6 py-16 text-center text-sm text-slate-500">Zatím nemáte žádný slevový kód.</p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[860px] text-left text-sm">
+                        <table className="w-full min-w-[980px] text-left text-sm">
                             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                                 <tr>
                                     <th className="px-6 py-3 font-semibold">Kód</th>
                                     <th className="px-6 py-3 font-semibold">Sleva</th>
                                     <th className="px-6 py-3 font-semibold">Platnost</th>
                                     <th className="px-6 py-3 font-semibold">Stav</th>
-                                    <th className="px-6 py-3 font-semibold">Navazující nabídka</th>
+                                    <th className="px-6 py-3 font-semibold">Místa</th>
+                                    <th className="px-6 py-3 font-semibold">Použití</th>
                                     <th className="px-6 py-3 text-right font-semibold">Akce</th>
                                 </tr>
                             </thead>
@@ -165,10 +182,24 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
                                 {discountCodes.map((discountCode) => {
                                     const discountCodeStatus = getDiscountCodeStatus(discountCode);
                                     const isDeleting = isDeletingDiscountCodeId === discountCode.id;
+                                    const discountCodePlaces = getDiscountCodePlaces(discountCode.placeIds);
 
                                     return (
                                         <tr key={discountCode.id} className="align-top">
-                                            <td className="px-6 py-4 font-mono font-semibold text-slate-950">{discountCode.code}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="block font-mono font-semibold text-slate-950">{discountCode.code}</span>
+                                                <span className="mt-1 block space-y-0.5">
+                                                    {discountCodePlaces.map((discountPlace) => (
+                                                        <a
+                                                            key={discountPlace.id}
+                                                            href={createDiscountCodeUrl(discountPlace, discountCode.code)}
+                                                            className="block font-mono text-xs text-cyan-700 underline-offset-2 hover:underline"
+                                                        >
+                                                            {createDiscountCodeUrl(discountPlace, discountCode.code)}
+                                                        </a>
+                                                    ))}
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4 font-semibold text-slate-900">{discountCode.percent} %</td>
                                             <td className="px-6 py-4 text-slate-600">
                                                 <span className="block">{formatDiscountCodeDateTime(discountCode.startsAt)}</span>
@@ -180,26 +211,23 @@ export function AiSupervizeMiniDiscountCodeAdmin() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-600">
-                                                {discountCode.isOnlineWorkshopFollowUp ? 'Ano' : 'Ne'}
+                                                {isDiscountCodeValidForAllPlaces(discountCode) ? (
+                                                    'Všechna místa'
+                                                ) : (
+                                                    <ul className="space-y-0.5">
+                                                        {discountCode.placeIds.map((discountPlaceId) => (
+                                                            <li key={discountPlaceId}>{getDiscountPlaceLabel(discountPlaceId)}</li>
+                                                        ))}
+                                                    </ul>
+                                                )}
                                             </td>
+                                            <td className="px-6 py-4 text-slate-600">{getDiscountCodeUseSummary(discountCode)}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-end gap-2">
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        disabled={isDeleting}
-                                                        onClick={() => setEditingDiscountCode(discountCode)}
-                                                    >
+                                                    <Button type="button" variant="outline" size="sm" disabled={isDeleting} onClick={() => setEditingDiscountCode(discountCode)}>
                                                         <Pencil className="mr-1.5 h-4 w-4" /> Upravit
                                                     </Button>
-                                                    <Button
-                                                        type="button"
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        disabled={isDeleting}
-                                                        onClick={() => void handleDelete(discountCode)}
-                                                    >
+                                                    <Button type="button" variant="destructive" size="sm" disabled={isDeleting} onClick={() => void handleDelete(discountCode)}>
                                                         <Trash2 className="mr-1.5 h-4 w-4" />
                                                         {isDeleting ? 'Mažu…' : 'Smazat'}
                                                     </Button>

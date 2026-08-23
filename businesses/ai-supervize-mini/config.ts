@@ -1,3 +1,8 @@
+import {
+    AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
+    AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID,
+} from '@/lib/discounts/discountPlaces';
+
 export type AiSupervizeMiniWorkshopFormat = 'onsite' | 'online';
 
 export type AiSupervizeMiniWorkshopDate = {
@@ -9,6 +14,8 @@ export type AiSupervizeMiniWorkshopDate = {
     readonly timeRange: string;
     readonly pricePerParticipantCzk: number;
     readonly maximumParticipantCount: number;
+    /** The shared discount place which prices this offer. */
+    readonly discountPlaceId: string;
 };
 
 /**
@@ -25,15 +32,6 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME = 'AiSupervizeMi
 
 export const AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME = 'AiSupervizeMiniWorkshopInterest';
 
-/**
- * The online-workshop follow-up link resolves its currently selected discount
- * code from the database. It deliberately carries a source, never a code,
- * so the administrator can change the promotion without a deployment.
- */
-export const AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE = 'online-workshop';
-export const AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH =
-    `/ai-supervize-mini?source=${AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_DISCOUNT_SOURCE}`;
-
 export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
     title: 'AI Supervize Mini',
     isVatPayer: false,
@@ -47,6 +45,7 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
             timeRange: '10:00–16:00',
             pricePerParticipantCzk: 12000,
             maximumParticipantCount: 10,
+            discountPlaceId: AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID,
         },
         {
             id: '2026-09-09',
@@ -57,6 +56,7 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
             timeRange: '13:00–17:00',
             pricePerParticipantCzk: 3000,
             maximumParticipantCount: 50,
+            discountPlaceId: AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
         },
     ] as const satisfies readonly AiSupervizeMiniWorkshopDate[],
 } as const;

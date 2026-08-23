@@ -1,0 +1,131 @@
+'use client';
+
+import { normalizeDiscountCode, type ActiveDiscount, type ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
+import { validateDiscountCode } from '@/lib/discounts/discountCodeApi';
+import { useEffect, useState } from 'react';
+
+const DISCOUNT_CODE_VALIDATION_DELAY_MILLISECONDS = 300;
+const DISCOUNT_CODE_NOT_VALIDATED_ERROR_MESSAGE = 'Slevový kód se nepodařilo ověřit.';
+
+type DiscountCodeValidationOptions = {
+    readonly initialDiscountCode: string;
+    readonly initialActiveDiscountByPlaceId: ActiveDiscountByPlaceId;
+    readonly discountPlaceId: string;
+};
+
+export type DiscountCodeValidation = {
+    readonly discountCode: string;
+    readonly setDiscountCode: (discountCode: string) => void;
+    readonly activeDiscount: ActiveDiscount | null;
+    readonly isValidationPending: boolean;
+    readonly validationError: string | null;
+};
+
+type ValidatedDiscount = {
+    readonly discountCode: string;
+    readonly discountPlaceId: string;
+    readonly activeDiscount: ActiveDiscount | null;
+};
+
+/**
+ * Shared client behavior for every discount-code field: debounce typed values, discard stale
+ * answers, and use the server-resolved answer for an initial `?code=` link.
+ */
+export function useDiscountCodeValidation({
+    initialDiscountCode,
+    initialActiveDiscountByPlaceId,
+    discountPlaceId,
+}: DiscountCodeValidationOptions): DiscountCodeValidation {
+    const [discountCode, setDiscountCode] = useState(initialDiscountCode);
+    const [validatedDiscount, setValidatedDiscount] = useState<ValidatedDiscount | null>(() => ({
+        discountCode: normalizeDiscountCode(initialDiscountCode),
+        discountPlaceId,
+        activeDiscount: initialActiveDiscountByPlaceId[discountPlaceId] ?? null,
+    }));
+    const [isValidationPending, setIsValidationPending] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
+
+    const normalizedDiscountCode = normalizeDiscountCode(discountCode);
+
+    useEffect(() => {
+        setDiscountCode(initialDiscountCode);
+    }, [initialDiscountCode]);
+
+    useEffect(() => {
+        if (!normalizedDiscountCode) {
+            setValidatedDiscount(null);
+            setIsValidationPending(false);
+            setValidationError(null);
+            return;
+        }
+
+        const isInitialAnswerCurrent =
+            normalizedDiscountCode === normalizeDiscountCode(initialDiscountCode) &&
+            Object.prototype.hasOwnProperty.call(initialActiveDiscountByPlaceId, discountPlaceId);
+        if (isInitialAnswerCurrent) {
+            setValidatedDiscount({
+                discountCode: normalizedDiscountCode,
+                discountPlaceId,
+                activeDiscount: initialActiveDiscountByPlaceId[discountPlaceId] ?? null,
+            });
+            setIsValidationPending(false);
+            setValidationError(null);
+            return;
+        }
+
+        let isValidationCurrent = true;
+        setIsValidationPending(true);
+        setValidationError(null);
+        const validationTimeoutId = window.setTimeout(() => {
+            void validateDiscountCode(discountCode, discountPlaceId)
+                .then((loadedActiveDiscount) => {
+                    if (isValidationCurrent) {
+                        setValidatedDiscount({
+                            discountCode: normalizedDiscountCode,
+                            discountPlaceId,
+                            activeDiscount: loadedActiveDiscount,
+                        });
+                    }
+                })
+                .catch((error: unknown) => {
+                    if (!isValidationCurrent) {
+                        return;
+                    }
+
+                    setValidatedDiscount(null);
+                    setValidationError(
+                        error instanceof Error ? error.message : DISCOUNT_CODE_NOT_VALIDATED_ERROR_MESSAGE,
+                    );
+                })
+                .finally(() => {
+                    if (isValidationCurrent) {
+                        setIsValidationPending(false);
+                    }
+                });
+        }, DISCOUNT_CODE_VALIDATION_DELAY_MILLISECONDS);
+
+        return () => {
+            isValidationCurrent = false;
+            window.clearTimeout(validationTimeoutId);
+        };
+    }, [
+        discountCode,
+        discountPlaceId,
+        initialActiveDiscountByPlaceId,
+        initialDiscountCode,
+        normalizedDiscountCode,
+    ]);
+
+    return {
+        discountCode,
+        setDiscountCode,
+        activeDiscount:
+            validatedDiscount !== null &&
+            validatedDiscount.discountCode === normalizedDiscountCode &&
+            validatedDiscount.discountPlaceId === discountPlaceId
+                ? validatedDiscount.activeDiscount
+                : null,
+        isValidationPending,
+        validationError,
+    };
+}

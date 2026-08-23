@@ -10,7 +10,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-luna` thinking `max` (ChatGPT account) - Implementation ~$0.5334 15 minutes; Testing a few seconds
 
 [✨🪴] Discount codes should be relevant for all places where discount codes are used
 
@@ -23,3 +23,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

@@ -4,7 +4,7 @@ import {
     getAiSupervizeMiniWorkshopDateById,
     type AiSupervizeMiniWorkshopDate,
 } from '@/businesses/ai-supervize-mini/config';
-import type { AiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
+import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 
 export type AiSupervizeMiniInvoiceType = 'company' | 'individual';
 
@@ -156,10 +156,24 @@ export function getAiSupervizeMiniWorkshopAvailabilityByDateId(
     return workshopAvailabilities.find((workshopAvailability) => workshopAvailability.workshopDateId === workshopDateId) ?? null;
 }
 
+/**
+ * A code link opens the first term where that code is active, so a code limited to one format does
+ * not initially look invalid in the other format.
+ */
+export function getInitialAiSupervizeMiniWorkshopDateId(
+    activeDiscountByPlaceId: ActiveDiscountByPlaceId,
+): string {
+    const discountedWorkshopDate = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.find(
+        (workshopDate) => (activeDiscountByPlaceId[workshopDate.discountPlaceId] ?? null) !== null,
+    );
+
+    return (discountedWorkshopDate ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!).id;
+}
+
 export function createAiSupervizeMiniWorkshopPrice(
     workshopDate: AiSupervizeMiniWorkshopDate,
     participantCount: number,
-    activeDiscount: AiSupervizeMiniActiveDiscount | null,
+    activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniWorkshopPrice {
     const basePriceCzk = workshopDate.pricePerParticipantCzk * participantCount;
     const discountAmountCzk =
@@ -175,7 +189,7 @@ export function createAiSupervizeMiniWorkshopPrice(
 export function createAiSupervizeMiniStoredWorkshopRegistration(
     registrationRequest: AiSupervizeMiniWorkshopRegistrationRequest,
     workshopDate: AiSupervizeMiniWorkshopDate,
-    activeDiscount: AiSupervizeMiniActiveDiscount | null,
+    activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniStoredWorkshopRegistration {
     const workshopPrice = createAiSupervizeMiniWorkshopPrice(
         workshopDate,
