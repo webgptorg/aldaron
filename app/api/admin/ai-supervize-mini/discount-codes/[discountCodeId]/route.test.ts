@@ -1,5 +1,4 @@
 import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
-import { AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID } from '@/lib/discounts/discountPlaces';
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -23,9 +22,7 @@ const DISCOUNT_CODE_ROW = {
     starts_at: '2026-09-04T00:00:00.000Z',
     ends_at: '2026-09-04T23:59:59.000Z',
     is_enabled: true,
-    place_ids: [AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID],
-    maximum_use_count: null,
-    use_count: 0,
+    is_online_workshop_follow_up: true,
     created_at: '2026-08-21T00:00:00.000Z',
     updated_at: '2026-08-21T00:00:00.000Z',
 };
@@ -39,7 +36,7 @@ function createDiscountCodeRequest(
     isAdminSignedIn: boolean,
     body?: Readonly<Record<string, unknown>>,
 ): NextRequest {
-    const url = `https://promptbook.studio/api/admin/discount-codes/${DISCOUNT_CODE_ID}`;
+    const url = `https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes/${DISCOUNT_CODE_ID}`;
     const headers: Record<string, string> = isAdminSignedIn ? { cookie: createAdminSessionCookieHeader() } : {};
     if (body !== undefined) {
         headers['Content-Type'] = 'application/json';
@@ -59,8 +56,7 @@ function createDiscountCodeValues() {
         startsAt: '2026-09-04T00:00:00+02:00',
         endsAt: '2026-09-04T23:59:59+02:00',
         isEnabled: true,
-        placeIds: [AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID],
-        maximumUseCount: null,
+        isOnlineWorkshopFollowUp: true,
     };
 }
 
@@ -72,7 +68,7 @@ function restoreAdminToken(): void {
     }
 }
 
-describe('discount-code admin item', () => {
+describe('AI Supervize Mini discount-code admin item', () => {
     beforeEach(() => {
         process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         createSupabaseServiceRoleClientMock.mockReset();
@@ -103,8 +99,7 @@ describe('discount-code admin item', () => {
             starts_at: '2026-09-04T00:00:00+02:00',
             ends_at: '2026-09-04T23:59:59+02:00',
             is_enabled: true,
-            place_ids: [AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID],
-            maximum_use_count: null,
+            is_online_workshop_follow_up: true,
         });
     });
 

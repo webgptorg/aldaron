@@ -10,7 +10,7 @@
 
 ---
 
-[!] failed after 5 hours by Claude Code `claude-opus-5`
+[ ]
 
 [✨🪴] Discount codes should be relevant for all places where discount codes are used
 
@@ -23,4 +23,3 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-

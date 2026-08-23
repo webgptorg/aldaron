@@ -80,7 +80,7 @@ describe('AI Supervize Mini workshop availability', () => {
     });
 
     it('calculates the 25 percent webinar price for both formats', () => {
-        const webinarDiscount = { code: 'WEBINAR_2026_08_20', percent: 25, remainingUseCount: null };
+        const webinarDiscount = { code: 'WEBINAR_2026_08_20', percent: 25 };
 
         expect(createAiSupervizeMiniWorkshopPrice(ONSITE_WORKSHOP_DATE, 1, webinarDiscount)).toEqual({
             basePriceCzk: 12000,
