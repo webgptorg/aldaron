@@ -21,14 +21,15 @@ import type { WorkshopAdminExportKind } from '@/lib/workshops/workshopAdminExpor
  * The settings of a room as its administration writes them
  *
  * Note: A setting which the kind of the room does not have is left out instead of being sent as an empty value, so a
- *       calm room never receives a schedule, a stage, or reactions it could not offer anyway.
+ *       calm room never receives a schedule, a stage, or reactions it could not offer anyway, and the only room of its
+ *       kind never receives the address it was given once and for all.
  */
 export type WorkshopWriteValues = {
-    readonly slug: string;
     readonly title: string;
     readonly description: string;
     readonly isPublished: boolean;
     readonly disabledPanels: readonly WorkshopPanelKey[];
+    readonly slug?: string;
     readonly startsAt?: string;
     readonly endsAt?: string | null;
     readonly youtubeVideoId?: string | null;
@@ -36,9 +37,10 @@ export type WorkshopWriteValues = {
 };
 
 /**
- * A new room always starts as an occurrence in time, so its creation says when it happens.
+ * A new room always starts as an occurrence in time at an address of its own, so its creation says both.
  */
 export type WorkshopCreateValues = WorkshopWriteValues & {
+    readonly slug: string;
     readonly startsAt: string;
 };
 

@@ -5,6 +5,7 @@ import {
     buildWorkshopOverviewSeries,
     getVisibleWorkshopOverviewSeriesDescriptors,
     getWorkshopOverviewBucketDurationSeconds,
+    getWorkshopOverviewDefaultRange,
     getWorkshopOverviewFullRange,
     getWorkshopOverviewSeriesTotals,
     resolveWorkshopOverviewRange,
@@ -48,9 +49,24 @@ const WORKSHOP_RANGE = {
     toMilliseconds: Date.parse(WORKSHOP_ENDS_AT),
 };
 
-describe('resolveWorkshopOverviewRange', () => {
+describe('getWorkshopOverviewDefaultRange', () => {
     it('opens the time of the workshop itself', () => {
-        expect(resolveWorkshopOverviewRange(createAnalytics([]), DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE)).toEqual(
+        expect(getWorkshopOverviewDefaultRange(createAnalytics([]), true)).toEqual(WORKSHOP_RANGE);
+    });
+
+    it('opens everything a room without a schedule ever measured, instead of a span it never had', () => {
+        const analytics = createAnalytics([
+            createTimelinePoint('2026-08-23T14:00:00.000Z', { commentCount: 2 }),
+            createTimelinePoint('2026-08-24T09:00:00.000Z', { commentCount: 1 }),
+        ]);
+
+        expect(getWorkshopOverviewDefaultRange(analytics, false)).toEqual(getWorkshopOverviewFullRange(analytics));
+    });
+});
+
+describe('resolveWorkshopOverviewRange', () => {
+    it('opens the span the graph opens with', () => {
+        expect(resolveWorkshopOverviewRange(WORKSHOP_RANGE, DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE)).toEqual(
             WORKSHOP_RANGE,
         );
     });
@@ -62,7 +78,7 @@ describe('resolveWorkshopOverviewRange', () => {
             zoomToMilliseconds: Date.parse('2026-08-23T10:30:00.000Z'),
         };
 
-        expect(resolveWorkshopOverviewRange(createAnalytics([]), graphState)).toEqual({
+        expect(resolveWorkshopOverviewRange(WORKSHOP_RANGE, graphState)).toEqual({
             fromMilliseconds: Date.parse('2026-08-23T10:15:00.000Z'),
             toMilliseconds: Date.parse('2026-08-23T10:30:00.000Z'),
         });

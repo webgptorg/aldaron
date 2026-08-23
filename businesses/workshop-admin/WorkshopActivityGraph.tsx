@@ -13,6 +13,7 @@ import type { WorkshopOverviewSeriesKey } from '@/lib/workshops/workshopOverview
 import {
     buildWorkshopOverviewSeries,
     getVisibleWorkshopOverviewSeriesDescriptors,
+    getWorkshopOverviewDefaultRange,
     getWorkshopOverviewFullRange,
     getWorkshopOverviewSeriesDescriptors,
     getWorkshopOverviewSeriesTotals,
@@ -26,6 +27,17 @@ import { useCallback, useMemo, useRef } from 'react';
 type WorkshopActivityGraphProps = {
     readonly workshopId: string;
     readonly workshopSlug: string;
+
+    /**
+     * Whether the room is held at a time, which is the only thing the graph can open itself on instead of on
+     * everything which was ever measured in it
+     */
+    readonly isRoomScheduled: boolean;
+
+    /**
+     * What the room is called where a sentence names it, for example `workshopu` or `komunity`
+     */
+    readonly subjectLabel: string;
     readonly refreshVersion: number;
     readonly graphState: WorkshopOverviewGraphState;
     readonly onChangeGraphState: (
@@ -42,6 +54,8 @@ type WorkshopActivityGraphProps = {
 export function WorkshopActivityGraph({
     workshopId,
     workshopSlug,
+    isRoomScheduled,
+    subjectLabel,
     refreshVersion,
     graphState,
     onChangeGraphState,
@@ -52,13 +66,14 @@ export function WorkshopActivityGraph({
     });
     const chartContainerReference = useRef<HTMLDivElement | null>(null);
 
-    const range = useMemo(
+    const defaultRange = useMemo(
         () =>
             analytics === null
                 ? { fromMilliseconds: 0, toMilliseconds: 1 }
-                : resolveWorkshopOverviewRange(analytics, graphState),
-        [analytics, graphState],
+                : getWorkshopOverviewDefaultRange(analytics, isRoomScheduled),
+        [analytics, isRoomScheduled],
     );
+    const range = useMemo(() => resolveWorkshopOverviewRange(defaultRange, graphState), [defaultRange, graphState]);
     // Note: The whole span never depends on the shown one, so zooming with the wheel never measures the data again
     const fullRange = useMemo(
         () =>
@@ -103,18 +118,22 @@ export function WorkshopActivityGraph({
     const changeCustomMetrics = (customMetrics: readonly WorkshopOverviewCustomMetric[]) =>
         onChangeGraphState((previousGraphState) => ({ ...previousGraphState, customMetrics }));
 
-    const zoomToWorkshop = () =>
-        onChangeGraphState((previousGraphState) => ({
-            ...previousGraphState,
-            zoomFromMilliseconds: null,
-            zoomToMilliseconds: null,
-        }));
+    // Note: A room without a schedule has no time of its own to return to, and its graph already opens on everything
+    //       which ever happened in it, so nothing offers a zoom which would change nothing.
+    const zoomToSchedule = !isRoomScheduled
+        ? null
+        : () =>
+              onChangeGraphState((previousGraphState) => ({
+                  ...previousGraphState,
+                  zoomFromMilliseconds: null,
+                  zoomToMilliseconds: null,
+              }));
 
     const zoomToEverything = () => changeZoom(fullRange);
 
     const isAudienceEverMeasured =
         analytics !== null && analytics.timeline.some((point) => point.watchingParticipantCount > 0);
-    const workshopRange = analytics === null ? null : getWorkshopOverviewWorkshopRange(analytics);
+    const workshopRange = analytics === null || !isRoomScheduled ? null : getWorkshopOverviewWorkshopRange(analytics);
     const isWorkshopOver = workshopRange !== null && workshopRange.toMilliseconds < Date.now();
 
     return (
@@ -122,7 +141,7 @@ export function WorkshopActivityGraph({
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h2 className="flex items-center gap-2 text-xl font-bold text-slate-950">
-                        <BarChart3 className="h-5 w-5 text-cyan-600" /> Průběh workshopu
+                        <BarChart3 className="h-5 w-5 text-cyan-600" /> Průběh {subjectLabel}
                         {/* Note: A refresh is said by one quiet mark next to the title, never by taking the graph off
                                   the screen, so that data arriving every few seconds never makes the page blink. */}
                         {isRefreshing && !isInitialLoading && (
@@ -133,8 +152,9 @@ export function WorkshopActivityGraph({
                         )}
                     </h2>
                     <p className="mt-1 max-w-2xl text-sm text-slate-500">
-                        Kolik lidí místnost sledovalo a co se v ní dělo v čase. Graf otevírá čas workshopu, oddálit ho
-                        můžete na všechno, co se stalo před ním i po něm.
+                        {isRoomScheduled
+                            ? 'Kolik lidí místnost sledovalo a co se v ní dělo v čase. Graf otevírá čas workshopu, oddálit ho můžete na všechno, co se stalo před ním i po něm.'
+                            : 'Co se v místnosti dělo v čase. Graf otevírá všechno, co se v ní zatím stalo, přiblížit ho můžete tažením myši.'}
                     </p>
                 </div>
                 {analytics !== null && (
@@ -165,7 +185,7 @@ export function WorkshopActivityGraph({
                         range={range}
                         onToggleSeries={toggleSeries}
                         onChangeReactionEmoji={changeReactionEmoji}
-                        onZoomToWorkshop={zoomToWorkshop}
+                        onZoomToSchedule={zoomToSchedule}
                         onZoomToEverything={zoomToEverything}
                     />
 
@@ -178,7 +198,7 @@ export function WorkshopActivityGraph({
                         containerReference={chartContainerReference}
                     />
 
-                    {!isAudienceEverMeasured && isWorkshopOver && (
+                    {isRoomScheduled && !isAudienceEverMeasured && isWorkshopOver && (
                         <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
                             U tohoto workshopu není zaznamenaná sledovanost — místnost si ji začala pamatovat až
                             později. Čára „Nově připojení“ ukazuje, kdy se lidé registrovali.

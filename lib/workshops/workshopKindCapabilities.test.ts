@@ -32,14 +32,19 @@ describe('workshop kind capabilities', () => {
         });
     });
 
-    it('refuses a schedule and a stage written into a room which has neither', () => {
+    it('refuses a schedule, a stage, and an address written into a room which has none of them', () => {
         expect(
             getUnsupportedWorkshopKindFieldNames('community', {
+                slug: 'jina-komunita',
                 startsAt: '2026-08-21T19:00:00+02:00',
                 endsAt: null,
                 youtubeVideoId: 'dQw4w9WgXcQ',
             }),
-        ).toEqual(['startsAt', 'endsAt', 'youtubeVideoId']);
+        ).toEqual(['startsAt', 'endsAt', 'youtubeVideoId', 'slug']);
+    });
+
+    it('leaves the address of a workshop occurrence editable', () => {
+        expect(getUnsupportedWorkshopKindFieldNames('workshop', { slug: 'produkcni-kod-2026-09-10' })).toEqual([]);
     });
 
     it('leaves every other change of a room alone, whatever its kind', () => {

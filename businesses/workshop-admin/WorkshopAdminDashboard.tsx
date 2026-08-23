@@ -417,6 +417,8 @@ export function WorkshopAdminDashboard({
                             <WorkshopActivityGraph
                                 workshopId={snapshot.workshop.id}
                                 workshopSlug={snapshot.workshop.slug}
+                                isRoomScheduled={isRoomScheduled}
+                                subjectLabel={subjectLabel}
                                 refreshVersion={snapshotRefreshVersion}
                                 graphState={viewState.graph}
                                 onChangeGraphState={handleGraphStateChange}

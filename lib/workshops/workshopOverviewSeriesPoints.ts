@@ -298,18 +298,31 @@ export function getWorkshopOverviewWorkshopRange(analytics: WorkshopAdminAnalyti
 }
 
 /**
- * The span the graph shows: the one a shared link asks for, and the time of the workshop wherever it does not
+ * The span the graph opens with: the time of the occurrence in a room which is held at one, and everything which was
+ * ever measured in a room which is simply always open
+ *
+ * Note: A permanent room has a start only because a row needs one, and never an end, so opening it on a "time of the
+ *       room" would draw months of emptiness with every message squeezed into the last pixel of it.
+ */
+export function getWorkshopOverviewDefaultRange(
+    analytics: WorkshopAdminAnalytics,
+    isRoomScheduled: boolean,
+): WorkshopOverviewSeriesRange {
+    return isRoomScheduled ? getWorkshopOverviewWorkshopRange(analytics) : getWorkshopOverviewFullRange(analytics);
+}
+
+/**
+ * The span the graph shows: the one a shared link asks for, and the span the graph opens with wherever it does not
  *
  * Note: A bound is never allowed to leave the measured data behind, so a link which was shared before a workshop ran
  *       long still opens a graph with something in it.
  */
 export function resolveWorkshopOverviewRange(
-    analytics: WorkshopAdminAnalytics,
+    defaultRange: WorkshopOverviewSeriesRange,
     graphState: WorkshopOverviewGraphState,
 ): WorkshopOverviewSeriesRange {
-    const workshopRange = getWorkshopOverviewWorkshopRange(analytics);
-    const fromMilliseconds = graphState.zoomFromMilliseconds ?? workshopRange.fromMilliseconds;
-    const toMilliseconds = graphState.zoomToMilliseconds ?? workshopRange.toMilliseconds;
+    const fromMilliseconds = graphState.zoomFromMilliseconds ?? defaultRange.fromMilliseconds;
+    const toMilliseconds = graphState.zoomToMilliseconds ?? defaultRange.toMilliseconds;
 
     return toMilliseconds <= fromMilliseconds
         ? { fromMilliseconds, toMilliseconds: fromMilliseconds + 1_000 }

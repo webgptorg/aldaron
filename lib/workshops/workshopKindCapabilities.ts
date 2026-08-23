@@ -10,7 +10,8 @@ export type WorkshopKindCapabilities = {
     readonly isSingleton: boolean;
 
     /**
-     * Whether the URL of a room stays as it is, so an ordinary settings edit cannot disconnect the links leading to it
+     * Whether the URL of a room is decided once and for all, so its administration neither offers it nor lets an edit
+     * disconnect the links leading to it
      */
     readonly isSlugFixed: boolean;
 
@@ -64,12 +65,14 @@ export function getWorkshopKindCapabilities(workshopKind: WorkshopKind): Worksho
  */
 const WORKSHOP_SCHEDULE_FIELD_NAMES = ['startsAt', 'endsAt'] as const;
 const WORKSHOP_STAGE_FIELD_NAMES = ['youtubeVideoId'] as const;
+const WORKSHOP_SLUG_FIELD_NAMES = ['slug'] as const;
 
 /**
  * The written settings which the kind of a room does not have
  *
  * Note: The administration already leaves these settings out of its form, so this only refuses a stale or a forged
- *       request which would give a calm room a schedule or a stage that nothing in it could ever show.
+ *       request which would give a calm room a schedule or a stage that nothing in it could ever show, or move the
+ *       only room of its kind to an address every link to it would miss.
  */
 export function getUnsupportedWorkshopKindFieldNames(
     workshopKind: WorkshopKind,
@@ -79,6 +82,7 @@ export function getUnsupportedWorkshopKindFieldNames(
     const unsupportedFieldNames = [
         ...(capabilities.isScheduled ? [] : WORKSHOP_SCHEDULE_FIELD_NAMES),
         ...(capabilities.isStageOffered ? [] : WORKSHOP_STAGE_FIELD_NAMES),
+        ...(capabilities.isSlugFixed ? WORKSHOP_SLUG_FIELD_NAMES : []),
     ];
 
     return unsupportedFieldNames.filter((fieldName) => values[fieldName] !== undefined);

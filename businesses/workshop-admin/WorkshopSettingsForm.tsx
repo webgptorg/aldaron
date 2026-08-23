@@ -31,7 +31,9 @@ function parseWorkshopReactions(reactionText: string): readonly string[] {
 
 export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'workshopu' }: WorkshopSettingsFormProps) {
     const roomCapabilities = getWorkshopKindCapabilities(workshop.kind);
-    const isSlugEditable = !roomCapabilities.isSlugFixed;
+    // Note: The only room of its kind was given its address once and for all, so its administration does not ask for
+    //       one at all rather than showing a field which cannot be used for anything.
+    const isSlugOffered = !roomCapabilities.isSlugFixed;
     const isReactionSettingOffered = isWorkshopPanelOfferedByKind(workshop.kind, 'reactions');
     const [slug, setSlug] = useState(workshop.slug);
     const [title, setTitle] = useState(workshop.title);
@@ -59,17 +61,17 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const startsAtIso = fromDateTimeLocalValue(startsAt);
-        if (!title.trim() || !slug.trim() || (roomCapabilities.isScheduled && !startsAtIso)) {
+        if (!title.trim() || (isSlugOffered && !slug.trim()) || (roomCapabilities.isScheduled && !startsAtIso)) {
             return;
         }
 
         setIsSaving(true);
         await onSave({
-            slug,
             title,
             description,
             isPublished,
             disabledPanels,
+            ...(isSlugOffered ? { slug } : {}),
             ...(roomCapabilities.isScheduled && startsAtIso
                 ? { startsAt: startsAtIso, endsAt: fromDateTimeLocalValue(endsAt) }
                 : {}),
@@ -85,9 +87,9 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
                 <div>
                     <h2 className="text-xl font-bold text-slate-950">Nastavení {subjectLabel}</h2>
                     <p className="mt-1 text-xs text-slate-400">
-                        {isSlugEditable
+                        {isSlugOffered
                             ? 'URL místnosti a odkazů můžete upravit níže.'
-                            : 'Stálá URL komunity zůstává stejná, ostatní nastavení můžete upravit níže.'}
+                            : 'Adresa místnosti je stálá, ostatní nastavení můžete upravit níže.'}
                     </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -102,27 +104,21 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
             </div>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700 md:col-span-2">
-                    URL slug
-                    <Input
-                        value={slug}
-                        onChange={(event) => setSlug(event.target.value)}
-                        className="mt-2 font-mono"
-                        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-                        required
-                        readOnly={!isSlugEditable}
-                    />
-                    <span className="mt-1 block text-xs font-normal text-slate-400">
-                        {isSlugEditable ? (
-                            <>
-                                Používá se jako <code>?workshop={slug || 'slug-workshopu'}</code> v odkazu do
-                                místnosti.
-                            </>
-                        ) : (
-                            <>Používá se ve stálém odkazu na komunitu.</>
-                        )}
-                    </span>
-                </label>
+                {isSlugOffered && (
+                    <label className="text-sm font-medium text-slate-700 md:col-span-2">
+                        URL slug
+                        <Input
+                            value={slug}
+                            onChange={(event) => setSlug(event.target.value)}
+                            className="mt-2 font-mono"
+                            pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                            required
+                        />
+                        <span className="mt-1 block text-xs font-normal text-slate-400">
+                            Používá se jako <code>?workshop={slug || 'slug-workshopu'}</code> v odkazu do místnosti.
+                        </span>
+                    </label>
+                )}
                 <label className="text-sm font-medium text-slate-700 md:col-span-2">
                     Název
                     <Input value={title} onChange={(event) => setTitle(event.target.value)} className="mt-2" required />

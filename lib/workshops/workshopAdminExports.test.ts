@@ -139,12 +139,15 @@ describe('workshop admin exports', () => {
         expect(workshopSettingsCsv).toContain('"Začíná","Končí"');
         expect(workshopSettingsCsv).toContain('YouTube video ID');
         expect(workshopSettingsCsv).toContain('Povolené reakce');
+        expect(workshopSettingsCsv).toContain('"Slug"');
         expect(communitySettingsCsv).toContain('"Typ místnosti"');
         expect(communitySettingsCsv).toContain('Vypnuté panely');
         expect(communitySettingsCsv).not.toContain('Začíná');
         expect(communitySettingsCsv).not.toContain('Končí');
         expect(communitySettingsCsv).not.toContain('YouTube video ID');
         expect(communitySettingsCsv).not.toContain('Povolené reakce');
+        expect(communitySettingsCsv).not.toContain('"Slug"');
+        expect(communitySettingsCsv).not.toContain('komunita');
     });
 
     it('uses the matching MIME type and filename for participant vCards', () => {

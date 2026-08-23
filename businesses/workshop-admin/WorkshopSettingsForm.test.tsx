@@ -69,12 +69,13 @@ describe('workshop settings form', () => {
         expect(screen.queryByText('Chat')).not.toBeNull();
     });
 
-    it('keeps the URL of a permanent room read-only, while a workshop URL stays editable', () => {
+    it('does not ask a permanent room for the URL it was given once and for all', () => {
         renderWorkshopSettingsForm(COMMUNITY);
 
-        expect(screen.getByDisplayValue(COMMUNITY.slug).hasAttribute('readonly')).toBe(true);
+        expect(screen.queryByDisplayValue(COMMUNITY.slug)).toBeNull();
+    });
 
-        cleanup();
+    it('keeps the URL of a workshop occurrence editable', () => {
         renderWorkshopSettingsForm(WORKSHOP);
 
         expect(screen.getByDisplayValue(WORKSHOP.slug).hasAttribute('readonly')).toBe(false);
@@ -87,7 +88,6 @@ describe('workshop settings form', () => {
 
         await waitFor(() =>
             expect(onSave).toHaveBeenCalledWith({
-                slug: COMMUNITY.slug,
                 title: COMMUNITY.title,
                 description: COMMUNITY.description,
                 isPublished: COMMUNITY.isPublished,

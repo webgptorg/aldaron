@@ -47,7 +47,7 @@ function formatBoolean(value: boolean): string {
 
 /**
  * Note: A setting which the kind of the room does not have is left out of its export as well, so a spreadsheet never
- *       states a start, an end, or a stage which nothing in that room ever used.
+ *       states a start, an end, a stage, or an address which nothing in that room ever used or could change.
  */
 function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
     const roomCapabilities = getWorkshopKindCapabilities(workshop.kind);
@@ -57,7 +57,9 @@ function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
         [
             { header: 'Typ místnosti', getValue: (item) => item.kind },
             { header: 'Název', getValue: (item) => item.title },
-            { header: 'Slug', getValue: (item) => item.slug },
+            ...(roomCapabilities.isSlugFixed
+                ? []
+                : [{ header: 'Slug', getValue: (item: WorkshopDetails) => item.slug }]),
             { header: 'Popis', getValue: (item) => item.description },
             ...(roomCapabilities.isScheduled
                 ? [

@@ -65,9 +65,14 @@ function getTimelineEventDisplay(event: WorkshopParticipantTimelineEvent): Timel
     }
 }
 
-function getTimelinePositionPercent(timestamp: string, workshopStartsAt: string, workshopEndsAt: string): number {
-    const startsAtMilliseconds = Date.parse(workshopStartsAt);
-    const endsAtMilliseconds = Date.parse(workshopEndsAt);
+type WorkshopAttendanceSchedule = {
+    readonly startsAt: string;
+    readonly endsAt: string;
+};
+
+function getTimelinePositionPercent(timestamp: string, schedule: WorkshopAttendanceSchedule): number {
+    const startsAtMilliseconds = Date.parse(schedule.startsAt);
+    const endsAtMilliseconds = Date.parse(schedule.endsAt);
     const timestampMilliseconds = Date.parse(timestamp);
     const durationMilliseconds = Math.max(endsAtMilliseconds - startsAtMilliseconds, 1);
     const rawPercent = ((timestampMilliseconds - startsAtMilliseconds) / durationMilliseconds) * 100;
@@ -75,20 +80,33 @@ function getTimelinePositionPercent(timestamp: string, workshopStartsAt: string,
 }
 
 /**
- * An unfinished workshop has no configured end. In that case its attendance interval needs to be measured against
- * the current moment, rather than against each endpoint itself, otherwise the interval would collapse to zero width.
+ * The span an attendance is drawn against, or `null` in a room which has no schedule to draw one in
+ *
+ * Note: A permanent room neither starts nor ends, so nothing places its members inside a span it never had. Their
+ *       recorded moments are said in words instead, which need no schedule to be true.
+ * Note: An unfinished workshop has no configured end. Its attendance interval is measured against the current moment
+ *       rather than against each endpoint itself, otherwise the interval would collapse to zero width.
  */
-function getTimelineEndsAt(workshopEndsAt: string | null, participantLastSeenAt: string): string {
+function getWorkshopAttendanceScheduleOrNull(
+    workshopStartsAt: string | null,
+    workshopEndsAt: string | null,
+    participantLastSeenAt: string,
+): WorkshopAttendanceSchedule | null {
+    if (workshopStartsAt === null) {
+        return null;
+    }
+
     if (workshopEndsAt !== null) {
-        return workshopEndsAt;
+        return { startsAt: workshopStartsAt, endsAt: workshopEndsAt };
     }
 
     const participantLastSeenAtMilliseconds = Date.parse(participantLastSeenAt);
     const currentMilliseconds = Date.now();
-    const timelineEndsAtMilliseconds = Number.isNaN(participantLastSeenAtMilliseconds)
+    const endsAtMilliseconds = Number.isNaN(participantLastSeenAtMilliseconds)
         ? currentMilliseconds
         : Math.max(currentMilliseconds, participantLastSeenAtMilliseconds);
-    return new Date(timelineEndsAtMilliseconds).toISOString();
+
+    return { startsAt: workshopStartsAt, endsAt: new Date(endsAtMilliseconds).toISOString() };
 }
 
 export function WorkshopParticipantTimeline({
@@ -101,11 +119,10 @@ export function WorkshopParticipantTimeline({
     workshopEndsAt,
 }: WorkshopParticipantTimelineProps) {
     const participant = timeline?.participant;
-    const timelineEndsAt = participant === undefined ? null : getTimelineEndsAt(workshopEndsAt, participant.lastSeenAt);
-
-    // Note: A room without a schedule is measured from the moment this participant entered it, so their interval is
-    //       read against their own attendance instead of against a date the room never had.
-    const timelineStartsAt = workshopStartsAt ?? participant?.connectedAt ?? null;
+    const attendanceSchedule =
+        participant === undefined
+            ? null
+            : getWorkshopAttendanceScheduleOrNull(workshopStartsAt, workshopEndsAt, participant.lastSeenAt);
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -127,10 +144,7 @@ export function WorkshopParticipantTimeline({
                     <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                         {errorMessage}
                     </div>
-                ) : timeline === null ||
-                  participant === undefined ||
-                  timelineEndsAt === null ||
-                  timelineStartsAt === null ? null : (
+                ) : timeline === null || participant === undefined ? null : (
                     <div className="space-y-6">
                         <section>
                             <h3 className="text-sm font-semibold text-slate-900">Kontaktní údaje a účasti</h3>
@@ -155,18 +169,20 @@ export function WorkshopParticipantTimeline({
                                     Aktivně {formatWorkshopActiveDuration(participant.activeDurationSeconds)}
                                 </p>
                             </div>
-                            <div
-                                className="relative mt-5 h-3 rounded-full bg-cyan-100"
-                                aria-label="Pozorovaný interval účasti"
-                            >
+                            {attendanceSchedule !== null && (
                                 <div
-                                    className="absolute top-0 h-3 rounded-full bg-cyan-600"
-                                    style={{
-                                        left: `${getTimelinePositionPercent(participant.connectedAt, timelineStartsAt, timelineEndsAt)}%`,
-                                        right: `${100 - getTimelinePositionPercent(participant.lastSeenAt, timelineStartsAt, timelineEndsAt)}%`,
-                                    }}
-                                />
-                            </div>
+                                    className="relative mt-5 h-3 rounded-full bg-cyan-100"
+                                    aria-label="Pozorovaný interval účasti"
+                                >
+                                    <div
+                                        className="absolute top-0 h-3 rounded-full bg-cyan-600"
+                                        style={{
+                                            left: `${getTimelinePositionPercent(participant.connectedAt, attendanceSchedule)}%`,
+                                            right: `${100 - getTimelinePositionPercent(participant.lastSeenAt, attendanceSchedule)}%`,
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </section>
 
                         <section>

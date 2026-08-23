@@ -29,7 +29,12 @@ type WorkshopOverviewChartControlsProps = {
     readonly range: WorkshopOverviewSeriesRange;
     readonly onToggleSeries: (seriesKey: WorkshopOverviewSeriesKey) => void;
     readonly onChangeReactionEmoji: (reactionEmoji: string | null) => void;
-    readonly onZoomToWorkshop: () => void;
+
+    /**
+     * Returns to the time the room is held at, or `null` in a room which is not held at one and therefore has no span
+     * of its own to return to
+     */
+    readonly onZoomToSchedule: (() => void) | null;
     readonly onZoomToEverything: () => void;
 };
 
@@ -50,7 +55,7 @@ export function WorkshopOverviewChartControls({
     range,
     onToggleSeries,
     onChangeReactionEmoji,
-    onZoomToWorkshop,
+    onZoomToSchedule,
     onZoomToEverything,
 }: WorkshopOverviewChartControlsProps) {
     const standardSeriesKeys = WORKSHOP_OVERVIEW_SERIES_DEFINITIONS.map((seriesDefinition) => seriesDefinition.key);
@@ -120,9 +125,11 @@ export function WorkshopOverviewChartControls({
                 </label>
 
                 <div className="flex items-center gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={onZoomToWorkshop}>
-                        <Target className="mr-1.5 h-4 w-4" /> Čas workshopu
-                    </Button>
+                    {onZoomToSchedule !== null && (
+                        <Button type="button" variant="outline" size="sm" onClick={onZoomToSchedule}>
+                            <Target className="mr-1.5 h-4 w-4" /> Čas workshopu
+                        </Button>
+                    )}
                     <Button type="button" variant="outline" size="sm" onClick={onZoomToEverything}>
                         <Maximize2 className="mr-1.5 h-4 w-4" /> Vše
                     </Button>

@@ -66,4 +66,22 @@ describe('workshop participant timeline', () => {
         expect(screen.getByText('Komentář (approved)')).not.toBeNull();
         expect(screen.getByText('Můžete ukázat nasazení?')).not.toBeNull();
     });
+
+    it('draws no interval in a room which has no start and no end, and still records what happened in it', () => {
+        render(
+            <WorkshopParticipantTimeline
+                isOpen
+                onOpenChange={vi.fn()}
+                timeline={PARTICIPANT_TIMELINE}
+                isLoading={false}
+                errorMessage={null}
+                workshopStartsAt={null}
+                workshopEndsAt={null}
+            />,
+        );
+
+        expect(screen.queryByLabelText('Pozorovaný interval účasti')).toBeNull();
+        expect(screen.getByText('Komentář (approved)')).not.toBeNull();
+        expect(screen.getByText('Můžete ukázat nasazení?')).not.toBeNull();
+    });
 });
