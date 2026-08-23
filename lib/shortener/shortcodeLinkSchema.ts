@@ -1,12 +1,26 @@
 import { isAbsoluteUrl } from '@/lib/shortener/isAbsoluteUrl';
+import type { ShortcodeLinkValues } from '@/lib/shortener/shortcodeLink';
 import { z } from 'zod';
 
 const SHORTCODE_PATTERN = /^[A-Za-z0-9-]+$/;
 
 /**
- * The only values an administrator may persist when creating a public short link.
+ * A text which the administration may leave out altogether, so that an empty field and a missing field both mean that
+ * the column holds nothing.
  */
-export const SHORTCODE_LINK_CREATION_SCHEMA = z.object({
+const OPTIONAL_SHORTCODE_LINK_TEXT_SCHEMA = z
+    .string()
+    .nullish()
+    .transform((value) => {
+        const trimmedValue = (value ?? '').trim();
+
+        return trimmedValue === '' ? null : trimmedValue;
+    });
+
+/**
+ * The only values an administrator may persist for a public short link, whether they are creating or editing it.
+ */
+export const SHORTCODE_LINK_VALUES_SCHEMA: z.ZodType<ShortcodeLinkValues, z.ZodTypeDef, unknown> = z.object({
     shortcode: z
         .string()
         .trim()
@@ -15,6 +29,6 @@ export const SHORTCODE_LINK_CREATION_SCHEMA = z.object({
     urls: z
         .array(z.string().trim().min(1).refine(isAbsoluteUrl, 'Every URL must be a valid absolute URL'))
         .min(1, 'At least one URL is required'),
+    note: OPTIONAL_SHORTCODE_LINK_TEXT_SCHEMA,
+    landingPage: OPTIONAL_SHORTCODE_LINK_TEXT_SCHEMA,
 });
-
-export type ShortcodeLinkCreationValues = z.infer<typeof SHORTCODE_LINK_CREATION_SCHEMA>;

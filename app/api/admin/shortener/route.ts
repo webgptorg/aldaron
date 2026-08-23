@@ -1,19 +1,44 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import { SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
 import {
-    CUSTOM_SHORTCODE_LINK_TYPE,
-    SHORTCODE_LINK_TABLE_NAME,
-} from '@/lib/shortener/shortcodeLinkConstants';
-import { SHORTCODE_LINK_CREATION_SCHEMA } from '@/lib/shortener/shortcodeLinkSchema';
-import { createSupabaseServiceRoleClient } from '@/lib/supabase';
+    createShortcodeLinkDatabaseUnavailableResponse,
+    createShortcodeLinkInsertValues,
+    createShortcodeLinkMutationErrorResponse,
+    getShortcodeLinkDatabaseOrNull,
+    loadShortcodeLinks,
+    mapShortcodeLinkRow,
+    SHORTCODE_LINK_SELECTED_COLUMNS,
+    type ShortcodeLinkRow,
+} from '@/lib/shortener/shortcodeLinkDatabase';
+import { SHORTCODE_LINK_VALUES_SCHEMA } from '@/lib/shortener/shortcodeLinkSchema';
 import { NextRequest, NextResponse } from 'next/server';
 
-const POSTGRES_UNIQUE_VIOLATION_CODE = '23505';
-const SHORTCODE_LINK_DATABASE_UNAVAILABLE_ERROR_MESSAGE = 'Database not configured';
-const SHORTCODE_LINK_CONFLICT_ERROR_MESSAGE = 'This shortcode is already in use';
+const INVALID_SHORTCODE_LINK_ERROR_MESSAGE = 'Invalid short link';
 
 /**
- * Creates a public short link after the shared admin token and the supplied values have both been verified.
+ * Lists every short link for the administration, which is the only reader allowed to see them all at once.
+ */
+export async function GET(request: NextRequest) {
+    const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
+    if (unauthorizedResponse) {
+        return unauthorizedResponse;
+    }
+
+    const supabase = getShortcodeLinkDatabaseOrNull();
+    if (supabase === null) {
+        return createShortcodeLinkDatabaseUnavailableResponse();
+    }
+
+    const { shortcodeLinks, errorMessage } = await loadShortcodeLinks(supabase);
+
+    return shortcodeLinks === null
+        ? NextResponse.json({ error: errorMessage }, { status: 500 })
+        : NextResponse.json({ shortcodeLinks }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+/**
+ * Creates a public short link after the session of the administrator and the supplied values have both been verified.
  */
 export async function POST(request: NextRequest) {
     const unauthorizedResponse = getUnauthorizedResponseOrNull(request);
@@ -22,32 +47,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await readJsonObjectOrNull(request);
-    const creationResult = SHORTCODE_LINK_CREATION_SCHEMA.safeParse(body);
-    if (!creationResult.success) {
+    const parsedResult = SHORTCODE_LINK_VALUES_SCHEMA.safeParse(body);
+    if (!parsedResult.success) {
         return NextResponse.json(
-            { error: creationResult.error.issues[0]?.message ?? 'Invalid short link' },
+            { error: parsedResult.error.issues[0]?.message ?? INVALID_SHORTCODE_LINK_ERROR_MESSAGE },
             { status: 400 },
         );
     }
 
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = getShortcodeLinkDatabaseOrNull();
     if (supabase === null) {
-        return NextResponse.json({ error: SHORTCODE_LINK_DATABASE_UNAVAILABLE_ERROR_MESSAGE }, { status: 503 });
+        return createShortcodeLinkDatabaseUnavailableResponse();
     }
 
-    const { error } = await supabase.from(SHORTCODE_LINK_TABLE_NAME).insert({
-        type: CUSTOM_SHORTCODE_LINK_TYPE,
-        shortcode: creationResult.data.shortcode,
-        url: creationResult.data.urls,
-        ownerEmail: null,
-    });
-    if (error) {
-        const status = error.code === POSTGRES_UNIQUE_VIOLATION_CODE ? 409 : 500;
-        const errorMessage =
-            error.code === POSTGRES_UNIQUE_VIOLATION_CODE ? SHORTCODE_LINK_CONFLICT_ERROR_MESSAGE : error.message;
-
-        return NextResponse.json({ error: errorMessage }, { status });
+    const { data, error } = await supabase
+        .from(SHORTCODE_LINK_TABLE_NAME)
+        .insert(createShortcodeLinkInsertValues(parsedResult.data))
+        .select(SHORTCODE_LINK_SELECTED_COLUMNS)
+        .single();
+    if (error !== null) {
+        return createShortcodeLinkMutationErrorResponse('the creation of a short link', error);
     }
 
-    return NextResponse.json({ shortcode: creationResult.data.shortcode }, { status: 201 });
+    return NextResponse.json(
+        { shortcodeLink: mapShortcodeLinkRow(data as unknown as ShortcodeLinkRow) },
+        { status: 201 },
+    );
 }

@@ -1,6 +1,8 @@
 'use client';
 
+import { ShortcodeLinkUrlListInput } from '@/components/shortener/ShortcodeLinkUrlListInput';
 import { classNames } from '@/lib/classNames';
+import { createPublicShortcodeLinkUrl, type ShortcodeLink } from '@/lib/shortener/shortcodeLink';
 import { createAdminShortcodeLink } from '@/lib/shortener/shortcodeLinkAdminApiClient';
 import { isAbsoluteUrl } from '@/lib/shortener/isAbsoluteUrl';
 import { titleToName } from '@promptbook/utils';
@@ -36,15 +38,20 @@ type UrlShortenerProps = {
      * Optional CSS class name which will be added to root <div> element
      */
     readonly className?: string;
+
+    /**
+     * Told about every short link which has just been persisted, so that a listing of them can catch up
+     */
+    readonly onShortcodeLinkCreated?: (shortcodeLink: ShortcodeLink) => void;
 };
 
 /**
  * Renders a URL Shortener app
  */
 export function UrlShortener(props: UrlShortenerProps) {
-    const { className } = props;
+    const { className, onShortcodeLinkCreated } = props;
 
-    const [urls, setUrls] = useState<string[]>(['']);
+    const [urls, setUrls] = useState<readonly string[]>(['']);
     const [displayText, setDisplayText] = useState('');
     const [error, setError] = useState('');
     const [showResult, setShowResult] = useState(false);
@@ -76,20 +83,6 @@ export function UrlShortener(props: UrlShortenerProps) {
         const timeoutId = setTimeout(regenerateShortcodes, 300);
         return () => clearTimeout(timeoutId);
     }, [customPrefix, regenerateShortcodes]);
-
-    const addUrlField = () => {
-        setUrls([...urls, '']);
-    };
-
-    const removeUrlField = (index: number) => {
-        setUrls(urls.filter((_, i) => i !== index));
-    };
-
-    const updateUrl = (index: number, value: string) => {
-        const newUrls = [...urls];
-        newUrls[index] = value;
-        setUrls(newUrls);
-    };
 
     const updateUtmParam = (field: keyof typeof utmParams, value: string) => {
         setUtmParams((prev) => ({
@@ -148,17 +141,20 @@ export function UrlShortener(props: UrlShortenerProps) {
 
             if (isShortener) {
                 // Use the selected shortcode or generate a new one if none selected
-                const createdShortcode = await createAdminShortcodeLink({
+                const createdShortcodeLink = await createAdminShortcodeLink({
                     shortcode: selectedShortcode || generateShortcode(),
                     urls: processedUrls,
+                    note: null,
+                    landingPage: null,
                 });
-                const shortUrl = 'https://ptbk.io/' + createdShortcode;
-                setShortCode(createdShortcode);
+                const shortUrl = createPublicShortcodeLinkUrl(createdShortcodeLink.shortcode);
+                setShortCode(createdShortcodeLink.shortcode);
                 setLinkHtml(`<a href="${shortUrl}">${text}</a>`);
                 setLinkMarkdown(`[${text}](${shortUrl})`);
 
                 // Regenerate shortcodes after successful creation
                 regenerateShortcodes();
+                onShortcodeLinkCreated?.(createdShortcodeLink);
             } else {
                 // Regular link wrapping - use first URL
                 const firstUrl = processedUrls[0] || '';
@@ -190,7 +186,7 @@ export function UrlShortener(props: UrlShortenerProps) {
         try {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = `<a href="${
-                isShortener ? `https://ptbk.io/${shortCode}` : urls[0]
+                isShortener ? createPublicShortcodeLinkUrl(shortCode) : urls[0]
             }">${displayText}</a>`;
             const linkElement = tempDiv.firstChild;
 
@@ -260,44 +256,7 @@ export function UrlShortener(props: UrlShortenerProps) {
 
                     <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
                         <label className="block text-lg font-medium text-gray-900">URLs</label>
-                        <div className="space-y-2">
-                            {urls.map((url, index) => (
-                                <div key={index} className="flex items-center space-x-2">
-                                    <input
-                                        type="url"
-                                        placeholder="https://example.com/with/parameters?key=value"
-                                        value={url}
-                                        onChange={(e) => updateUrl(index, e.target.value)}
-                                        required
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                    />
-                                    {urls.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeUrlField(index)}
-                                            className="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-                                        >
-                                            Remove
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                        <button
-                            type="button"
-                            onClick={addUrlField}
-                            className="rounded-md bg-gray-50 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
-                        >
-                            Add Another URL
-                        </button>
-                        {urls.length > 1 && (
-                            <div className="rounded-md bg-blue-50 p-4">
-                                <p className="text-sm text-blue-700">
-                                    <strong>Multiple URLs detected:</strong> When someone visits your short link, they
-                                    will be randomly redirected to one of these URLs.
-                                </p>
-                            </div>
-                        )}
+                        <ShortcodeLinkUrlListInput urls={urls} onUrlsChange={setUrls} />
                     </div>
 
                     <div className="space-y-4 rounded-md border border-gray-200 bg-white p-6 shadow-sm">
@@ -362,7 +321,7 @@ export function UrlShortener(props: UrlShortenerProps) {
                             </div>
                             {selectedShortcode && (
                                 <p className="text-sm text-gray-500">
-                                    Preview URL: https://ptbk.io/{selectedShortcode}
+                                    Preview URL: {createPublicShortcodeLinkUrl(selectedShortcode)}
                                 </p>
                             )}
                         </div>
@@ -470,7 +429,7 @@ export function UrlShortener(props: UrlShortenerProps) {
                             <div className="text-center">
                                 <h3 className="text-lg font-medium">QR Code</h3>
                                 <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
-                                    <PROMPTBOOK_QR_CODE value={`https://ptbk.io/${shortCode}`} />
+                                    <PROMPTBOOK_QR_CODE value={createPublicShortcodeLinkUrl(shortCode)} />
                                 </div>
                             </div>
                         )}

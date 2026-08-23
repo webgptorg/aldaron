@@ -1,34 +1,85 @@
+import { requestJson } from '@/lib/api/requestJson';
+import type { ShortcodeLink, ShortcodeLinkValues } from '@/lib/shortener/shortcodeLink';
 import { ADMIN_SHORTENER_API_PATH } from '@/lib/shortener/shortcodeLinkConstants';
-import type { ShortcodeLinkCreationValues } from '@/lib/shortener/shortcodeLinkSchema';
 
-type ShortcodeLinkCreationResponse = {
-    readonly shortcode?: unknown;
-    readonly error?: unknown;
+const SHORTCODE_LINK_REQUEST_FAILURE_MESSAGE = 'Short link administration request failed';
+const MISSING_SHORTCODE_LINK_ERROR_MESSAGE = 'Short link administration returned no short link';
+
+type ShortcodeLinkResponse = {
+    readonly shortcodeLink?: ShortcodeLink;
 };
 
-function getShortcodeLinkCreationErrorMessage(response: Response, payload: ShortcodeLinkCreationResponse): string {
-    return typeof payload.error === 'string'
-        ? payload.error
-        : 'Short link creation failed with status ' + response.status;
+type ShortcodeLinkListResponse = {
+    readonly shortcodeLinks?: readonly ShortcodeLink[];
+};
+
+function buildShortcodeLinkAdminApiUrl(shortcodeLinkId?: number): string {
+    return shortcodeLinkId === undefined
+        ? ADMIN_SHORTENER_API_PATH
+        : `${ADMIN_SHORTENER_API_PATH}/${encodeURIComponent(shortcodeLinkId)}`;
+}
+
+function createShortcodeLinkMutation(method: 'POST' | 'PATCH', values: ShortcodeLinkValues): RequestInit {
+    return {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+    };
+}
+
+async function requestOneShortcodeLink(url: string, requestOptions: RequestInit): Promise<ShortcodeLink> {
+    const response = await requestJson<ShortcodeLinkResponse>(
+        url,
+        requestOptions,
+        SHORTCODE_LINK_REQUEST_FAILURE_MESSAGE,
+    );
+    if (response.shortcodeLink === undefined) {
+        throw new Error(MISSING_SHORTCODE_LINK_ERROR_MESSAGE);
+    }
+
+    return response.shortcodeLink;
 }
 
 /**
- * Creates a short link through the endpoint that verifies the session of the administration.
+ * Reads every short link through the endpoint which verifies the session of the administration.
  */
-export async function createAdminShortcodeLink(values: ShortcodeLinkCreationValues): Promise<string> {
-    const response = await fetch(ADMIN_SHORTENER_API_PATH, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-    });
-    const payload = (await response.json().catch(() => ({}))) as ShortcodeLinkCreationResponse;
+export async function fetchAdminShortcodeLinks(): Promise<readonly ShortcodeLink[]> {
+    const response = await requestJson<ShortcodeLinkListResponse>(
+        buildShortcodeLinkAdminApiUrl(),
+        undefined,
+        SHORTCODE_LINK_REQUEST_FAILURE_MESSAGE,
+    );
 
-    if (!response.ok) {
-        throw new Error(getShortcodeLinkCreationErrorMessage(response, payload));
-    }
-    if (typeof payload.shortcode !== 'string') {
-        throw new Error('Short link creation returned no shortcode');
-    }
+    return response.shortcodeLinks ?? [];
+}
 
-    return payload.shortcode;
+/**
+ * Creates a short link through the endpoint which verifies the session of the administration.
+ */
+export async function createAdminShortcodeLink(values: ShortcodeLinkValues): Promise<ShortcodeLink> {
+    return requestOneShortcodeLink(buildShortcodeLinkAdminApiUrl(), createShortcodeLinkMutation('POST', values));
+}
+
+/**
+ * Rewrites one short link, keeping the address which has already been handed out.
+ */
+export async function updateAdminShortcodeLink(
+    shortcodeLinkId: number,
+    values: ShortcodeLinkValues,
+): Promise<ShortcodeLink> {
+    return requestOneShortcodeLink(
+        buildShortcodeLinkAdminApiUrl(shortcodeLinkId),
+        createShortcodeLinkMutation('PATCH', values),
+    );
+}
+
+/**
+ * Removes one short link together with the clicks which were measured on it.
+ */
+export async function deleteAdminShortcodeLink(shortcodeLinkId: number): Promise<void> {
+    await requestJson(
+        buildShortcodeLinkAdminApiUrl(shortcodeLinkId),
+        { method: 'DELETE' },
+        SHORTCODE_LINK_REQUEST_FAILURE_MESSAGE,
+    );
 }

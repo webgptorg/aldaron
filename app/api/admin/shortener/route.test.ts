@@ -10,35 +10,65 @@ vi.mock('@/lib/supabase', () => ({
     createSupabaseServiceRoleClient: createSupabaseServiceRoleClientMock,
 }));
 
-import { POST } from './route';
+import { GET, POST } from './route';
 
 const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_PASSWORD = 'shortener-admin-token';
 
-type ShortcodeLinkDatabase = {
-    readonly from: ReturnType<typeof vi.fn>;
-    readonly insert: ReturnType<typeof vi.fn>;
+const SHORTCODE_LINK_ROW = {
+    id: 42,
+    createdAt: '2026-08-21T10:00:00.000Z',
+    shortcode: 'campaign-abc123',
+    url: ['https://example.com/offer'],
+    note: 'Autumn campaign',
+    landingPage: null,
 };
 
-function createShortcodeLinkDatabase(
-    error: { readonly code?: string; readonly message: string } | null,
-): ShortcodeLinkDatabase {
-    const insert = vi.fn().mockResolvedValue({ error });
+const SHORTCODE_LINK = {
+    id: 42,
+    createdAt: '2026-08-21T10:00:00.000Z',
+    shortcode: 'campaign-abc123',
+    urls: ['https://example.com/offer'],
+    note: 'Autumn campaign',
+    landingPage: null,
+};
+
+function createShortcodeLinkInsertDatabase(result: {
+    readonly data: unknown;
+    readonly error: { readonly code?: string; readonly message: string } | null;
+}) {
+    const single = vi.fn().mockResolvedValue(result);
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
     const from = vi.fn(() => ({ insert }));
 
-    return { from, insert };
+    return { from, insert, select };
 }
 
-function createShortcodeLinkRequest(isAdminSignedIn: boolean, body: Readonly<Record<string, unknown>>): NextRequest {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (isAdminSignedIn) {
-        headers.cookie = createAdminSessionCookieHeader();
+function createShortcodeLinkListDatabase(rows: readonly unknown[]) {
+    const range = vi.fn().mockResolvedValue({ data: rows, error: null });
+    const orderById = vi.fn(() => ({ range }));
+    const orderByCreation = vi.fn(() => ({ order: orderById }));
+    const select = vi.fn(() => ({ order: orderByCreation }));
+    const from = vi.fn(() => ({ select }));
+
+    return { from, select, range };
+}
+
+function createShortcodeLinkRequest(
+    method: 'GET' | 'POST',
+    isAdminSignedIn: boolean,
+    body?: Readonly<Record<string, unknown>>,
+): NextRequest {
+    const headers: Record<string, string> = isAdminSignedIn ? { cookie: createAdminSessionCookieHeader() } : {};
+    if (body !== undefined) {
+        headers['Content-Type'] = 'application/json';
     }
 
     return new NextRequest('https://promptbook.studio/api/admin/shortener', {
-        method: 'POST',
+        method,
         headers,
-        body: JSON.stringify(body),
+        body: body === undefined ? undefined : JSON.stringify(body),
     });
 }
 
@@ -50,7 +80,7 @@ function restoreAdminToken(): void {
     }
 }
 
-describe('admin shortcode creation', () => {
+describe('admin shortcode link collection', () => {
     beforeEach(() => {
         process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         createSupabaseServiceRoleClientMock.mockReset();
@@ -60,9 +90,28 @@ describe('admin shortcode creation', () => {
         restoreAdminToken();
     });
 
+    it('refuses a listing without the session of an administrator before reaching the database', async () => {
+        const response = await GET(createShortcodeLinkRequest('GET', false));
+
+        expect(response.status).toBe(401);
+        expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
+    });
+
+    it('lists every short link for an administrator', async () => {
+        const database = createShortcodeLinkListDatabase([SHORTCODE_LINK_ROW]);
+        createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
+
+        const response = await GET(createShortcodeLinkRequest('GET', true));
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({ shortcodeLinks: [SHORTCODE_LINK] });
+        expect(database.from).toHaveBeenCalledWith('ShortcodeLink');
+        expect(database.range).toHaveBeenCalledWith(0, 999);
+    });
+
     it('refuses a request without the session of an administrator before reaching the database', async () => {
         const response = await POST(
-            createShortcodeLinkRequest(false, { shortcode: 'public-code', urls: ['https://example.com'] }),
+            createShortcodeLinkRequest('POST', false, { shortcode: 'public-code', urls: ['https://example.com'] }),
         );
 
         expect(response.status).toBe(401);
@@ -70,29 +119,34 @@ describe('admin shortcode creation', () => {
     });
 
     it('writes a validated shortcode only through the server service role', async () => {
-        const database = createShortcodeLinkDatabase(null);
+        const database = createShortcodeLinkInsertDatabase({ data: SHORTCODE_LINK_ROW, error: null });
         createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await POST(
-            createShortcodeLinkRequest(true, {
+            createShortcodeLinkRequest('POST', true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
+                note: 'Autumn campaign',
             }),
         );
 
         expect(response.status).toBe(201);
-        expect(await response.json()).toEqual({ shortcode: 'campaign-abc123' });
+        expect(await response.json()).toEqual({ shortcodeLink: SHORTCODE_LINK });
         expect(database.from).toHaveBeenCalledWith('ShortcodeLink');
         expect(database.insert).toHaveBeenCalledWith({
-            type: 'CUSTOM',
             shortcode: 'campaign-abc123',
             url: ['https://example.com/offer'],
+            note: 'Autumn campaign',
+            landingPage: null,
+            type: 'CUSTOM',
             ownerEmail: null,
         });
     });
 
     it('does not reach the database for an invalid short link request', async () => {
-        const response = await POST(createShortcodeLinkRequest(true, { shortcode: 'not/a-code', urls: ['not a URL'] }));
+        const response = await POST(
+            createShortcodeLinkRequest('POST', true, { shortcode: 'not/a-code', urls: ['not a URL'] }),
+        );
 
         expect(response.status).toBe(400);
         expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
@@ -102,7 +156,7 @@ describe('admin shortcode creation', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue(null);
 
         const response = await POST(
-            createShortcodeLinkRequest(true, {
+            createShortcodeLinkRequest('POST', true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
             }),
@@ -112,11 +166,14 @@ describe('admin shortcode creation', () => {
     });
 
     it('allows an administrator to choose another preview when the shortcode already exists', async () => {
-        const database = createShortcodeLinkDatabase({ code: '23505', message: 'duplicate key value' });
+        const database = createShortcodeLinkInsertDatabase({
+            data: null,
+            error: { code: '23505', message: 'duplicate key value' },
+        });
         createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await POST(
-            createShortcodeLinkRequest(true, {
+            createShortcodeLinkRequest('POST', true, {
                 shortcode: 'campaign-abc123',
                 urls: ['https://example.com/offer'],
             }),

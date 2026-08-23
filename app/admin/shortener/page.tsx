@@ -1,5 +1,5 @@
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
-import { UrlShortener } from '@/components/url-shortener';
+import { ShortcodeLinkAdmin } from '@/components/shortener/ShortcodeLinkAdmin';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { ADMIN_SHORTENER_METADATA } from '@/lib/metadata/site-page-definitions';
 import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
@@ -12,7 +12,7 @@ export default async function AdminShortenerPage() {
     return (
         <main className="min-h-screen bg-slate-50">
             <AdminNavigation title="Zkracovač odkazů" />
-            <UrlShortener />
+            <ShortcodeLinkAdmin />
         </main>
     );
 }
