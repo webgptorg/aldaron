@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-luna` thinking `max` - Implementation ~$0.2955 5 minutes; Testing a few seconds
 
 [✨👹] Remove the connection from the `ShortcodeLink` to the `App`
 
@@ -8,3 +8,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+
