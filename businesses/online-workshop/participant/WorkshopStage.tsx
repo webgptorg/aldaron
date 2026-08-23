@@ -5,6 +5,7 @@ import { useWorkshopReactionStream } from '@/components/workshops/useWorkshopRea
 import { WorkshopReactionStream } from '@/components/workshops/WorkshopReactionStream';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
+import { keepYoutubeVideoSubtitlesHidden, unmuteYoutubeVideo } from '@/lib/youtube/youtubePlayerCommands';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDownLeft, Maximize, Radio, Volume2 } from 'lucide-react';
@@ -34,16 +35,6 @@ function getRemainingSegments(remainingMilliseconds: number) {
     ];
 }
 
-function unmuteYoutubeVideo(videoFrame: HTMLIFrameElement | null): void {
-    const playerWindow = videoFrame?.contentWindow;
-    if (playerWindow === null || playerWindow === undefined) {
-        return;
-    }
-
-    playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'unMute', args: [] }), '*');
-    playerWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [100] }), '*');
-}
-
 function requestVideoFullscreen(videoFrame: HTMLIFrameElement | null): void {
     const requestFullscreen = videoFrame?.requestFullscreen;
     if (requestFullscreen === undefined || videoFrame === null) {
@@ -61,6 +52,9 @@ export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: Wo
     const videoFrameReference = useRef<HTMLIFrameElement>(null);
     const { flyingReactions, launchReaction } = useWorkshopReactionStream();
 
+    const remainingMilliseconds = Date.parse(workshop.startsAt) - currentTime;
+    const isWorkshopStarted = remainingMilliseconds <= 0;
+
     useEffect(() => subscribeToReactions(launchReaction), [launchReaction, subscribeToReactions]);
 
     useEffect(() => {
@@ -74,8 +68,14 @@ export function WorkshopStage({ workshop, serverTime, subscribeToReactions }: Wo
 
     useEffect(() => setIsVideoUnmuted(false), [workshop.youtubeVideoId]);
 
-    const remainingMilliseconds = Date.parse(workshop.startsAt) - currentTime;
-    const isWorkshopStarted = remainingMilliseconds <= 0;
+    useEffect(() => {
+        if (workshop.youtubeVideoId === null || !isWorkshopStarted) {
+            return;
+        }
+
+        return keepYoutubeVideoSubtitlesHidden(videoFrameReference.current);
+    }, [workshop.youtubeVideoId, isWorkshopStarted]);
+
     const countdownSegments = getRemainingSegments(remainingMilliseconds);
     const handleVideoUnmute = () => {
         unmuteYoutubeVideo(videoFrameReference.current);

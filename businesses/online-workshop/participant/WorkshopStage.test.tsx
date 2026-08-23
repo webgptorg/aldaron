@@ -107,4 +107,47 @@ describe('workshop stage', () => {
 
         expect(requestFullscreen).toHaveBeenCalledOnce();
     });
+
+    it('takes the subtitles away from the video it plays', () => {
+        const reactionSource = createReactionSource();
+        const postMessage = vi.fn();
+        const contentWindowSpy = vi
+            .spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get')
+            .mockReturnValue({ postMessage } as unknown as Window);
+
+        render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T19:10:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+            />,
+        );
+
+        expect(postMessage.mock.calls.map(([message]) => JSON.parse(message as string))).toEqual([
+            { event: 'command', func: 'unloadModule', args: ['captions'] },
+            { event: 'command', func: 'unloadModule', args: ['cc'] },
+        ]);
+
+        contentWindowSpy.mockRestore();
+    });
+
+    it('says nothing to a player of a workshop which has not started', () => {
+        const reactionSource = createReactionSource();
+        const postMessage = vi.fn();
+        const contentWindowSpy = vi
+            .spyOn(HTMLIFrameElement.prototype, 'contentWindow', 'get')
+            .mockReturnValue({ postMessage } as unknown as Window);
+
+        render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T18:50:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+            />,
+        );
+
+        expect(postMessage).not.toHaveBeenCalled();
+
+        contentWindowSpy.mockRestore();
+    });
 });
