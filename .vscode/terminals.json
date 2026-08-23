@@ -23,11 +23,6 @@
             "execute": false
         },
         {
-            "name": "🧪 Test E2E",
-            "command": "npm run test-e2e",
-            "execute": false
-        },
-        {
             "name": "🧪 Test build",
             "command": "npm run build",
             "execute": false

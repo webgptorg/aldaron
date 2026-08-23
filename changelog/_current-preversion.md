@@ -1,7 +1,5 @@
 # Current preversion
 
-- Added a Playwright end-to-end suite for public page loads and public submissions, covering the shared footer newsletter, qualification and lead forms, Pavol’s contact form, podcast and workshop registrations, the AI Supervize Mini interest form, and workshop/community connection forms. The suite uses a deterministic external-service fixture and excludes the administration.
-- Added `npm run test-e2e`, its VS Code terminal shortcut, and the test-server instrumentation fix needed for Next.js to start the E2E server reliably.
 - Added one shared navigation menu above every signed-in admin page, with one-click links to the dashboard, workshops, community, contacts, shortener and discount codes. The route labels, page titles, icons and dashboard-card descriptions now come from one definition, while the login page remains free of authenticated controls.
 - Removed the obsolete foreign key from `ShortcodeLink.appId` to the unused `App` table. The current shortener already neither reads nor writes that legacy field, so existing links keep their historical data while the shortener no longer depends on `App`.
 - Added `npm run backup-database` and its terminal shortcut: `pg_dump` now writes the complete PostgreSQL database, including schema and data, as a timestamped custom-format archive under the git-ignored `backups/` directory, using the same server-only `DATABASE_URL` resolution as migrations and leaving no final file when the dump fails.
