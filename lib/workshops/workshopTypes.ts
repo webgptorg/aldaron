@@ -148,11 +148,39 @@ export type WorkshopAdminParticipantTimeline = {
  */
 export type WorkshopAdminTimelinePoint = {
     readonly startsAt: string;
+
+    /**
+     * How many people had the room open during this bucket, which is the audience rather than an action
+     *
+     * Note: This is counted from the presence the room reports while it is open, so a workshop which was held before
+     *       the room started reporting it has an audience of nobody however many people really watched it.
+     */
+    readonly watchingParticipantCount: number;
+
+    /**
+     * How many people registered into the room during this bucket
+     */
     readonly participantCount: number;
     readonly commentCount: number;
     readonly reactionCount: number;
     readonly upvoteCount: number;
     readonly linkClickCount: number;
+
+    /**
+     * How many times each reaction was sent during this bucket, so a graph can draw one of them alone
+     */
+    readonly reactionCountsByEmoji: Readonly<Record<string, number>>;
+};
+
+/**
+ * One message with the moment it was written, which is everything a metric counting words in the chat needs
+ *
+ * Note: The administration counts the matches of a regular expression in the browser, so that an expression which is
+ *       still being typed answers immediately and never reaches the database.
+ */
+export type WorkshopAdminCommentSample = {
+    readonly occurredAt: string;
+    readonly body: string;
 };
 
 export type WorkshopAdminAnalytics = {
@@ -161,6 +189,12 @@ export type WorkshopAdminAnalytics = {
     readonly bucketDurationSeconds: number;
     readonly timeline: readonly WorkshopAdminTimelinePoint[];
     readonly reactionCounts: readonly WorkshopReactionCount[];
+    readonly commentSamples: readonly WorkshopAdminCommentSample[];
+
+    /**
+     * Whether every message of the room could be sampled, or the oldest ones had to be left out of a very busy room
+     */
+    readonly isCommentSampleComplete: boolean;
 };
 
 export type WorkshopContentBlock = {

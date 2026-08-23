@@ -7,3 +7,17 @@ export type SearchParameterValue = string | string[] | undefined;
 export function readFirstSearchParameter(value: SearchParameterValue): string | null {
     return (Array.isArray(value) ? value[0] : value) ?? null;
 }
+
+/**
+ * The whole query of a request as plain values, so that a page can carry every parameter it was asked with onwards
+ */
+export function readFirstSearchParameters(
+    searchParams: Readonly<Record<string, SearchParameterValue>>,
+): Readonly<Record<string, string | undefined>> {
+    return Object.fromEntries(
+        Object.entries(searchParams).map(([parameterName, value]) => [
+            parameterName,
+            readFirstSearchParameter(value) ?? undefined,
+        ]),
+    );
+}

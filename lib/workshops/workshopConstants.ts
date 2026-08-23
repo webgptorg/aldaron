@@ -32,6 +32,24 @@ export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
  */
 export const WORKSHOP_WATCHING_WINDOW_SECONDS = 180;
 
+/**
+ * How long one presence sample of a participant lasts, which is what the audience of the administration graph is
+ * counted from
+ *
+ * Note: The database bins the presence it records by the very same number of seconds, see `migrations/*.sql`, so both
+ *       of them are changed together. A room reports its presence more often than this, which is what makes a sample
+ *       cost one row per watched minute rather than one row per request.
+ */
+export const WORKSHOP_PRESENCE_SAMPLE_BUCKET_SECONDS = 60;
+
+/**
+ * How many messages of a room the administration reads to count the metrics an administrator wrote themselves
+ *
+ * Note: Whole message bodies travel to the browser for this, so a very busy room is sampled from its newest messages
+ *       instead of sending an unbounded answer on every refresh.
+ */
+export const MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT = 5_000;
+
 export const MAXIMAL_VISIBLE_COMMENT_COUNT = 200;
 export const MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT = 50;
 export const MAXIMAL_RECENT_REACTION_COUNT = 50;

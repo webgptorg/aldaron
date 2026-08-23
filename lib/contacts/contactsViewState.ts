@@ -1,3 +1,12 @@
+import {
+    createEnumeratedValueCodec,
+    defineUrlViewParameter,
+    parseUrlViewState,
+    serializeUrlViewState,
+    TEXT_VALUE_CODEC,
+    type UrlViewParameter,
+    type UrlViewValueCodec,
+} from '@/lib/api/urlViewState';
 import moment from 'moment';
 import { CONTACT_COLUMN_DEFINITIONS } from './contactColumnDefinitions';
 import {
@@ -42,55 +51,15 @@ export const DEFAULT_CONTACTS_VIEW_STATE: ContactsViewState = {
 };
 
 /**
- * How one value of the view is written into the URL and read back from it
+ * How one value of the view is written into the URL and read back from it, and the query parameter which carries it
  */
-type ContactsViewValueCodec<TValue> = {
-    /**
-     * @returns `null` when the URL holds something which is not a valid value
-     */
-    readonly parseValue: (parameterValue: string) => TValue | null;
+type ContactsViewValueCodec<TValue> = UrlViewValueCodec<TValue>;
 
-    readonly serializeValue: (value: TValue) => string;
+type ContactsViewParameter<TValue> = UrlViewParameter<ContactsViewState, TValue>;
 
-    /**
-     * Does this value have the same meaning as another one?
-     *
-     * Most view values are strings or numbers and can use strict equality. Origin selections are arrays, so their
-     * normalized contents have to be compared instead.
-     */
-    readonly areValuesEqual?: (firstValue: TValue, secondValue: TValue) => boolean;
-};
-
-/**
- * One value of the view together with the URL query parameter which carries it
- */
-type ContactsViewParameter<TValue> = ContactsViewValueCodec<TValue> & {
-    /**
-     * Name of the URL query parameter, kept short so that the shared link stays readable
-     */
-    readonly parameterName: string;
-
-    readonly readValue: (viewState: ContactsViewState) => TValue;
-    readonly writeValue: (viewState: ContactsViewState, value: TValue) => ContactsViewState;
-};
-
-/**
- * Describe one parameter of the view with its value type checked, so that all the parameters can live in one list
- *
- * Note: Forgetting the value type is safe here, because a value is only ever written back by the very same parameter
- *       which parsed it
- */
 function defineContactsViewParameter<TValue>(parameter: ContactsViewParameter<TValue>): ContactsViewParameter<unknown> {
-    return parameter as ContactsViewParameter<unknown>;
+    return defineUrlViewParameter<ContactsViewState, TValue>(parameter);
 }
-
-/**
- * Text which the user typed, carried by the URL exactly as it is
- */
-const TEXT_VALUE_CODEC: ContactsViewValueCodec<string> = {
-    parseValue: (parameterValue) => parameterValue,
-    serializeValue: (value) => value,
-};
 
 /**
  * One bound of the date range filter, which is a whole day written as `DATE_FILTER_FORMAT`
@@ -112,20 +81,6 @@ const PAGE_VALUE_CODEC: ContactsViewValueCodec<number> = {
     },
     serializeValue: (value) => value.toString(),
 };
-
-/**
- * Value which is one of a few known options, understood no matter the letter case, so that a link can also be written by hand
- */
-function createEnumeratedValueCodec<TValue extends string>(
-    allowedValues: readonly TValue[],
-): ContactsViewValueCodec<TValue> {
-    return {
-        parseValue: (parameterValue) =>
-            allowedValues.find((allowedValue) => allowedValue.toLowerCase() === parameterValue.trim().toLowerCase()) ??
-            null,
-        serializeValue: (value) => value,
-    };
-}
 
 const PRESENCE_FILTER_VALUE_CODEC = createEnumeratedValueCodec(PRESENCE_FILTER_VALUES);
 const CONTACTED_FILTER_VALUE_CODEC = createEnumeratedValueCodec(CONTACTED_FILTER_VALUES);
@@ -268,16 +223,7 @@ const CONTACTS_VIEW_PARAMETERS: readonly ContactsViewParameter<unknown>[] = [
  *       written link always opens the dashboard
  */
 export function parseContactsViewState(searchParams: URLSearchParams): ContactsViewState {
-    return CONTACTS_VIEW_PARAMETERS.reduce((viewState, parameter) => {
-        const parameterValue = searchParams.get(parameter.parameterName);
-
-        if (parameterValue === null) {
-            return viewState;
-        }
-
-        const value = parameter.parseValue(parameterValue);
-        return value === null ? viewState : parameter.writeValue(viewState, value);
-    }, DEFAULT_CONTACTS_VIEW_STATE);
+    return parseUrlViewState(CONTACTS_VIEW_PARAMETERS, DEFAULT_CONTACTS_VIEW_STATE, searchParams);
 }
 
 /**
@@ -292,19 +238,5 @@ export function serializeContactsViewState(
     viewState: ContactsViewState,
     searchParams: URLSearchParams,
 ): URLSearchParams {
-    const newSearchParams = new URLSearchParams(searchParams);
-
-    for (const parameter of CONTACTS_VIEW_PARAMETERS) {
-        const value = parameter.readValue(viewState);
-        const defaultValue = parameter.readValue(DEFAULT_CONTACTS_VIEW_STATE);
-        const isDefaultValue = parameter.areValuesEqual?.(value, defaultValue) ?? value === defaultValue;
-
-        if (isDefaultValue) {
-            newSearchParams.delete(parameter.parameterName);
-        } else {
-            newSearchParams.set(parameter.parameterName, parameter.serializeValue(value));
-        }
-    }
-
-    return newSearchParams;
+    return serializeUrlViewState(CONTACTS_VIEW_PARAMETERS, DEFAULT_CONTACTS_VIEW_STATE, viewState, searchParams);
 }

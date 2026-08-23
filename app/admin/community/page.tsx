@@ -2,6 +2,7 @@ import { COMMUNITY_ADMIN_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/comm
 import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
+import { Suspense } from 'react';
 
 /**
  * Administration of the one persistent community. The reusable dashboard is restricted to the `community` room kind,
@@ -14,12 +15,14 @@ export default async function AdminCommunityPage() {
     return (
         <main className="min-h-screen bg-slate-50">
             <AdminNavigation title="Komunita Promptbooku" />
-            <WorkshopAdminDashboard
-                initialWorkshopSlug={COMMUNITY_WORKSHOP_SLUG}
-                workshopKind="community"
-                subjectLabel="komunity"
-                emptyStateMessage="Komunita zatím není vytvořená. Spusťte databázovou migraci pro komunitu."
-            />
+            <Suspense>
+                <WorkshopAdminDashboard
+                    initialWorkshopSlug={COMMUNITY_WORKSHOP_SLUG}
+                    workshopKind="community"
+                    subjectLabel="komunity"
+                    emptyStateMessage="Komunita zatím není vytvořená. Spusťte databázovou migraci pro komunitu."
+                />
+            </Suspense>
         </main>
     );
 }

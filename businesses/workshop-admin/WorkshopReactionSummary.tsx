@@ -16,7 +16,9 @@ function getReactionSharePercent(reactionCount: number, totalReactionCount: numb
  * Shows reaction volume by emoji without putting the full, potentially very large event stream into the admin page.
  */
 export function WorkshopReactionSummary({ workshopId, refreshVersion }: WorkshopReactionSummaryProps) {
-    const { analytics, errorMessage, isLoading } = useWorkshopAdminAnalytics({
+    // Note: A refresh keeps the summary on the screen, so the section never blinks while the administration reloads
+    //       itself every few seconds.
+    const { analytics, errorMessage, isInitialLoading } = useWorkshopAdminAnalytics({
         workshopId,
         refreshVersion,
     });
@@ -32,7 +34,7 @@ export function WorkshopReactionSummary({ workshopId, refreshVersion }: Workshop
                 Souhrn podle typu reakce; úplný seznam včetně času a autora stáhnete jako CSV.
             </p>
 
-            {isLoading ? (
+            {isInitialLoading ? (
                 <div className="flex justify-center py-10">
                     <RefreshCw className="h-5 w-5 animate-spin text-cyan-600" />
                 </div>

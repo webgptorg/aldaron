@@ -27,8 +27,8 @@ import {
     type WorkshopCreateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { WorkshopActivityGraph } from '@/businesses/workshop-admin/WorkshopActivityGraph';
 import { WorkshopAdminRefreshButton } from '@/businesses/workshop-admin/WorkshopAdminRefreshButton';
-import { WorkshopAggregateTimeline } from '@/businesses/workshop-admin/WorkshopAggregateTimeline';
 import { WorkshopArtificialComment } from '@/businesses/workshop-admin/WorkshopArtificialComment';
 import { WorkshopArtificialReaction } from '@/businesses/workshop-admin/WorkshopArtificialReaction';
 import { WorkshopCommentModeration } from '@/businesses/workshop-admin/WorkshopCommentModeration';
@@ -40,7 +40,15 @@ import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSe
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useUrlSynchronizedViewState } from '@/hooks/useUrlSynchronizedViewState';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { isWorkshopAdminSection, type WorkshopAdminSection } from '@/lib/workshops/workshopAdminSections';
+import {
+    parseWorkshopAdminViewState,
+    serializeWorkshopAdminViewState,
+    type WorkshopAdminViewState,
+} from '@/lib/workshops/workshopAdminViewState';
+import type { WorkshopOverviewGraphState } from '@/lib/workshops/workshopOverviewGraphState';
 import type {
     WorkshopAdminSnapshot,
     WorkshopAdminSummary,
@@ -51,16 +59,6 @@ import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Us
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
-const WORKSHOP_ADMIN_SECTION_VALUES = [
-    'overview',
-    'participants',
-    'comments',
-    'reactions',
-    'content',
-    'settings',
-] as const;
-
-type WorkshopAdminSection = (typeof WORKSHOP_ADMIN_SECTION_VALUES)[number];
 
 const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
     readonly value: WorkshopAdminSection;
@@ -83,10 +81,6 @@ type WorkshopAdminDashboardProps = {
     readonly emptyStateMessage?: string;
 };
 
-function isWorkshopAdminSection(value: string): value is WorkshopAdminSection {
-    return WORKSHOP_ADMIN_SECTION_VALUES.some((sectionValue) => sectionValue === value);
-}
-
 export function WorkshopAdminDashboard({
     initialWorkshopSlug,
     workshopKind = 'workshop',
@@ -98,9 +92,11 @@ export function WorkshopAdminDashboard({
     //       the creation of a second one.
     const { isSingleton, isScheduled: isRoomScheduled } = getWorkshopKindCapabilities(workshopKind);
     const isRoomSelectionOffered = !isSingleton;
+    const [viewState, changeViewState] = useUrlSynchronizedViewState<WorkshopAdminViewState>({
+        parseViewState: parseWorkshopAdminViewState,
+        serializeViewState: serializeWorkshopAdminViewState,
+    });
     const [workshops, setWorkshops] = useState<readonly WorkshopAdminSummary[]>([]);
-    const [selectedWorkshopId, setSelectedWorkshopId] = useState<string | null>(null);
-    const [selectedSection, setSelectedSection] = useState<WorkshopAdminSection>('overview');
     const [snapshot, setSnapshot] = useState<WorkshopAdminSnapshot | null>(null);
     const [commentStatus, setCommentStatus] = useState<WorkshopCommentStatus>('pending');
     const [snapshotRefreshVersion, setSnapshotRefreshVersion] = useState(0);
@@ -108,28 +104,36 @@ export function WorkshopAdminDashboard({
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const snapshotLoadSequenceReference = useRef(0);
+    const selectedSection = viewState.section;
+
+    // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
+    //       list are one and the same thing. A link which names no room, or a room which is not there any more, opens
+    //       the room the administration would have opened anyway.
+    const selectedWorkshop = useMemo(
+        () =>
+            workshops.find(({ slug }) => slug === viewState.workshopSlug) ??
+            workshops.find(({ slug }) => slug === initialWorkshopSlug) ??
+            workshops[0] ??
+            null,
+        [initialWorkshopSlug, viewState.workshopSlug, workshops],
+    );
+    const selectedWorkshopId = selectedWorkshop?.id ?? null;
 
     const loadWorkshopList = useCallback(async () => {
         try {
-            const loadedWorkshops = await fetchAdminWorkshopList(workshopKind);
-            setWorkshops(loadedWorkshops);
-            setSelectedWorkshopId((currentId) => {
-                if (currentId && loadedWorkshops.some(({ id }) => id === currentId)) {
-                    return currentId;
-                }
-                return (
-                    loadedWorkshops.find(({ slug }) => slug === initialWorkshopSlug)?.id ??
-                    loadedWorkshops[0]?.id ??
-                    null
-                );
-            });
+            setWorkshops(await fetchAdminWorkshopList(workshopKind));
             setErrorMessage(null);
         } catch (error) {
             setErrorMessage((error as Error).message);
         } finally {
             setIsLoading(false);
         }
-    }, [initialWorkshopSlug, workshopKind]);
+    }, [workshopKind]);
+
+    const selectWorkshopBySlug = useCallback(
+        (workshopSlug: string) => changeViewState((previousViewState) => ({ ...previousViewState, workshopSlug })),
+        [changeViewState],
+    );
 
     const loadSnapshot = useCallback(async () => {
         const snapshotLoadSequence = ++snapshotLoadSequenceReference.current;
@@ -186,7 +190,7 @@ export function WorkshopAdminDashboard({
         try {
             const workshop = await createAdminWorkshop(values);
             await loadWorkshopList();
-            setSelectedWorkshopId(workshop.id);
+            selectWorkshopBySlug(workshop.slug);
             return true;
         } catch (error) {
             setErrorMessage((error as Error).message);
@@ -312,9 +316,18 @@ export function WorkshopAdminDashboard({
 
     const handleSectionChange = (value: string) => {
         if (isWorkshopAdminSection(value)) {
-            setSelectedSection(value);
+            changeViewState((previousViewState) => ({ ...previousViewState, section: value }));
         }
     };
+
+    const handleGraphStateChange = useCallback(
+        (changeGraphState: (previousGraphState: WorkshopOverviewGraphState) => WorkshopOverviewGraphState) =>
+            changeViewState((previousViewState) => ({
+                ...previousViewState,
+                graph: changeGraphState(previousViewState.graph),
+            })),
+        [changeViewState],
+    );
 
     const handleRefresh = () => void Promise.all([loadSnapshot(), loadWorkshopList()]);
 
@@ -336,7 +349,12 @@ export function WorkshopAdminDashboard({
                         selectedWorkshopId={selectedWorkshopId}
                         isLoading={isLoading}
                         emptyMessage={emptyStateMessage}
-                        onSelect={setSelectedWorkshopId}
+                        onSelect={(workshopId) => {
+                            const workshop = workshops.find(({ id }) => id === workshopId);
+                            if (workshop !== undefined) {
+                                selectWorkshopBySlug(workshop.slug);
+                            }
+                        }}
                     />
                     <WorkshopAdminRefreshButton className="w-full" onRefresh={handleRefresh} />
                     <CreateWorkshopForm onCreate={handleCreateWorkshop} />
@@ -396,9 +414,12 @@ export function WorkshopAdminDashboard({
                                     </div>
                                 ))}
                             </div>
-                            <WorkshopAggregateTimeline
+                            <WorkshopActivityGraph
                                 workshopId={snapshot.workshop.id}
+                                workshopSlug={snapshot.workshop.slug}
                                 refreshVersion={snapshotRefreshVersion}
+                                graphState={viewState.graph}
+                                onChangeGraphState={handleGraphStateChange}
                             />
                         </TabsContent>
 

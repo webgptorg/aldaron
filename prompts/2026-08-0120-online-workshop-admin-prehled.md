@@ -1,4 +1,4 @@
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $29.64 5 hours; Testing a few seconds
 
 [✨🎽] Enhance the `/admin/workshops` "Přehled"
 
@@ -25,3 +25,4 @@
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ![alt text](prompts/screenshots/2026-08-0120-online-workshop-admin-prehled.png)
+

@@ -3,24 +3,33 @@ import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { ADMIN_WORKSHOPS_PATH } from '@/lib/admin/adminConstants';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
-import { readFirstSearchParameter } from '@/lib/api/readFirstSearchParameter';
+import {
+    readFirstSearchParameter,
+    readFirstSearchParameters,
+    type SearchParameterValue,
+} from '@/lib/api/readFirstSearchParameter';
+import { Suspense } from 'react';
 
 type AdminWorkshopsPageProps = {
-    readonly searchParams: Promise<{
-        readonly workshop?: string | string[];
-    }>;
+    readonly searchParams: Promise<Readonly<Record<string, SearchParameterValue>>>;
 };
 
 export default async function AdminWorkshopsPage({ searchParams }: AdminWorkshopsPageProps) {
-    const workshopSlug = readFirstSearchParameter((await searchParams).workshop);
+    const resolvedSearchParams = await searchParams;
+    const workshopSlug = readFirstSearchParameter(resolvedSearchParams.workshop);
 
-    // Note: The chosen workshop is named to the login as well, so signing in returns to the very workshop which was asked for
-    await requireAdminSignedIn(appendSearchParameters(ADMIN_WORKSHOPS_PATH, { workshop: workshopSlug ?? undefined }));
+    // Note: The whole view which was asked for is named to the login as well, so signing in returns to the very
+    //       workshop, section and graph a shared link opened, rather than to the dashboard as it was left.
+    await requireAdminSignedIn(
+        appendSearchParameters(ADMIN_WORKSHOPS_PATH, readFirstSearchParameters(resolvedSearchParams)),
+    );
 
     return (
         <main className="min-h-screen bg-slate-50">
             <AdminNavigation title="Živé workshopy" />
-            <WorkshopAdminDashboard initialWorkshopSlug={workshopSlug} />
+            <Suspense>
+                <WorkshopAdminDashboard initialWorkshopSlug={workshopSlug} />
+            </Suspense>
         </main>
     );
 }

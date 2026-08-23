@@ -3,6 +3,7 @@ import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } fr
 import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import {
     MAXIMAL_RECENT_REACTION_COUNT,
+    MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
     MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
@@ -20,6 +21,7 @@ import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModerat
 import type {
     WorkshopAdminComment,
     WorkshopAdminAnalytics,
+    WorkshopAdminCommentSample,
     WorkshopAdminParticipant,
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
@@ -215,12 +217,21 @@ type WorkshopParticipantTimelineCommentReferenceRow = Pick<WorkshopCommentRow, '
 
 type WorkshopAdminTimelinePointRow = {
     readonly bucket_starts_at: string;
+    readonly watching_participant_count: number | string;
     readonly participant_count: number | string;
     readonly comment_count: number | string;
     readonly reaction_count: number | string;
     readonly upvote_count: number | string;
     readonly link_click_count: number | string;
 };
+
+type WorkshopAdminReactionTimelineRow = {
+    readonly bucket_starts_at: string;
+    readonly emoji: string;
+    readonly reaction_count: number | string;
+};
+
+type WorkshopAdminCommentSampleRow = Pick<WorkshopCommentRow, 'body' | 'created_at'>;
 
 type WorkshopAdminReactionExportRow = {
     readonly id: string;
@@ -444,6 +455,12 @@ function mapWorkshopAdminParticipantPageRow(row: WorkshopAdminParticipantPageRow
     return mapWorkshopAdminParticipantRow(row, row);
 }
 
+/**
+ * How long one measured bucket of the timeline lasts, which the database is asked for and which it also guards
+ *
+ * Note: An hour-long workshop is measured by the minute, because that is the resolution its graph is read at. A room
+ *       which lasts for days is measured more coarsely, so that the answer stays small however long it has been open.
+ */
 function getWorkshopAdminTimelineBucketDurationSeconds(workshopRow: WorkshopRow): number {
     const startsAtMilliseconds = Date.parse(workshopRow.starts_at);
     const currentMilliseconds = Date.now();
@@ -453,14 +470,18 @@ function getWorkshopAdminTimelineBucketDurationSeconds(workshopRow: WorkshopRow)
     const durationMilliseconds = endsAtMilliseconds - startsAtMilliseconds;
 
     if (durationMilliseconds <= 2 * 60 * 60 * 1_000) {
-        return 300;
+        return 60;
     }
 
     if (durationMilliseconds <= 8 * 60 * 60 * 1_000) {
-        return 900;
+        return 300;
     }
 
     if (durationMilliseconds <= 3 * 24 * 60 * 60 * 1_000) {
+        return 900;
+    }
+
+    if (durationMilliseconds <= 30 * 24 * 60 * 60 * 1_000) {
         return 3_600;
     }
 
@@ -474,15 +495,40 @@ function getWorkshopAdminTimelineEndsAt(workshopRow: WorkshopRow): string {
     return new Date(Math.max(startsAtMilliseconds, endsAtMilliseconds)).toISOString();
 }
 
-function mapWorkshopAdminTimelinePointRow(row: WorkshopAdminTimelinePointRow): WorkshopAdminTimelinePoint {
+function mapWorkshopAdminTimelinePointRow(
+    row: WorkshopAdminTimelinePointRow,
+    reactionCountsByEmoji: Readonly<Record<string, number>>,
+): WorkshopAdminTimelinePoint {
     return {
         startsAt: row.bucket_starts_at,
+        watchingParticipantCount: getNonNegativeWholeNumber(row.watching_participant_count),
         participantCount: getNonNegativeWholeNumber(row.participant_count),
         commentCount: getNonNegativeWholeNumber(row.comment_count),
         reactionCount: getNonNegativeWholeNumber(row.reaction_count),
         upvoteCount: getNonNegativeWholeNumber(row.upvote_count),
         linkClickCount: getNonNegativeWholeNumber(row.link_click_count),
+        reactionCountsByEmoji,
     };
+}
+
+/**
+ * Which reaction was sent how many times in each bucket, gathered by the moment the bucket starts at
+ *
+ * Note: The emoji breakdown is loaded as its own table, because a room may offer any number of reactions and a fixed
+ *       set of columns could never carry them.
+ */
+function groupWorkshopAdminReactionTimelineRows(
+    rows: readonly WorkshopAdminReactionTimelineRow[],
+): ReadonlyMap<string, Readonly<Record<string, number>>> {
+    const reactionCountsByBucket = new Map<string, Record<string, number>>();
+
+    for (const row of rows) {
+        const reactionCounts = reactionCountsByBucket.get(row.bucket_starts_at) ?? {};
+        reactionCounts[row.emoji] = (reactionCounts[row.emoji] ?? 0) + getNonNegativeWholeNumber(row.reaction_count);
+        reactionCountsByBucket.set(row.bucket_starts_at, reactionCounts);
+    }
+
+    return reactionCountsByBucket;
 }
 
 export function mapWorkshopReactionRow(row: WorkshopReactionRow): WorkshopReaction {
@@ -989,6 +1035,45 @@ export async function loadWorkshopAdminParticipantTimeline(
 }
 
 /**
+ * Loads the newest messages of a room with nothing but the moment they were written
+ *
+ * Note: The administration counts the matches of a regular expression in the browser, so a metric which is still being
+ *       typed answers at once. A very busy room is sampled from its newest messages, because those are the ones a
+ *       graph of it is read for.
+ */
+async function loadWorkshopAdminCommentSamples(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<{
+    readonly commentSamples: readonly WorkshopAdminCommentSample[] | null;
+    readonly isCommentSampleComplete: boolean;
+    readonly errorMessage: string | null;
+}> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select('body, created_at')
+        .eq('workshop_id', workshopRow.id)
+        .order('created_at', { ascending: false })
+        .limit(MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT + 1);
+
+    if (error) {
+        return { commentSamples: null, isCommentSampleComplete: false, errorMessage: error.message };
+    }
+
+    const rows = (data ?? []) as WorkshopAdminCommentSampleRow[];
+    const isCommentSampleComplete = rows.length <= MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT;
+
+    return {
+        commentSamples: rows
+            .slice(0, MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT)
+            .map((row) => ({ occurredAt: row.created_at, body: row.body }))
+            .reverse(),
+        isCommentSampleComplete,
+        errorMessage: null,
+    };
+}
+
+/**
  * Loads compact workshop-wide timeline buckets and reaction totals for the overview and reactions sections.
  */
 export async function loadWorkshopAdminAnalytics(
@@ -996,29 +1081,42 @@ export async function loadWorkshopAdminAnalytics(
     workshopRow: WorkshopRow,
 ): Promise<{ readonly analytics: WorkshopAdminAnalytics | null; readonly errorMessage: string | null }> {
     const bucketDurationSeconds = getWorkshopAdminTimelineBucketDurationSeconds(workshopRow);
-    const [timelineResult, reactionCountsResult] = await Promise.all([
-        supabase.rpc('get_workshop_admin_timeline', {
-            target_workshop_id: workshopRow.id,
-            target_bucket_seconds: bucketDurationSeconds,
-        }),
+    const timelineArguments = {
+        target_workshop_id: workshopRow.id,
+        target_bucket_seconds: bucketDurationSeconds,
+    };
+    const [timelineResult, reactionTimelineResult, reactionCountsResult, commentSampleResult] = await Promise.all([
+        supabase.rpc('get_workshop_admin_timeline', timelineArguments),
+        supabase.rpc('get_workshop_admin_reaction_timeline', timelineArguments),
         supabase.rpc('get_workshop_reaction_counts', { target_workshop_id: workshopRow.id }),
+        loadWorkshopAdminCommentSamples(supabase, workshopRow),
     ]);
-    const firstError = timelineResult.error ?? reactionCountsResult.error;
+    const firstError =
+        timelineResult.error ??
+        reactionTimelineResult.error ??
+        reactionCountsResult.error ??
+        (commentSampleResult.errorMessage === null ? null : { message: commentSampleResult.errorMessage });
     if (firstError) {
         return { analytics: null, errorMessage: firstError.message };
     }
+
+    const reactionCountsByBucket = groupWorkshopAdminReactionTimelineRows(
+        (reactionTimelineResult.data ?? []) as WorkshopAdminReactionTimelineRow[],
+    );
 
     return {
         analytics: {
             timelineStartsAt: workshopRow.starts_at,
             timelineEndsAt: getWorkshopAdminTimelineEndsAt(workshopRow),
             bucketDurationSeconds,
-            timeline: ((timelineResult.data ?? []) as WorkshopAdminTimelinePointRow[]).map(
-                mapWorkshopAdminTimelinePointRow,
+            timeline: ((timelineResult.data ?? []) as WorkshopAdminTimelinePointRow[]).map((row) =>
+                mapWorkshopAdminTimelinePointRow(row, reactionCountsByBucket.get(row.bucket_starts_at) ?? {}),
             ),
             reactionCounts: ((reactionCountsResult.data ?? []) as WorkshopReactionCountRow[]).map(
                 mapWorkshopReactionCountRow,
             ),
+            commentSamples: commentSampleResult.commentSamples ?? [],
+            isCommentSampleComplete: commentSampleResult.isCommentSampleComplete,
         },
         errorMessage: null,
     };

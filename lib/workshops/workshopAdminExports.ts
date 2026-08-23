@@ -201,7 +201,8 @@ export function serializeWorkshopAdminTimelineAsCsv(timeline: readonly WorkshopA
         timeline,
         [
             { header: 'Začátek úseku', getValue: (point) => point.startsAt },
-            { header: 'Účastníci', getValue: (point) => point.participantCount },
+            { header: 'Diváci', getValue: (point) => point.watchingParticipantCount },
+            { header: 'Nově připojení', getValue: (point) => point.participantCount },
             { header: 'Komentáře', getValue: (point) => point.commentCount },
             { header: 'Reakce', getValue: (point) => point.reactionCount },
             { header: 'Hlasy', getValue: (point) => point.upvoteCount },
