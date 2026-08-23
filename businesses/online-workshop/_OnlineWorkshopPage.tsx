@@ -1,7 +1,6 @@
 'use client';
 
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
-import { AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH } from '@/businesses/ai-supervize-mini/config';
 import {
     onlineWorkshopContentItems,
     onlineWorkshopFaqs,
@@ -22,6 +21,7 @@ import { Header } from '@/components/header';
 import { SectionIntro } from '@/components/section-intro';
 import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
+import { AI_SUPERVIZE_MINI_PATH } from '@/lib/discounts/discountPlaces';
 import {
     formatCzechWorkshopDate,
     formatCzechWorkshopDuration,
@@ -56,7 +56,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
             <Header
                 getStartedText="Rezervovat místo"
                 primaryAction={{ label: 'Rezervovat místo', href: '#registrace', mobileLabel: 'Chci místo' }}
-                secondaryAction={{ label: 'AI Supervize Mini', href: AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH }}
+                secondaryAction={{ label: 'AI Supervize Mini', href: AI_SUPERVIZE_MINI_PATH }}
                 centerContent={
                     <>
                         <span>🔥</span>
@@ -128,7 +128,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                     variant="outline"
                                     className="rounded-full border-white/20 bg-white/10 px-8 py-6 text-center text-lg text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:text-white"
                                 >
-                                    <Link href={AI_SUPERVIZE_MINI_ONLINE_WORKSHOP_FOLLOW_UP_PATH}>
+                                    <Link href={AI_SUPERVIZE_MINI_PATH}>
                                         Placený navazující workshop
                                     </Link>
                                 </Button>

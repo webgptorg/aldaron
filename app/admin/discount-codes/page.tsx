@@ -1,5 +1,5 @@
-import { AiSupervizeMiniDiscountCodeAdmin } from '@/businesses/ai-supervize-mini/AiSupervizeMiniDiscountCodeAdmin';
 import { AdminNavigation } from '@/components/admin/AdminNavigation';
+import { DiscountCodeAdmin } from '@/components/admin/DiscountCodeAdmin';
 import { ADMIN_DISCOUNT_CODES_PATH } from '@/lib/admin/adminConstants';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 
@@ -9,7 +9,7 @@ export default async function AdminDiscountCodesPage() {
     return (
         <main className="min-h-screen bg-slate-50">
             <AdminNavigation title="Slevové kódy" />
-            <AiSupervizeMiniDiscountCodeAdmin />
+            <DiscountCodeAdmin />
         </main>
     );
 }

@@ -4,7 +4,7 @@ import {
     getAiSupervizeMiniWorkshopDateById,
     type AiSupervizeMiniWorkshopDate,
 } from '@/businesses/ai-supervize-mini/config';
-import type { AiSupervizeMiniActiveDiscount } from '@/businesses/ai-supervize-mini/discountCode';
+import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 
 export type AiSupervizeMiniInvoiceType = 'company' | 'individual';
 
@@ -149,6 +149,19 @@ export function createAiSupervizeMiniWorkshopAvailability(
     });
 }
 
+/**
+ * Which term the registration form opens on. A visitor who arrived by a `?code=` link is shown the
+ * term the code is actually valid in, so a promotion for one format of the workshop does not read
+ * as an inactive code on the other one.
+ */
+export function getInitialAiSupervizeMiniWorkshopDateId(activeDiscountByPlaceId: ActiveDiscountByPlaceId): string {
+    const discountedWorkshopDate = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.find(
+        (workshopDate) => (activeDiscountByPlaceId[workshopDate.discountPlaceId] ?? null) !== null,
+    );
+
+    return (discountedWorkshopDate ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!).id;
+}
+
 export function getAiSupervizeMiniWorkshopAvailabilityByDateId(
     workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
     workshopDateId: string,
@@ -159,7 +172,7 @@ export function getAiSupervizeMiniWorkshopAvailabilityByDateId(
 export function createAiSupervizeMiniWorkshopPrice(
     workshopDate: AiSupervizeMiniWorkshopDate,
     participantCount: number,
-    activeDiscount: AiSupervizeMiniActiveDiscount | null,
+    activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniWorkshopPrice {
     const basePriceCzk = workshopDate.pricePerParticipantCzk * participantCount;
     const discountAmountCzk =
@@ -175,7 +188,7 @@ export function createAiSupervizeMiniWorkshopPrice(
 export function createAiSupervizeMiniStoredWorkshopRegistration(
     registrationRequest: AiSupervizeMiniWorkshopRegistrationRequest,
     workshopDate: AiSupervizeMiniWorkshopDate,
-    activeDiscount: AiSupervizeMiniActiveDiscount | null,
+    activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniStoredWorkshopRegistration {
     const workshopPrice = createAiSupervizeMiniWorkshopPrice(
         workshopDate,

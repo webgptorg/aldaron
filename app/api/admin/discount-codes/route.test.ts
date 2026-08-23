@@ -1,4 +1,5 @@
 import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
+import { AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID } from '@/lib/discounts/discountPlaces';
 import { NextRequest } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,7 +22,9 @@ const DISCOUNT_CODE_ROW = {
     starts_at: '2026-09-04T00:00:00.000Z',
     ends_at: '2026-09-04T23:59:59.000Z',
     is_enabled: true,
-    is_online_workshop_follow_up: false,
+    place_ids: [AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID],
+    maximum_use_count: 10,
+    use_count: 3,
     created_at: '2026-08-21T00:00:00.000Z',
     updated_at: '2026-08-21T00:00:00.000Z',
 };
@@ -31,7 +34,7 @@ function createAdminDiscountCodesRequest(
     isAdminSignedIn: boolean,
     body?: Readonly<Record<string, unknown>>,
 ): NextRequest {
-    const url = 'https://promptbook.studio/api/admin/ai-supervize-mini/discount-codes';
+    const url = 'https://promptbook.studio/api/admin/discount-codes';
     const headers: Record<string, string> = isAdminSignedIn ? { cookie: createAdminSessionCookieHeader() } : {};
     if (body !== undefined) {
         headers['Content-Type'] = 'application/json';
@@ -44,6 +47,19 @@ function createAdminDiscountCodesRequest(
     });
 }
 
+function createDiscountCodeValues(values: Readonly<Record<string, unknown>> = {}) {
+    return {
+        code: ' webinar-2026-09-04 ',
+        percent: 25,
+        startsAt: '2026-09-04T00:00:00+02:00',
+        endsAt: '2026-09-04T23:59:59+02:00',
+        isEnabled: true,
+        placeIds: [AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID],
+        maximumUseCount: 10,
+        ...values,
+    };
+}
+
 function restoreAdminToken(): void {
     if (ORIGINAL_ADMIN_PASSWORD === undefined) {
         delete process.env.ADMIN_PASSWORD;
@@ -52,7 +68,7 @@ function restoreAdminToken(): void {
     }
 }
 
-describe('AI Supervize Mini discount-code admin collection', () => {
+describe('discount-code admin collection', () => {
     beforeEach(() => {
         process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         createSupabaseServiceRoleClientMock.mockReset();
@@ -88,7 +104,9 @@ describe('AI Supervize Mini discount-code admin collection', () => {
                     startsAt: DISCOUNT_CODE_ROW.starts_at,
                     endsAt: DISCOUNT_CODE_ROW.ends_at,
                     isEnabled: true,
-                    isOnlineWorkshopFollowUp: false,
+                    placeIds: [AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID],
+                    maximumUseCount: 10,
+                    useCount: 3,
                     createdAt: DISCOUNT_CODE_ROW.created_at,
                     updatedAt: DISCOUNT_CODE_ROW.updated_at,
                 },
@@ -103,27 +121,46 @@ describe('AI Supervize Mini discount-code admin collection', () => {
         const from = vi.fn(() => ({ insert }));
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
-        const response = await POST(
-            createAdminDiscountCodesRequest('POST', true, {
-                code: ' webinar-2026-09-04 ',
-                percent: 25,
-                startsAt: '2026-09-04T00:00:00+02:00',
-                endsAt: '2026-09-04T23:59:59+02:00',
-                isEnabled: true,
-                isOnlineWorkshopFollowUp: false,
-            }),
-        );
+        const response = await POST(createAdminDiscountCodesRequest('POST', true, createDiscountCodeValues()));
 
         expect(response.status).toBe(201);
-        expect(from).toHaveBeenCalledWith('ai_supervize_mini_discount_codes');
+        expect(from).toHaveBeenCalledWith('discount_codes');
         expect(insert).toHaveBeenCalledWith({
             code: 'WEBINAR_2026_09_04',
             percent: 25,
             starts_at: '2026-09-04T00:00:00+02:00',
             ends_at: '2026-09-04T23:59:59+02:00',
             is_enabled: true,
-            is_online_workshop_follow_up: false,
+            place_ids: [AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID],
+            maximum_use_count: 10,
         });
+    });
+
+    it('stores a code valid everywhere and used any number of times as an empty list and no limit', async () => {
+        const single = vi.fn().mockResolvedValue({ data: DISCOUNT_CODE_ROW, error: null });
+        const select = vi.fn(() => ({ single }));
+        const insert = vi.fn(() => ({ select }));
+        const from = vi.fn(() => ({ insert }));
+        createSupabaseServiceRoleClientMock.mockReturnValue({ from });
+
+        await POST(
+            createAdminDiscountCodesRequest(
+                'POST',
+                true,
+                createDiscountCodeValues({ placeIds: [], maximumUseCount: null }),
+            ),
+        );
+
+        expect(insert).toHaveBeenCalledWith(expect.objectContaining({ place_ids: [], maximum_use_count: null }));
+    });
+
+    it('refuses a code which names a place the application does not offer', async () => {
+        const response = await POST(
+            createAdminDiscountCodesRequest('POST', true, createDiscountCodeValues({ placeIds: ['nowhere'] })),
+        );
+
+        expect(response.status).toBe(400);
+        expect(createSupabaseServiceRoleClientMock).not.toHaveBeenCalled();
     });
 
     it('reports a duplicate code as an actionable conflict', async () => {
@@ -136,16 +173,7 @@ describe('AI Supervize Mini discount-code admin collection', () => {
         const from = vi.fn(() => ({ insert }));
         createSupabaseServiceRoleClientMock.mockReturnValue({ from });
 
-        const response = await POST(
-            createAdminDiscountCodesRequest('POST', true, {
-                code: 'webinar-2026-09-04',
-                percent: 25,
-                startsAt: '2026-09-04T00:00:00+02:00',
-                endsAt: '2026-09-04T23:59:59+02:00',
-                isEnabled: true,
-                isOnlineWorkshopFollowUp: false,
-            }),
-        );
+        const response = await POST(createAdminDiscountCodesRequest('POST', true, createDiscountCodeValues()));
 
         expect(response.status).toBe(409);
         expect(await response.json()).toEqual({ error: 'Slevový kód již existuje.' });
