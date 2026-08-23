@@ -1,5 +1,4 @@
 import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
-import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { ADMIN_WORKSHOPS_PATH } from '@/lib/admin/adminConstants';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
@@ -26,7 +25,6 @@ export default async function AdminWorkshopsPage({ searchParams }: AdminWorkshop
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <AdminNavigation title="Živé workshopy" />
             <Suspense>
                 <WorkshopAdminDashboard initialWorkshopSlug={workshopSlug} />
             </Suspense>

@@ -1,6 +1,5 @@
 import { COMMUNITY_ADMIN_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
 import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
-import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { Suspense } from 'react';
 
@@ -14,7 +13,6 @@ export default async function AdminCommunityPage() {
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <AdminNavigation title="Komunita Promptbooku" />
             <Suspense>
                 <WorkshopAdminDashboard
                     initialWorkshopSlug={COMMUNITY_WORKSHOP_SLUG}

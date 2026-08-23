@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AdminNavigation } from '@/components/admin/AdminNavigation';
 
 export const metadata: Metadata = {
     title: 'Promptbook administration',
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: { readonly children: React.ReactNode }) {
-    return children;
+    return (
+        <>
+            <AdminNavigation />
+            {children}
+        </>
+    );
 }

@@ -1,4 +1,3 @@
-import { AdminNavigation } from '@/components/admin/AdminNavigation';
 import { ShortcodeLinkAdmin } from '@/components/shortener/ShortcodeLinkAdmin';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { ADMIN_SHORTENER_METADATA } from '@/lib/metadata/site-page-definitions';
@@ -11,7 +10,6 @@ export default async function AdminShortenerPage() {
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <AdminNavigation title="Zkracovač odkazů" />
             <ShortcodeLinkAdmin />
         </main>
     );

@@ -1,28 +1,77 @@
+'use client';
+
 import { AdminSignOutButton } from '@/components/admin/AdminSignOutButton';
-import { ADMIN_DASHBOARD_PATH } from '@/lib/admin/adminConstants';
-import { ArrowLeft, LayoutDashboard } from 'lucide-react';
+import { ADMIN_DASHBOARD_PATH, ADMIN_LOGIN_PATH } from '@/lib/admin/adminConstants';
+import { cn } from '@/lib/utils';
+import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ADMIN_NAVIGATION_ITEMS } from './adminNavigationConfig';
 
-type AdminNavigationProps = {
-    readonly title: string;
-};
+export function AdminNavigation() {
+    const pathname = usePathname();
 
-export function AdminNavigation({ title }: AdminNavigationProps) {
+    // The login page lives below the same Next.js layout, but it is not an authenticated admin page and must not
+    // expose navigation or a sign-out action before the administrator has signed in.
+    if (pathname === null || pathname === ADMIN_LOGIN_PATH) {
+        return null;
+    }
+
+    const currentPage = ADMIN_NAVIGATION_ITEMS.find((item) => item.path === pathname);
+
     return (
-        <header className="border-b border-slate-200 bg-white">
-            <div className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-4">
-                <Link
-                    href={ADMIN_DASHBOARD_PATH}
-                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                    aria-label="Admin dashboard"
-                >
-                    <ArrowLeft className="h-5 w-5" />
-                </Link>
-                <LayoutDashboard className="h-5 w-5 text-cyan-600" />
-                <h1 className="text-lg font-bold text-slate-950">{title}</h1>
-                <div className="ml-auto">
-                    <AdminSignOutButton />
+        <header className="border-b border-slate-200 bg-white shadow-sm">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+                <div className="flex min-h-16 items-center gap-3 py-3">
+                    <Link
+                        href={ADMIN_DASHBOARD_PATH}
+                        className="flex shrink-0 items-center gap-2 rounded-lg text-slate-950 outline-none transition hover:text-cyan-700 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2"
+                    >
+                        <ShieldCheck className="h-5 w-5 text-cyan-600" />
+                        <span className="hidden text-sm font-semibold uppercase tracking-[0.16em] sm:inline">
+                            Promptbook admin
+                        </span>
+                        <span className="sr-only"> – Admin dashboard</span>
+                    </Link>
+
+                    <span className="hidden h-6 w-px bg-slate-200 sm:block" aria-hidden="true" />
+                    <h1 className="truncate text-lg font-bold text-slate-950">
+                        {currentPage?.title ?? currentPage?.label ?? 'Administrace'}
+                    </h1>
+
+                    <div className="ml-auto shrink-0">
+                        <AdminSignOutButton />
+                    </div>
                 </div>
+
+                <nav aria-label="Navigace administrace" className="-mx-1 overflow-x-auto pb-3">
+                    <ul className="flex min-w-max items-center gap-1">
+                        {ADMIN_NAVIGATION_ITEMS.map((item) => {
+                            const isActive =
+                                pathname === item.path ||
+                                (item.path !== ADMIN_DASHBOARD_PATH && pathname.startsWith(`${item.path}/`));
+                            const Icon = item.icon;
+
+                            return (
+                                <li key={item.path}>
+                                    <Link
+                                        href={item.path}
+                                        aria-current={isActive ? 'page' : undefined}
+                                        className={cn(
+                                            'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2',
+                                            isActive
+                                                ? 'bg-cyan-50 text-cyan-800'
+                                                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950',
+                                        )}
+                                    >
+                                        <Icon className="h-4 w-4" aria-hidden="true" />
+                                        {item.label}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
             </div>
         </header>
     );
