@@ -1,0 +1,15 @@
+{
+    "cookies": [],
+    "origins": [
+        {
+            "origin": "http://localhost:4009",
+            "localStorage": [
+                { "name": "cookiesAccepted", "value": "true" },
+                {
+                    "name": "cookiePreferences",
+                    "value": "{\"necessary\":true,\"analytics\":false,\"marketing\":false}"
+                }
+            ]
+        }
+    ]
+}

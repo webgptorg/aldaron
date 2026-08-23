@@ -8,6 +8,7 @@
         "start": "next start",
         "lint": "next lint",
         "test": "vitest run",
+        "test-e2e": "playwright test",
         "test-types": "tsc",
         "migrate-database": "tsx scripts/migrate-database.ts",
         "backup-database": "tsx scripts/backup-database.ts",
@@ -86,6 +87,7 @@
     "devDependencies": {
         "@babel/eslint-parser": "^7.27.1",
         "@eslint/eslintrc": "^3",
+        "@playwright/test": "^1.62.1",
         "@testing-library/jest-dom": "^6.6.3",
         "@testing-library/react": "^16.3.0",
         "@total-typescript/ts-reset": "^0.6.1",
