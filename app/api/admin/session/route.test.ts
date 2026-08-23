@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { POST } from './route';
 import { POST as SIGN_OUT } from './sign-out/route';
 
-const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const ADMIN_TOKEN = 'correct-horse-battery-staple';
+const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = 'correct-horse-battery-staple';
 const ADMIN_SESSION_API_URL = 'https://promptbook.studio/api/admin/session';
 
 function createSignInRequest(
@@ -29,14 +29,14 @@ function readSessionCookieValue(response: NextResponse): string | undefined {
 
 describe('signing in to the administration', () => {
     beforeEach(() => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
     });
 
     afterEach(() => {
-        if (ORIGINAL_ADMIN_TOKEN === undefined) {
-            delete process.env.ADMIN_TOKEN;
+        if (ORIGINAL_ADMIN_PASSWORD === undefined) {
+            delete process.env.ADMIN_PASSWORD;
         } else {
-            process.env.ADMIN_TOKEN = ORIGINAL_ADMIN_TOKEN;
+            process.env.ADMIN_PASSWORD = ORIGINAL_ADMIN_PASSWORD;
         }
     });
 
@@ -44,7 +44,7 @@ describe('signing in to the administration', () => {
         const response = await POST(
             createSignInRequest({
                 username: ADMIN_USERNAME,
-                password: ADMIN_TOKEN,
+                password: ADMIN_PASSWORD,
                 redirectPath: '/admin/contacts',
             }),
         );
@@ -57,7 +57,7 @@ describe('signing in to the administration', () => {
     it('opens a session for a same-origin form which reaches Next.js through a proxy', async () => {
         const response = await POST(
             createSignInRequest(
-                { username: ADMIN_USERNAME, password: ADMIN_TOKEN, redirectPath: '/admin' },
+                { username: ADMIN_USERNAME, password: ADMIN_PASSWORD, redirectPath: '/admin' },
                 'http://localhost:4009/api/admin/session',
                 { origin: 'https://ptbk.io', 'sec-fetch-site': 'same-origin' },
             ),
@@ -70,10 +70,10 @@ describe('signing in to the administration', () => {
 
     it('never answers with the admin token itself', async () => {
         const response = await POST(
-            createSignInRequest({ username: ADMIN_USERNAME, password: ADMIN_TOKEN, redirectPath: '/admin' }),
+            createSignInRequest({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD, redirectPath: '/admin' }),
         );
 
-        expect(response.headers.get('set-cookie')).not.toContain(ADMIN_TOKEN);
+        expect(response.headers.get('set-cookie')).not.toContain(ADMIN_PASSWORD);
         expect(response.headers.get('set-cookie')).toContain('HttpOnly');
     });
 
@@ -91,7 +91,7 @@ describe('signing in to the administration', () => {
 
     it('opens no session for another name than the one administrator', async () => {
         const response = await POST(
-            createSignInRequest({ username: 'somebody-else', password: ADMIN_TOKEN, redirectPath: '/admin' }),
+            createSignInRequest({ username: 'somebody-else', password: ADMIN_PASSWORD, redirectPath: '/admin' }),
         );
 
         expect(readSessionCookieValue(response)).toBeUndefined();
@@ -101,7 +101,7 @@ describe('signing in to the administration', () => {
         const request = new NextRequest(ADMIN_SESSION_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', origin: 'https://example.com' },
-            body: new URLSearchParams({ username: ADMIN_USERNAME, password: ADMIN_TOKEN }).toString(),
+            body: new URLSearchParams({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD }).toString(),
         });
 
         expect((await POST(request)).status).toBe(403);

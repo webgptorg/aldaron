@@ -5,7 +5,7 @@ import { isSecretEqual } from '@/lib/admin/isSecretEqual';
  * The admin token of this server, which is the password of the one administrator
  */
 export function getConfiguredAdminTokenOrNull(): string | null {
-    return process.env.ADMIN_TOKEN || null;
+    return process.env.ADMIN_PASSWORD || null;
 }
 
 /**

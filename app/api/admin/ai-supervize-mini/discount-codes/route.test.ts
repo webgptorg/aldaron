@@ -12,8 +12,8 @@ vi.mock('@/lib/supabase', () => ({
 
 import { GET, POST } from './route';
 
-const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const ADMIN_TOKEN = 'discount-code-admin-token';
+const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = 'discount-code-admin-token';
 const DISCOUNT_CODE_ROW = {
     id: '6b6863db-3fa1-4da0-85b2-0e55a33d1af0',
     code: 'WEBINAR_2026_09_04',
@@ -45,16 +45,16 @@ function createAdminDiscountCodesRequest(
 }
 
 function restoreAdminToken(): void {
-    if (ORIGINAL_ADMIN_TOKEN === undefined) {
-        delete process.env.ADMIN_TOKEN;
+    if (ORIGINAL_ADMIN_PASSWORD === undefined) {
+        delete process.env.ADMIN_PASSWORD;
     } else {
-        process.env.ADMIN_TOKEN = ORIGINAL_ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ORIGINAL_ADMIN_PASSWORD;
     }
 }
 
 describe('AI Supervize Mini discount-code admin collection', () => {
     beforeEach(() => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         createSupabaseServiceRoleClientMock.mockReset();
     });
 

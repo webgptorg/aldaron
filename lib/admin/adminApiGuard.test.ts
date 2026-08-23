@@ -1,11 +1,11 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { ADMIN_SESSION_COOKIE_NAME } from '@/lib/admin/adminConstants';
 import { createAdminSessionCookieHeader } from '@/lib/admin/adminSessionTestUtilities';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const ADMIN_TOKEN = 'correct-horse-battery-staple';
+const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = 'correct-horse-battery-staple';
 const ADMIN_API_URL = 'https://promptbook.studio/api/admin/workshops';
 
 function createAdminApiRequest(headers: Readonly<Record<string, string>> = {}): NextRequest {
@@ -14,14 +14,14 @@ function createAdminApiRequest(headers: Readonly<Record<string, string>> = {}): 
 
 describe('the guard of the administration API', () => {
     beforeEach(() => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
     });
 
     afterEach(() => {
-        if (ORIGINAL_ADMIN_TOKEN === undefined) {
-            delete process.env.ADMIN_TOKEN;
+        if (ORIGINAL_ADMIN_PASSWORD === undefined) {
+            delete process.env.ADMIN_PASSWORD;
         } else {
-            process.env.ADMIN_TOKEN = ORIGINAL_ADMIN_TOKEN;
+            process.env.ADMIN_PASSWORD = ORIGINAL_ADMIN_PASSWORD;
         }
     });
 
@@ -42,7 +42,7 @@ describe('the guard of the administration API', () => {
     });
 
     it('no longer opens the administration by a token written into the address', () => {
-        const request = new NextRequest(`${ADMIN_API_URL}?token=${ADMIN_TOKEN}`);
+        const request = new NextRequest(`${ADMIN_API_URL}?token=${ADMIN_PASSWORD}`);
 
         expect(getUnauthorizedResponseOrNull(request)?.status).toBe(401);
     });

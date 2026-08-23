@@ -4,30 +4,30 @@ import { getAdminRedirectPath, isAdminSignInRefused } from '@/lib/admin/adminLog
 import { createAdminSessionValueOrNull, isAdminSessionValueValid } from '@/lib/admin/adminSession';
 import { afterEach, describe, expect, it } from 'vitest';
 
-const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const ADMIN_TOKEN = 'correct-horse-battery-staple';
+const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = 'correct-horse-battery-staple';
 const ADMIN_SESSION_MAX_AGE_MILLISECONDS = ADMIN_SESSION_MAX_AGE_SECONDS * 1000;
 
 afterEach(() => {
-    if (ORIGINAL_ADMIN_TOKEN === undefined) {
-        delete process.env.ADMIN_TOKEN;
+    if (ORIGINAL_ADMIN_PASSWORD === undefined) {
+        delete process.env.ADMIN_PASSWORD;
     } else {
-        process.env.ADMIN_TOKEN = ORIGINAL_ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ORIGINAL_ADMIN_PASSWORD;
     }
 });
 
 describe('the credentials of the administration', () => {
     it('accepts only the administrator named with the admin token of the server', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
 
-        expect(isAdminSignInAllowed(ADMIN_USERNAME, ADMIN_TOKEN)).toBe(true);
+        expect(isAdminSignInAllowed(ADMIN_USERNAME, ADMIN_PASSWORD)).toBe(true);
         expect(isAdminSignInAllowed(ADMIN_USERNAME, 'another-token')).toBe(false);
-        expect(isAdminSignInAllowed('somebody-else', ADMIN_TOKEN)).toBe(false);
+        expect(isAdminSignInAllowed('somebody-else', ADMIN_PASSWORD)).toBe(false);
         expect(isAdminSignInAllowed(null, null)).toBe(false);
     });
 
     it('stays closed when the server has no admin token configured', () => {
-        delete process.env.ADMIN_TOKEN;
+        delete process.env.ADMIN_PASSWORD;
 
         expect(isAdminTokenValid('any-value')).toBe(false);
         expect(isAdminSignInAllowed(ADMIN_USERNAME, 'any-value')).toBe(false);
@@ -37,19 +37,19 @@ describe('the credentials of the administration', () => {
 
 describe('the session of the administration', () => {
     it('keeps a signed in administrator signed in', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
 
         expect(isAdminSessionValueValid(createAdminSessionValueOrNull())).toBe(true);
     });
 
     it('never carries the admin token itself', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
 
-        expect(createAdminSessionValueOrNull()).not.toContain(ADMIN_TOKEN);
+        expect(createAdminSessionValueOrNull()).not.toContain(ADMIN_PASSWORD);
     });
 
     it('ends the session once it is older than the configured maximum age', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         const signedInAtMilliseconds = Date.now() - ADMIN_SESSION_MAX_AGE_MILLISECONDS - 1000;
         const sessionValue = createAdminSessionValueOrNull(signedInAtMilliseconds);
 
@@ -57,16 +57,16 @@ describe('the session of the administration', () => {
     });
 
     it('refuses a session which was not signed by the admin token of this server', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         const sessionValueOfAnotherServer = createAdminSessionValueOrNull();
 
-        process.env.ADMIN_TOKEN = 'another-admin-token';
+        process.env.ADMIN_PASSWORD = 'another-admin-token';
 
         expect(isAdminSessionValueValid(sessionValueOfAnotherServer)).toBe(false);
     });
 
     it('refuses a made up session, however it is written', () => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
 
         expect(isAdminSessionValueValid(null)).toBe(false);
         expect(isAdminSessionValueValid('')).toBe(false);

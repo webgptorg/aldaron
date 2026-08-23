@@ -32,8 +32,8 @@ place, the contact forms and `/admin/contacts` would not work, so the key goes f
 2. Find **`service_role`** (it is the secret one, marked as "This key has the ability to bypass Row Level Security").
    Click **Reveal** and copy it.
 
-   > ⚠️ This key bypasses every rule of the database. It must never appear in the frontend code, in the repository, or
-   > in any variable whose name starts with `NEXT_PUBLIC_`.
+    > ⚠️ This key bypasses every rule of the database. It must never appear in the frontend code, in the repository, or
+    > in any variable whose name starts with `NEXT_PUBLIC_`.
 
 3. Put it into the **hosting** of the site (Vercel → your project → **Settings** → **Environment Variables**), for
    Production, Preview and Development:
@@ -163,7 +163,7 @@ to be run against the Supabase project before the room can accept participants.
    expected audience. A room intended for more than 1,000 simultaneously connected participants needs limits of at
    least that size. Restricting the project to private channels is recommended; this room already subscribes as a
    private channel and authorizes reads through the migration policy.
-4. Sign in at `/admin/login` with the name `admin` and the `ADMIN_TOKEN` as the password, open `/admin`, choose **Živé
+4. Sign in at `/admin/login` with the name `admin` and the `ADMIN_PASSWORD` as the password, open `/admin`, choose **Živé
    workshopy**, add the YouTube stream URL, check the start time and publish the desired Markdown blocks with their
    unlock times. The video ID is validated and stored separately from the URL.
 5. Smoke-test in a private browser window with

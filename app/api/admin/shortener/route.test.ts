@@ -12,15 +12,17 @@ vi.mock('@/lib/supabase', () => ({
 
 import { POST } from './route';
 
-const ORIGINAL_ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const ADMIN_TOKEN = 'shortener-admin-token';
+const ORIGINAL_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = 'shortener-admin-token';
 
 type ShortcodeLinkDatabase = {
     readonly from: ReturnType<typeof vi.fn>;
     readonly insert: ReturnType<typeof vi.fn>;
 };
 
-function createShortcodeLinkDatabase(error: { readonly code?: string; readonly message: string } | null): ShortcodeLinkDatabase {
+function createShortcodeLinkDatabase(
+    error: { readonly code?: string; readonly message: string } | null,
+): ShortcodeLinkDatabase {
     const insert = vi.fn().mockResolvedValue({ error });
     const from = vi.fn(() => ({ insert }));
 
@@ -41,16 +43,16 @@ function createShortcodeLinkRequest(isAdminSignedIn: boolean, body: Readonly<Rec
 }
 
 function restoreAdminToken(): void {
-    if (ORIGINAL_ADMIN_TOKEN === undefined) {
-        delete process.env.ADMIN_TOKEN;
+    if (ORIGINAL_ADMIN_PASSWORD === undefined) {
+        delete process.env.ADMIN_PASSWORD;
     } else {
-        process.env.ADMIN_TOKEN = ORIGINAL_ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ORIGINAL_ADMIN_PASSWORD;
     }
 }
 
 describe('admin shortcode creation', () => {
     beforeEach(() => {
-        process.env.ADMIN_TOKEN = ADMIN_TOKEN;
+        process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
         createSupabaseServiceRoleClientMock.mockReset();
     });
 
