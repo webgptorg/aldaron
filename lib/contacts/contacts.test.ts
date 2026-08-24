@@ -44,6 +44,7 @@ function buildContact(contactValues: Partial<Contact>): Contact {
         phone: null,
         userNote: null,
         isContacted: null,
+        isWaitlisted: null,
         ourNote: null,
         userAgent: null,
         ipAddress: null,
@@ -638,7 +639,9 @@ describe('serializeContactsAsCsv', () => {
 
     it('starts with the byte order mark and with the header of every column', () => {
         expect(csv.charCodeAt(0)).toBe(0xfeff);
-        expect(csv.split('\r\n')[0]).toContain('"createdAt","fullname","email","phone","userNote","isContacted"');
+        expect(csv.split('\r\n')[0]).toContain(
+            '"createdAt","fullname","email","phone","userNote","isContacted","isWaitlisted"',
+        );
     });
 
     it('escapes the quotes and keeps the newlines inside of a quoted field', () => {

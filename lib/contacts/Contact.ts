@@ -11,6 +11,7 @@ export type Contact = {
     readonly phone: string | null;
     readonly userNote: string | null;
     readonly isContacted: boolean | null;
+    readonly isWaitlisted: boolean | null;
     readonly ourNote: string | null;
     readonly userAgent: string | null;
     readonly ipAddress: string | null;
@@ -30,7 +31,7 @@ export type ContactColumnKey = Exclude<keyof Contact, 'id'>;
 /**
  * Key of a contact field which holds a text rather than a yes or no answer
  */
-export type ContactTextColumnKey = Exclude<ContactColumnKey, 'isContacted'>;
+export type ContactTextColumnKey = Exclude<ContactColumnKey, 'isContacted' | 'isWaitlisted'>;
 
 /**
  * Longest text one field of a contact may carry

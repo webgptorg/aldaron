@@ -11,6 +11,7 @@ const CONTACT_RECORD: Contact = {
     phone: '+420 777 000 111',
     userNote: 'Chci materiály.',
     isContacted: false,
+    isWaitlisted: false,
     ourNote: 'Ozvat se po workshopu.',
     userAgent: 'Mozilla/5.0',
     ipAddress: '203.0.113.42',

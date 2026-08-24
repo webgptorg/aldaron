@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
     createAiSupervizeMiniStoredWorkshopRegistration,
     createAiSupervizeMiniWorkshopAvailability,
+    createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts,
     createAiSupervizeMiniWorkshopPrice,
     createAiSupervizeMiniWorkshopRegistrationContactNote,
 } from './workshopRegistration';
@@ -77,6 +78,21 @@ describe('AI Supervize Mini workshop availability', () => {
         ]);
 
         expect(workshopAvailabilities[0]).toMatchObject({ registeredParticipantCount: 12, remainingSeatCount: 0 });
+    });
+
+    it('does not let waitlisted registrations consume confirmed workshop seats', () => {
+        const workshopAvailabilities = createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts([
+            {
+                userNote: createRegistrationContactNote(ONSITE_WORKSHOP_DATE.id, 3),
+                isWaitlisted: false,
+            },
+            {
+                userNote: createRegistrationContactNote(ONSITE_WORKSHOP_DATE.id, 2),
+                isWaitlisted: true,
+            },
+        ]);
+
+        expect(workshopAvailabilities[0]).toMatchObject({ registeredParticipantCount: 3, remainingSeatCount: 7 });
     });
 
     it('calculates the 25 percent webinar price for both formats', () => {

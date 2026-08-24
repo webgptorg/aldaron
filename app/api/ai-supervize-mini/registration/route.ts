@@ -8,6 +8,7 @@ import {
     createAiSupervizeMiniWorkshopPrice,
     createAiSupervizeMiniWorkshopRegistrationContactNote,
     getAiSupervizeMiniWorkshopAvailabilityByDateId,
+    getAiSupervizeMiniWorkshopRegistrationState,
     type AiSupervizeMiniInvoiceType,
     type AiSupervizeMiniWorkshopRegistrationRequest,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
@@ -140,10 +141,16 @@ export async function POST(request: NextRequest) {
         workshopDate.id,
     );
 
-    if (
-        workshopAvailability === null ||
-        registrationRequest.participantCount > workshopAvailability.remainingSeatCount
-    ) {
+    const registrationState = getAiSupervizeMiniWorkshopRegistrationState(
+        workshopAvailability,
+        registrationRequest.participantCount,
+    );
+
+    if (registrationState === 'unavailable') {
+        return NextResponse.json({ error: AVAILABILITY_NOT_LOADED_ERROR_MESSAGE }, { status: 500 });
+    }
+
+    if (registrationState === 'does-not-fit') {
         return NextResponse.json(
             {
                 error: getFullWorkshopErrorMessage(workshopAvailability?.remainingSeatCount ?? 0),
@@ -152,6 +159,8 @@ export async function POST(request: NextRequest) {
             { status: 409 },
         );
     }
+
+    const isWaitlisted = registrationState === 'waitlisted';
 
     // A limited code is consumed in the same database statement which checks its remaining count,
     // so concurrent registrations cannot both receive its last use.
@@ -190,6 +199,7 @@ export async function POST(request: NextRequest) {
         fullname: registrationRequest.fullname,
         email: registrationRequest.email,
         userNote: contactNote,
+        isWaitlisted,
         placeName: AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME,
         appName: APP_NAME,
         userAgent: request.headers.get('user-agent'),
@@ -203,10 +213,12 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
+        isWaitlisted,
         workshopAvailabilities: createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
             workshopAvailabilities,
             workshopDate.id,
             registrationRequest.participantCount,
+            registrationState,
         ),
         workshopPrice: createAiSupervizeMiniWorkshopPrice(
             workshopDate,

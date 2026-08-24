@@ -2,12 +2,16 @@
  * @vitest-environment jsdom
  */
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const { submitAiSupervizeMiniWorkshopRegistrationMock } = vi.hoisted(() => ({
+    submitAiSupervizeMiniWorkshopRegistrationMock: vi.fn(),
+}));
 
 vi.mock('@/businesses/ai-supervize-mini/workshopRegistrationApi', () => ({
     AiSupervizeMiniWorkshopRegistrationError: class AiSupervizeMiniWorkshopRegistrationError extends Error {},
-    submitAiSupervizeMiniWorkshopRegistration: vi.fn(),
+    submitAiSupervizeMiniWorkshopRegistration: submitAiSupervizeMiniWorkshopRegistrationMock,
 }));
 
 vi.mock('@/lib/discounts/discountCodeApi', () => ({
@@ -19,6 +23,7 @@ import { AiSupervizeMiniRegistrationForm } from './AiSupervizeMiniRegistrationFo
 describe('AI Supervize Mini registration form', () => {
     afterEach(() => {
         cleanup();
+        submitAiSupervizeMiniWorkshopRegistrationMock.mockReset();
     });
 
     it('prefills the discount input from the code passed by the route', () => {
@@ -59,5 +64,49 @@ describe('AI Supervize Mini registration form', () => {
         );
 
         expect(screen.getByText('Aktivní sleva 25 %. Zbývající počet použití: 3.')).toBeTruthy();
+    });
+
+    it('warns about a full term and still submits the completed form to its waitlist', async () => {
+        submitAiSupervizeMiniWorkshopRegistrationMock.mockResolvedValue({
+            isWaitlisted: true,
+            workshopAvailabilities: [
+                { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
+                { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+            ],
+            workshopPrice: { basePriceCzk: 12000, discountAmountCzk: 0, finalPriceCzk: 12000 },
+        });
+        render(
+            <AiSupervizeMiniRegistrationForm
+                initialDiscountCode=""
+                initialActiveDiscountByPlaceId={{
+                    'ai-supervize-mini-onsite': null,
+                    'ai-supervize-mini-online': null,
+                }}
+                initialWorkshopAvailabilities={[
+                    { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
+                    { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+                ]}
+            />,
+        );
+
+        expect(screen.getByRole('alert').textContent).toContain('Tento termín je už plně obsazený.');
+
+        fireEvent.change(screen.getByLabelText('Jméno a příjmení'), { target: { value: 'Jana Nováková' } });
+        fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'jana@example.com' } });
+        fireEvent.change(screen.getByLabelText('Firma / organizace'), { target: { value: 'Firma s.r.o.' } });
+        fireEvent.change(screen.getByLabelText('Fakturační údaje'), {
+            target: { value: 'Firma s.r.o., IČO 12345678' },
+        });
+
+        const submitButton = screen.getByRole('button', { name: 'Přidat na čekací listinu' });
+        expect((submitButton as HTMLButtonElement).disabled).toBe(false);
+        fireEvent.click(submitButton);
+
+        await waitFor(() => {
+            expect(submitAiSupervizeMiniWorkshopRegistrationMock).toHaveBeenCalledWith(
+                expect.objectContaining({ participantCount: 1 }),
+            );
+        });
+        expect(screen.getByText('Jste na čekací listině')).toBeTruthy();
     });
 });

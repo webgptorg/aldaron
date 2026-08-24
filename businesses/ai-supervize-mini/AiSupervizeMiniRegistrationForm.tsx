@@ -14,8 +14,11 @@ import {
     formatCzechKoruna,
     getAiSupervizeMiniWorkshopAvailabilityByDateId,
     getInitialAiSupervizeMiniWorkshopDateId,
+    getAiSupervizeMiniWorkshopRegistrationState,
+    isAiSupervizeMiniWorkshopFull,
     type AiSupervizeMiniInvoiceType,
     type AiSupervizeMiniWorkshopAvailability,
+    type AiSupervizeMiniWorkshopRegistrationState,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { DiscountCodeField } from '@/components/discounts/DiscountCodeField';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
@@ -29,7 +32,7 @@ import { useDiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValida
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, Loader2, Users } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 type InterestReason = 'date-does-not-work' | 'price-too-high' | 'different-format' | 'other';
@@ -192,19 +195,14 @@ function clampParticipantCount(value: number, maximumParticipantCount: number): 
 }
 
 function getParticipantCountError(
-    isAvailabilityKnown: boolean,
+    registrationState: AiSupervizeMiniWorkshopRegistrationState,
     availableSeatCount: number,
-    participantCount: number,
 ): string | null {
-    if (!isAvailabilityKnown) {
+    if (registrationState === 'unavailable') {
         return 'Aktuální počet volných míst se nepodařilo ověřit.';
     }
 
-    if (availableSeatCount === 0) {
-        return 'Tento termín je momentálně bez volných míst.';
-    }
-
-    return participantCount < 1 || participantCount > availableSeatCount
+    return registrationState === 'does-not-fit'
         ? `Počet účastníků musí být mezi 1 a ${availableSeatCount}.`
         : null;
 }
@@ -233,6 +231,14 @@ export function AiSupervizeMiniRegistrationForm({
     const isAvailabilityKnown = selectedWorkshopAvailability !== null;
     const availableSeatCount = selectedWorkshopAvailability?.remainingSeatCount ?? 0;
     const [participantCount, setParticipantCount] = useState(1);
+    const registrationState = getAiSupervizeMiniWorkshopRegistrationState(
+        selectedWorkshopAvailability,
+        participantCount,
+    );
+    const isSelectedWorkshopFull = registrationState === 'waitlisted';
+    const maximumRegistrationParticipantCount = isSelectedWorkshopFull
+        ? selectedWorkshopDate.maximumParticipantCount
+        : availableSeatCount;
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [company, setCompany] = useState('');
@@ -248,7 +254,7 @@ export function AiSupervizeMiniRegistrationForm({
     const [note, setNote] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [submissionOutcome, setSubmissionOutcome] = useState<'confirmed' | 'waitlisted' | null>(null);
     const [showValidation, setShowValidation] = useState(false);
     const [isInterestDialogOpen, setIsInterestDialogOpen] = useState(false);
     const [interestForm, setInterestForm] = useState<ContactFieldsState>({
@@ -268,14 +274,14 @@ export function AiSupervizeMiniRegistrationForm({
     }, [initialWorkshopAvailabilities]);
 
     useEffect(() => {
-        setParticipantCount((count) => clampParticipantCount(count, availableSeatCount));
-    }, [availableSeatCount]);
+        setParticipantCount((count) => clampParticipantCount(count, maximumRegistrationParticipantCount));
+    }, [maximumRegistrationParticipantCount]);
 
     const price = useMemo(() => {
         return createAiSupervizeMiniWorkshopPrice(selectedWorkshopDate, participantCount, activeDiscount);
     }, [activeDiscount, participantCount, selectedWorkshopDate]);
 
-    const participantError = getParticipantCountError(isAvailabilityKnown, availableSeatCount, participantCount);
+    const participantError = getParticipantCountError(registrationState, availableSeatCount);
     const { fullnameError, emailError, companyError } = getContactFieldErrors({ fullname, email, company });
     const billingDetailsError = billingDetails.trim() ? null : 'Vyplňte fakturační údaje.';
     const canSubmit =
@@ -336,7 +342,7 @@ export function AiSupervizeMiniRegistrationForm({
                 discountCode: discountCodeValidation.discountCode,
             });
             setWorkshopAvailabilities(registrationResult.workshopAvailabilities);
-            setSuccess(true);
+            setSubmissionOutcome(registrationResult.isWaitlisted ? 'waitlisted' : 'confirmed');
         } catch (error) {
             if (error instanceof AiSupervizeMiniWorkshopRegistrationError && error.workshopAvailabilities !== null) {
                 setWorkshopAvailabilities(error.workshopAvailabilities);
@@ -400,15 +406,19 @@ export function AiSupervizeMiniRegistrationForm({
         }
     };
 
-    if (success) {
+    if (submissionOutcome !== null) {
         return (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white">
                     <CheckCircle2 className="h-8 w-8 text-emerald-600" />
                 </div>
-                <h3 className="mt-5 text-2xl font-bold text-slate-950">Přihláška je odeslaná</h3>
+                <h3 className="mt-5 text-2xl font-bold text-slate-950">
+                    {submissionOutcome === 'waitlisted' ? 'Jste na čekací listině' : 'Přihláška je odeslaná'}
+                </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                    Ozveme se vám s potvrzením termínu, fakturací a praktickými informacemi k workshopu.
+                    {submissionOutcome === 'waitlisted'
+                        ? 'Termín je nyní plný. Vaši přihlášku jsme zařadili na čekací listinu a ozveme se vám, jakmile se místo uvolní.'
+                        : 'Ozveme se vám s potvrzením termínu, fakturací a praktickými informacemi k workshopu.'}
                 </p>
             </div>
         );
@@ -470,6 +480,8 @@ export function AiSupervizeMiniRegistrationForm({
                                         <Users className="h-4 w-4 text-cyan-600" />
                                         {workshopAvailability === null
                                             ? 'Kapacitu ověřujeme'
+                                            : isAiSupervizeMiniWorkshopFull(workshopAvailability)
+                                            ? 'Termín je obsazený · čekací listina'
                                             : `Zbývá ${workshopAvailability.remainingSeatCount} míst z ${workshopDate.maximumParticipantCount}`}
                                     </div>
                                 </button>
@@ -477,6 +489,22 @@ export function AiSupervizeMiniRegistrationForm({
                         })}
                     </div>
                 </div>
+
+                {isSelectedWorkshopFull && (
+                    <div
+                        role="alert"
+                        className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"
+                    >
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+                        <div>
+                            <p className="font-semibold">Tento termín je už plně obsazený.</p>
+                            <p className="mt-1 leading-relaxed text-amber-900">
+                                Přihlášku stále můžete odeslat. Zařadíme vás na čekací listinu a ozveme se, jakmile se
+                                místo uvolní.
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -488,11 +516,11 @@ export function AiSupervizeMiniRegistrationForm({
                             name="participants"
                             type="number"
                             min={1}
-                            max={Math.max(1, availableSeatCount)}
+                            max={Math.max(1, maximumRegistrationParticipantCount)}
                             value={participantCount}
                             onChange={(event) =>
                                 setParticipantCount(
-                                    clampParticipantCount(Number(event.target.value), availableSeatCount),
+                                    clampParticipantCount(Number(event.target.value), maximumRegistrationParticipantCount),
                                 )
                             }
                             disabled={!isAvailabilityKnown}
@@ -513,7 +541,9 @@ export function AiSupervizeMiniRegistrationForm({
                             {showValidation && participantError
                                 ? participantError
                                 : isAvailabilityKnown
-                                ? `Maximum pro tento termín: ${availableSeatCount}`
+                                ? isSelectedWorkshopFull
+                                    ? `Na čekací listinu můžete přihlásit až ${selectedWorkshopDate.maximumParticipantCount} účastníků.`
+                                    : `Maximum pro tento termín: ${availableSeatCount}`
                                 : 'Kapacitu ověřujeme.'}
                         </p>
                     </div>
@@ -614,7 +644,7 @@ export function AiSupervizeMiniRegistrationForm({
                             Odesílám registraci
                         </>
                     ) : (
-                        'Rezervovat workshop'
+                        isSelectedWorkshopFull ? 'Přidat na čekací listinu' : 'Rezervovat workshop'
                     )}
                 </Button>
 

@@ -14,6 +14,31 @@ export type AiSupervizeMiniWorkshopAvailability = {
     readonly remainingSeatCount: number;
 };
 
+/**
+ * The capacity result for one submitted registration. A full workshop accepts
+ * the submission as a waitlist entry, while a group which does not fit into a
+ * partly filled workshop still needs a smaller participant count.
+ */
+export type AiSupervizeMiniWorkshopRegistrationState =
+    | 'unavailable'
+    | 'does-not-fit'
+    | 'confirmed'
+    | 'waitlisted';
+
+export type AiSupervizeMiniAcceptedWorkshopRegistrationState = Extract<
+    AiSupervizeMiniWorkshopRegistrationState,
+    'confirmed' | 'waitlisted'
+>;
+
+/**
+ * Fields read from a Contact row when calculating a workshop's confirmed
+ * capacity. Waitlisted registrations deliberately do not reserve a seat.
+ */
+export type AiSupervizeMiniWorkshopRegistrationContact = {
+    readonly userNote: string | null;
+    readonly isWaitlisted: boolean | null;
+};
+
 export type AiSupervizeMiniWorkshopPrice = {
     readonly basePriceCzk: number;
     readonly discountAmountCzk: number;
@@ -149,11 +174,55 @@ export function createAiSupervizeMiniWorkshopAvailability(
     });
 }
 
+/**
+ * Turn Contact rows into the confirmed capacity of each term. The contact
+ * flag is the single source of truth for whether a registration is waitlisted.
+ */
+export function createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts(
+    registrationContacts: readonly AiSupervizeMiniWorkshopRegistrationContact[],
+): readonly AiSupervizeMiniWorkshopAvailability[] {
+    return createAiSupervizeMiniWorkshopAvailability(
+        registrationContacts
+            .filter((registrationContact) => registrationContact.isWaitlisted !== true)
+            .map((registrationContact) => registrationContact.userNote),
+    );
+}
+
 export function getAiSupervizeMiniWorkshopAvailabilityByDateId(
     workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
     workshopDateId: string,
 ): AiSupervizeMiniWorkshopAvailability | null {
     return workshopAvailabilities.find((workshopAvailability) => workshopAvailability.workshopDateId === workshopDateId) ?? null;
+}
+
+/**
+ * Decide whether the current registration confirms seats, joins the waitlist,
+ * or needs the visitor to adjust their group size. Both the public form and
+ * the server use this rule so an outdated browser cannot change the outcome.
+ */
+export function getAiSupervizeMiniWorkshopRegistrationState(
+    workshopAvailability: AiSupervizeMiniWorkshopAvailability | null,
+    participantCount: number,
+): AiSupervizeMiniWorkshopRegistrationState {
+    if (workshopAvailability === null) {
+        return 'unavailable';
+    }
+
+    if (!Number.isSafeInteger(participantCount) || participantCount < 1) {
+        return 'does-not-fit';
+    }
+
+    if (workshopAvailability.remainingSeatCount === 0) {
+        return 'waitlisted';
+    }
+
+    return participantCount <= workshopAvailability.remainingSeatCount ? 'confirmed' : 'does-not-fit';
+}
+
+export function isAiSupervizeMiniWorkshopFull(
+    workshopAvailability: AiSupervizeMiniWorkshopAvailability | null,
+): boolean {
+    return workshopAvailability?.remainingSeatCount === 0;
 }
 
 /**
@@ -231,7 +300,12 @@ export function createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
     workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
     workshopDateId: string,
     participantCount: number,
+    registrationState: AiSupervizeMiniAcceptedWorkshopRegistrationState,
 ): readonly AiSupervizeMiniWorkshopAvailability[] {
+    if (registrationState === 'waitlisted') {
+        return workshopAvailabilities;
+    }
+
     return workshopAvailabilities.map((workshopAvailability) => {
         if (workshopAvailability.workshopDateId !== workshopDateId) {
             return workshopAvailability;

@@ -194,7 +194,7 @@ export function findAdminContactGroup(
 
 function getFirstFilledContactTextValue(
     contacts: readonly Contact[],
-    fieldName: Exclude<keyof Contact, 'id' | 'isContacted'>,
+    fieldName: Exclude<keyof Contact, 'id' | 'isContacted' | 'isWaitlisted'>,
 ): string | null {
     for (const contact of contacts) {
         const value = contact[fieldName];
@@ -206,10 +206,15 @@ function getFirstFilledContactTextValue(
     return null;
 }
 
-function getFirstKnownContactedState(contacts: readonly Contact[]): boolean | null {
+function getFirstKnownContactBooleanState(
+    contacts: readonly Contact[],
+    fieldName: 'isContacted' | 'isWaitlisted',
+): boolean | null {
     for (const contact of contacts) {
-        if (contact.isContacted !== null) {
-            return contact.isContacted;
+        const value = contact[fieldName];
+
+        if (value !== null) {
+            return value;
         }
     }
 
@@ -229,7 +234,8 @@ function createMergedContact(group: AdminContactGroup): Contact {
         email: getFirstFilledContactTextValue(group.contacts, 'email'),
         phone: getFirstFilledContactTextValue(group.contacts, 'phone'),
         userNote: getFirstFilledContactTextValue(group.contacts, 'userNote'),
-        isContacted: getFirstKnownContactedState(group.contacts),
+        isContacted: getFirstKnownContactBooleanState(group.contacts, 'isContacted'),
+        isWaitlisted: getFirstKnownContactBooleanState(group.contacts, 'isWaitlisted'),
         ourNote: getFirstFilledContactTextValue(group.contacts, 'ourNote'),
         userAgent: getFirstFilledContactTextValue(group.contacts, 'userAgent'),
         ipAddress: getFirstFilledContactTextValue(group.contacts, 'ipAddress'),
@@ -302,6 +308,7 @@ export function formatAdminContactRecords(contactGroup: AdminContactGroup | null
                 `Phone: ${contact.phone ?? ''}`,
                 `User note: ${contact.userNote ?? ''}`,
                 `Is contacted: ${contact.isContacted === true ? 'yes' : contact.isContacted === false ? 'no' : ''}`,
+                `Is waitlisted: ${contact.isWaitlisted === true ? 'yes' : contact.isWaitlisted === false ? 'no' : ''}`,
                 `Our note: ${contact.ourNote ?? ''}`,
                 `User agent: ${contact.userAgent ?? ''}`,
                 `IP address: ${contact.ipAddress ?? ''}`,

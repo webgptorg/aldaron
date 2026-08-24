@@ -133,6 +133,35 @@ describe('AI Supervize Mini registration endpoint', () => {
         expect(insertContactMock).not.toHaveBeenCalled();
     });
 
+    it('stores a full term as a waitlist registration instead of refusing it', async () => {
+        const fullWorkshopAvailabilities = [
+            { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
+            { workshopDateId: '2026-09-09', registeredParticipantCount: 4, remainingSeatCount: 46 },
+        ] as const;
+        loadWorkshopAvailabilityMock.mockResolvedValue({
+            workshopAvailabilities: fullWorkshopAvailabilities,
+            errorMessage: null,
+        });
+
+        const response = await POST(createRegistrationRequest());
+        const responseBody = (await response.json()) as {
+            isWaitlisted: boolean;
+            workshopAvailabilities: typeof fullWorkshopAvailabilities;
+        };
+
+        expect(response.status).toBe(200);
+        expect(insertContactMock).toHaveBeenCalledWith(
+            CONTACTS_TABLE,
+            expect.objectContaining({ isWaitlisted: true }),
+        );
+        expect(responseBody.isWaitlisted).toBe(true);
+        expect(responseBody.workshopAvailabilities).toContainEqual({
+            workshopDateId: '2026-09-04',
+            registeredParticipantCount: 10,
+            remainingSeatCount: 0,
+        });
+    });
+
     it('does not store a registration when its submitted discount cannot be verified', async () => {
         consumeDiscountCodeMock.mockResolvedValue({
             status: 'unusable',

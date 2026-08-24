@@ -1,13 +1,10 @@
 import { AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME } from '@/businesses/ai-supervize-mini/config';
 import {
-    createAiSupervizeMiniWorkshopAvailability,
+    createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts,
     type AiSupervizeMiniWorkshopAvailability,
+    type AiSupervizeMiniWorkshopRegistrationContact,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { getContactsTableOrNull, type ContactsTable } from '@/lib/contacts/contactsDatabase';
-
-type WorkshopRegistrationContact = {
-    readonly userNote: string | null;
-};
 
 export type AiSupervizeMiniWorkshopAvailabilityLoadResult = {
     readonly workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
@@ -22,17 +19,17 @@ export async function loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable(
     contactsTable: ContactsTable,
 ): Promise<AiSupervizeMiniWorkshopAvailabilityLoadResult> {
     const { data, error } = await contactsTable
-        .select('userNote')
+        .select('userNote, isWaitlisted')
         .eq('placeName', AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME);
 
     if (error !== null) {
         return { workshopAvailabilities: null, errorMessage: error.message };
     }
 
-    const contactNotes = ((data ?? []) as WorkshopRegistrationContact[]).map((contact) => contact.userNote);
-
     return {
-        workshopAvailabilities: createAiSupervizeMiniWorkshopAvailability(contactNotes),
+        workshopAvailabilities: createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts(
+            (data ?? []) as AiSupervizeMiniWorkshopRegistrationContact[],
+        ),
         errorMessage: null,
     };
 }

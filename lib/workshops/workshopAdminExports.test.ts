@@ -52,6 +52,7 @@ const PARTICIPANT_WITH_JOINED_CONTACT: WorkshopAdminParticipant = {
                 phone: '+420 777 000 111',
                 userNote: 'Chci materiály.',
                 isContacted: false,
+                isWaitlisted: false,
                 ourNote: 'Ozvat se po workshopu.',
                 userAgent: null,
                 ipAddress: null,

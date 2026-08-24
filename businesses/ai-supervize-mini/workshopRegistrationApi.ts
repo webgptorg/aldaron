@@ -7,6 +7,7 @@ import type {
 const AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_API_PATH = '/api/ai-supervize-mini/registration';
 
 type AiSupervizeMiniWorkshopRegistrationResponse = {
+    readonly isWaitlisted: boolean;
     readonly workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[];
     readonly workshopPrice: AiSupervizeMiniWorkshopPrice;
 };
@@ -52,7 +53,11 @@ export async function submitAiSupervizeMiniWorkshopRegistration(
         );
     }
 
-    if (responseBody.workshopAvailabilities === undefined || responseBody.workshopPrice === undefined) {
+    if (
+        typeof responseBody.isWaitlisted !== 'boolean' ||
+        responseBody.workshopAvailabilities === undefined ||
+        responseBody.workshopPrice === undefined
+    ) {
         throw new AiSupervizeMiniWorkshopRegistrationError('Odpověď registrace není úplná.', null);
     }
 

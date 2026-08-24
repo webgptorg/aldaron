@@ -24,6 +24,7 @@ function createContact(contactValues: Partial<Contact>): Contact {
         phone: null,
         userNote: null,
         isContacted: false,
+        isWaitlisted: false,
         ourNote: null,
         userAgent: null,
         ipAddress: null,
