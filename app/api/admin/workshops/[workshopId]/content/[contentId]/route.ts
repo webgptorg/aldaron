@@ -8,6 +8,7 @@ import {
     mapWorkshopContentRow,
 } from '@/lib/workshops/workshopDatabase';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
+import { ensureWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { workshopContentUpdateSchema } from '@/lib/workshops/workshopSchemas';
 import { createWorkshopContentUpdateDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
@@ -61,6 +62,16 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopContentI
     }
     if (data === null) {
         return NextResponse.json({ error: 'Content block not found' }, { status: 404 });
+    }
+
+    const materialShortLinkErrorMessage = await ensureWorkshopMaterialShortLinks(workshopResult.supabase, {
+        workshopSlug: workshopResult.workshopRow.slug,
+        workshopKind: workshopResult.workshopRow.room_kind,
+        contentBlockId: data.id,
+        bodyMarkdown: data.body_markdown,
+    });
+    if (materialShortLinkErrorMessage !== null) {
+        console.error('Failed to prepare short links for workshop material:', materialShortLinkErrorMessage);
     }
 
     await broadcastWorkshopEvent(workshopResult.supabase, workshopResult.workshopRow, { kind: 'state-changed' });

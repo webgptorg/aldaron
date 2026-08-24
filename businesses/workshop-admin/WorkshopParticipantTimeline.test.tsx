@@ -20,7 +20,6 @@ const PARTICIPANT_TIMELINE: WorkshopAdminParticipantTimeline = {
         isModerator: false,
         commentCount: 1,
         reactionCount: 0,
-        linkClickCount: 0,
         upvoteCount: 0,
     },
     events: [

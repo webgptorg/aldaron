@@ -23,6 +23,8 @@ const SHORTCODE_LINK_ROW = {
     url: ['https://example.com/other-offer'],
     note: null,
     landingPage: '# Offer',
+    isAdHoc: false,
+    sourceApp: 'admin-shortener',
 };
 
 const SHORTCODE_LINK = {
@@ -32,6 +34,8 @@ const SHORTCODE_LINK = {
     urls: ['https://example.com/other-offer'],
     note: null,
     landingPage: '# Offer',
+    isAdHoc: false,
+    sourceApp: 'admin-shortener',
 };
 
 type MutationResult = {

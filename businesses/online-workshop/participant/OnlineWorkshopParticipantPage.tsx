@@ -277,11 +277,9 @@ export function OnlineWorkshopParticipantPage({
 
                 <div className="min-w-0 lg:col-start-1 lg:row-start-2">
                     <WorkshopContent
-                        workshopSlug={workshopSlug}
                         contentBlocks={state.contentBlocks}
                         nextContentUnlockAt={state.nextContentUnlockAt}
                         newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
-                        onMaterialLinkClick={controller.recordMaterialLinkClick}
                         title={materialsTitle}
                     />
                 </div>

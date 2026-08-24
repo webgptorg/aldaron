@@ -22,6 +22,8 @@ const SHORTCODE_LINK_ROW = {
     url: ['https://example.com/offer'],
     note: 'Autumn campaign',
     landingPage: null,
+    isAdHoc: false,
+    sourceApp: 'admin-shortener',
 };
 
 const SHORTCODE_LINK = {
@@ -31,6 +33,8 @@ const SHORTCODE_LINK = {
     urls: ['https://example.com/offer'],
     note: 'Autumn campaign',
     landingPage: null,
+    isAdHoc: false,
+    sourceApp: 'admin-shortener',
 };
 
 function createShortcodeLinkInsertDatabase(result: {
@@ -140,6 +144,8 @@ describe('admin shortcode link collection', () => {
             landingPage: null,
             type: 'CUSTOM',
             ownerEmail: null,
+            isAdHoc: false,
+            sourceApp: 'admin-shortener',
         });
     });
 

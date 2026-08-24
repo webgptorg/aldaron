@@ -7,7 +7,7 @@ import {
 import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { WorkshopAdminParticipantTimeline, WorkshopParticipantTimelineEvent } from '@/lib/workshops/workshopTypes';
-import { Clock3, LogIn, MessageCircle, MousePointerClick, Radio, ThumbsUp } from 'lucide-react';
+import { Clock3, LogIn, MessageCircle, Radio, ThumbsUp } from 'lucide-react';
 import type { ComponentType } from 'react';
 
 type WorkshopParticipantTimelineProps = {
@@ -52,15 +52,6 @@ function getTimelineEventDisplay(event: WorkshopParticipantTimelineEvent): Timel
                         ? 'Hlas pro komentář'
                         : `Hlas pro komentář od ${event.commentAuthorName}`,
                 detail: event.commentBody,
-            };
-        case 'content-link-click':
-            return {
-                icon: MousePointerClick,
-                label:
-                    event.contentBlockTitle === null
-                        ? 'Kliknutí na materiál'
-                        : `Kliknutí na materiál „${event.contentBlockTitle}“`,
-                detail: null,
             };
     }
 }

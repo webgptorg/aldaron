@@ -181,20 +181,6 @@ export async function sendWorkshopReaction(
     return readResponseJson(response);
 }
 
-export async function recordWorkshopMaterialLinkClick(workshopSlug: string, contentId: string): Promise<void> {
-    const response = await fetch(
-        getWorkshopApiUrl(workshopSlug, `content/${encodeURIComponent(contentId)}/link-clicks`),
-        {
-            method: 'POST',
-            credentials: 'same-origin',
-            keepalive: true,
-        },
-    );
-    if (!response.ok) {
-        await readResponseJson(response);
-    }
-}
-
 export async function saveWorkshopFeedback(
     workshopSlug: string,
     values: WorkshopFeedbackValues,

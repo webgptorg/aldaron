@@ -2,6 +2,7 @@
 
 import { ShortcodeLinkUrlListInput } from '@/components/shortener/ShortcodeLinkUrlListInput';
 import { classNames } from '@/lib/classNames';
+import { generateShortcode } from '@/lib/shortener/generateShortcode';
 import { createPublicShortcodeLinkUrl, type ShortcodeLink } from '@/lib/shortener/shortcodeLink';
 import { createAdminShortcodeLink } from '@/lib/shortener/shortcodeLinkAdminApiClient';
 import { isAbsoluteUrl } from '@/lib/shortener/isAbsoluteUrl';
@@ -13,19 +14,7 @@ const PROMPTBOOK_QR_CODE = dynamic(() => import('@promptbook/components').then((
     ssr: false,
 });
 
-const SHORTCODE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-const SHORTCODE_LENGTH = 6;
 const SHORTCODE_PREVIEW_COUNT = 5;
-
-function generateShortcode(): string {
-    let shortcode = '';
-
-    for (let index = 0; index < SHORTCODE_LENGTH; index++) {
-        shortcode += SHORTCODE_CHARACTERS.charAt(Math.floor(Math.random() * SHORTCODE_CHARACTERS.length));
-    }
-
-    return shortcode;
-}
 
 function createShortcodePreviews(customPrefix: string): string[] {
     const prefix = customPrefix ? titleToName(customPrefix) + '-' : '';

@@ -8,6 +8,7 @@ import {
     mapWorkshopContentRow,
 } from '@/lib/workshops/workshopDatabase';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
+import { ensureWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { workshopContentCreateSchema } from '@/lib/workshops/workshopSchemas';
 import { createWorkshopContentDatabaseValues } from '@/lib/workshops/workshopValues';
 import { NextRequest, NextResponse } from 'next/server';
@@ -49,6 +50,18 @@ export async function POST(request: NextRequest, context: AdminWorkshopContentRo
         .single();
     if (error || data === null) {
         return NextResponse.json({ error: error?.message ?? 'Content was not returned' }, { status: 500 });
+    }
+
+    const materialShortLinkErrorMessage = await ensureWorkshopMaterialShortLinks(supabase, {
+        workshopSlug: workshopRow.slug,
+        workshopKind: workshopRow.room_kind,
+        contentBlockId: data.id,
+        bodyMarkdown: data.body_markdown,
+    });
+    if (materialShortLinkErrorMessage !== null) {
+        // The source Markdown was persisted safely. The participant-state load
+        // will retry preparation rather than exposing an untracked raw URL.
+        console.error('Failed to prepare short links for workshop material:', materialShortLinkErrorMessage);
     }
 
     await broadcastWorkshopEvent(supabase, workshopRow, { kind: 'state-changed' });

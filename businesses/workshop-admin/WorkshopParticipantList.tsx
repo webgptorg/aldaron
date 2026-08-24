@@ -31,7 +31,6 @@ import {
     Eye,
     Mail,
     MessageCircle,
-    MousePointerClick,
     Radio,
     RefreshCw,
     ShieldCheck,
@@ -282,7 +281,7 @@ export function WorkshopParticipantList({
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-slate-200">
-                        <Table className="min-w-[1380px]">
+                        <Table className="min-w-[1260px]">
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Účastník</TableHead>
@@ -291,7 +290,6 @@ export function WorkshopParticipantList({
                                     <TableHead>Aktivně</TableHead>
                                     <TableHead>Komentáře</TableHead>
                                     <TableHead>Reakce</TableHead>
-                                    <TableHead>Kliknutí</TableHead>
                                     <TableHead>Hlasy</TableHead>
                                     <TableHead>Moderace</TableHead>
                                     <TableHead>Akce</TableHead>
@@ -337,12 +335,6 @@ export function WorkshopParticipantList({
                                                 <span className="flex items-center gap-1.5 text-sm text-slate-700">
                                                     <Radio className="h-3.5 w-3.5 text-amber-500" />{' '}
                                                     {participant.reactionCount}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="align-top">
-                                                <span className="flex items-center gap-1.5 text-sm text-slate-700">
-                                                    <MousePointerClick className="h-3.5 w-3.5 text-slate-500" />
-                                                    {participant.linkClickCount}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="align-top">

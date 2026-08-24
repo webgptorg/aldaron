@@ -6,7 +6,6 @@ export const WORKSHOP_ADMIN_PARTICIPANT_SORT_BY_VALUES = [
     'activeDurationSeconds',
     'commentCount',
     'reactionCount',
-    'linkClickCount',
     'upvoteCount',
 ] as const;
 

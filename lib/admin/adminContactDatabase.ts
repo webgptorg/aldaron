@@ -59,7 +59,6 @@ type AdminContactWorkshopParticipantActivityTotalsRow = {
     readonly participant_id: string;
     readonly comment_count: number | string;
     readonly reaction_count: number | string;
-    readonly link_click_count: number | string;
     readonly upvote_count: number | string;
 };
 
@@ -124,7 +123,6 @@ function mapAdminWorkshopParticipation(
         activeDurationSeconds: participantRow.active_duration_seconds,
         commentCount: getNonNegativeWholeNumber(activityTotals?.comment_count),
         reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
-        linkClickCount: getNonNegativeWholeNumber(activityTotals?.link_click_count),
         upvoteCount: getNonNegativeWholeNumber(activityTotals?.upvote_count),
         isInteractionBanned: participantRow.is_interaction_banned,
         isTrusted: participantRow.is_trusted,

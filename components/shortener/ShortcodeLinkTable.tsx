@@ -2,7 +2,12 @@
 
 import { CopyTextButton } from '@/components/shortener/CopyTextButton';
 import { Button } from '@/components/ui/button';
-import { createPublicShortcodeLinkUrl, type ShortcodeLink } from '@/lib/shortener/shortcodeLink';
+import {
+    createPublicShortcodeLinkUrl,
+    getShortcodeLinkCreationLabel,
+    getShortcodeLinkSourceAppLabel,
+    type ShortcodeLink,
+} from '@/lib/shortener/shortcodeLink';
 import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 
 const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'medium', timeStyle: 'short' });
@@ -38,6 +43,8 @@ export function ShortcodeLinkTable({
                         <th className="px-6 py-3 font-semibold">Destinations</th>
                         <th className="px-6 py-3 font-semibold">Note</th>
                         <th className="px-6 py-3 font-semibold">Landing page</th>
+                        <th className="px-6 py-3 font-semibold">Creation</th>
+                        <th className="px-6 py-3 font-semibold">Application</th>
                         <th className="px-6 py-3 font-semibold">Created</th>
                         <th className="px-6 py-3 text-right font-semibold">Actions</th>
                     </tr>
@@ -96,6 +103,12 @@ export function ShortcodeLinkTable({
                                             Landing page
                                         </span>
                                     )}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-slate-600">
+                                    {getShortcodeLinkCreationLabel(shortcodeLink.isAdHoc)}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-slate-600">
+                                    {getShortcodeLinkSourceAppLabel(shortcodeLink.sourceApp)}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4 text-slate-600">
                                     {formatShortcodeLinkDateTime(shortcodeLink.createdAt)}

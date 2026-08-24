@@ -28,6 +28,8 @@ const CREATED_SHORTCODE_LINK: ShortcodeLink = {
     note: null,
     landingPage: null,
     createdAt: '2026-08-23T10:00:00+02:00',
+    isAdHoc: false,
+    sourceApp: 'admin-shortener',
 };
 
 const createAdminShortcodeLinkMock = vi.mocked(createAdminShortcodeLink);

@@ -21,7 +21,6 @@ export type AdminWorkshopParticipation = {
     readonly activeDurationSeconds: number;
     readonly commentCount: number;
     readonly reactionCount: number;
-    readonly linkClickCount: number;
     readonly upvoteCount: number;
     readonly isInteractionBanned: boolean;
     readonly isTrusted: boolean;
@@ -342,7 +341,6 @@ export function formatAdminWorkshopParticipations(contactGroup: AdminContactGrou
                 `Active duration seconds: ${workshopParticipation.activeDurationSeconds}`,
                 `Comments: ${workshopParticipation.commentCount}`,
                 `Reactions: ${workshopParticipation.reactionCount}`,
-                `Material link clicks: ${workshopParticipation.linkClickCount}`,
                 `Comment upvotes: ${workshopParticipation.upvoteCount}`,
                 `Trusted: ${workshopParticipation.isTrusted ? 'yes' : 'no'}`,
                 `Interaction banned: ${workshopParticipation.isInteractionBanned ? 'yes' : 'no'}`,

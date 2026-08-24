@@ -111,7 +111,6 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         moderateComment: async () => true,
         moderateAuthor: async () => true,
         react: async () => undefined,
-        recordMaterialLinkClick: () => undefined,
         saveFeedback: async () => true,
     };
 

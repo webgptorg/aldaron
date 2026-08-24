@@ -4,7 +4,7 @@ export const WORKSHOP_PARTICIPANT_TABLE_NAME = 'workshop_participants';
 export const WORKSHOP_COMMENT_TABLE_NAME = 'workshop_comments';
 export const WORKSHOP_UPVOTE_TABLE_NAME = 'workshop_comment_upvotes';
 export const WORKSHOP_REACTION_TABLE_NAME = 'workshop_reactions';
-export const WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME = 'workshop_content_link_clicks';
+export const WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME = 'workshop_content_shortcode_links';
 export const WORKSHOP_FEEDBACK_TABLE_NAME = 'workshop_feedback';
 
 export const WORKSHOP_SESSION_COOKIE_PREFIX = 'workshop_session_';

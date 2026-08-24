@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~.52 an hour; Testing 6 minutes
 
 [✨🐪] The link tracking and tracking of the clicks in materials of the online workshop and community should be done through the shortener.
 
@@ -26,3 +26,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

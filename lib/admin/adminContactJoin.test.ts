@@ -49,7 +49,6 @@ const WORKSHOP_PARTICIPATION: AdminWorkshopParticipation = {
     activeDurationSeconds: 4_800,
     commentCount: 2,
     reactionCount: 5,
-    linkClickCount: 1,
     upvoteCount: 3,
     isInteractionBanned: false,
     isTrusted: true,
@@ -117,7 +116,6 @@ describe('admin contact joining', () => {
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Participant email: JANA+workshop@EXAMPLE.COM');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Comments: 2');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Reactions: 5');
-        expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Material link clicks: 1');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Comment upvotes: 3');
         expect(formatAdminWorkshopFeedbacks(contactGroup)).toContain('Rating: 5/5');
     });
@@ -155,6 +153,6 @@ describe('admin contact joining', () => {
         expect(csv).toContain('Praktické ukázky.');
         expect(vcard).toContain('TEL;TYPE=CELL:+420 777 000 111');
         expect(vcard).toContain('Workshop participations');
-        expect(vcard).toContain('Workshop feedback');
+        expect(vcard).toContain('Rating: 5/5');
     });
 });

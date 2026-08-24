@@ -17,7 +17,6 @@ const WORKSHOP_PARTICIPANT_SORT_LABELS: Readonly<Record<WorkshopAdminParticipant
     activeDurationSeconds: 'Aktivní čas',
     commentCount: 'Komentáře',
     reactionCount: 'Reakce',
-    linkClickCount: 'Kliknutí na materiály',
     upvoteCount: 'Hlasy',
 };
 

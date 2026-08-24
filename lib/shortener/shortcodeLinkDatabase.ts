@@ -1,4 +1,10 @@
-import type { ShortcodeLink, ShortcodeLinkValues } from '@/lib/shortener/shortcodeLink';
+import {
+    DEFAULT_SHORTCODE_LINK_SOURCE_APP,
+    isShortcodeLinkSourceApp,
+    type ShortcodeLink,
+    type ShortcodeLinkSourceApp,
+    type ShortcodeLinkValues,
+} from '@/lib/shortener/shortcodeLink';
 import { CUSTOM_SHORTCODE_LINK_TYPE, SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows } from '@/lib/supabase/loadAllSupabaseRows';
@@ -16,9 +22,10 @@ const POSTGRES_FOREIGN_KEY_VIOLATION_CODE = '23503';
 
 /**
  * The columns of one short link which the administration reads, deliberately without the `type`, the `ownerEmail` and
- * the `appId` of the old Promptbook Studio system, none of which the administration decides.
+ * the `appId` of the old Promptbook Studio system, none of which the administration decides. The new provenance
+ * columns remain here because the administration uses them to filter the links it owns and the links other apps made.
  */
-export const SHORTCODE_LINK_SELECTED_COLUMNS = 'id, createdAt, shortcode, url, note, landingPage';
+export const SHORTCODE_LINK_SELECTED_COLUMNS = 'id, createdAt, shortcode, url, note, landingPage, isAdHoc, sourceApp';
 
 export type ShortcodeLinkRow = {
     readonly id: number;
@@ -27,6 +34,8 @@ export type ShortcodeLinkRow = {
     readonly url: readonly string[] | null;
     readonly note: string | null;
     readonly landingPage: string | null;
+    readonly isAdHoc: boolean | null;
+    readonly sourceApp: string | null;
 };
 
 export type ShortcodeLinkLoadResult = {
@@ -79,6 +88,10 @@ export function mapShortcodeLinkRow(shortcodeLinkRow: ShortcodeLinkRow): Shortco
         urls: shortcodeLinkRow.url ?? [],
         note: shortcodeLinkRow.note,
         landingPage: shortcodeLinkRow.landingPage,
+        isAdHoc: shortcodeLinkRow.isAdHoc === true,
+        sourceApp: isShortcodeLinkSourceApp(shortcodeLinkRow.sourceApp)
+            ? shortcodeLinkRow.sourceApp
+            : DEFAULT_SHORTCODE_LINK_SOURCE_APP,
     };
 }
 
@@ -105,6 +118,31 @@ export function createShortcodeLinkInsertValues(values: ShortcodeLinkValues): Re
         ...createShortcodeLinkDatabaseValues(values),
         type: CUSTOM_SHORTCODE_LINK_TYPE,
         ownerEmail: null,
+        isAdHoc: false,
+        sourceApp: DEFAULT_SHORTCODE_LINK_SOURCE_APP,
+    };
+}
+
+/**
+ * Values held by the application which creates one short link on behalf of a
+ * workflow. They intentionally sit next to the manual creator's values above,
+ * so both paths keep the old shortener columns in exactly the same shape.
+ */
+export function createAdHocShortcodeLinkInsertValues(values: {
+    readonly shortcode: string;
+    readonly urls: readonly string[];
+    readonly note: string | null;
+    readonly sourceApp: ShortcodeLinkSourceApp;
+}): Readonly<Record<string, unknown>> {
+    return {
+        shortcode: values.shortcode,
+        url: values.urls,
+        note: values.note,
+        landingPage: null,
+        type: CUSTOM_SHORTCODE_LINK_TYPE,
+        ownerEmail: null,
+        isAdHoc: true,
+        sourceApp: values.sourceApp,
     };
 }
 

@@ -83,7 +83,6 @@ describe('loadAdminJoinedContacts', () => {
                 participant_id: 'participant-1',
                 comment_count: '2',
                 reaction_count: '5',
-                link_click_count: '1',
                 upvote_count: '3',
             },
         ]);
@@ -128,7 +127,6 @@ describe('loadAdminJoinedContacts', () => {
             activeDurationSeconds: 4_800,
             commentCount: 2,
             reactionCount: 5,
-            linkClickCount: 1,
             upvoteCount: 3,
         });
         expect(rpc).toHaveBeenCalledWith('get_workshop_participant_activity_totals_for_workshops', {

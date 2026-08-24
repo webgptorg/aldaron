@@ -59,6 +59,11 @@ const WRAP_UP_AND_FEEDBACK_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-1600-online-workshop-wrap-up-and-feedback.sql',
 );
 const WRAP_UP_AND_FEEDBACK_MIGRATION_SQL = readFileSync(WRAP_UP_AND_FEEDBACK_MIGRATION_PATH, 'utf8');
+const SHORTCODE_MATERIAL_LINK_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-1700-online-workshop-shortcode-material-links.sql',
+);
+const SHORTCODE_MATERIAL_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_MATERIAL_LINK_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -360,5 +365,25 @@ describe('workshop database migration', () => {
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_feedback FROM PUBLIC, anon, authenticated',
         );
+    });
+
+    it('routes material analytics through persisted ad hoc short links rather than a participant browser event', () => {
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS "isAdHoc" boolean NOT NULL DEFAULT false');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS "sourceApp" text NOT NULL DEFAULT \'admin-shortener\'',
+        );
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
+            'CREATE TABLE IF NOT EXISTS public.workshop_content_shortcode_links',
+        );
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('REFERENCES public."ShortcodeLink"(id) ON DELETE CASCADE');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('public."ShortcodeLinkClick" AS shortcode_link_click');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('shortcode_link_click."navigatedAt" IS NOT NULL');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('"navigatedAt" AT TIME ZONE \'UTC\'');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
+            'DROP FUNCTION IF EXISTS public.get_workshop_admin_timeline(uuid, integer)',
+        );
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('CREATE FUNCTION public.get_workshop_admin_timeline');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('material_shortcode_link.shortcode_link_id');
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).not.toContain('link_click_count bigint,\n    total_count bigint');
     });
 });

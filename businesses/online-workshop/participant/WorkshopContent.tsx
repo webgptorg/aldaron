@@ -1,25 +1,20 @@
 'use client';
 
 import { MarkdownContent } from '@/components/markdown-content';
-import { createWorkshopMaterialTrackingUrl } from '@/lib/workshops/workshopMaterialLinks';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Clock3, ExternalLink, Sparkles } from 'lucide-react';
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type WorkshopContentProps = {
-    readonly workshopSlug: string;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly nextContentUnlockAt: string | null;
     readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
-    readonly onMaterialLinkClick: (contentId: string) => void;
     readonly title?: string;
 };
 
 type WorkshopMaterialBodyProps = {
-    readonly workshopSlug: string;
     readonly contentBlock: WorkshopContentBlock;
-    readonly onMaterialLinkClick: (contentId: string) => void;
 };
 
 type WorkshopMaterialLink = {
@@ -35,14 +30,10 @@ const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', {
 const MATERIAL_CALL_TO_ACTION_LABEL = 'Otevřít materiál';
 const MATERIAL_LINK_SELECTOR = 'a[href]:not([data-workshop-material-call-to-action])';
 
-function configureMaterialLink(linkElement: HTMLAnchorElement, workshopSlug: string, contentBlockId: string): void {
-    const originalHref = linkElement.dataset.workshopOriginalHref ?? linkElement.getAttribute('href');
-    if (!originalHref) {
-        return;
-    }
-
-    linkElement.dataset.workshopOriginalHref = originalHref;
-    linkElement.href = createWorkshopMaterialTrackingUrl(originalHref, workshopSlug, contentBlockId);
+function configureMaterialLink(linkElement: HTMLAnchorElement): void {
+    // The server has already replaced the href with a persisted short link.
+    // This only preserves the existing new-tab behavior; it never observes or
+    // reports a click, so copied and forwarded links use the same tracking path.
     linkElement.target = '_blank';
     linkElement.rel = 'noopener noreferrer';
 }
@@ -69,7 +60,7 @@ function areWorkshopMaterialLinksEqual(
     );
 }
 
-function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick }: WorkshopMaterialBodyProps) {
+function WorkshopMaterialBody({ contentBlock }: WorkshopMaterialBodyProps) {
     const materialBodyReference = useRef<HTMLDivElement>(null);
     const [singleMaterialLink, setSingleMaterialLink] = useState<WorkshopMaterialLink | null>(null);
 
@@ -82,7 +73,7 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
         const configureMaterialLinks = () => {
             const linkElements = Array.from(materialBodyElement.querySelectorAll<HTMLAnchorElement>(MATERIAL_LINK_SELECTOR));
             linkElements.forEach((linkElement) => {
-                configureMaterialLink(linkElement, workshopSlug, contentBlock.id);
+                configureMaterialLink(linkElement);
             });
 
             const nextSingleMaterialLink = getSingleWorkshopMaterialLink(linkElements);
@@ -97,21 +88,10 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
         const observer = new MutationObserver(configureMaterialLinks);
         observer.observe(materialBodyElement, { childList: true, subtree: true });
         return () => observer.disconnect();
-    }, [contentBlock.bodyMarkdown, contentBlock.id, workshopSlug]);
-
-    const handleMaterialLinkClick = (event: MouseEvent<HTMLDivElement>) => {
-        if (!(event.target instanceof Element)) {
-            return;
-        }
-
-        const linkElement = event.target.closest(MATERIAL_LINK_SELECTOR);
-        if (linkElement !== null && materialBodyReference.current?.contains(linkElement)) {
-            onMaterialLinkClick(contentBlock.id);
-        }
-    };
+    }, [contentBlock.bodyMarkdown]);
 
     return (
-        <div ref={materialBodyReference} onClickCapture={handleMaterialLinkClick} className="min-w-0 break-words">
+        <div ref={materialBodyReference} className="min-w-0 break-words">
             <MarkdownContent
                 content={contentBlock.bodyMarkdown}
                 theme="DARK"
@@ -123,7 +103,6 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
                         href={singleMaterialLink.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={() => onMaterialLinkClick(contentBlock.id)}
                         data-workshop-material-call-to-action
                         aria-label={`${MATERIAL_CALL_TO_ACTION_LABEL}: ${singleMaterialLink.label}`}
                         className="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/10 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
@@ -138,11 +117,9 @@ function WorkshopMaterialBody({ workshopSlug, contentBlock, onMaterialLinkClick 
 }
 
 export function WorkshopContent({
-    workshopSlug,
     contentBlocks,
     nextContentUnlockAt,
     newlyUnlockedContentBlockIds,
-    onMaterialLinkClick,
     title = 'Materiály z workshopu',
 }: WorkshopContentProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
@@ -187,9 +164,7 @@ export function WorkshopContent({
                                 <h3 className="mb-5 text-xl font-bold text-white">{contentBlock.title}</h3>
                             )}
                             <WorkshopMaterialBody
-                                workshopSlug={workshopSlug}
                                 contentBlock={contentBlock}
-                                onMaterialLinkClick={onMaterialLinkClick}
                             />
                         </motion.article>
                     );

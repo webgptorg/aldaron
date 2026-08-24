@@ -85,7 +85,6 @@ export type WorkshopAdminParticipant = WorkshopParticipant &
     readonly activeDurationSeconds: number;
     readonly commentCount: number;
     readonly reactionCount: number;
-    readonly linkClickCount: number;
     readonly upvoteCount: number;
 };
 
@@ -101,7 +100,7 @@ export type WorkshopAdminParticipantPage = {
  * One timestamped activity attributable to a participant.
  *
  * Note: These are assembled from the existing audited source records. They deliberately do not introduce a second
- * event store which could disagree with comments, reactions, votes, or material clicks.
+ * event store which could disagree with comments, reactions, or votes.
  */
 export type WorkshopParticipantTimelineEvent =
     | {
@@ -129,13 +128,6 @@ export type WorkshopParticipantTimelineEvent =
           readonly commentId: string;
           readonly commentAuthorName: string | null;
           readonly commentBody: string | null;
-      }
-    | {
-          readonly kind: 'content-link-click';
-          readonly id: string;
-          readonly occurredAt: string;
-          readonly contentBlockId: string;
-          readonly contentBlockTitle: string | null;
       };
 
 export type WorkshopAdminParticipantTimeline = {

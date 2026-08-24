@@ -10,7 +10,6 @@ import {
     fetchWorkshopState,
     moderateWorkshopAuthor,
     moderateWorkshopComment,
-    recordWorkshopMaterialLinkClick,
     reportWorkshopPresence,
     saveWorkshopFeedback,
     sendWorkshopReaction,
@@ -88,7 +87,6 @@ type WorkshopParticipantController = {
      */
     readonly moderateAuthor: (participantId: string, values: WorkshopAuthorModerationValues) => Promise<boolean>;
     readonly react: (emoji: string) => Promise<void>;
-    readonly recordMaterialLinkClick: (contentId: string) => void;
 
     /**
      * Saves one post-workshop feedback step without waiting for the rest of the form.
@@ -743,15 +741,6 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         [applyReactionCount, showReaction, workshopSlug],
     );
 
-    const recordMaterialLinkClick = useCallback(
-        (contentId: string) => {
-            void recordWorkshopMaterialLinkClick(workshopSlug, contentId)
-                .then(() => trackGoogleAnalyticsEvent('workshop_material_link_clicked', { workshop_slug: workshopSlug }))
-                .catch((error) => console.warn('Failed to record workshop material link click:', error));
-        },
-        [workshopSlug],
-    );
-
     const saveFeedback = useCallback(
         async (values: WorkshopFeedbackValues): Promise<boolean> => {
             setErrorMessage(null);
@@ -795,7 +784,6 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         moderateComment,
         moderateAuthor,
         react,
-        recordMaterialLinkClick,
         saveFeedback,
     };
 }

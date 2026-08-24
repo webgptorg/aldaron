@@ -72,6 +72,13 @@ describe('workshop participant state cache', () => {
         expect(loadWorkshopParticipantStateCache(otherWorkshopSlug)?.state.workshop.slug).toBe(otherWorkshopSlug);
     });
 
+    it('does not revive a pre-shortener material snapshot from the older cache version', () => {
+        const legacyCacheKey = `promptbook.workshop-participant-state.v1.${encodeURIComponent(WORKSHOP_SLUG)}`;
+        localStorage.setItem(legacyCacheKey, JSON.stringify({ savedAt: Date.now(), state: createState() }));
+
+        expect(loadWorkshopParticipantStateCache(WORKSHOP_SLUG)).toBeNull();
+    });
+
     it('drops a cache entry when its participant session can no longer be valid', () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date('2026-08-24T17:00:00.000Z'));

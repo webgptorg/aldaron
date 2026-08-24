@@ -4,7 +4,7 @@
 
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/markdown-content', () => ({
@@ -23,11 +23,10 @@ vi.mock('@/components/markdown-content', () => ({
     },
 }));
 
-const WORKSHOP_SLUG = 'online-workshop-2026-08-20';
 const CONTENT_BLOCK: WorkshopContentBlock = {
     id: 'material-1',
     title: '',
-    bodyMarkdown: '[Zjistit více](https://example.com/material)',
+    bodyMarkdown: '[Zjistit více](https://ptbk.io/material-abc123)',
     unlockAt: '2026-08-20T19:00:00.000Z',
     sortOrder: 0,
     isPublished: true,
@@ -37,43 +36,27 @@ const CONTENT_BLOCK: WorkshopContentBlock = {
     linkClickCount: 0,
 };
 
-function renderWorkshopContent(
-    contentBlocks: readonly WorkshopContentBlock[],
-    onMaterialLinkClick = vi.fn(),
-) {
-    return {
-        onMaterialLinkClick,
-        ...render(
-            <WorkshopContent
-                workshopSlug={WORKSHOP_SLUG}
-                contentBlocks={contentBlocks}
-                nextContentUnlockAt={null}
-                newlyUnlockedContentBlockIds={new Set()}
-                onMaterialLinkClick={onMaterialLinkClick}
-            />,
-        ),
-    };
+function renderWorkshopContent(contentBlocks: readonly WorkshopContentBlock[]) {
+    return render(
+        <WorkshopContent
+            contentBlocks={contentBlocks}
+            nextContentUnlockAt={null}
+            newlyUnlockedContentBlockIds={new Set()}
+        />,
+    );
 }
 
 afterEach(cleanup);
 
 describe('workshop materials', () => {
-    it('offers a prominent tracked call to action when a material has one link', async () => {
-        const onMaterialLinkClick = vi.fn();
-        renderWorkshopContent([CONTENT_BLOCK], onMaterialLinkClick);
+    it('offers a prominent short-link call to action when a material has one link', async () => {
+        renderWorkshopContent([CONTENT_BLOCK]);
 
         const callToAction = await screen.findByRole('link', { name: /Otevřít materiál: Zjistit více/ });
-        const callToActionUrl = new URL(callToAction.getAttribute('href') ?? '');
 
-        expect(callToActionUrl.searchParams.get('utm_source')).toBe('promptbook');
-        expect(callToActionUrl.searchParams.get('utm_medium')).toBe('workshop');
-        expect(callToActionUrl.searchParams.get('utm_campaign')).toBe(WORKSHOP_SLUG);
-        expect(callToActionUrl.searchParams.get('utm_content')).toBe(CONTENT_BLOCK.id);
+        expect(callToAction.getAttribute('href')).toBe('https://ptbk.io/material-abc123');
         expect(callToAction.getAttribute('target')).toBe('_blank');
         expect(callToAction.getAttribute('rel')).toBe('noopener noreferrer');
-
-        fireEvent.click(callToAction);
-        expect(onMaterialLinkClick).toHaveBeenCalledWith(CONTENT_BLOCK.id);
     });
 
     it('keeps multiple material links as light underlined links without a call to action', async () => {

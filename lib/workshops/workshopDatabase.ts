@@ -7,7 +7,6 @@ import {
     MAXIMAL_VISIBLE_COMMENT_COUNT,
     MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
-    WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME,
     WORKSHOP_CONTENT_TABLE_NAME,
     WORKSHOP_FEEDBACK_TABLE_NAME,
     WORKSHOP_PARTICIPANT_TABLE_NAME,
@@ -18,6 +17,7 @@ import {
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
+import { materializeWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import type {
@@ -208,7 +208,6 @@ type WorkshopParticipantActivityTotalsRow = {
     readonly participant_id: string;
     readonly comment_count: number | string;
     readonly reaction_count: number | string;
-    readonly link_click_count: number | string;
     readonly upvote_count: number | string;
 };
 
@@ -228,15 +227,7 @@ type WorkshopCommentUpvoteRow = {
     readonly created_at: string;
 };
 
-type WorkshopContentLinkClickRow = {
-    readonly id: string;
-    readonly content_block_id: string;
-    readonly created_at: string;
-};
-
 type WorkshopParticipantTimelineCommentRow = Pick<WorkshopCommentRow, 'id' | 'body' | 'status' | 'created_at'>;
-
-type WorkshopParticipantTimelineContentRow = Pick<WorkshopContentRow, 'id' | 'title'>;
 
 type WorkshopParticipantTimelineCommentReferenceRow = Pick<WorkshopCommentRow, 'id' | 'author_name' | 'body'>;
 
@@ -501,7 +492,6 @@ export function mapWorkshopAdminParticipantRow(
         activeDurationSeconds: getNonNegativeWholeNumber(row.active_duration_seconds),
         commentCount: getNonNegativeWholeNumber(activityTotals?.comment_count),
         reactionCount: getNonNegativeWholeNumber(activityTotals?.reaction_count),
-        linkClickCount: getNonNegativeWholeNumber(activityTotals?.link_click_count),
         upvoteCount: getNonNegativeWholeNumber(activityTotals?.upvote_count),
     };
 }
@@ -929,14 +919,16 @@ export async function loadWorkshopAdminParticipantPage(
  * Loads the exact actions of one participant from their existing source records.
  *
  * Note: Registration and last activity are participant fields rather than action rows, so they are added as two
- * explicit timeline events next to comments, reactions, votes, and material clicks.
+ * explicit timeline events next to comments, reactions, and votes. Shortened
+ * material links are shareable, so they correctly belong to the material-wide
+ * aggregate instead of this participant-attributed timeline.
  */
 export async function loadWorkshopAdminParticipantTimeline(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
     participantId: string,
 ): Promise<{ readonly timeline: WorkshopAdminParticipantTimeline | null; readonly errorMessage: string | null }> {
-    const [participantResult, commentsResult, reactionsResult, upvotesResult, linkClicksResult] = await Promise.all([
+    const [participantResult, commentsResult, reactionsResult, upvotesResult] = await Promise.all([
         supabase
             .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
             .select(WORKSHOP_ADMIN_PARTICIPANT_COLUMNS)
@@ -973,16 +965,6 @@ export async function loadWorkshopAdminParticipantTimeline(
                 .order('id', { ascending: true })
                 .range(fromIndex, toIndex),
         ),
-        loadAllSupabaseRows<WorkshopContentLinkClickRow>((fromIndex, toIndex) =>
-            supabase
-                .from(WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME)
-                .select('id, content_block_id, created_at')
-                .eq('workshop_id', workshopRow.id)
-                .eq('participant_id', participantId)
-                .order('created_at', { ascending: true })
-                .order('id', { ascending: true })
-                .range(fromIndex, toIndex),
-        ),
     ]);
 
     const firstErrorMessage =
@@ -990,7 +972,6 @@ export async function loadWorkshopAdminParticipantTimeline(
         commentsResult.errorMessage ??
         reactionsResult.errorMessage ??
         upvotesResult.errorMessage ??
-        linkClicksResult.errorMessage ??
         null;
     if (firstErrorMessage !== null) {
         return { timeline: null, errorMessage: firstErrorMessage };
@@ -1004,36 +985,23 @@ export async function loadWorkshopAdminParticipantTimeline(
     const commentRows = commentsResult.rows ?? [];
     const reactionRows = reactionsResult.rows ?? [];
     const upvoteRows = upvotesResult.rows ?? [];
-    const linkClickRows = linkClicksResult.rows ?? [];
     const upvotedCommentIds = Array.from(new Set(upvoteRows.map((upvote) => upvote.comment_id)));
-    const clickedContentBlockIds = Array.from(new Set(linkClickRows.map((linkClick) => linkClick.content_block_id)));
 
-    const [upvotedCommentsResult, clickedContentBlocksResult] = await Promise.all([
-        loadWorkshopRowsByIds<WorkshopParticipantTimelineCommentReferenceRow>(upvotedCommentIds, (pageCommentIds) =>
+    const upvotedCommentsResult = await loadWorkshopRowsByIds<WorkshopParticipantTimelineCommentReferenceRow>(
+        upvotedCommentIds,
+        (pageCommentIds) =>
             supabase
                 .from(WORKSHOP_COMMENT_TABLE_NAME)
                 .select('id, author_name, body')
                 .eq('workshop_id', workshopRow.id)
                 .in('id', pageCommentIds),
-        ),
-        loadWorkshopRowsByIds<WorkshopParticipantTimelineContentRow>(clickedContentBlockIds, (pageContentBlockIds) =>
-            supabase
-                .from(WORKSHOP_CONTENT_TABLE_NAME)
-                .select('id, title')
-                .eq('workshop_id', workshopRow.id)
-                .in('id', pageContentBlockIds),
-        ),
-    ]);
-    const contextErrorMessage = upvotedCommentsResult.errorMessage ?? clickedContentBlocksResult.errorMessage;
-    if (contextErrorMessage !== null) {
-        return { timeline: null, errorMessage: contextErrorMessage };
+    );
+    if (upvotedCommentsResult.errorMessage !== null) {
+        return { timeline: null, errorMessage: upvotedCommentsResult.errorMessage };
     }
 
     const upvotedCommentById = new Map<string, WorkshopParticipantTimelineCommentReferenceRow>(
         (upvotedCommentsResult.rows ?? []).map((comment) => [comment.id, comment] as const),
-    );
-    const clickedContentBlockById = new Map<string, WorkshopParticipantTimelineContentRow>(
-        (clickedContentBlocksResult.rows ?? []).map((contentBlock) => [contentBlock.id, contentBlock] as const),
     );
     const events: WorkshopParticipantTimelineEvent[] = [
         { kind: 'joined' as const, id: `joined-${participant.id}`, occurredAt: participant.connected_at },
@@ -1062,13 +1030,6 @@ export async function loadWorkshopAdminParticipantTimeline(
                 commentBody: comment?.body ?? null,
             };
         }),
-        ...linkClickRows.map((linkClick): WorkshopParticipantTimelineEvent => ({
-            kind: 'content-link-click',
-            id: linkClick.id,
-            occurredAt: linkClick.created_at,
-            contentBlockId: linkClick.content_block_id,
-            contentBlockTitle: clickedContentBlockById.get(linkClick.content_block_id)?.title ?? null,
-        })),
     ].sort(
         (firstEvent, secondEvent) =>
             firstEvent.occurredAt.localeCompare(secondEvent.occurredAt) || firstEvent.id.localeCompare(secondEvent.id),
@@ -1080,7 +1041,6 @@ export async function loadWorkshopAdminParticipantTimeline(
                 participant_id: participant.id,
                 comment_count: commentRows.length,
                 reaction_count: reactionRows.length,
-                link_click_count: linkClickRows.length,
                 upvote_count: upvoteRows.length,
             }),
             events,
@@ -1631,6 +1591,38 @@ export async function loadWorkshopPublicState(
         return { state: null, errorMessage };
     }
 
+    const rawContentBlocks = [
+        ...((contentResult.data ?? []) as WorkshopContentRow[]),
+        ...(futureFollowUpContentResult.data === null ? [] : [futureFollowUpContentResult.data as WorkshopContentRow]),
+    ]
+        .sort(
+            (firstContentBlock, secondContentBlock) =>
+                firstContentBlock.sort_order - secondContentBlock.sort_order ||
+                Date.parse(firstContentBlock.unlock_at) - Date.parse(secondContentBlock.unlock_at),
+        )
+        .map(mapWorkshopContentRow);
+    const materializedContentResults = await Promise.all(
+        rawContentBlocks.map(async (contentBlock) => ({
+            contentBlock,
+            ...(await materializeWorkshopMaterialShortLinks(supabase, {
+                workshopSlug: workshopRow.slug,
+                workshopKind: workshopRow.room_kind,
+                contentBlockId: contentBlock.id,
+                bodyMarkdown: contentBlock.bodyMarkdown,
+            })),
+        })),
+    );
+    const materializationErrorMessage = materializedContentResults.find(
+        (materializedContentResult) => materializedContentResult.errorMessage !== null,
+    )?.errorMessage;
+    if (materializationErrorMessage !== null && materializationErrorMessage !== undefined) {
+        return { state: null, errorMessage: materializationErrorMessage };
+    }
+    const materializedContentBlocks = materializedContentResults.map((materializedContentResult) => ({
+        ...materializedContentResult.contentBlock,
+        bodyMarkdown: materializedContentResult.bodyMarkdown ?? materializedContentResult.contentBlock.bodyMarkdown,
+    }));
+
     const commentRows = withPinnedWorkshopCommentRow(
         [
             ...((commentsResult.data ?? []) as WorkshopCommentRow[]),
@@ -1668,20 +1660,7 @@ export async function loadWorkshopPublicState(
             workshop: mapWorkshopRow(workshopRow),
             participant,
             watchingParticipantCount,
-            contentBlocks: [
-                ...((contentResult.data ?? []) as WorkshopContentRow[]),
-                ...(
-                    futureFollowUpContentResult.data === null
-                        ? []
-                        : [futureFollowUpContentResult.data as WorkshopContentRow]
-                ),
-            ]
-                .sort(
-                    (firstContentBlock, secondContentBlock) =>
-                        firstContentBlock.sort_order - secondContentBlock.sort_order ||
-                        Date.parse(firstContentBlock.unlock_at) - Date.parse(secondContentBlock.unlock_at),
-                )
-                .map(mapWorkshopContentRow),
+            contentBlocks: materializedContentBlocks,
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
             feedback:
                 feedbackResult.data === null

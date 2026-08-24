@@ -36,7 +36,6 @@ const PARTICIPANT: WorkshopAdminParticipant = {
     activeDurationSeconds: 4_800,
     commentCount: 2,
     reactionCount: 5,
-    linkClickCount: 1,
     upvoteCount: 3,
 };
 
@@ -77,7 +76,6 @@ const PARTICIPANT_WITH_JOINED_CONTACT: WorkshopAdminParticipant = {
                 activeDurationSeconds: PARTICIPANT.activeDurationSeconds,
                 commentCount: PARTICIPANT.commentCount,
                 reactionCount: PARTICIPANT.reactionCount,
-                linkClickCount: PARTICIPANT.linkClickCount,
                 upvoteCount: PARTICIPANT.upvoteCount,
                 isInteractionBanned: PARTICIPANT.isInteractionBanned,
                 isTrusted: PARTICIPANT.isTrusted,
@@ -106,7 +104,7 @@ describe('workshop admin exports', () => {
         expect(csv.charCodeAt(0)).toBe(0xfeff);
         expect(csv).toContain('"Jméno","E-mail","Registrace","Naposledy aktivní"');
         expect(csv).toContain('"Jana Nováková","jana@example.com"');
-        expect(csv).toContain('"4800","2","5","1","3","ano","ano","ne"');
+        expect(csv).toContain('"4800","2","5","3","ano","ano","ne"');
     });
 
     it('writes a useful contact card for each filtered participant', () => {

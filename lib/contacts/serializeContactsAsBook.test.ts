@@ -34,7 +34,6 @@ const WORKSHOP_PARTICIPATION: AdminWorkshopParticipation = {
     activeDurationSeconds: 4_800,
     commentCount: 2,
     reactionCount: 5,
-    linkClickCount: 1,
     upvoteCount: 3,
     isInteractionBanned: false,
     isTrusted: true,
@@ -65,7 +64,6 @@ describe('serializeAdminJoinedContactsAsBook', () => {
         expect(book).toContain('Active duration seconds: 4800');
         expect(book).toContain('Comments: 2');
         expect(book).toContain('Reactions: 5');
-        expect(book).toContain('Material link clicks: 1');
         expect(book).toContain('Comment upvotes: 3');
     });
 });
