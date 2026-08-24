@@ -32,6 +32,11 @@ export type WorkshopKindCapabilities = {
     readonly isPollsOffered: boolean;
 
     /**
+     * Whether members may publish a project or creation into a lasting gallery of this room.
+     */
+    readonly isProjectSharingOffered: boolean;
+
+    /**
      * Whether a room updates itself while it is open, which its broadcast, its reactions, and its watching count need
      */
     readonly isRealtime: boolean;
@@ -52,6 +57,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isScheduled: true,
         isStageOffered: true,
         isPollsOffered: false,
+        isProjectSharingOffered: false,
         isRealtime: true,
     },
     community: {
@@ -60,6 +66,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isScheduled: false,
         isStageOffered: false,
         isPollsOffered: true,
+        isProjectSharingOffered: true,
         isRealtime: false,
     },
 };

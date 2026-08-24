@@ -5,6 +5,7 @@ import type {
     WorkshopFeedback,
     WorkshopParticipant,
     WorkshopPoll,
+    WorkshopProject,
     WorkshopPublicState,
     WorkshopReaction,
 } from '@/lib/workshops/workshopTypes';
@@ -17,6 +18,16 @@ import type {
 export type WorkshopCommentValues = {
     readonly body: string;
     readonly parentCommentId: string | null;
+};
+
+/**
+ * The small, link-first shape a member sends to the project gallery. The server remains the authority for URL
+ * normalization and the moderation status.
+ */
+export type WorkshopProjectValues = {
+    readonly title: string;
+    readonly description: string;
+    readonly url: string | null;
 };
 
 /**
@@ -124,6 +135,19 @@ export async function submitWorkshopComment(
     return readResponseJson(response);
 }
 
+export async function submitWorkshopProject(
+    workshopSlug: string,
+    values: WorkshopProjectValues,
+): Promise<{ readonly project: WorkshopProject }> {
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, 'projects'), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+    });
+    return readResponseJson(response);
+}
+
 export async function upvoteWorkshopComment(
     workshopSlug: string,
     commentId: string,
@@ -144,15 +168,12 @@ export async function voteOnWorkshopPoll(
     pollId: string,
     optionId: string,
 ): Promise<{ readonly poll: WorkshopPoll }> {
-    const response = await fetch(
-        getWorkshopApiUrl(workshopSlug, `polls/${encodeURIComponent(pollId)}/votes`),
-        {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ optionId }),
-        },
-    );
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, `polls/${encodeURIComponent(pollId)}/votes`), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ optionId }),
+    });
     return readResponseJson(response);
 }
 

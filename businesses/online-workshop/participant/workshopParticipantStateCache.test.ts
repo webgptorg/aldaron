@@ -47,6 +47,7 @@ function createState(workshopSlug = WORKSHOP_SLUG): WorkshopPublicState {
         recentReactions: [],
         reactionCounts: [],
         polls: [],
+        projects: [],
     };
 }
 
@@ -74,8 +75,17 @@ describe('workshop participant state cache', () => {
     });
 
     it('does not revive a snapshot from an older cache version', () => {
-        const legacyCacheKey = `promptbook.workshop-participant-state.v2.${encodeURIComponent(WORKSHOP_SLUG)}`;
+        const legacyCacheKey = `promptbook.workshop-participant-state.v3.${encodeURIComponent(WORKSHOP_SLUG)}`;
         localStorage.setItem(legacyCacheKey, JSON.stringify({ savedAt: Date.now(), state: createState() }));
+
+        expect(loadWorkshopParticipantStateCache(WORKSHOP_SLUG)).toBeNull();
+    });
+
+    it('drops a current-version cache record which does not contain the project gallery shape', () => {
+        const incompleteState = { ...createState() } as Record<string, unknown>;
+        delete incompleteState.projects;
+        const cacheKey = `promptbook.workshop-participant-state.v4.${encodeURIComponent(WORKSHOP_SLUG)}`;
+        localStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), state: incompleteState }));
 
         expect(loadWorkshopParticipantStateCache(WORKSHOP_SLUG)).toBeNull();
     });

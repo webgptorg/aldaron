@@ -9,6 +9,7 @@ import {
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
 import { WorkshopPolls } from '@/businesses/online-workshop/participant/WorkshopPolls';
+import { WorkshopProjects } from '@/businesses/online-workshop/participant/WorkshopProjects';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
@@ -90,7 +91,8 @@ export function OnlineWorkshopParticipantPage({
         }
 
         const sanitizedUrl = new URL(window.location.href);
-        const isWorkshopSelectionChanged = sanitizedUrl.searchParams.get(WORKSHOP_SEARCH_PARAMETER_NAME) !== workshopSlug;
+        const isWorkshopSelectionChanged =
+            sanitizedUrl.searchParams.get(WORKSHOP_SEARCH_PARAMETER_NAME) !== workshopSlug;
         const isUrlChanged =
             (isWorkshopSelectionInUrl && isWorkshopSelectionChanged) ||
             (!isWorkshopSelectionInUrl && sanitizedUrl.searchParams.has(WORKSHOP_SEARCH_PARAMETER_NAME)) ||
@@ -245,6 +247,13 @@ export function OnlineWorkshopParticipantPage({
                             polls={state.polls}
                             isInteractionBanned={state.participant.isInteractionBanned}
                             onVote={controller.voteOnPoll}
+                        />
+                    )}
+                    {roomCapabilities.isProjectSharingOffered && isPanelOffered('projects') && (
+                        <WorkshopProjects
+                            projects={state.projects}
+                            isInteractionBanned={state.participant.isInteractionBanned}
+                            onSubmit={controller.submitProject}
                         />
                     )}
                     {workshopNavigation !== undefined && (

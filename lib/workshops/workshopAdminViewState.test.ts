@@ -27,6 +27,13 @@ describe('workshopAdminViewState', () => {
         expect(serializeViewState(viewState)).toBe('workshop=srpnovy-workshop&tab=comments');
     });
 
+    it('keeps a shareable link to the community project moderation queue', () => {
+        const viewState = parseWorkshopAdminViewState(new URLSearchParams('workshop=komunita&tab=projects'));
+
+        expect(viewState.section).toBe('projects');
+        expect(serializeViewState(viewState)).toBe('workshop=komunita&tab=projects');
+    });
+
     it('opens the overview when the link names a section which is not there', () => {
         expect(parseWorkshopAdminViewState(new URLSearchParams('tab=nonsense')).section).toBe('overview');
     });

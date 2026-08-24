@@ -8,6 +8,9 @@ import {
     MAXIMAL_WORKSHOP_POLL_OPTION_COUNT,
     MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
+    MAXIMAL_WORKSHOP_PROJECT_DESCRIPTION_LENGTH,
+    MAXIMAL_WORKSHOP_PROJECT_TITLE_LENGTH,
+    MAXIMAL_WORKSHOP_PROJECT_URL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
     MINIMAL_WORKSHOP_POLL_OPTION_COUNT,
@@ -32,6 +35,28 @@ const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHO
 const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
 const workshopPollQuestionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH);
 const workshopPollOptionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH);
+const workshopProjectUrlSchema = z
+    .union([z.string().trim().max(MAXIMAL_WORKSHOP_PROJECT_URL_LENGTH), z.null()])
+    .transform((value, context) => {
+        if (value === null || value === '') {
+            return null;
+        }
+
+        try {
+            const projectUrl = new URL(value);
+            if (projectUrl.protocol !== 'http:' && projectUrl.protocol !== 'https:') {
+                context.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'A project URL must use HTTP or HTTPS',
+                });
+                return z.NEVER;
+            }
+            return projectUrl.href;
+        } catch {
+            context.addIssue({ code: z.ZodIssueCode.custom, message: 'A valid project URL is required' });
+            return z.NEVER;
+        }
+    });
 const workshopFeedbackTextSchema = z
     .string()
     .trim()
@@ -113,6 +138,24 @@ export const workshopPollVoteSchema = z.object({
  */
 export const workshopPollCloseSchema = z.object({
     isClosed: z.literal(true),
+});
+
+/**
+ * A project can be useful before it has a public destination, so the link is deliberately optional. When it is
+ * supplied, the server normalizes it and refuses executable or non-web URL schemes before a browser ever renders it.
+ */
+export const workshopProjectCreateSchema = z.object({
+    title: z.string().trim().min(1).max(MAXIMAL_WORKSHOP_PROJECT_TITLE_LENGTH),
+    description: z.string().trim().max(MAXIMAL_WORKSHOP_PROJECT_DESCRIPTION_LENGTH).default(''),
+    url: workshopProjectUrlSchema.default(null),
+});
+
+/**
+ * Project text is immutable after it reaches moderation: a changed link or description needs a fresh submission,
+ * rather than silently replacing material which somebody already approved.
+ */
+export const workshopProjectModerationSchema = z.object({
+    status: z.enum(['approved', 'rejected']),
 });
 
 /**

@@ -34,6 +34,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
             },
         ],
         polls: [],
+        projects: [],
         comments: [],
         pinnedComment: null,
         participants: [],

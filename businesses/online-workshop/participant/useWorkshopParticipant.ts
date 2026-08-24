@@ -14,6 +14,7 @@ import {
     saveWorkshopFeedback,
     sendWorkshopReaction,
     submitWorkshopComment,
+    submitWorkshopProject,
     upvoteWorkshopComment,
     voteOnWorkshopPoll,
     WorkshopApiError,
@@ -21,6 +22,7 @@ import {
     type WorkshopCommentModerationValues,
     type WorkshopCommentValues,
     type WorkshopFeedbackValues,
+    type WorkshopProjectValues,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import {
     clearWorkshopParticipantStateCache,
@@ -34,10 +36,7 @@ import {
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     WORKSHOP_REALTIME_EVENT_NAME,
 } from '@/lib/workshops/workshopConstants';
-import {
-    getContentUnlockRefreshDelay,
-    isWorkshopRealtimeEvent,
-} from '@/lib/workshops/workshopClientState';
+import { getContentUnlockRefreshDelay, isWorkshopRealtimeEvent } from '@/lib/workshops/workshopClientState';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import type { WorkshopCommentSort, WorkshopContentBlock, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
@@ -82,6 +81,11 @@ type WorkshopParticipantController = {
      * Chooses an option of a community poll, or changes this participant's earlier choice.
      */
     readonly voteOnPoll: (pollId: string, optionId: string) => Promise<boolean>;
+
+    /**
+     * Shares one project or creation with the community gallery.
+     */
+    readonly submitProject: (values: WorkshopProjectValues) => Promise<boolean>;
 
     /**
      * Moderates one message of the chat, which only a moderator of the room is offered
@@ -193,8 +197,9 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 return;
             }
 
-            setNewlyUnlockedContentBlockIds((currentContentBlockIds) =>
-                new Set([...Array.from(currentContentBlockIds), ...newlyUnlockedContentIds]),
+            setNewlyUnlockedContentBlockIds(
+                (currentContentBlockIds) =>
+                    new Set([...Array.from(currentContentBlockIds), ...newlyUnlockedContentIds]),
             );
             trackGoogleAnalyticsEvent('workshop_material_unlocked', {
                 workshop_slug: workshopSlug,
@@ -203,7 +208,9 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             window.setTimeout(() => {
                 setNewlyUnlockedContentBlockIds((currentContentBlockIds) => {
                     const remainingContentBlockIds = new Set(currentContentBlockIds);
-                    newlyUnlockedContentIds.forEach((contentBlockId) => remainingContentBlockIds.delete(contentBlockId));
+                    newlyUnlockedContentIds.forEach((contentBlockId) =>
+                        remainingContentBlockIds.delete(contentBlockId),
+                    );
                     return remainingContentBlockIds;
                 });
             }, NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS);
@@ -242,77 +249,80 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         setConsecutiveRefreshFailureCount(nextFailureCount);
     }, []);
 
-    const refresh = useCallback(async (isForcedRefresh = true): Promise<boolean> => {
-        if (!isForcedRefresh && Date.now() < nextAutomaticRefreshAtRef.current) {
-            return false;
-        }
-
-        const refreshSequence = ++refreshSequenceRef.current;
-        setIsRefreshing(true);
-
-        try {
-            const loadedState = await fetchWorkshopState(workshopSlug, commentSort);
-            if (refreshSequence !== refreshSequenceRef.current) {
+    const refresh = useCallback(
+        async (isForcedRefresh = true): Promise<boolean> => {
+            if (!isForcedRefresh && Date.now() < nextAutomaticRefreshAtRef.current) {
                 return false;
             }
-            cachedStateRef.current = loadedState;
-            saveWorkshopParticipantStateCache(workshopSlug, loadedState);
-            showLoadedState(loadedState);
-            setIsUsingCachedState(false);
-            markRefreshSucceeded();
-            setErrorMessage(null);
-            return true;
-        } catch (error) {
-            if (refreshSequence !== refreshSequenceRef.current) {
-                return false;
-            }
-            if (error instanceof WorkshopApiError && error.status === 401) {
-                clearWorkshopParticipantStateCache(workshopSlug);
-                cachedStateRef.current = null;
-                setState(null);
-                setIsConnectionRequired(true);
+
+            const refreshSequence = ++refreshSequenceRef.current;
+            setIsRefreshing(true);
+
+            try {
+                const loadedState = await fetchWorkshopState(workshopSlug, commentSort);
+                if (refreshSequence !== refreshSequenceRef.current) {
+                    return false;
+                }
+                cachedStateRef.current = loadedState;
+                saveWorkshopParticipantStateCache(workshopSlug, loadedState);
+                showLoadedState(loadedState);
                 setIsUsingCachedState(false);
                 markRefreshSucceeded();
                 setErrorMessage(null);
-            } else if (error instanceof WorkshopApiError && error.status === 404) {
-                clearWorkshopParticipantStateCache(workshopSlug);
-                cachedStateRef.current = null;
-                setState(null);
-                setIsConnectionRequired(false);
-                setIsUsingCachedState(false);
-                markRefreshSucceeded();
-                setErrorMessage(getCzechApiErrorMessage(error));
-            } else if (isTemporaryWorkshopApiError(error)) {
-                const cachedState = cachedStateRef.current ?? restoreCachedState();
-                if (cachedState !== null) {
-                    // A room already on screen can be newer than its persisted copy, so it always wins over the cache.
-                    setState((currentState) => currentState ?? cachedState);
+                return true;
+            } catch (error) {
+                if (refreshSequence !== refreshSequenceRef.current) {
+                    return false;
+                }
+                if (error instanceof WorkshopApiError && error.status === 401) {
+                    clearWorkshopParticipantStateCache(workshopSlug);
+                    cachedStateRef.current = null;
+                    setState(null);
+                    setIsConnectionRequired(true);
+                    setIsUsingCachedState(false);
+                    markRefreshSucceeded();
+                    setErrorMessage(null);
+                } else if (error instanceof WorkshopApiError && error.status === 404) {
+                    clearWorkshopParticipantStateCache(workshopSlug);
+                    cachedStateRef.current = null;
+                    setState(null);
                     setIsConnectionRequired(false);
-                    setIsUsingCachedState(true);
-                    setErrorMessage(CACHED_STATE_UNAVAILABLE_MESSAGE);
+                    setIsUsingCachedState(false);
+                    markRefreshSucceeded();
+                    setErrorMessage(getCzechApiErrorMessage(error));
+                } else if (isTemporaryWorkshopApiError(error)) {
+                    const cachedState = cachedStateRef.current ?? restoreCachedState();
+                    if (cachedState !== null) {
+                        // A room already on screen can be newer than its persisted copy, so it always wins over the cache.
+                        setState((currentState) => currentState ?? cachedState);
+                        setIsConnectionRequired(false);
+                        setIsUsingCachedState(true);
+                        setErrorMessage(CACHED_STATE_UNAVAILABLE_MESSAGE);
+                    } else {
+                        setErrorMessage(getCzechApiErrorMessage(error));
+                    }
+                    markRefreshTemporarilyUnavailable();
                 } else {
+                    markRefreshSucceeded();
                     setErrorMessage(getCzechApiErrorMessage(error));
                 }
-                markRefreshTemporarilyUnavailable();
-            } else {
-                markRefreshSucceeded();
-                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            } finally {
+                if (refreshSequence === refreshSequenceRef.current) {
+                    setIsCheckingConnection(false);
+                    setIsRefreshing(false);
+                }
             }
-            return false;
-        } finally {
-            if (refreshSequence === refreshSequenceRef.current) {
-                setIsCheckingConnection(false);
-                setIsRefreshing(false);
-            }
-        }
-    }, [
-        commentSort,
-        markRefreshSucceeded,
-        markRefreshTemporarilyUnavailable,
-        restoreCachedState,
-        showLoadedState,
-        workshopSlug,
-    ]);
+        },
+        [
+            commentSort,
+            markRefreshSucceeded,
+            markRefreshTemporarilyUnavailable,
+            restoreCachedState,
+            showLoadedState,
+            workshopSlug,
+        ],
+    );
 
     const scheduleRealtimeRefresh = useCallback(() => {
         if (realtimeRefreshTimeoutRef.current !== null) {
@@ -627,7 +637,9 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                             return currentState;
                         }
 
-                        const comments = currentState.comments.filter((currentComment) => currentComment.id !== comment.id);
+                        const comments = currentState.comments.filter(
+                            (currentComment) => currentComment.id !== comment.id,
+                        );
                         return {
                             ...currentState,
                             comments: sortWorkshopComments([...comments, comment], commentSort),
@@ -696,6 +708,38 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                           },
                 );
                 trackGoogleAnalyticsEvent('workshop_poll_voted', { workshop_slug: workshopSlug, poll_id: pollId });
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [workshopSlug],
+    );
+
+    const submitProject = useCallback(
+        async (values: WorkshopProjectValues): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                const { project } = await submitWorkshopProject(workshopSlug, values);
+                setState((currentState) => {
+                    if (currentState === null) {
+                        return currentState;
+                    }
+
+                    return {
+                        ...currentState,
+                        projects: [
+                            project,
+                            ...currentState.projects.filter((currentProject) => currentProject.id !== project.id),
+                        ],
+                    };
+                });
+                trackGoogleAnalyticsEvent('workshop_project_submitted', {
+                    workshop_slug: workshopSlug,
+                    project_status: project.status,
+                    has_url: project.url !== null,
+                });
                 return true;
             } catch (error) {
                 setErrorMessage(getCzechApiErrorMessage(error));
@@ -777,9 +821,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             setErrorMessage(null);
             try {
                 const { feedback } = await saveWorkshopFeedback(workshopSlug, values);
-                setState((currentState) =>
-                    currentState === null ? currentState : { ...currentState, feedback },
-                );
+                setState((currentState) => (currentState === null ? currentState : { ...currentState, feedback }));
                 trackGoogleAnalyticsEvent('workshop_feedback_saved', {
                     workshop_slug: workshopSlug,
                     has_rating: values.rating !== undefined,
@@ -813,6 +855,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         submitComment,
         upvoteComment,
         voteOnPoll,
+        submitProject,
         moderateComment,
         moderateAuthor,
         react,

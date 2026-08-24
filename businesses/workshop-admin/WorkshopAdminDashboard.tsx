@@ -12,6 +12,7 @@ import {
     deleteAdminWorkshopComment,
     deleteAdminWorkshopContent,
     deleteAdminWorkshopParticipant,
+    deleteAdminWorkshopProject,
     editAdminWorkshopCommentBody,
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
@@ -23,6 +24,7 @@ import {
     updateAdminWorkshopParticipantInteractionBan,
     updateAdminWorkshopParticipantModerator,
     updateAdminWorkshopParticipantTrusted,
+    updateAdminWorkshopProjectStatus,
     type WorkshopArtificialCommentValues,
     type WorkshopArtificialReactionValues,
     type WorkshopContentWriteValues,
@@ -40,6 +42,7 @@ import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExport
 import { WorkshopFeedbackAdmin } from '@/businesses/workshop-admin/WorkshopFeedbackAdmin';
 import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
 import { WorkshopPollAdmin } from '@/businesses/workshop-admin/WorkshopPollAdmin';
+import { WorkshopProjectAdmin } from '@/businesses/workshop-admin/WorkshopProjectAdmin';
 import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopReactionSummary';
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
@@ -59,8 +62,19 @@ import type {
     WorkshopAdminSummary,
     WorkshopCommentStatus,
     WorkshopKind,
+    WorkshopProjectStatus,
 } from '@/lib/workshops/workshopTypes';
-import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Star, Users } from 'lucide-react';
+import {
+    BarChart3,
+    BookOpenText,
+    FolderKanban,
+    MessageCircle,
+    Radio,
+    RefreshCw,
+    Settings2,
+    Star,
+    Users,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
@@ -76,6 +90,7 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
     { value: 'reactions', label: 'Reakce', icon: Radio },
     { value: 'content', label: 'Obsah', icon: BookOpenText },
     { value: 'polls', label: 'Ankety', icon: BarChart3 },
+    { value: 'projects', label: 'Projekty', icon: FolderKanban },
     { value: 'feedback', label: 'Zpětná vazba', icon: Star },
     { value: 'settings', label: 'Nastavení', icon: Settings2 },
 ];
@@ -101,6 +116,7 @@ export function WorkshopAdminDashboard({
         isSingleton,
         isScheduled: isRoomScheduled,
         isPollsOffered,
+        isProjectSharingOffered,
     } = getWorkshopKindCapabilities(workshopKind);
     const isRoomSelectionOffered = !isSingleton;
     const [viewState, changeViewState] = useUrlSynchronizedViewState<WorkshopAdminViewState>({
@@ -117,13 +133,15 @@ export function WorkshopAdminDashboard({
     const snapshotLoadSequenceReference = useRef(0);
     const selectedSection =
         (viewState.section === 'feedback' && workshopKind !== 'workshop') ||
-        (viewState.section === 'polls' && !isPollsOffered)
+        (viewState.section === 'polls' && !isPollsOffered) ||
+        (viewState.section === 'projects' && !isProjectSharingOffered)
             ? 'overview'
             : viewState.section;
     const sectionDefinitions = WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(
         ({ value }) =>
             (value !== 'feedback' || workshopKind === 'workshop') &&
-            (value !== 'polls' || isPollsOffered),
+            (value !== 'polls' || isPollsOffered) &&
+            (value !== 'projects' || isProjectSharingOffered),
     );
 
     // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
@@ -172,6 +190,7 @@ export function WorkshopAdminDashboard({
                 selectedWorkshopId,
                 commentStatus,
                 selectedSection === 'comments',
+                selectedSection === 'projects',
             );
             if (snapshotLoadSequence !== snapshotLoadSequenceReference.current) {
                 return;
@@ -276,6 +295,15 @@ export function WorkshopAdminDashboard({
         snapshot === null
             ? Promise.resolve(false)
             : runAndReload(() => closeAdminWorkshopPoll(snapshot.workshop.id, pollId));
+    const handleChangeProjectStatus = (projectId: string, status: Exclude<WorkshopProjectStatus, 'pending'>) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => updateAdminWorkshopProjectStatus(snapshot.workshop.id, projectId, status));
+    const handleDeleteProject = async (projectId: string) => {
+        if (snapshot !== null) {
+            await runAndReload(() => deleteAdminWorkshopProject(snapshot.workshop.id, projectId));
+        }
+    };
     const handleModerateComment = async (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => {
         if (snapshot !== null) {
             await runAndReload(() => moderateAdminWorkshopComment(snapshot.workshop.id, commentId, status));
@@ -411,7 +439,7 @@ export function WorkshopAdminDashboard({
                     </div>
                 ) : (
                     <Tabs value={selectedSection} onValueChange={handleSectionChange}>
-                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-7">
+                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-8">
                             {sectionDefinitions.map((sectionDefinition) => {
                                 const SectionIcon = sectionDefinition.icon;
                                 return (
@@ -533,6 +561,16 @@ export function WorkshopAdminDashboard({
                                     polls={snapshot.polls}
                                     onCreate={handleCreatePoll}
                                     onClose={handleClosePoll}
+                                />
+                            </TabsContent>
+                        )}
+
+                        {isProjectSharingOffered && (
+                            <TabsContent value="projects">
+                                <WorkshopProjectAdmin
+                                    projects={snapshot.projects}
+                                    onChangeStatus={handleChangeProjectStatus}
+                                    onDelete={handleDeleteProject}
                                 />
                             </TabsContent>
                         )}
