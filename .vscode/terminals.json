@@ -24,27 +24,27 @@
         },
         {
             "name": "🧪 Test build",
-            "command": "npm run build",
+            "commands": ["set -a && source .env && set +a", "npm run build"],
             "execute": false
         },
         {
             "name": "🗄️ Migrate database",
-            "command": "npm run migrate-database",
+            "commands": ["set -a && source .env && set +a", "npm run migrate-database"],
             "execute": false
         },
         {
             "name": "💾 Backup database",
-            "command": "npm run backup-database",
+            "commands": ["set -a && source .env && set +a", "npm run backup-database"],
             "execute": false
         },
         {
             "name": "🎭 E2E tests (headless)",
-            "command": "npm run test-e2e",
+            "commands": ["set -a && source .env && set +a", "npm run test-e2e"],
             "execute": false
         },
         {
             "name": "🎭 E2E tests (headed)",
-            "command": "npm run test-e2e:headed",
+            "commands": ["set -a && source .env && set +a", "npm run test-e2e:headed"],
             "execute": false
         },
         {
