@@ -2,6 +2,42 @@
     "autokill": true,
     "terminals": [
         {
+            "name": "🐙🚀 Run ptbk coder `gpt-5.6-terra` Coding Agent (💤)(💸)(⏳)",
+            "commands": [
+                "set -a && source .env && set +a",
+                "unset OPENAI_API_KEY && unset OPENAI_BASE_URL",
+                "npx ptbk run --no-harness-update --harness openai-codex --model gpt-5.6-terra --thinking-level max --agent agents/coding/developer.book --context AGENTS.md --test npm run test-for-ptbk-coder --test-before yes-and-fix  --auto-pull --auto-push --min-priority 1"
+            ],
+            "execute": false,
+            "onlySingle": false,
+            "focus": false
+        },
+        {
+            "name": "🐙🚀 Run ptbk coder `gpt-5.6-luna` Coding Agent (💤)(💸)(⏳)",
+            "commands": [
+                "set -a && source .env && set +a",
+                "unset OPENAI_API_KEY && unset OPENAI_BASE_URL",
+                "npx ptbk run --no-harness-update --harness openai-codex --model gpt-5.6-luna --thinking-level max --agent agents/coding/developer.book --context AGENTS.md --test npm run test-for-ptbk-coder --test-before yes-and-fix  --auto-pull --auto-push --max-priority 2"
+            ],
+            "execute": false,
+            "onlySingle": false,
+            "focus": false
+        },
+        {
+            "name": "🐙🚀 Run ptbk coder `claude-opus-5` Coding Agent (💤)(💸)(⏳)",
+            "command": "npx ptbk run --no-harness-update --harness claude-code --model claude-opus-5 --thinking-level max --agent agents/coding/developer.book --context AGENTS.md --test npm run test-for-ptbk-coder --test-before yes-and-fix  --auto-pull --auto-push",
+            "execute": false,
+            "onlySingle": false,
+            "focus": false
+        },
+        {
+            "name": "🐙✔ Verify prompts done by Coding Agent",
+            "command": "npx ptbk verify --order from-latest --ignore Refactor --commit --auto-pull --auto-push",
+            "execute": true,
+            "onlySingle": false,
+            "focus": false
+        },
+        {
             "name": "👨🏽‍💻 Develop",
             "commands": ["npm run make-promptbook-collection", "npm run dev"],
             "focus": false
@@ -59,27 +95,6 @@
         {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
-            "onlySingle": true,
-            "focus": true
-        },
-        {
-            "name": "⚡🚀 Run ptbk coder (💤)(💸)(⏳)",
-            "commands": [
-                "set -a && source .env && set +a",
-                "unset GITHUB_TOKEN",
-                "unset OPENAI_API_KEY && unset OPENAI_BASE_URL",
-                "npx ptbk coder run --agent openai-codex --model gpt-5.5 --thinking-level xhigh --context AGENTS.md --priority 1 --test npm run test-for-ptbk-coder --no-wait && npx ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --context AGENTS.md --test npm run test-for-ptbk-coder --no-wait"
-            ],
-            "execute": false,
-            "onlySingle": false,
-            "focus": false
-        },
-        {
-            "name": "⚡🚀 Promptbook coder `GitHub Copilot with gpt-5.4` (💸)(⏳)",
-            "commands": [
-                "ptbk coder run --agent github-copilot --model gpt-5.4 --thinking-level xhigh --test test-for-ptbk-coder --context AGENTS.md --no-wait"
-            ],
-            "execute": true,
             "onlySingle": true,
             "focus": true
         }
