@@ -33,6 +33,11 @@
             "execute": false
         },
         {
+            "name": "💾 Backup database",
+            "command": "npm run backup-database",
+            "execute": false
+        },
+        {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,
