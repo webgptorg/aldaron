@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Client } from 'pg';
-import { DATABASE_URL_ENVIRONMENT_VARIABLE, resolveDatabaseUrl } from './databaseUrl';
 
+const DATABASE_URL_ENVIRONMENT_VARIABLE = 'DATABASE_URL';
 const DATABASE_MIGRATIONS_TABLE = 'public._database_migrations';
 const DEFAULT_MIGRATIONS_DIRECTORY = path.resolve(process.cwd(), 'migrations');
 
@@ -236,7 +236,7 @@ async function createPostgresClient(databaseUrl: string): Promise<MigrationDatab
  */
 export async function migrateDatabase(options: MigrateDatabaseOptions = {}): Promise<MigrationDatabaseResult> {
     const logger = options.logger ?? DEFAULT_LOGGER;
-    const databaseUrl = resolveDatabaseUrl(options.databaseUrl);
+    const databaseUrl = options.databaseUrl ?? process.env[DATABASE_URL_ENVIRONMENT_VARIABLE];
     const missingDatabaseUrl = options.missingDatabaseUrl ?? 'throw';
 
     if (databaseUrl === undefined || databaseUrl.trim() === '') {
