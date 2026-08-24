@@ -11,6 +11,10 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     images: { unoptimized: true },
+    serverExternalPackages: ['pg'],
+    outputFileTracingIncludes: {
+        '/*': ['./migrations/**/*.sql'],
+    },
     devIndicators: false,
     async redirects() {
         return [
