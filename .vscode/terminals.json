@@ -28,11 +28,6 @@
             "execute": false
         },
         {
-            "name": "🗄️ Migrate database",
-            "command": "npm run migrate-database",
-            "execute": false
-        },
-        {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,

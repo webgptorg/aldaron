@@ -28,4 +28,4 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - ...
 
 - If you need a change in the database migration, do it in file `migrations/*.sql`
-- The server applies pending migrations automatically at Node.js startup, and they can also be applied explicitly with `npm run migrate-database`; both paths read `migrations/*.sql` in filename order and record their checksums in the database. A database which never received the newest one refuses the queries written against it, which the server console names as such - a written migration is not an applied one.
+- Those migrations are applied to the database by hand, in the order of their file names. A database which never received the newest one refuses the queries written against it, which the server console names as such - a written migration is not an applied one.
