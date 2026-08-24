@@ -1,5 +1,5 @@
-import { expect, test } from '@playwright/test';
 import { createE2eTestEmail } from '@/lib/e2e/testData';
+import { expect, test } from '@playwright/test';
 import { submitAndExpectApiSuccess } from './support/submissions';
 
 test.describe.configure({ mode: 'serial' });
@@ -71,7 +71,7 @@ test('submits the homepage qualification lead flow', async ({ page }) => {
     await expect(page).toHaveURL(/\/dekujeme\?/);
 });
 
-test('submits the AI Tá Krajta subscription form', async ({ page }) => {
+test('submits the AI Ta Krajta subscription form', async ({ page }) => {
     await page.goto('/ai-ta-krajta');
 
     const email = page.locator('#ai-ta-krajta-email');
@@ -173,7 +173,10 @@ test('connects a public online-workshop participant', async ({ page }) => {
 
     const fullname = page.locator('#participant-fullname');
     if ((await fullname.count()) === 0) {
-        test.skip(true, 'The configured database has no published workshop room available for participant registration.');
+        test.skip(
+            true,
+            'The configured database has no published workshop room available for participant registration.',
+        );
     }
 
     const connectionForm = fullname.locator('xpath=ancestor::form');
