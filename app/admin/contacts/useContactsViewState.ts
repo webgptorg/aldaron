@@ -38,7 +38,7 @@ export function useContactsViewState(): UseContactsViewStateResult {
                 ...getViewStateChanges(previousViewState),
                 currentPage: FIRST_CONTACTS_PAGE,
             })),
-        [],
+        [setViewState],
     );
 
     const changeFilter = useCallback(
@@ -67,7 +67,7 @@ export function useContactsViewState(): UseContactsViewStateResult {
                     ? previousViewState
                     : { ...previousViewState, currentPage },
             ),
-        [],
+        [setViewState],
     );
 
     return { ...viewState, changeFilter, toggleSort, changeContactsPerPage, changePage };

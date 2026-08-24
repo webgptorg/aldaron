@@ -24,12 +24,13 @@ export function useDebouncedContactSaver(onSaveError: (errorMessage: string) => 
     const pendingTimeoutsRef = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
     useEffect(() => {
+        const pendingChanges = pendingChangesRef.current;
         const pendingTimeouts = pendingTimeoutsRef.current;
 
         return () => {
             pendingTimeouts.forEach((pendingTimeout) => clearTimeout(pendingTimeout));
             pendingTimeouts.clear();
-            pendingChangesRef.current.clear();
+            pendingChanges.clear();
         };
     }, []);
 

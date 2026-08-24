@@ -2,7 +2,10 @@
 
 import { MinimalFooter } from '@/components/minimal-footer';
 import { MinimalHeader } from '@/components/minimal-header';
+import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
+import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
 import { CheckCircle2, Handshake, Mail, Phone, PhoneCall, Video } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -101,10 +104,12 @@ function ThankYouContent() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
                             {/* Jirka */}
                             <div className="text-center">
-                                <div className="w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
-                                    <img
-                                        src="people/jiri-jahn-transparent-square.png"
+                                <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
+                                    <Image
+                                        src={jiriJahn}
                                         alt="Jiří Jahn"
+                                        fill
+                                        sizes="120px"
                                         className="w-full h-full object-cover object-top"
                                     />
                                 </div>
@@ -130,10 +135,12 @@ function ThankYouContent() {
 
                             {/* Pavol */}
                             <div className="text-center">
-                                <div className="w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
-                                    <img
-                                        src="people/pavol-hejny-transparent-square.png"
+                                <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 ring-4 ring-gray-100">
+                                    <Image
+                                        src={pavolHejny}
                                         alt="Pavol Hejný"
+                                        fill
+                                        sizes="120px"
                                         className="w-full h-full object-cover object-top"
                                     />
                                 </div>

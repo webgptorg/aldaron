@@ -52,7 +52,7 @@ vi.mock('@/lib/subscription/subscribeToWaitlist', () => ({
 }));
 
 vi.mock('next/image', () => ({
-    default: (props: ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+    default: (props: ImgHTMLAttributes<HTMLImageElement>) => React.createElement('img', { ...props, alt: props.alt ?? '' }),
 }));
 
 vi.mock('next/link', () => ({

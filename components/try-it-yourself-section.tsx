@@ -3,6 +3,7 @@
 import defaultBook from '@/businesses/_generic/default.book';
 import type { string_book } from '@promptbook/types';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 const BookEditor = dynamic(() => import('@promptbook/components').then((module) => module.BookEditor), {
     ssr: false,
@@ -41,9 +42,11 @@ export function TryItYourselfSection(props: TryItYourselfSectionProps) {
 
             <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 relative">
                 {/* Floating arrow between columns (hidden on mobile) */}
-                <img
+                <Image
                     src="/misc/arrow.svg"
                     alt="Arrow pointing from book editor to chat"
+                    width={240}
+                    height={120}
                     style={{ zIndex: 10000 }}
                     className="hidden lg:block pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 md:w-40"
                 />
