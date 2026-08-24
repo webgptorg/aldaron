@@ -38,6 +38,21 @@
             "execute": false
         },
         {
+            "name": "🎭 E2E tests (headless)",
+            "command": "npm run test-e2e",
+            "execute": false
+        },
+        {
+            "name": "🎭 E2E tests (headed)",
+            "command": "npm run test-e2e:headed",
+            "execute": false
+        },
+        {
+            "name": "🧹 Delete E2E test data",
+            "command": "npm run delete-test-data",
+            "execute": false
+        },
+        {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,
