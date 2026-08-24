@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4009';
 const usesExternalServer = process.env.E2E_BASE_URL !== undefined;
+const usesIsolatedInMemorySupabase = !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -28,9 +30,15 @@ export default defineConfig({
               url: baseURL,
               reuseExistingServer: !process.env.CI,
               timeout: 120_000,
-              // The test server exercises an already-configured database through the
-              // public API. It must not run or repair migrations as a side effect.
-              // Next does not replace an explicitly empty environment value from .env.
-              env: { ...process.env, DATABASE_URL: '' },
+              // The test server exercises the public API without running or repairing
+              // migrations as a side effect.
+              // Without a service role key, the same endpoints use an isolated in-memory
+              // store so local verification does not depend on a private credential.
+              // Next does not replace explicitly empty environment values from .env.
+              env: {
+                  ...process.env,
+                  DATABASE_URL: '',
+                  E2E_IN_MEMORY_SUPABASE: usesIsolatedInMemorySupabase ? 'true' : '',
+              },
           },
 });

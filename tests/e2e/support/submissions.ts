@@ -8,7 +8,8 @@ function isMatchingApiPath(pathname: string, apiPath: ApiPath): boolean {
 
 /**
  * Submit a public form and assert that its real server endpoint accepted the
- * request. This intentionally does not mock the database-facing request.
+ * request. This intentionally does not mock the browser-to-server request;
+ * Playwright config supplies either configured Supabase or its isolated test store.
  */
 export async function submitAndExpectApiSuccess(
     page: Page,

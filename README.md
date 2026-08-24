@@ -20,6 +20,10 @@ Build on [Promptbook Engine](https://ptbk.io)
 
 For more information, [check out the landing page sheet](https://docs.google.com/spreadsheets/d/1X26iMQqubsxftqD1EJNSlzPYFS94QjCFPXyKdHHDeVs/edit?usp=sharing)
 
+## Verification
+
+Run `npm run test-for-ptbk-coder` to lint, type-check, build, and exercise the public site in Playwright. The form tests always send requests to the real server endpoints. When `SUPABASE_SERVICE_ROLE_KEY` is configured, they use the configured Supabase database; otherwise, the Playwright-owned server uses an isolated in-memory store for its lifetime, so local verification needs no private database credential or data cleanup.
+
 
 
 <!--Partners-->

@@ -3,6 +3,7 @@
 import { MinimalFooter } from '@/components/minimal-footer';
 import { MinimalHeader } from '@/components/minimal-header';
 import { CheckCircle2, Handshake, Mail, Phone, PhoneCall, Video } from 'lucide-react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -159,12 +160,12 @@ function ThankYouContent() {
                     </div>
 
                     {/* Back to homepage */}
-                    <a
+                    <Link
                         href="/"
                         className="inline-flex items-center gap-2 text-[14px] text-gray-400 hover:text-gray-600 transition-colors"
                     >
                         ← Zpět na hlavní stránku
-                    </a>
+                    </Link>
                 </div>
             </main>
 

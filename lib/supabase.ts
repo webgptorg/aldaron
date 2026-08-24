@@ -1,3 +1,4 @@
+import { getE2eInMemorySupabaseClientOrNull } from '@/lib/e2e/inMemorySupabase';
 import { createBrowserClient } from '@supabase/ssr';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
@@ -37,6 +38,11 @@ export function createSupabaseClient(): SupabaseClient | null {
  *       fail, it would quietly answer that there is nothing to see, which is far harder to notice than a missing key.
  */
 export function createSupabaseServiceRoleClient(): SupabaseClient | null {
+    const e2eInMemorySupabaseClient = getE2eInMemorySupabaseClientOrNull();
+    if (e2eInMemorySupabaseClient !== null) {
+        return e2eInMemorySupabaseClient;
+    }
+
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
