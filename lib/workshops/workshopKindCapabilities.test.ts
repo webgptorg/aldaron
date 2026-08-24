@@ -18,6 +18,7 @@ describe('workshop kind capabilities', () => {
             isSlugFixed: false,
             isScheduled: true,
             isStageOffered: true,
+            isPollsOffered: false,
             isRealtime: true,
         });
     });
@@ -28,6 +29,7 @@ describe('workshop kind capabilities', () => {
             isSlugFixed: true,
             isScheduled: false,
             isStageOffered: false,
+            isPollsOffered: true,
             isRealtime: false,
         });
     });

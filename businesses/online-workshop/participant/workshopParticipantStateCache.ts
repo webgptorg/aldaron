@@ -1,10 +1,10 @@
 import { WORKSHOP_SESSION_MAX_AGE_SECONDS } from '@/lib/workshops/workshopConstants';
 import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 
-// Version the snapshot whenever its material-link security boundary changes:
+// Version the snapshot whenever its room-state shape or security boundary changes:
 // an older cached state may still contain raw material destinations from before
-// every public link was materialized through the shortener.
-const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v2.';
+// every public link was materialized through the shortener, or predate community polls.
+const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v3.';
 const WORKSHOP_PARTICIPANT_STATE_CACHE_MAX_AGE_MILLISECONDS = WORKSHOP_SESSION_MAX_AGE_SECONDS * 1_000;
 
 type WorkshopParticipantStateCacheEntry = {
@@ -55,7 +55,8 @@ function isWorkshopPublicStateCacheEntry(
         Array.isArray(state.contentBlocks) &&
         Array.isArray(state.comments) &&
         Array.isArray(state.recentReactions) &&
-        Array.isArray(state.reactionCounts)
+        Array.isArray(state.reactionCounts) &&
+        Array.isArray(state.polls)
     );
 }
 

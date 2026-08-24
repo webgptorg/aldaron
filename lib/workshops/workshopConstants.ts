@@ -6,6 +6,9 @@ export const WORKSHOP_UPVOTE_TABLE_NAME = 'workshop_comment_upvotes';
 export const WORKSHOP_REACTION_TABLE_NAME = 'workshop_reactions';
 export const WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME = 'workshop_content_shortcode_links';
 export const WORKSHOP_FEEDBACK_TABLE_NAME = 'workshop_feedback';
+export const WORKSHOP_POLL_TABLE_NAME = 'workshop_polls';
+export const WORKSHOP_POLL_OPTION_TABLE_NAME = 'workshop_poll_options';
+export const WORKSHOP_POLL_VOTE_TABLE_NAME = 'workshop_poll_votes';
 
 export const WORKSHOP_SESSION_COOKIE_PREFIX = 'workshop_session_';
 export const WORKSHOP_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
@@ -24,6 +27,11 @@ export const DEFAULT_WORKSHOP_DURATION_MINUTES = 60;
 export const MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT = 16;
 export const MAXIMAL_WORKSHOP_COMMENT_LENGTH = 2_000;
 export const MAXIMAL_WORKSHOP_FEEDBACK_TEXT_LENGTH = 5_000;
+export const MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH = 500;
+export const MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH = 200;
+export const MINIMAL_WORKSHOP_POLL_OPTION_COUNT = 2;
+export const MAXIMAL_WORKSHOP_POLL_OPTION_COUNT = 8;
+export const MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT = 20;
 export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
 
 /**

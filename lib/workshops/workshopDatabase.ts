@@ -4,12 +4,16 @@ import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import {
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT,
+    MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
     MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
     WORKSHOP_CONTENT_TABLE_NAME,
     WORKSHOP_FEEDBACK_TABLE_NAME,
     WORKSHOP_PARTICIPANT_TABLE_NAME,
+    WORKSHOP_POLL_OPTION_TABLE_NAME,
+    WORKSHOP_POLL_TABLE_NAME,
+    WORKSHOP_POLL_VOTE_TABLE_NAME,
     WORKSHOP_REACTION_TABLE_NAME,
     WORKSHOP_TABLE_NAME,
     WORKSHOP_UPVOTE_TABLE_NAME,
@@ -17,6 +21,7 @@ import {
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
+import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { materializeWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
@@ -42,6 +47,8 @@ import type {
     WorkshopKind,
     WorkshopParticipant,
     WorkshopParticipantTimelineEvent,
+    WorkshopPoll,
+    WorkshopPollOption,
     WorkshopPublicState,
     WorkshopReaction,
     WorkshopReactionCount,
@@ -268,6 +275,34 @@ type WorkshopReactionRow = {
 type WorkshopReactionCountRow = {
     readonly emoji: string;
     readonly reaction_count: number | string;
+};
+
+type WorkshopPollRow = {
+    readonly id: string;
+    readonly question: string;
+    readonly is_closed: boolean;
+    readonly created_at: string;
+    readonly updated_at: string;
+};
+
+const WORKSHOP_POLL_COLUMNS = 'id, question, is_closed, created_at, updated_at';
+
+type WorkshopPollOptionRow = {
+    readonly id: string;
+    readonly poll_id: string;
+    readonly label: string;
+    readonly sort_order: number;
+};
+
+const WORKSHOP_POLL_OPTION_COLUMNS = 'id, poll_id, label, sort_order';
+
+type WorkshopPollVoteCountRow = {
+    readonly option_id: string;
+    readonly vote_count: number | string;
+};
+
+type WorkshopParticipantPollVoteRow = {
+    readonly option_id: string;
 };
 
 type CreatedWorkshopReactionRow = WorkshopReactionRow & {
@@ -584,6 +619,31 @@ function mapWorkshopReactionCountRow(row: WorkshopReactionCountRow): WorkshopRea
     return { emoji: row.emoji, count: getNonNegativeWholeNumber(row.reaction_count) };
 }
 
+function mapWorkshopPollOptionRow(
+    row: WorkshopPollOptionRow,
+    voteCountByOptionId: ReadonlyMap<string, number>,
+    selectedOptionIds: ReadonlySet<string>,
+): WorkshopPollOption {
+    return {
+        id: row.id,
+        label: row.label,
+        sortOrder: row.sort_order,
+        voteCount: voteCountByOptionId.get(row.id) ?? 0,
+        isVotedByParticipant: selectedOptionIds.has(row.id),
+    };
+}
+
+function mapWorkshopPollRow(row: WorkshopPollRow, options: readonly WorkshopPollOption[]): WorkshopPoll {
+    return {
+        id: row.id,
+        question: row.question,
+        isClosed: row.is_closed,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        options,
+    };
+}
+
 /**
  * Stores one reaction and returns the total for its exact text as one atomic database operation
  *
@@ -862,6 +922,87 @@ async function loadWorkshopReactionCounts(
 
     return {
         reactionCounts: ((data ?? []) as WorkshopReactionCountRow[]).map(mapWorkshopReactionCountRow),
+        errorMessage: null,
+    };
+}
+
+type LoadedWorkshopPolls = {
+    readonly polls: readonly WorkshopPoll[];
+    readonly errorMessage: string | null;
+};
+
+/**
+ * Loads the compact, anonymous result of the community polls. The count aggregation stays in PostgreSQL and the
+ * participant-specific lookup contains only that participant's own selection, so no room response can infer who
+ * anybody else voted for.
+ */
+export async function loadWorkshopPolls(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+    participantId: string | null,
+): Promise<LoadedWorkshopPolls> {
+    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isPollsOffered) {
+        return { polls: [], errorMessage: null };
+    }
+
+    const { data: pollData, error: pollError } = await supabase
+        .from(WORKSHOP_POLL_TABLE_NAME)
+        .select(WORKSHOP_POLL_COLUMNS)
+        .eq('workshop_id', workshopRow.id)
+        .order('is_closed', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT);
+    if (pollError) {
+        return { polls: [], errorMessage: pollError.message };
+    }
+
+    const pollRows = (pollData ?? []) as readonly WorkshopPollRow[];
+    const pollIds = pollRows.map((poll) => poll.id);
+    if (pollIds.length === 0) {
+        return { polls: [], errorMessage: null };
+    }
+
+    const [optionsResult, voteCountsResult, selectedVotesResult] = await Promise.all([
+        supabase
+            .from(WORKSHOP_POLL_OPTION_TABLE_NAME)
+            .select(WORKSHOP_POLL_OPTION_COLUMNS)
+            .in('poll_id', pollIds)
+            .order('sort_order', { ascending: true }),
+        supabase.rpc('get_workshop_poll_option_vote_counts', { target_poll_ids: pollIds }),
+        participantId === null
+            ? Promise.resolve({ data: [] as readonly WorkshopParticipantPollVoteRow[], error: null })
+            : supabase
+                  .from(WORKSHOP_POLL_VOTE_TABLE_NAME)
+                  .select('option_id')
+                  .eq('workshop_id', workshopRow.id)
+                  .eq('participant_id', participantId)
+                  .in('poll_id', pollIds),
+    ]);
+    const firstError = optionsResult.error ?? voteCountsResult.error ?? selectedVotesResult.error;
+    if (firstError) {
+        return { polls: [], errorMessage: firstError.message };
+    }
+
+    const voteCountByOptionId = new Map<string, number>(
+        ((voteCountsResult.data ?? []) as readonly WorkshopPollVoteCountRow[]).map((voteCount) => [
+            voteCount.option_id,
+            getNonNegativeWholeNumber(voteCount.vote_count),
+        ]),
+    );
+    const selectedOptionIds = new Set(
+        ((selectedVotesResult.data ?? []) as readonly WorkshopParticipantPollVoteRow[]).map(
+            (vote) => vote.option_id,
+        ),
+    );
+    const optionsByPollId = new Map<string, WorkshopPollOption[]>();
+    for (const optionRow of (optionsResult.data ?? []) as readonly WorkshopPollOptionRow[]) {
+        const options = optionsByPollId.get(optionRow.poll_id) ?? [];
+        options.push(mapWorkshopPollOptionRow(optionRow, voteCountByOptionId, selectedOptionIds));
+        optionsByPollId.set(optionRow.poll_id, options);
+    }
+
+    return {
+        polls: pollRows.map((pollRow) => mapWorkshopPollRow(pollRow, optionsByPollId.get(pollRow.id) ?? [])),
         errorMessage: null,
     };
 }
@@ -1529,6 +1670,7 @@ export async function loadWorkshopPublicState(
         reactionCountsResult,
         watchingParticipantCount,
         pinnedCommentRow,
+        pollsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -1576,6 +1718,7 @@ export async function loadWorkshopPublicState(
         loadWorkshopReactionCounts(supabase, workshopRow),
         countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
+        loadWorkshopPolls(supabase, workshopRow, participant.id),
     ]);
 
     const stateQueryError =
@@ -1586,7 +1729,7 @@ export async function loadWorkshopPublicState(
         commentsResult.error ??
         pendingCommentsResult.error ??
         reactionsResult.error;
-    const errorMessage = stateQueryError?.message ?? reactionCountsResult.errorMessage;
+    const errorMessage = stateQueryError?.message ?? reactionCountsResult.errorMessage ?? pollsResult.errorMessage;
     if (errorMessage !== null) {
         return { state: null, errorMessage };
     }
@@ -1672,6 +1815,7 @@ export async function loadWorkshopPublicState(
             ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
             reactionCounts: reactionCountsResult.reactionCounts,
+            polls: pollsResult.polls,
         },
         errorMessage: null,
     };
@@ -1739,6 +1883,7 @@ export async function loadWorkshopAdminSnapshot(
         reactionsResult,
         artificialReactionsResult,
         pinnedCommentRow,
+        pollsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -1774,6 +1919,7 @@ export async function loadWorkshopAdminSnapshot(
             .eq('workshop_id', workshopRow.id)
             .eq('is_artificial', true),
         options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
+        loadWorkshopPolls(supabase, workshopRow, null),
     ]);
 
     const firstError =
@@ -1786,6 +1932,9 @@ export async function loadWorkshopAdminSnapshot(
         artificialReactionsResult.error;
     if (firstError) {
         return { snapshot: null, errorMessage: firstError.message };
+    }
+    if (pollsResult.errorMessage !== null) {
+        return { snapshot: null, errorMessage: pollsResult.errorMessage };
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
@@ -1824,6 +1973,7 @@ export async function loadWorkshopAdminSnapshot(
             contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map((contentBlock) =>
                 mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
             ),
+            polls: pollsResult.polls,
             comments,
             pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
             participants: [],

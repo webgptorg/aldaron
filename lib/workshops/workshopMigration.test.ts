@@ -64,6 +64,8 @@ const SHORTCODE_MATERIAL_LINK_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-1700-online-workshop-shortcode-material-links.sql',
 );
 const SHORTCODE_MATERIAL_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_MATERIAL_LINK_MIGRATION_PATH, 'utf8');
+const COMMUNITY_POLL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2400-community-polls.sql');
+const COMMUNITY_POLL_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -344,6 +346,26 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_MIGRATION_SQL).toContain("WHERE room_kind = 'community'");
         expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_community_slug');
         expect(COMMUNITY_MIGRATION_SQL).toContain("'komunita'");
+    });
+
+    it('keeps community poll choices attributable, anonymous to other members, and closed atomically', () => {
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_polls');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_poll_options');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_poll_votes');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
+            'CONSTRAINT workshop_poll_votes_one_per_participant UNIQUE (poll_id, participant_id)',
+        );
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('WORKSHOP_POLL_NOT_COMMUNITY');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('WORKSHOP_POLL_CLOSED');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('FOR SHARE');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('CREATE OR REPLACE FUNCTION public.create_community_workshop_poll');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.get_workshop_poll_option_vote_counts',
+        );
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_poll_votes FORCE ROW LEVEL SECURITY');
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
+            'REVOKE ALL ON TABLE public.workshop_poll_votes FROM PUBLIC, anon, authenticated',
+        );
     });
 
     it('selects one ordinary follow-up material and keeps feedback private and attributable', () => {

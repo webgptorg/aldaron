@@ -15,6 +15,7 @@ import {
     sendWorkshopReaction,
     submitWorkshopComment,
     upvoteWorkshopComment,
+    voteOnWorkshopPoll,
     WorkshopApiError,
     type WorkshopAuthorModerationValues,
     type WorkshopCommentModerationValues,
@@ -76,6 +77,11 @@ type WorkshopParticipantController = {
     readonly changeCommentSort: (sort: WorkshopCommentSort) => void;
     readonly submitComment: (values: WorkshopCommentValues) => Promise<boolean>;
     readonly upvoteComment: (commentId: string) => Promise<void>;
+
+    /**
+     * Chooses an option of a community poll, or changes this participant's earlier choice.
+     */
+    readonly voteOnPoll: (pollId: string, optionId: string) => Promise<boolean>;
 
     /**
      * Moderates one message of the chat, which only a moderator of the room is offered
@@ -674,6 +680,31 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         [commentSort, workshopSlug],
     );
 
+    const voteOnPoll = useCallback(
+        async (pollId: string, optionId: string): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                const { poll } = await voteOnWorkshopPoll(workshopSlug, pollId, optionId);
+                setState((currentState) =>
+                    currentState === null
+                        ? currentState
+                        : {
+                              ...currentState,
+                              polls: currentState.polls.map((currentPoll) =>
+                                  currentPoll.id === poll.id ? poll : currentPoll,
+                              ),
+                          },
+                );
+                trackGoogleAnalyticsEvent('workshop_poll_voted', { workshop_slug: workshopSlug, poll_id: pollId });
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [workshopSlug],
+    );
+
     /**
      * Note: A moderated message and a moderated author both change what the whole room sees, so the room is loaded
      *       again instead of guessing the result of the decision which was just made.
@@ -781,6 +812,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         changeCommentSort,
         submitComment,
         upvoteComment,
+        voteOnPoll,
         moderateComment,
         moderateAuthor,
         react,

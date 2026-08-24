@@ -304,6 +304,31 @@ export type WorkshopReactionCount = {
     readonly count: number;
 };
 
+/**
+ * One answer a member can choose in a poll. The room only receives aggregate counts and whether its own participant
+ * chose this option, never the identities behind any other vote.
+ */
+export type WorkshopPollOption = {
+    readonly id: string;
+    readonly label: string;
+    readonly sortOrder: number;
+    readonly voteCount: number;
+    readonly isVotedByParticipant: boolean;
+};
+
+/**
+ * A community question prepared by an administrator. Poll infrastructure is shared with the room model, while the
+ * room-kind capability decides which kinds offer it.
+ */
+export type WorkshopPoll = {
+    readonly id: string;
+    readonly question: string;
+    readonly isClosed: boolean;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly options: readonly WorkshopPollOption[];
+};
+
 export type WorkshopPublicState = {
     readonly serverTime: string;
     readonly workshop: WorkshopDetails;
@@ -319,6 +344,7 @@ export type WorkshopPublicState = {
     readonly comments: readonly WorkshopComment[];
     readonly recentReactions: readonly WorkshopReaction[];
     readonly reactionCounts: readonly WorkshopReactionCount[];
+    readonly polls: readonly WorkshopPoll[];
 };
 
 /**
@@ -341,6 +367,7 @@ export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant
 export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
+    readonly polls: readonly WorkshopPoll[];
     readonly comments: readonly WorkshopAdminComment[];
 
     /**

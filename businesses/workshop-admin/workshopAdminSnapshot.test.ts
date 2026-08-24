@@ -33,6 +33,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
                 linkClickCount: 0,
             },
         ],
+        polls: [],
         comments: [],
         pinnedComment: null,
         participants: [],

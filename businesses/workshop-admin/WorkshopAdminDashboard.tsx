@@ -4,9 +4,11 @@ import { CreateWorkshopForm } from '@/businesses/workshop-admin/CreateWorkshopFo
 import {
     adjustAdminWorkshopCommentArtificialUpvotes,
     clearAdminWorkshopReactions,
+    closeAdminWorkshopPoll,
     createAdminWorkshopArtificialComment,
     createAdminWorkshop,
     createAdminWorkshopContent,
+    createAdminWorkshopPoll,
     deleteAdminWorkshopComment,
     deleteAdminWorkshopContent,
     deleteAdminWorkshopParticipant,
@@ -25,6 +27,7 @@ import {
     type WorkshopArtificialReactionValues,
     type WorkshopContentWriteValues,
     type WorkshopCreateValues,
+    type WorkshopPollCreateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import { WorkshopActivityGraph } from '@/businesses/workshop-admin/WorkshopActivityGraph';
@@ -36,6 +39,7 @@ import { WorkshopContentAdmin } from '@/businesses/workshop-admin/WorkshopConten
 import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExportButton';
 import { WorkshopFeedbackAdmin } from '@/businesses/workshop-admin/WorkshopFeedbackAdmin';
 import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
+import { WorkshopPollAdmin } from '@/businesses/workshop-admin/WorkshopPollAdmin';
 import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopReactionSummary';
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
@@ -71,6 +75,7 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
     { value: 'comments', label: 'Komentáře', icon: MessageCircle },
     { value: 'reactions', label: 'Reakce', icon: Radio },
     { value: 'content', label: 'Obsah', icon: BookOpenText },
+    { value: 'polls', label: 'Ankety', icon: BarChart3 },
     { value: 'feedback', label: 'Zpětná vazba', icon: Star },
     { value: 'settings', label: 'Nastavení', icon: Settings2 },
 ];
@@ -92,7 +97,11 @@ export function WorkshopAdminDashboard({
 }: WorkshopAdminDashboardProps) {
     // Note: There is only ever one room of a singleton kind, so nothing offers a choice between rooms of that kind or
     //       the creation of a second one.
-    const { isSingleton, isScheduled: isRoomScheduled } = getWorkshopKindCapabilities(workshopKind);
+    const {
+        isSingleton,
+        isScheduled: isRoomScheduled,
+        isPollsOffered,
+    } = getWorkshopKindCapabilities(workshopKind);
     const isRoomSelectionOffered = !isSingleton;
     const [viewState, changeViewState] = useUrlSynchronizedViewState<WorkshopAdminViewState>({
         parseViewState: parseWorkshopAdminViewState,
@@ -106,11 +115,16 @@ export function WorkshopAdminDashboard({
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const snapshotLoadSequenceReference = useRef(0);
-    const selectedSection = viewState.section === 'feedback' && workshopKind !== 'workshop' ? 'overview' : viewState.section;
-    const sectionDefinitions =
-        workshopKind === 'workshop'
-            ? WORKSHOP_ADMIN_SECTION_DEFINITIONS
-            : WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(({ value }) => value !== 'feedback');
+    const selectedSection =
+        (viewState.section === 'feedback' && workshopKind !== 'workshop') ||
+        (viewState.section === 'polls' && !isPollsOffered)
+            ? 'overview'
+            : viewState.section;
+    const sectionDefinitions = WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(
+        ({ value }) =>
+            (value !== 'feedback' || workshopKind === 'workshop') &&
+            (value !== 'polls' || isPollsOffered),
+    );
 
     // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
     //       list are one and the same thing. A link which names no room, or a room which is not there any more, opens
@@ -254,6 +268,14 @@ export function WorkshopAdminDashboard({
             }),
         );
     };
+    const handleCreatePoll = (values: WorkshopPollCreateValues) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => createAdminWorkshopPoll(snapshot.workshop.id, values));
+    const handleClosePoll = (pollId: string) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => closeAdminWorkshopPoll(snapshot.workshop.id, pollId));
     const handleModerateComment = async (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => {
         if (snapshot !== null) {
             await runAndReload(() => moderateAdminWorkshopComment(snapshot.workshop.id, commentId, status));
@@ -504,6 +526,16 @@ export function WorkshopAdminDashboard({
                                 onUnlockNow={handleUnlockContentNow}
                             />
                         </TabsContent>
+
+                        {isPollsOffered && (
+                            <TabsContent value="polls">
+                                <WorkshopPollAdmin
+                                    polls={snapshot.polls}
+                                    onCreate={handleCreatePoll}
+                                    onClose={handleClosePoll}
+                                />
+                            </TabsContent>
+                        )}
 
                         {workshopKind === 'workshop' && (
                             <TabsContent value="feedback">

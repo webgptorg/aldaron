@@ -26,6 +26,12 @@ export type WorkshopKindCapabilities = {
     readonly isStageOffered: boolean;
 
     /**
+     * Whether the room offers member polls, which are currently the permanent community's way to make a decision
+     * together without turning an individual live workshop into a survey.
+     */
+    readonly isPollsOffered: boolean;
+
+    /**
      * Whether a room updates itself while it is open, which its broadcast, its reactions, and its watching count need
      */
     readonly isRealtime: boolean;
@@ -45,6 +51,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isSlugFixed: false,
         isScheduled: true,
         isStageOffered: true,
+        isPollsOffered: false,
         isRealtime: true,
     },
     community: {
@@ -52,6 +59,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isSlugFixed: true,
         isScheduled: false,
         isStageOffered: false,
+        isPollsOffered: true,
         isRealtime: false,
     },
 };

@@ -4,6 +4,7 @@ import type {
     WorkshopCommentStatus,
     WorkshopFeedback,
     WorkshopParticipant,
+    WorkshopPoll,
     WorkshopPublicState,
     WorkshopReaction,
 } from '@/lib/workshops/workshopTypes';
@@ -131,6 +132,27 @@ export async function upvoteWorkshopComment(
         method: 'POST',
         credentials: 'same-origin',
     });
+    return readResponseJson(response);
+}
+
+/**
+ * Chooses one option of a community poll. Repeating the request with another option changes the participant's own
+ * choice, and the returned compact poll makes the optimistic room state authoritative again.
+ */
+export async function voteOnWorkshopPoll(
+    workshopSlug: string,
+    pollId: string,
+    optionId: string,
+): Promise<{ readonly poll: WorkshopPoll }> {
+    const response = await fetch(
+        getWorkshopApiUrl(workshopSlug, `polls/${encodeURIComponent(pollId)}/votes`),
+        {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ optionId }),
+        },
+    );
     return readResponseJson(response);
 }
 

@@ -4,9 +4,13 @@ import {
     MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_FEEDBACK_TEXT_LENGTH,
+    MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH,
+    MAXIMAL_WORKSHOP_POLL_OPTION_COUNT,
+    MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
+    MINIMAL_WORKSHOP_POLL_OPTION_COUNT,
 } from '@/lib/workshops/workshopConstants';
 import {
     isWorkshopParticipantFullnameValid,
@@ -26,6 +30,8 @@ const workshopParticipantFullnameSchema = z
     .refine(isWorkshopParticipantFullnameValid, 'A participant name is required');
 const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_REACTION_LENGTH);
 const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
+const workshopPollQuestionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH);
+const workshopPollOptionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH);
 const workshopFeedbackTextSchema = z
     .string()
     .trim()
@@ -80,6 +86,33 @@ export const workshopCommentSchema = z.object({
 
 export const workshopReactionSchema = z.object({
     emoji: workshopReactionEmojiSchema,
+});
+
+/**
+ * A poll is intentionally a small, clear choice. The duplicate check is case-insensitive after trimming, so two
+ * buttons cannot look different only because an administrator typed a different casing.
+ */
+export const workshopPollCreateSchema = z.object({
+    question: workshopPollQuestionSchema,
+    options: z
+        .array(workshopPollOptionSchema)
+        .min(MINIMAL_WORKSHOP_POLL_OPTION_COUNT)
+        .max(MAXIMAL_WORKSHOP_POLL_OPTION_COUNT)
+        .refine(
+            (options) => new Set(options.map((option) => option.toLowerCase())).size === options.length,
+            'Poll options must be unique',
+        ),
+});
+
+export const workshopPollVoteSchema = z.object({
+    optionId: z.string().uuid(),
+});
+
+/**
+ * A finished community poll remains readable, but deliberately cannot be reopened by a stale administration tab.
+ */
+export const workshopPollCloseSchema = z.object({
+    isClosed: z.literal(true),
 });
 
 /**

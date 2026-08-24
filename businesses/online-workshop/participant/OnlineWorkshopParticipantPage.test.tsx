@@ -90,6 +90,7 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         comments: [],
         recentReactions: [],
         reactionCounts: [],
+        polls: [],
     };
 
     participantMocks.controller = {

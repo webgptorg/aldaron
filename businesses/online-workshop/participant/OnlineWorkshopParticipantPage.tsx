@@ -8,6 +8,7 @@ import {
 } from '@/businesses/online-workshop/participant/WorkshopConnectionForm';
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participant/WorkshopParticipantBadge';
+import { WorkshopPolls } from '@/businesses/online-workshop/participant/WorkshopPolls';
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
@@ -237,6 +238,13 @@ export function OnlineWorkshopParticipantPage({
                             hostFullname={calendarDetails.hostFullname}
                             participantPath={calendarDetails.participantPath}
                             participantIdentity={state.participant}
+                        />
+                    )}
+                    {roomCapabilities.isPollsOffered && (
+                        <WorkshopPolls
+                            polls={state.polls}
+                            isInteractionBanned={state.participant.isInteractionBanned}
+                            onVote={controller.voteOnPoll}
                         />
                     )}
                     {workshopNavigation !== undefined && (

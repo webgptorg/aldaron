@@ -54,6 +54,11 @@ export type WorkshopContentWriteValues = {
     readonly isFollowUp: boolean;
 };
 
+export type WorkshopPollCreateValues = {
+    readonly question: string;
+    readonly options: readonly string[];
+};
+
 export type WorkshopArtificialCommentValues = {
     readonly authorName: string;
     readonly body: string;
@@ -204,6 +209,25 @@ export async function deleteAdminWorkshopContent(workshopId: string, contentId: 
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/content/${encodeURIComponent(contentId)}`),
         { method: 'DELETE' },
     );
+}
+
+export async function createAdminWorkshopPoll(workshopId: string, values: WorkshopPollCreateValues): Promise<string> {
+    const result = await requestAdminJson<{ readonly pollId: string }>(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/polls`),
+        createJsonMutation('POST', values),
+    );
+    return result.pollId;
+}
+
+/**
+ * Ends a poll permanently while keeping its anonymous results visible to the community.
+ */
+export async function closeAdminWorkshopPoll(workshopId: string, pollId: string): Promise<string> {
+    const result = await requestAdminJson<{ readonly pollId: string }>(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/polls/${encodeURIComponent(pollId)}`),
+        createJsonMutation('PATCH', { isClosed: true }),
+    );
+    return result.pollId;
 }
 
 export async function deleteAdminWorkshopComment(workshopId: string, commentId: string): Promise<void> {

@@ -46,6 +46,7 @@ function createState(workshopSlug = WORKSHOP_SLUG): WorkshopPublicState {
         comments: [],
         recentReactions: [],
         reactionCounts: [],
+        polls: [],
     };
 }
 
@@ -72,8 +73,8 @@ describe('workshop participant state cache', () => {
         expect(loadWorkshopParticipantStateCache(otherWorkshopSlug)?.state.workshop.slug).toBe(otherWorkshopSlug);
     });
 
-    it('does not revive a pre-shortener material snapshot from the older cache version', () => {
-        const legacyCacheKey = `promptbook.workshop-participant-state.v1.${encodeURIComponent(WORKSHOP_SLUG)}`;
+    it('does not revive a snapshot from an older cache version', () => {
+        const legacyCacheKey = `promptbook.workshop-participant-state.v2.${encodeURIComponent(WORKSHOP_SLUG)}`;
         localStorage.setItem(legacyCacheKey, JSON.stringify({ savedAt: Date.now(), state: createState() }));
 
         expect(loadWorkshopParticipantStateCache(WORKSHOP_SLUG)).toBeNull();
