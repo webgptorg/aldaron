@@ -13,6 +13,7 @@ import {
     onlineWorkshopTerminalMetrics,
 } from '@/businesses/online-workshop/onlineWorkshopContent';
 import { OnlineWorkshopRegistrationForm } from '@/businesses/online-workshop/OnlineWorkshopRegistrationForm';
+import { useWorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { onlineWorkshopTestimonials } from '@/businesses/online-workshop/onlineWorkshopTestimonials';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { FAQSection } from '@/components/faq-section';
@@ -40,6 +41,7 @@ type OnlineWorkshopPageProps = {
 };
 
 export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
+    useWorkshopParticipantOfflineSupport();
     const nearestUpcomingWorkshop = workshops[0] ?? null;
     const nearestWorkshopDateLabel =
         nearestUpcomingWorkshop === null ? null : formatCzechWorkshopDate(nearestUpcomingWorkshop.startsAt);

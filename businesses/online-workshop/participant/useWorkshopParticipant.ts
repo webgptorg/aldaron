@@ -22,6 +22,11 @@ import {
     type WorkshopCommentValues,
     type WorkshopFeedbackValues,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
+import {
+    clearWorkshopParticipantStateCache,
+    loadWorkshopParticipantStateCache,
+    saveWorkshopParticipantStateCache,
+} from '@/businesses/online-workshop/participant/workshopParticipantStateCache';
 import { getSupabaseForBrowser } from '@/lib/supabase';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import {
@@ -42,6 +47,9 @@ const DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS = 25_000;
 const DISCONNECTED_REFRESH_JITTER_MILLISECONDS = 10_000;
 const CONNECTED_REFRESH_MINIMUM_MILLISECONDS = 120_000;
 const CONNECTED_REFRESH_JITTER_MILLISECONDS = 30_000;
+const UNAVAILABLE_REFRESH_MINIMUM_MILLISECONDS = 60_000;
+const UNAVAILABLE_REFRESH_MAXIMUM_MILLISECONDS = 5 * 60_000;
+const UNAVAILABLE_REFRESH_JITTER_MILLISECONDS = 30_000;
 const REALTIME_INVALIDATION_JITTER_MILLISECONDS = 1_250;
 const WORKSHOP_PRESENCE_REPORT_INTERVAL_MILLISECONDS = 30_000;
 const NEW_CONTENT_UNLOCK_HIGHLIGHT_DURATION_MILLISECONDS = 8_000;
@@ -52,6 +60,11 @@ type WorkshopParticipantController = {
     readonly isCheckingConnection: boolean;
     readonly isConnectionRequired: boolean;
     readonly isRefreshing: boolean;
+
+    /**
+     * Whether the room is temporarily showing its last browser-stored state while a new state cannot be reached.
+     */
+    readonly isUsingCachedState: boolean;
     readonly errorMessage: string | null;
     /**
      * Offers the stage the reactions which deserve to fly over it
@@ -105,6 +118,25 @@ function getCzechApiErrorMessage(error: unknown): string {
     return error.message;
 }
 
+function isTemporaryWorkshopApiError(error: unknown): boolean {
+    return !(error instanceof WorkshopApiError) || error.status === 429 || error.status >= 500;
+}
+
+/**
+ * Once a room knows the backend is unavailable, each participant waits longer before asking again. The jitter keeps
+ * many attendees from retrying in the same second after a service recovers.
+ */
+function getUnavailableRefreshInterval(consecutiveFailureCount: number): number {
+    const exponentialDelay = UNAVAILABLE_REFRESH_MINIMUM_MILLISECONDS * 2 ** Math.max(0, consecutiveFailureCount - 1);
+    return (
+        Math.min(UNAVAILABLE_REFRESH_MAXIMUM_MILLISECONDS, exponentialDelay) +
+        Math.random() * UNAVAILABLE_REFRESH_JITTER_MILLISECONDS
+    );
+}
+
+const CACHED_STATE_UNAVAILABLE_MESSAGE =
+    'Spojení s workshopem je dočasně nedostupné. Zobrazuje se naposledy uložená verze; nové zprávy a materiály se načtou po obnovení spojení.';
+
 export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipantController {
     const [state, setState] = useState<WorkshopPublicState | null>(null);
     const [commentSort, setCommentSort] = useState<WorkshopCommentSort>('recent');
@@ -112,6 +144,8 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const [isConnectionRequired, setIsConnectionRequired] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+    const [isUsingCachedState, setIsUsingCachedState] = useState(false);
+    const [consecutiveRefreshFailureCount, setConsecutiveRefreshFailureCount] = useState(0);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [newlyUnlockedContentBlockIds, setNewlyUnlockedContentBlockIds] = useState<ReadonlySet<string>>(new Set());
     const { subscribeToReactions, showReaction, showLoadedReactions } = useWorkshopReactionAnimations();
@@ -121,6 +155,9 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const knownContentBlockIdsRef = useRef(new Set<string>());
     const lastPresenceReportAtRef = useRef<number | null>(null);
     const isConnectionReportedRef = useRef(false);
+    const cachedStateRef = useRef<WorkshopPublicState | null>(null);
+    const consecutiveRefreshFailureCountRef = useRef(0);
+    const nextAutomaticRefreshAtRef = useRef(0);
     const isConnected = state !== null;
 
     // Note: A calm room such as the community never waits for a broadcast, so it neither opens a channel for one nor
@@ -170,7 +207,42 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         [workshopSlug],
     );
 
-    const refresh = useCallback(async (): Promise<boolean> => {
+    const showLoadedState = useCallback(
+        (loadedState: WorkshopPublicState) => {
+            showLoadedReactions(loadedState.recentReactions);
+            processLoadedContentBlocks(loadedState.contentBlocks);
+            setState(loadedState);
+            setIsConnectionRequired(false);
+        },
+        [processLoadedContentBlocks, showLoadedReactions],
+    );
+
+    const restoreCachedState = useCallback((): WorkshopPublicState | null => {
+        const cachedState = loadWorkshopParticipantStateCache(workshopSlug)?.state ?? null;
+        cachedStateRef.current = cachedState;
+        return cachedState;
+    }, [workshopSlug]);
+
+    const markRefreshSucceeded = useCallback(() => {
+        consecutiveRefreshFailureCountRef.current = 0;
+        nextAutomaticRefreshAtRef.current = 0;
+        setConsecutiveRefreshFailureCount((currentFailureCount) =>
+            currentFailureCount === 0 ? currentFailureCount : 0,
+        );
+    }, []);
+
+    const markRefreshTemporarilyUnavailable = useCallback((): void => {
+        const nextFailureCount = Math.min(consecutiveRefreshFailureCountRef.current + 1, 10);
+        consecutiveRefreshFailureCountRef.current = nextFailureCount;
+        nextAutomaticRefreshAtRef.current = Date.now() + getUnavailableRefreshInterval(nextFailureCount);
+        setConsecutiveRefreshFailureCount(nextFailureCount);
+    }, []);
+
+    const refresh = useCallback(async (isForcedRefresh = true): Promise<boolean> => {
+        if (!isForcedRefresh && Date.now() < nextAutomaticRefreshAtRef.current) {
+            return false;
+        }
+
         const refreshSequence = ++refreshSequenceRef.current;
         setIsRefreshing(true);
 
@@ -179,10 +251,11 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             if (refreshSequence !== refreshSequenceRef.current) {
                 return false;
             }
-            showLoadedReactions(loadedState.recentReactions);
-            processLoadedContentBlocks(loadedState.contentBlocks);
-            setState(loadedState);
-            setIsConnectionRequired(false);
+            cachedStateRef.current = loadedState;
+            saveWorkshopParticipantStateCache(workshopSlug, loadedState);
+            showLoadedState(loadedState);
+            setIsUsingCachedState(false);
+            markRefreshSucceeded();
             setErrorMessage(null);
             return true;
         } catch (error) {
@@ -190,14 +263,35 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 return false;
             }
             if (error instanceof WorkshopApiError && error.status === 401) {
+                clearWorkshopParticipantStateCache(workshopSlug);
+                cachedStateRef.current = null;
                 setState(null);
                 setIsConnectionRequired(true);
+                setIsUsingCachedState(false);
+                markRefreshSucceeded();
                 setErrorMessage(null);
             } else if (error instanceof WorkshopApiError && error.status === 404) {
+                clearWorkshopParticipantStateCache(workshopSlug);
+                cachedStateRef.current = null;
                 setState(null);
                 setIsConnectionRequired(false);
+                setIsUsingCachedState(false);
+                markRefreshSucceeded();
                 setErrorMessage(getCzechApiErrorMessage(error));
+            } else if (isTemporaryWorkshopApiError(error)) {
+                const cachedState = cachedStateRef.current ?? restoreCachedState();
+                if (cachedState !== null) {
+                    // A room already on screen can be newer than its persisted copy, so it always wins over the cache.
+                    setState((currentState) => currentState ?? cachedState);
+                    setIsConnectionRequired(false);
+                    setIsUsingCachedState(true);
+                    setErrorMessage(CACHED_STATE_UNAVAILABLE_MESSAGE);
+                } else {
+                    setErrorMessage(getCzechApiErrorMessage(error));
+                }
+                markRefreshTemporarilyUnavailable();
             } else {
+                markRefreshSucceeded();
                 setErrorMessage(getCzechApiErrorMessage(error));
             }
             return false;
@@ -207,7 +301,14 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 setIsRefreshing(false);
             }
         }
-    }, [commentSort, processLoadedContentBlocks, showLoadedReactions, workshopSlug]);
+    }, [
+        commentSort,
+        markRefreshSucceeded,
+        markRefreshTemporarilyUnavailable,
+        restoreCachedState,
+        showLoadedState,
+        workshopSlug,
+    ]);
 
     const scheduleRealtimeRefresh = useCallback(() => {
         if (realtimeRefreshTimeoutRef.current !== null) {
@@ -217,22 +318,35 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         const delayMilliseconds = Math.random() * REALTIME_INVALIDATION_JITTER_MILLISECONDS;
         realtimeRefreshTimeoutRef.current = window.setTimeout(() => {
             realtimeRefreshTimeoutRef.current = null;
-            void refresh();
+            void refresh(false);
         }, delayMilliseconds);
     }, [refresh]);
 
     useEffect(() => {
-        void refresh();
+        const cachedState = restoreCachedState();
+        if (cachedState === null) {
+            return;
+        }
+
+        // The first request remains a live one. The stored state merely prevents the loading screen replacing an
+        // already known room while the backend is overloaded or temporarily down.
+        showLoadedState(cachedState);
+        setIsUsingCachedState(true);
+        setIsCheckingConnection(false);
+    }, [restoreCachedState, showLoadedState]);
+
+    useEffect(() => {
+        void refresh(false);
     }, [refresh]);
 
     useEffect(() => {
-        if (state === null || isConnectionReportedRef.current) {
+        if (state === null || isUsingCachedState || isConnectionReportedRef.current) {
             return;
         }
 
         isConnectionReportedRef.current = true;
         trackGoogleAnalyticsEvent('workshop_connected', { workshop_slug: state.workshop.slug });
-    }, [state]);
+    }, [isUsingCachedState, state]);
 
     const applyWatchingParticipantCount = useCallback((watchingParticipantCount: number) => {
         // A count which did not survive the way back from the room is dropped, so the room keeps showing the last one.
@@ -271,6 +385,13 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     }, []);
 
     const reportCurrentPresence = useCallback(() => {
+        if (isUsingCachedState) {
+            // Presence is nonessential during an outage. Resetting the clock also keeps recovery from attributing the
+            // entire outage to one request.
+            lastPresenceReportAtRef.current = Date.now();
+            return;
+        }
+
         const reportedAtMilliseconds = Date.now();
         const previousReportAtMilliseconds = lastPresenceReportAtRef.current;
         lastPresenceReportAtRef.current = reportedAtMilliseconds;
@@ -291,7 +412,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             .catch((error) => {
                 console.warn('Failed to report workshop participant presence:', error);
             });
-    }, [applyWatchingParticipantCount, workshopSlug]);
+    }, [applyWatchingParticipantCount, isUsingCachedState, workshopSlug]);
 
     useEffect(() => {
         if (!isConnected) {
@@ -329,16 +450,18 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         }
 
         const isLiveUpdateMissing = isRoomRealtime && !isRealtimeConnected;
-        const refreshInterval = isLiveUpdateMissing
-            ? DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * DISCONNECTED_REFRESH_JITTER_MILLISECONDS
-            : CONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * CONNECTED_REFRESH_JITTER_MILLISECONDS;
+        const refreshInterval = isUsingCachedState
+            ? getUnavailableRefreshInterval(consecutiveRefreshFailureCount)
+            : isLiveUpdateMissing
+              ? DISCONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * DISCONNECTED_REFRESH_JITTER_MILLISECONDS
+              : CONNECTED_REFRESH_MINIMUM_MILLISECONDS + Math.random() * CONNECTED_REFRESH_JITTER_MILLISECONDS;
         const intervalId = window.setInterval(() => {
             if (document.visibilityState === 'visible') {
-                void refresh();
+                void refresh(false);
             }
         }, refreshInterval);
         return () => window.clearInterval(intervalId);
-    }, [isConnected, isRealtimeConnected, isRoomRealtime, refresh]);
+    }, [consecutiveRefreshFailureCount, isConnected, isRealtimeConnected, isRoomRealtime, isUsingCachedState, refresh]);
 
     useEffect(() => {
         if (!isConnected) {
@@ -347,7 +470,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                void refresh();
+                void refresh(false);
             }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -360,7 +483,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         }
 
         const unlockDelay = getContentUnlockRefreshDelay(state.nextContentUnlockAt, state.serverTime, Date.now());
-        const timeoutId = window.setTimeout(() => void refresh(), unlockDelay);
+        const timeoutId = window.setTimeout(() => void refresh(false), unlockDelay);
         return () => window.clearTimeout(timeoutId);
     }, [refresh, state?.nextContentUnlockAt, state?.serverTime]);
 
@@ -448,9 +571,11 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 const connection = await connectToWorkshop(workshopSlug, values);
                 setIsConnectionRequired(false);
                 if (connection.state !== null) {
-                    showLoadedReactions(connection.state.recentReactions);
-                    processLoadedContentBlocks(connection.state.contentBlocks);
-                    setState(connection.state);
+                    cachedStateRef.current = connection.state;
+                    saveWorkshopParticipantStateCache(workshopSlug, connection.state);
+                    showLoadedState(connection.state);
+                    setIsUsingCachedState(false);
+                    markRefreshSucceeded();
                     setIsCheckingConnection(false);
                     setIsRefreshing(false);
                     return true;
@@ -464,7 +589,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                 return false;
             }
         },
-        [processLoadedContentBlocks, refresh, showLoadedReactions, workshopSlug],
+        [markRefreshSucceeded, refresh, showLoadedState, workshopSlug],
     );
 
     const changeFullname = useCallback(
@@ -657,6 +782,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         isCheckingConnection,
         isConnectionRequired,
         isRefreshing,
+        isUsingCachedState,
         errorMessage,
         subscribeToReactions,
         newlyUnlockedContentBlockIds,

@@ -98,6 +98,7 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         isCheckingConnection: false,
         isConnectionRequired: false,
         isRefreshing: false,
+        isUsingCachedState: false,
         errorMessage: null,
         subscribeToReactions: () => () => undefined,
         newlyUnlockedContentBlockIds: new Set<string>(),

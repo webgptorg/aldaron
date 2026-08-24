@@ -1,4 +1,5 @@
 import { ONLINE_WORKSHOP_HOST_FULLNAME, ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
+import { WorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { AddToCalendarButtons } from '@/components/calendar/AddToCalendarButtons';
 import { MetaPixelEvent } from '@/components/meta-pixel-event';
 import { MinimalFooter } from '@/components/minimal-footer';
@@ -83,6 +84,7 @@ export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: On
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
+            <WorkshopParticipantOfflineSupport />
             <MetaPixelEvent eventName={REGISTRATION_META_PIXEL_EVENT_NAME} />
 
             <MinimalHeader />

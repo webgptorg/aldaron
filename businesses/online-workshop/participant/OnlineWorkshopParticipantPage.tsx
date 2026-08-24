@@ -11,6 +11,7 @@ import { WorkshopParticipantBadge } from '@/businesses/online-workshop/participa
 import { WorkshopReactions } from '@/businesses/online-workshop/participant/WorkshopReactions';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
+import { useWorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
@@ -77,6 +78,10 @@ export function OnlineWorkshopParticipantPage({
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
+    useWorkshopParticipantOfflineSupport();
+    const cachedStateMessage =
+        controller.errorMessage ??
+        'Zobrazuje se naposledy uložená verze místnosti. Ověřuji, zda jsou k dispozici novější informace.';
 
     useEffect(() => {
         if (controller.state === null) {
@@ -191,7 +196,18 @@ export function OnlineWorkshopParticipantPage({
 
             <main className="mx-auto grid w-full min-w-0 max-w-[1500px] grid-cols-1 gap-5 px-4 py-4 sm:px-8 sm:py-5 lg:grid-cols-[minmax(0,1fr)_390px]">
                 <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-                    {controller.errorMessage && (
+                    {controller.isUsingCachedState ? (
+                        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-amber-300/25 bg-amber-300/[0.08] px-4 py-3 text-sm text-amber-100">
+                            <span className="min-w-0 flex-1 break-words">{cachedStateMessage}</span>
+                            <button
+                                type="button"
+                                onClick={() => void controller.refresh()}
+                                className="shrink-0 font-semibold underline underline-offset-4"
+                            >
+                                Zkusit znovu
+                            </button>
+                        </div>
+                    ) : controller.errorMessage ? (
                         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-sm text-rose-200">
                             <span className="min-w-0 flex-1 break-words">{controller.errorMessage}</span>
                             <button
@@ -202,7 +218,7 @@ export function OnlineWorkshopParticipantPage({
                                 Zkusit znovu
                             </button>
                         </div>
-                    )}
+                    ) : null}
 
                     {roomCapabilities.isStageOffered && (
                         <WorkshopStage
