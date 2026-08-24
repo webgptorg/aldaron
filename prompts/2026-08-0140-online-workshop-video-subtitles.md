@@ -2,7 +2,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.1634 3 minutes; Testing 4 minutes
 
 [✨🌤] Do not show subtitles in played video
 
