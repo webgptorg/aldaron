@@ -1,18 +1,14 @@
 'use client';
 
 import { ShortcodeLinkUrlListInput } from '@/components/shortener/ShortcodeLinkUrlListInput';
+import { PromptbookQrCode } from '@/components/promptbook-qr-code';
 import { classNames } from '@/lib/classNames';
 import { generateShortcode } from '@/lib/shortener/generateShortcode';
 import { createPublicShortcodeLinkUrl, type ShortcodeLink } from '@/lib/shortener/shortcodeLink';
 import { createAdminShortcodeLink } from '@/lib/shortener/shortcodeLinkAdminApiClient';
 import { isAbsoluteUrl } from '@/lib/shortener/isAbsoluteUrl';
 import { titleToName } from '@promptbook/utils';
-import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState } from 'react';
-
-const PROMPTBOOK_QR_CODE = dynamic(() => import('@promptbook/components').then((module) => module.PromptbookQrCode), {
-    ssr: false,
-});
 
 const SHORTCODE_PREVIEW_COUNT = 5;
 
@@ -450,7 +446,7 @@ export function UrlShortener(props: UrlShortenerProps) {
                             <div className="text-center">
                                 <h3 className="text-lg font-medium">QR Code</h3>
                                 <div className="mt-2 inline-block rounded-lg bg-white p-4 shadow-md">
-                                    <PROMPTBOOK_QR_CODE value={createdLink.url} />
+                                    <PromptbookQrCode value={createdLink.url} />
                                 </div>
                             </div>
                         )}

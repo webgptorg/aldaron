@@ -1,6 +1,7 @@
 'use client';
 
 import { MarkdownContent } from '@/components/markdown-content';
+import { PromptbookQrCode } from '@/components/promptbook-qr-code';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Clock3, ExternalLink, Sparkles } from 'lucide-react';
@@ -29,6 +30,7 @@ const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', {
 });
 const MATERIAL_CALL_TO_ACTION_LABEL = 'Otevřít materiál';
 const MATERIAL_LINK_SELECTOR = 'a[href]:not([data-workshop-material-call-to-action])';
+const MATERIAL_QR_CODE_SIZE = 144;
 
 function configureMaterialLink(linkElement: HTMLAnchorElement): void {
     // The server has already replaced the href with a persisted short link.
@@ -38,31 +40,65 @@ function configureMaterialLink(linkElement: HTMLAnchorElement): void {
     linkElement.rel = 'noopener noreferrer';
 }
 
-function getSingleWorkshopMaterialLink(linkElements: readonly HTMLAnchorElement[]): WorkshopMaterialLink | null {
-    if (linkElements.length !== 1) {
-        return null;
-    }
-
-    const [linkElement] = linkElements;
-    return {
+function getWorkshopMaterialLinks(linkElements: readonly HTMLAnchorElement[]): readonly WorkshopMaterialLink[] {
+    return linkElements.map((linkElement) => ({
         href: linkElement.href,
         label: linkElement.textContent?.trim() || MATERIAL_CALL_TO_ACTION_LABEL,
-    };
+    }));
 }
 
-function areWorkshopMaterialLinksEqual(
-    currentMaterialLink: WorkshopMaterialLink | null,
-    nextMaterialLink: WorkshopMaterialLink | null,
+function areWorkshopMaterialLinkListsEqual(
+    currentMaterialLinks: readonly WorkshopMaterialLink[],
+    nextMaterialLinks: readonly WorkshopMaterialLink[],
 ): boolean {
+    return currentMaterialLinks.length === nextMaterialLinks.length && currentMaterialLinks.every(
+        (currentMaterialLink, index) =>
+            currentMaterialLink.href === nextMaterialLinks[index]?.href &&
+            currentMaterialLink.label === nextMaterialLinks[index]?.label,
+    );
+}
+
+/**
+ * Every QR code carries the persisted short link already present in a material. On a desktop it gives the person
+ * reading the room the same tracked destination on their phone without sending mobile layouts through an extra panel.
+ */
+function WorkshopMaterialQrCodes({ materialLinks }: { readonly materialLinks: readonly WorkshopMaterialLink[] }) {
     return (
-        currentMaterialLink?.href === nextMaterialLink?.href &&
-        currentMaterialLink?.label === nextMaterialLink?.label
+        <aside
+            aria-label="QR kódy materiálů"
+            className="hidden shrink-0 lg:flex lg:flex-col lg:items-center lg:gap-4"
+        >
+            {materialLinks.map((materialLink, index) => (
+                <figure
+                    key={`${materialLink.href}-${index}`}
+                    aria-label={`QR kód materiálu: ${materialLink.label}`}
+                    className="w-44"
+                >
+                    <div className="rounded-xl bg-white p-3 shadow-lg shadow-cyan-300/10">
+                        <PromptbookQrCode
+                            value={materialLink.href}
+                            size={MATERIAL_QR_CODE_SIZE}
+                            className="h-36 w-36"
+                        />
+                    </div>
+                    <figcaption className="mt-2 text-center text-xs font-semibold leading-5 text-cyan-100">
+                        Otevřít v telefonu
+                        {materialLinks.length > 1 && (
+                            <span className="mt-0.5 block truncate text-slate-400" title={materialLink.label}>
+                                {materialLink.label}
+                            </span>
+                        )}
+                    </figcaption>
+                </figure>
+            ))}
+        </aside>
     );
 }
 
 function WorkshopMaterialBody({ contentBlock }: WorkshopMaterialBodyProps) {
     const materialBodyReference = useRef<HTMLDivElement>(null);
-    const [singleMaterialLink, setSingleMaterialLink] = useState<WorkshopMaterialLink | null>(null);
+    const [materialLinks, setMaterialLinks] = useState<readonly WorkshopMaterialLink[]>([]);
+    const singleMaterialLink = materialLinks.length === 1 ? materialLinks[0] : null;
 
     useEffect(() => {
         const materialBodyElement = materialBodyReference.current;
@@ -76,11 +112,11 @@ function WorkshopMaterialBody({ contentBlock }: WorkshopMaterialBodyProps) {
                 configureMaterialLink(linkElement);
             });
 
-            const nextSingleMaterialLink = getSingleWorkshopMaterialLink(linkElements);
-            setSingleMaterialLink((currentMaterialLink) =>
-                areWorkshopMaterialLinksEqual(currentMaterialLink, nextSingleMaterialLink)
-                    ? currentMaterialLink
-                    : nextSingleMaterialLink,
+            const nextMaterialLinks = getWorkshopMaterialLinks(linkElements);
+            setMaterialLinks((currentMaterialLinks) =>
+                areWorkshopMaterialLinkListsEqual(currentMaterialLinks, nextMaterialLinks)
+                    ? currentMaterialLinks
+                    : nextMaterialLinks,
             );
         };
 
@@ -91,27 +127,30 @@ function WorkshopMaterialBody({ contentBlock }: WorkshopMaterialBodyProps) {
     }, [contentBlock.bodyMarkdown]);
 
     return (
-        <div ref={materialBodyReference} className="min-w-0 break-words">
-            <MarkdownContent
-                content={contentBlock.bodyMarkdown}
-                theme="DARK"
-                className="max-w-none leading-7 text-slate-200 [--chat-md-link-color:#f1f5f9] [&_a]:font-semibold [&_code]:break-words [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
-            />
-            {singleMaterialLink && (
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                    <a
-                        href={singleMaterialLink.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        data-workshop-material-call-to-action
-                        aria-label={`${MATERIAL_CALL_TO_ACTION_LABEL}: ${singleMaterialLink.label}`}
-                        className="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/10 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
-                    >
-                        {MATERIAL_CALL_TO_ACTION_LABEL}
-                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                    </a>
-                </div>
-            )}
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-8">
+            <div ref={materialBodyReference} className="min-w-0 break-words">
+                <MarkdownContent
+                    content={contentBlock.bodyMarkdown}
+                    theme="DARK"
+                    className="max-w-none leading-7 text-slate-200 [--chat-md-link-color:#f1f5f9] [&_a]:font-semibold [&_code]:break-words [&_code]:text-cyan-100 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto"
+                />
+                {singleMaterialLink && (
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                        <a
+                            href={singleMaterialLink.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-workshop-material-call-to-action
+                            aria-label={`${MATERIAL_CALL_TO_ACTION_LABEL}: ${singleMaterialLink.label}`}
+                            className="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/10 transition hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
+                        >
+                            {MATERIAL_CALL_TO_ACTION_LABEL}
+                            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                        </a>
+                    </div>
+                )}
+            </div>
+            {materialLinks.length > 0 && <WorkshopMaterialQrCodes materialLinks={materialLinks} />}
         </div>
     );
 }

@@ -23,6 +23,12 @@ vi.mock('@/components/markdown-content', () => ({
     },
 }));
 
+vi.mock('@/components/promptbook-qr-code', () => ({
+    PromptbookQrCode: ({ value, size, className }: { readonly value: string; readonly size?: number; readonly className?: string }) => (
+        <span data-testid="workshop-material-qr-code" data-value={value} data-size={size} className={className} />
+    ),
+}));
+
 const CONTENT_BLOCK: WorkshopContentBlock = {
     id: 'material-1',
     title: '',
@@ -59,6 +65,30 @@ describe('workshop materials', () => {
         expect(callToAction.getAttribute('rel')).toBe('noopener noreferrer');
     });
 
+    it('shows each material short link as a desktop-only QR code for opening on a phone', async () => {
+        const secondContentBlock: WorkshopContentBlock = {
+            ...CONTENT_BLOCK,
+            id: 'material-2',
+            bodyMarkdown: '[Stáhnout podklady](https://ptbk.io/material-def456)',
+        };
+        renderWorkshopContent([CONTENT_BLOCK, secondContentBlock]);
+
+        const qrCodes = await screen.findAllByTestId('workshop-material-qr-code');
+
+        expect(qrCodes.map((qrCode) => qrCode.getAttribute('data-value'))).toEqual([
+            'https://ptbk.io/material-abc123',
+            'https://ptbk.io/material-def456',
+        ]);
+        expect(qrCodes.every((qrCode) => qrCode.getAttribute('data-size') === '144')).toBe(true);
+        expect(screen.getAllByLabelText('QR kódy materiálů')).toHaveLength(2);
+        expect(screen.getAllByLabelText('QR kódy materiálů').every((qrCodes) => qrCodes.className.includes('hidden'))).toBe(
+            true,
+        );
+        expect(screen.getAllByLabelText('QR kódy materiálů').every((qrCodes) => qrCodes.className.includes('lg:flex'))).toBe(
+            true,
+        );
+    });
+
     it('keeps multiple material links as light underlined links without a call to action', async () => {
         const contentBlockWithMultipleLinks: WorkshopContentBlock = {
             ...CONTENT_BLOCK,
@@ -70,6 +100,23 @@ describe('workshop materials', () => {
 
         expect(screen.queryByRole('link', { name: /Otevřít materiál/ })).toBeNull();
         expect(screen.getByTestId('markdown-content').className).toContain('[--chat-md-link-color:#f1f5f9]');
+    });
+
+    it('keeps every link of a multi-link material available through its own QR code', async () => {
+        const contentBlockWithMultipleLinks: WorkshopContentBlock = {
+            ...CONTENT_BLOCK,
+            bodyMarkdown: '[První materiál](https://ptbk.io/material-one) a [druhý materiál](https://ptbk.io/material-two)',
+        };
+        renderWorkshopContent([contentBlockWithMultipleLinks]);
+
+        const qrCodes = await screen.findAllByTestId('workshop-material-qr-code');
+
+        expect(qrCodes.map((qrCode) => qrCode.getAttribute('data-value'))).toEqual([
+            'https://ptbk.io/material-one',
+            'https://ptbk.io/material-two',
+        ]);
+        expect(screen.getByLabelText('QR kód materiálu: První materiál')).not.toBeNull();
+        expect(screen.getByLabelText('QR kód materiálu: druhý materiál')).not.toBeNull();
     });
 
     it('marks the selected follow-up material while it stays in the ordinary material list', () => {

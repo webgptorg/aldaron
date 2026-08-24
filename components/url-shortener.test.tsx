@@ -12,7 +12,7 @@ vi.mock('@/lib/shortener/shortcodeLinkAdminApiClient', () => ({
     createAdminShortcodeLink: vi.fn(),
 }));
 
-vi.mock('@promptbook/components', () => ({
+vi.mock('@/components/promptbook-qr-code', () => ({
     PromptbookQrCode: ({ value }: { value: string }) => <span data-testid="qr-code" data-value={value} />,
 }));
 
