@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopContentI
         .update(createWorkshopContentUpdateDatabaseValues(parsedResult.data))
         .eq('id', contentId)
         .eq('workshop_id', workshopId)
-        .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+        .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
         .maybeSingle();
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

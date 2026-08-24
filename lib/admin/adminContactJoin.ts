@@ -28,6 +28,30 @@ export type AdminWorkshopParticipation = {
 };
 
 /**
+ * One post-workshop review in the same private identity projection as Contact rows and workshop attendances.
+ *
+ * The feedback remains stored against its workshop participant. This is only the admin read model which lets a
+ * contact's history explain the context of their rating without duplicating the source row.
+ */
+export type AdminWorkshopFeedback = {
+    readonly id: string;
+    readonly workshopId: string;
+    readonly workshopKind: WorkshopKind;
+    readonly workshopTitle: string;
+    readonly workshopStartsAt: string;
+    readonly workshopEndsAt: string | null;
+    readonly participantId: string;
+    readonly fullname: string;
+    readonly email: string;
+    readonly rating: number;
+    readonly whatWasGood: string | null;
+    readonly whatWasBad: string | null;
+    readonly note: string | null;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
+/**
  * Every source record known for one normalized e-mail address.
  */
 export type AdminContactGroup = {
@@ -37,6 +61,7 @@ export type AdminContactGroup = {
     readonly normalizedEmail: string | null;
     readonly contacts: readonly Contact[];
     readonly workshopParticipations: readonly AdminWorkshopParticipation[];
+    readonly workshopFeedbacks: readonly AdminWorkshopFeedback[];
 };
 
 /**
@@ -60,6 +85,7 @@ type MutableAdminContactGroup = {
     normalizedEmail: string | null;
     contacts: Contact[];
     workshopParticipations: AdminWorkshopParticipation[];
+    workshopFeedbacks: AdminWorkshopFeedback[];
 };
 
 /**
@@ -91,7 +117,7 @@ export function normalizeAdminContactEmail(email: string | null | undefined): st
 }
 
 function createMutableAdminContactGroup(normalizedEmail: string | null): MutableAdminContactGroup {
-    return { normalizedEmail, contacts: [], workshopParticipations: [] };
+    return { normalizedEmail, contacts: [], workshopParticipations: [], workshopFeedbacks: [] };
 }
 
 function freezeAdminContactGroup(group: MutableAdminContactGroup): AdminContactGroup {
@@ -99,6 +125,7 @@ function freezeAdminContactGroup(group: MutableAdminContactGroup): AdminContactG
         normalizedEmail: group.normalizedEmail,
         contacts: group.contacts,
         workshopParticipations: group.workshopParticipations,
+        workshopFeedbacks: group.workshopFeedbacks,
     };
 }
 
@@ -111,6 +138,7 @@ function freezeAdminContactGroup(group: MutableAdminContactGroup): AdminContactG
 export function createAdminContactGroups(
     contacts: readonly Contact[],
     workshopParticipations: readonly AdminWorkshopParticipation[],
+    workshopFeedbacks: readonly AdminWorkshopFeedback[] = [],
 ): readonly AdminContactGroup[] {
     const groupedContactsByEmail = new Map<string, MutableAdminContactGroup>();
     const groupsInSourceOrder: MutableAdminContactGroup[] = [];
@@ -141,6 +169,10 @@ export function createAdminContactGroups(
         getGroupForEmail(normalizeAdminContactEmail(workshopParticipation.email)).workshopParticipations.push(
             workshopParticipation,
         );
+    }
+
+    for (const workshopFeedback of workshopFeedbacks) {
+        getGroupForEmail(normalizeAdminContactEmail(workshopFeedback.email)).workshopFeedbacks.push(workshopFeedback);
     }
 
     return groupsInSourceOrder.map(freezeAdminContactGroup);
@@ -314,6 +346,32 @@ export function formatAdminWorkshopParticipations(contactGroup: AdminContactGrou
                 `Comment upvotes: ${workshopParticipation.upvoteCount}`,
                 `Trusted: ${workshopParticipation.isTrusted ? 'yes' : 'no'}`,
                 `Interaction banned: ${workshopParticipation.isInteractionBanned ? 'yes' : 'no'}`,
+            ].join('\n'),
+        )
+        .join('\n\n');
+}
+
+/**
+ * A complete, readable representation of the feedback connected to one contact identity for private exports.
+ */
+export function formatAdminWorkshopFeedbacks(contactGroup: AdminContactGroup | null | undefined): string {
+    const workshopFeedbacks = contactGroup?.workshopFeedbacks ?? [];
+    if (workshopFeedbacks.length === 0) {
+        return '';
+    }
+
+    return workshopFeedbacks
+        .map((workshopFeedback) =>
+            [
+                `${getWorkshopParticipationKindLabel(workshopFeedback.workshopKind)}: ${workshopFeedback.workshopTitle}`,
+                `Workshop ID: ${workshopFeedback.workshopId}`,
+                `Participant ID: ${workshopFeedback.participantId}`,
+                `Rating: ${workshopFeedback.rating}/5`,
+                `What was good: ${workshopFeedback.whatWasGood ?? ''}`,
+                `What was bad: ${workshopFeedback.whatWasBad ?? ''}`,
+                `Note: ${workshopFeedback.note ?? ''}`,
+                `Created at: ${workshopFeedback.createdAt}`,
+                `Updated at: ${workshopFeedback.updatedAt}`,
             ].join('\n'),
         )
         .join('\n\n');

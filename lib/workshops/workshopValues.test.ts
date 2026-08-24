@@ -1,5 +1,7 @@
 import {
     createWorkshopCommentUpdateDatabaseValues,
+    createWorkshopContentDatabaseValues,
+    createWorkshopFeedbackUpdateDatabaseValues,
     createWorkshopUpdateDatabaseValues,
     getWorkshopCommentPinChange,
 } from '@/lib/workshops/workshopValues';
@@ -34,6 +36,23 @@ describe('workshop admin values', () => {
     it('writes a changed URL slug to the workshop row', () => {
         expect(createWorkshopUpdateDatabaseValues({ slug: 'production-ai-september-2026' })).toEqual({
             slug: 'production-ai-september-2026',
+        });
+    });
+
+    it('writes a follow-up flag as part of one ordinary material and only the feedback fields that changed', () => {
+        expect(
+            createWorkshopContentDatabaseValues({
+                title: 'Další krok',
+                bodyMarkdown: '[Materiály](https://example.com)',
+                unlockAt: '2026-08-22T19:00:00+02:00',
+                sortOrder: 20,
+                isPublished: true,
+                isFollowUp: true,
+            }),
+        ).toMatchObject({ is_follow_up: true });
+        expect(createWorkshopFeedbackUpdateDatabaseValues({ rating: 4, note: null })).toEqual({
+            rating: 4,
+            note: null,
         });
     });
 });

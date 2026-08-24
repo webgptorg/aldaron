@@ -204,10 +204,41 @@ export type WorkshopContentBlock = {
     readonly unlockAt: string;
     readonly sortOrder: number;
     readonly isPublished: boolean;
+
+    /**
+     * The one ordinary material selected to lead the post-workshop follow-up.
+     */
+    readonly isFollowUp: boolean;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly linkClickCount: number;
 };
+
+/**
+ * A participant's progressively saved reflection after one workshop.
+ *
+ * The score creates the record; every written answer is optional and can then arrive independently, so somebody who
+ * only answers the first question is still represented faithfully.
+ */
+export type WorkshopFeedback = {
+    readonly rating: number;
+    readonly whatWasGood: string | null;
+    readonly whatWasBad: string | null;
+    readonly note: string | null;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
+/**
+ * The admin-only form of feedback, attributable to its participant and joinable to the private contact projection.
+ */
+export type WorkshopAdminFeedback = WorkshopFeedback &
+    AdminContactJoin & {
+        readonly id: string;
+        readonly participantId: string;
+        readonly fullname: string;
+        readonly email: string;
+    };
 
 /**
  * Who wrote a message, as far as somebody moderating the room may know them
@@ -292,6 +323,7 @@ export type WorkshopPublicState = {
     readonly watchingParticipantCount: number;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly nextContentUnlockAt: string | null;
+    readonly feedback: WorkshopFeedback | null;
     readonly comments: readonly WorkshopComment[];
     readonly recentReactions: readonly WorkshopReaction[];
     readonly reactionCounts: readonly WorkshopReactionCount[];

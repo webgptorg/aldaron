@@ -1,6 +1,7 @@
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminAnalytics,
+    WorkshopAdminFeedback,
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
     WorkshopAdminSnapshot,
@@ -50,6 +51,7 @@ export type WorkshopContentWriteValues = {
     readonly unlockAt: string;
     readonly sortOrder: number;
     readonly isPublished: boolean;
+    readonly isFollowUp: boolean;
 };
 
 export type WorkshopArtificialCommentValues = {
@@ -127,6 +129,13 @@ export async function fetchAdminWorkshopParticipantTimeline(
 
 export async function fetchAdminWorkshopAnalytics(workshopId: string): Promise<WorkshopAdminAnalytics> {
     return requestAdminJson(createAdminApiUrl(`/${encodeURIComponent(workshopId)}/analytics`));
+}
+
+export async function fetchAdminWorkshopFeedback(workshopId: string): Promise<readonly WorkshopAdminFeedback[]> {
+    const result = await requestAdminJson<{ readonly feedbacks: readonly WorkshopAdminFeedback[] }>(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/feedback`),
+    );
+    return result.feedbacks;
 }
 
 /**

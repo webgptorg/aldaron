@@ -34,6 +34,7 @@ import { WorkshopArtificialReaction } from '@/businesses/workshop-admin/Workshop
 import { WorkshopCommentModeration } from '@/businesses/workshop-admin/WorkshopCommentModeration';
 import { WorkshopContentAdmin } from '@/businesses/workshop-admin/WorkshopContentAdmin';
 import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExportButton';
+import { WorkshopFeedbackAdmin } from '@/businesses/workshop-admin/WorkshopFeedbackAdmin';
 import { WorkshopParticipantList } from '@/businesses/workshop-admin/WorkshopParticipantList';
 import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopReactionSummary';
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
@@ -55,7 +56,7 @@ import type {
     WorkshopCommentStatus,
     WorkshopKind,
 } from '@/lib/workshops/workshopTypes';
-import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Users } from 'lucide-react';
+import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Star, Users } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
@@ -70,6 +71,7 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
     { value: 'comments', label: 'Komentáře', icon: MessageCircle },
     { value: 'reactions', label: 'Reakce', icon: Radio },
     { value: 'content', label: 'Obsah', icon: BookOpenText },
+    { value: 'feedback', label: 'Zpětná vazba', icon: Star },
     { value: 'settings', label: 'Nastavení', icon: Settings2 },
 ];
 
@@ -104,7 +106,11 @@ export function WorkshopAdminDashboard({
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const snapshotLoadSequenceReference = useRef(0);
-    const selectedSection = viewState.section;
+    const selectedSection = viewState.section === 'feedback' && workshopKind !== 'workshop' ? 'overview' : viewState.section;
+    const sectionDefinitions =
+        workshopKind === 'workshop'
+            ? WORKSHOP_ADMIN_SECTION_DEFINITIONS
+            : WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(({ value }) => value !== 'feedback');
 
     // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
     //       list are one and the same thing. A link which names no room, or a room which is not there any more, opens
@@ -244,6 +250,7 @@ export function WorkshopAdminDashboard({
                 unlockAt: new Date().toISOString(),
                 sortOrder: contentBlock.sortOrder,
                 isPublished: true,
+                isFollowUp: contentBlock.isFollowUp,
             }),
         );
     };
@@ -382,8 +389,8 @@ export function WorkshopAdminDashboard({
                     </div>
                 ) : (
                     <Tabs value={selectedSection} onValueChange={handleSectionChange}>
-                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-6">
-                            {WORKSHOP_ADMIN_SECTION_DEFINITIONS.map((sectionDefinition) => {
+                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-7">
+                            {sectionDefinitions.map((sectionDefinition) => {
                                 const SectionIcon = sectionDefinition.icon;
                                 return (
                                     <TabsTrigger
@@ -497,6 +504,15 @@ export function WorkshopAdminDashboard({
                                 onUnlockNow={handleUnlockContentNow}
                             />
                         </TabsContent>
+
+                        {workshopKind === 'workshop' && (
+                            <TabsContent value="feedback">
+                                <WorkshopFeedbackAdmin
+                                    workshopId={snapshot.workshop.id}
+                                    refreshVersion={snapshotRefreshVersion}
+                                />
+                            </TabsContent>
+                        )}
 
                         <TabsContent value="settings" className="space-y-4">
                             <div className="flex justify-end">

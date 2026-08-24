@@ -5,6 +5,7 @@ import type {
     workshopContentCreateSchema,
     workshopContentUpdateSchema,
     workshopCreateSchema,
+    workshopFeedbackUpdateSchema,
     workshopParticipantUpdateSchema,
     workshopUpdateSchema,
 } from '@/lib/workshops/workshopSchemas';
@@ -16,6 +17,7 @@ type WorkshopContentUpdateValues = z.infer<typeof workshopContentUpdateSchema>;
 type WorkshopCommentUpdateValues = z.infer<typeof workshopCommentUpdateSchema>;
 type WorkshopParticipantUpdateValues = z.infer<typeof workshopParticipantUpdateSchema>;
 type WorkshopArtificialCommentValues = z.infer<typeof workshopArtificialCommentSchema>;
+type WorkshopFeedbackUpdateValues = z.infer<typeof workshopFeedbackUpdateSchema>;
 
 export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
     return {
@@ -52,6 +54,7 @@ export function createWorkshopContentDatabaseValues(values: WorkshopContentCreat
         unlock_at: values.unlockAt,
         sort_order: values.sortOrder,
         is_published: values.isPublished,
+        is_follow_up: values.isFollowUp,
     };
 }
 
@@ -62,6 +65,19 @@ export function createWorkshopContentUpdateDatabaseValues(values: WorkshopConten
         ...(values.unlockAt === undefined ? {} : { unlock_at: values.unlockAt }),
         ...(values.sortOrder === undefined ? {} : { sort_order: values.sortOrder }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
+        ...(values.isFollowUp === undefined ? {} : { is_follow_up: values.isFollowUp }),
+    };
+}
+
+/**
+ * Database names for the feedback fields which may be independently saved by the participant.
+ */
+export function createWorkshopFeedbackUpdateDatabaseValues(values: WorkshopFeedbackUpdateValues) {
+    return {
+        ...(values.rating === undefined ? {} : { rating: values.rating }),
+        ...(values.whatWasGood === undefined ? {} : { what_was_good: values.whatWasGood }),
+        ...(values.whatWasBad === undefined ? {} : { what_was_bad: values.whatWasBad }),
+        ...(values.note === undefined ? {} : { note: values.note }),
     };
 }
 

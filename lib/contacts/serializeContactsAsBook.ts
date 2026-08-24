@@ -1,5 +1,6 @@
 import {
     formatAdminContactRecords,
+    formatAdminWorkshopFeedbacks,
     formatAdminWorkshopParticipations,
     type AdminJoinedContact,
 } from '@/lib/admin/adminContactJoin';
@@ -22,14 +23,15 @@ function serializeAdminJoinedContactAsBook(contact: AdminJoinedContact): string 
         `Normalized email: ${contact.contactGroup.normalizedEmail ?? EMPTY_BOOK_SECTION_VALUE}`,
         formatBookSection('Contact records', formatAdminContactRecords(contact.contactGroup)),
         formatBookSection('Workshop attendance', formatAdminWorkshopParticipations(contact.contactGroup)),
+        formatBookSection('Workshop feedback', formatAdminWorkshopFeedbacks(contact.contactGroup)),
     ].join(BOOK_SECTION_SEPARATOR);
 }
 
 /**
  * Serialize the selected contacts as a Book-style context document for an AI agent.
  *
- * Every CONTACT keeps all of the source Contact records and the complete workshop attendance summary, rather than
- * merely the merged values which the contacts table displays.
+ * Every CONTACT keeps all source Contact records, workshop attendance, and feedback, rather than merely the merged
+ * values which the contacts table displays.
  */
 export function serializeAdminJoinedContactsAsBook(
     contacts: readonly AdminJoinedContact[],
@@ -37,7 +39,7 @@ export function serializeAdminJoinedContactsAsBook(
 ): string {
     const bookHeader = [
         `Contacts ${exportedOn}`,
-        `NOTE These are the contacts exported from the ${SITE_NAME} contacts administration. Each CONTACT contains all known contact records and workshop attendance activity at the time of export.`,
+        `NOTE These are the contacts exported from the ${SITE_NAME} contacts administration. Each CONTACT contains all known contact records, workshop attendance activity, and workshop feedback at the time of export.`,
     ].join(BOOK_SECTION_SEPARATOR);
 
     return [

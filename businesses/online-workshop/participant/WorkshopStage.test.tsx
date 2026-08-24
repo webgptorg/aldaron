@@ -5,7 +5,7 @@
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import type { FlyingWorkshopReaction } from '@/lib/workshops/workshopReactionAnimations';
-import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
+import type { WorkshopContentBlock, WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -28,6 +28,19 @@ const WORKSHOP: WorkshopDetails = {
 const WORKSHOP_WITH_VIDEO: WorkshopDetails = {
     ...WORKSHOP,
     youtubeVideoId: 'dQw4w9WgXcQ',
+};
+
+const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
+    id: 'follow-up-material',
+    title: 'Materiály pro další krok',
+    bodyMarkdown: '[Otevřít](https://example.com/materialy)',
+    unlockAt: '2026-08-20T19:00:00+02:00',
+    sortOrder: 0,
+    isPublished: true,
+    isFollowUp: true,
+    createdAt: '2026-08-20T18:00:00+02:00',
+    updatedAt: '2026-08-20T18:00:00+02:00',
+    linkClickCount: 0,
 };
 
 /**
@@ -149,5 +162,26 @@ describe('workshop stage', () => {
         expect(postMessage).not.toHaveBeenCalled();
 
         contentWindowSpy.mockRestore();
+    });
+
+    it('replaces the video with the wrap-up while reactions keep their stage stream', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T20:31:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                feedback={null}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
+        expect(screen.getByRole('link', { name: /Materiály pro další krok/ }).getAttribute('href')).toBe(
+            '#workshop-material-follow-up-material',
+        );
+        expect(reactionSource.listenerCount()).toBe(1);
     });
 });

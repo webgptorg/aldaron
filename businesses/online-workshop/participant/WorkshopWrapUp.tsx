@@ -1,0 +1,58 @@
+'use client';
+
+import { WorkshopFeedback } from '@/businesses/online-workshop/participant/WorkshopFeedback';
+import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
+import type { WorkshopContentBlock, WorkshopFeedback as WorkshopFeedbackValue } from '@/lib/workshops/workshopTypes';
+import { ArrowDown, BookOpenText, PartyPopper } from 'lucide-react';
+
+type WorkshopWrapUpProps = {
+    readonly feedback: WorkshopFeedbackValue | null;
+    readonly followUpContentBlock: WorkshopContentBlock | null;
+    readonly onSaveFeedback: (values: WorkshopFeedbackValues) => Promise<boolean>;
+};
+
+/**
+ * The third stage of a workshop. The follow-up is still rendered by the shared material list below; this screen links
+ * directly to that same record so the stage does not invent a second material model or a second tracking path.
+ */
+export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback }: WorkshopWrapUpProps) {
+    return (
+        <div className="relative px-5 py-7 sm:px-8 sm:py-10">
+            <div className="mx-auto max-w-2xl">
+                <div className="flex items-center gap-2 text-cyan-200">
+                    <PartyPopper className="h-5 w-5" aria-hidden="true" />
+                    <span className="text-xs font-bold uppercase tracking-[0.16em]">Workshop je u konce</span>
+                </div>
+                <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    Děkujeme, že jste byli u toho!
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
+                    Budeme rádi za krátkou zpětnou vazbu. Zabere jen chvilku a pomůže nám připravit další setkání ještě
+                    lépe.
+                </p>
+
+                <div className="mt-6">
+                    <WorkshopFeedback feedback={feedback} onSave={onSaveFeedback} />
+                </div>
+
+                {followUpContentBlock !== null && (
+                    <a
+                        href={`#workshop-material-${followUpContentBlock.id}`}
+                        className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-200/25 bg-amber-300/[0.08] p-4 text-left transition hover:border-amber-200/60 hover:bg-amber-300/[0.13]"
+                    >
+                        <BookOpenText className="mt-0.5 h-5 w-5 shrink-0 text-amber-200" aria-hidden="true" />
+                        <span className="min-w-0 flex-1">
+                            <span className="block text-xs font-bold uppercase tracking-[0.14em] text-amber-200">
+                                Navazující materiál
+                            </span>
+                            <span className="mt-1 block text-sm font-bold text-white">
+                                {followUpContentBlock.title || 'Otevřít doporučený materiál z workshopu'}
+                            </span>
+                        </span>
+                        <ArrowDown className="mt-2 h-4 w-4 shrink-0 text-amber-100" aria-hidden="true" />
+                    </a>
+                )}
+            </div>
+        </div>
+    );
+}

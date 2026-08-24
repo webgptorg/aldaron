@@ -83,6 +83,7 @@ const PARTICIPANT_WITH_JOINED_CONTACT: WorkshopAdminParticipant = {
                 isTrusted: PARTICIPANT.isTrusted,
             },
         ],
+        workshopFeedbacks: [],
     },
 };
 

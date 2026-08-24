@@ -2,6 +2,7 @@ import type {
     WorkshopComment,
     WorkshopCommentSort,
     WorkshopCommentStatus,
+    WorkshopFeedback,
     WorkshopParticipant,
     WorkshopPublicState,
     WorkshopReaction,
@@ -34,6 +35,16 @@ export type WorkshopCommentModerationValues = {
 export type WorkshopAuthorModerationValues = {
     readonly isTrusted?: boolean;
     readonly isInteractionBanned?: boolean;
+};
+
+/**
+ * One independently persisted step of post-workshop feedback.
+ */
+export type WorkshopFeedbackValues = {
+    readonly rating?: number;
+    readonly whatWasGood?: string;
+    readonly whatWasBad?: string;
+    readonly note?: string;
 };
 
 export class WorkshopApiError extends Error {
@@ -182,6 +193,19 @@ export async function recordWorkshopMaterialLinkClick(workshopSlug: string, cont
     if (!response.ok) {
         await readResponseJson(response);
     }
+}
+
+export async function saveWorkshopFeedback(
+    workshopSlug: string,
+    values: WorkshopFeedbackValues,
+): Promise<{ readonly feedback: WorkshopFeedback }> {
+    const response = await fetch(getWorkshopApiUrl(workshopSlug, 'feedback'), {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+    });
+    return readResponseJson(response);
 }
 
 export async function reportWorkshopPresence(

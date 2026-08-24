@@ -1,6 +1,7 @@
 import type { Contact } from './Contact';
 import {
     formatAdminContactRecords,
+    formatAdminWorkshopFeedbacks,
     formatAdminWorkshopParticipations,
     type AdminJoinedContact,
 } from '@/lib/admin/adminContactJoin';
@@ -43,6 +44,10 @@ export function serializeAdminJoinedContactsAsCsv(contacts: readonly AdminJoined
             {
                 header: 'workshopParticipations',
                 getValue: (contact) => formatAdminWorkshopParticipations(contact.contactGroup),
+            },
+            {
+                header: 'workshopFeedbacks',
+                getValue: (contact) => formatAdminWorkshopFeedbacks(contact.contactGroup),
             },
         ],
     );

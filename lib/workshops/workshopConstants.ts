@@ -5,6 +5,7 @@ export const WORKSHOP_COMMENT_TABLE_NAME = 'workshop_comments';
 export const WORKSHOP_UPVOTE_TABLE_NAME = 'workshop_comment_upvotes';
 export const WORKSHOP_REACTION_TABLE_NAME = 'workshop_reactions';
 export const WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME = 'workshop_content_link_clicks';
+export const WORKSHOP_FEEDBACK_TABLE_NAME = 'workshop_feedback';
 
 export const WORKSHOP_SESSION_COOKIE_PREFIX = 'workshop_session_';
 export const WORKSHOP_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
@@ -22,6 +23,7 @@ export const DEFAULT_WORKSHOP_DURATION_MINUTES = 60;
  */
 export const MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT = 16;
 export const MAXIMAL_WORKSHOP_COMMENT_LENGTH = 2_000;
+export const MAXIMAL_WORKSHOP_FEEDBACK_TEXT_LENGTH = 5_000;
 export const MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS = 120;
 
 /**

@@ -12,6 +12,7 @@ import {
     moderateWorkshopComment,
     recordWorkshopMaterialLinkClick,
     reportWorkshopPresence,
+    saveWorkshopFeedback,
     sendWorkshopReaction,
     submitWorkshopComment,
     upvoteWorkshopComment,
@@ -19,6 +20,7 @@ import {
     type WorkshopAuthorModerationValues,
     type WorkshopCommentModerationValues,
     type WorkshopCommentValues,
+    type WorkshopFeedbackValues,
 } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { getSupabaseForBrowser } from '@/lib/supabase';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
@@ -74,6 +76,11 @@ type WorkshopParticipantController = {
     readonly moderateAuthor: (participantId: string, values: WorkshopAuthorModerationValues) => Promise<boolean>;
     readonly react: (emoji: string) => Promise<void>;
     readonly recordMaterialLinkClick: (contentId: string) => void;
+
+    /**
+     * Saves one post-workshop feedback step without waiting for the rest of the form.
+     */
+    readonly saveFeedback: (values: WorkshopFeedbackValues) => Promise<boolean>;
 };
 
 function getCzechApiErrorMessage(error: unknown): string {
@@ -620,6 +627,30 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         [workshopSlug],
     );
 
+    const saveFeedback = useCallback(
+        async (values: WorkshopFeedbackValues): Promise<boolean> => {
+            setErrorMessage(null);
+            try {
+                const { feedback } = await saveWorkshopFeedback(workshopSlug, values);
+                setState((currentState) =>
+                    currentState === null ? currentState : { ...currentState, feedback },
+                );
+                trackGoogleAnalyticsEvent('workshop_feedback_saved', {
+                    workshop_slug: workshopSlug,
+                    has_rating: values.rating !== undefined,
+                    has_what_was_good: values.whatWasGood !== undefined,
+                    has_what_was_bad: values.whatWasBad !== undefined,
+                    has_note: values.note !== undefined,
+                });
+                return true;
+            } catch (error) {
+                setErrorMessage(getCzechApiErrorMessage(error));
+                return false;
+            }
+        },
+        [workshopSlug],
+    );
+
     return {
         state,
         commentSort,
@@ -639,5 +670,6 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
         moderateAuthor,
         react,
         recordMaterialLinkClick,
+        saveFeedback,
     };
 }

@@ -54,6 +54,11 @@ const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL = readFileSync(
     PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_PATH,
     'utf8',
 );
+const WRAP_UP_AND_FEEDBACK_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-1600-online-workshop-wrap-up-and-feedback.sql',
+);
+const WRAP_UP_AND_FEEDBACK_MIGRATION_SQL = readFileSync(WRAP_UP_AND_FEEDBACK_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -334,5 +339,26 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_MIGRATION_SQL).toContain("WHERE room_kind = 'community'");
         expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_community_slug');
         expect(COMMUNITY_MIGRATION_SQL).toContain("'komunita'");
+    });
+
+    it('selects one ordinary follow-up material and keeps feedback private and attributable', () => {
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS is_follow_up boolean NOT NULL DEFAULT false',
+        );
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
+            'CREATE UNIQUE INDEX IF NOT EXISTS workshop_content_blocks_one_follow_up_per_workshop',
+        );
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('WHERE is_follow_up');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('select_workshop_follow_up_content');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_feedback');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
+            'CONSTRAINT workshop_feedback_one_per_participant UNIQUE (workshop_id, participant_id)',
+        );
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('workshop_feedback_participant_fk');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('CHECK (rating BETWEEN 1 AND 5)');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_feedback FORCE ROW LEVEL SECURITY');
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
+            'REVOKE ALL ON TABLE public.workshop_feedback FROM PUBLIC, anon, authenticated',
+        );
     });
 });

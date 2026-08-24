@@ -9,6 +9,7 @@ import {
     workshopCreateSchema,
     workshopParticipantRenameSchema,
     workshopParticipantUpdateSchema,
+    workshopFeedbackUpdateSchema,
     workshopPresenceSchema,
     workshopReactionSchema,
     workshopUpdateSchema,
@@ -129,8 +130,32 @@ describe('workshop request validation', () => {
                 unlockAt: '2026-08-22T19:00:00+02:00',
                 sortOrder: 20,
                 isPublished: true,
+                isFollowUp: false,
             }).success,
         ).toBe(true);
+    });
+
+    it('keeps a selected follow-up material in the ordinary content request and normalizes optional feedback text', () => {
+        expect(
+            workshopContentCreateSchema.parse({
+                title: 'Další krok',
+                bodyMarkdown: '[Materiály](https://example.com)',
+                unlockAt: '2026-08-22T19:00:00+02:00',
+                sortOrder: 20,
+                isPublished: true,
+                isFollowUp: true,
+            }).isFollowUp,
+        ).toBe(true);
+        expect(
+            workshopFeedbackUpdateSchema.parse({
+                rating: 5,
+                whatWasGood: '  Praktické ukázky.  ',
+                whatWasBad: '   ',
+            }),
+        ).toEqual({ rating: 5, whatWasGood: 'Praktické ukázky.', whatWasBad: null });
+        expect(workshopFeedbackUpdateSchema.safeParse({}).success).toBe(false);
+        expect(workshopFeedbackUpdateSchema.safeParse({ rating: 6 }).success).toBe(false);
+        expect(workshopFeedbackUpdateSchema.safeParse({ note: 'A'.repeat(5001) }).success).toBe(false);
     });
 
     it('trims an allowed reaction before comparing it with workshop settings', () => {

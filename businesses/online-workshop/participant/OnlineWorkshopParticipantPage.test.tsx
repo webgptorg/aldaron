@@ -86,6 +86,7 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         watchingParticipantCount: 3,
         contentBlocks: [],
         nextContentUnlockAt: null,
+        feedback: null,
         comments: [],
         recentReactions: [],
         reactionCounts: [],
@@ -110,6 +111,7 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         moderateAuthor: async () => true,
         react: async () => undefined,
         recordMaterialLinkClick: () => undefined,
+        saveFeedback: async () => true,
     };
 
     // Note: A member returning to a permanent room opens it without any parameters at all, so the room is rendered

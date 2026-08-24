@@ -3,9 +3,11 @@ import {
     createAdminJoinedContacts,
     findAdminContactGroup,
     formatAdminContactRecords,
+    formatAdminWorkshopFeedbacks,
     formatAdminWorkshopParticipations,
     getAdminContactPhoneNumbers,
     normalizeAdminContactEmail,
+    type AdminWorkshopFeedback,
     type AdminWorkshopParticipation,
 } from '@/lib/admin/adminContactJoin';
 import type { Contact } from '@/lib/contacts/Contact';
@@ -53,6 +55,24 @@ const WORKSHOP_PARTICIPATION: AdminWorkshopParticipation = {
     isTrusted: true,
 };
 
+const WORKSHOP_FEEDBACK: AdminWorkshopFeedback = {
+    id: 'feedback-1',
+    workshopId: WORKSHOP_PARTICIPATION.workshopId,
+    workshopKind: WORKSHOP_PARTICIPATION.workshopKind,
+    workshopTitle: WORKSHOP_PARTICIPATION.workshopTitle,
+    workshopStartsAt: WORKSHOP_PARTICIPATION.workshopStartsAt,
+    workshopEndsAt: WORKSHOP_PARTICIPATION.workshopEndsAt,
+    participantId: WORKSHOP_PARTICIPATION.participantId,
+    fullname: WORKSHOP_PARTICIPATION.fullname,
+    email: WORKSHOP_PARTICIPATION.email,
+    rating: 5,
+    whatWasGood: 'Praktické ukázky.',
+    whatWasBad: null,
+    note: null,
+    createdAt: '2026-08-20T18:31:00.000Z',
+    updatedAt: '2026-08-20T18:31:00.000Z',
+};
+
 describe('admin contact joining', () => {
     it('normalizes case and plus tags only for the admin identity join', () => {
         expect(normalizeAdminContactEmail(' Example+newsletter@EXAMPLE.com ')).toBe('example@example.com');
@@ -76,7 +96,7 @@ describe('admin contact joining', () => {
             isContacted: true,
         });
 
-        const groups = createAdminContactGroups([newestContact, olderContact], [WORKSHOP_PARTICIPATION]);
+        const groups = createAdminContactGroups([newestContact, olderContact], [WORKSHOP_PARTICIPATION], [WORKSHOP_FEEDBACK]);
         const joinedContacts = createAdminJoinedContacts(groups);
         const contactGroup = findAdminContactGroup(groups, 'JANA+other@example.com');
 
@@ -90,6 +110,7 @@ describe('admin contact joining', () => {
         });
         expect(contactGroup?.contacts.map((contact) => contact.id)).toEqual([11, 7]);
         expect(contactGroup?.workshopParticipations).toEqual([WORKSHOP_PARTICIPATION]);
+        expect(contactGroup?.workshopFeedbacks).toEqual([WORKSHOP_FEEDBACK]);
         expect(getAdminContactPhoneNumbers(contactGroup)).toEqual(['+420 777 000 111']);
         expect(formatAdminContactRecords(contactGroup)).toContain('Our note: Zavolat po workshopu.');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Produkční kód s AI agenty');
@@ -98,6 +119,7 @@ describe('admin contact joining', () => {
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Reactions: 5');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Material link clicks: 1');
         expect(formatAdminWorkshopParticipations(contactGroup)).toContain('Comment upvotes: 3');
+        expect(formatAdminWorkshopFeedbacks(contactGroup)).toContain('Rating: 5/5');
     });
 
     it('never groups unrelated source rows that are missing an e-mail address', () => {
@@ -120,6 +142,7 @@ describe('admin contact joining', () => {
                 }),
             ],
             [WORKSHOP_PARTICIPATION],
+            [WORKSHOP_FEEDBACK],
         );
         const joinedContacts = createAdminJoinedContacts(groups);
 
@@ -127,8 +150,11 @@ describe('admin contact joining', () => {
         const vcard = serializeAdminJoinedContactsAsVcard(joinedContacts);
 
         expect(csv).toContain('workshopParticipations');
+        expect(csv).toContain('workshopFeedbacks');
         expect(csv).toContain('Produkční kód s AI agenty');
+        expect(csv).toContain('Praktické ukázky.');
         expect(vcard).toContain('TEL;TYPE=CELL:+420 777 000 111');
         expect(vcard).toContain('Workshop participations');
+        expect(vcard).toContain('Workshop feedback');
     });
 });

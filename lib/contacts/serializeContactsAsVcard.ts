@@ -2,6 +2,7 @@ import { serializeVcards } from '@/lib/exports/serializeVcards';
 import { SITE_NAME } from '@/lib/metadata/site-config';
 import {
     formatAdminContactRecords,
+    formatAdminWorkshopFeedbacks,
     formatAdminWorkshopParticipations,
     getAdminContactPhoneNumbers,
     type AdminJoinedContact,
@@ -87,6 +88,7 @@ export function serializeAdminJoinedContactsAsVcard(contacts: readonly AdminJoin
                     : `Normalized email: ${contact.contactGroup.normalizedEmail}`,
                 `Contact records:\n${formatAdminContactRecords(contact.contactGroup)}`,
                 `Workshop participations:\n${formatAdminWorkshopParticipations(contact.contactGroup)}`,
+                `Workshop feedback:\n${formatAdminWorkshopFeedbacks(contact.contactGroup)}`,
             ],
             VCARD_NOTE_LINE_SEPARATOR,
         );

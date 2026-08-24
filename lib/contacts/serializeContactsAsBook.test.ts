@@ -46,6 +46,7 @@ const JOINED_CONTACT: AdminJoinedContact = {
         normalizedEmail: 'jana@example.com',
         contacts: [CONTACT_RECORD],
         workshopParticipations: [WORKSHOP_PARTICIPATION],
+        workshopFeedbacks: [],
     },
 };
 

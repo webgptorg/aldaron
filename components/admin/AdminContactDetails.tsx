@@ -7,6 +7,7 @@ type AdminContactDetailsProps = {
     readonly contactGroup: AdminContactGroup | null | undefined;
     readonly isContactRecordsIncluded: boolean;
     readonly isWorkshopParticipationsIncluded: boolean;
+    readonly isWorkshopFeedbackIncluded?: boolean;
 };
 
 function getWorkshopParticipationLabel(contactGroup: AdminContactGroup): string {
@@ -32,6 +33,52 @@ function AdminWorkshopParticipationDetails({ contactGroup }: { readonly contactG
                             {formatWorkshopAdminDateTime(workshopParticipation.connectedAt)} · aktivně{' '}
                             {formatWorkshopActiveDuration(workshopParticipation.activeDurationSeconds)}
                         </p>
+                    </li>
+                ))}
+            </ul>
+        </details>
+    );
+}
+
+function getWorkshopFeedbackLabel(contactGroup: AdminContactGroup): string {
+    const workshopFeedbackCount = contactGroup.workshopFeedbacks?.length ?? 0;
+    return workshopFeedbackCount === 1 ? '1 zpětná vazba' : `${workshopFeedbackCount} zpětné vazby`;
+}
+
+function AdminWorkshopFeedbackDetails({ contactGroup }: { readonly contactGroup: AdminContactGroup }) {
+    const workshopFeedbacks = contactGroup.workshopFeedbacks ?? [];
+    if (workshopFeedbacks.length === 0) {
+        return <p className="text-xs text-slate-400">Bez zpětné vazby z workshopu.</p>;
+    }
+
+    return (
+        <details className="text-xs text-slate-600">
+            <summary className="cursor-pointer font-medium text-cyan-800">{getWorkshopFeedbackLabel(contactGroup)}</summary>
+            <ul className="mt-2 space-y-3">
+                {workshopFeedbacks.map((workshopFeedback) => (
+                    <li key={workshopFeedback.id} className="border-l-2 border-amber-200 pl-2">
+                        <p className="font-medium text-slate-800">
+                            {workshopFeedback.workshopTitle} · {workshopFeedback.rating}/5 ★
+                        </p>
+                        <p>{formatWorkshopAdminDateTime(workshopFeedback.updatedAt)}</p>
+                        {workshopFeedback.whatWasGood !== null && workshopFeedback.whatWasGood.trim() !== '' && (
+                            <p className="mt-1 whitespace-pre-wrap break-words">
+                                <span className="font-medium text-slate-700">Přínosné: </span>
+                                {workshopFeedback.whatWasGood}
+                            </p>
+                        )}
+                        {workshopFeedback.whatWasBad !== null && workshopFeedback.whatWasBad.trim() !== '' && (
+                            <p className="mt-1 whitespace-pre-wrap break-words">
+                                <span className="font-medium text-slate-700">Zlepšit: </span>
+                                {workshopFeedback.whatWasBad}
+                            </p>
+                        )}
+                        {workshopFeedback.note !== null && workshopFeedback.note.trim() !== '' && (
+                            <p className="mt-1 whitespace-pre-wrap break-words">
+                                <span className="font-medium text-slate-700">Vzkaz: </span>
+                                {workshopFeedback.note}
+                            </p>
+                        )}
                     </li>
                 ))}
             </ul>
@@ -91,6 +138,7 @@ export function AdminContactDetails({
     contactGroup,
     isContactRecordsIncluded,
     isWorkshopParticipationsIncluded,
+    isWorkshopFeedbackIncluded = false,
 }: AdminContactDetailsProps) {
     if (contactGroup === null || contactGroup === undefined) {
         return <span className="text-xs text-slate-400">Bez odpovídajícího kontaktu.</span>;
@@ -100,6 +148,7 @@ export function AdminContactDetails({
         <div className="space-y-3">
             {isContactRecordsIncluded && <AdminContactRecordDetails contactGroup={contactGroup} />}
             {isWorkshopParticipationsIncluded && <AdminWorkshopParticipationDetails contactGroup={contactGroup} />}
+            {isWorkshopFeedbackIncluded && <AdminWorkshopFeedbackDetails contactGroup={contactGroup} />}
         </div>
     );
 }

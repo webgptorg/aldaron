@@ -1,5 +1,9 @@
 import type { Contact } from '@/lib/contacts/Contact';
-import { WORKSHOP_PARTICIPANT_TABLE_NAME, WORKSHOP_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import {
+    WORKSHOP_FEEDBACK_TABLE_NAME,
+    WORKSHOP_PARTICIPANT_TABLE_NAME,
+    WORKSHOP_TABLE_NAME,
+} from '@/lib/workshops/workshopConstants';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -83,6 +87,19 @@ describe('loadAdminJoinedContacts', () => {
                 upvote_count: '3',
             },
         ]);
+        const feedbackQuery = createPagedQuery([
+            {
+                id: 'feedback-1',
+                workshop_id: 'workshop-1',
+                participant_id: 'participant-1',
+                rating: 5,
+                what_was_good: 'Ukázky v kódu.',
+                what_was_bad: null,
+                note: null,
+                created_at: '2026-08-20T18:31:00.000Z',
+                updated_at: '2026-08-20T18:31:00.000Z',
+            },
+        ]);
         const rpc = vi.fn(() => activityTotalsQuery.query);
         const from = vi.fn((tableName: string) => {
             if (tableName === WORKSHOP_TABLE_NAME) {
@@ -93,6 +110,10 @@ describe('loadAdminJoinedContacts', () => {
                 return participantQuery;
             }
 
+            if (tableName === WORKSHOP_FEEDBACK_TABLE_NAME) {
+                return feedbackQuery;
+            }
+
             return {};
         });
         const supabase = { from, rpc } as unknown as SupabaseClient;
@@ -100,6 +121,7 @@ describe('loadAdminJoinedContacts', () => {
 
         const result = await loadAdminJoinedContacts(supabase);
         const workshopParticipation = result.contacts?.[0]?.contactGroup.workshopParticipations[0];
+        const workshopFeedback = result.contacts?.[0]?.contactGroup.workshopFeedbacks[0];
 
         expect(result.errorMessage).toBeNull();
         expect(workshopParticipation).toMatchObject({
@@ -111,6 +133,11 @@ describe('loadAdminJoinedContacts', () => {
         });
         expect(rpc).toHaveBeenCalledWith('get_workshop_participant_activity_totals_for_workshops', {
             target_workshop_ids: ['workshop-1'],
+        });
+        expect(workshopFeedback).toMatchObject({
+            rating: 5,
+            whatWasGood: 'Ukázky v kódu.',
+            workshopTitle: 'Produkční kód s AI agenty',
         });
     });
 });

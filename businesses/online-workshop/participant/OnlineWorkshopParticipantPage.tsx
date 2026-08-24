@@ -150,6 +150,7 @@ export function OnlineWorkshopParticipantPage({
     const { state } = controller;
     const roomCapabilities = getWorkshopKindCapabilities(state.workshop.kind);
     const isModerating = isWorkshopParticipantModerating(state.participant);
+    const followUpContentBlock = state.contentBlocks.find((contentBlock) => contentBlock.isFollowUp) ?? null;
 
     // Note: What the kind of this room has and what an administrator switched off is asked here once, so a new panel
     //       is one line of the room.
@@ -208,6 +209,9 @@ export function OnlineWorkshopParticipantPage({
                             workshop={state.workshop}
                             serverTime={state.serverTime}
                             subscribeToReactions={controller.subscribeToReactions}
+                            feedback={state.feedback}
+                            followUpContentBlock={followUpContentBlock}
+                            onSaveFeedback={controller.saveFeedback}
                         />
                     )}
                     {calendarDetails !== null && (

@@ -3,17 +3,24 @@ import {
     createAdminJoinedContacts,
     type AdminContactGroup,
     type AdminJoinedContact,
+    type AdminWorkshopFeedback,
     type AdminWorkshopParticipation,
 } from '@/lib/admin/adminContactJoin';
 import { CONTACT_TABLE_NAME, loadContacts } from '@/lib/contacts/contactsDatabase';
 import { loadAllSupabaseRows } from '@/lib/supabase/loadAllSupabaseRows';
-import { WORKSHOP_PARTICIPANT_TABLE_NAME, WORKSHOP_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import {
+    WORKSHOP_FEEDBACK_TABLE_NAME,
+    WORKSHOP_PARTICIPANT_TABLE_NAME,
+    WORKSHOP_TABLE_NAME,
+} from '@/lib/workshops/workshopConstants';
 import type { WorkshopKind } from '@/lib/workshops/workshopTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 const ADMIN_CONTACT_WORKSHOP_COLUMNS = 'id, room_kind, title, starts_at, ends_at';
 const ADMIN_CONTACT_WORKSHOP_PARTICIPANT_COLUMNS =
     'id, workshop_id, fullname, email, connected_at, last_seen_at, active_duration_seconds, is_interaction_banned, is_trusted';
+const ADMIN_CONTACT_WORKSHOP_FEEDBACK_COLUMNS =
+    'id, workshop_id, participant_id, rating, what_was_good, what_was_bad, note, created_at, updated_at';
 
 type AdminContactWorkshopRow = {
     readonly id: string;
@@ -33,6 +40,18 @@ type AdminContactWorkshopParticipantRow = {
     readonly active_duration_seconds: number;
     readonly is_interaction_banned: boolean;
     readonly is_trusted: boolean;
+};
+
+type AdminContactWorkshopFeedbackRow = {
+    readonly id: string;
+    readonly workshop_id: string;
+    readonly participant_id: string;
+    readonly rating: number | string;
+    readonly what_was_good: string | null;
+    readonly what_was_bad: string | null;
+    readonly note: string | null;
+    readonly created_at: string;
+    readonly updated_at: string;
 };
 
 type AdminContactWorkshopParticipantActivityTotalsRow = {
@@ -61,6 +80,11 @@ type LoadAdminContactGroupsOptions = {
      * Whether this screen needs the complete cross-workshop attendance history, rather than only Contact-table fields.
      */
     readonly isWorkshopParticipationsIncluded?: boolean;
+
+    /**
+     * Whether the contact projection should also carry post-workshop feedback from the same verified identity.
+     */
+    readonly isWorkshopFeedbackIncluded?: boolean;
 };
 
 function getNonNegativeWholeNumber(value: number | string | undefined): number {
@@ -107,6 +131,36 @@ function mapAdminWorkshopParticipation(
     };
 }
 
+function mapAdminWorkshopFeedback(
+    feedbackRow: AdminContactWorkshopFeedbackRow,
+    workshopById: ReadonlyMap<string, AdminContactWorkshopRow>,
+    participantById: ReadonlyMap<string, AdminContactWorkshopParticipantRow>,
+): AdminWorkshopFeedback | null {
+    const workshopRow = workshopById.get(feedbackRow.workshop_id);
+    const participantRow = participantById.get(feedbackRow.participant_id);
+    if (workshopRow === undefined || participantRow === undefined) {
+        return null;
+    }
+
+    return {
+        id: feedbackRow.id,
+        workshopId: workshopRow.id,
+        workshopKind: workshopRow.room_kind,
+        workshopTitle: workshopRow.title,
+        workshopStartsAt: workshopRow.starts_at,
+        workshopEndsAt: workshopRow.ends_at,
+        participantId: participantRow.id,
+        fullname: participantRow.fullname,
+        email: participantRow.email,
+        rating: Number(feedbackRow.rating),
+        whatWasGood: feedbackRow.what_was_good,
+        whatWasBad: feedbackRow.what_was_bad,
+        note: feedbackRow.note,
+        createdAt: feedbackRow.created_at,
+        updatedAt: feedbackRow.updated_at,
+    };
+}
+
 /**
  * Read the already-aggregated activity of every workshop participant in one stable, paged query.
  *
@@ -140,15 +194,24 @@ async function loadAdminWorkshopParticipantActivityTotals(
 }
 
 /**
- * Read every workshop attendance needed by the admin-only contact projection.
+ * Read the workshop source rows needed by the admin-only contact projection once, then compose both attendance and
+ * feedback read models from them. The data remains in its own tables; grouping it by an e-mail is presentation only.
  *
  * The source records remain separate and are joined after both pages are read, because the requested normalization is
  * intentionally a presentation rule rather than a new database key.
  */
-async function loadAdminWorkshopParticipations(
+async function loadAdminWorkshopContactSources(
     supabase: SupabaseClient,
-): Promise<{ readonly workshopParticipations: readonly AdminWorkshopParticipation[] | null; readonly errorMessage: string | null }> {
-    const [workshopRowsResult, participantRowsResult] = await Promise.all([
+    options: {
+        readonly isWorkshopParticipationsIncluded: boolean;
+        readonly isWorkshopFeedbackIncluded: boolean;
+    },
+): Promise<{
+    readonly workshopParticipations: readonly AdminWorkshopParticipation[] | null;
+    readonly workshopFeedbacks: readonly AdminWorkshopFeedback[] | null;
+    readonly errorMessage: string | null;
+}> {
+    const [workshopRowsResult, participantRowsResult, feedbackRowsResult] = await Promise.all([
         loadAllSupabaseRows<AdminContactWorkshopRow>(
             (fromIndex, toIndex) =>
                 supabase
@@ -167,22 +230,39 @@ async function loadAdminWorkshopParticipations(
                     .range(fromIndex, toIndex),
             `the attendances of the contact join, from \`${WORKSHOP_PARTICIPANT_TABLE_NAME}\``,
         ),
+        options.isWorkshopFeedbackIncluded
+            ? loadAllSupabaseRows<AdminContactWorkshopFeedbackRow>(
+                  (fromIndex, toIndex) =>
+                      supabase
+                          .from(WORKSHOP_FEEDBACK_TABLE_NAME)
+                          .select(ADMIN_CONTACT_WORKSHOP_FEEDBACK_COLUMNS)
+                          .order('updated_at', { ascending: false })
+                          .range(fromIndex, toIndex),
+                  `the feedback of the contact join, from \`${WORKSHOP_FEEDBACK_TABLE_NAME}\``,
+              )
+            : Promise.resolve({ rows: [], errorMessage: null }),
     ]);
 
-    const sourceErrorMessage = workshopRowsResult.errorMessage ?? participantRowsResult.errorMessage;
-    if (workshopRowsResult.rows === null || participantRowsResult.rows === null) {
-        return { workshopParticipations: null, errorMessage: sourceErrorMessage };
+    const sourceErrorMessage =
+        workshopRowsResult.errorMessage ?? participantRowsResult.errorMessage ?? feedbackRowsResult.errorMessage;
+    if (workshopRowsResult.rows === null || participantRowsResult.rows === null || feedbackRowsResult.rows === null) {
+        return { workshopParticipations: null, workshopFeedbacks: null, errorMessage: sourceErrorMessage };
     }
 
     const workshopById = new Map<string, AdminContactWorkshopRow>(
         workshopRowsResult.rows.map((workshopRow) => [workshopRow.id, workshopRow] as const),
     );
-    const activityTotalsResult = await loadAdminWorkshopParticipantActivityTotals(
-        supabase,
-        workshopRowsResult.rows.map((workshopRow) => workshopRow.id),
+    const participantById = new Map<string, AdminContactWorkshopParticipantRow>(
+        participantRowsResult.rows.map((participantRow) => [participantRow.id, participantRow] as const),
     );
+    const activityTotalsResult = options.isWorkshopParticipationsIncluded
+        ? await loadAdminWorkshopParticipantActivityTotals(
+              supabase,
+              workshopRowsResult.rows.map((workshopRow) => workshopRow.id),
+          )
+        : { activityTotals: [], errorMessage: null };
     if (activityTotalsResult.activityTotals === null) {
-        return { workshopParticipations: null, errorMessage: activityTotalsResult.errorMessage };
+        return { workshopParticipations: null, workshopFeedbacks: null, errorMessage: activityTotalsResult.errorMessage };
     }
 
     const activityTotalsByParticipationKey = new Map<string, AdminContactWorkshopParticipantActivityTotalsRow>(
@@ -197,13 +277,21 @@ async function loadAdminWorkshopParticipations(
                 ] as const,
         ),
     );
-    const workshopParticipations = participantRowsResult.rows
-        .map((participantRow) =>
-            mapAdminWorkshopParticipation(participantRow, workshopById, activityTotalsByParticipationKey),
-        )
-        .filter((workshopParticipation): workshopParticipation is AdminWorkshopParticipation => workshopParticipation !== null);
+    const workshopParticipations = options.isWorkshopParticipationsIncluded
+        ? participantRowsResult.rows
+              .map((participantRow) =>
+                  mapAdminWorkshopParticipation(participantRow, workshopById, activityTotalsByParticipationKey),
+              )
+              .filter(
+                  (workshopParticipation): workshopParticipation is AdminWorkshopParticipation =>
+                      workshopParticipation !== null,
+              )
+        : [];
+    const workshopFeedbacks = feedbackRowsResult.rows
+        .map((feedbackRow) => mapAdminWorkshopFeedback(feedbackRow, workshopById, participantById))
+        .filter((workshopFeedback): workshopFeedback is AdminWorkshopFeedback => workshopFeedback !== null);
 
-    return { workshopParticipations, errorMessage: null };
+    return { workshopParticipations, workshopFeedbacks, errorMessage: null };
 }
 
 /**
@@ -214,20 +302,33 @@ export async function loadAdminContactGroups(
     options: LoadAdminContactGroupsOptions = { isLoadingAll: true },
 ): Promise<LoadedAdminContactGroups> {
     const isWorkshopParticipationsIncluded = options.isWorkshopParticipationsIncluded !== false;
-    const [loadedContacts, loadedWorkshopParticipations] = await Promise.all([
+    const isWorkshopFeedbackIncluded = options.isWorkshopFeedbackIncluded === true;
+    const isWorkshopSourceDataIncluded = isWorkshopParticipationsIncluded || isWorkshopFeedbackIncluded;
+    const [loadedContacts, loadedWorkshopSources] = await Promise.all([
         loadContacts(supabase.from(CONTACT_TABLE_NAME), { isLoadingAll: options.isLoadingAll }),
-        isWorkshopParticipationsIncluded
-            ? loadAdminWorkshopParticipations(supabase)
-            : Promise.resolve({ workshopParticipations: [], errorMessage: null }),
+        isWorkshopSourceDataIncluded
+            ? loadAdminWorkshopContactSources(supabase, {
+                  isWorkshopParticipationsIncluded,
+                  isWorkshopFeedbackIncluded,
+              })
+            : Promise.resolve({ workshopParticipations: [], workshopFeedbacks: [], errorMessage: null }),
     ]);
 
-    const errorMessage = loadedContacts.errorMessage ?? loadedWorkshopParticipations.errorMessage;
-    if (loadedContacts.contacts === null || loadedWorkshopParticipations.workshopParticipations === null) {
+    const errorMessage = loadedContacts.errorMessage ?? loadedWorkshopSources.errorMessage;
+    if (
+        loadedContacts.contacts === null ||
+        loadedWorkshopSources.workshopParticipations === null ||
+        loadedWorkshopSources.workshopFeedbacks === null
+    ) {
         return { groups: null, errorMessage };
     }
 
     return {
-        groups: createAdminContactGroups(loadedContacts.contacts, loadedWorkshopParticipations.workshopParticipations),
+        groups: createAdminContactGroups(
+            loadedContacts.contacts,
+            loadedWorkshopSources.workshopParticipations,
+            loadedWorkshopSources.workshopFeedbacks,
+        ),
         errorMessage: null,
     };
 }
@@ -239,7 +340,10 @@ export async function loadAdminJoinedContacts(
     supabase: SupabaseClient,
     options: LoadAdminContactGroupsOptions = { isLoadingAll: true },
 ): Promise<LoadedAdminJoinedContacts> {
-    const { groups, errorMessage } = await loadAdminContactGroups(supabase, options);
+    const { groups, errorMessage } = await loadAdminContactGroups(supabase, {
+        ...options,
+        isWorkshopFeedbackIncluded: options.isWorkshopFeedbackIncluded ?? true,
+    });
     if (groups === null) {
         return { contacts: null, errorMessage };
     }

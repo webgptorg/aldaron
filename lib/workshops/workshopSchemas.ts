@@ -3,6 +3,7 @@ import {
     MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT,
     MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
+    MAXIMAL_WORKSHOP_FEEDBACK_TEXT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
@@ -25,6 +26,11 @@ const workshopParticipantFullnameSchema = z
     .refine(isWorkshopParticipantFullnameValid, 'A participant name is required');
 const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_REACTION_LENGTH);
 const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
+const workshopFeedbackTextSchema = z
+    .string()
+    .trim()
+    .max(MAXIMAL_WORKSHOP_FEEDBACK_TEXT_LENGTH)
+    .transform((value) => (value === '' ? null : value));
 const workshopAllowedReactionsSchema = z
     .array(workshopReactionEmojiSchema)
     .min(1)
@@ -178,9 +184,24 @@ const workshopContentFieldsSchema = z.object({
     unlockAt: z.string().datetime({ offset: true }),
     sortOrder: z.number().int().min(-100000).max(100000),
     isPublished: z.boolean(),
+    isFollowUp: z.boolean(),
 });
 
 export const workshopContentCreateSchema = workshopContentFieldsSchema;
 export const workshopContentUpdateSchema = workshopContentFieldsSchema
     .partial()
     .refine((value) => Object.keys(value).length > 0, 'At least one content field is required');
+
+/**
+ * A participant can first submit a rating and then update each optional answer on its own request.
+ */
+export const workshopFeedbackUpdateSchema = z
+    .object({
+        rating: z.number().int().min(1).max(5).optional(),
+        whatWasGood: workshopFeedbackTextSchema.optional(),
+        whatWasBad: workshopFeedbackTextSchema.optional(),
+        note: workshopFeedbackTextSchema.optional(),
+    })
+    .refine((value) => Object.values(value).some((fieldValue) => fieldValue !== undefined), {
+        message: 'At least one feedback field is required',
+    });

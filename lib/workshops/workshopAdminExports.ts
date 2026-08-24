@@ -191,6 +191,7 @@ export function serializeWorkshopAdminContentAsCsv(contentBlocks: readonly Works
             { header: 'Odemknout', getValue: (contentBlock) => contentBlock.unlockAt },
             { header: 'Pořadí', getValue: (contentBlock) => contentBlock.sortOrder },
             { header: 'Publikováno', getValue: (contentBlock) => formatBoolean(contentBlock.isPublished) },
+            { header: 'Navazující materiál', getValue: (contentBlock) => formatBoolean(contentBlock.isFollowUp) },
             { header: 'Kliknutí na odkazy', getValue: (contentBlock) => contentBlock.linkClickCount },
             { header: 'Vytvořeno', getValue: (contentBlock) => contentBlock.createdAt },
             { header: 'Aktualizováno', getValue: (contentBlock) => contentBlock.updatedAt },

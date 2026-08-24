@@ -9,6 +9,7 @@ import {
     WORKSHOP_COMMENT_TABLE_NAME,
     WORKSHOP_CONTENT_LINK_CLICK_TABLE_NAME,
     WORKSHOP_CONTENT_TABLE_NAME,
+    WORKSHOP_FEEDBACK_TABLE_NAME,
     WORKSHOP_PARTICIPANT_TABLE_NAME,
     WORKSHOP_REACTION_TABLE_NAME,
     WORKSHOP_TABLE_NAME,
@@ -16,10 +17,12 @@ import {
     WORKSHOP_WATCHING_WINDOW_SECONDS,
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
+import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import type {
     WorkshopAdminComment,
+    WorkshopAdminFeedback,
     WorkshopAdminAnalytics,
     WorkshopAdminCommentSample,
     WorkshopAdminParticipant,
@@ -35,6 +38,7 @@ import type {
     WorkshopCommentStatus,
     WorkshopContentBlock,
     WorkshopDetails,
+    WorkshopFeedback,
     WorkshopKind,
     WorkshopParticipant,
     WorkshopParticipantTimelineEvent,
@@ -90,9 +94,30 @@ type WorkshopContentRow = {
     readonly unlock_at: string;
     readonly sort_order: number;
     readonly is_published: boolean;
+    readonly is_follow_up: boolean;
     readonly created_at: string;
     readonly updated_at: string;
 };
+
+/**
+ * The one record a participant progressively fills after a workshop.
+ */
+export type WorkshopFeedbackRow = {
+    readonly id: string;
+    readonly workshop_id: string;
+    readonly participant_id: string;
+    readonly rating: number | string;
+    readonly what_was_good: string | null;
+    readonly what_was_bad: string | null;
+    readonly note: string | null;
+    readonly created_at: string;
+    readonly updated_at: string;
+};
+
+const WORKSHOP_FEEDBACK_COLUMNS =
+    'id, workshop_id, participant_id, rating, what_was_good, what_was_bad, note, created_at, updated_at';
+
+type WorkshopFeedbackParticipantRow = Pick<WorkshopAdminParticipantRow, 'id' | 'fullname' | 'email'>;
 
 export type WorkshopCommentRow = {
     readonly id: string;
@@ -343,9 +368,39 @@ export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 
         unlockAt: row.unlock_at,
         sortOrder: row.sort_order,
         isPublished: row.is_published,
+        isFollowUp: row.is_follow_up,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         linkClickCount,
+    };
+}
+
+export function mapWorkshopFeedbackRow(row: WorkshopFeedbackRow): WorkshopFeedback {
+    return {
+        rating: Number(row.rating),
+        whatWasGood: row.what_was_good,
+        whatWasBad: row.what_was_bad,
+        note: row.note,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+    };
+}
+
+function mapWorkshopAdminFeedbackRow(
+    row: WorkshopFeedbackRow,
+    participantById: ReadonlyMap<string, WorkshopFeedbackParticipantRow>,
+): WorkshopAdminFeedback | null {
+    const participant = participantById.get(row.participant_id);
+    if (participant === undefined) {
+        return null;
+    }
+
+    return {
+        id: row.id,
+        participantId: row.participant_id,
+        fullname: participant.fullname,
+        email: participant.email,
+        ...mapWorkshopFeedbackRow(row),
     };
 }
 
@@ -1307,7 +1362,7 @@ export async function loadWorkshopAdminContentForExport(
     const [contentResult, contentLinkClickTotalsResult] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopId)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
@@ -1331,6 +1386,55 @@ export async function loadWorkshopAdminContentForExport(
         contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map((contentBlock) =>
             mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
         ),
+        errorMessage: null,
+    };
+}
+
+/**
+ * Lists the feedback from one workshop only for the administration.
+ *
+ * Feedback and participants stay separate source records, just as comments and reactions do. The small identity read
+ * keeps this list attributable without ever exposing an e-mail address through the participant-facing state route.
+ */
+export async function loadWorkshopAdminFeedback(
+    supabase: SupabaseClient,
+    workshopId: string,
+): Promise<{ readonly feedbacks: readonly WorkshopAdminFeedback[] | null; readonly errorMessage: string | null }> {
+    const feedbackResult = await loadAllSupabaseRows<WorkshopFeedbackRow>(
+        (fromIndex, toIndex) =>
+            supabase
+                .from(WORKSHOP_FEEDBACK_TABLE_NAME)
+                .select(WORKSHOP_FEEDBACK_COLUMNS)
+                .eq('workshop_id', workshopId)
+                .order('updated_at', { ascending: false })
+                .order('id', { ascending: true })
+                .range(fromIndex, toIndex),
+        `the feedback of workshop ${workshopId}`,
+    );
+    if (feedbackResult.rows === null) {
+        return { feedbacks: null, errorMessage: feedbackResult.errorMessage };
+    }
+
+    const participantResult = await loadWorkshopRowsByIds<WorkshopFeedbackParticipantRow>(
+        feedbackResult.rows.map((feedback) => feedback.participant_id),
+        (participantIds) =>
+            supabase
+                .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
+                .select('id, fullname, email')
+                .eq('workshop_id', workshopId)
+                .in('id', participantIds),
+    );
+    if (participantResult.rows === null) {
+        return { feedbacks: null, errorMessage: participantResult.errorMessage };
+    }
+
+    const participantById = new Map<string, WorkshopFeedbackParticipantRow>(
+        participantResult.rows.map((participant) => [participant.id, participant] as const),
+    );
+    return {
+        feedbacks: feedbackResult.rows
+            .map((feedback) => mapWorkshopAdminFeedbackRow(feedback, participantById))
+            .filter((feedback): feedback is WorkshopAdminFeedback => feedback !== null),
         errorMessage: null,
     };
 }
@@ -1419,6 +1523,8 @@ export async function loadWorkshopPublicState(
     commentSort: WorkshopCommentSort,
 ): Promise<LoadedWorkshopPublicState> {
     const contentVisibilityCutoff = new Date().toISOString();
+    const isWorkshopPast =
+        workshopRow.room_kind === 'workshop' && getWorkshopPhase(mapWorkshopRow(workshopRow)) === 'past';
 
     // Note: The reactions which flew over the stage recently are replayed for somebody entering the room. A room
     //       without that panel therefore does not load them, exactly as it does not count them.
@@ -1445,10 +1551,18 @@ export async function loadWorkshopPublicState(
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
         .limit(MAXIMAL_VISIBLE_COMMENT_COUNT);
+    const nextContentUnlockQuery = supabase
+        .from(WORKSHOP_CONTENT_TABLE_NAME)
+        .select('unlock_at')
+        .eq('workshop_id', workshopRow.id)
+        .eq('is_published', true)
+        .gt('unlock_at', contentVisibilityCutoff);
 
     const [
         contentResult,
         nextUnlockResult,
+        futureFollowUpContentResult,
+        feedbackResult,
         commentsResult,
         pendingCommentsResult,
         reactionsResult,
@@ -1458,21 +1572,37 @@ export async function loadWorkshopPublicState(
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopRow.id)
             .eq('is_published', true)
             .lte('unlock_at', contentVisibilityCutoff)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
-        supabase
-            .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('unlock_at')
-            .eq('workshop_id', workshopRow.id)
-            .eq('is_published', true)
-            .gt('unlock_at', contentVisibilityCutoff)
+        (isWorkshopPast ? nextContentUnlockQuery.eq('is_follow_up', false) : nextContentUnlockQuery)
             .order('unlock_at', { ascending: true })
             .limit(1)
             .maybeSingle(),
+        // A selected follow-up remains a normal material before the end, including its scheduled unlock. Once the
+        // wrap-up starts it must be available for the stage link even if its ordinary unlock time is later; unrelated
+        // scheduled materials keep their own timing.
+        isWorkshopPast
+            ? supabase
+                  .from(WORKSHOP_CONTENT_TABLE_NAME)
+                  .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
+                  .eq('workshop_id', workshopRow.id)
+                  .eq('is_published', true)
+                  .eq('is_follow_up', true)
+                  .gt('unlock_at', contentVisibilityCutoff)
+                  .maybeSingle()
+            : Promise.resolve({ data: null, error: null }),
+        workshopRow.room_kind === 'workshop'
+            ? supabase
+                  .from(WORKSHOP_FEEDBACK_TABLE_NAME)
+                  .select(WORKSHOP_FEEDBACK_COLUMNS)
+                  .eq('workshop_id', workshopRow.id)
+                  .eq('participant_id', participant.id)
+                  .maybeSingle()
+            : Promise.resolve({ data: null, error: null }),
         commentsQuery,
         isModerationOffered ? pendingCommentsQuery : pendingCommentsQuery.eq('participant_id', participant.id),
         isReactionsPanelOffered
@@ -1491,6 +1621,8 @@ export async function loadWorkshopPublicState(
     const stateQueryError =
         contentResult.error ??
         nextUnlockResult.error ??
+        futureFollowUpContentResult.error ??
+        feedbackResult.error ??
         commentsResult.error ??
         pendingCommentsResult.error ??
         reactionsResult.error;
@@ -1536,8 +1668,25 @@ export async function loadWorkshopPublicState(
             workshop: mapWorkshopRow(workshopRow),
             participant,
             watchingParticipantCount,
-            contentBlocks: ((contentResult.data ?? []) as WorkshopContentRow[]).map(mapWorkshopContentRow),
+            contentBlocks: [
+                ...((contentResult.data ?? []) as WorkshopContentRow[]),
+                ...(
+                    futureFollowUpContentResult.data === null
+                        ? []
+                        : [futureFollowUpContentResult.data as WorkshopContentRow]
+                ),
+            ]
+                .sort(
+                    (firstContentBlock, secondContentBlock) =>
+                        firstContentBlock.sort_order - secondContentBlock.sort_order ||
+                        Date.parse(firstContentBlock.unlock_at) - Date.parse(secondContentBlock.unlock_at),
+                )
+                .map(mapWorkshopContentRow),
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
+            feedback:
+                feedbackResult.data === null
+                    ? null
+                    : mapWorkshopFeedbackRow(feedbackResult.data as WorkshopFeedbackRow),
             comments: sortWorkshopComments(
                 commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), roomContext)),
                 commentSort,
@@ -1614,7 +1763,7 @@ export async function loadWorkshopAdminSnapshot(
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopRow.id)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),

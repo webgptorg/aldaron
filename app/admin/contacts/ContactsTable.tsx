@@ -99,7 +99,7 @@ export function ContactsTable(props: ContactsTableProps) {
                                     />
                                 </TableHead>
                             ))}
-                            <TableHead className="px-4">Spojené údaje a účasti</TableHead>
+                            <TableHead className="px-4">Spojené údaje, účasti a zpětná vazba</TableHead>
                             <TableHead className="px-4">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -120,6 +120,7 @@ export function ContactsTable(props: ContactsTableProps) {
                                         contactGroup={contact.contactGroup}
                                         isContactRecordsIncluded={contact.contactGroup.contacts.length > 1}
                                         isWorkshopParticipationsIncluded
+                                        isWorkshopFeedbackIncluded
                                     />
                                 </TableCell>
                                 <TableCell className="p-2 align-top">

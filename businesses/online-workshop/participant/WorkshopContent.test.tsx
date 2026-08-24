@@ -31,6 +31,7 @@ const CONTENT_BLOCK: WorkshopContentBlock = {
     unlockAt: '2026-08-20T19:00:00.000Z',
     sortOrder: 0,
     isPublished: true,
+    isFollowUp: false,
     createdAt: '2026-08-20T18:00:00.000Z',
     updatedAt: '2026-08-20T18:00:00.000Z',
     linkClickCount: 0,
@@ -86,5 +87,12 @@ describe('workshop materials', () => {
 
         expect(screen.queryByRole('link', { name: /Otevřít materiál/ })).toBeNull();
         expect(screen.getByTestId('markdown-content').className).toContain('[--chat-md-link-color:#f1f5f9]');
+    });
+
+    it('marks the selected follow-up material while it stays in the ordinary material list', () => {
+        renderWorkshopContent([{ ...CONTENT_BLOCK, isFollowUp: true, title: 'Další krok' }]);
+
+        expect(screen.getByText('Navazující materiál')).not.toBeNull();
+        expect(screen.getByRole('heading', { name: 'Další krok' })).not.toBeNull();
     });
 });

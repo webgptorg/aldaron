@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.7264 23 minutes; Testing 4 minutes
 
 [✨♗] After the online workshop is over, there should be shown a wrapup screen.
 
@@ -26,3 +26,4 @@
 Is this done out of the box?
 
 - All feedbacks should be visible as extra information alongside the contacts. This is a similar pattern to other extra information about the contact.
+

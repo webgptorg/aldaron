@@ -45,7 +45,7 @@ export async function POST(request: NextRequest, context: AdminWorkshopContentRo
     const { data, error } = await supabase
         .from(WORKSHOP_CONTENT_TABLE_NAME)
         .insert({ workshop_id: workshopId, ...createWorkshopContentDatabaseValues(parsedResult.data) })
-        .select('id, title, body_markdown, unlock_at, sort_order, is_published, created_at, updated_at')
+        .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
         .single();
     if (error || data === null) {
         return NextResponse.json({ error: error?.message ?? 'Content was not returned' }, { status: 500 });

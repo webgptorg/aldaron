@@ -163,17 +163,24 @@ export function WorkshopContent({
             <div className="space-y-4">
                 {contentBlocks.map((contentBlock) => {
                     const isNewlyUnlocked = newlyUnlockedContentBlockIds.has(contentBlock.id);
+                    const isFollowUp = contentBlock.isFollowUp;
                     return (
                         <motion.article
                             key={contentBlock.id}
+                            id={`workshop-material-${contentBlock.id}`}
                             initial={isNewlyUnlocked && !isReducedMotionPreferred ? { opacity: 0, y: 24, scale: 0.97 } : false}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ duration: isReducedMotionPreferred ? 0 : 0.55, ease: 'easeOut' }}
-                            className={`relative overflow-hidden rounded-2xl border bg-white/[0.045] p-5 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 pt-16 shadow-cyan-300/10 sm:pt-8' : 'border-white/10'}`}
+                            className={`relative scroll-mt-5 overflow-hidden rounded-2xl border bg-white/[0.045] p-5 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 pt-16 shadow-cyan-300/10 sm:pt-8' : isFollowUp ? 'border-amber-300/60 shadow-amber-300/10' : 'border-white/10'}`}
                         >
                             {isNewlyUnlocked && (
                                 <span className="absolute right-4 top-4 rounded-full bg-cyan-300 px-3 py-1 text-xs font-bold text-slate-950 shadow-lg">
                                     Právě odemčeno
+                                </span>
+                            )}
+                            {isFollowUp && (
+                                <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
+                                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Navazující materiál
                                 </span>
                             )}
                             {contentBlock.title && (
