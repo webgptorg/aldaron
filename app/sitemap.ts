@@ -29,12 +29,15 @@ function createSitemapLanguageAlternates(definition: PageMetadataDefinition): Re
 }
 
 /**
- * Turns one page definition into one sitemap entry
+ * Turns one page definition into one sitemap entry.
+ *
+ * `lastModified` is deliberately absent until a page has a source-backed
+ * timestamp. Advertising the build time for every URL creates false update
+ * signals for crawlers whenever the application is deployed.
  */
-function createSitemapEntry(definition: PageMetadataDefinition, lastModified: Date): MetadataRoute.Sitemap[number] {
+function createSitemapEntry(definition: PageMetadataDefinition): MetadataRoute.Sitemap[number] {
     return {
         url: createAbsoluteUrl(definition.path),
-        lastModified,
         changeFrequency: definition.sitemapChangeFrequency ?? DEFAULT_SITEMAP_CHANGE_FREQUENCY,
         priority: definition.sitemapPriority ?? DEFAULT_SITEMAP_PRIORITY,
         alternates: {
@@ -49,7 +52,5 @@ function createSitemapEntry(definition: PageMetadataDefinition, lastModified: Da
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-    const lastModified = new Date();
-
-    return INDEXED_PAGE_METADATA_DEFINITIONS.map((definition) => createSitemapEntry(definition, lastModified));
+    return INDEXED_PAGE_METADATA_DEFINITIONS.map(createSitemapEntry);
 }

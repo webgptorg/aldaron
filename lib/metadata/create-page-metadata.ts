@@ -1,11 +1,11 @@
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
 import {
-    DEFAULT_SOCIAL_PREVIEW_IMAGE_PATH,
     OPEN_GRAPH_LOCALE_BY_LANGUAGE,
     SITE_NAME,
     SITE_TWITTER_HANDLE,
     createAbsoluteUrl,
 } from '@/lib/metadata/site-config';
+import { resolveSocialPreviewImagePath } from '@/lib/metadata/social-preview-image-path';
 import type { Metadata } from 'next';
 
 /**
@@ -24,25 +24,35 @@ const SOCIAL_PREVIEW_IMAGE_HEIGHT = 630;
 const HIDDEN_FROM_SEARCH_ROBOTS: NonNullable<Metadata['robots']> = {
     index: false,
     follow: false,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
     googleBot: {
         index: false,
         follow: false,
+        noarchive: true,
+        nosnippet: true,
+        noimageindex: true,
     },
 };
 
 /**
- * Resolves the path of the sharing preview image of a page
+ * Resolves the locales of alternate language versions for Open Graph.
+ *
+ * `hreflang` and `og:locale:alternate` describe the same relationship, but
+ * they use different identifiers. Keeping the derivation here means they can
+ * never drift apart when a translation is added later.
  */
-function resolveSocialPreviewImagePath(definition: PageMetadataDefinition): string {
-    if (definition.socialPreviewImagePath) {
-        return definition.socialPreviewImagePath;
+function resolveOpenGraphAlternateLocales(definition: PageMetadataDefinition): readonly string[] | undefined {
+    if (!definition.languageAlternates) {
+        return undefined;
     }
 
-    if (!definition.isSocialPreviewImageGenerated) {
-        return DEFAULT_SOCIAL_PREVIEW_IMAGE_PATH;
-    }
+    const alternateLocales = (Object.keys(definition.languageAlternates) as (keyof typeof OPEN_GRAPH_LOCALE_BY_LANGUAGE)[])
+        .filter((language) => language !== definition.language)
+        .map((language) => OPEN_GRAPH_LOCALE_BY_LANGUAGE[language]);
 
-    return `${definition.path.replace(/\/$/, '')}${DEFAULT_SOCIAL_PREVIEW_IMAGE_PATH}`;
+    return alternateLocales.length === 0 ? undefined : alternateLocales;
 }
 
 /**
@@ -78,11 +88,18 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
     const socialPreviewImageAlt = definition.socialPreviewImageAlt ?? socialTitle;
     const socialPreviewImagePath = resolveSocialPreviewImagePath(definition);
     const isIndexed = definition.isIndexed ?? true;
+    const openGraphAlternateLocales = resolveOpenGraphAlternateLocales(definition);
 
     const socialPreviewImage = {
         url: socialPreviewImagePath,
-        width: SOCIAL_PREVIEW_IMAGE_WIDTH,
-        height: SOCIAL_PREVIEW_IMAGE_HEIGHT,
+        // A custom source image may have arbitrary dimensions. Only advertise
+        // dimensions for the cards this application renders itself.
+        ...(definition.socialPreviewImagePath
+            ? {}
+            : {
+                  width: SOCIAL_PREVIEW_IMAGE_WIDTH,
+                  height: SOCIAL_PREVIEW_IMAGE_HEIGHT,
+              }),
         alt: socialPreviewImageAlt,
     };
 
@@ -98,6 +115,7 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
             type: definition.openGraphType ?? 'website',
             siteName: SITE_NAME,
             locale: OPEN_GRAPH_LOCALE_BY_LANGUAGE[definition.language],
+            ...(openGraphAlternateLocales ? { alternateLocale: [...openGraphAlternateLocales] } : {}),
             title: socialTitle,
             description: socialDescription,
             url: createAbsoluteUrl(definition.path),

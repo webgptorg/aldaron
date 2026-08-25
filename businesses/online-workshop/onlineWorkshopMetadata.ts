@@ -6,6 +6,13 @@ import {
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
+import { resolveSocialPreviewImagePath } from '@/lib/metadata/social-preview-image-path';
+import {
+    createOnlineEventStructuredData,
+    createWebPageStructuredData,
+    type StructuredDataNode,
+} from '@/lib/metadata/structured-data';
+import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import type { Metadata } from 'next';
 
 export const ONLINE_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
@@ -41,7 +48,11 @@ export const ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION: PageMetadataDefinition
     path: ONLINE_WORKSHOP_PARTICIPANT_PATH,
     language: 'cs',
     title: 'Živý online workshop | Promptbook',
+    socialTitle: 'Živý online workshop Promptbooku',
     description: 'Soukromá místnost účastníků online workshopu o produkčním vývoji s AI agenty.',
+    socialDescription: 'Připojte se do živé místnosti workshopu Promptbooku.',
+    socialPreviewImageAlt: 'Živý online workshop Promptbooku',
+    isSocialPreviewImageGenerated: true,
     isIndexed: false,
 };
 
@@ -75,3 +86,59 @@ export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions
         accentSoft: '#b48fff',
     },
 });
+
+/**
+ * Preview kept intentionally generic: participant URLs can contain personal
+ * data, so a social crawler must never receive a name, e-mail address, or a
+ * term-specific room URL from the card it caches.
+ */
+export const ONLINE_WORKSHOP_PARTICIPANT_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(
+    ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION,
+    {
+        eyebrow: 'Online workshop naživo',
+        audienceLabel: 'Pro registrované účastníky',
+        bullets: ['Živé vysílání', 'Chat a reakce', 'Materiály k workshopu'],
+        stats: [
+            { label: 'Místnost', value: 'Jen pro účastníky' },
+            { label: 'Obsah', value: 'Produkční kód s AI agenty' },
+            { label: 'Připojení', value: 'Odkaz v e-mailu' },
+        ],
+        callToActionLabel: 'Připojit se',
+        paletteSeed: {
+            backgroundStart: '#04131c',
+            backgroundEnd: '#123847',
+            accent: '#7aebff',
+            accentSoft: '#b48fff',
+        },
+    },
+);
+
+/**
+ * Builds the page and event JSON-LD from the current public schedule.
+ *
+ * Every event points at the public registration page. The participant room is
+ * deliberately not a Schema.org URL because its query parameters may identify
+ * a registrant and its content is not meant for search engines.
+ */
+export function createOnlineWorkshopStructuredData(workshops: readonly WorkshopSummary[]): readonly StructuredDataNode[] {
+    const eventDescription = ONLINE_WORKSHOP_PAGE_DEFINITION.socialDescription ?? ONLINE_WORKSHOP_PAGE_DEFINITION.description;
+    const imagePath = resolveSocialPreviewImagePath(ONLINE_WORKSHOP_PAGE_DEFINITION);
+
+    return [
+        createWebPageStructuredData(ONLINE_WORKSHOP_PAGE_DEFINITION),
+        ...workshops.map((workshop) =>
+            createOnlineEventStructuredData({
+                id: workshop.slug,
+                name: workshop.title,
+                description: eventDescription,
+                path: ONLINE_WORKSHOP_PAGE_DEFINITION.path,
+                imagePath,
+                language: ONLINE_WORKSHOP_PAGE_DEFINITION.language,
+                startsAt: workshop.startsAt,
+                endsAt: workshop.endsAt,
+                price: '0',
+                priceCurrency: 'CZK',
+            }),
+        ),
+    ];
+}

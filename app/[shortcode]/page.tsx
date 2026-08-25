@@ -1,7 +1,8 @@
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { MarkdownContent } from '@/components/markdown-content';
-import { SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
+import { createShortcodeLandingPageMetadata } from '@/lib/shortener/shortcodeLandingPageMetadata';
+import { loadPublicShortcodeLink } from '@/lib/shortener/publicShortcodeLink';
 import { supabase } from '@/lib/supabase';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
@@ -13,63 +14,20 @@ interface PageProps {
     params: Promise<{ shortcode: string }>;
 }
 
-async function getShortcodeLink(shortcode: string) {
-    if (!supabase) return null;
-    const result = await supabase
-        .from(SHORTCODE_LINK_TABLE_NAME)
-        .select('id, url, landingPage')
-        .eq('shortcode', shortcode)
-        .single();
-
-    const { data, error } = result;
-
-    if (error || !data) {
-        return null;
-    }
-
-    return data;
-}
-
-function getLandingPageMetadata(landingPage: string) {
-    const titleMatch = landingPage.match(/^#\s*(.*)$/m);
-    const title = titleMatch ? titleMatch[1] : null;
-
-    const descriptionMatch = landingPage.match(/^\s*>\s*(.*)$/m);
-    const description = descriptionMatch ? descriptionMatch[1] : null;
-
-    const imageMatch = landingPage.match(/!\[.*\]\((.*)\)/);
-    const image = imageMatch ? imageMatch[1] : null;
-
-    return { title, description, image };
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { shortcode } = await params;
-    const data = await getShortcodeLink(shortcode);
+    const data = await loadPublicShortcodeLink(shortcode);
 
-    if (!data || !data.landingPage) {
-        return {};
+    if (data?.landingPage === null || data === null) {
+        return {
+            robots: {
+                index: false,
+                follow: false,
+            },
+        };
     }
 
-    const { title, description, image } = getLandingPageMetadata(data.landingPage);
-
-    const metadata: Metadata = {};
-
-    if (title) {
-        metadata.title = title;
-        metadata.openGraph = { ...metadata.openGraph, title };
-    }
-
-    if (description) {
-        metadata.description = description;
-        metadata.openGraph = { ...metadata.openGraph, description };
-    }
-
-    if (image) {
-        metadata.openGraph = { ...metadata.openGraph, images: [{ url: image }] };
-    }
-
-    return metadata;
+    return createShortcodeLandingPageMetadata(shortcode, data.landingPage);
 }
 
 export default async function Page({ params }: PageProps) {
@@ -80,7 +38,7 @@ export default async function Page({ params }: PageProps) {
     }
 
     try {
-        const data = await getShortcodeLink(shortcode);
+        const data = await loadPublicShortcodeLink(shortcode);
 
         if (!data || !data.url || data.url.length === 0) {
             notFound();
@@ -128,8 +86,8 @@ export default async function Page({ params }: PageProps) {
 
             const clickId = clickData?.id;
 
-            let landingContent;
-            if (isLocalhost && !data.landingPage) {
+            let landingContent: string;
+            if (isLocalhost && data.landingPage === null) {
                 landingContent = spaceTrim(`
                     # localhost Link
                     > This link points to a localhost address, which is only accessible on your local machine.
@@ -137,7 +95,7 @@ export default async function Page({ params }: PageProps) {
                     - Your URL: ${selectedUrl}
                 `);
             } else {
-                landingContent = data.landingPage;
+                landingContent = data.landingPage ?? '';
             }
 
             // Replace #url header with selectedUrl
