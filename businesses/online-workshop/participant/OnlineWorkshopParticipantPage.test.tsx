@@ -70,7 +70,11 @@ const WORKSHOP_NAVIGATION: WorkshopNavigationDetails = {
     timeZone: 'Europe/Prague',
 };
 
-function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: WorkshopNavigationDetails) {
+function renderParticipantRoom(
+    workshop: WorkshopDetails,
+    workshopNavigation?: WorkshopNavigationDetails,
+    isUsingCachedState = false,
+) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
         workshop,
@@ -99,8 +103,10 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         isCheckingConnection: false,
         isConnectionRequired: false,
         isRefreshing: false,
-        isUsingCachedState: false,
-        errorMessage: null,
+        isUsingCachedState,
+        errorMessage: isUsingCachedState
+            ? 'Spojení s workshopem je dočasně nedostupné. Zobrazuje se naposledy uložená verze.'
+            : null,
         subscribeToReactions: () => () => undefined,
         newlyUnlockedContentBlockIds: new Set<string>(),
         connect: async () => true,
@@ -143,6 +149,7 @@ describe('online workshop participant room', () => {
         expect(container.querySelector('iframe')).not.toBeNull();
         expect(screen.queryByRole('button', { name: /Reagovat/ })).not.toBeNull();
         expect(screen.queryByText('Sledují 3 lidé')).not.toBeNull();
+        expect(screen.getByRole('status', { name: 'Připojeno k serveru' })).not.toBeNull();
     });
 
     it('leaves a permanent room without the stage, the reactions, and the watching count of a live occurrence', () => {
@@ -166,5 +173,12 @@ describe('online workshop participant room', () => {
 
         expect(screen.queryByText(COMMUNITY.title)).not.toBeNull();
         expect(screen.queryByRole('textbox')).not.toBeNull();
+    });
+
+    it('keeps a cached room calm with a compact header status instead of an in-content outage warning', () => {
+        renderParticipantRoom(COMMUNITY, undefined, true);
+
+        expect(screen.getByRole('button', { name: /Spojení nedostupné/ })).not.toBeNull();
+        expect(screen.queryByText('Spojení s workshopem je dočasně nedostupné. Zobrazuje se naposledy uložená verze.')).toBeNull();
     });
 });

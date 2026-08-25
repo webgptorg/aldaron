@@ -17,7 +17,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.00 7 minutes; Testing 5 minutes
 
 [✨🤛] When the server is not available, the message for the user should not scream as big warning but be some small "🟢 connected" dot on top-right corner
 
@@ -25,3 +25,4 @@
 - You are working with `/cs/komunita`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
+
