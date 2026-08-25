@@ -1,4 +1,4 @@
-[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.4933 21 minutes; Testing 5 minutes
+[ ] !!!
 
 [✨🥇] Create `/cs/komunita/clenstvi`
 
@@ -14,4 +14,3 @@
     - Get inspiration from other landing pages
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-

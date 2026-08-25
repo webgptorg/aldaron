@@ -12,7 +12,6 @@ const PUBLIC_PAGE_PATHS = [
     '/ai-ta-krajta',
     '/hackathon-factory',
     '/cs/online-workshop',
-    '/cs/komunita/clenstvi',
     '/cs/pavol',
     '/en/pavol',
     '/pavol',
