@@ -91,7 +91,6 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         recentReactions: [],
         reactionCounts: [],
         polls: [],
-        projects: [],
     };
 
     participantMocks.controller = {
@@ -110,7 +109,6 @@ function renderParticipantRoom(workshop: WorkshopDetails, workshopNavigation?: W
         changeCommentSort: () => undefined,
         submitComment: async () => true,
         upvoteComment: async () => undefined,
-        submitProject: async () => true,
         moderateComment: async () => true,
         moderateAuthor: async () => true,
         react: async () => undefined,
@@ -153,13 +151,6 @@ describe('online workshop participant room', () => {
         expect(container.querySelector('iframe')).toBeNull();
         expect(screen.queryByRole('button', { name: /Reagovat/ })).toBeNull();
         expect(screen.queryByText('Sledují 3 lidé')).toBeNull();
-        expect(screen.queryByRole('button', { name: 'Sdílet projekt' })).not.toBeNull();
-    });
-
-    it('does not offer the community gallery in an individual workshop occurrence', () => {
-        renderParticipantRoom(WORKSHOP);
-
-        expect(screen.queryByRole('button', { name: 'Sdílet projekt' })).toBeNull();
     });
 
     it('leads from a permanent room to a workshop with the identity the room already verified', () => {
@@ -174,6 +165,6 @@ describe('online workshop participant room', () => {
         renderParticipantRoom(COMMUNITY);
 
         expect(screen.queryByText(COMMUNITY.title)).not.toBeNull();
-        expect(screen.queryByLabelText('Nová zpráva do chatu')).not.toBeNull();
+        expect(screen.queryByRole('textbox')).not.toBeNull();
     });
 });

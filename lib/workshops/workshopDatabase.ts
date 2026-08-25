@@ -2,12 +2,9 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } from '@/lib/supabase/loadAllSupabaseRows';
 import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import {
-    MAXIMAL_ADMIN_WORKSHOP_PROJECT_LIST_COUNT,
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT,
     MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
-    MAXIMAL_VISIBLE_WORKSHOP_PROJECT_COUNT,
-    MAXIMAL_VISIBLE_OWN_WORKSHOP_PROJECT_COUNT,
     MAXIMAL_VISIBLE_COMMENT_COUNT,
     MAXIMAL_VISIBLE_PENDING_COMMENT_COUNT,
     WORKSHOP_COMMENT_TABLE_NAME,
@@ -17,7 +14,6 @@ import {
     WORKSHOP_POLL_OPTION_TABLE_NAME,
     WORKSHOP_POLL_TABLE_NAME,
     WORKSHOP_POLL_VOTE_TABLE_NAME,
-    WORKSHOP_PROJECT_TABLE_NAME,
     WORKSHOP_REACTION_TABLE_NAME,
     WORKSHOP_TABLE_NAME,
     WORKSHOP_UPVOTE_TABLE_NAME,
@@ -37,7 +33,6 @@ import type {
     WorkshopAdminParticipant,
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
-    WorkshopAdminProject,
     WorkshopAdminSnapshot,
     WorkshopAdminSummary,
     WorkshopAdminTimelinePoint,
@@ -54,8 +49,6 @@ import type {
     WorkshopParticipantTimelineEvent,
     WorkshopPoll,
     WorkshopPollOption,
-    WorkshopProject,
-    WorkshopProjectStatus,
     WorkshopPublicState,
     WorkshopReaction,
     WorkshopReactionCount,
@@ -311,25 +304,6 @@ type WorkshopPollVoteCountRow = {
 type WorkshopParticipantPollVoteRow = {
     readonly option_id: string;
 };
-
-export type WorkshopProjectRow = {
-    readonly id: string;
-    readonly participant_id: string;
-    readonly author_name: string;
-    readonly title: string;
-    readonly description: string;
-    readonly url: string | null;
-    readonly status: WorkshopProjectStatus;
-    readonly created_at: string;
-    readonly updated_at: string;
-};
-
-/**
- * Every project response selects exactly this safe public shape. The participant ID stays here only for the server to
- * determine which pending post belongs to the reader; `mapWorkshopProjectRow` deliberately leaves it out afterwards.
- */
-export const WORKSHOP_PROJECT_COLUMNS =
-    'id, participant_id, author_name, title, description, url, status, created_at, updated_at';
 
 type CreatedWorkshopReactionRow = WorkshopReactionRow & {
     readonly reaction_count: number | string;
@@ -668,34 +642,6 @@ function mapWorkshopPollRow(row: WorkshopPollRow, options: readonly WorkshopPoll
         updatedAt: row.updated_at,
         options,
     };
-}
-
-/**
- * Maps a project into the public room response without leaking the participant identity behind it. The boolean is
- * computed server-side from the session participant and lets that one person recognize a post which is still waiting
- * for moderation.
- */
-export function mapWorkshopProjectRow(row: WorkshopProjectRow, participantId: string | null): WorkshopProject {
-    return {
-        id: row.id,
-        authorName: row.author_name,
-        title: row.title,
-        description: row.description,
-        url: row.url,
-        status: row.status,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isAuthoredByParticipant: row.participant_id === participantId,
-    };
-}
-
-/**
- * The administration may join a project back to its participant record, whereas the member room must never receive
- * that identifier. Keeping the two maps together makes that deliberate boundary visible at their only conversion.
- */
-export function mapWorkshopAdminProjectRow(row: WorkshopProjectRow): WorkshopAdminProject {
-    const { isAuthoredByParticipant: _isAuthoredByParticipant, ...project } = mapWorkshopProjectRow(row, null);
-    return { ...project, participantId: row.participant_id };
 }
 
 /**
@@ -1044,7 +990,9 @@ export async function loadWorkshopPolls(
         ]),
     );
     const selectedOptionIds = new Set(
-        ((selectedVotesResult.data ?? []) as readonly WorkshopParticipantPollVoteRow[]).map((vote) => vote.option_id),
+        ((selectedVotesResult.data ?? []) as readonly WorkshopParticipantPollVoteRow[]).map(
+            (vote) => vote.option_id,
+        ),
     );
     const optionsByPollId = new Map<string, WorkshopPollOption[]>();
     for (const optionRow of (optionsResult.data ?? []) as readonly WorkshopPollOptionRow[]) {
@@ -1055,104 +1003,6 @@ export async function loadWorkshopPolls(
 
     return {
         polls: pollRows.map((pollRow) => mapWorkshopPollRow(pollRow, optionsByPollId.get(pollRow.id) ?? [])),
-        errorMessage: null,
-    };
-}
-
-type LoadedWorkshopProjects = {
-    readonly projects: readonly WorkshopProject[];
-    readonly errorMessage: string | null;
-};
-
-/**
- * Loads the lasting gallery of a room. Everybody receives approved projects; the participant reading the room also
- * receives their own unresolved submissions, so a moderation decision never has to be inferred from a vanished card.
- * Two explicit queries avoid interpolating an identity into a PostgREST filter and keep the public response free of
- * projects which belong to somebody else but have not been approved yet.
- */
-export async function loadWorkshopProjects(
-    supabase: SupabaseClient,
-    workshopRow: WorkshopRow,
-    participantId: string | null,
-): Promise<LoadedWorkshopProjects> {
-    const capabilities = getWorkshopKindCapabilities(workshopRow.room_kind);
-    if (
-        !capabilities.isProjectSharingOffered ||
-        !isWorkshopPanelOffered(workshopRow.room_kind, workshopRow.disabled_panels, 'projects')
-    ) {
-        return { projects: [], errorMessage: null };
-    }
-
-    const [approvedProjectsResult, ownUnresolvedProjectsResult] = await Promise.all([
-        supabase
-            .from(WORKSHOP_PROJECT_TABLE_NAME)
-            .select(WORKSHOP_PROJECT_COLUMNS)
-            .eq('workshop_id', workshopRow.id)
-            .eq('status', 'approved')
-            .order('created_at', { ascending: false })
-            .limit(MAXIMAL_VISIBLE_WORKSHOP_PROJECT_COUNT),
-        participantId === null
-            ? Promise.resolve({ data: [] as readonly WorkshopProjectRow[], error: null })
-            : supabase
-                  .from(WORKSHOP_PROJECT_TABLE_NAME)
-                  .select(WORKSHOP_PROJECT_COLUMNS)
-                  .eq('workshop_id', workshopRow.id)
-                  .eq('participant_id', participantId)
-                  .neq('status', 'approved')
-                  .order('created_at', { ascending: false })
-                  .limit(MAXIMAL_VISIBLE_OWN_WORKSHOP_PROJECT_COUNT),
-    ]);
-    const firstError = approvedProjectsResult.error ?? ownUnresolvedProjectsResult.error;
-    if (firstError) {
-        return { projects: [], errorMessage: firstError.message };
-    }
-
-    const projectRowsById = new Map<string, WorkshopProjectRow>();
-    [
-        ...((approvedProjectsResult.data ?? []) as readonly WorkshopProjectRow[]),
-        ...((ownUnresolvedProjectsResult.data ?? []) as readonly WorkshopProjectRow[]),
-    ].forEach((projectRow) => projectRowsById.set(projectRow.id, projectRow));
-
-    return {
-        projects: Array.from(projectRowsById.values())
-            .sort(
-                (firstProject, secondProject) =>
-                    Date.parse(secondProject.created_at) - Date.parse(firstProject.created_at),
-            )
-            .map((projectRow) => mapWorkshopProjectRow(projectRow, participantId)),
-        errorMessage: null,
-    };
-}
-
-type LoadedWorkshopAdminProjects = {
-    readonly projects: readonly WorkshopAdminProject[];
-    readonly errorMessage: string | null;
-};
-
-/**
- * The administration sees every moderation status, including the participant ID it needs to trace a post through the
- * existing member dashboard. A disabled gallery remains manageable here; disabling it only pauses the public panel.
- */
-async function loadWorkshopAdminProjects(
-    supabase: SupabaseClient,
-    workshopRow: WorkshopRow,
-): Promise<LoadedWorkshopAdminProjects> {
-    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isProjectSharingOffered) {
-        return { projects: [], errorMessage: null };
-    }
-
-    const { data, error } = await supabase
-        .from(WORKSHOP_PROJECT_TABLE_NAME)
-        .select(WORKSHOP_PROJECT_COLUMNS)
-        .eq('workshop_id', workshopRow.id)
-        .order('created_at', { ascending: false })
-        .limit(MAXIMAL_ADMIN_WORKSHOP_PROJECT_LIST_COUNT);
-    if (error) {
-        return { projects: [], errorMessage: error.message };
-    }
-
-    return {
-        projects: ((data ?? []) as readonly WorkshopProjectRow[]).map(mapWorkshopAdminProjectRow),
         errorMessage: null,
     };
 }
@@ -1613,9 +1463,7 @@ export async function loadWorkshopAdminContentForExport(
     const [contentResult, contentLinkClickTotalsResult] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select(
-                'id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at',
-            )
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopId)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
@@ -1823,13 +1671,10 @@ export async function loadWorkshopPublicState(
         watchingParticipantCount,
         pinnedCommentRow,
         pollsResult,
-        projectsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select(
-                'id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at',
-            )
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopRow.id)
             .eq('is_published', true)
             .lte('unlock_at', contentVisibilityCutoff)
@@ -1845,9 +1690,7 @@ export async function loadWorkshopPublicState(
         isWorkshopPast
             ? supabase
                   .from(WORKSHOP_CONTENT_TABLE_NAME)
-                  .select(
-                      'id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at',
-                  )
+                  .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
                   .eq('workshop_id', workshopRow.id)
                   .eq('is_published', true)
                   .eq('is_follow_up', true)
@@ -1876,7 +1719,6 @@ export async function loadWorkshopPublicState(
         countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
         loadWorkshopPolls(supabase, workshopRow, participant.id),
-        loadWorkshopProjects(supabase, workshopRow, participant.id),
     ]);
 
     const stateQueryError =
@@ -1887,11 +1729,7 @@ export async function loadWorkshopPublicState(
         commentsResult.error ??
         pendingCommentsResult.error ??
         reactionsResult.error;
-    const errorMessage =
-        stateQueryError?.message ??
-        reactionCountsResult.errorMessage ??
-        pollsResult.errorMessage ??
-        projectsResult.errorMessage;
+    const errorMessage = stateQueryError?.message ?? reactionCountsResult.errorMessage ?? pollsResult.errorMessage;
     if (errorMessage !== null) {
         return { state: null, errorMessage };
     }
@@ -1978,7 +1816,6 @@ export async function loadWorkshopPublicState(
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
             reactionCounts: reactionCountsResult.reactionCounts,
             polls: pollsResult.polls,
-            projects: projectsResult.projects,
         },
         errorMessage: null,
     };
@@ -2029,18 +1866,13 @@ type WorkshopAdminSnapshotOptions = {
      * Whether the currently opened administration section needs the list of moderated comments.
      */
     readonly isCommentsIncluded: boolean;
-
-    /**
-     * Whether the open administration section needs the gallery moderation queue.
-     */
-    readonly isProjectsIncluded: boolean;
 };
 
 export async function loadWorkshopAdminSnapshot(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
     commentStatus: WorkshopCommentStatus,
-    options: WorkshopAdminSnapshotOptions = { isCommentsIncluded: true, isProjectsIncluded: true },
+    options: WorkshopAdminSnapshotOptions = { isCommentsIncluded: true },
 ): Promise<{ readonly snapshot: WorkshopAdminSnapshot | null; readonly errorMessage: string | null }> {
     const [
         contentResult,
@@ -2052,13 +1884,10 @@ export async function loadWorkshopAdminSnapshot(
         artificialReactionsResult,
         pinnedCommentRow,
         pollsResult,
-        projectsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select(
-                'id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at',
-            )
+            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
             .eq('workshop_id', workshopRow.id)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
@@ -2091,9 +1920,6 @@ export async function loadWorkshopAdminSnapshot(
             .eq('is_artificial', true),
         options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
         loadWorkshopPolls(supabase, workshopRow, null),
-        options.isProjectsIncluded
-            ? loadWorkshopAdminProjects(supabase, workshopRow)
-            : Promise.resolve({ projects: [] as readonly WorkshopAdminProject[], errorMessage: null }),
     ]);
 
     const firstError =
@@ -2109,9 +1935,6 @@ export async function loadWorkshopAdminSnapshot(
     }
     if (pollsResult.errorMessage !== null) {
         return { snapshot: null, errorMessage: pollsResult.errorMessage };
-    }
-    if (projectsResult.errorMessage !== null) {
-        return { snapshot: null, errorMessage: projectsResult.errorMessage };
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
@@ -2151,7 +1974,6 @@ export async function loadWorkshopAdminSnapshot(
                 mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
             ),
             polls: pollsResult.polls,
-            projects: projectsResult.projects,
             comments,
             pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
             participants: [],

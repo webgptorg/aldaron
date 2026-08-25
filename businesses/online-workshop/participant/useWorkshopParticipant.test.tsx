@@ -61,7 +61,6 @@ function createState(title = 'Produkční kód s AI agenty'): WorkshopPublicStat
         recentReactions: [],
         reactionCounts: [],
         polls: [],
-        projects: [],
     };
 }
 

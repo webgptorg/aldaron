@@ -12,8 +12,6 @@ import {
     workshopPollCloseSchema,
     workshopPollCreateSchema,
     workshopPollVoteSchema,
-    workshopProjectCreateSchema,
-    workshopProjectModerationSchema,
     workshopFeedbackUpdateSchema,
     workshopPresenceSchema,
     workshopReactionSchema,
@@ -189,31 +187,6 @@ describe('workshop request validation', () => {
         });
         expect(workshopPollCloseSchema.parse({ isClosed: true })).toEqual({ isClosed: true });
         expect(workshopPollCloseSchema.safeParse({ isClosed: false }).success).toBe(false);
-    });
-
-    it('normalizes an optional HTTP project link but refuses an executable or malformed destination', () => {
-        expect(
-            workshopProjectCreateSchema.parse({
-                title: ' Zahradní pomocník ',
-                description: ' Rychlý prototyp. ',
-                url: 'https://example.com/garden',
-            }),
-        ).toEqual({
-            title: 'Zahradní pomocník',
-            description: 'Rychlý prototyp.',
-            url: 'https://example.com/garden',
-        });
-        expect(workshopProjectCreateSchema.parse({ title: 'Bez odkazu' })).toEqual({
-            title: 'Bez odkazu',
-            description: '',
-            url: null,
-        });
-        expect(workshopProjectCreateSchema.safeParse({ title: 'Nebezpečné', url: 'javascript:alert(1)' }).success).toBe(
-            false,
-        );
-        expect(workshopProjectCreateSchema.safeParse({ title: 'Špatné', url: 'not-an-url' }).success).toBe(false);
-        expect(workshopProjectModerationSchema.parse({ status: 'approved' })).toEqual({ status: 'approved' });
-        expect(workshopProjectModerationSchema.safeParse({ status: 'pending' }).success).toBe(false);
     });
 
     it('validates artificial workshop actions independently from participant actions', () => {

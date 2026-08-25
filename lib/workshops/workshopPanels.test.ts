@@ -17,7 +17,6 @@ describe('workshop panels', () => {
         expect(panelKeys).toContain('chat');
         expect(panelKeys).toContain('reactions');
         expect(panelKeys).toContain('watching-count');
-        expect(panelKeys).toContain('projects');
         WORKSHOP_PANEL_DEFINITIONS.forEach((panelDefinition) => {
             expect(panelDefinition.adminLabel.length).toBeGreaterThan(0);
             expect(panelDefinition.adminDescription.length).toBeGreaterThan(0);
@@ -65,7 +64,6 @@ describe('workshop panels', () => {
         ]);
         expect(getWorkshopKindPanelDefinitions('community').map((panelDefinition) => panelDefinition.key)).toEqual([
             'chat',
-            'projects',
         ]);
     });
 
@@ -76,8 +74,5 @@ describe('workshop panels', () => {
         expect(isWorkshopPanelOffered('community', ['chat'], 'chat')).toBe(false);
         expect(isWorkshopPanelOffered('community', [], 'reactions')).toBe(false);
         expect(isWorkshopPanelOffered('community', [], 'watching-count')).toBe(false);
-        expect(isWorkshopPanelOffered('workshop', [], 'projects')).toBe(false);
-        expect(isWorkshopPanelOffered('community', [], 'projects')).toBe(true);
-        expect(isWorkshopPanelOffered('community', ['projects'], 'projects')).toBe(false);
     });
 });

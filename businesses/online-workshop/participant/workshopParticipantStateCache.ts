@@ -3,9 +3,8 @@ import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 
 // Version the snapshot whenever its room-state shape or security boundary changes:
 // an older cached state may still contain raw material destinations from before
-// every public link was materialized through the shortener, predate community polls, or lack the moderated project
-// gallery. A newly shaped state must never be confused with an old private browser snapshot during an outage.
-const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v4.';
+// every public link was materialized through the shortener, or predate community polls.
+const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v3.';
 const WORKSHOP_PARTICIPANT_STATE_CACHE_MAX_AGE_MILLISECONDS = WORKSHOP_SESSION_MAX_AGE_SECONDS * 1_000;
 
 type WorkshopParticipantStateCacheEntry = {
@@ -57,8 +56,7 @@ function isWorkshopPublicStateCacheEntry(
         Array.isArray(state.comments) &&
         Array.isArray(state.recentReactions) &&
         Array.isArray(state.reactionCounts) &&
-        Array.isArray(state.polls) &&
-        Array.isArray(state.projects)
+        Array.isArray(state.polls)
     );
 }
 

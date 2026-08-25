@@ -1,11 +1,6 @@
 import type { WorkshopRow } from '@/lib/workshops/workshopDatabase';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
-import type {
-    WorkshopCommentStatus,
-    WorkshopParticipant,
-    WorkshopProjectStatus,
-    WorkshopSubmissionStatus,
-} from '@/lib/workshops/workshopTypes';
+import type { WorkshopCommentStatus, WorkshopParticipant } from '@/lib/workshops/workshopTypes';
 import { NextResponse } from 'next/server';
 
 /**
@@ -13,23 +8,6 @@ import { NextResponse } from 'next/server';
  *       do themselves.
  */
 export function getWorkshopCommentStatusForParticipant(participant: WorkshopParticipant): WorkshopCommentStatus {
-    return getWorkshopSubmissionStatusForParticipant(participant);
-}
-
-/**
- * Trusted participants and room moderators do not wait for a second person to approve their project, just as they do
- * not wait for their chat messages. Keeping this decision in one function prevents the two member submission paths
- * from drifting apart.
- */
-export function getWorkshopProjectStatusForParticipant(participant: WorkshopParticipant): WorkshopProjectStatus {
-    return getWorkshopSubmissionStatusForParticipant(participant);
-}
-
-/**
- * Decides the moderation status of any member-authored submission. Chat messages and gallery projects both delegate
- * here, so trusting or silencing a participant has exactly the same consequence in every current submission surface.
- */
-export function getWorkshopSubmissionStatusForParticipant(participant: WorkshopParticipant): WorkshopSubmissionStatus {
     if (participant.isInteractionBanned) {
         return 'rejected';
     }
@@ -39,7 +17,10 @@ export function getWorkshopSubmissionStatusForParticipant(participant: WorkshopP
 
 export function getWorkshopInteractionBanResponseOrNull(participant: WorkshopParticipant): NextResponse | null {
     return participant.isInteractionBanned
-        ? NextResponse.json({ error: 'Interakce nejsou pro tento účet dostupné.' }, { status: 403 })
+        ? NextResponse.json(
+              { error: 'Interakce nejsou pro tento účet dostupné.' },
+              { status: 403 },
+          )
         : null;
 }
 

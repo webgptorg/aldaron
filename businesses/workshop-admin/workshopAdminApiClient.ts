@@ -10,7 +10,6 @@ import type {
     WorkshopContentBlock,
     WorkshopDetails,
     WorkshopKind,
-    WorkshopProjectStatus,
 } from '@/lib/workshops/workshopTypes';
 import { appendSearchParameters } from '@/lib/api/appendSearchParameters';
 import {
@@ -105,13 +104,11 @@ export async function fetchAdminWorkshopSnapshot(
     workshopId: string,
     commentStatus: WorkshopCommentStatus = 'pending',
     isCommentsIncluded = true,
-    isProjectsIncluded = true,
 ): Promise<WorkshopAdminSnapshot> {
     return requestAdminJson(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}`, {
             commentStatus,
             includeComments: String(isCommentsIncluded),
-            includeProjects: String(isProjectsIncluded),
         }),
     );
 }
@@ -231,27 +228,6 @@ export async function closeAdminWorkshopPoll(workshopId: string, pollId: string)
         createJsonMutation('PATCH', { isClosed: true }),
     );
     return result.pollId;
-}
-
-/**
- * Publishes or rejects a member project from the community moderation queue.
- */
-export async function updateAdminWorkshopProjectStatus(
-    workshopId: string,
-    projectId: string,
-    status: Exclude<WorkshopProjectStatus, 'pending'>,
-): Promise<void> {
-    await requestAdminJson(
-        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/projects/${encodeURIComponent(projectId)}`),
-        createJsonMutation('PATCH', { status }),
-    );
-}
-
-export async function deleteAdminWorkshopProject(workshopId: string, projectId: string): Promise<void> {
-    await requestAdminJson(
-        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/projects/${encodeURIComponent(projectId)}`),
-        { method: 'DELETE' },
-    );
 }
 
 export async function deleteAdminWorkshopComment(workshopId: string, commentId: string): Promise<void> {

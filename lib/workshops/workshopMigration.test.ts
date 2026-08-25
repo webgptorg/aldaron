@@ -12,9 +12,7 @@ const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-work
 const MIGRATION_SQL = readFileSync(MIGRATION_PATH, 'utf8');
 const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-1.sql');
 const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
-// This migration was intentionally archived after it had been applied in production, so it must stay visible to the
-// structural regression tests without being picked up as a new pending `.sql` migration at server startup.
-const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql.done');
+const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql');
 const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
 const WATCHING_AND_REPLY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
 const WATCHING_AND_REPLY_MIGRATION_SQL = readFileSync(WATCHING_AND_REPLY_MIGRATION_PATH, 'utf8');
@@ -68,14 +66,14 @@ const SHORTCODE_MATERIAL_LINK_MIGRATION_PATH = path.resolve(
 const SHORTCODE_MATERIAL_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_MATERIAL_LINK_MIGRATION_PATH, 'utf8');
 const COMMUNITY_POLL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2400-community-polls.sql');
 const COMMUNITY_POLL_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_MIGRATION_PATH, 'utf8');
-const COMMUNITY_PROJECT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2410-community-projects.sql');
-const COMMUNITY_PROJECT_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
  */
-const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_STATEMENTS =
-    PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL.replace(/\s+/g, ' ');
+const PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_STATEMENTS = PARTICIPANT_PAGE_VARIABLE_CONFLICT_MIGRATION_SQL.replace(
+    /\s+/g,
+    ' ',
+);
 const PARTICIPANT_PAGE_FUNCTION_SIGNATURES = [
     'uuid, text, boolean, boolean, timestamptz, timestamptz, text, text, integer, integer',
     'uuid, text, boolean, boolean, boolean, timestamptz, timestamptz, text, text, integer, integer',
@@ -290,9 +288,7 @@ describe('workshop database migration', () => {
     });
 
     it('remembers who moderates a room and lists them without scanning its whole audience', () => {
-        expect(MODERATOR_MIGRATION_SQL).toContain(
-            'ADD COLUMN IF NOT EXISTS is_moderator boolean NOT NULL DEFAULT false',
-        );
+        expect(MODERATOR_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS is_moderator boolean NOT NULL DEFAULT false');
         expect(MODERATOR_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshop_participants_moderator_idx');
         expect(MODERATOR_MIGRATION_SQL).toContain('WHERE is_moderator');
     });
@@ -343,9 +339,7 @@ describe('workshop database migration', () => {
     });
 
     it('keeps one persistent community separate from workshop occurrences', () => {
-        expect(COMMUNITY_MIGRATION_SQL).toContain(
-            "ADD COLUMN IF NOT EXISTS room_kind text NOT NULL DEFAULT 'workshop'",
-        );
+        expect(COMMUNITY_MIGRATION_SQL).toContain("ADD COLUMN IF NOT EXISTS room_kind text NOT NULL DEFAULT 'workshop'");
         expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_room_kind');
         WORKSHOP_KIND_VALUES.forEach((workshopKind) => expect(COMMUNITY_MIGRATION_SQL).toContain(`'${workshopKind}'`));
         expect(COMMUNITY_MIGRATION_SQL).toContain('CREATE UNIQUE INDEX IF NOT EXISTS workshops_one_community_idx');
@@ -364,34 +358,13 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('WORKSHOP_POLL_NOT_COMMUNITY');
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('WORKSHOP_POLL_CLOSED');
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('FOR SHARE');
-        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
-            'CREATE OR REPLACE FUNCTION public.create_community_workshop_poll',
-        );
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('CREATE OR REPLACE FUNCTION public.create_community_workshop_poll');
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
             'CREATE OR REPLACE FUNCTION public.get_workshop_poll_option_vote_counts',
         );
-        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
-            'ALTER TABLE public.workshop_poll_votes FORCE ROW LEVEL SECURITY',
-        );
+        expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_poll_votes FORCE ROW LEVEL SECURITY');
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_poll_votes FROM PUBLIC, anon, authenticated',
-        );
-    });
-
-    it('keeps member projects inside the permanent community and hidden behind the server boundary', () => {
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.workshop_projects');
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain(
-            'CONSTRAINT workshop_projects_participant_fk FOREIGN KEY (participant_id, workshop_id)',
-        );
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain("status text NOT NULL DEFAULT 'pending'");
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('WORKSHOP_PROJECT_NOT_COMMUNITY');
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('WORKSHOP_PROJECT_RATE_LIMITED');
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('pg_advisory_xact_lock');
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain(
-            'ALTER TABLE public.workshop_projects FORCE ROW LEVEL SECURITY',
-        );
-        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain(
-            'REVOKE ALL ON TABLE public.workshop_projects FROM PUBLIC, anon, authenticated',
         );
     });
 
@@ -410,27 +383,21 @@ describe('workshop database migration', () => {
         );
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('workshop_feedback_participant_fk');
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('CHECK (rating BETWEEN 1 AND 5)');
-        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
-            'ALTER TABLE public.workshop_feedback FORCE ROW LEVEL SECURITY',
-        );
+        expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_feedback FORCE ROW LEVEL SECURITY');
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_feedback FROM PUBLIC, anon, authenticated',
         );
     });
 
     it('routes material analytics through persisted ad hoc short links rather than a participant browser event', () => {
-        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
-            'ADD COLUMN IF NOT EXISTS "isAdHoc" boolean NOT NULL DEFAULT false',
-        );
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS "isAdHoc" boolean NOT NULL DEFAULT false');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
             'ADD COLUMN IF NOT EXISTS "sourceApp" text NOT NULL DEFAULT \'admin-shortener\'',
         );
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
             'CREATE TABLE IF NOT EXISTS public.workshop_content_shortcode_links',
         );
-        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain(
-            'REFERENCES public."ShortcodeLink"(id) ON DELETE CASCADE',
-        );
+        expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('REFERENCES public."ShortcodeLink"(id) ON DELETE CASCADE');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('public."ShortcodeLinkClick" AS shortcode_link_click');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('shortcode_link_click."navigatedAt" IS NOT NULL');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('"navigatedAt" AT TIME ZONE \'UTC\'');

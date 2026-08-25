@@ -23,11 +23,6 @@ export type WorkshopPanelDefinition = {
      * Note: Such a panel is left out of a calm room altogether, rather than shown with a number nothing refreshes.
      */
     readonly isRealtimeOnly: boolean;
-
-    /**
-     * Whether a panel is meaningful only in a room which offers a lasting member project gallery.
-     */
-    readonly isProjectSharingOnly?: boolean;
 };
 
 /**
@@ -54,13 +49,6 @@ export const WORKSHOP_PANEL_DEFINITIONS = [
         adminLabel: 'Počet sledujících',
         adminDescription: 'Vypnutý počet zmizí ze stránky a místnost ho už nepočítá.',
         isRealtimeOnly: true,
-    },
-    {
-        key: 'projects',
-        adminLabel: 'Sdílení projektů',
-        adminDescription: 'Vypnutá galerie projektů zmizí z místnosti a členové do ní nemohou přidávat nové příspěvky.',
-        isRealtimeOnly: false,
-        isProjectSharingOnly: true,
     },
 ] as const satisfies readonly WorkshopPanelDefinition[];
 
@@ -108,14 +96,9 @@ export function isWorkshopPanelEnabled(disabledPanels: readonly string[], panelK
 export function getWorkshopKindPanelDefinitions(
     workshopKind: WorkshopKind,
 ): readonly RegisteredWorkshopPanelDefinition[] {
-    const { isRealtime, isProjectSharingOffered } = getWorkshopKindCapabilities(workshopKind);
+    const { isRealtime } = getWorkshopKindCapabilities(workshopKind);
 
-    return WORKSHOP_PANEL_DEFINITIONS.filter(
-        (panelDefinition) =>
-            (isRealtime || !panelDefinition.isRealtimeOnly) &&
-            (isProjectSharingOffered ||
-                !('isProjectSharingOnly' in panelDefinition && panelDefinition.isProjectSharingOnly)),
-    );
+    return WORKSHOP_PANEL_DEFINITIONS.filter((panelDefinition) => isRealtime || !panelDefinition.isRealtimeOnly);
 }
 
 /**

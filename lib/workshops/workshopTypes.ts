@@ -13,19 +13,8 @@ export function isWorkshopKind(value: string): value is WorkshopKind {
     return WORKSHOP_KIND_VALUES.includes(value as WorkshopKind);
 }
 
-/**
- * The three outcomes shared by a member submission which is either immediately trusted or waiting for moderation.
- */
-export type WorkshopSubmissionStatus = 'pending' | 'approved' | 'rejected';
-
-export type WorkshopCommentStatus = WorkshopSubmissionStatus;
+export type WorkshopCommentStatus = 'pending' | 'approved' | 'rejected';
 export type WorkshopCommentSort = 'recent' | 'upvotes';
-
-/**
- * A member's project is moderated with the same three unambiguous outcomes as their message, but remains a separate
- * type so a future project-specific status cannot accidentally change chat semantics.
- */
-export type WorkshopProjectStatus = WorkshopSubmissionStatus;
 
 export type WorkshopSummary = {
     readonly id: string;
@@ -92,12 +81,12 @@ export type WorkshopParticipant = {
 
 export type WorkshopAdminParticipant = WorkshopParticipant &
     AdminContactJoin & {
-        readonly lastSeenAt: string;
-        readonly activeDurationSeconds: number;
-        readonly commentCount: number;
-        readonly reactionCount: number;
-        readonly upvoteCount: number;
-    };
+    readonly lastSeenAt: string;
+    readonly activeDurationSeconds: number;
+    readonly commentCount: number;
+    readonly reactionCount: number;
+    readonly upvoteCount: number;
+};
 
 /**
  * One server-paged slice of participants, keeping large workshops responsive in the administration.
@@ -340,26 +329,6 @@ export type WorkshopPoll = {
     readonly options: readonly WorkshopPollOption[];
 };
 
-/**
- * One project, prototype, or other creation shared by a community member. The room deliberately carries no e-mail or
- * participant ID with it; only the administration can join that private identity when it needs to moderate a post.
- */
-export type WorkshopProject = {
-    readonly id: string;
-    readonly authorName: string;
-    readonly title: string;
-    readonly description: string;
-    readonly url: string | null;
-    readonly status: WorkshopProjectStatus;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-
-    /**
-     * A member may see their own pending or rejected project, while other members receive approved projects only.
-     */
-    readonly isAuthoredByParticipant: boolean;
-};
-
 export type WorkshopPublicState = {
     readonly serverTime: string;
     readonly workshop: WorkshopDetails;
@@ -376,7 +345,6 @@ export type WorkshopPublicState = {
     readonly recentReactions: readonly WorkshopReaction[];
     readonly reactionCounts: readonly WorkshopReactionCount[];
     readonly polls: readonly WorkshopPoll[];
-    readonly projects: readonly WorkshopProject[];
 };
 
 /**
@@ -396,19 +364,10 @@ export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant
     readonly parentComment: WorkshopCommentReference | null;
 };
 
-/**
- * The administrator's form of a shared project, where its author can be traced to the participant record without
- * exposing that identifier in the public room response.
- */
-export type WorkshopAdminProject = Omit<WorkshopProject, 'isAuthoredByParticipant'> & {
-    readonly participantId: string;
-};
-
 export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly polls: readonly WorkshopPoll[];
-    readonly projects: readonly WorkshopAdminProject[];
     readonly comments: readonly WorkshopAdminComment[];
 
     /**

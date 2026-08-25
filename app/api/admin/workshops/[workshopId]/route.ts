@@ -43,13 +43,12 @@ export async function GET(request: NextRequest, context: AdminWorkshopRouteConte
     }
 
     const isCommentsIncluded = request.nextUrl.searchParams.get('includeComments') !== 'false';
-    const isProjectsIncluded = request.nextUrl.searchParams.get('includeProjects') !== 'false';
 
     const { snapshot, errorMessage } = await loadWorkshopAdminSnapshot(
         supabase,
         workshopRow,
         requestedCommentStatus ?? 'pending',
-        { isCommentsIncluded, isProjectsIncluded },
+        { isCommentsIncluded },
     );
     if (snapshot === null) {
         return NextResponse.json({ error: errorMessage }, { status: 500 });

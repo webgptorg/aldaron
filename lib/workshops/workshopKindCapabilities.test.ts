@@ -19,7 +19,6 @@ describe('workshop kind capabilities', () => {
             isScheduled: true,
             isStageOffered: true,
             isPollsOffered: false,
-            isProjectSharingOffered: false,
             isRealtime: true,
         });
     });
@@ -31,7 +30,6 @@ describe('workshop kind capabilities', () => {
             isScheduled: false,
             isStageOffered: false,
             isPollsOffered: true,
-            isProjectSharingOffered: true,
             isRealtime: false,
         });
     });

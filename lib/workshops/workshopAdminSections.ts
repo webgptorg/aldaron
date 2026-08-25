@@ -11,7 +11,6 @@ export const WORKSHOP_ADMIN_SECTION_VALUES = [
     'reactions',
     'content',
     'polls',
-    'projects',
     'feedback',
     'settings',
 ] as const;
