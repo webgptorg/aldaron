@@ -15,3 +15,13 @@
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
+
+[ ]
+
+[✨🤛] When the server is not available, the message for the user should not scream as big warning but be some small "🟢 connected" dot on top-right corner
+
+- You are working with `/cs/online-workshop/participant`
+- You are working with `/cs/komunita`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
