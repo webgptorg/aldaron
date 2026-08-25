@@ -101,6 +101,14 @@
             "execute": false
         },
         {
+            "name": "(❗) 🔪 Kill all Node.js processes (💤)",
+            "command": "echo 🔪 & taskkill /F /IM node.exe & taskkill /F /IM codex.exe & taskkill /F /IM claude.exe",
+            "shellPath": "C:\\Windows\\System32\\cmd.exe",
+            "execute": false,
+            "onlySingle": false,
+            "focus": false
+        },
+        {
             "name": "🔼 Trigger deployment",
             "commands": ["git commit --allow-empty -m \"Trigger deployment\"", "git push"],
             "onlySingle": true,
