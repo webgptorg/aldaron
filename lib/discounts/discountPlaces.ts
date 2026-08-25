@@ -1,5 +1,4 @@
 import { DISCOUNT_CODE_QUERY_PARAMETER, REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
-import { COMMUNITY_MEMBERSHIP_PATH } from '@/businesses/community/config';
 
 /**
  * One place is one paid offer of the application. The administration, registration forms and
@@ -18,8 +17,6 @@ export const AI_SUPERVIZE_MINI_PATH = '/ai-supervize-mini';
 
 export const AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-onsite';
 export const AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-online';
-export const COMMUNITY_PREMIUM_DISCOUNT_PLACE_ID = 'community-premium';
-export const COMMUNITY_PREMIUM_PLUS_DISCOUNT_PLACE_ID = 'community-premium-plus';
 
 export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
     {
@@ -34,20 +31,6 @@ export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
         label: 'AI Supervize Mini – online',
         description: 'Odpolední online varianta workshopu',
         pagePath: AI_SUPERVIZE_MINI_PATH,
-        registrationSectionId: REGISTRATION_SECTION_ID,
-    },
-    {
-        id: COMMUNITY_PREMIUM_DISCOUNT_PLACE_ID,
-        label: 'Komunita Promptbooku – Premium',
-        description: 'Prémiové členství komunity Promptbooku',
-        pagePath: COMMUNITY_MEMBERSHIP_PATH,
-        registrationSectionId: REGISTRATION_SECTION_ID,
-    },
-    {
-        id: COMMUNITY_PREMIUM_PLUS_DISCOUNT_PLACE_ID,
-        label: 'Komunita Promptbooku – Premium+',
-        description: 'Rozšířené prémiové členství komunity Promptbooku',
-        pagePath: COMMUNITY_MEMBERSHIP_PATH,
         registrationSectionId: REGISTRATION_SECTION_ID,
     },
 ];
