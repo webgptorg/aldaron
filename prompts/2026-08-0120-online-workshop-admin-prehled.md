@@ -26,3 +26,17 @@
 
 ![alt text](prompts/screenshots/2026-08-0120-online-workshop-admin-prehled.png)
 
+---
+
+[ ]
+
+[✨🎽] Enhance the `/admin/workshops` "Přehled"
+
+- On the graph create vertical lines for each midnight, so the admins can see the days in the graph.
+- Also place a slightly highlited area for the time of the workshop, so the admins can see the time of the workshop in the graph.
+- You are working with `/admin/workshops`
+- If you need a change in the database migration, do it in file `migrations/*.sql`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+
+![alt text](prompts/screenshots/2026-08-0120-online-workshop-admin-prehled-1.png)
