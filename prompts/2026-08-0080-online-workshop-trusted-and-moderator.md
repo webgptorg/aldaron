@@ -13,3 +13,16 @@
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
+
+[ ]
+
+[✨👄] Links in chat messages from moderators and aftifitial chat messages shiould have active links
+
+- From normal users, the links in chat messages are not active. But from moderators and also from the artificial chat messages, the links should be active and clickable.
+- You are working with `/cs/online-workshop/participant`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+![alt text](prompts/screenshots/2026-08-0080-online-workshop-trusted-and-moderator.png)
