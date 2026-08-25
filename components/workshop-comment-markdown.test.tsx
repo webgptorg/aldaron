@@ -21,4 +21,35 @@ describe('workshop comment Markdown', () => {
         expect(container.textContent).toContain('<img src="bad">');
         expect(container.textContent).toContain('![obrázek](https://bad.example)');
     });
+
+    it('activates only persisted shortcode URLs when a trusted source explicitly enables links', () => {
+        const content =
+            '[Otevřít návod](https://ptbk.io/moderator-guide) a https://ptbk.io/moderator-video. Původní https://example.com/raw zůstává textem.';
+        const { container, rerender } = render(<WorkshopCommentMarkdown content={content} />);
+
+        expect(container.querySelector('a')).toBeNull();
+
+        rerender(<WorkshopCommentMarkdown content={content} isLinksEnabled />);
+
+        const links = screen.getAllByRole('link');
+        expect(links.map((link) => link.getAttribute('href'))).toEqual([
+            'https://ptbk.io/moderator-guide',
+            'https://ptbk.io/moderator-video',
+        ]);
+        expect(links.every((link) => link.getAttribute('target') === '_blank')).toBe(true);
+        expect(links.every((link) => link.getAttribute('rel') === 'noopener noreferrer')).toBe(true);
+        expect(container.textContent).toContain('https://example.com/raw');
+    });
+
+    it('keeps shortcode-looking text inert inside code, images, and HTML', () => {
+        const { container } = render(
+            <WorkshopCommentMarkdown
+                isLinksEnabled
+                content={'`https://ptbk.io/code` ![obrázek](https://ptbk.io/image) <a href="https://ptbk.io/html">HTML</a>'}
+            />,
+        );
+
+        expect(container.querySelector('a')).toBeNull();
+        expect(container.querySelector('img')).toBeNull();
+    });
 });

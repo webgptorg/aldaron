@@ -15,7 +15,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.4564 11 minutes; Testing 5 minutes
 
 [✨👄] Links in chat messages from moderators and aftifitial chat messages shiould have active links
 
@@ -28,3 +28,4 @@
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ![alt text](prompts/screenshots/2026-08-0080-online-workshop-trusted-and-moderator.png)
+

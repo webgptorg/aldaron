@@ -64,6 +64,11 @@ const SHORTCODE_MATERIAL_LINK_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-1700-online-workshop-shortcode-material-links.sql',
 );
 const SHORTCODE_MATERIAL_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_MATERIAL_LINK_MIGRATION_PATH, 'utf8');
+const SHORTCODE_CHAT_LINK_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-2500-online-workshop-chat-shortcode-links.sql',
+);
+const SHORTCODE_CHAT_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_CHAT_LINK_MIGRATION_PATH, 'utf8');
 const COMMUNITY_POLL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2400-community-polls.sql');
 const COMMUNITY_POLL_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_MIGRATION_PATH, 'utf8');
 
@@ -407,5 +412,24 @@ describe('workshop database migration', () => {
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('CREATE FUNCTION public.get_workshop_admin_timeline');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).toContain('material_shortcode_link.shortcode_link_id');
         expect(SHORTCODE_MATERIAL_LINK_MIGRATION_SQL).not.toContain('link_click_count bigint,\n    total_count bigint');
+    });
+
+    it('keeps moderator and artificial chat links in their own protected short-link mapping', () => {
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
+            'CREATE TABLE IF NOT EXISTS public.workshop_comment_shortcode_links',
+        );
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
+            'REFERENCES public.workshop_comments(id) ON DELETE CASCADE',
+        );
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain('REFERENCES public."ShortcodeLink"(id) ON DELETE CASCADE');
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
+            'PRIMARY KEY (comment_id, destination_url)',
+        );
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
+            'ALTER TABLE public.workshop_comment_shortcode_links FORCE ROW LEVEL SECURITY',
+        );
+        expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
+            'REVOKE ALL ON TABLE public.workshop_comment_shortcode_links FROM PUBLIC, anon, authenticated',
+        );
     });
 });

@@ -2,6 +2,7 @@ import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_COMMENT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
+import { ensureWorkshopCommentShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopArtificialCommentSchema } from '@/lib/workshops/workshopSchemas';
 import { createWorkshopArtificialCommentDatabaseValues } from '@/lib/workshops/workshopValues';
@@ -43,6 +44,18 @@ export async function POST(request: NextRequest, context: AdminWorkshopCommentsR
     if (error || data === null) {
         console.error('Failed to create an artificial workshop comment:', error?.message ?? 'No comment returned');
         return NextResponse.json({ error: 'Artificial comment could not be created' }, { status: 500 });
+    }
+
+    const commentShortLinkErrorMessage = await ensureWorkshopCommentShortLinks(workshopData.supabase, {
+        workshopSlug: workshopData.workshopRow.slug,
+        workshopKind: workshopData.workshopRow.room_kind,
+        commentId: data.id,
+        bodyMarkdown: parsedResult.data.body,
+    });
+    if (commentShortLinkErrorMessage !== null) {
+        // The comment stays safely stored; public state loading retries before
+        // it can turn its raw destination into an active link.
+        console.error('Failed to prepare short links for an artificial workshop comment:', commentShortLinkErrorMessage);
     }
 
     await broadcastWorkshopEvent(workshopData.supabase, workshopData.workshopRow, { kind: 'state-changed' });

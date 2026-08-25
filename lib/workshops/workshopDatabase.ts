@@ -23,6 +23,8 @@ import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { materializeWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
+import { materializeWorkshopCommentShortLinks } from '@/lib/workshops/workshopMaterialLinks';
+import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentLinks';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import type {
@@ -446,6 +448,7 @@ export function mapWorkshopCommentRow(
         isUpvotedByParticipant,
         createdAt: row.created_at,
         isAuthorModerator: author?.isModerator ?? false,
+        isArtificial: row.is_artificial,
         moderatedAuthor: roomContext.isModerationOffered ? (author ?? null) : null,
         parentCommentId: row.parent_comment_id,
         isPinned: row.id === roomContext.pinnedCommentId,
@@ -1791,11 +1794,48 @@ export async function loadWorkshopPublicState(
         upvotedCommentIds = new Set((upvoteRows ?? []).map(({ comment_id }) => comment_id as string));
     }
 
+    const authorByParticipantId = await loadWorkshopCommentAuthors(supabase, workshopRow.id, commentRows);
     const roomContext: WorkshopCommentRoomContext = {
         pinnedCommentId: workshopRow.pinned_comment_id,
-        authorByParticipantId: await loadWorkshopCommentAuthors(supabase, workshopRow.id, commentRows),
+        authorByParticipantId,
         isModerationOffered,
     };
+    const materializedCommentResults = await Promise.all(
+        commentRows.map(async (commentRow) => {
+            const author =
+                commentRow.participant_id === null
+                    ? undefined
+                    : authorByParticipantId.get(commentRow.participant_id);
+            if (
+                !areWorkshopCommentLinksEnabled({
+                    isArtificial: commentRow.is_artificial,
+                    isAuthorModerator: author?.isModerator ?? false,
+                })
+            ) {
+                return { commentRow, bodyMarkdown: commentRow.body, errorMessage: null };
+            }
+
+            return {
+                commentRow,
+                ...(await materializeWorkshopCommentShortLinks(supabase, {
+                    workshopSlug: workshopRow.slug,
+                    workshopKind: workshopRow.room_kind,
+                    commentId: commentRow.id,
+                    bodyMarkdown: commentRow.body,
+                })),
+            };
+        }),
+    );
+    const commentMaterializationErrorMessage = materializedCommentResults.find(
+        (materializedCommentResult) => materializedCommentResult.errorMessage !== null,
+    )?.errorMessage;
+    if (commentMaterializationErrorMessage !== null && commentMaterializationErrorMessage !== undefined) {
+        return { state: null, errorMessage: commentMaterializationErrorMessage };
+    }
+    const materializedCommentRows = materializedCommentResults.map((materializedCommentResult) => ({
+        ...materializedCommentResult.commentRow,
+        body: materializedCommentResult.bodyMarkdown ?? materializedCommentResult.commentRow.body,
+    }));
 
     return {
         state: {
@@ -1810,7 +1850,9 @@ export async function loadWorkshopPublicState(
                     ? null
                     : mapWorkshopFeedbackRow(feedbackResult.data as WorkshopFeedbackRow),
             comments: sortWorkshopComments(
-                commentRows.map((row) => mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), roomContext)),
+                materializedCommentRows.map((row) =>
+                    mapWorkshopCommentRow(row, upvotedCommentIds.has(row.id), roomContext),
+                ),
                 commentSort,
             ),
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),

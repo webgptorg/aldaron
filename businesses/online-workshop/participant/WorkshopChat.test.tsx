@@ -17,6 +17,7 @@ const QUESTION: WorkshopComment = {
     isUpvotedByParticipant: false,
     createdAt: '2026-08-20T19:00:00.000Z',
     isAuthorModerator: false,
+    isArtificial: false,
     moderatedAuthor: null,
     parentCommentId: null,
     isPinned: false,
@@ -191,6 +192,34 @@ describe('workshop chat', () => {
         screen
             .getAllByRole('button', { name: /^Hlasovat pro komentář/ })
             .forEach((upvoteButton) => expect(upvoteButton).toHaveProperty('disabled', true));
+    });
+
+    it('activates persisted links only from moderators and artificial chat messages', () => {
+        renderChat(vi.fn(), {
+            comments: [
+                { ...QUESTION, id: 'ordinary', body: 'https://ptbk.io/ordinary', authorName: 'Běžný účastník' },
+                {
+                    ...QUESTION,
+                    id: 'moderator',
+                    body: 'https://ptbk.io/moderator',
+                    authorName: 'Moderátor',
+                    isAuthorModerator: true,
+                },
+                {
+                    ...QUESTION,
+                    id: 'artificial',
+                    body: 'https://ptbk.io/artificial',
+                    authorName: 'Petra z týmu',
+                    isArtificial: true,
+                },
+            ],
+        });
+
+        expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
+            'https://ptbk.io/artificial',
+            'https://ptbk.io/moderator',
+        ]);
+        expect(screen.getByText('https://ptbk.io/ordinary').tagName).not.toBe('A');
     });
 
     it('offers nothing of the moderation to an ordinary participant', () => {

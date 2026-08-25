@@ -2,6 +2,7 @@ import {
     createWorkshopMaterialTrackingUrl,
     getWorkshopMaterialLinkDestinations,
     getWorkshopMaterialShortcodeSourceApp,
+    materializeWorkshopCommentShortLinks,
     materializeWorkshopMaterialShortLinks,
     replaceWorkshopMaterialLinkDestinations,
 } from '@/lib/workshops/workshopMaterialLinks';
@@ -158,6 +159,83 @@ describe('workshop material tracking links', () => {
                 shortcode_link_id: 44,
             },
             { onConflict: 'content_block_id,destination_url', ignoreDuplicates: true },
+        );
+    });
+
+    it('reuses the persisted material short-link path for an artificial or moderator chat message', async () => {
+        let mappings: readonly { readonly destination_url: string; readonly shortcode_link_id: number }[] = [];
+        const mappingUpsert = vi.fn(async (values: {
+            readonly destination_url: string;
+            readonly shortcode_link_id: number;
+        }) => {
+            mappings = [
+                {
+                    destination_url: values.destination_url,
+                    shortcode_link_id: values.shortcode_link_id,
+                },
+            ];
+            return { error: null };
+        });
+        const from = vi.fn((tableName: string) => {
+            if (tableName === 'workshop_comment_shortcode_links') {
+                return {
+                    select: vi.fn(() => ({ eq: vi.fn(async () => ({ data: mappings, error: null })) })),
+                    upsert: mappingUpsert,
+                };
+            }
+
+            if (tableName === 'ShortcodeLink') {
+                return {
+                    select: vi.fn(() => ({
+                        in: vi.fn(async () => ({ data: [{ id: 45, shortcode: 'comment-45' }], error: null })),
+                    })),
+                };
+            }
+
+            throw new Error(`Unexpected table ${tableName}`);
+        });
+        createAdHocShortcodeLinkMock.mockResolvedValue({
+            shortcodeLink: {
+                id: 45,
+                createdAt: '2026-08-25T10:00:00.000Z',
+                shortcode: 'comment-45',
+                urls: ['https://example.com/guide'],
+                note: null,
+                landingPage: null,
+                isAdHoc: true,
+                sourceApp: 'online-workshop',
+            },
+            errorMessage: null,
+        });
+
+        const materializedLink = await materializeWorkshopCommentShortLinks(
+            { from } as unknown as SupabaseClient,
+            {
+                workshopSlug: 'production-ai-2026-08-25',
+                workshopKind: 'workshop',
+                commentId: 'comment-45',
+                bodyMarkdown: 'Podívejte se na https://example.com/guide.',
+            },
+        );
+
+        expect(materializedLink).toEqual({
+            bodyMarkdown: 'Podívejte se na https://ptbk.io/comment-45.',
+            errorMessage: null,
+        });
+        expect(createAdHocShortcodeLinkMock).toHaveBeenCalledWith(expect.anything(), {
+            urls: [
+                'https://example.com/guide?utm_source=promptbook&utm_medium=workshop&utm_campaign=production-ai-2026-08-25&utm_content=comment-45',
+            ],
+            note: 'Ad hoc chat link for production-ai-2026-08-25',
+            sourceApp: 'online-workshop',
+        });
+        expect(mappingUpsert).toHaveBeenCalledWith(
+            {
+                comment_id: 'comment-45',
+                destination_url: 'https://example.com/guide',
+                shortcode_link_id: 45,
+            },
+            { onConflict: 'comment_id,destination_url', ignoreDuplicates: true },
         );
     });
 });

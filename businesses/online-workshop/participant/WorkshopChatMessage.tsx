@@ -6,6 +6,7 @@ import {
 } from '@/businesses/online-workshop/participant/WorkshopChatMessageModeration';
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
 import { cn } from '@/lib/utils';
+import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentLinks';
 import type { WorkshopChatInteractivity } from '@/lib/workshops/workshopChatInteractivity';
 import type { WorkshopComment } from '@/lib/workshops/workshopTypes';
 import { Clock3, Pin, ShieldCheck, ThumbsUp } from 'lucide-react';
@@ -94,6 +95,7 @@ export function WorkshopChatMessage({
             </div>
             <WorkshopCommentMarkdown
                 content={comment.body}
+                isLinksEnabled={areWorkshopCommentLinksEnabled(comment)}
                 className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-300"
             />
             {moderation !== null && (

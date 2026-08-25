@@ -260,6 +260,11 @@ export type WorkshopComment = {
     readonly isAuthorModerator: boolean;
 
     /**
+     * Whether the administration created this message without a participant
+     */
+    readonly isArtificial: boolean;
+
+    /**
      * The author as a moderator of the room may act on them, or `null` for everybody else
      */
     readonly moderatedAuthor: WorkshopCommentAuthor | null;
@@ -358,7 +363,6 @@ export type WorkshopCommentReference = {
 
 export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant'> & {
     readonly participantId: string | null;
-    readonly isArtificial: boolean;
     readonly realUpvoteCount: number;
     readonly artificialUpvoteCount: number;
     readonly parentComment: WorkshopCommentReference | null;

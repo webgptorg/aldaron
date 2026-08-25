@@ -7,6 +7,8 @@ import {
     WORKSHOP_COMMENT_COLUMNS,
     type WorkshopCommentRow,
 } from '@/lib/workshops/workshopDatabase';
+import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentLinks';
+import { materializeWorkshopCommentShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import {
     getDisabledWorkshopPanelResponseOrNull,
@@ -115,9 +117,26 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         return NextResponse.json({ error: 'Comment could not be saved' }, { status: 500 });
     }
 
-    // The participant who just wrote this message is the only author it can have, so it is described from them.
     const { participant } = authenticatedRequest;
-    const comment = mapWorkshopCommentRow(data as WorkshopCommentRow, false, {
+    let commentRow = data as WorkshopCommentRow;
+    if (areWorkshopCommentLinksEnabled({ isArtificial: false, isAuthorModerator: participant.isModerator })) {
+        const materializedComment = await materializeWorkshopCommentShortLinks(authenticatedRequest.supabase, {
+            workshopSlug: authenticatedRequest.workshopRow.slug,
+            workshopKind: authenticatedRequest.workshopRow.room_kind,
+            commentId: commentRow.id,
+            bodyMarkdown: commentRow.body,
+        });
+        if (materializedComment.errorMessage !== null) {
+            // The comment itself was persisted. State loading retries the same
+            // materializer, and the chat renderer never activates an unshortened URL.
+            console.error('Failed to prepare short links for a moderator comment:', materializedComment.errorMessage);
+        } else if (materializedComment.bodyMarkdown !== null) {
+            commentRow = { ...commentRow, body: materializedComment.bodyMarkdown };
+        }
+    }
+
+    // The participant who just wrote this message is the only author it can have, so it is described from them.
+    const comment = mapWorkshopCommentRow(commentRow, false, {
         pinnedCommentId: authenticatedRequest.workshopRow.pinned_comment_id,
         authorByParticipantId: new Map([[participant.id, createWorkshopCommentAuthor(participant)]]),
         isModerationOffered: isWorkshopParticipantModerating(participant),

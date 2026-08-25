@@ -4,7 +4,10 @@ import {
     type ShortcodeLinkSourceApp,
 } from '@/lib/shortener/shortcodeLink';
 import { SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
-import { WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import {
+    WORKSHOP_COMMENT_SHORTCODE_LINK_TABLE_NAME,
+    WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME,
+} from '@/lib/workshops/workshopConstants';
 import type { WorkshopKind } from '@/lib/workshops/workshopTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -22,9 +25,21 @@ type WorkshopMaterialLinkRange = {
     readonly end: number;
 };
 
-type WorkshopContentShortcodeLinkRow = {
+type WorkshopShortcodeLinkMappingRow = {
     readonly destination_url: string;
     readonly shortcode_link_id: number | string;
+};
+
+/**
+ * One persisted source record whose URLs are handed out as public short links.
+ * Materials and eligible chat messages differ only by this durable mapping;
+ * parsing, UTM values, collision handling, and URL replacement stay shared.
+ */
+type WorkshopShortcodeLinkOwner = {
+    readonly id: string;
+    readonly mappingTableName: string;
+    readonly mappingOwnerColumnName: string;
+    readonly note: string;
 };
 
 type ShortcodeLinkReferenceRow = {
@@ -32,7 +47,7 @@ type ShortcodeLinkReferenceRow = {
     readonly shortcode: string;
 };
 
-type LoadedWorkshopMaterialShortcodeLinks =
+type LoadedWorkshopShortcodeLinks =
     | { readonly shortUrlByDestination: ReadonlyMap<string, string>; readonly errorMessage: null }
     | { readonly shortUrlByDestination: null; readonly errorMessage: string };
 
@@ -291,14 +306,14 @@ function getTrackableWorkshopMaterialUrl(destinationUrl: string): string | null 
 }
 
 /**
- * Keeps the source address of a material link useful to its destination's
- * analytics. The material itself is later handed out as a short link; this is
+ * Keeps the source address of a workshop-owned link useful to its destination's
+ * analytics. The public address is later handed out as a short link; this is
  * only the destination stored behind that short link.
  */
-export function createWorkshopMaterialTrackingUrl(
+export function createWorkshopShortcodeLinkTrackingUrl(
     destinationUrl: string,
     workshopSlug: string,
-    contentBlockId: string,
+    sourceRecordId: string,
 ): string {
     const trackableUrl = getTrackableWorkshopMaterialUrl(destinationUrl);
     if (trackableUrl === null) {
@@ -309,8 +324,20 @@ export function createWorkshopMaterialTrackingUrl(
     parsedUrl.searchParams.set('utm_source', WORKSHOP_UTM_SOURCE);
     parsedUrl.searchParams.set('utm_medium', WORKSHOP_UTM_MEDIUM);
     parsedUrl.searchParams.set('utm_campaign', workshopSlug);
-    parsedUrl.searchParams.set('utm_content', contentBlockId);
+    parsedUrl.searchParams.set('utm_content', sourceRecordId);
     return parsedUrl.toString();
+}
+
+/**
+ * The material-specific name remains available to callers which describe a
+ * content block. Chat messages use the same tracking URL factory above.
+ */
+export function createWorkshopMaterialTrackingUrl(
+    destinationUrl: string,
+    workshopSlug: string,
+    contentBlockId: string,
+): string {
+    return createWorkshopShortcodeLinkTrackingUrl(destinationUrl, workshopSlug, contentBlockId);
 }
 
 /**
@@ -318,7 +345,7 @@ export function createWorkshopMaterialTrackingUrl(
  * they use inline Markdown, HTML, autolinks, or reference definitions. Images,
  * anchors, e-mail links, and code samples are deliberately not click links.
  */
-export function getWorkshopMaterialLinkDestinations(bodyMarkdown: string): readonly string[] {
+export function getWorkshopShortcodeLinkDestinations(bodyMarkdown: string): readonly string[] {
     return Array.from(
         new Set(
             collectWorkshopMaterialLinkRanges(bodyMarkdown)
@@ -328,12 +355,16 @@ export function getWorkshopMaterialLinkDestinations(bodyMarkdown: string): reado
     );
 }
 
+export function getWorkshopMaterialLinkDestinations(bodyMarkdown: string): readonly string[] {
+    return getWorkshopShortcodeLinkDestinations(bodyMarkdown);
+}
+
 /**
  * Replaces only the address part of each material link. Keeping the Markdown
  * itself intact means content editors continue to own its text, titles, HTML,
  * and layout while every public destination becomes safely shareable.
  */
-export function replaceWorkshopMaterialLinkDestinations(
+export function replaceWorkshopShortcodeLinkDestinations(
     bodyMarkdown: string,
     shortUrlByDestination: ReadonlyMap<string, string>,
 ): string {
@@ -351,8 +382,19 @@ export function replaceWorkshopMaterialLinkDestinations(
     return replacedMarkdown;
 }
 
-export function getWorkshopMaterialShortcodeSourceApp(workshopKind: WorkshopKind): ShortcodeLinkSourceApp {
+export function replaceWorkshopMaterialLinkDestinations(
+    bodyMarkdown: string,
+    shortUrlByDestination: ReadonlyMap<string, string>,
+): string {
+    return replaceWorkshopShortcodeLinkDestinations(bodyMarkdown, shortUrlByDestination);
+}
+
+export function getWorkshopShortcodeLinkSourceApp(workshopKind: WorkshopKind): ShortcodeLinkSourceApp {
     return workshopKind === 'community' ? 'community' : 'online-workshop';
+}
+
+export function getWorkshopMaterialShortcodeSourceApp(workshopKind: WorkshopKind): ShortcodeLinkSourceApp {
+    return getWorkshopShortcodeLinkSourceApp(workshopKind);
 }
 
 function getShortcodeLinkId(value: number | string): number | null {
@@ -361,19 +403,19 @@ function getShortcodeLinkId(value: number | string): number | null {
     return Number.isSafeInteger(shortcodeLinkId) && shortcodeLinkId > 0 ? shortcodeLinkId : null;
 }
 
-async function loadWorkshopMaterialShortcodeLinks(
+async function loadWorkshopShortcodeLinks(
     supabase: SupabaseClient,
-    contentBlockId: string,
-): Promise<LoadedWorkshopMaterialShortcodeLinks> {
+    linkOwner: WorkshopShortcodeLinkOwner,
+): Promise<LoadedWorkshopShortcodeLinks> {
     const { data: mappingData, error: mappingError } = await supabase
-        .from(WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME)
+        .from(linkOwner.mappingTableName)
         .select('destination_url, shortcode_link_id')
-        .eq('content_block_id', contentBlockId);
+        .eq(linkOwner.mappingOwnerColumnName, linkOwner.id);
     if (mappingError) {
         return { shortUrlByDestination: null, errorMessage: mappingError.message };
     }
 
-    const mappings = (mappingData ?? []) as WorkshopContentShortcodeLinkRow[];
+    const mappings = (mappingData ?? []) as WorkshopShortcodeLinkMappingRow[];
     const shortcodeLinkIds = Array.from(
         new Set(
             mappings
@@ -416,10 +458,83 @@ async function loadWorkshopMaterialShortcodeLinks(
 }
 
 /**
+ * Makes sure every trackable URL of one persisted workshop record has one ad
+ * hoc short link, then returns a copy of its Markdown with public short URLs.
+ * The original text remains in its source table, so a changed destination or a
+ * deleted shortcode can be safely prepared again.
+ */
+async function materializeWorkshopShortLinks(
+    supabase: SupabaseClient,
+    context: {
+        readonly workshopSlug: string;
+        readonly workshopKind: WorkshopKind;
+        readonly bodyMarkdown: string;
+    },
+    linkOwner: WorkshopShortcodeLinkOwner,
+): Promise<{ readonly bodyMarkdown: string | null; readonly errorMessage: string | null }> {
+    const destinations = getWorkshopShortcodeLinkDestinations(context.bodyMarkdown);
+    if (destinations.length === 0) {
+        return { bodyMarkdown: context.bodyMarkdown, errorMessage: null };
+    }
+
+    const loadedShortcodeLinks = await loadWorkshopShortcodeLinks(supabase, linkOwner);
+    if (loadedShortcodeLinks.shortUrlByDestination === null) {
+        return { bodyMarkdown: null, errorMessage: loadedShortcodeLinks.errorMessage };
+    }
+
+    const missingDestinations = destinations.filter(
+        (destination) => !loadedShortcodeLinks.shortUrlByDestination.has(destination),
+    );
+    for (const destination of missingDestinations) {
+        const trackedDestination = createWorkshopShortcodeLinkTrackingUrl(
+            destination,
+            context.workshopSlug,
+            linkOwner.id,
+        );
+        const createdShortcodeLink = await createAdHocShortcodeLink(supabase, {
+            urls: [trackedDestination],
+            note: linkOwner.note,
+            sourceApp: getWorkshopShortcodeLinkSourceApp(context.workshopKind),
+        });
+        if (createdShortcodeLink.shortcodeLink === null) {
+            return { bodyMarkdown: null, errorMessage: createdShortcodeLink.errorMessage };
+        }
+
+        // A room can be opened by many people at once. Upsert lets the source
+        // record retain whichever equivalent shortcode reached the mapping
+        // first, and a reload below makes every concurrent response use it.
+        const { error: mappingError } = await supabase
+            .from(linkOwner.mappingTableName)
+            .upsert(
+                {
+                    [linkOwner.mappingOwnerColumnName]: linkOwner.id,
+                    destination_url: destination,
+                    shortcode_link_id: createdShortcodeLink.shortcodeLink.id,
+                },
+                { onConflict: `${linkOwner.mappingOwnerColumnName},destination_url`, ignoreDuplicates: true },
+            );
+        if (mappingError) {
+            return { bodyMarkdown: null, errorMessage: mappingError.message };
+        }
+    }
+
+    const resolvedShortcodeLinks =
+        missingDestinations.length === 0
+            ? loadedShortcodeLinks
+            : await loadWorkshopShortcodeLinks(supabase, linkOwner);
+    if (resolvedShortcodeLinks.shortUrlByDestination === null) {
+        return { bodyMarkdown: null, errorMessage: resolvedShortcodeLinks.errorMessage };
+    }
+
+    return {
+        bodyMarkdown: replaceWorkshopShortcodeLinkDestinations(context.bodyMarkdown, resolvedShortcodeLinks.shortUrlByDestination),
+        errorMessage: null,
+    };
+}
+
+/**
  * Makes sure every trackable URL in one material has one ad hoc short link,
  * then returns a copy of its Markdown which contains the public short URLs.
- * The original Markdown is intentionally left in the content table so an admin
- * can edit the real destination, and a deleted ad hoc link can be recreated.
  */
 export async function materializeWorkshopMaterialShortLinks(
     supabase: SupabaseClient,
@@ -430,64 +545,34 @@ export async function materializeWorkshopMaterialShortLinks(
         readonly bodyMarkdown: string;
     },
 ): Promise<{ readonly bodyMarkdown: string | null; readonly errorMessage: string | null }> {
-    const destinations = getWorkshopMaterialLinkDestinations(context.bodyMarkdown);
-    if (destinations.length === 0) {
-        return { bodyMarkdown: context.bodyMarkdown, errorMessage: null };
-    }
+    return materializeWorkshopShortLinks(supabase, context, {
+        id: context.contentBlockId,
+        mappingTableName: WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME,
+        mappingOwnerColumnName: 'content_block_id',
+        note: `Ad hoc material link for ${context.workshopSlug}`,
+    });
+}
 
-    const loadedShortcodeLinks = await loadWorkshopMaterialShortcodeLinks(supabase, context.contentBlockId);
-    if (loadedShortcodeLinks.shortUrlByDestination === null) {
-        return { bodyMarkdown: null, errorMessage: loadedShortcodeLinks.errorMessage };
-    }
-
-    const missingDestinations = destinations.filter(
-        (destination) => !loadedShortcodeLinks.shortUrlByDestination.has(destination),
-    );
-    for (const destination of missingDestinations) {
-        const trackedDestination = createWorkshopMaterialTrackingUrl(
-            destination,
-            context.workshopSlug,
-            context.contentBlockId,
-        );
-        const createdShortcodeLink = await createAdHocShortcodeLink(supabase, {
-            urls: [trackedDestination],
-            note: `Ad hoc material link for ${context.workshopSlug}`,
-            sourceApp: getWorkshopMaterialShortcodeSourceApp(context.workshopKind),
-        });
-        if (createdShortcodeLink.shortcodeLink === null) {
-            return { bodyMarkdown: null, errorMessage: createdShortcodeLink.errorMessage };
-        }
-
-        // A room can be opened by many people at once. Upsert lets the material
-        // retain whichever equivalent shortcode reached the mapping first, and
-        // a reload below makes every concurrent response use that one address.
-        const { error: mappingError } = await supabase
-            .from(WORKSHOP_CONTENT_SHORTCODE_LINK_TABLE_NAME)
-            .upsert(
-                {
-                    content_block_id: context.contentBlockId,
-                    destination_url: destination,
-                    shortcode_link_id: createdShortcodeLink.shortcodeLink.id,
-                },
-                { onConflict: 'content_block_id,destination_url', ignoreDuplicates: true },
-            );
-        if (mappingError) {
-            return { bodyMarkdown: null, errorMessage: mappingError.message };
-        }
-    }
-
-    const resolvedShortcodeLinks =
-        missingDestinations.length === 0
-            ? loadedShortcodeLinks
-            : await loadWorkshopMaterialShortcodeLinks(supabase, context.contentBlockId);
-    if (resolvedShortcodeLinks.shortUrlByDestination === null) {
-        return { bodyMarkdown: null, errorMessage: resolvedShortcodeLinks.errorMessage };
-    }
-
-    return {
-        bodyMarkdown: replaceWorkshopMaterialLinkDestinations(context.bodyMarkdown, resolvedShortcodeLinks.shortUrlByDestination),
-        errorMessage: null,
-    };
+/**
+ * Materializes the links of an eligible chat message through the same persisted
+ * ad hoc-shortcode path as materials. A normal participant never calls this:
+ * their links deliberately stay inert text in the room.
+ */
+export async function materializeWorkshopCommentShortLinks(
+    supabase: SupabaseClient,
+    context: {
+        readonly workshopSlug: string;
+        readonly workshopKind: WorkshopKind;
+        readonly commentId: string;
+        readonly bodyMarkdown: string;
+    },
+): Promise<{ readonly bodyMarkdown: string | null; readonly errorMessage: string | null }> {
+    return materializeWorkshopShortLinks(supabase, context, {
+        id: context.commentId,
+        mappingTableName: WORKSHOP_COMMENT_SHORTCODE_LINK_TABLE_NAME,
+        mappingOwnerColumnName: 'comment_id',
+        note: `Ad hoc chat link for ${context.workshopSlug}`,
+    });
 }
 
 /**
@@ -505,6 +590,24 @@ export async function ensureWorkshopMaterialShortLinks(
     },
 ): Promise<string | null> {
     const { errorMessage } = await materializeWorkshopMaterialShortLinks(supabase, context);
+
+    return errorMessage;
+}
+
+/**
+ * Prepares a moderator or artificial message as soon as it is written. Public
+ * state loading repeats this safely for old messages and interrupted writes.
+ */
+export async function ensureWorkshopCommentShortLinks(
+    supabase: SupabaseClient,
+    context: {
+        readonly workshopSlug: string;
+        readonly workshopKind: WorkshopKind;
+        readonly commentId: string;
+        readonly bodyMarkdown: string;
+    },
+): Promise<string | null> {
+    const { errorMessage } = await materializeWorkshopCommentShortLinks(supabase, context);
 
     return errorMessage;
 }

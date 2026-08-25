@@ -11,6 +11,7 @@ function createComment(values: Partial<WorkshopComment> & { readonly id: string 
         isUpvotedByParticipant: false,
         createdAt: '2026-08-20T19:00:00.000Z',
         isAuthorModerator: false,
+        isArtificial: false,
         moderatedAuthor: null,
         parentCommentId: null,
         isPinned: false,
