@@ -27,3 +27,11 @@ Is this done out of the box?
 
 - All feedbacks should be visible as extra information alongside the contacts. This is a similar pattern to other extra information about the contact.
 
+---
+
+[ ]
+
+[✨♗] Feedback stars should be highlighted as the user hovers over them
+
+![alt text](prompts/screenshots/2026-08-0050-online-workshop-wrap-up-and-feedback.png)
+![alt text](prompts/screenshots/2026-08-0050-online-workshop-wrap-up-and-feedback-1.png)
