@@ -168,6 +168,20 @@ test('submits the AI Supervize Mini future-term interest form', async ({ page })
     await expect(dialog.getByRole('heading', { name: 'Děkujeme za zájem' })).toBeVisible();
 });
 
+test('submits a community Premium membership application', async ({ page }) => {
+    await page.goto('/cs/komunita/clenstvi');
+
+    const membershipForm = page.locator('#registrace form');
+    await membershipForm.getByLabel('Jméno a příjmení').fill('E2E Premium');
+    await membershipForm.getByLabel('E-mail').fill(createE2eTestEmail('community-membership'));
+
+    await submitAndExpectApiSuccess(page, '/api/community/membership/registration', () =>
+        membershipForm.getByRole('button', { name: 'Odeslat přihlášku k členství' }).click(),
+    );
+
+    await expect(page.getByRole('heading', { name: 'Přihlášku k členství máme' })).toBeVisible();
+});
+
 test('connects a public online-workshop participant', async ({ page }) => {
     await page.goto('/cs/online-workshop/participant');
 

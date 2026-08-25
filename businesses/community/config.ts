@@ -5,6 +5,11 @@
 export const COMMUNITY_PATH = '/cs/komunita';
 
 /**
+ * Public landing page which explains and collects applications for the paid community memberships.
+ */
+export const COMMUNITY_MEMBERSHIP_PATH = `${COMMUNITY_PATH}/clenstvi`;
+
+/**
  * The persistent room which the community migration creates and protects from being renamed.
  */
 export const COMMUNITY_WORKSHOP_SLUG = 'komunita';
