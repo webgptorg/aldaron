@@ -9,6 +9,26 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 afterEach(cleanup);
 
 describe('workshop wrap-up feedback', () => {
+    it('previews every star up to the hovered rating', () => {
+        const onSave = vi.fn().mockResolvedValue(true);
+        render(<WorkshopFeedback feedback={null} onSave={onSave} />);
+
+        const firstStar = screen.getByRole('button', { name: 'Ohodnotit workshop 1 z 5 hvězd' });
+        const thirdStar = screen.getByRole('button', { name: 'Ohodnotit workshop 3 z 5 hvězd' });
+        const fourthStar = screen.getByRole('button', { name: 'Ohodnotit workshop 4 z 5 hvězd' });
+
+        fireEvent.mouseEnter(thirdStar);
+
+        expect(firstStar.className).toContain('text-amber-200');
+        expect(thirdStar.className).toContain('text-amber-200');
+        expect(fourthStar.className).toContain('text-slate-500');
+
+        fireEvent.mouseLeave(screen.getByRole('group', { name: 'Hodnocení workshopu' }));
+
+        expect(firstStar.className).toContain('text-slate-500');
+        expect(thirdStar.className).toContain('text-slate-500');
+    });
+
     it('asks for improvement first after a lower score and persists each answered step', async () => {
         const onSave = vi.fn().mockResolvedValue(true);
         render(<WorkshopFeedback feedback={null} onSave={onSave} />);

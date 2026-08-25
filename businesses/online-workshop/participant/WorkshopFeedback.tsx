@@ -67,6 +67,7 @@ type WorkshopFeedbackProps = {
  */
 export function WorkshopFeedback({ feedback, onSave }: WorkshopFeedbackProps) {
     const [rating, setRating] = useState<number | null>(feedback?.rating ?? null);
+    const [hoveredRating, setHoveredRating] = useState<number | null>(null);
     const [answers, setAnswers] = useState<Record<FeedbackQuestionKey, string>>({
         whatWasGood: feedback?.whatWasGood ?? '',
         whatWasBad: feedback?.whatWasBad ?? '',
@@ -125,19 +126,35 @@ export function WorkshopFeedback({ feedback, onSave }: WorkshopFeedbackProps) {
                     Jak byste workshop ohodnotili?
                 </h3>
                 <p className="mt-1 text-sm leading-6 text-slate-400">Stačí vybrat počet hvězd. Na další otázky se můžete vyjádřit dobrovolně.</p>
-                <div className="mt-4 flex flex-wrap gap-2" aria-label="Hodnocení workshopu">
-                    {[1, 2, 3, 4, 5].map((starRating) => (
-                        <button
-                            key={starRating}
-                            type="button"
-                            disabled={isSaving}
-                            onClick={() => void selectRating(starRating)}
-                            aria-label={`Ohodnotit workshop ${starRating} z 5 hvězd`}
-                            className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 text-amber-200 transition hover:border-amber-200/70 hover:bg-amber-200/10 disabled:cursor-wait disabled:opacity-60"
-                        >
-                            <Star className="h-7 w-7 fill-current" aria-hidden="true" />
-                        </button>
-                    ))}
+                <div
+                    role="group"
+                    aria-label="Hodnocení workshopu"
+                    onMouseLeave={() => setHoveredRating(null)}
+                    className="mt-4 flex flex-wrap gap-2"
+                >
+                    {[1, 2, 3, 4, 5].map((starRating) => {
+                        const isHighlighted = starRating <= (hoveredRating ?? 0);
+
+                        return (
+                            <button
+                                key={starRating}
+                                type="button"
+                                disabled={isSaving}
+                                onMouseEnter={() => setHoveredRating(starRating)}
+                                onFocus={() => setHoveredRating(starRating)}
+                                onBlur={() => setHoveredRating(null)}
+                                onClick={() => void selectRating(starRating)}
+                                aria-label={`Ohodnotit workshop ${starRating} z 5 hvězd`}
+                                className={`rounded-xl border bg-white/[0.04] p-2.5 transition disabled:cursor-wait disabled:opacity-60 ${
+                                    isHighlighted
+                                        ? 'border-amber-200/70 bg-amber-200/10 text-amber-200'
+                                        : 'border-white/10 text-slate-500 hover:border-amber-200/70 hover:bg-amber-200/10'
+                                }`}
+                            >
+                                <Star className={`h-7 w-7 ${isHighlighted ? 'fill-current' : ''}`} aria-hidden="true" />
+                            </button>
+                        );
+                    })}
                 </div>
             </section>
         );

@@ -29,9 +29,10 @@ Is this done out of the box?
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.1090 3 minutes; Testing 4 minutes
 
 [✨♗] Feedback stars should be highlighted as the user hovers over them
 
 ![alt text](prompts/screenshots/2026-08-0050-online-workshop-wrap-up-and-feedback.png)
 ![alt text](prompts/screenshots/2026-08-0050-online-workshop-wrap-up-and-feedback-1.png)
+
