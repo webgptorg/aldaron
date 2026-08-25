@@ -96,7 +96,7 @@
             "execute": false
         },
         {
-            "name": "🧹 Delete E2E test data",
+            "name": "🎭🧹 Cleanup E2E test data",
             "command": "npm run delete-test-data",
             "execute": false
         },
