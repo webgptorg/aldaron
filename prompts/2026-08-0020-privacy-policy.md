@@ -19,8 +19,9 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.0613 a minute; Testing 4 minutes
 
 [✨🛅] Do not show "🔥 Zbývá 7 míst z 10 pro strategický hovor zdarma" in the terms and privacy policy pages.
 
 ![alt text](prompts/screenshots/2026-08-0020-privacy-policy-1.png)
+
