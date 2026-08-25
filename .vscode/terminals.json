@@ -30,6 +30,14 @@
             "onlySingle": false,
             "focus": false
         },
+
+        {
+            "name": "🐙🏭 Generate boilerplates",
+            "command": "npm run coder:generate-boilerplates",
+            "execute": true,
+            "onlySingle": false,
+            "focus": false
+        },
         {
             "name": "🐙✔ Verify prompts done by Coding Agent",
             "command": "npx ptbk coder verify --order from-latest --ignore Refactor --commit --auto-pull --auto-push",
