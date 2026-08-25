@@ -27,4 +27,15 @@
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
 
+[ ]
+
+[✨🐪] Alongside all the materials, there is the QR code
+
+- There should be smaller white padding around the QR code, so it looks better
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+
+![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR.png)
+![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR-1.png)
