@@ -51,6 +51,13 @@
             "focus": false
         },
         {
+            "name": "🧪 Test for `ptbk coder`",
+            "commands": ["set -a && source .env && set +a", "npm run test-for-ptbk-coder", "npm run delete-test-data"],
+            "execute": true,
+            "onlySingle": true,
+            "focus": true
+        },
+        {
             "name": "🧪 Lint test",
             "command": "npm run lint",
             "execute": false
