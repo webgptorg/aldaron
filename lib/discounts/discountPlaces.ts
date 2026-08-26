@@ -1,4 +1,3 @@
-import { COMMUNITY_MEMBERSHIP_PATH } from '@/businesses/community/config';
 import { DISCOUNT_CODE_QUERY_PARAMETER, REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
 
 /**
@@ -18,8 +17,6 @@ export const AI_SUPERVIZE_MINI_PATH = '/ai-supervize-mini';
 
 export const AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-onsite';
 export const AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-online';
-export const COMMUNITY_STANDARD_DISCOUNT_PLACE_ID = 'community-standard';
-export const COMMUNITY_PREMIUM_DISCOUNT_PLACE_ID = 'community-premium';
 
 export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
     {
@@ -34,20 +31,6 @@ export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
         label: 'AI Supervize Mini – online',
         description: 'Odpolední online varianta workshopu',
         pagePath: AI_SUPERVIZE_MINI_PATH,
-        registrationSectionId: REGISTRATION_SECTION_ID,
-    },
-    {
-        id: COMMUNITY_STANDARD_DISCOUNT_PLACE_ID,
-        label: 'Komunita Promptbooku – Standard',
-        description: 'Standardní placené členství komunity',
-        pagePath: COMMUNITY_MEMBERSHIP_PATH,
-        registrationSectionId: REGISTRATION_SECTION_ID,
-    },
-    {
-        id: COMMUNITY_PREMIUM_DISCOUNT_PLACE_ID,
-        label: 'Komunita Promptbooku – Premium',
-        description: 'Prémiové členství komunity s osobními setkáními',
-        pagePath: COMMUNITY_MEMBERSHIP_PATH,
         registrationSectionId: REGISTRATION_SECTION_ID,
     },
 ];

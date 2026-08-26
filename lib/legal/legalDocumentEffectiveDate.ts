@@ -6,7 +6,7 @@ import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
  * Note: It is written down instead of being taken from the clock, because a legal document has to state the day its
  *       wording started to apply, not the day the page happened to be rendered.
  */
-const LEGAL_DOCUMENTS_EFFECTIVE_DATE = new Date('2026-08-26T00:00:00Z');
+const LEGAL_DOCUMENTS_EFFECTIVE_DATE = new Date('2026-08-12T00:00:00Z');
 
 /**
  * Locale the effective date is written in for each language of the site
