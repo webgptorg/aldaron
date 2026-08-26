@@ -49,6 +49,16 @@ export async function POST(request: NextRequest, context: WorkshopConnectRouteCo
         return NextResponse.json({ error: 'Connection could not be saved' }, { status: 500 });
     }
 
+    if (workshopSlug.startsWith('project-')) {
+        const { data: project } = await supabase.from('community_projects').select('author_participant_id, community_workshop_id').eq('discussion_workshop_id', workshopRow.id).maybeSingle();
+        if (project) {
+            const { data: author } = await supabase.from('workshop_participants').select('email').eq('id', project.author_participant_id).eq('workshop_id', project.community_workshop_id).maybeSingle();
+            if (author && author.email.toLowerCase() === parsedResult.data.email.toLowerCase()) {
+                await supabase.from('workshop_participants').update({ is_moderator: true }).eq('id', connection.participant.id).eq('workshop_id', workshopRow.id);
+            }
+        }
+    }
+
     // Loading the first room snapshot here avoids a second workshop lookup and
     // participant authentication request when many attendees join at once.
     const { state, errorMessage } = await loadWorkshopPublicState(
