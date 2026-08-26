@@ -1,5 +1,7 @@
 # Current preversion
 
+- Added a mock project showcase to `/cs/komunita`: members can add a project through a two-step wizard which scrapes its title, description and Open Graph image from the submitted URL, edit the scraped text, and publish a card with the preview. Project cards link to the original page and support local up/down voting in a Reddit-like layout; the mock list and votes intentionally stay in browser state without writing to the database, while the metadata preview uses a server endpoint ready for later persistence.
+
 - Made community polls fully manageable from `/admin/community?tab=polls`: an administrator can now edit a question,
   preserve, add, remove or reorder its choices, switch voting and member visibility independently, and permanently
   delete a poll with all of its votes. The same shared poll editor supports both new and existing polls, so the
