@@ -20,6 +20,11 @@
 - Also, when there is an `email` get parameter, it should be together with the full name pre-filled in the registration form.
 - There should be information and a disclaimer that the prices, plans, and benefits can be changed, but if you subscribe to the plan now, the price will be held for you even if we raise the price.
 - K obchodním podmínkám vytvořte klauzuli, která nám umožní kdykoli zrušit smlouvu nebo ji změnit bez náhrady.
+- Keep the page simple, clean, and easy to read. Avoid clutter and unnecessary information.
+- The page should be visually appealing and use a consistent color scheme and typography.
+- Do not put there any unnecessary information and bullshit. Keep it simple and to the point.
+- Put there some nice illustrations and icons to make the page more engaging.
+    - Use the reaction of "</>" and reactions from workshops
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
     - Get inspiration from other landing pages
 - Do a analysis of the current functionality before you start implementing.
@@ -34,6 +39,7 @@ Starter repositories
 Discussion with other members of the community
 
 Standard
+180 CZK per month or 1800 CZK per year
 Community discord for the paid members
 All the recorded workshops! - Now, the online workshops are exceptionally available even after the event. However, from now on, all the workshops will be available only for the Standard and Premium community members. - We have made the workshops, which include everything in one hour, but in upcoming days we are listing specialized hour workshops, which will include: - deep dive to the Git - deep dive to the AI and databases - deep dive to the tests - deep dive to the context
 All of these workshops will be available for free when the user connects online, but recordings will be available only for the paid members.
@@ -43,5 +49,6 @@ Priority with the questions during the workshops and option to ask questions bef
 RSS feed with materials
 
 Premium
+900 CZK per month or 9000 CZK per year
 Invitations to meetings in real life once a month
 Even more priority with materials and discussion participation
