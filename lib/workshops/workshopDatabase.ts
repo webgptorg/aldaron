@@ -15,6 +15,7 @@ import {
     WORKSHOP_POLL_OPTION_TABLE_NAME,
     WORKSHOP_POLL_TABLE_NAME,
     WORKSHOP_POLL_VOTE_TABLE_NAME,
+    WORKSHOP_POLL_WORKSHOP_TABLE_NAME,
     WORKSHOP_REACTION_TABLE_NAME,
     WORKSHOP_TABLE_NAME,
     WORKSHOP_UPVOTE_TABLE_NAME,
@@ -310,6 +311,11 @@ type WorkshopPollVoteCountRow = {
 
 type WorkshopParticipantPollVoteRow = {
     readonly option_id: string;
+};
+
+type WorkshopPollWorkshopRow = {
+    readonly poll_id: string;
+    readonly workshop_id: string;
 };
 
 type CreatedWorkshopReactionRow = WorkshopReactionRow & {
@@ -659,6 +665,7 @@ function mapWorkshopAdminPollOptionRow(
 function mapWorkshopPollRow<Option extends WorkshopPollOption>(
     row: WorkshopPollRow,
     options: readonly Option[],
+    attachedWorkshops: readonly WorkshopSummary[],
 ): Omit<WorkshopPoll, 'options'> & { readonly options: readonly Option[] } {
     return {
         id: row.id,
@@ -668,6 +675,7 @@ function mapWorkshopPollRow<Option extends WorkshopPollOption>(
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         options,
+        attachedWorkshops,
     };
 }
 
@@ -963,12 +971,119 @@ type LoadedWorkshopPollRows = {
     readonly optionRowsByPollId: ReadonlyMap<string, readonly WorkshopPollOptionRow[]>;
     readonly voteCountByOptionId: ReadonlyMap<string, number>;
     readonly selectedOptionIds: ReadonlySet<string>;
+    readonly attachedWorkshopsByPollId: ReadonlyMap<string, readonly WorkshopSummary[]>;
 };
 
 type WorkshopPollLoadScope = {
-    readonly isVisibleOnly: boolean;
+    /**
+     * Whether this is the member view of the polls, which sees neither a hidden poll nor an unpublished occurrence a
+     * poll is about
+     */
+    readonly isMemberVisibleOnly: boolean;
+
+    /**
+     * Whether the polls wanted are the ones asked about this room rather than the ones this room administers
+     */
+    readonly isAttachedToRoom: boolean;
     readonly maximalPollCount: number;
 };
+
+const EMPTY_LOADED_WORKSHOP_POLL_ROWS: LoadedWorkshopPollRows = {
+    pollRows: [],
+    optionRowsByPollId: new Map(),
+    voteCountByOptionId: new Map(),
+    selectedOptionIds: new Set(),
+    attachedWorkshopsByPollId: new Map(),
+};
+
+/**
+ * The occurrences every one of the given polls is about, read as the summaries the rest of the application already
+ * describes a room with.
+ */
+async function loadWorkshopPollAttachedWorkshops(
+    supabase: SupabaseClient,
+    pollIds: readonly string[],
+    isPublishedOnly: boolean,
+): Promise<{
+    readonly attachedWorkshopsByPollId: ReadonlyMap<string, readonly WorkshopSummary[]> | null;
+    readonly errorMessage: string | null;
+}> {
+    const { data: attachmentData, error: attachmentError } = await supabase
+        .from(WORKSHOP_POLL_WORKSHOP_TABLE_NAME)
+        .select('poll_id, workshop_id')
+        .in('poll_id', pollIds);
+    if (attachmentError) {
+        return { attachedWorkshopsByPollId: null, errorMessage: attachmentError.message };
+    }
+
+    const attachmentRows = (attachmentData ?? []) as readonly WorkshopPollWorkshopRow[];
+    if (attachmentRows.length === 0) {
+        return { attachedWorkshopsByPollId: new Map(), errorMessage: null };
+    }
+
+    let workshopQuery = supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .select(WORKSHOP_SUMMARY_COLUMNS)
+        .in('id', Array.from(new Set(attachmentRows.map((attachment) => attachment.workshop_id))))
+        .order('starts_at', { ascending: true });
+    if (isPublishedOnly) {
+        workshopQuery = workshopQuery.eq('is_published', true);
+    }
+
+    const { data: workshopData, error: workshopError } = await workshopQuery;
+    if (workshopError) {
+        return { attachedWorkshopsByPollId: null, errorMessage: workshopError.message };
+    }
+
+    const workshopById = new Map<string, WorkshopSummary>(
+        ((workshopData ?? []) as readonly WorkshopSummaryRow[]).map((workshopSummaryRow) => [
+            workshopSummaryRow.id,
+            mapWorkshopSummaryRow(workshopSummaryRow),
+        ]),
+    );
+    const attachedWorkshopsByPollId = new Map<string, WorkshopSummary[]>();
+    for (const attachment of attachmentRows) {
+        const attachedWorkshop = workshopById.get(attachment.workshop_id);
+        if (attachedWorkshop === undefined) {
+            continue;
+        }
+
+        const attachedWorkshops = attachedWorkshopsByPollId.get(attachment.poll_id) ?? [];
+        attachedWorkshops.push(attachedWorkshop);
+        attachedWorkshopsByPollId.set(attachment.poll_id, attachedWorkshops);
+    }
+
+    attachedWorkshopsByPollId.forEach((attachedWorkshops) =>
+        attachedWorkshops.sort((firstWorkshop, secondWorkshop) =>
+            firstWorkshop.startsAt.localeCompare(secondWorkshop.startsAt),
+        ),
+    );
+
+    return { attachedWorkshopsByPollId, errorMessage: null };
+}
+
+/**
+ * The polls asked about one occurrence, which is the opposite direction of the attachment the community writes.
+ */
+async function loadWorkshopAttachedPollIds(
+    supabase: SupabaseClient,
+    workshopId: string,
+): Promise<{ readonly pollIds: readonly string[] | null; readonly errorMessage: string | null }> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_POLL_WORKSHOP_TABLE_NAME)
+        .select('poll_id')
+        .eq('workshop_id', workshopId);
+    if (error) {
+        return { pollIds: null, errorMessage: error.message };
+    }
+
+    return {
+        pollIds: ((data ?? []) as readonly Pick<WorkshopPollWorkshopRow, 'poll_id'>[]).map(
+            (attachment) => attachment.poll_id,
+        ),
+        errorMessage: null,
+    };
+}
 
 async function loadWorkshopPollRows(
     supabase: SupabaseClient,
@@ -976,15 +1091,25 @@ async function loadWorkshopPollRows(
     participantId: string | null,
     scope: WorkshopPollLoadScope,
 ): Promise<{ readonly loadedPollRows: LoadedWorkshopPollRows | null; readonly errorMessage: string | null }> {
-    let pollQuery = supabase
-        .from(WORKSHOP_POLL_TABLE_NAME)
-        .select(WORKSHOP_POLL_COLUMNS)
-        .eq('workshop_id', workshopRow.id);
-    if (scope.isVisibleOnly) {
+    let pollQuery = supabase.from(WORKSHOP_POLL_TABLE_NAME).select(WORKSHOP_POLL_COLUMNS);
+    if (scope.isAttachedToRoom) {
+        const { pollIds: attachedPollIds, errorMessage } = await loadWorkshopAttachedPollIds(supabase, workshopRow.id);
+        if (attachedPollIds === null) {
+            return { loadedPollRows: null, errorMessage };
+        }
+        if (attachedPollIds.length === 0) {
+            return { loadedPollRows: EMPTY_LOADED_WORKSHOP_POLL_ROWS, errorMessage: null };
+        }
+
+        pollQuery = pollQuery.in('id', attachedPollIds);
+    } else {
+        pollQuery = pollQuery.eq('workshop_id', workshopRow.id);
+    }
+    if (scope.isMemberVisibleOnly) {
         pollQuery = pollQuery.eq('is_visible', true);
     }
 
-    const pollQueryWithOrder = scope.isVisibleOnly
+    const pollQueryWithOrder = scope.isMemberVisibleOnly
         ? pollQuery.order('is_closed', { ascending: true }).order('created_at', { ascending: false })
         : pollQuery.order('created_at', { ascending: false });
     const { data: pollData, error: pollError } = await pollQueryWithOrder.limit(scope.maximalPollCount);
@@ -995,18 +1120,10 @@ async function loadWorkshopPollRows(
     const pollRows = (pollData ?? []) as readonly WorkshopPollRow[];
     const pollIds = pollRows.map((poll) => poll.id);
     if (pollIds.length === 0) {
-        return {
-            loadedPollRows: {
-                pollRows: [],
-                optionRowsByPollId: new Map(),
-                voteCountByOptionId: new Map(),
-                selectedOptionIds: new Set(),
-            },
-            errorMessage: null,
-        };
+        return { loadedPollRows: EMPTY_LOADED_WORKSHOP_POLL_ROWS, errorMessage: null };
     }
 
-    const [optionsResult, voteCountsResult, selectedVotesResult] = await Promise.all([
+    const [optionsResult, voteCountsResult, selectedVotesResult, attachedWorkshopsResult] = await Promise.all([
         supabase
             .from(WORKSHOP_POLL_OPTION_TABLE_NAME)
             .select(WORKSHOP_POLL_OPTION_COLUMNS)
@@ -1021,10 +1138,14 @@ async function loadWorkshopPollRows(
                   .eq('workshop_id', workshopRow.id)
                   .eq('participant_id', participantId)
                   .in('poll_id', pollIds),
+        loadWorkshopPollAttachedWorkshops(supabase, pollIds, scope.isMemberVisibleOnly),
     ]);
     const firstError = optionsResult.error ?? voteCountsResult.error ?? selectedVotesResult.error;
     if (firstError) {
         return { loadedPollRows: null, errorMessage: firstError.message };
+    }
+    if (attachedWorkshopsResult.attachedWorkshopsByPollId === null) {
+        return { loadedPollRows: null, errorMessage: attachedWorkshopsResult.errorMessage };
     }
 
     const optionRowsByPollId = new Map<string, WorkshopPollOptionRow[]>();
@@ -1049,6 +1170,7 @@ async function loadWorkshopPollRows(
                     (vote) => vote.option_id,
                 ),
             ),
+            attachedWorkshopsByPollId: attachedWorkshopsResult.attachedWorkshopsByPollId,
         },
         errorMessage: null,
     };
@@ -1068,6 +1190,7 @@ function mapLoadedWorkshopPolls<Option extends WorkshopPollOption>(
             (loadedPollRows.optionRowsByPollId.get(pollRow.id) ?? []).map((optionRow) =>
                 mapOption(optionRow, loadedPollRows.voteCountByOptionId, loadedPollRows.selectedOptionIds),
             ),
+            loadedPollRows.attachedWorkshopsByPollId.get(pollRow.id) ?? [],
         ),
     );
 }
@@ -1087,7 +1210,8 @@ export async function loadWorkshopPolls(
     }
 
     const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, participantId, {
-        isVisibleOnly: true,
+        isMemberVisibleOnly: true,
+        isAttachedToRoom: false,
         maximalPollCount: MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
     });
     if (loadedPollRows === null) {
@@ -1113,7 +1237,37 @@ export async function loadWorkshopAdminPolls(
     }
 
     const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, null, {
-        isVisibleOnly: false,
+        isMemberVisibleOnly: false,
+        isAttachedToRoom: false,
+        maximalPollCount: MAXIMAL_ADMIN_WORKSHOP_POLL_COUNT,
+    });
+    if (loadedPollRows === null) {
+        return { polls: [], errorMessage };
+    }
+
+    return {
+        polls: mapLoadedWorkshopPolls(loadedPollRows, mapWorkshopAdminPollOptionRow),
+        errorMessage: null,
+    };
+}
+
+/**
+ * The community polls asked about one workshop occurrence, read for the administration of that occurrence.
+ *
+ * Note: A room which administers polls of its own is never the subject of one, so it reads nothing here instead of
+ *       listing the same poll twice.
+ */
+export async function loadWorkshopAttachedAdminPolls(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<LoadedWorkshopPolls<WorkshopAdminPoll>> {
+    if (workshopRow.room_kind !== 'workshop') {
+        return { polls: [], errorMessage: null };
+    }
+
+    const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, null, {
+        isMemberVisibleOnly: false,
+        isAttachedToRoom: true,
         maximalPollCount: MAXIMAL_ADMIN_WORKSHOP_POLL_COUNT,
     });
     if (loadedPollRows === null) {
@@ -2042,6 +2196,7 @@ export async function loadWorkshopAdminSnapshot(
         artificialReactionsResult,
         pinnedCommentRow,
         pollsResult,
+        attachedPollsResult,
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
@@ -2078,6 +2233,7 @@ export async function loadWorkshopAdminSnapshot(
             .eq('is_artificial', true),
         options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
         loadWorkshopAdminPolls(supabase, workshopRow),
+        loadWorkshopAttachedAdminPolls(supabase, workshopRow),
     ]);
 
     const firstError =
@@ -2091,8 +2247,8 @@ export async function loadWorkshopAdminSnapshot(
     if (firstError) {
         return { snapshot: null, errorMessage: firstError.message };
     }
-    if (pollsResult.errorMessage !== null) {
-        return { snapshot: null, errorMessage: pollsResult.errorMessage };
+    if (pollsResult.errorMessage !== null || attachedPollsResult.errorMessage !== null) {
+        return { snapshot: null, errorMessage: pollsResult.errorMessage ?? attachedPollsResult.errorMessage };
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
@@ -2132,6 +2288,7 @@ export async function loadWorkshopAdminSnapshot(
                 mapWorkshopContentRow(contentBlock, linkClickCountByContentBlockId.get(contentBlock.id) ?? 0),
             ),
             polls: pollsResult.polls,
+            attachedPolls: attachedPollsResult.polls,
             comments,
             pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
             participants: [],

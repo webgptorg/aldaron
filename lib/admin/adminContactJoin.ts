@@ -322,7 +322,11 @@ export function formatAdminContactRecords(contactGroup: AdminContactGroup | null
 }
 
 function getWorkshopParticipationKindLabel(workshopKind: WorkshopKind): string {
-    return workshopKind === 'community' ? 'Community' : 'Workshop';
+    if (workshopKind === 'community') {
+        return 'Community';
+    }
+
+    return workshopKind === 'project' ? 'Project' : 'Workshop';
 }
 
 /**

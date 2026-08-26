@@ -8,6 +8,7 @@ import {
     MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH,
     MAXIMAL_WORKSHOP_POLL_OPTION_COUNT,
     MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH,
+    MAXIMAL_WORKSHOP_POLL_WORKSHOP_COUNT,
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
@@ -104,6 +105,18 @@ function areWorkshopPollOptionLabelsUnique(
 }
 
 /**
+ * The workshop occurrences one poll is about, listed once each
+ *
+ * Note: Whether an ID names an existing occurrence, and whether that room is an occurrence at all rather than the
+ *       community itself, stays a database rule, so a forged request cannot attach a poll to anything else.
+ */
+const workshopPollWorkshopIdsSchema = z
+    .array(z.string().uuid())
+    .max(MAXIMAL_WORKSHOP_POLL_WORKSHOP_COUNT)
+    .refine((workshopIds) => new Set(workshopIds).size === workshopIds.length, 'Poll workshops must be unique')
+    .default([]);
+
+/**
  * A poll is intentionally a small, clear choice. The duplicate check is case-insensitive after trimming, so two
  * buttons cannot look different only because an administrator typed a different casing.
  */
@@ -116,6 +129,7 @@ export const workshopPollCreateSchema = z.object({
         .refine(areWorkshopPollOptionLabelsUnique, 'Poll options must be unique'),
     isClosed: z.boolean().default(false),
     isVisible: z.boolean().default(true),
+    attachedWorkshopIds: workshopPollWorkshopIdsSchema,
 });
 
 /**
@@ -138,6 +152,7 @@ export const workshopPollUpdateSchema = z.object({
         ),
     isClosed: z.boolean(),
     isVisible: z.boolean(),
+    attachedWorkshopIds: workshopPollWorkshopIdsSchema,
 });
 
 export const workshopPollVoteSchema = z.object({

@@ -37,6 +37,12 @@ export async function POST(request: NextRequest, context: WorkshopConnectRouteCo
     if (workshopRow === null) {
         return NextResponse.json({ error: 'Workshop not found' }, { status: 404 });
     }
+    if (workshopRow.room_kind === 'project') {
+        return NextResponse.json(
+            { error: 'Diskuze projektu se otevírá z komunity, kde ověříme vaše členství.' },
+            { status: 403 },
+        );
+    }
 
     const connection = await createWorkshopParticipant(
         supabase,

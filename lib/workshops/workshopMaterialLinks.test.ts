@@ -83,6 +83,7 @@ describe('workshop material tracking links', () => {
     it('labels automatic material links by the app which created them', () => {
         expect(getWorkshopMaterialShortcodeSourceApp('workshop')).toBe('online-workshop');
         expect(getWorkshopMaterialShortcodeSourceApp('community')).toBe('community');
+        expect(getWorkshopMaterialShortcodeSourceApp('project')).toBe('community');
     });
 
     it('creates and returns an ad hoc short link instead of exposing a material destination', async () => {

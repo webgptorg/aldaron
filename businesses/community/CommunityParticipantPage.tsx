@@ -3,6 +3,7 @@ import {
     CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
     createCzechCommunityConnectionDetails,
 } from '@/businesses/community/communityContent';
+import { CommunityProjectsSection } from '@/businesses/community/projects/CommunityProjectsSection';
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopSummary } from '@/lib/workshops/workshopTypes';
@@ -41,6 +42,7 @@ export function CommunityParticipantPage({
                 participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
                 ...CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
             }}
+            mainContentAfterWorkshopNavigation={<CommunityProjectsSection isLimited />}
         />
     );
 }

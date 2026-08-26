@@ -3,6 +3,7 @@ import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { WORKSHOP_POLL_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { getWorkshopPollAttachmentErrorResponseOrNull } from '@/lib/workshops/workshopPollAttachmentErrors';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopPollUpdateSchema } from '@/lib/workshops/workshopSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -42,10 +43,15 @@ export async function PATCH(request: NextRequest, context: AdminWorkshopPollRout
         target_options: parsedResult.data.options,
         target_is_closed: parsedResult.data.isClosed,
         target_is_visible: parsedResult.data.isVisible,
+        target_attached_workshop_ids: parsedResult.data.attachedWorkshopIds,
     });
     if (error) {
         if (error.code === 'P0001' && error.message === 'WORKSHOP_POLL_NOT_FOUND') {
             return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
+        }
+        const attachmentErrorResponse = getWorkshopPollAttachmentErrorResponseOrNull(error);
+        if (attachmentErrorResponse !== null) {
+            return attachmentErrorResponse;
         }
         if (error.code === '22023') {
             return NextResponse.json({ error: 'Invalid poll update' }, { status: 400 });

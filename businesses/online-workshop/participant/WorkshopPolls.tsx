@@ -1,6 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { WorkshopPollAttachedWorkshops } from '@/components/workshops/WorkshopPollAttachedWorkshops';
+import {
+    createWorkshopRoomLink,
+    type WorkshopParticipantIdentity,
+} from '@/lib/workshops/workshopParticipantLink';
 import { getWorkshopPollOptionVotePercentage, getWorkshopPollVoteCount } from '@/lib/workshops/workshopPollValues';
 import type { WorkshopPoll } from '@/lib/workshops/workshopTypes';
 import { BarChart3, Check, Lock, Vote } from 'lucide-react';
@@ -9,6 +14,17 @@ import { useState } from 'react';
 type WorkshopPollsProps = {
     readonly polls: readonly WorkshopPoll[];
     readonly isInteractionBanned: boolean;
+
+    /**
+     * Where a workshop a poll is about is entered, together with the identity the reading member already verified.
+     *
+     * Note: A room which leads nowhere leaves this out, and the occurrences of a poll are then named without linking
+     *       to a room this page cannot address.
+     */
+    readonly workshopRoomLink?: {
+        readonly participantPath: string;
+        readonly participantIdentity: WorkshopParticipantIdentity;
+    };
     readonly onVote: (pollId: string, optionId: string) => Promise<boolean>;
 };
 
@@ -16,7 +32,7 @@ type WorkshopPollsProps = {
  * The member-facing side of a room poll. It accepts only the aggregated poll state, therefore it cannot accidentally
  * reveal who voted for an option; a member knows solely whether the highlighted choice is their own.
  */
-export function WorkshopPolls({ polls, isInteractionBanned, onVote }: WorkshopPollsProps) {
+export function WorkshopPolls({ polls, isInteractionBanned, workshopRoomLink, onVote }: WorkshopPollsProps) {
     const [votingPollId, setVotingPollId] = useState<string | null>(null);
 
     if (polls.length === 0) {
@@ -50,6 +66,21 @@ export function WorkshopPolls({ polls, isInteractionBanned, onVote }: WorkshopPo
                                     <Vote className="h-4 w-4" /> Anketa komunity
                                 </p>
                                 <h2 className="mt-2 text-lg font-bold leading-6 text-white">{poll.question}</h2>
+                                <WorkshopPollAttachedWorkshops
+                                    workshops={poll.attachedWorkshops}
+                                    variant="dark"
+                                    className="mt-2.5"
+                                    createWorkshopLink={
+                                        workshopRoomLink === undefined
+                                            ? undefined
+                                            : (attachedWorkshop) =>
+                                                  createWorkshopRoomLink(
+                                                      workshopRoomLink.participantPath,
+                                                      workshopRoomLink.participantIdentity,
+                                                      attachedWorkshop.slug,
+                                                  )
+                                    }
+                                />
                             </div>
                             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/30 px-2.5 py-1 text-xs font-medium text-slate-300">
                                 {poll.isClosed ? <Lock className="h-3.5 w-3.5" /> : <BarChart3 className="h-3.5 w-3.5" />}

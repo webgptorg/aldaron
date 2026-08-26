@@ -1,0 +1,110 @@
+import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
+import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
+import {
+    createCommunityProject,
+    loadCommunityProjectById,
+    loadCommunityProjects,
+} from '@/lib/community-projects/communityProjectDatabase';
+import {
+    isAuthenticatedCommunityProjectRequest,
+    getAuthenticatedCommunityProjectRequest,
+} from '@/lib/community-projects/communityProjectRequest';
+import { scrapeCommunityProjectPreview } from '@/lib/community-projects/communityProjectPreview';
+import { normalizeCommunityProjectUrl } from '@/lib/community-projects/communityProjectUrl';
+import { communityProjectCreateSchema } from '@/lib/community-projects/communityProjectSchemas';
+import { NextRequest, NextResponse } from 'next/server';
+
+const MAXIMAL_COMMUNITY_PROJECT_HOME_COUNT = 5;
+
+function readProjectLimit(value: string | null): number | null {
+    if (value === null) {
+        return null;
+    }
+
+    const limit = Number(value);
+    return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAXIMAL_COMMUNITY_PROJECT_HOME_COUNT ? limit : null;
+}
+
+export async function GET(request: NextRequest) {
+    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
+    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+        return authenticatedRequest;
+    }
+
+    const requestedLimit = request.nextUrl.searchParams.get('limit');
+    const limit = readProjectLimit(requestedLimit);
+    if (requestedLimit !== null && limit === null) {
+        return NextResponse.json({ error: 'Project limit must be from 1 to 5' }, { status: 400 });
+    }
+
+    const { projects, errorMessage } = await loadCommunityProjects(
+        authenticatedRequest.supabase,
+        authenticatedRequest.participant.id,
+        limit,
+    );
+    if (projects === null) {
+        console.error('Failed to load community projects:', errorMessage);
+        return NextResponse.json({ error: 'Community projects could not be loaded' }, { status: 500 });
+    }
+
+    return NextResponse.json({ projects }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
+export async function POST(request: NextRequest) {
+    const crossSiteResponse = getCrossSiteResponseOrNull(request);
+    if (crossSiteResponse) {
+        return crossSiteResponse;
+    }
+
+    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
+    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+        return authenticatedRequest;
+    }
+
+    const body = await readJsonObjectOrNull(request);
+    const parsedResult = communityProjectCreateSchema.safeParse(body);
+    if (!parsedResult.success) {
+        return NextResponse.json({ error: 'Doplňte platnou URL, název a popis projektu.' }, { status: 400 });
+    }
+
+    const normalizedUrl = normalizeCommunityProjectUrl(parsedResult.data.url);
+    if (normalizedUrl === null) {
+        return NextResponse.json({ error: 'URL projektu musí začínat na http:// nebo https://.' }, { status: 400 });
+    }
+
+    let preview;
+    try {
+        // The image is freshly scraped once more at save time. A forged request can therefore change only the title
+        // and description which the wizard explicitly lets a member edit, never point a card at an arbitrary image.
+        preview = await scrapeCommunityProjectPreview(normalizedUrl);
+    } catch {
+        return NextResponse.json(
+            { error: 'Náhled projektu se nepodařilo načíst. Zkontrolujte, že je stránka veřejně dostupná.' },
+            { status: 422 },
+        );
+    }
+
+    const createdProject = await createCommunityProject(authenticatedRequest.supabase, {
+        communityParticipantId: authenticatedRequest.participant.id,
+        url: preview.url,
+        title: parsedResult.data.title,
+        description: parsedResult.data.description,
+        previewImageUrl: preview.previewImageUrl,
+    });
+    if (createdProject.projectId === null) {
+        console.error('Failed to create community project:', createdProject.errorMessage);
+        return NextResponse.json({ error: 'Projekt se nepodařilo uložit.' }, { status: 500 });
+    }
+
+    const loadedProject = await loadCommunityProjectById(
+        authenticatedRequest.supabase,
+        createdProject.projectId,
+        authenticatedRequest.participant.id,
+    );
+    if (loadedProject.project === null) {
+        console.error('Failed to load created community project:', loadedProject.errorMessage);
+        return NextResponse.json({ error: 'Projekt byl uložen, ale nepodařilo se ho načíst.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ project: loadedProject.project }, { status: 201 });
+}
