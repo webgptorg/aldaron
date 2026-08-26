@@ -1,7 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { createWorkshopRoomLink, type WorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
+import {
+    createWorkshopParticipantLink,
+    createWorkshopSelectionPath,
+    type WorkshopParticipantIdentity,
+} from '@/lib/workshops/workshopParticipantLink';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { ArrowUpRight, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
@@ -58,11 +62,9 @@ export function WorkshopLinksPanel({
             ) : (
                 <ul className="mt-5 grid gap-3 sm:grid-cols-2">
                     {workshops.map((workshop) => {
-                        const workshopLink = createWorkshopRoomLink(
-                            participantPath,
-                            participantIdentity,
-                            workshop.slug,
-                        );
+                        const workshopLink =
+                            createWorkshopParticipantLink(participantPath, participantIdentity, workshop.slug) ??
+                            createWorkshopSelectionPath(participantPath, workshop.slug);
 
                         return (
                             <li key={workshop.id}>

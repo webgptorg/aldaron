@@ -237,14 +237,6 @@ export function OnlineWorkshopParticipantPage({
                         <WorkshopPolls
                             polls={state.polls}
                             isInteractionBanned={state.participant.isInteractionBanned}
-                            workshopRoomLink={
-                                workshopNavigation === undefined
-                                    ? undefined
-                                    : {
-                                          participantPath: workshopNavigation.participantPath,
-                                          participantIdentity: state.participant,
-                                      }
-                            }
                             onVote={controller.voteOnPoll}
                         />
                     )}

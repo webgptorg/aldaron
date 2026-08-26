@@ -2,7 +2,6 @@ import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
-import { getWorkshopPollAttachmentErrorResponseOrNull } from '@/lib/workshops/workshopPollAttachmentErrors';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import { workshopPollCreateSchema } from '@/lib/workshops/workshopSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -45,14 +44,8 @@ export async function POST(request: NextRequest, context: AdminWorkshopPollsRout
         target_options: parsedResult.data.options,
         target_is_closed: parsedResult.data.isClosed,
         target_is_visible: parsedResult.data.isVisible,
-        target_attached_workshop_ids: parsedResult.data.attachedWorkshopIds,
     });
     if (error || pollId === null) {
-        const attachmentErrorResponse = getWorkshopPollAttachmentErrorResponseOrNull(error);
-        if (attachmentErrorResponse !== null) {
-            return attachmentErrorResponse;
-        }
-
         console.error('Failed to create a community poll:', error?.message ?? 'No poll ID returned');
         return NextResponse.json({ error: error?.message ?? 'Poll could not be created' }, { status: 500 });
     }

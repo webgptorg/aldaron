@@ -1,16 +1,5 @@
 # Current preversion
 
-- Let a community poll be about workshop occurrences. The editor of `/admin/community?tab=polls` now offers every
-  workshop beside the question and its choices, one poll can name several occurrences and one occurrence can be the
-  subject of several polls, and the same transaction which writes a question, its choices and its settings writes those
-  attachments as well. `/admin/workshops` gained the read-only `Ankety` section for an occurrence which a community
-  poll asks about, showing its question, its state and its running result together with a link to where it is
-  administered, so an attached poll is never editable from two places at once. Members of `/cs/komunita` see the named
-  occurrences on the poll itself as links into their rooms, carrying the identity they already connected with; an
-  unpublished occurrence is deliberately never named to them. The database keeps the attachment its own many-to-many
-  record, refuses anything but a workshop occurrence as the subject of a poll, and removes attachments together with
-  the poll or the workshop they belong to.
-
 - Made community polls fully manageable from `/admin/community?tab=polls`: an administrator can now edit a question,
   preserve, add, remove or reorder its choices, switch voting and member visibility independently, and permanently
   delete a poll with all of its votes. The same shared poll editor supports both new and existing polls, so the

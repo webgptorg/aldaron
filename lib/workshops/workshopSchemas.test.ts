@@ -177,7 +177,6 @@ describe('workshop request validation', () => {
             options: ['Testování', 'Nasazování'],
             isClosed: false,
             isVisible: true,
-            attachedWorkshopIds: [],
         });
         expect(
             workshopPollCreateSchema.safeParse({
@@ -207,7 +206,6 @@ describe('workshop request validation', () => {
             ],
             isClosed: false,
             isVisible: false,
-            attachedWorkshopIds: [],
         });
         expect(
             workshopPollUpdateSchema.safeParse({
@@ -218,18 +216,6 @@ describe('workshop request validation', () => {
                 ],
                 isClosed: true,
                 isVisible: true,
-            }).success,
-        ).toBe(false);
-        expect(
-            workshopPollUpdateSchema.safeParse({
-                question: 'Téma?',
-                options: [{ label: 'Testování' }, { label: 'Nasazování' }],
-                isClosed: false,
-                isVisible: true,
-                attachedWorkshopIds: [
-                    '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
-                    '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
-                ],
             }).success,
         ).toBe(false);
     });

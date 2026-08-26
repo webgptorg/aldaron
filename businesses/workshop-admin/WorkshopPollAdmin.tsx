@@ -5,13 +5,11 @@ import type {
     WorkshopPollOptionWriteValues,
     WorkshopPollUpdateValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
-import { WorkshopPollWorkshopPicker } from '@/businesses/workshop-admin/WorkshopPollWorkshopPicker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { WorkshopPollAttachedWorkshops } from '@/components/workshops/WorkshopPollAttachedWorkshops';
 import { MAXIMAL_ARTIFICIAL_POLL_VOTE_ADJUSTMENT } from '@/lib/workshops/workshopConstants';
 import { getWorkshopPollVoteCount } from '@/lib/workshops/workshopPollValues';
-import type { WorkshopAdminPoll, WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
+import type { WorkshopAdminPoll } from '@/lib/workshops/workshopTypes';
 import {
     ChevronDown,
     ChevronUp,
@@ -37,16 +35,10 @@ type WorkshopPollFormValues = {
     readonly options: readonly WorkshopPollOptionWriteValues[];
     readonly isClosed: boolean;
     readonly isVisible: boolean;
-    readonly attachedWorkshopIds: readonly string[];
 };
 
 type WorkshopPollAdminProps = {
     readonly polls: readonly WorkshopAdminPoll[];
-
-    /**
-     * The occurrences a poll can be about, listed for the editor of every poll
-     */
-    readonly attachableWorkshops: readonly WorkshopAdminSummary[];
     readonly onCreate: (values: WorkshopPollCreateValues) => Promise<boolean>;
     readonly onUpdate: (pollId: string, values: WorkshopPollUpdateValues) => Promise<boolean>;
     readonly onDelete: (pollId: string) => Promise<void>;
@@ -60,7 +52,6 @@ type WorkshopPollAdminProps = {
 type WorkshopPollFormProps = {
     readonly title: string;
     readonly submitLabel: string;
-    readonly attachableWorkshops: readonly WorkshopAdminSummary[];
     readonly initialValues?: WorkshopPollFormValues;
     readonly onSubmit: (values: WorkshopPollFormValues) => Promise<boolean>;
     readonly onCancel?: () => void;
@@ -72,7 +63,6 @@ const INITIAL_POLL_FORM_VALUES: WorkshopPollFormValues = {
     options: [{ label: '' }, { label: '' }],
     isClosed: false,
     isVisible: true,
-    attachedWorkshopIds: [],
 };
 
 function createPollUpdateValues(
@@ -84,7 +74,6 @@ function createPollUpdateValues(
         options: poll.options.map((option) => ({ id: option.id, label: option.label })),
         isClosed: changes.isClosed ?? poll.isClosed,
         isVisible: changes.isVisible ?? poll.isVisible,
-        attachedWorkshopIds: poll.attachedWorkshops.map((attachedWorkshop) => attachedWorkshop.id),
     };
 }
 
@@ -93,7 +82,6 @@ function getValidatedPollFormValues(
     options: readonly WorkshopPollOptionWriteValues[],
     isClosed: boolean,
     isVisible: boolean,
-    attachedWorkshopIds: readonly string[],
 ): { readonly values: WorkshopPollFormValues | null; readonly error: string | null } {
     const trimmedQuestion = question.trim();
     const trimmedOptions = options.map((option) => ({
@@ -108,7 +96,7 @@ function getValidatedPollFormValues(
     }
 
     return {
-        values: { question: trimmedQuestion, options: trimmedOptions, isClosed, isVisible, attachedWorkshopIds },
+        values: { question: trimmedQuestion, options: trimmedOptions, isClosed, isVisible },
         error: null,
     };
 }
@@ -117,23 +105,12 @@ function getValidatedPollFormValues(
  * One shared editor powers both creating and changing a poll. Existing choices keep their IDs in its local state,
  * which is what lets the server preserve votes when their text or position changes.
  */
-function WorkshopPollForm({
-    title,
-    submitLabel,
-    attachableWorkshops,
-    initialValues,
-    onSubmit,
-    onCancel,
-    onSaved,
-}: WorkshopPollFormProps) {
+function WorkshopPollForm({ title, submitLabel, initialValues, onSubmit, onCancel, onSaved }: WorkshopPollFormProps) {
     const initialFormValues = initialValues ?? INITIAL_POLL_FORM_VALUES;
     const [question, setQuestion] = useState(initialFormValues.question);
     const [options, setOptions] = useState<readonly WorkshopPollOptionWriteValues[]>(initialFormValues.options);
     const [isClosed, setIsClosed] = useState(initialFormValues.isClosed);
     const [isVisible, setIsVisible] = useState(initialFormValues.isVisible);
-    const [attachedWorkshopIds, setAttachedWorkshopIds] = useState<readonly string[]>(
-        initialFormValues.attachedWorkshopIds,
-    );
     const [formError, setFormError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -167,12 +144,11 @@ function WorkshopPollForm({
         setOptions(INITIAL_POLL_FORM_VALUES.options);
         setIsClosed(INITIAL_POLL_FORM_VALUES.isClosed);
         setIsVisible(INITIAL_POLL_FORM_VALUES.isVisible);
-        setAttachedWorkshopIds(INITIAL_POLL_FORM_VALUES.attachedWorkshopIds);
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const validated = getValidatedPollFormValues(question, options, isClosed, isVisible, attachedWorkshopIds);
+        const validated = getValidatedPollFormValues(question, options, isClosed, isVisible);
         if (validated.values === null) {
             setFormError(validated.error);
             return;
@@ -271,12 +247,6 @@ function WorkshopPollForm({
                     Hlasování je otevřené
                 </label>
             </div>
-            <WorkshopPollWorkshopPicker
-                workshops={attachableWorkshops}
-                selectedWorkshopIds={attachedWorkshopIds}
-                isDisabled={isSaving}
-                onChange={setAttachedWorkshopIds}
-            />
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                 <Button
                     type="button"
@@ -307,14 +277,7 @@ function WorkshopPollForm({
  * Administration of community polls. The shared dashboard supplies the authenticated API boundary, while this view
  * keeps the participant-facing aggregate and the admin-only artificial component clearly separate.
  */
-export function WorkshopPollAdmin({
-    polls,
-    attachableWorkshops,
-    onCreate,
-    onUpdate,
-    onDelete,
-    onAdjustArtificialVotes,
-}: WorkshopPollAdminProps) {
+export function WorkshopPollAdmin({ polls, onCreate, onUpdate, onDelete, onAdjustArtificialVotes }: WorkshopPollAdminProps) {
     const [editingPollId, setEditingPollId] = useState<string | null>(null);
     const [processingPollIds, setProcessingPollIds] = useState<ReadonlySet<string>>(new Set());
     const [artificialVoteAdjustments, setArtificialVoteAdjustments] = useState<Readonly<Record<string, string>>>({});
@@ -391,10 +354,6 @@ export function WorkshopPollAdmin({
                                             {poll.isClosed ? 'Hlasování ukončeno' : 'Hlasování probíhá'} ·{' '}
                                             {poll.isVisible ? 'Viditelná pro členy' : 'Skrytá před členy'}
                                         </p>
-                                        <WorkshopPollAttachedWorkshops
-                                            workshops={poll.attachedWorkshops}
-                                            className="mt-2"
-                                        />
                                     </div>
                                     <div className="flex flex-wrap justify-end gap-2">
                                         <Button
@@ -507,7 +466,6 @@ export function WorkshopPollAdmin({
                                         <WorkshopPollForm
                                             title="Upravit anketu"
                                             submitLabel="Uložit změny"
-                                            attachableWorkshops={attachableWorkshops}
                                             initialValues={createPollUpdateValues(poll)}
                                             onSubmit={(values) => onUpdate(poll.id, values)}
                                             onCancel={() => setEditingPollId(null)}
@@ -549,14 +507,12 @@ export function WorkshopPollAdmin({
                 <WorkshopPollForm
                     title="Nová anketa"
                     submitLabel="Vytvořit anketu"
-                    attachableWorkshops={attachableWorkshops}
                     onSubmit={(values) =>
                         onCreate({
                             question: values.question,
                             options: values.options.map((option) => option.label),
                             isClosed: values.isClosed,
                             isVisible: values.isVisible,
-                            attachedWorkshopIds: values.attachedWorkshopIds,
                         })
                     }
                 />

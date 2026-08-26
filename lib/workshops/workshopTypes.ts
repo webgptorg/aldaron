@@ -343,15 +343,6 @@ export type WorkshopPoll = {
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly options: readonly WorkshopPollOption[];
-
-    /**
-     * The workshop occurrences this poll is about
-     *
-     * Note: A poll keeps belonging to the community which administers it. An attached occurrence is the subject of the
-     *       question, which is what lets the room lead a member to it and what lets the administration of that
-     *       occurrence see the question asked about it. Members are only ever told about published occurrences.
-     */
-    readonly attachedWorkshops: readonly WorkshopSummary[];
 };
 
 export type WorkshopAdminPoll = Omit<WorkshopPoll, 'options'> & {
@@ -396,14 +387,6 @@ export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly polls: readonly WorkshopAdminPoll[];
-
-    /**
-     * The community polls asked about this room, which a room administering polls of its own never has
-     *
-     * Note: These are read-only here. They are administered where they belong, in the administration of the community
-     *       which owns them, rather than being editable from two places at once.
-     */
-    readonly attachedPolls: readonly WorkshopAdminPoll[];
     readonly comments: readonly WorkshopAdminComment[];
 
     /**
