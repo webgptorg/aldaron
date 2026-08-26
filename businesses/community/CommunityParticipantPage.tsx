@@ -4,6 +4,7 @@ import {
     createCzechCommunityConnectionDetails,
 } from '@/businesses/community/communityContent';
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
+import { CommunityProjectsPanel } from '@/businesses/community/CommunityProjectsPanel';
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopSummary } from '@/lib/workshops/workshopTypes';
 
@@ -41,6 +42,7 @@ export function CommunityParticipantPage({
                 participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
                 ...CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
             }}
+            supplementalContent={<CommunityProjectsPanel />}
         />
     );
 }
