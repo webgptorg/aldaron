@@ -3,7 +3,7 @@
  */
 
 import { WorkshopPollAdmin } from '@/businesses/workshop-admin/WorkshopPollAdmin';
-import type { WorkshopAdminPoll } from '@/lib/workshops/workshopTypes';
+import type { WorkshopAdminPoll, WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,10 +34,23 @@ const POLL: WorkshopAdminPoll = {
             isVotedByParticipant: false,
         },
     ],
+    attachedWorkshops: [],
+};
+
+const ATTACHABLE_WORKSHOP: WorkshopAdminSummary = {
+    id: 'workshop-1',
+    kind: 'workshop',
+    slug: 'zari',
+    title: 'Zářijový workshop',
+    startsAt: '2026-09-10T16:00:00.000Z',
+    endsAt: null,
+    isPublished: true,
+    participantCount: 12,
 };
 
 function createProps() {
     return {
+        attachableWorkshops: [ATTACHABLE_WORKSHOP],
         onCreate: vi.fn().mockResolvedValue(true),
         onUpdate: vi.fn().mockResolvedValue(true),
         onDelete: vi.fn().mockResolvedValue(undefined),
@@ -68,6 +81,7 @@ describe('community poll administration', () => {
                 options: ['Testování', 'Nasazování'],
                 isClosed: false,
                 isVisible: true,
+                attachedWorkshopIds: [],
             }),
         );
     });
@@ -83,6 +97,48 @@ describe('community poll administration', () => {
 
         expect(props.onCreate).not.toHaveBeenCalled();
         expect(screen.getByText('Každá možnost musí být jiná.')).not.toBeNull();
+    });
+
+    it('attaches the chosen workshop occurrences to a new poll', async () => {
+        const props = createProps();
+        render(<WorkshopPollAdmin polls={[]} {...props} />);
+
+        fireEvent.change(screen.getByPlaceholderText(/Kterému tématu/), { target: { value: 'Téma?' } });
+        fireEvent.change(screen.getByPlaceholderText('Možnost 1'), { target: { value: 'Testování' } });
+        fireEvent.change(screen.getByPlaceholderText('Možnost 2'), { target: { value: 'Nasazování' } });
+        fireEvent.click(screen.getByLabelText(/Zářijový workshop/));
+        fireEvent.click(screen.getByRole('button', { name: 'Vytvořit anketu' }));
+
+        await waitFor(() =>
+            expect(props.onCreate).toHaveBeenCalledWith({
+                question: 'Téma?',
+                options: ['Testování', 'Nasazování'],
+                isClosed: false,
+                isVisible: true,
+                attachedWorkshopIds: ['workshop-1'],
+            }),
+        );
+    });
+
+    it('keeps the occurrences a poll is about when only its lifecycle changes', async () => {
+        const props = createProps();
+        render(
+            <WorkshopPollAdmin
+                polls={[{ ...POLL, attachedWorkshops: [ATTACHABLE_WORKSHOP] }]}
+                {...props}
+            />,
+        );
+
+        expect(screen.getByRole('list', { name: 'Týká se workshopů' }).textContent).toContain('Zářijový workshop');
+
+        fireEvent.click(screen.getByRole('button', { name: 'Ukončit hlasování' }));
+
+        await waitFor(() =>
+            expect(props.onUpdate).toHaveBeenCalledWith(
+                'poll-1',
+                expect.objectContaining({ attachedWorkshopIds: ['workshop-1'] }),
+            ),
+        );
     });
 
     it('can create a hidden, closed poll before its artificial starting votes are published', async () => {
@@ -102,6 +158,7 @@ describe('community poll administration', () => {
                 options: ['Testování', 'Nasazování'],
                 isClosed: true,
                 isVisible: false,
+                attachedWorkshopIds: [],
             }),
         );
     });
@@ -121,6 +178,7 @@ describe('community poll administration', () => {
                 ],
                 isClosed: true,
                 isVisible: true,
+                attachedWorkshopIds: [],
             }),
         );
 
@@ -135,6 +193,7 @@ describe('community poll administration', () => {
                 ],
                 isClosed: false,
                 isVisible: false,
+                attachedWorkshopIds: [],
             }),
         );
     });
@@ -178,6 +237,7 @@ describe('community poll administration', () => {
                 ],
                 isClosed: false,
                 isVisible: true,
+                attachedWorkshopIds: [],
             }),
         );
 
