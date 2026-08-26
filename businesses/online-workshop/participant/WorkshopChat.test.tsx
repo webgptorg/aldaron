@@ -216,8 +216,8 @@ describe('workshop chat', () => {
         });
 
         expect(screen.getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
-            'https://ptbk.io/artificial',
             'https://ptbk.io/moderator',
+            'https://ptbk.io/artificial',
         ]);
         expect(screen.getByText('https://ptbk.io/ordinary').tagName).not.toBe('A');
     });

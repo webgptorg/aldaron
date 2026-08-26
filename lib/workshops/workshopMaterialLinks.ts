@@ -390,7 +390,7 @@ export function replaceWorkshopMaterialLinkDestinations(
 }
 
 export function getWorkshopShortcodeLinkSourceApp(workshopKind: WorkshopKind): ShortcodeLinkSourceApp {
-    return workshopKind === 'community' ? 'community' : 'online-workshop';
+    return workshopKind === 'workshop' ? 'online-workshop' : 'community';
 }
 
 export function getWorkshopMaterialShortcodeSourceApp(workshopKind: WorkshopKind): ShortcodeLinkSourceApp {

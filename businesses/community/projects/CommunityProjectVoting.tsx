@@ -1,0 +1,60 @@
+'use client';
+
+import type { CommunityProjectVote } from '@/lib/community-projects/communityProjectTypes';
+import { ArrowBigDown, ArrowBigUp } from 'lucide-react';
+
+type CommunityProjectVotingProps = {
+    readonly upvoteCount: number;
+    readonly downvoteCount: number;
+    readonly voteByParticipant: CommunityProjectVote | null;
+    readonly isVoting: boolean;
+    readonly onVote: (vote: CommunityProjectVote) => Promise<void>;
+};
+
+/**
+ * A compact two-direction vote control. The server remains the authority: another click on an already selected arrow
+ * removes that vote, and the opposite arrow replaces it without ever creating a second vote row.
+ */
+export function CommunityProjectVoting({
+    upvoteCount,
+    downvoteCount,
+    voteByParticipant,
+    isVoting,
+    onVote,
+}: CommunityProjectVotingProps) {
+    return (
+        <div className="inline-flex items-center rounded-lg border border-white/10 bg-slate-950/60 p-0.5 text-xs">
+            <button
+                type="button"
+                aria-label="Dát projektu kladný hlas"
+                aria-pressed={voteByParticipant === 'up'}
+                disabled={isVoting}
+                onClick={() => void onVote('up')}
+                className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 font-bold transition disabled:cursor-wait disabled:opacity-50 ${
+                    voteByParticipant === 'up'
+                        ? 'bg-emerald-400/20 text-emerald-200'
+                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+            >
+                <ArrowBigUp className="h-4 w-4" aria-hidden="true" />
+                <span>{upvoteCount}</span>
+            </button>
+            <span className="h-5 w-px bg-white/10" aria-hidden="true" />
+            <button
+                type="button"
+                aria-label="Dát projektu záporný hlas"
+                aria-pressed={voteByParticipant === 'down'}
+                disabled={isVoting}
+                onClick={() => void onVote('down')}
+                className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 font-bold transition disabled:cursor-wait disabled:opacity-50 ${
+                    voteByParticipant === 'down'
+                        ? 'bg-rose-400/20 text-rose-200'
+                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+            >
+                <ArrowBigDown className="h-4 w-4" aria-hidden="true" />
+                <span>{downvoteCount}</span>
+            </button>
+        </div>
+    );
+}

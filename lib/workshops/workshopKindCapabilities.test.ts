@@ -34,6 +34,17 @@ describe('workshop kind capabilities', () => {
         });
     });
 
+    it('makes every project a calm discussion room with its address controlled by the project record', () => {
+        expect(getWorkshopKindCapabilities('project')).toEqual({
+            isSingleton: false,
+            isSlugFixed: true,
+            isScheduled: false,
+            isStageOffered: false,
+            isPollsOffered: false,
+            isRealtime: false,
+        });
+    });
+
     it('refuses a schedule, a stage, and an address written into a room which has none of them', () => {
         expect(
             getUnsupportedWorkshopKindFieldNames('community', {

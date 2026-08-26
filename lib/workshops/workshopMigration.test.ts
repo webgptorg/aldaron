@@ -12,7 +12,7 @@ const MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-work
 const MIGRATION_SQL = readFileSync(MIGRATION_PATH, 'utf8');
 const MODERATION_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-1.sql');
 const MODERATION_MIGRATION_SQL = readFileSync(MODERATION_MIGRATION_PATH, 'utf8');
-const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql');
+const ANALYTICS_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-2.sql.done');
 const ANALYTICS_MIGRATION_SQL = readFileSync(ANALYTICS_MIGRATION_PATH, 'utf8');
 const WATCHING_AND_REPLY_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-07-0040-workshop-page-3.sql');
 const WATCHING_AND_REPLY_MIGRATION_SQL = readFileSync(WATCHING_AND_REPLY_MIGRATION_PATH, 'utf8');
@@ -76,6 +76,8 @@ const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-2600-community-poll-administration.sql',
 );
 const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH, 'utf8');
+const COMMUNITY_PROJECT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2800-community-projects.sql');
+const COMMUNITY_PROJECT_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -351,7 +353,10 @@ describe('workshop database migration', () => {
     it('keeps one persistent community separate from workshop occurrences', () => {
         expect(COMMUNITY_MIGRATION_SQL).toContain("ADD COLUMN IF NOT EXISTS room_kind text NOT NULL DEFAULT 'workshop'");
         expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_room_kind');
-        WORKSHOP_KIND_VALUES.forEach((workshopKind) => expect(COMMUNITY_MIGRATION_SQL).toContain(`'${workshopKind}'`));
+        ['workshop', 'community'].forEach((workshopKind) =>
+            expect(COMMUNITY_MIGRATION_SQL).toContain(`'${workshopKind}'`),
+        );
+        expect(WORKSHOP_KIND_VALUES).toContain('project');
         expect(COMMUNITY_MIGRATION_SQL).toContain('CREATE UNIQUE INDEX IF NOT EXISTS workshops_one_community_idx');
         expect(COMMUNITY_MIGRATION_SQL).toContain("WHERE room_kind = 'community'");
         expect(COMMUNITY_MIGRATION_SQL).toContain('workshops_community_slug');
@@ -398,6 +403,21 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
             'GRANT EXECUTE ON FUNCTION public.update_community_workshop_poll',
         );
+    });
+
+    it('keeps shared projects attributable, voteable once per member, and backed by a moderated discussion room', () => {
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain("room_kind IN ('workshop', 'community', 'project')");
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.community_projects');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.community_project_votes');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('CREATE TABLE IF NOT EXISTS public.community_project_discussion_participants');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('PRIMARY KEY (project_id, community_participant_id)');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('community_projects_top_idx');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('update_community_project_vote_counts');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('set_community_project_vote');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('create_community_project');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('is_moderator\n    )');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('connect_community_project_discussion');
+        expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('FORCE ROW LEVEL SECURITY');
     });
 
     it('selects one ordinary follow-up material and keeps feedback private and attributable', () => {

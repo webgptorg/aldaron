@@ -5,7 +5,7 @@ import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
  * A live room is normally one workshop occurrence. The community uses the same resilient room infrastructure, but
  * remains a single, separately administered room across all occurrences.
  */
-export const WORKSHOP_KIND_VALUES = ['workshop', 'community'] as const;
+export const WORKSHOP_KIND_VALUES = ['workshop', 'community', 'project'] as const;
 
 export type WorkshopKind = (typeof WORKSHOP_KIND_VALUES)[number];
 

@@ -65,6 +65,9 @@ describe('workshop panels', () => {
         expect(getWorkshopKindPanelDefinitions('community').map((panelDefinition) => panelDefinition.key)).toEqual([
             'chat',
         ]);
+        expect(getWorkshopKindPanelDefinitions('project').map((panelDefinition) => panelDefinition.key)).toEqual([
+            'chat',
+        ]);
     });
 
     it('offers a panel only when the kind of the room has it and nobody switched it off', () => {
@@ -74,5 +77,7 @@ describe('workshop panels', () => {
         expect(isWorkshopPanelOffered('community', ['chat'], 'chat')).toBe(false);
         expect(isWorkshopPanelOffered('community', [], 'reactions')).toBe(false);
         expect(isWorkshopPanelOffered('community', [], 'watching-count')).toBe(false);
+        expect(isWorkshopPanelOffered('project', [], 'chat')).toBe(true);
+        expect(isWorkshopPanelOffered('project', [], 'reactions')).toBe(false);
     });
 });

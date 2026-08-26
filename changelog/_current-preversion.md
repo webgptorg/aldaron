@@ -1,5 +1,15 @@
 # Current preversion
 
+- Added community project sharing to `/cs/komunita`: the room now places a three-column project gallery directly below
+  the workshop links and above the materials, ordered by upvotes. Its home view shows the five strongest projects and a
+  sixth “Další projekty” card which opens `/cs/komunita/projects` for the whole gallery. Members can vote one way per
+  project with Reddit-style up/down controls, changing or removing their own vote without creating duplicate records.
+  A two-step popup starts with only a URL, safely fetches its public Open Graph title, description and image, then lets
+  the member edit the copy before saving the card. Every project also has `/cs/komunita/projects/<project_id>`, where
+  the preview sits beside the existing moderated workshop chat; the author is connected as that discussion’s moderator
+  automatically, while all project sessions still derive from the member’s existing community identity rather than
+  creating a parallel sign-in system.
+
 - Made community polls fully manageable from `/admin/community?tab=polls`: an administrator can now edit a question,
   preserve, add, remove or reorder its choices, switch voting and member visibility independently, and permanently
   delete a poll with all of its votes. The same shared poll editor supports both new and existing polls, so the

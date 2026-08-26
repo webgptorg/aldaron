@@ -62,6 +62,14 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isPollsOffered: true,
         isRealtime: false,
     },
+    project: {
+        isSingleton: false,
+        isSlugFixed: true,
+        isScheduled: false,
+        isStageOffered: false,
+        isPollsOffered: false,
+        isRealtime: false,
+    },
 };
 
 export function getWorkshopKindCapabilities(workshopKind: WorkshopKind): WorkshopKindCapabilities {

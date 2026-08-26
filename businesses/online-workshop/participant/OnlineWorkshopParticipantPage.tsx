@@ -23,7 +23,7 @@ import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticip
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 /**
  * What it takes to offer this workshop to the calendar of a participant
@@ -65,6 +65,22 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopNavigation?: WorkshopNavigationDetails;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
+
+    /**
+     * Optional community-specific content placed after room navigation and before materials. It lets the permanent
+     * community add a surface without copying the secured participant-room layout.
+     */
+    readonly mainContentAfterWorkshopNavigation?: ReactNode;
+
+    /**
+     * A project discussion has no materials of its own, while the shared community room continues to show them.
+     */
+    readonly isMaterialsShown?: boolean;
+
+    /**
+     * A room may require a domain-specific reconnection flow instead of the general name-and-email form.
+     */
+    readonly connectionRequiredContent?: ReactNode;
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -78,6 +94,9 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
+    mainContentAfterWorkshopNavigation,
+    isMaterialsShown = true,
+    connectionRequiredContent,
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
     useWorkshopParticipantOfflineSupport();
@@ -120,13 +139,15 @@ export function OnlineWorkshopParticipantPage({
 
     if (controller.isConnectionRequired) {
         return (
-            <WorkshopConnectionForm
-                connectionDetails={connectionDetails}
-                initialEmail={initialEmail}
-                initialFullname={initialFullname}
-                errorMessage={controller.errorMessage}
-                onConnect={controller.connect}
-            />
+            connectionRequiredContent ?? (
+                <WorkshopConnectionForm
+                    connectionDetails={connectionDetails}
+                    initialEmail={initialEmail}
+                    initialFullname={initialFullname}
+                    errorMessage={controller.errorMessage}
+                    onConnect={controller.connect}
+                />
+            )
         );
     }
 
@@ -252,6 +273,7 @@ export function OnlineWorkshopParticipantPage({
                             timeZone={workshopNavigation.timeZone}
                         />
                     )}
+                    {mainContentAfterWorkshopNavigation}
                     {isPanelOffered('reactions') && (
                         <WorkshopReactions
                             emojis={state.workshop.allowedReactions}
@@ -276,14 +298,16 @@ export function OnlineWorkshopParticipantPage({
                     onModerateAuthor={controller.moderateAuthor}
                 />
 
-                <div className="min-w-0 lg:col-start-1 lg:row-start-2">
-                    <WorkshopContent
-                        contentBlocks={state.contentBlocks}
-                        nextContentUnlockAt={state.nextContentUnlockAt}
-                        newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
-                        title={materialsTitle}
-                    />
-                </div>
+                {isMaterialsShown && (
+                    <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+                        <WorkshopContent
+                            contentBlocks={state.contentBlocks}
+                            nextContentUnlockAt={state.nextContentUnlockAt}
+                            newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
+                            title={materialsTitle}
+                        />
+                    </div>
+                )}
             </main>
         </div>
     );
