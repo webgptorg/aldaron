@@ -23,7 +23,7 @@ import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticip
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 
 /**
  * What it takes to offer this workshop to the calendar of a participant
@@ -65,7 +65,6 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopNavigation?: WorkshopNavigationDetails;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
-    readonly supplementalContent?: ReactNode;
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -79,7 +78,6 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
-    supplementalContent,
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
     useWorkshopParticipantOfflineSupport();
@@ -215,8 +213,6 @@ export function OnlineWorkshopParticipantPage({
                             </button>
                         </div>
                     ) : null}
-
-                    {supplementalContent}
 
                     {roomCapabilities.isStageOffered && (
                         <WorkshopStage
