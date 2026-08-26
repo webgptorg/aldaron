@@ -20,10 +20,10 @@ import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabil
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
-import type { WorkshopParticipant, WorkshopSummary } from '@/lib/workshops/workshopTypes';
+import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 
 /**
  * What it takes to offer this workshop to the calendar of a participant
@@ -65,14 +65,6 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopNavigation?: WorkshopNavigationDetails;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
-
-    /**
-     * The panels which only the business behind a room has, rendered between the panels shared by every room
-     *
-     * Note: The room hands over the participant it already verified and knows nothing else about such a panel, so a
-     *       room of one business never has to be reimplemented to gain one.
-     */
-    readonly renderAdditionalPanels?: (participant: WorkshopParticipant) => ReactNode;
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -86,7 +78,6 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
-    renderAdditionalPanels,
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
     useWorkshopParticipantOfflineSupport();
@@ -249,7 +240,6 @@ export function OnlineWorkshopParticipantPage({
                             onVote={controller.voteOnPoll}
                         />
                     )}
-                    {renderAdditionalPanels?.(state.participant)}
                     {workshopNavigation !== undefined && (
                         <WorkshopLinksPanel
                             workshops={workshopNavigation.workshops}

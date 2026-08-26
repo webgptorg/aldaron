@@ -19,12 +19,6 @@ export function createCzechCommunityConnectionDetails(community: WorkshopDetails
     };
 }
 
-/**
- * How the Czech community writes a date, shared by everything the room formats
- */
-export const CZECH_COMMUNITY_LOCALE = 'cs-CZ';
-export const CZECH_COMMUNITY_TIME_ZONE = 'Europe/Prague';
-
 export const CZECH_COMMUNITY_ROOM_COPY = {
     roomSubtitle: 'Komunita Promptbooku',
     materialsTitle: 'Materiály komunity',
@@ -35,6 +29,6 @@ export const CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY = {
     title: 'Workshopy Promptbooku',
     description: 'Vyberte si workshop. Odkaz vás vezme přímo do jeho místnosti se stejnými údaji.',
     emptyMessage: 'Zatím není publikovaný žádný workshop. Další termíny sem přidáme hned po zveřejnění.',
-    locale: CZECH_COMMUNITY_LOCALE,
-    timeZone: CZECH_COMMUNITY_TIME_ZONE,
+    locale: 'cs-CZ',
+    timeZone: 'Europe/Prague',
 } as const;
