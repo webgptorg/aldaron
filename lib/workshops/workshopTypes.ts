@@ -322,6 +322,16 @@ export type WorkshopPollOption = {
 };
 
 /**
+ * The administrative view additionally separates the member votes from the explicitly seeded aggregate. The member
+ * room deliberately keeps receiving only `WorkshopPollOption`, so an artificial starting count does not expose its
+ * origin to the people taking part in the poll.
+ */
+export type WorkshopAdminPollOption = WorkshopPollOption & {
+    readonly realVoteCount: number;
+    readonly artificialVoteCount: number;
+};
+
+/**
  * A community question prepared by an administrator. Poll infrastructure is shared with the room model, while the
  * room-kind capability decides which kinds offer it.
  */
@@ -329,9 +339,14 @@ export type WorkshopPoll = {
     readonly id: string;
     readonly question: string;
     readonly isClosed: boolean;
+    readonly isVisible: boolean;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly options: readonly WorkshopPollOption[];
+};
+
+export type WorkshopAdminPoll = Omit<WorkshopPoll, 'options'> & {
+    readonly options: readonly WorkshopAdminPollOption[];
 };
 
 export type WorkshopPublicState = {
@@ -371,7 +386,7 @@ export type WorkshopAdminComment = Omit<WorkshopComment, 'isUpvotedByParticipant
 export type WorkshopAdminSnapshot = {
     readonly workshop: WorkshopDetails;
     readonly contentBlocks: readonly WorkshopContentBlock[];
-    readonly polls: readonly WorkshopPoll[];
+    readonly polls: readonly WorkshopAdminPoll[];
     readonly comments: readonly WorkshopAdminComment[];
 
     /**

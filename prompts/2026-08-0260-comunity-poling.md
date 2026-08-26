@@ -9,7 +9,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.4192 16 minutes; Testing 7 minutes
 
 [✨🛬] Community polls should be editable via admin
 
@@ -45,3 +45,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

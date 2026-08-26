@@ -47,14 +47,14 @@ export async function POST(request: NextRequest, context: WorkshopPollVoteRouteC
 
     const { data: poll, error: pollError } = await authenticatedRequest.supabase
         .from(WORKSHOP_POLL_TABLE_NAME)
-        .select('id, is_closed')
+        .select('id, is_closed, is_visible')
         .eq('id', pollId)
         .eq('workshop_id', authenticatedRequest.workshopRow.id)
         .maybeSingle();
     if (pollError) {
         return NextResponse.json({ error: 'Poll could not be checked' }, { status: 500 });
     }
-    if (poll === null) {
+    if (poll === null || !poll.is_visible) {
         return NextResponse.json({ error: 'Poll not found' }, { status: 404 });
     }
     if (poll.is_closed) {

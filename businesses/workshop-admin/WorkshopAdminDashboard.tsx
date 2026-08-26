@@ -3,8 +3,8 @@
 import { CreateWorkshopForm } from '@/businesses/workshop-admin/CreateWorkshopForm';
 import {
     adjustAdminWorkshopCommentArtificialUpvotes,
+    adjustAdminWorkshopPollOptionArtificialVotes,
     clearAdminWorkshopReactions,
-    closeAdminWorkshopPoll,
     createAdminWorkshopArtificialComment,
     createAdminWorkshop,
     createAdminWorkshopContent,
@@ -12,12 +12,14 @@ import {
     deleteAdminWorkshopComment,
     deleteAdminWorkshopContent,
     deleteAdminWorkshopParticipant,
+    deleteAdminWorkshopPoll,
     editAdminWorkshopCommentBody,
     fetchAdminWorkshopList,
     fetchAdminWorkshopSnapshot,
     moderateAdminWorkshopComment,
     pinAdminWorkshopComment,
     sendAdminWorkshopArtificialReaction,
+    updateAdminWorkshopPoll,
     updateAdminWorkshop,
     updateAdminWorkshopContent,
     updateAdminWorkshopParticipantInteractionBan,
@@ -28,6 +30,7 @@ import {
     type WorkshopContentWriteValues,
     type WorkshopCreateValues,
     type WorkshopPollCreateValues,
+    type WorkshopPollUpdateValues,
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import { WorkshopActivityGraph } from '@/businesses/workshop-admin/WorkshopActivityGraph';
@@ -272,10 +275,26 @@ export function WorkshopAdminDashboard({
         snapshot === null
             ? Promise.resolve(false)
             : runAndReload(() => createAdminWorkshopPoll(snapshot.workshop.id, values));
-    const handleClosePoll = (pollId: string) =>
+    const handleUpdatePoll = (pollId: string, values: WorkshopPollUpdateValues) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => closeAdminWorkshopPoll(snapshot.workshop.id, pollId));
+            : runAndReload(() => updateAdminWorkshopPoll(snapshot.workshop.id, pollId, values));
+    const handleDeletePoll = async (pollId: string) => {
+        if (snapshot !== null) {
+            await runAndReload(() => deleteAdminWorkshopPoll(snapshot.workshop.id, pollId));
+        }
+    };
+    const handleAdjustArtificialPollVotes = (pollId: string, optionId: string, artificialVoteAdjustment: number) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() =>
+                  adjustAdminWorkshopPollOptionArtificialVotes(
+                      snapshot.workshop.id,
+                      pollId,
+                      optionId,
+                      artificialVoteAdjustment,
+                  ),
+              );
     const handleModerateComment = async (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => {
         if (snapshot !== null) {
             await runAndReload(() => moderateAdminWorkshopComment(snapshot.workshop.id, commentId, status));
@@ -532,7 +551,9 @@ export function WorkshopAdminDashboard({
                                 <WorkshopPollAdmin
                                     polls={snapshot.polls}
                                     onCreate={handleCreatePoll}
-                                    onClose={handleClosePoll}
+                                    onUpdate={handleUpdatePoll}
+                                    onDelete={handleDeletePoll}
+                                    onAdjustArtificialVotes={handleAdjustArtificialPollVotes}
                                 />
                             </TabsContent>
                         )}

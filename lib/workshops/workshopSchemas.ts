@@ -1,5 +1,6 @@
 import {
     DEFAULT_WORKSHOP_REACTIONS,
+    MAXIMAL_ARTIFICIAL_POLL_VOTE_ADJUSTMENT,
     MAXIMAL_ARTIFICIAL_UPVOTE_ADJUSTMENT,
     MAXIMAL_WORKSHOP_ALLOWED_REACTION_COUNT,
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
@@ -32,6 +33,10 @@ const workshopReactionEmojiSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHO
 const workshopCommentBodySchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_COMMENT_LENGTH);
 const workshopPollQuestionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_QUESTION_LENGTH);
 const workshopPollOptionSchema = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_POLL_OPTION_LENGTH);
+const workshopPollOptionWriteSchema = z.object({
+    id: z.string().uuid().optional(),
+    label: workshopPollOptionSchema,
+});
 const workshopFeedbackTextSchema = z
     .string()
     .trim()
@@ -88,6 +93,16 @@ export const workshopReactionSchema = z.object({
     emoji: workshopReactionEmojiSchema,
 });
 
+function areWorkshopPollOptionLabelsUnique(
+    options: readonly string[] | readonly { readonly label: string }[],
+): boolean {
+    return (
+        new Set(
+            options.map((option) => (typeof option === 'string' ? option : option.label).toLowerCase()),
+        ).size === options.length
+    );
+}
+
 /**
  * A poll is intentionally a small, clear choice. The duplicate check is case-insensitive after trimming, so two
  * buttons cannot look different only because an administrator typed a different casing.
@@ -98,21 +113,44 @@ export const workshopPollCreateSchema = z.object({
         .array(workshopPollOptionSchema)
         .min(MINIMAL_WORKSHOP_POLL_OPTION_COUNT)
         .max(MAXIMAL_WORKSHOP_POLL_OPTION_COUNT)
+        .refine(areWorkshopPollOptionLabelsUnique, 'Poll options must be unique'),
+    isClosed: z.boolean().default(false),
+    isVisible: z.boolean().default(true),
+});
+
+/**
+ * Keeps the IDs of choices which survive an edit. The database can therefore retain their real and artificial votes,
+ * while choices absent from this list are intentionally removed together with their votes.
+ */
+export const workshopPollUpdateSchema = z.object({
+    question: workshopPollQuestionSchema,
+    options: z
+        .array(workshopPollOptionWriteSchema)
+        .min(MINIMAL_WORKSHOP_POLL_OPTION_COUNT)
+        .max(MAXIMAL_WORKSHOP_POLL_OPTION_COUNT)
+        .refine(areWorkshopPollOptionLabelsUnique, 'Poll options must be unique')
         .refine(
-            (options) => new Set(options.map((option) => option.toLowerCase())).size === options.length,
-            'Poll options must be unique',
+            (options) => {
+                const optionIds = options.flatMap((option) => (option.id === undefined ? [] : [option.id]));
+                return new Set(optionIds).size === optionIds.length;
+            },
+            'Poll options must not repeat',
         ),
+    isClosed: z.boolean(),
+    isVisible: z.boolean(),
 });
 
 export const workshopPollVoteSchema = z.object({
     optionId: z.string().uuid(),
 });
 
-/**
- * A finished community poll remains readable, but deliberately cannot be reopened by a stale administration tab.
- */
-export const workshopPollCloseSchema = z.object({
-    isClosed: z.literal(true),
+export const workshopPollOptionArtificialVoteSchema = z.object({
+    artificialVoteAdjustment: z
+        .number()
+        .int()
+        .min(-MAXIMAL_ARTIFICIAL_POLL_VOTE_ADJUSTMENT)
+        .max(MAXIMAL_ARTIFICIAL_POLL_VOTE_ADJUSTMENT)
+        .refine((value) => value !== 0, 'Artificial poll vote adjustment cannot be zero'),
 });
 
 /**

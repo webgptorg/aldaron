@@ -9,8 +9,9 @@ import {
     workshopCreateSchema,
     workshopParticipantRenameSchema,
     workshopParticipantUpdateSchema,
-    workshopPollCloseSchema,
     workshopPollCreateSchema,
+    workshopPollOptionArtificialVoteSchema,
+    workshopPollUpdateSchema,
     workshopPollVoteSchema,
     workshopFeedbackUpdateSchema,
     workshopPresenceSchema,
@@ -165,7 +166,7 @@ describe('workshop request validation', () => {
         expect(workshopReactionSchema.parse({ emoji: '  👏  ' })).toEqual({ emoji: '👏' });
     });
 
-    it('accepts a clear community poll but refuses ambiguous answers or a reopened poll', () => {
+    it('accepts a clear community poll but refuses ambiguous answers', () => {
         expect(
             workshopPollCreateSchema.parse({
                 question: ' Kterému tématu se máme věnovat? ',
@@ -174,6 +175,8 @@ describe('workshop request validation', () => {
         ).toEqual({
             question: 'Kterému tématu se máme věnovat?',
             options: ['Testování', 'Nasazování'],
+            isClosed: false,
+            isVisible: true,
         });
         expect(
             workshopPollCreateSchema.safeParse({
@@ -185,8 +188,36 @@ describe('workshop request validation', () => {
         expect(workshopPollVoteSchema.parse({ optionId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde' })).toEqual({
             optionId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
         });
-        expect(workshopPollCloseSchema.parse({ isClosed: true })).toEqual({ isClosed: true });
-        expect(workshopPollCloseSchema.safeParse({ isClosed: false }).success).toBe(false);
+        expect(
+            workshopPollUpdateSchema.parse({
+                question: ' Upravené téma ',
+                options: [
+                    { id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde', label: ' Testování ' },
+                    { label: ' Nasazování ' },
+                ],
+                isClosed: false,
+                isVisible: false,
+            }),
+        ).toEqual({
+            question: 'Upravené téma',
+            options: [
+                { id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde', label: 'Testování' },
+                { label: 'Nasazování' },
+            ],
+            isClosed: false,
+            isVisible: false,
+        });
+        expect(
+            workshopPollUpdateSchema.safeParse({
+                question: 'Téma?',
+                options: [
+                    { id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde', label: 'Testování' },
+                    { id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde', label: 'Nasazování' },
+                ],
+                isClosed: true,
+                isVisible: true,
+            }).success,
+        ).toBe(false);
     });
 
     it('validates artificial workshop actions independently from participant actions', () => {
@@ -198,6 +229,10 @@ describe('workshop request validation', () => {
             artificialUpvoteAdjustment: -12,
         });
         expect(workshopCommentArtificialUpvoteSchema.safeParse({ artificialUpvoteAdjustment: 0 }).success).toBe(false);
+        expect(workshopPollOptionArtificialVoteSchema.parse({ artificialVoteAdjustment: -12 })).toEqual({
+            artificialVoteAdjustment: -12,
+        });
+        expect(workshopPollOptionArtificialVoteSchema.safeParse({ artificialVoteAdjustment: 0 }).success).toBe(false);
     });
 
     it('accepts trusted participant changes and bounded active-time reports', () => {

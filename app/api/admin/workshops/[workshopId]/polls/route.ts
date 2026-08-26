@@ -42,6 +42,8 @@ export async function POST(request: NextRequest, context: AdminWorkshopPollsRout
         target_workshop_id: workshopData.workshopRow.id,
         target_question: parsedResult.data.question,
         target_options: parsedResult.data.options,
+        target_is_closed: parsedResult.data.isClosed,
+        target_is_visible: parsedResult.data.isVisible,
     });
     if (error || pollId === null) {
         console.error('Failed to create a community poll:', error?.message ?? 'No poll ID returned');

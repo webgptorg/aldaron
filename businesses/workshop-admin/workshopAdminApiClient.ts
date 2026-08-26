@@ -57,6 +57,20 @@ export type WorkshopContentWriteValues = {
 export type WorkshopPollCreateValues = {
     readonly question: string;
     readonly options: readonly string[];
+    readonly isClosed: boolean;
+    readonly isVisible: boolean;
+};
+
+export type WorkshopPollOptionWriteValues = {
+    readonly id?: string;
+    readonly label: string;
+};
+
+export type WorkshopPollUpdateValues = {
+    readonly question: string;
+    readonly options: readonly WorkshopPollOptionWriteValues[];
+    readonly isClosed: boolean;
+    readonly isVisible: boolean;
 };
 
 export type WorkshopArtificialCommentValues = {
@@ -220,14 +234,39 @@ export async function createAdminWorkshopPoll(workshopId: string, values: Worksh
 }
 
 /**
- * Ends a poll permanently while keeping its anonymous results visible to the community.
+ * Writes every mutable part of a community poll through its transactional administrative boundary.
  */
-export async function closeAdminWorkshopPoll(workshopId: string, pollId: string): Promise<string> {
+export async function updateAdminWorkshopPoll(
+    workshopId: string,
+    pollId: string,
+    values: WorkshopPollUpdateValues,
+): Promise<string> {
     const result = await requestAdminJson<{ readonly pollId: string }>(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/polls/${encodeURIComponent(pollId)}`),
-        createJsonMutation('PATCH', { isClosed: true }),
+        createJsonMutation('PATCH', values),
     );
     return result.pollId;
+}
+
+export async function deleteAdminWorkshopPoll(workshopId: string, pollId: string): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/polls/${encodeURIComponent(pollId)}`),
+        { method: 'DELETE' },
+    );
+}
+
+export async function adjustAdminWorkshopPollOptionArtificialVotes(
+    workshopId: string,
+    pollId: string,
+    optionId: string,
+    artificialVoteAdjustment: number,
+): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(
+            `/${encodeURIComponent(workshopId)}/polls/${encodeURIComponent(pollId)}/options/${encodeURIComponent(optionId)}/artificial-votes`,
+        ),
+        createJsonMutation('POST', { artificialVoteAdjustment }),
+    );
 }
 
 export async function deleteAdminWorkshopComment(workshopId: string, commentId: string): Promise<void> {

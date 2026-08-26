@@ -71,6 +71,11 @@ const SHORTCODE_CHAT_LINK_MIGRATION_PATH = path.resolve(
 const SHORTCODE_CHAT_LINK_MIGRATION_SQL = readFileSync(SHORTCODE_CHAT_LINK_MIGRATION_PATH, 'utf8');
 const COMMUNITY_POLL_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2400-community-polls.sql');
 const COMMUNITY_POLL_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_MIGRATION_PATH, 'utf8');
+const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-2600-community-poll-administration.sql',
+);
+const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -370,6 +375,28 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_poll_votes FORCE ROW LEVEL SECURITY');
         expect(COMMUNITY_POLL_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_poll_votes FROM PUBLIC, anon, authenticated',
+        );
+    });
+
+    it('lets administrators edit, hide, reopen, delete, and seed community polls without inventing a member vote', () => {
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS is_visible boolean NOT NULL DEFAULT true',
+        );
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS artificial_vote_count integer NOT NULL DEFAULT 0',
+        );
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.update_community_workshop_poll',
+        );
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.adjust_community_workshop_poll_option_artificial_votes',
+        );
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain('FOR UPDATE OF poll');
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain('FOR UPDATE OF poll_option');
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain('poll_is_closed OR NOT poll_is_visible');
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain('DELETE FROM public.workshop_poll_options');
+        expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
+            'GRANT EXECUTE ON FUNCTION public.update_community_workshop_poll',
         );
     });
 

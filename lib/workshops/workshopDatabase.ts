@@ -2,6 +2,7 @@ import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } from '@/lib/supabase/loadAllSupabaseRows';
 import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import {
+    MAXIMAL_ADMIN_WORKSHOP_POLL_COUNT,
     MAXIMAL_RECENT_REACTION_COUNT,
     MAXIMAL_WORKSHOP_ADMIN_COMMENT_SAMPLE_COUNT,
     MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
@@ -32,6 +33,8 @@ import type {
     WorkshopAdminFeedback,
     WorkshopAdminAnalytics,
     WorkshopAdminCommentSample,
+    WorkshopAdminPoll,
+    WorkshopAdminPollOption,
     WorkshopAdminParticipant,
     WorkshopAdminParticipantPage,
     WorkshopAdminParticipantTimeline,
@@ -283,20 +286,22 @@ type WorkshopPollRow = {
     readonly id: string;
     readonly question: string;
     readonly is_closed: boolean;
+    readonly is_visible: boolean;
     readonly created_at: string;
     readonly updated_at: string;
 };
 
-const WORKSHOP_POLL_COLUMNS = 'id, question, is_closed, created_at, updated_at';
+const WORKSHOP_POLL_COLUMNS = 'id, question, is_closed, is_visible, created_at, updated_at';
 
 type WorkshopPollOptionRow = {
     readonly id: string;
     readonly poll_id: string;
     readonly label: string;
     readonly sort_order: number;
+    readonly artificial_vote_count: number;
 };
 
-const WORKSHOP_POLL_OPTION_COLUMNS = 'id, poll_id, label, sort_order';
+const WORKSHOP_POLL_OPTION_COLUMNS = 'id, poll_id, label, sort_order, artificial_vote_count';
 
 type WorkshopPollVoteCountRow = {
     readonly option_id: string;
@@ -627,20 +632,39 @@ function mapWorkshopPollOptionRow(
     voteCountByOptionId: ReadonlyMap<string, number>,
     selectedOptionIds: ReadonlySet<string>,
 ): WorkshopPollOption {
+    const realVoteCount = voteCountByOptionId.get(row.id) ?? 0;
     return {
         id: row.id,
         label: row.label,
         sortOrder: row.sort_order,
-        voteCount: voteCountByOptionId.get(row.id) ?? 0,
+        voteCount: realVoteCount + getNonNegativeWholeNumber(row.artificial_vote_count),
         isVotedByParticipant: selectedOptionIds.has(row.id),
     };
 }
 
-function mapWorkshopPollRow(row: WorkshopPollRow, options: readonly WorkshopPollOption[]): WorkshopPoll {
+function mapWorkshopAdminPollOptionRow(
+    row: WorkshopPollOptionRow,
+    voteCountByOptionId: ReadonlyMap<string, number>,
+    selectedOptionIds: ReadonlySet<string>,
+): WorkshopAdminPollOption {
+    const realVoteCount = voteCountByOptionId.get(row.id) ?? 0;
+    const artificialVoteCount = getNonNegativeWholeNumber(row.artificial_vote_count);
+    return {
+        ...mapWorkshopPollOptionRow(row, voteCountByOptionId, selectedOptionIds),
+        realVoteCount,
+        artificialVoteCount,
+    };
+}
+
+function mapWorkshopPollRow<Option extends WorkshopPollOption>(
+    row: WorkshopPollRow,
+    options: readonly Option[],
+): Omit<WorkshopPoll, 'options'> & { readonly options: readonly Option[] } {
     return {
         id: row.id,
         question: row.question,
         isClosed: row.is_closed,
+        isVisible: row.is_visible,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         options,
@@ -929,40 +953,57 @@ async function loadWorkshopReactionCounts(
     };
 }
 
-type LoadedWorkshopPolls = {
-    readonly polls: readonly WorkshopPoll[];
+type LoadedWorkshopPolls<Poll extends WorkshopPoll = WorkshopPoll> = {
+    readonly polls: readonly Poll[];
     readonly errorMessage: string | null;
 };
 
-/**
- * Loads the compact, anonymous result of the community polls. The count aggregation stays in PostgreSQL and the
- * participant-specific lookup contains only that participant's own selection, so no room response can infer who
- * anybody else voted for.
- */
-export async function loadWorkshopPolls(
+type LoadedWorkshopPollRows = {
+    readonly pollRows: readonly WorkshopPollRow[];
+    readonly optionRowsByPollId: ReadonlyMap<string, readonly WorkshopPollOptionRow[]>;
+    readonly voteCountByOptionId: ReadonlyMap<string, number>;
+    readonly selectedOptionIds: ReadonlySet<string>;
+};
+
+type WorkshopPollLoadScope = {
+    readonly isVisibleOnly: boolean;
+    readonly maximalPollCount: number;
+};
+
+async function loadWorkshopPollRows(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
     participantId: string | null,
-): Promise<LoadedWorkshopPolls> {
-    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isPollsOffered) {
-        return { polls: [], errorMessage: null };
-    }
-
-    const { data: pollData, error: pollError } = await supabase
+    scope: WorkshopPollLoadScope,
+): Promise<{ readonly loadedPollRows: LoadedWorkshopPollRows | null; readonly errorMessage: string | null }> {
+    let pollQuery = supabase
         .from(WORKSHOP_POLL_TABLE_NAME)
         .select(WORKSHOP_POLL_COLUMNS)
-        .eq('workshop_id', workshopRow.id)
-        .order('is_closed', { ascending: true })
-        .order('created_at', { ascending: false })
-        .limit(MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT);
+        .eq('workshop_id', workshopRow.id);
+    if (scope.isVisibleOnly) {
+        pollQuery = pollQuery.eq('is_visible', true);
+    }
+
+    const pollQueryWithOrder = scope.isVisibleOnly
+        ? pollQuery.order('is_closed', { ascending: true }).order('created_at', { ascending: false })
+        : pollQuery.order('created_at', { ascending: false });
+    const { data: pollData, error: pollError } = await pollQueryWithOrder.limit(scope.maximalPollCount);
     if (pollError) {
-        return { polls: [], errorMessage: pollError.message };
+        return { loadedPollRows: null, errorMessage: pollError.message };
     }
 
     const pollRows = (pollData ?? []) as readonly WorkshopPollRow[];
     const pollIds = pollRows.map((poll) => poll.id);
     if (pollIds.length === 0) {
-        return { polls: [], errorMessage: null };
+        return {
+            loadedPollRows: {
+                pollRows: [],
+                optionRowsByPollId: new Map(),
+                voteCountByOptionId: new Map(),
+                selectedOptionIds: new Set(),
+            },
+            errorMessage: null,
+        };
     }
 
     const [optionsResult, voteCountsResult, selectedVotesResult] = await Promise.all([
@@ -983,29 +1024,104 @@ export async function loadWorkshopPolls(
     ]);
     const firstError = optionsResult.error ?? voteCountsResult.error ?? selectedVotesResult.error;
     if (firstError) {
-        return { polls: [], errorMessage: firstError.message };
+        return { loadedPollRows: null, errorMessage: firstError.message };
     }
 
-    const voteCountByOptionId = new Map<string, number>(
-        ((voteCountsResult.data ?? []) as readonly WorkshopPollVoteCountRow[]).map((voteCount) => [
-            voteCount.option_id,
-            getNonNegativeWholeNumber(voteCount.vote_count),
-        ]),
-    );
-    const selectedOptionIds = new Set(
-        ((selectedVotesResult.data ?? []) as readonly WorkshopParticipantPollVoteRow[]).map(
-            (vote) => vote.option_id,
-        ),
-    );
-    const optionsByPollId = new Map<string, WorkshopPollOption[]>();
+    const optionRowsByPollId = new Map<string, WorkshopPollOptionRow[]>();
     for (const optionRow of (optionsResult.data ?? []) as readonly WorkshopPollOptionRow[]) {
-        const options = optionsByPollId.get(optionRow.poll_id) ?? [];
-        options.push(mapWorkshopPollOptionRow(optionRow, voteCountByOptionId, selectedOptionIds));
-        optionsByPollId.set(optionRow.poll_id, options);
+        const optionRows = optionRowsByPollId.get(optionRow.poll_id) ?? [];
+        optionRows.push(optionRow);
+        optionRowsByPollId.set(optionRow.poll_id, optionRows);
     }
 
     return {
-        polls: pollRows.map((pollRow) => mapWorkshopPollRow(pollRow, optionsByPollId.get(pollRow.id) ?? [])),
+        loadedPollRows: {
+            pollRows,
+            optionRowsByPollId,
+            voteCountByOptionId: new Map<string, number>(
+                ((voteCountsResult.data ?? []) as readonly WorkshopPollVoteCountRow[]).map((voteCount) => [
+                    voteCount.option_id,
+                    getNonNegativeWholeNumber(voteCount.vote_count),
+                ]),
+            ),
+            selectedOptionIds: new Set(
+                ((selectedVotesResult.data ?? []) as readonly WorkshopParticipantPollVoteRow[]).map(
+                    (vote) => vote.option_id,
+                ),
+            ),
+        },
+        errorMessage: null,
+    };
+}
+
+function mapLoadedWorkshopPolls<Option extends WorkshopPollOption>(
+    loadedPollRows: LoadedWorkshopPollRows,
+    mapOption: (
+        row: WorkshopPollOptionRow,
+        voteCountByOptionId: ReadonlyMap<string, number>,
+        selectedOptionIds: ReadonlySet<string>,
+    ) => Option,
+): readonly (Omit<WorkshopPoll, 'options'> & { readonly options: readonly Option[] })[] {
+    return loadedPollRows.pollRows.map((pollRow) =>
+        mapWorkshopPollRow(
+            pollRow,
+            (loadedPollRows.optionRowsByPollId.get(pollRow.id) ?? []).map((optionRow) =>
+                mapOption(optionRow, loadedPollRows.voteCountByOptionId, loadedPollRows.selectedOptionIds),
+            ),
+        ),
+    );
+}
+
+/**
+ * Loads the compact, anonymous result of visible community polls. The count aggregation stays in PostgreSQL and the
+ * participant-specific lookup contains only that participant's own selection, so no room response can infer who
+ * anybody else voted for.
+ */
+export async function loadWorkshopPolls(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+    participantId: string | null,
+): Promise<LoadedWorkshopPolls> {
+    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isPollsOffered) {
+        return { polls: [], errorMessage: null };
+    }
+
+    const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, participantId, {
+        isVisibleOnly: true,
+        maximalPollCount: MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
+    });
+    if (loadedPollRows === null) {
+        return { polls: [], errorMessage };
+    }
+
+    return {
+        polls: mapLoadedWorkshopPolls(loadedPollRows, mapWorkshopPollOptionRow),
+        errorMessage: null,
+    };
+}
+
+/**
+ * The same aggregate loader powers the administration, but it deliberately includes hidden polls and returns the
+ * artificial component only to the signed-in dashboard.
+ */
+export async function loadWorkshopAdminPolls(
+    supabase: SupabaseClient,
+    workshopRow: WorkshopRow,
+): Promise<LoadedWorkshopPolls<WorkshopAdminPoll>> {
+    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isPollsOffered) {
+        return { polls: [], errorMessage: null };
+    }
+
+    const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, null, {
+        isVisibleOnly: false,
+        maximalPollCount: MAXIMAL_ADMIN_WORKSHOP_POLL_COUNT,
+    });
+    if (loadedPollRows === null) {
+        return { polls: [], errorMessage };
+    }
+
+    return {
+        polls: mapLoadedWorkshopPolls(loadedPollRows, mapWorkshopAdminPollOptionRow),
         errorMessage: null,
     };
 }
@@ -1961,7 +2077,7 @@ export async function loadWorkshopAdminSnapshot(
             .eq('workshop_id', workshopRow.id)
             .eq('is_artificial', true),
         options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
-        loadWorkshopPolls(supabase, workshopRow, null),
+        loadWorkshopAdminPolls(supabase, workshopRow),
     ]);
 
     const firstError =
