@@ -55,7 +55,7 @@ Even more priority with materials and discussion participation
 
 ---
 
-[ ] !!!!
+[-] !!!!
 
 [✨🥇] Simplify `/cs/komunita/clenstvi`
 
