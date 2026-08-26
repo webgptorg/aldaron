@@ -53,3 +53,52 @@ Premium
 Invitations to meetings in real life once a month
 Even more priority with materials and discussion participation
 
+---
+
+[ ] !!!!
+
+[✨🥇] Simplify `/cs/komunita/clenstvi`
+
+- Analyze the current implementation before making changes.
+- Keep the **current visual design and graphical style of the page**. Do not redesign it from scratch.
+- Keep existing illustrations, typography, colors, spacing, reactions, icons and overall visual identity wherever possible.
+- The goal is to drastically simplify the offer and test whether people are willing to pay a small monthly amount for community membership.
+- Live online AI webinars remain free. Make this very clear.
+- There should now be only:
+    - Free community
+    - Paid membership for **199 CZK/month**
+- Remove/hide the current Standard vs Premium complexity.
+- Remove/hide the Premium plan.
+- Remove the yearly/monthly switch and yearly pricing from this page.
+- Remove the 7-day free trial. We want to test real willingness to pay.
+- The main CTA should clearly lead to becoming a paid member for **199 CZK/month**.
+- Show that the membership can be cancelled anytime.
+- Focus the paid membership mainly on:
+    - recordings of all webinars
+    - archive of previous recordings
+    - practical materials
+    - additional content
+    - priority questions during webinars
+    - possibility to ask questions before webinars
+    - paid-member Discord/community features that already exist
+- Do not oversell the Discord or claim that it is already a highly active community.
+- Keep the copy simple and concrete. Avoid generic marketing bullshit.
+- The main message should be approximately:
+
+> Živé AI webináře zůstávají zdarma.  
+> Za 199 Kč měsíčně získáte záznamy, materiály a další obsah, díky kterému se můžete k tématům vracet a jít více do hloubky.
+
+- Make the difference between Free and Paid very easy to understand.
+- A simple comparison is enough. Do not create a complicated pricing table.
+- Preserve existing `fullname` personalization and `email` pre-filling.
+- Preserve existing discount-code functionality if possible, but do not emphasize discounts on the landing page.
+- Do not break existing subscribers or existing backend membership/payment logic. Legacy plans may stay internally even if they are no longer shown to new users.
+- Preserve the existing `Promptbook > Komunita` header pattern.
+- Make sure the page still looks great on mobile, tablet and desktop.
+- Reuse existing components and follow DRY.
+- Add/update relevant tests.
+- Add the changes into [`changelog/_current-preversion.md`](./changelog/_current-preversion.md).
+
+The key goal is simplicity:
+
+> **Free webinars stay free. Paid membership costs 199 CZK/month and gives access mainly to recordings, materials and additional community benefits.**
