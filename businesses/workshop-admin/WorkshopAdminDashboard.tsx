@@ -34,6 +34,7 @@ import {
     type WorkshopWriteValues,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import { WorkshopActivityGraph } from '@/businesses/workshop-admin/WorkshopActivityGraph';
+import { WorkshopAttachedPollList } from '@/businesses/workshop-admin/WorkshopAttachedPollList';
 import { WorkshopAdminRefreshButton } from '@/businesses/workshop-admin/WorkshopAdminRefreshButton';
 import { WorkshopArtificialComment } from '@/businesses/workshop-admin/WorkshopArtificialComment';
 import { WorkshopArtificialReaction } from '@/businesses/workshop-admin/WorkshopArtificialReaction';
@@ -89,6 +90,11 @@ type WorkshopAdminDashboardProps = {
     readonly selectorLabel?: string;
     readonly subjectLabel?: string;
     readonly emptyStateMessage?: string;
+
+    /**
+     * Where the polls asked about this room are administered, which is the room owning them.
+     */
+    readonly attachedPollAdministrationPath?: string;
 };
 
 export function WorkshopAdminDashboard({
@@ -97,6 +103,7 @@ export function WorkshopAdminDashboard({
     selectorLabel = 'Workshop',
     subjectLabel = 'workshopu',
     emptyStateMessage = 'Vytvořte první workshop.',
+    attachedPollAdministrationPath,
 }: WorkshopAdminDashboardProps) {
     // Note: There is only ever one room of a singleton kind, so nothing offers a choice between rooms of that kind or
     //       the creation of a second one.
@@ -111,6 +118,10 @@ export function WorkshopAdminDashboard({
         serializeViewState: serializeWorkshopAdminViewState,
     });
     const [workshops, setWorkshops] = useState<readonly WorkshopAdminSummary[]>([]);
+
+    // Note: A poll is about workshop occurrences rather than about the room administering it, so the occurrences are
+    //       listed separately from the rooms this dashboard administers.
+    const [attachableWorkshops, setAttachableWorkshops] = useState<readonly WorkshopAdminSummary[]>([]);
     const [snapshot, setSnapshot] = useState<WorkshopAdminSnapshot | null>(null);
     const [commentStatus, setCommentStatus] = useState<WorkshopCommentStatus>('pending');
     const [snapshotRefreshVersion, setSnapshotRefreshVersion] = useState(0);
@@ -118,15 +129,19 @@ export function WorkshopAdminDashboard({
     const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const snapshotLoadSequenceReference = useRef(0);
+    // Note: A room either administers polls of its own, or is the subject of polls the community administers. Both of
+    //       them are read in the very same section, so an administrator looks for a poll in one place.
+    const isAttachedPollSectionOffered = !isPollsOffered && (snapshot?.attachedPolls.length ?? 0) > 0;
+    const isPollSectionOffered = isPollsOffered || isAttachedPollSectionOffered;
     const selectedSection =
         (viewState.section === 'feedback' && workshopKind !== 'workshop') ||
-        (viewState.section === 'polls' && !isPollsOffered)
+        (viewState.section === 'polls' && !isPollSectionOffered)
             ? 'overview'
             : viewState.section;
     const sectionDefinitions = WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(
         ({ value }) =>
             (value !== 'feedback' || workshopKind === 'workshop') &&
-            (value !== 'polls' || isPollsOffered),
+            (value !== 'polls' || isPollSectionOffered),
     );
 
     // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
@@ -152,6 +167,18 @@ export function WorkshopAdminDashboard({
             setIsLoading(false);
         }
     }, [workshopKind]);
+
+    const loadAttachablePollWorkshops = useCallback(async () => {
+        if (!isPollsOffered) {
+            return;
+        }
+
+        try {
+            setAttachableWorkshops(await fetchAdminWorkshopList('workshop'));
+        } catch (error) {
+            setErrorMessage((error as Error).message);
+        }
+    }, [isPollsOffered]);
 
     const selectWorkshopBySlug = useCallback(
         (workshopSlug: string) => changeViewState((previousViewState) => ({ ...previousViewState, workshopSlug })),
@@ -195,6 +222,7 @@ export function WorkshopAdminDashboard({
     }, [commentStatus, selectedSection, selectedWorkshopId]);
 
     useEffect(() => void loadWorkshopList(), [loadWorkshopList]);
+    useEffect(() => void loadAttachablePollWorkshops(), [loadAttachablePollWorkshops]);
     useEffect(() => void loadSnapshot(), [loadSnapshot]);
     useEffect(() => {
         if (!selectedWorkshopId) {
@@ -377,7 +405,7 @@ export function WorkshopAdminDashboard({
         [changeViewState],
     );
 
-    const handleRefresh = () => void Promise.all([loadSnapshot(), loadWorkshopList()]);
+    const handleRefresh = () => void Promise.all([loadSnapshot(), loadWorkshopList(), loadAttachablePollWorkshops()]);
 
     // Note: A room without a schedule unlocks new material as soon as it is written, rather than at a date it never
     //       had. The moment is taken once per room, so a reload of the administration never rewrites a form being
@@ -546,15 +574,23 @@ export function WorkshopAdminDashboard({
                             />
                         </TabsContent>
 
-                        {isPollsOffered && (
+                        {isPollSectionOffered && (
                             <TabsContent value="polls">
-                                <WorkshopPollAdmin
-                                    polls={snapshot.polls}
-                                    onCreate={handleCreatePoll}
-                                    onUpdate={handleUpdatePoll}
-                                    onDelete={handleDeletePoll}
-                                    onAdjustArtificialVotes={handleAdjustArtificialPollVotes}
-                                />
+                                {isPollsOffered ? (
+                                    <WorkshopPollAdmin
+                                        polls={snapshot.polls}
+                                        attachableWorkshops={attachableWorkshops}
+                                        onCreate={handleCreatePoll}
+                                        onUpdate={handleUpdatePoll}
+                                        onDelete={handleDeletePoll}
+                                        onAdjustArtificialVotes={handleAdjustArtificialPollVotes}
+                                    />
+                                ) : (
+                                    <WorkshopAttachedPollList
+                                        polls={snapshot.attachedPolls}
+                                        pollAdministrationPath={attachedPollAdministrationPath}
+                                    />
+                                )}
                             </TabsContent>
                         )}
 

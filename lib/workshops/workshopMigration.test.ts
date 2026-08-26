@@ -76,6 +76,11 @@ const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-2600-community-poll-administration.sql',
 );
 const COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_PATH, 'utf8');
+const COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-2900-community-poll-workshops.sql',
+);
+const COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH, 'utf8');
 const COMMUNITY_PROJECT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2800-community-projects.sql');
 const COMMUNITY_PROJECT_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_MIGRATION_PATH, 'utf8');
 
@@ -402,6 +407,33 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain('DELETE FROM public.workshop_poll_options');
         expect(COMMUNITY_POLL_ADMINISTRATION_MIGRATION_SQL).toContain(
             'GRANT EXECUTE ON FUNCTION public.update_community_workshop_poll',
+        );
+    });
+
+    it('attaches a community poll to workshop occurrences without making it a second workshop-owned poll', () => {
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'CREATE TABLE IF NOT EXISTS public.workshop_poll_workshops',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain('PRIMARY KEY (poll_id, workshop_id)');
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.enforce_community_workshop_poll_attachment',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain("community.room_kind = 'community'");
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain("workshop.room_kind = 'workshop'");
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.write_community_workshop_poll_workshops',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'CREATE FUNCTION public.create_community_workshop_poll',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'CREATE FUNCTION public.update_community_workshop_poll',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'ALTER TABLE public.workshop_poll_workshops FORCE ROW LEVEL SECURITY',
+        );
+        expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
+            'REVOKE ALL ON TABLE public.workshop_poll_workshops FROM PUBLIC, anon, authenticated',
         );
     });
 

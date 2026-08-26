@@ -100,3 +100,20 @@ export function createWorkshopParticipantLink(
 
     return createWorkshopSelectionPath(participantPath, workshopSlug, searchParameters);
 }
+
+/**
+ * The address of one workshop room, prefilled with an already verified identity whenever that identity is complete.
+ *
+ * Note: Every place which leads a member from one room into another one resolves the link this way, so an incomplete
+ *       identity always means the same thing: the room is entered, its connection form simply asks again.
+ */
+export function createWorkshopRoomLink(
+    participantPath: string,
+    identity: WorkshopParticipantIdentity,
+    workshopSlug: string,
+): string {
+    return (
+        createWorkshopParticipantLink(participantPath, identity, workshopSlug) ??
+        createWorkshopSelectionPath(participantPath, workshopSlug)
+    );
+}

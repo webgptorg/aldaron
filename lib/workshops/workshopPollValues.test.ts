@@ -16,6 +16,7 @@ const POLL: WorkshopPoll = {
         { id: 'option-1', label: 'Testování', sortOrder: 0, voteCount: 3, isVotedByParticipant: true },
         { id: 'option-2', label: 'Nasazování', sortOrder: 1, voteCount: 1, isVotedByParticipant: false },
     ],
+    attachedWorkshops: [],
 };
 
 describe('workshop poll values', () => {

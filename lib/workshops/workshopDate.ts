@@ -26,6 +26,18 @@ export function formatCzechWorkshopDate(startsAt: string): string {
     return CZECH_WORKSHOP_DATE_FORMAT.format(new Date(startsAt));
 }
 
+const CZECH_WORKSHOP_SHORT_DATE_FORMAT = new Intl.DateTimeFormat(CZECH_LOCALE, {
+    dateStyle: 'short',
+    timeZone: PRAGUE_TIME_ZONE,
+});
+
+/**
+ * Names an occurrence date as shortly as a label beside a title can, in the same Prague time as its full date.
+ */
+export function formatCzechWorkshopShortDate(startsAt: string): string {
+    return CZECH_WORKSHOP_SHORT_DATE_FORMAT.format(new Date(startsAt));
+}
+
 /**
  * Formats the start time of a Czech workshop in Prague time.
  */
