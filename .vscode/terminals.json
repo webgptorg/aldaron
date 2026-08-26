@@ -85,11 +85,12 @@
         },
         {
             "name": "💾 Backup database",
-            "commands": [
-                "set -a && source .env && set +a",
-                "export PATH=\"$PATH:/c/Program Files/PostgreSQL/18/bin\" && pg_dump -h localhost -p 5432 -U postgres -d promptbook-landing-page > backup.sql",
-                "npm run backup-database"
-            ],
+            "command": "npm run backup-database",
+            "execute": false
+        },
+        {
+            "name": "🔎 Verify database backup",
+            "command": "npm run backup-database:verify",
             "execute": false
         },
         {

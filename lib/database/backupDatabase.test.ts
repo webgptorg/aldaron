@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, utimes, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -9,6 +9,11 @@ import {
     createPgDumpInstallationInstructions,
     type PgDumpRunner,
 } from '@/lib/database/backupDatabase';
+import {
+    createPgRestoreArguments,
+    verifyDatabaseBackup,
+    type PgRestoreRunner,
+} from '@/lib/database/verifyDatabaseBackup';
 
 const temporaryDirectories: string[] = [];
 
@@ -123,5 +128,57 @@ describe('createPgDumpInstallationInstructions', () => {
         expect(createPgDumpInstallationInstructions('win32')).toContain('download/windows');
         expect(createPgDumpInstallationInstructions('darwin')).toContain('brew install libpq');
         expect(createPgDumpInstallationInstructions('linux')).toContain('apt install postgresql-client');
+    });
+});
+
+describe('verifyDatabaseBackup', () => {
+    it('verifies the newest completed archive and ignores temporary files', async () => {
+        const backupDirectory = await createTemporaryDirectory();
+        const olderBackupPath = path.join(backupDirectory, 'database-older.dump');
+        const newestBackupPath = path.join(backupDirectory, 'database-newest.dump');
+        await writeFile(olderBackupPath, 'older archive');
+        await writeFile(newestBackupPath, 'newest archive');
+        await writeFile(path.join(backupDirectory, 'database-newest.dump.tmp-interrupted'), 'partial archive');
+        await utimes(olderBackupPath, new Date('2026-08-20T12:00:00Z'), new Date('2026-08-20T12:00:00Z'));
+        await utimes(newestBackupPath, new Date('2026-08-21T12:00:00Z'), new Date('2026-08-21T12:00:00Z'));
+        const runner: PgRestoreRunner = vi.fn(async () => undefined);
+
+        const result = await verifyDatabaseBackup({
+            backupDirectory,
+            pgRestoreCommand: 'pg_restore-test',
+            runPgRestore: runner,
+        });
+
+        expect(result).toEqual({ fileName: 'database-newest.dump', filePath: newestBackupPath });
+        expect(runner).toHaveBeenCalledWith('pg_restore-test', ['--list', newestBackupPath]);
+    });
+
+    it('refuses to verify when no completed archive exists', async () => {
+        const backupDirectory = await createTemporaryDirectory();
+        const runner = vi.fn();
+        await writeFile(path.join(backupDirectory, 'database.dump.tmp-interrupted'), 'partial archive');
+
+        await expect(verifyDatabaseBackup({ backupDirectory, runPgRestore: runner })).rejects.toThrow(
+            'no completed .dump archive was found',
+        );
+        expect(runner).not.toHaveBeenCalled();
+    });
+
+    it('explains how to install pg_restore when it is missing', async () => {
+        const backupDirectory = await createTemporaryDirectory();
+        await writeFile(path.join(backupDirectory, 'database-test.dump'), 'database archive');
+
+        await expect(
+            verifyDatabaseBackup({
+                backupDirectory,
+                pgRestoreCommand: `missing-pg-restore-${Date.now()}`,
+            }),
+        ).rejects.toThrow('pg_restore was not found on PATH');
+    });
+});
+
+describe('createPgRestoreArguments', () => {
+    it('lists the archive contents without restoring into a database', () => {
+        expect(createPgRestoreArguments('/tmp/database.dump')).toEqual(['--list', '/tmp/database.dump']);
     });
 });

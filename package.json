@@ -13,6 +13,7 @@
         "test-types": "npm run build && tsc",
         "migrate-database": "tsx scripts/migrate-database.ts",
         "backup-database": "tsx scripts/backup-database.ts",
+        "backup-database:verify": "tsx scripts/backup-database-verify.ts",
         "delete-test-data": "tsx scripts/delete-test-data.ts",
         "test-for-ptbk-coder": "npm run lint && npx kill-port 4009 && npm run test-types && npm run test-e2e",
         "export": "next build",
