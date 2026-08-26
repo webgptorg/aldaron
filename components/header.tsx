@@ -21,6 +21,11 @@ type HeaderNavItem = {
     href: string;
 };
 
+type HeaderBrandContext = {
+    label: ReactNode;
+    href: string;
+};
+
 type HeaderLanguageSwitchItem = {
     href: string;
     label: string;
@@ -50,6 +55,7 @@ interface HeaderProps {
     brandLogo?: ReactNode;
     brandName?: ReactNode;
     brandHref?: string;
+    brandContext?: HeaderBrandContext;
     centerContent?: ReactNode;
     hideCenterContent?: boolean;
     navItems?: HeaderNavItem[];
@@ -67,6 +73,7 @@ export function Header({
     brandLogo,
     brandName,
     brandHref,
+    brandContext,
     centerContent,
     hideCenterContent = false,
     navItems,
@@ -144,20 +151,41 @@ export function Header({
         >
             <div className={cn('container mx-auto px-4', containerClassName)}>
                 <div className="flex items-center justify-between h-14 gap-4">
-                    {/* Logo */}
-                    <Link
-                        href={resolvedBrandHref}
-                        className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0"
-                    >
-                        {brandLogo ?? (
-                            <Image src={promptbookLogo} alt="Promptbook" width={32} height={32} className="w-8 h-8" />
+                    {/* Brand trail: the optional context is used by product-area pages such as the community. */}
+                    <div className="flex min-w-0 shrink-0 items-center gap-2" aria-label="Navigace značky">
+                        <Link
+                            href={resolvedBrandHref}
+                            className="flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+                        >
+                            {brandLogo ?? (
+                                <Image
+                                    src={promptbookLogo}
+                                    alt="Promptbook"
+                                    width={32}
+                                    height={32}
+                                    className={cn('h-8 w-8', brandContext && 'hidden sm:block')}
+                                />
+                            )}
+                            {brandName ?? (
+                                <span className="text-lg text-gray-900 sm:text-xl">
+                                    Prompt<b>book</b>
+                                </span>
+                            )}
+                        </Link>
+                        {brandContext && (
+                            <>
+                                <span aria-hidden="true" className="text-sm text-slate-400 sm:text-base">
+                                    &gt;
+                                </span>
+                                <Link
+                                    href={brandContext.href}
+                                    className="truncate text-sm font-semibold text-slate-700 transition-colors hover:text-cyan-700 sm:text-base"
+                                >
+                                    {brandContext.label}
+                                </Link>
+                            </>
                         )}
-                        {brandName ?? (
-                            <span className="text-xl text-gray-900">
-                                Prompt<b>book</b>
-                            </span>
-                        )}
-                    </Link>
+                    </div>
 
                     {hasNavItems ? (
                         <nav className="hidden lg:flex items-center gap-1 text-sm text-slate-600">

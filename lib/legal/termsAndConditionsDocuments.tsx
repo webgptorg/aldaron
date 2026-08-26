@@ -21,7 +21,7 @@ const CONSUMER_DISPUTE_RESOLUTION_URL = 'https://adr.coi.cz';
 export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLanguage, LegalDocument>> = {
     cs: {
         title: 'Obchodní podmínky',
-        perex: `Tyto obchodní podmínky upravují, za jakých pravidel používáte web ${SITE_HOST} a služby Promptbook a jak spolu uzavíráme smlouvu, když se registrujete na workshop nebo si objednáte konzultaci.`,
+        perex: `Tyto obchodní podmínky upravují, za jakých pravidel používáte web ${SITE_HOST} a služby Promptbook a jak spolu uzavíráme smlouvu, když se registrujete na workshop, aktivujete členství v komunitě nebo si objednáte konzultaci.`,
         sections: [
             {
                 heading: 'Kdo podmínky vydává',
@@ -36,7 +36,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'Co podmínky upravují',
                 paragraphs: [
-                    'Podmínky se vztahují na návštěvu a používání webu, na registraci na workshopy, školení a online akce, na objednávku konzultací a na přihlášení k odběru novinek.',
+                    'Podmínky se vztahují na návštěvu a používání webu, na registraci na workshopy, školení a online akce, na členství v komunitě Promptbooku, na objednávku konzultací a na přihlášení k odběru novinek.',
                     'Pokud s vámi uzavřeme samostatnou smlouvu, řídí se náš vztah především touto smlouvou a podmínky se použijí na to, co smlouva neupravuje.',
                 ],
             },
@@ -62,6 +62,18 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                     'Ceny uvádíme v korunách českých. Informaci o tom, zda je cena včetně DPH, uvádíme vždy u konkrétní akce nebo služby.',
                     'Cenu platíte na základě faktury převodem se splatností uvedenou na faktuře, nejpozději však před konáním akce.',
                     'Slevový kód lze uplatnit jen po dobu jeho platnosti a nelze ho kombinovat s jinou slevou, pokud neuvedeme jinak.',
+                ],
+            },
+            {
+                heading: 'Členství v komunitě Promptbooku',
+                bullets: [
+                    'Plány Basic, Standard a Premium a jejich aktuální obsah popisuje stránka členství. Standard a Premium mohou začínat sedmidenním bezplatným zkušebním obdobím; přesný začátek, navazující platbu a aktivaci vám potvrdíme e-mailem.',
+                    'U placeného členství se cena účtuje měsíčně nebo ročně podle vaší volby. Zvýhodněnou roční cenu lze kombinovat s platným slevovým kódem, pokud u konkrétního kódu neuvedeme jinak.',
+                    'Cenu potvrzenou při vzniku členství vám po dobu nepřerušeného členství ve stejném plánu nezvýšíme. Při změně plánu, ukončení a pozdějším obnovení se použije cena platná v okamžiku této změny nebo obnovení.',
+                    'Člen může členství ukončit e-mailem; není-li dohodnuto jinak, skončí uplynutím už zaplaceného období. Tím není dotčeno zákonné právo spotřebitele odstoupit od smlouvy.',
+                    'Z provozních, technických, bezpečnostních, právních, ekonomických nebo obsahových důvodů můžeme změnit skladbu plánů či benefitů nebo jednotlivý benefit nahradit. Podstatnou změnu oznámíme e-mailem nejméně 30 dnů předem a člen může členství do její účinnosti bez sankce ukončit. Je-li okamžitý zásah nutný z právních, bezpečnostních nebo technických důvodů, můžeme změnu provést či službu pozastavit ihned a oznámit ji bez zbytečného odkladu.',
+                    'Smlouvu můžeme vypovědět i bez uvedení důvodu s 30denní výpovědní dobou. Pro závažné právní, bezpečnostní či technické důvody nebo při podstatném porušení podmínek ji můžeme ukončit nebo členství pozastavit okamžitě.',
+                    'Při změně, pozastavení nebo ukončení členství provozovatelem nevzniká právo na náhradu nepřímé újmy, ušlého zisku ani jinou kompenzaci nad rámec práv, která nelze smluvně omezit. Pokud neposkytneme službu za část již zaplaceného období, vrátíme poměrnou část ceny.',
                 ],
             },
             {
@@ -131,7 +143,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
     },
     en: {
         title: 'Terms and Conditions',
-        perex: `These terms and conditions set out the rules under which you use the ${SITE_HOST} website and the Promptbook services, and how we enter into a contract when you register for a workshop or order a consultation.`,
+        perex: `These terms and conditions set out the rules under which you use the ${SITE_HOST} website and the Promptbook services, and how we enter into a contract when you register for a workshop, activate a community membership, or order a consultation.`,
         sections: [
             {
                 heading: 'Who issues these terms',
@@ -146,7 +158,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'What these terms cover',
                 paragraphs: [
-                    'These terms apply to visiting and using the website, to registering for workshops, trainings, and online events, to ordering consultations, and to subscribing to our news.',
+                    'These terms apply to visiting and using the website, to registering for workshops, trainings, and online events, to membership in the Promptbook community, to ordering consultations, and to subscribing to our news.',
                     'If we enter into a separate contract with you, our relationship is governed primarily by that contract and these terms apply to whatever the contract does not cover.',
                 ],
             },
@@ -172,6 +184,18 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                     'Prices are stated in Czech koruna. Whether a price includes VAT is always stated with the given event or service.',
                     'You pay against an invoice by bank transfer, by the due date stated on the invoice and at the latest before the event takes place.',
                     'A discount code can be used only while it is valid and cannot be combined with another discount unless we state otherwise.',
+                ],
+            },
+            {
+                heading: 'Promptbook community membership',
+                bullets: [
+                    'The membership page describes the Basic, Standard, and Premium plans and their current scope. Standard and Premium may start with a seven-day free trial; we confirm its exact start, the subsequent payment, and activation by e-mail.',
+                    'Paid membership is billed monthly or annually, as selected. The reduced annual price may be combined with a valid discount code unless a particular code states otherwise.',
+                    'We do not increase the price confirmed when your membership starts for as long as the same plan continues without interruption. A plan change, termination, or later reactivation uses the price in effect at the time of that change or reactivation.',
+                    'A member may terminate membership by e-mail; unless agreed otherwise, it ends when the paid billing period expires. This does not affect a consumer’s statutory right to withdraw from the contract.',
+                    'For operational, technical, security, legal, economic, or content-related reasons, we may change the composition of plans or benefits or replace an individual benefit. We notify a member of a material change by e-mail at least 30 days in advance, and the member may terminate without penalty before it takes effect. Where legal, security, or technical reasons require immediate action, we may make the change or suspend the service immediately and give notice without undue delay.',
+                    'We may terminate the contract without stating a reason on 30 days’ notice. For serious legal, security, or technical reasons, or a material breach of these terms, we may terminate the contract or suspend membership immediately.',
+                    'A change, suspension, or termination by the operator creates no right to compensation for indirect loss, lost profit, or other compensation beyond rights which cannot be limited by contract. If we do not provide the service for part of a period already paid for, we refund the corresponding part of the price.',
                 ],
             },
             {

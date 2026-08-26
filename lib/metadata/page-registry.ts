@@ -1,6 +1,7 @@
 import { AI_SUPERVIZE_MINI_PAGE_DEFINITION } from '@/businesses/ai-supervize-mini/aiSupervizeMiniMetadata';
 import { AI_SUPERVIZE_PAGE_DEFINITION } from '@/businesses/ai-supervize/aiSupervizeMetadata';
 import { AI_TA_KRAJTA_PAGE_DEFINITION } from '@/businesses/ai-ta-krajta/aiTaKrajtaMetadata';
+import { COMMUNITY_MEMBERSHIP_PAGE_DEFINITION } from '@/businesses/community/membership/communityMembershipMetadata';
 import { FOR_AGRO_PAGE_DEFINITION } from '@/businesses/for-agro/forAgroMetadata';
 import { FOR_INDUSTRY_PAGE_DEFINITION } from '@/businesses/for-industry/forIndustryMetadata';
 import { HACKATHON_FACTORY_PAGE_DEFINITION } from '@/businesses/hackathon-factory/hackathonFactoryMetadata';
@@ -31,6 +32,7 @@ const PAGE_METADATA_DEFINITIONS: readonly PageMetadataDefinition[] = [
     AI_SUPERVIZE_PAGE_DEFINITION,
     AI_SUPERVIZE_MINI_PAGE_DEFINITION,
     ONLINE_WORKSHOP_PAGE_DEFINITION,
+    COMMUNITY_MEMBERSHIP_PAGE_DEFINITION,
     HACKATHON_FACTORY_PAGE_DEFINITION,
     PAVOL_PAGE_DEFINITIONS.cs,
     PAVOL_PAGE_DEFINITIONS.en,

@@ -34,12 +34,12 @@ const LEGAL_PAGE_METADATA_TEXTS: Readonly<
         cs: {
             title: 'Obchodní podmínky | Promptbook',
             description:
-                'Pravidla používání webu a služeb Promptbook, registrace na workshopy, platební podmínky a odstoupení od smlouvy.',
+                'Pravidla používání webu a služeb Promptbook, členství v komunitě, registrace na workshopy, platby a odstoupení od smlouvy.',
         },
         en: {
             title: 'Terms and Conditions | Promptbook',
             description:
-                'The rules for using the Promptbook website and services, event registrations, payment terms, and withdrawal from the contract.',
+                'The rules for using the Promptbook website and services, community membership, event registrations, payments, and withdrawal.',
         },
     },
 };

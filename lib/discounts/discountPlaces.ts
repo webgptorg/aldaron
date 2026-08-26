@@ -14,9 +14,11 @@ export type DiscountPlace = {
 };
 
 export const AI_SUPERVIZE_MINI_PATH = '/ai-supervize-mini';
+export const COMMUNITY_MEMBERSHIP_PATH = '/cs/komunita/clenstvi';
 
 export const AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-onsite';
 export const AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID = 'ai-supervize-mini-online';
+export const COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID = 'community-membership';
 
 export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
     {
@@ -31,6 +33,13 @@ export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
         label: 'AI Supervize Mini – online',
         description: 'Odpolední online varianta workshopu',
         pagePath: AI_SUPERVIZE_MINI_PATH,
+        registrationSectionId: REGISTRATION_SECTION_ID,
+    },
+    {
+        id: COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
+        label: 'Komunita Promptbooku – placené členství',
+        description: 'Standard a Premium členství v komunitě Promptbooku',
+        pagePath: COMMUNITY_MEMBERSHIP_PATH,
         registrationSectionId: REGISTRATION_SECTION_ID,
     },
 ];
@@ -74,9 +83,5 @@ export function createDiscountCodePrefillPath(
 }
 
 export function createDiscountCodeUrl(discountPlace: DiscountPlace, discountCode: string): string {
-    return createDiscountCodePrefillPath(
-        discountPlace.pagePath,
-        discountPlace.registrationSectionId,
-        discountCode,
-    );
+    return createDiscountCodePrefillPath(discountPlace.pagePath, discountPlace.registrationSectionId, discountCode);
 }
