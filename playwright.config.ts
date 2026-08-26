@@ -3,6 +3,7 @@ import { defineConfig } from '@playwright/test';
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4009';
 const usesExternalServer = process.env.E2E_BASE_URL !== undefined;
+const usesIsolatedInMemorySupabase = !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -37,10 +38,7 @@ export default defineConfig({
               env: {
                   ...process.env,
                   DATABASE_URL: '',
-                  // E2E verification must never write to the developer's configured database. The in-memory
-                  // implementation keeps the public submission tests realistic without making them depend on an
-                  // external Supabase connection or leaving test contacts behind.
-                  E2E_IN_MEMORY_SUPABASE: 'true',
+                  E2E_IN_MEMORY_SUPABASE: usesIsolatedInMemorySupabase ? 'true' : '',
               },
           },
 });

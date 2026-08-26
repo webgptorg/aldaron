@@ -24,7 +24,6 @@ import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { RefreshCw, Radio } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
-import type { ReactNode } from 'react';
 
 /**
  * What it takes to offer this workshop to the calendar of a participant
@@ -66,7 +65,6 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopNavigation?: WorkshopNavigationDetails;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
-    readonly additionalMainContent?: ReactNode;
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -80,7 +78,6 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
-    additionalMainContent,
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
     useWorkshopParticipantOfflineSupport();
@@ -204,7 +201,6 @@ export function OnlineWorkshopParticipantPage({
 
             <main className="mx-auto grid w-full min-w-0 max-w-[1500px] grid-cols-1 gap-5 px-4 py-4 sm:px-8 sm:py-5 lg:grid-cols-[minmax(0,1fr)_390px]">
                 <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-                    {additionalMainContent}
                     {controller.errorMessage && !controller.isUsingCachedState ? (
                         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-sm text-rose-200">
                             <span className="min-w-0 flex-1 break-words">{controller.errorMessage}</span>

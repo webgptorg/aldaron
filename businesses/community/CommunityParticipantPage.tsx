@@ -6,7 +6,6 @@ import {
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopSummary } from '@/lib/workshops/workshopTypes';
-import { CommunityProjects } from '@/businesses/community/CommunityProjects';
 
 type CommunityParticipantPageProps = {
     readonly community: WorkshopDetails;
@@ -42,7 +41,6 @@ export function CommunityParticipantPage({
                 participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
                 ...CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
             }}
-            additionalMainContent={<CommunityProjects />}
         />
     );
 }
