@@ -58,6 +58,17 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
             maximumParticipantCount: 50,
             discountPlaceId: AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
         },
+        {
+            id: '2026-09-18',
+            label: '18. 9. 2026',
+            format: 'online',
+            formatLabel: 'Online workshop',
+            placeLabel: 'Online',
+            timeRange: '13:00–17:00',
+            pricePerParticipantCzk: 3000,
+            maximumParticipantCount: 50,
+            discountPlaceId: AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
+        },
     ] as const satisfies readonly AiSupervizeMiniWorkshopDate[],
 } as const;
 

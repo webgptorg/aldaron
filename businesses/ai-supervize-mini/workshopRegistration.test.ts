@@ -69,6 +69,11 @@ describe('AI Supervize Mini workshop availability', () => {
                 registeredParticipantCount: 4,
                 remainingSeatCount: 46,
             },
+            {
+                workshopDateId: '2026-09-18',
+                registeredParticipantCount: 0,
+                remainingSeatCount: 50,
+            },
         ]);
     });
 
