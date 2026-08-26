@@ -2,11 +2,16 @@
  * @vitest-environment jsdom
  */
 
-import { findChartPicture, WorkshopOverviewChart } from '@/businesses/workshop-admin/WorkshopOverviewChart';
+import {
+    findChartPicture,
+    getWorkshopOverviewMidnightTimestamps,
+    WorkshopOverviewChart,
+} from '@/businesses/workshop-admin/WorkshopOverviewChart';
 import { DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE } from '@/lib/workshops/workshopOverviewGraphState';
 import {
     getVisibleWorkshopOverviewSeriesDescriptors,
     type WorkshopOverviewSeriesPoint,
+    type WorkshopOverviewSeriesRange,
 } from '@/lib/workshops/workshopOverviewSeriesPoints';
 import { cleanup, render } from '@testing-library/react';
 import { createRef, type RefObject } from 'react';
@@ -14,17 +19,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const FIRST_MINUTE_MILLISECONDS = Date.parse('2026-08-23T10:00:00.000Z');
 
-const CHART_POINTS: readonly WorkshopOverviewSeriesPoint[] = [0, 1, 2, 3].map((minuteIndex) => ({
-    startsAtMilliseconds: FIRST_MINUTE_MILLISECONDS + minuteIndex * 60_000,
-    values: {
-        watchingParticipants: 10 + minuteIndex,
-        joinedParticipants: minuteIndex,
-        comments: minuteIndex * 2,
-        reactions: 1,
-        upvotes: 0,
-        linkClicks: 0,
-    },
-}));
+function createChartPoint(startsAtMilliseconds: number, valueIndex: number = 0): WorkshopOverviewSeriesPoint {
+    return {
+        startsAtMilliseconds,
+        values: {
+            watchingParticipants: 10 + valueIndex,
+            joinedParticipants: valueIndex,
+            comments: valueIndex * 2,
+            reactions: 1,
+            upvotes: 0,
+            linkClicks: 0,
+        },
+    };
+}
+
+const CHART_POINTS: readonly WorkshopOverviewSeriesPoint[] = [0, 1, 2, 3].map((minuteIndex) =>
+    createChartPoint(FIRST_MINUTE_MILLISECONDS + minuteIndex * 60_000, minuteIndex),
+);
 
 const CHART_RANGE = {
     fromMilliseconds: FIRST_MINUTE_MILLISECONDS,
@@ -33,6 +44,13 @@ const CHART_RANGE = {
 
 const CHART_WIDTH_PIXELS = 900;
 const CHART_HEIGHT_PIXELS = 340;
+
+const FIRST_LOCAL_MIDNIGHT_MILLISECONDS = new Date(2026, 7, 24).getTime();
+const SECOND_LOCAL_MIDNIGHT_MILLISECONDS = new Date(2026, 7, 25).getTime();
+const DAY_MARKER_RANGE: WorkshopOverviewSeriesRange = {
+    fromMilliseconds: FIRST_LOCAL_MIDNIGHT_MILLISECONDS - 30 * 60_000,
+    toMilliseconds: SECOND_LOCAL_MIDNIGHT_MILLISECONDS + 30 * 60_000,
+};
 
 /**
  * A chart measures itself against the page it is drawn on, which a test page never lays out, so the measurement is
@@ -57,17 +75,32 @@ class ImmediateResizeObserver implements ResizeObserver {
     disconnect(): void {}
 }
 
-function renderChart(containerReference: RefObject<HTMLDivElement | null> = createRef<HTMLDivElement>()) {
+type RenderChartOptions = {
+    readonly containerReference?: RefObject<HTMLDivElement | null>;
+    readonly points?: readonly WorkshopOverviewSeriesPoint[];
+    readonly range?: WorkshopOverviewSeriesRange;
+    readonly fullRange?: WorkshopOverviewSeriesRange;
+    readonly workshopRange?: WorkshopOverviewSeriesRange | null;
+};
+
+function renderChart({
+    containerReference = createRef<HTMLDivElement>(),
+    points = CHART_POINTS,
+    range = CHART_RANGE,
+    fullRange = range,
+    workshopRange = null,
+}: RenderChartOptions = {}) {
     globalThis.ResizeObserver = ImmediateResizeObserver;
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(CHART_WIDTH_PIXELS);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(CHART_HEIGHT_PIXELS);
 
     return render(
         <WorkshopOverviewChart
-            points={CHART_POINTS}
+            points={points}
             descriptors={getVisibleWorkshopOverviewSeriesDescriptors(DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE)}
-            range={CHART_RANGE}
-            fullRange={CHART_RANGE}
+            range={range}
+            fullRange={fullRange}
+            workshopRange={workshopRange}
             onZoomChange={vi.fn()}
             containerReference={containerReference}
         />,
@@ -108,7 +141,7 @@ describe('WorkshopOverviewChart', () => {
     it('keeps the drawn picture findable, so that it can be exported', () => {
         const containerReference = createRef<HTMLDivElement>();
 
-        const { container } = renderChart(containerReference);
+        const { container } = renderChart({ containerReference });
 
         expect(container.querySelector('svg')).not.toBeNull();
         expect(findChartPicture(containerReference.current) === container.querySelector('svg')).toBe(true);
@@ -123,5 +156,42 @@ describe('WorkshopOverviewChart', () => {
 
         expect(axisLabels.length).toBeGreaterThan(0);
         axisLabels.forEach((axisLabel) => expect(axisLabel).toMatch(/^\d{1,2}:\d{2}$/));
+    });
+
+    it('marks every local midnight inside the shown time span', () => {
+        expect(getWorkshopOverviewMidnightTimestamps(DAY_MARKER_RANGE)).toEqual([
+            FIRST_LOCAL_MIDNIGHT_MILLISECONDS,
+            SECOND_LOCAL_MIDNIGHT_MILLISECONDS,
+        ]);
+
+        const { container } = renderChart({
+            points: [
+                createChartPoint(DAY_MARKER_RANGE.fromMilliseconds),
+                createChartPoint(DAY_MARKER_RANGE.toMilliseconds, 1),
+            ],
+            range: DAY_MARKER_RANGE,
+        });
+
+        const dayMarkers = container.querySelectorAll('.workshop-overview-midnight');
+        expect(dayMarkers).toHaveLength(2);
+        dayMarkers.forEach((dayMarker) =>
+            expect(dayMarker.querySelector('.recharts-reference-line-line')?.getAttribute('stroke-dasharray')).toBe('3 3'),
+        );
+    });
+
+    it('draws a subtle background band for the visible workshop time', () => {
+        const { container } = renderChart({
+            workshopRange: {
+                fromMilliseconds: CHART_RANGE.fromMilliseconds + 60_000,
+                toMilliseconds: CHART_RANGE.toMilliseconds - 60_000,
+            },
+        });
+
+        const workshopBand = container.querySelector(
+            '.workshop-overview-workshop-range .recharts-reference-area-rect',
+        );
+        expect(workshopBand).not.toBeNull();
+        expect(workshopBand?.getAttribute('fill')).toBe('#06b6d4');
+        expect(workshopBand?.getAttribute('fill-opacity')).toBe('0.12');
     });
 });

@@ -194,6 +194,7 @@ export function WorkshopActivityGraph({
                         descriptors={visibleDescriptors}
                         range={range}
                         fullRange={fullRange}
+                        workshopRange={workshopRange}
                         onZoomChange={changeZoom}
                         containerReference={chartContainerReference}
                     />

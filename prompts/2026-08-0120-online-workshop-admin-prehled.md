@@ -28,7 +28,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.2795 8 minutes; Testing 6 minutes
 
 [✨🎽] Enhance the `/admin/workshops` "Přehled"
 
@@ -40,3 +40,4 @@
 - Do a analysis of the current functionality before you start implementing.
 
 ![alt text](prompts/screenshots/2026-08-0120-online-workshop-admin-prehled-1.png)
+

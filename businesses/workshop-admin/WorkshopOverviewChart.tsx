@@ -9,12 +9,13 @@ import type {
     WorkshopOverviewSeriesPoint,
     WorkshopOverviewSeriesRange,
 } from '@/lib/workshops/workshopOverviewSeriesPoints';
-import { useCallback, useEffect, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react';
 import {
     CartesianGrid,
     Line,
     LineChart,
     ReferenceArea,
+    ReferenceLine,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -28,6 +29,8 @@ import {
 const CHART_GRID_COLOR = '#e1e0d9';
 const CHART_AXIS_COLOR = '#c3c2b7';
 const CHART_LABEL_COLOR = '#898781';
+const CHART_DAY_BOUNDARY_COLOR = '#94a3b8';
+const CHART_WORKSHOP_RANGE_COLOR = '#06b6d4';
 
 const CHART_HEIGHT_PIXELS = 340;
 
@@ -50,6 +53,11 @@ type WorkshopOverviewChartProps = {
      * The whole span the data covers, which no zoom ever leaves
      */
     readonly fullRange: WorkshopOverviewSeriesRange;
+
+    /**
+     * The span in which a scheduled workshop took place, if this room has one
+     */
+    readonly workshopRange: WorkshopOverviewSeriesRange | null;
 
     readonly onZoomChange: (range: WorkshopOverviewSeriesRange) => void;
 
@@ -76,6 +84,54 @@ type ChartRow = Record<string, number>;
  */
 function buildChartRows(points: readonly WorkshopOverviewSeriesPoint[]): readonly ChartRow[] {
     return points.map((point) => ({ startsAtMilliseconds: point.startsAtMilliseconds, ...point.values }));
+}
+
+/**
+ * The local calendar boundaries inside one shown range, which is the same calendar the chart axis already names.
+ *
+ * Note: Moving the date by its calendar day, rather than by 24 hours, keeps the lines at midnight when daylight
+ *       saving time makes a day shorter or longer.
+ */
+export function getWorkshopOverviewMidnightTimestamps(
+    range: WorkshopOverviewSeriesRange,
+): readonly number[] {
+    if (
+        !Number.isFinite(range.fromMilliseconds) ||
+        !Number.isFinite(range.toMilliseconds) ||
+        range.toMilliseconds < range.fromMilliseconds
+    ) {
+        return [];
+    }
+
+    const firstMidnight = new Date(range.fromMilliseconds);
+    firstMidnight.setHours(0, 0, 0, 0);
+    if (firstMidnight.getTime() < range.fromMilliseconds) {
+        firstMidnight.setDate(firstMidnight.getDate() + 1);
+    }
+
+    const midnightTimestamps: number[] = [];
+    while (firstMidnight.getTime() <= range.toMilliseconds) {
+        midnightTimestamps.push(firstMidnight.getTime());
+        firstMidnight.setDate(firstMidnight.getDate() + 1);
+    }
+
+    return midnightTimestamps;
+}
+
+/**
+ * The part of a marked span which can actually be drawn inside the current zoom
+ */
+function getVisibleRange(
+    range: WorkshopOverviewSeriesRange,
+    markedRange: WorkshopOverviewSeriesRange | null,
+): WorkshopOverviewSeriesRange | null {
+    if (markedRange === null) {
+        return null;
+    }
+
+    const fromMilliseconds = Math.max(range.fromMilliseconds, markedRange.fromMilliseconds);
+    const toMilliseconds = Math.min(range.toMilliseconds, markedRange.toMilliseconds);
+    return fromMilliseconds < toMilliseconds ? { fromMilliseconds, toMilliseconds } : null;
 }
 
 function clampRangeToFullRange(
@@ -138,6 +194,7 @@ export function WorkshopOverviewChart({
     descriptors,
     range,
     fullRange,
+    workshopRange,
     onZoomChange,
     containerReference,
 }: WorkshopOverviewChartProps) {
@@ -204,6 +261,14 @@ export function WorkshopOverviewChart({
     }, [fullRange, onZoomChange, selectionFromMilliseconds, selectionToMilliseconds]);
 
     const rangeMilliseconds = range.toMilliseconds - range.fromMilliseconds;
+    const midnightTimestamps = useMemo(
+        () => getWorkshopOverviewMidnightTimestamps(range),
+        [range.fromMilliseconds, range.toMilliseconds],
+    );
+    const visibleWorkshopRange = useMemo(
+        () => getVisibleRange(range, workshopRange),
+        [range.fromMilliseconds, range.toMilliseconds, workshopRange],
+    );
 
     return (
         <div ref={containerReference} className="mt-4 select-none">
@@ -224,6 +289,16 @@ export function WorkshopOverviewChart({
                     onMouseUp={finishSelection}
                     onMouseLeave={finishSelection}
                 >
+                    {visibleWorkshopRange !== null && (
+                        <ReferenceArea
+                            className="workshop-overview-workshop-range"
+                            x1={visibleWorkshopRange.fromMilliseconds}
+                            x2={visibleWorkshopRange.toMilliseconds}
+                            fill={CHART_WORKSHOP_RANGE_COLOR}
+                            fillOpacity={0.12}
+                            stroke="none"
+                        />
+                    )}
                     <CartesianGrid stroke={CHART_GRID_COLOR} vertical={false} />
                     <XAxis
                         dataKey="startsAtMilliseconds"
@@ -248,6 +323,16 @@ export function WorkshopOverviewChart({
                         stroke={CHART_AXIS_COLOR}
                         tick={{ fill: CHART_LABEL_COLOR, fontSize: 11 }}
                     />
+                    {midnightTimestamps.map((midnightTimestamp) => (
+                        <ReferenceLine
+                            key={midnightTimestamp}
+                            className="workshop-overview-midnight"
+                            x={midnightTimestamp}
+                            stroke={CHART_DAY_BOUNDARY_COLOR}
+                            strokeDasharray="3 3"
+                            strokeOpacity={0.8}
+                        />
+                    ))}
                     <Tooltip
                         content={<WorkshopOverviewTooltip descriptors={descriptors} />}
                         cursor={{ stroke: CHART_LABEL_COLOR, strokeWidth: 1 }}
