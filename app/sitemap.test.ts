@@ -9,6 +9,7 @@ describe('sitemap', () => {
         expect(entries).toHaveLength(INDEXED_PAGE_METADATA_DEFINITIONS.length);
         expect(entries.map((entry) => entry.url)).not.toContain('https://ptbk.io/cs/komunita');
         expect(entries.map((entry) => entry.url)).not.toContain('https://ptbk.io/cs/online-workshop/participant');
+        expect(entries.map((entry) => entry.url)).toContain('https://ptbk.io/cs/komunita/clenstvi');
     });
 
     it('does not pretend that every page changed when the site is deployed', () => {

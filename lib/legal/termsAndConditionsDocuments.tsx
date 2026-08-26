@@ -21,7 +21,7 @@ const CONSUMER_DISPUTE_RESOLUTION_URL = 'https://adr.coi.cz';
 export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLanguage, LegalDocument>> = {
     cs: {
         title: 'Obchodní podmínky',
-        perex: `Tyto obchodní podmínky upravují, za jakých pravidel používáte web ${SITE_HOST} a služby Promptbook a jak spolu uzavíráme smlouvu, když se registrujete na workshop nebo si objednáte konzultaci.`,
+        perex: `Tyto obchodní podmínky upravují, za jakých pravidel používáte web ${SITE_HOST} a služby Promptbook a jak spolu uzavíráme smlouvu, když se registrujete na workshop, aktivujete členství komunity nebo si objednáte konzultaci.`,
         sections: [
             {
                 heading: 'Kdo podmínky vydává',
@@ -36,7 +36,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'Co podmínky upravují',
                 paragraphs: [
-                    'Podmínky se vztahují na návštěvu a používání webu, na registraci na workshopy, školení a online akce, na objednávku konzultací a na přihlášení k odběru novinek.',
+                    'Podmínky se vztahují na návštěvu a používání webu, na členství v komunitě, na registraci na workshopy, školení a online akce, na objednávku konzultací a na přihlášení k odběru novinek.',
                     'Pokud s vámi uzavřeme samostatnou smlouvu, řídí se náš vztah především touto smlouvou a podmínky se použijí na to, co smlouva neupravuje.',
                 ],
             },
@@ -62,6 +62,29 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                     'Ceny uvádíme v korunách českých. Informaci o tom, zda je cena včetně DPH, uvádíme vždy u konkrétní akce nebo služby.',
                     'Cenu platíte na základě faktury převodem se splatností uvedenou na faktuře, nejpozději však před konáním akce.',
                     'Slevový kód lze uplatnit jen po dobu jeho platnosti a nelze ho kombinovat s jinou slevou, pokud neuvedeme jinak.',
+                ],
+            },
+            {
+                heading: 'Členství v komunitě',
+                bullets: [
+                    'Odesláním přihlášky k placenému členství ještě nevzniká povinnost zaplatit. Smlouva o členství vzniká až dokončením aktivace podle pokynů, které vám pošleme e-mailem.',
+                    'Plány Standard a Premium mají sedmidenní zkušební dobu zdarma ode dne aktivace. Do jejího konce můžete členství ukončit bez ceny za následující platební období.',
+                    'Můžete zvolit měsíční platbu nebo platbu na rok předem se slevou uvedenou v nabídce. Pokud nabídka výslovně dovoluje kombinaci roční slevy se slevovým kódem, použije se kód na cenu sníženou o roční slevu.',
+                    'Základní měsíční cenu zvoleného plánu platnou při aktivaci držíme po dobu nepřerušeného členství i při zvýšení veřejné ceny. Po přerušení členství nebo přechodu na jiný plán se použije aktuální ceník. Časově omezené slevové kódy se řídí vlastními podmínkami a nejsou součástí garance základní ceny.',
+                    <>
+                        Členství můžete ukončit e-mailem na{' '}
+                        <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. Ukončení se projeví
+                        nejpozději ke konci již zaplaceného období, pokud se nedohodneme na dřívějším dni.
+                    </>,
+                ],
+            },
+            {
+                heading: 'Změny a ukončení členství provozovatelem',
+                paragraphs: [
+                    'Komunita a technologie, na kterých stojí, se průběžně vyvíjejí. Z provozních, technických, bezpečnostních nebo právních důvodů, při změně služby třetí strany, při prevenci zneužití nebo při rozumném rozvoji komunity můžeme kdykoli v přiměřeném rozsahu změnit název plánu, jeho obsah, benefity, způsob poskytování nebo tyto podmínky. Garance základní měsíční ceny podle předchozího oddílu tím není dotčena.',
+                    'O změně, která není pouze ve prospěch člena nebo čistě technická, člena informujeme e-mailem alespoň 30 dnů před její účinností. Člen může změnu do dne její účinnosti odmítnout a smlouvu bez sankce vypovědět; nevypoví-li ji, platí změna od oznámeného dne.',
+                    'Smlouvu o členství uzavřenou na dobu neurčitou může provozovatel kdykoli vypovědět i bez uvedení důvodu s 30denní výpovědní dobou. Při závažném nebo opakovaném porušení podmínek, ohrožení bezpečnosti nebo zneužití komunity ji může ukončit okamžitě.',
+                    'Členovi ukončením ze strany provozovatele nevzniká nárok na další náhradu, odškodnění, náklady ani ušlý zisk. Tím nejsou dotčena práva, která nelze smluvně vyloučit, zejména vrácení poměrné části ceny za předplacené období po dni, kdy přístup skončil, pokud služba nebyla ukončena pro závažné porušení povinností členem.',
                 ],
             },
             {
@@ -124,14 +147,14 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                 heading: 'Závěrečná ustanovení',
                 paragraphs: [
                     'Náš vztah se řídí právem České republiky, zejména občanským zákoníkem, a případné spory rozhodují české soudy.',
-                    'Podmínky můžeme změnit. Pro už uzavřenou smlouvu platí znění účinné v den, kdy jste registraci odeslali.',
+                    'Podmínky můžeme změnit. Pro jednorázovou službu platí znění účinné v den odeslání registrace; na trvající členství se novější znění použije jen postupem uvedeným v oddílu o změnách a ukončení členství.',
                 ],
             },
         ],
     },
     en: {
         title: 'Terms and Conditions',
-        perex: `These terms and conditions set out the rules under which you use the ${SITE_HOST} website and the Promptbook services, and how we enter into a contract when you register for a workshop or order a consultation.`,
+        perex: `These terms and conditions set out the rules under which you use the ${SITE_HOST} website and the Promptbook services, and how we enter into a contract when you register for a workshop, activate a community membership, or order a consultation.`,
         sections: [
             {
                 heading: 'Who issues these terms',
@@ -146,7 +169,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'What these terms cover',
                 paragraphs: [
-                    'These terms apply to visiting and using the website, to registering for workshops, trainings, and online events, to ordering consultations, and to subscribing to our news.',
+                    'These terms apply to visiting and using the website, to community memberships, to registering for workshops, trainings, and online events, to ordering consultations, and to subscribing to our news.',
                     'If we enter into a separate contract with you, our relationship is governed primarily by that contract and these terms apply to whatever the contract does not cover.',
                 ],
             },
@@ -172,6 +195,29 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                     'Prices are stated in Czech koruna. Whether a price includes VAT is always stated with the given event or service.',
                     'You pay against an invoice by bank transfer, by the due date stated on the invoice and at the latest before the event takes place.',
                     'A discount code can be used only while it is valid and cannot be combined with another discount unless we state otherwise.',
+                ],
+            },
+            {
+                heading: 'Community membership',
+                bullets: [
+                    'Submitting an application for a paid membership does not yet create an obligation to pay. The membership contract is concluded only when you complete the activation according to the instructions we send by e-mail.',
+                    'The Standard and Premium plans include a free seven-day trial from activation. You may cancel before it ends without paying for the following billing period.',
+                    'You may choose monthly billing or one year paid in advance with the discount stated in the offer. Where the offer expressly permits an annual discount to be combined with a discount code, the code is applied to the price after the annual discount.',
+                    'We hold the base monthly price in effect when you activate your chosen plan for as long as the membership remains uninterrupted, even if the public price increases. The then-current price list applies after an interruption or a move to another plan. Time-limited discount codes follow their own conditions and do not form part of this base-price guarantee.',
+                    <>
+                        You may cancel your membership by e-mail at{' '}
+                        <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. Cancellation takes effect
+                        no later than the end of the period already paid for unless we agree an earlier date.
+                    </>,
+                ],
+            },
+            {
+                heading: 'Changes and termination by the operator',
+                paragraphs: [
+                    'The community and the technology on which it relies evolve over time. For operational, technical, security, or legal reasons, because of a change to a third-party service, to prevent abuse, or as part of the reasonable development of the community, we may at any time change a plan name, content, benefits, method of delivery, or these terms to a reasonable extent. This does not affect the base monthly price guarantee in the preceding section.',
+                    'We notify a member by e-mail at least 30 days before a change which is not solely in the member’s favour or purely technical takes effect. The member may reject the change and terminate the contract without penalty before its effective date; if the member does not terminate, the change applies from the notified date.',
+                    'The operator may terminate an indefinite membership contract at any time without stating a reason by giving 30 days’ notice. It may terminate immediately in the event of a serious or repeated breach of these terms, a security threat, or abuse of the community.',
+                    'Termination by the operator does not entitle the member to any additional compensation, damages, costs, or lost profit. This does not affect rights which cannot be excluded by contract, in particular a pro-rata refund of prepaid fees for the period after access ended unless the service was terminated because of the member’s serious breach.',
                 ],
             },
             {
@@ -234,7 +280,7 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
                 heading: 'Final provisions',
                 paragraphs: [
                     'Our relationship is governed by the law of the Czech Republic, in particular by the Civil Code, and any disputes are decided by Czech courts.',
-                    'We may change these terms. A contract already concluded is governed by the wording effective on the day you submitted your registration.',
+                    'We may change these terms. A one-off service is governed by the wording effective on the day its registration was submitted; updated wording applies to an ongoing membership only through the procedure in the section on membership changes and termination.',
                 ],
             },
         ],

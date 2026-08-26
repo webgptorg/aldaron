@@ -168,6 +168,36 @@ test('submits the AI Supervize Mini future-term interest form', async ({ page })
     await expect(dialog.getByRole('heading', { name: 'Děkujeme za zájem' })).toBeVisible();
 });
 
+test('prefills and submits a Premium community membership application', async ({ page }) => {
+    const email = createE2eTestEmail('community-membership');
+    await page.goto(`/cs/komunita/clenstvi?fullname=E2E%20Premium&email=${encodeURIComponent(email)}`);
+
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('E2E Premium,');
+    await expect(page.locator('header').getByLabel('Promptbook > Komunita')).toBeVisible();
+
+    const premiumCard = page
+        .locator('#clenstvi article')
+        .filter({ has: page.getByRole('heading', { name: 'Premium' }) });
+    await expect(premiumCard).toContainText('800 Kč');
+    await expect(premiumCard.locator('.line-through')).toContainText('1 000 Kč');
+
+    const membershipForm = page.locator('#registrace form');
+    await expect(membershipForm.getByLabel('Jméno a příjmení')).toHaveValue('E2E Premium');
+    await expect(membershipForm.getByLabel('E-mail')).toHaveValue(email);
+    await expect(membershipForm.getByRole('button', { name: /Ročně/ })).toHaveAttribute('aria-pressed', 'true');
+    await membershipForm.getByRole('button', { name: 'Měsíčně' }).click();
+    await expect(membershipForm.getByText('1 000 Kč', { exact: true }).first()).toBeVisible();
+    await expect(membershipForm.locator('.line-through')).toHaveCount(0);
+    await membershipForm.getByRole('button', { name: /Ročně/ }).click();
+    await membershipForm.getByRole('checkbox').click();
+
+    await submitAndExpectApiSuccess(page, '/api/community/membership/registration', () =>
+        membershipForm.getByRole('button', { name: 'Odeslat přihlášku a získat 7 dní zdarma' }).click(),
+    );
+
+    await expect(page.getByRole('heading', { name: 'Přihlášku k členství máme' })).toBeVisible();
+});
+
 test('connects a public online-workshop participant', async ({ page }) => {
     await page.goto('/cs/online-workshop/participant');
 
