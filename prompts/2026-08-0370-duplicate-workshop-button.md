@@ -1,4 +1,4 @@
-[ ] !!!!!!
+[-] !!!!!!
 
 [✨🦒] Allow top duplicate workshop in admin
 
