@@ -1,7 +1,5 @@
 # Current preversion
 
-- Fixed internal community project links to use Next.js navigation so the project pages pass the application lint checks.
-
 - Made community polls fully manageable from `/admin/community?tab=polls`: an administrator can now edit a question,
   preserve, add, remove or reorder its choices, switch voting and member visibility independently, and permanently
   delete a poll with all of its votes. The same shared poll editor supports both new and existing polls, so the
@@ -105,4 +103,3 @@
 - Composed those animations in one registry out of a flight, a flourish and a decoration, which the stylesheet of the room answers with keyframes the browser runs on the compositor, so a new reaction is one entry and a full stage costs no JavaScript, keeps at most two dozen reactions in the air however many participants react at once, and stops travelling altogether for anyone who asked the system for less motion.
 - Previewed the reactions of a workshop straight in `/admin/workshops`, where every reaction says which animation it gets and flies through the very same stream as the room, and made room for all thirteen animated reactions at once, which the database guarded at twelve.
 - Kept every participant action in the online workshop attributable to its server-side timestamp: joining the room, comments, likes, reactions, and material-link clicks are recorded for the administration without duplicating the existing event records.
-- Added community projects: members can scrape and edit a project preview, publish it in a ranked three-column card grid, vote once up or down, and open a dedicated moderated discussion room at `/cs/komunita/projects/<project_id>`.

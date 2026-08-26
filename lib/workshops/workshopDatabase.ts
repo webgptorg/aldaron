@@ -740,7 +740,6 @@ export async function findUpcomingPublishedWorkshops(
         .from(WORKSHOP_TABLE_NAME)
         .select(WORKSHOP_SUMMARY_COLUMNS)
         .eq('room_kind', 'workshop')
-        .not('slug', 'like', 'project-%')
         .eq('is_published', true)
         .gt('starts_at', currentTime)
         .order('starts_at', { ascending: true });
@@ -761,7 +760,6 @@ export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient):
         .from(WORKSHOP_TABLE_NAME)
         .select('*')
         .eq('room_kind', 'workshop')
-        .not('slug', 'like', 'project-%')
         .eq('is_published', true)
         .order('starts_at', { ascending: false })
         .limit(1)
@@ -785,7 +783,6 @@ export async function findPublishedWorkshops(supabase: SupabaseClient): Promise<
             .from(WORKSHOP_TABLE_NAME)
             .select(WORKSHOP_SUMMARY_COLUMNS)
             .eq('room_kind', 'workshop')
-            .not('slug', 'like', 'project-%')
             .eq('is_published', true)
             .order('starts_at', { ascending: false })
             .order('id', { ascending: false })

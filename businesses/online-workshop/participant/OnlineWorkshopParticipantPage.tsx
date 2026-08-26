@@ -16,8 +16,6 @@ import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/
 import { useWorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
-import { CommunityProjectsPanel } from '@/businesses/community/CommunityProjectsPanel';
-import type { CommunityProject } from '@/lib/communityProjects';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
@@ -67,7 +65,6 @@ type OnlineWorkshopParticipantPageProps = {
     readonly workshopNavigation?: WorkshopNavigationDetails;
     readonly materialsTitle?: string;
     readonly unavailableConnectionMessage?: string;
-    readonly communityProjects?: readonly CommunityProject[];
 };
 
 export function OnlineWorkshopParticipantPage({
@@ -81,7 +78,6 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
-    communityProjects,
 }: OnlineWorkshopParticipantPageProps) {
     const controller = useWorkshopParticipant(workshopSlug);
     useWorkshopParticipantOfflineSupport();
@@ -256,7 +252,6 @@ export function OnlineWorkshopParticipantPage({
                             timeZone={workshopNavigation.timeZone}
                         />
                     )}
-                    {communityProjects !== undefined && <CommunityProjectsPanel projects={communityProjects} participantIdentity={state.participant} />}
                     {isPanelOffered('reactions') && (
                         <WorkshopReactions
                             emojis={state.workshop.allowedReactions}

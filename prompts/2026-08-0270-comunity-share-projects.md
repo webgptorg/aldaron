@@ -1,4 +1,4 @@
-[x] (2 attempts) by OpenAI Codex `gpt-5.6-luna` thinking `medium` (ChatGPT account) - Implementation ~$0.2704 8 minutes; Testing a few seconds; Fixing ~$0.1376 7 minutes; Testing 3 minutes
+[ ] !!!!!!!
 
 [✨🌇] In the community users should be able to share their projects and creations
 
@@ -18,4 +18,3 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-

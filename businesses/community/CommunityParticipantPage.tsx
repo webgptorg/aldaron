@@ -6,14 +6,12 @@ import {
 import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopSummary } from '@/lib/workshops/workshopTypes';
-import type { CommunityProject } from '@/lib/communityProjects';
 
 type CommunityParticipantPageProps = {
     readonly community: WorkshopDetails;
     readonly workshops: readonly WorkshopSummary[];
     readonly initialEmail: string;
     readonly initialFullname: string;
-    readonly projects: readonly CommunityProject[];
 };
 
 /**
@@ -26,7 +24,6 @@ export function CommunityParticipantPage({
     workshops,
     initialEmail,
     initialFullname,
-    projects,
 }: CommunityParticipantPageProps) {
     return (
         <OnlineWorkshopParticipantPage
@@ -39,7 +36,6 @@ export function CommunityParticipantPage({
             isWorkshopSelectionInUrl={false}
             materialsTitle={CZECH_COMMUNITY_ROOM_COPY.materialsTitle}
             unavailableConnectionMessage={CZECH_COMMUNITY_ROOM_COPY.unavailableConnectionMessage}
-            communityProjects={projects}
             workshopNavigation={{
                 workshops,
                 participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
