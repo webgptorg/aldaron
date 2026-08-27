@@ -40,7 +40,13 @@ const nextConfig = {
             },
         ];
     },
-    allowedDevOrigins: ['*.macaly.dev', '*.macaly.app', '*.macaly-app.com', '*.macaly-user-data.dev'],
+    allowedDevOrigins: [
+        '127.0.0.1',
+        '*.macaly.dev',
+        '*.macaly.app',
+        '*.macaly-app.com',
+        '*.macaly-user-data.dev',
+    ],
     webpack: (config, { dev, isServer }) => {
         // Note: [📖] Allow books to be imported:
         config.module.rules.push({
