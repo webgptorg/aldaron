@@ -34,11 +34,14 @@ export default defineConfig({
               // migrations as a side effect.
               // Without a service role key, the same endpoints use an isolated in-memory
               // store so local verification does not depend on a private credential.
+              // It also keeps every route it compiled for the whole run, so that a route
+              // is never disposed and rebuilt underneath a later test.
               // Next does not replace explicitly empty environment values from .env.
               env: {
                   ...process.env,
                   DATABASE_URL: '',
                   E2E_IN_MEMORY_SUPABASE: usesIsolatedInMemorySupabase ? 'true' : '',
+                  E2E_KEEP_COMPILED_ROUTES: 'true',
               },
           },
 });

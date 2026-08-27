@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Stopped the end-to-end suite from intermittently failing with `TypeError: Cannot read properties of undefined
+  (reading 'call')`. Its Next.js development server used to dispose a compiled route after a minute without a request,
+  and rebuilding it re-emitted the shared server chunks underneath whichever request arrived next; a page such as
+  `/ai-supervize-mini`, reached again minutes later through the `/skoleni` redirect, was exactly that case. The test
+  server now keeps every route it compiled for the whole run, while an ordinary `npm run dev` keeps disposing the
+  routes it no longer serves.
 - Checked every public redirect by the destination it names instead of by following it, so a redirecting address such
   as `/skoleni` now proves its own status code and destination rather than re-rendering an already covered page through
   the Next.js development server a second time.
