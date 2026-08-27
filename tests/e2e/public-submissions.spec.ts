@@ -87,6 +87,26 @@ test('submits Pavol’s personal contact form', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Děkuji, zpráva je odeslaná' })).toBeVisible();
 });
 
+test('opens an AI Ta Krajta episode and submits a collaboration request', async ({ page }) => {
+    await page.goto('/ai-ta-krajta');
+
+    await page.getByRole('button', { name: 'Pustit díl 64' }).click();
+    await expect(page.locator('iframe[title="Spotify přehrávač: AI ta Krajta 64"]')).toBeVisible();
+
+    const collaborationForm = page.locator('#spoluprace form');
+    await collaborationForm.getByLabel('Jméno').fill('E2E Krajta');
+    await collaborationForm.getByLabel('E-mail').fill(createE2eTestEmail('ai-ta-krajta-collaboration'));
+    await collaborationForm.getByLabel('Firma nebo projekt').fill('E2E Example s.r.o.');
+    await collaborationForm.getByLabel('Co řešíte').selectOption('topic');
+    await collaborationForm.getByLabel('Zpráva').fill('Téma pro další díl.');
+
+    await submitAndExpectApiSuccess(page, '/api/waitlist', () =>
+        collaborationForm.getByRole('button', { name: 'Poslat zprávu' }).click(),
+    );
+
+    await expect(page.getByRole('heading', { name: 'Díky, zpráva je na cestě.' })).toBeVisible();
+});
+
 test('submits a published online-workshop registration', async ({ page }) => {
     await page.goto('/cs/online-workshop');
 

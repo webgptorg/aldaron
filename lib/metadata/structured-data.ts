@@ -164,7 +164,10 @@ export type PodcastSeriesStructuredDataOptions = {
     readonly path: string;
     readonly imagePath: string;
     readonly language: SupportedHomepageLanguage;
-    readonly authorName: string;
+    readonly author: {
+        readonly name: string;
+        readonly type: 'Organization' | 'Person';
+    };
 
     /**
      * Places the very same podcast can be watched or listened to, for example its YouTube channel
@@ -188,8 +191,8 @@ export function createPodcastSeriesStructuredData(options: PodcastSeriesStructur
         inLanguage: STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE[options.language],
         sameAs: [...options.channelUrls],
         author: {
-            '@type': 'Person',
-            name: options.authorName,
+            '@type': options.author.type,
+            name: options.author.name,
         },
         publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
     };
