@@ -1,5 +1,9 @@
 # Current preversion
 
+- Added a clickable `Free členství` badge beside the signed-in member information in `/cs/komunita`. It opens the
+  existing membership page with the benefits of the paid membership, while the shared participant-room header now
+  exposes a reusable slot for room-specific member information instead of duplicating its layout for the community.
+
 - Simplified `/cs/komunita/clenstvi` to two easy-to-understand choices: the community and live AI webinars remain
   free, while one paid membership costs 199 Kč per month and can be cancelled anytime. The paid offer now focuses on
   webinar recordings and their archive, practical materials, additional content, priority questions and the existing

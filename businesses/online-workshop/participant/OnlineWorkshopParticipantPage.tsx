@@ -67,6 +67,12 @@ type OnlineWorkshopParticipantPageProps = {
     readonly unavailableConnectionMessage?: string;
 
     /**
+     * Optional room-specific member information shown next to the connected participant. This keeps the shared room
+     * layout unaware of the business surface that supplied the information.
+     */
+    readonly participantHeaderSupplement?: ReactNode;
+
+    /**
      * Optional community-specific content placed after room navigation and before materials. It lets the permanent
      * community add a surface without copying the secured participant-room layout.
      */
@@ -94,6 +100,7 @@ export function OnlineWorkshopParticipantPage({
     workshopNavigation,
     materialsTitle,
     unavailableConnectionMessage = 'Připojení k workshopu se nepodařilo ověřit.',
+    participantHeaderSupplement,
     mainContentAfterWorkshopNavigation,
     isMaterialsShown = true,
     connectionRequiredContent,
@@ -210,6 +217,7 @@ export function OnlineWorkshopParticipantPage({
                             isRefreshing={controller.isRefreshing}
                             onChangeFullname={controller.changeFullname}
                         />
+                        {participantHeaderSupplement}
                         <WorkshopServerConnectionStatus
                             isUsingCachedState={controller.isUsingCachedState}
                             isRefreshing={controller.isRefreshing}

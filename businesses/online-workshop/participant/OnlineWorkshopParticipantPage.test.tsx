@@ -8,6 +8,7 @@ import {
 } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
@@ -74,6 +75,7 @@ function renderParticipantRoom(
     workshop: WorkshopDetails,
     workshopNavigation?: WorkshopNavigationDetails,
     isUsingCachedState = false,
+    participantHeaderSupplement?: ReactNode,
 ) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
@@ -135,6 +137,7 @@ function renderParticipantRoom(
             calendarDetails={null}
             initialEmail=""
             initialFullname=""
+            participantHeaderSupplement={participantHeaderSupplement}
             workshopNavigation={workshopNavigation}
         />,
     );
@@ -173,6 +176,12 @@ describe('online workshop participant room', () => {
 
         expect(screen.queryByText(COMMUNITY.title)).not.toBeNull();
         expect(screen.queryByRole('textbox')).not.toBeNull();
+    });
+
+    it('places room-specific membership information beside the participant badge', () => {
+        renderParticipantRoom(COMMUNITY, undefined, false, <span>Free členství</span>);
+
+        expect(screen.getByText('Free členství')).toBeTruthy();
     });
 
     it('keeps a cached room calm with a compact header status instead of an in-content outage warning', () => {
