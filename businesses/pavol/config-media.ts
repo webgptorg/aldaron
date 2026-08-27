@@ -1,14 +1,14 @@
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
-import {
-    AI_TA_KRAJTA_COLORS,
-    AI_TA_KRAJTA_COVER_IMAGE_PATH,
-    AI_TA_KRAJTA_NAME,
-    AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE,
-    AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL,
-} from '@/businesses/ai-ta-krajta/config';
 
+const AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@aitakrajta_tv';
+const AI_TA_KRAJTA_COVER_IMAGE_PATH = '/pavol/media/ai-ta-krajta.jpg';
+const AI_TA_KRAJTA_BACKGROUND_COLOR = '#303832';
 const AI_TA_KRAJTA_KIND = 'Video podcast';
-const AI_TA_KRAJTA_BACKGROUND_COLOR = AI_TA_KRAJTA_COLORS.DARK;
+const AI_TA_KRAJTA_NAME = 'AI ta Krajta';
+const AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
+    cs: 'Vše o AI na jednom místě, každý týden. Novinky, poutavé zajímavosti a diskuze z oblasti umělé inteligence.',
+    en: 'Everything about AI in one place, every week. News, engaging points of interest, and discussions from the field of artificial intelligence.',
+};
 
 export type PavolMediaImportance = 'highlight' | 'rest';
 

@@ -12,7 +12,6 @@ This is the landing page for the Promtpbook, there are multiple landing pages fo
 - `/for-agro` - The landing page for agronomy and agricultural companies to use AI for expert knowledge, compliance, and operations.
 - `/ai-supervize` - The landing page for the AI for IT development companies
 - `/ai-supervize-mini` - The Czech one-day AI Supervize workshop page for individual developers and product people.
-- `/ai-ta-krajta` - The Czech home of the AI ta Krajta video podcast, with listenable recent episodes, subscription links, hosts, guests and collaboration contact.
 - `/skoleni` - Redirects to `/ai-supervize-mini`.
 - `/cs/online-workshop` - The Czech landing page of the free 60minute online workshop about writing production code with AI agents.
 - `/cs/online-workshop/dekujeme` - The confirmation page of the online workshop registration, reached by a full page load so that the Meta Pixel can measure the conversion.
