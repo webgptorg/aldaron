@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const PUBLIC_PAGE_PATHS = [
     '/',
@@ -25,21 +25,28 @@ const PUBLIC_PAGE_PATHS = [
     '/skoleni',
 ] as const;
 
-test('public landing and information pages load', async ({ page }) => {
-    // In development Next.js compiles each public route on first visit. Keep
-    // the smoke test broad without making a cold local run look like a fault.
-    test.setTimeout(180_000);
+const PUBLIC_PAGE_TEST_TIMEOUT_MS = 180_000;
 
-    for (const path of PUBLIC_PAGE_PATHS) {
-        await test.step(path, async () => {
-            const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
+type PublicPagePath = (typeof PUBLIC_PAGE_PATHS)[number];
 
-            expect(response, `Expected ${path} to produce a document response`).not.toBeNull();
-            expect(response!.ok(), `Expected ${path} to load without a server error`).toBeTruthy();
-            await expect(
-                page.locator('main, h1, footer').first(),
-                `Expected ${path} to render visible page content`,
-            ).toBeVisible();
-        });
-    }
-});
+async function expectPublicPageToLoad(page: Page, path: PublicPagePath): Promise<void> {
+    const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
+
+    expect(response, `Expected ${path} to produce a document response`).not.toBeNull();
+    expect(response!.ok(), `Expected ${path} to load without a server error`).toBeTruthy();
+    await expect(
+        page.locator('main, h1, footer').first(),
+        `Expected ${path} to render visible page content`,
+    ).toBeVisible();
+}
+
+for (const path of PUBLIC_PAGE_PATHS) {
+    test(`public landing and information page loads: ${path}`, async ({ page }) => {
+        // Next.js compiles a route on its first dev-server visit. Isolating
+        // every route keeps earlier cold compilations from exhausting the
+        // timeout of a healthy page later in the smoke suite.
+        test.setTimeout(PUBLIC_PAGE_TEST_TIMEOUT_MS);
+
+        await expectPublicPageToLoad(page, path);
+    });
+}
