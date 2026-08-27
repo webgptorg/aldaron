@@ -67,8 +67,8 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'Členství v komunitě Promptbooku',
                 bullets: [
-                    'Plány Basic, Standard a Premium a jejich aktuální obsah popisuje stránka členství. Standard a Premium mohou začínat sedmidenním bezplatným zkušebním obdobím; přesný začátek, navazující platbu a aktivaci vám potvrdíme e-mailem.',
-                    'U placeného členství se cena účtuje měsíčně nebo ročně podle vaší volby. Zvýhodněnou roční cenu lze kombinovat s platným slevovým kódem, pokud u konkrétního kódu neuvedeme jinak.',
+                    'Stránka členství popisuje bezplatnou komunitu a aktuální placené členství. Živé online AI webináře zůstávají zdarma; placené členství dává přístup hlavně k záznamům, materiálům a dalšímu obsahu.',
+                    'Nové placené členství se účtuje měsíčně za cenu uvedenou při registraci a nezačíná bezplatným zkušebním obdobím. Platný slevový kód může tuto cenu snížit. Dříve sjednané plány a roční platby se řídí podmínkami potvrzenými při jejich vzniku.',
                     'Cenu potvrzenou při vzniku členství vám po dobu nepřerušeného členství ve stejném plánu nezvýšíme. Při změně plánu, ukončení a pozdějším obnovení se použije cena platná v okamžiku této změny nebo obnovení.',
                     'Člen může členství ukončit e-mailem; není-li dohodnuto jinak, skončí uplynutím už zaplaceného období. Tím není dotčeno zákonné právo spotřebitele odstoupit od smlouvy.',
                     'Z provozních, technických, bezpečnostních, právních, ekonomických nebo obsahových důvodů můžeme změnit skladbu plánů či benefitů nebo jednotlivý benefit nahradit. Podstatnou změnu oznámíme e-mailem nejméně 30 dnů předem a člen může členství do její účinnosti bez sankce ukončit. Je-li okamžitý zásah nutný z právních, bezpečnostních nebo technických důvodů, můžeme změnu provést či službu pozastavit ihned a oznámit ji bez zbytečného odkladu.',
@@ -189,8 +189,8 @@ export const TERMS_AND_CONDITIONS_DOCUMENTS: Readonly<Record<SupportedHomepageLa
             {
                 heading: 'Promptbook community membership',
                 bullets: [
-                    'The membership page describes the Basic, Standard, and Premium plans and their current scope. Standard and Premium may start with a seven-day free trial; we confirm its exact start, the subsequent payment, and activation by e-mail.',
-                    'Paid membership is billed monthly or annually, as selected. The reduced annual price may be combined with a valid discount code unless a particular code states otherwise.',
+                    'The membership page describes the free community and the current paid membership. Live online AI webinars remain free; paid membership primarily gives access to recordings, materials, and additional content.',
+                    'New paid membership is billed monthly at the price shown when registering and does not begin with a free trial. A valid discount code may reduce that price. Previously agreed plans and annual billing remain governed by the terms confirmed when they began.',
                     'We do not increase the price confirmed when your membership starts for as long as the same plan continues without interruption. A plan change, termination, or later reactivation uses the price in effect at the time of that change or reactivation.',
                     'A member may terminate membership by e-mail; unless agreed otherwise, it ends when the paid billing period expires. This does not affect a consumer’s statutory right to withdraw from the contract.',
                     'For operational, technical, security, legal, economic, or content-related reasons, we may change the composition of plans or benefits or replace an individual benefit. We notify a member of a material change by e-mail at least 30 days in advance, and the member may terminate without penalty before it takes effect. Where legal, security, or technical reasons require immediate action, we may make the change or suspend the service immediately and give notice without undue delay.',

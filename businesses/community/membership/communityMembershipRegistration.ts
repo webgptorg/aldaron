@@ -3,6 +3,7 @@ import {
     COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
     COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
     getCommunityMembershipPlan,
+    isLegacyPaidCommunityMembershipPlanId,
     type CommunityMembershipBillingPeriod,
     type PaidCommunityMembershipPlanId,
 } from './communityMembershipConfig';
@@ -20,11 +21,12 @@ export type CommunityMembershipRegistrationRequest = {
 export type StoredCommunityMembershipRegistration = {
     readonly registrationType: typeof COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE;
     readonly membership: 'Komunita Promptbooku';
-    readonly status: 'trial-requested';
+    readonly status: 'payment-requested' | 'trial-requested';
     readonly planId: PaidCommunityMembershipPlanId;
     readonly planName: string;
     readonly billingPeriod: CommunityMembershipBillingPeriod;
-    readonly trialDayCount: typeof COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT;
+    /** Legacy Standard and Premium registrations keep their original seven-day trial. */
+    readonly trialDayCount: typeof COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT | null;
     readonly discountCodeEntered: string | null;
     readonly discountCodeUsed: string | null;
     readonly discountPercentApplied: number;
@@ -41,8 +43,14 @@ export type CommunityMembershipRegistrationResult = {
     readonly billingPeriod: CommunityMembershipBillingPeriod;
     readonly price: CommunityMembershipPrice;
     readonly activeDiscount: ActiveDiscount | null;
-    readonly trialDayCount: typeof COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT;
+    readonly trialDayCount: typeof COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT | null;
 };
+
+function getCommunityMembershipTrialDayCount(
+    planId: PaidCommunityMembershipPlanId,
+): typeof COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT | null {
+    return isLegacyPaidCommunityMembershipPlanId(planId) ? COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT : null;
+}
 
 /**
  * Captures the exact commercial offer accepted with the registration. Until a payment provider exists, this Contact
@@ -53,6 +61,7 @@ export function createStoredCommunityMembershipRegistration(
     activeDiscount: ActiveDiscount | null,
 ): StoredCommunityMembershipRegistration {
     const plan = getCommunityMembershipPlan(registrationRequest.planId);
+    const trialDayCount = getCommunityMembershipTrialDayCount(registrationRequest.planId);
     const price = createCommunityMembershipPrice(
         registrationRequest.planId,
         registrationRequest.billingPeriod,
@@ -62,11 +71,11 @@ export function createStoredCommunityMembershipRegistration(
     return {
         registrationType: COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
         membership: 'Komunita Promptbooku',
-        status: 'trial-requested',
+        status: trialDayCount === null ? 'payment-requested' : 'trial-requested',
         planId: registrationRequest.planId,
         planName: plan.name,
         billingPeriod: registrationRequest.billingPeriod,
-        trialDayCount: COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
+        trialDayCount,
         discountCodeEntered: registrationRequest.discountCode.trim() || null,
         discountCodeUsed: activeDiscount?.code ?? null,
         discountPercentApplied: activeDiscount?.percent ?? 0,
@@ -98,6 +107,6 @@ export function createCommunityMembershipRegistrationResult(
             activeDiscount,
         ),
         activeDiscount,
-        trialDayCount: COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
+        trialDayCount: getCommunityMembershipTrialDayCount(registrationRequest.planId),
     };
 }

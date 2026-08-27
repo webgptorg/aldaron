@@ -121,7 +121,7 @@ test('submits a published online-workshop registration', async ({ page }) => {
     await expect(page).toHaveURL(/\/cs\/online-workshop\/dekujeme/);
 });
 
-test('personalizes and submits a Promptbook community membership trial', async ({ page }) => {
+test('personalizes and submits the 199 Kč Promptbook paid community membership', async ({ page }) => {
     const fullname = 'E2E Community Member';
     const email = createE2eTestEmail('community-membership');
     await page.goto(
@@ -133,18 +133,19 @@ test('personalizes and submits a Promptbook community membership trial', async (
     const registrationForm = registrationSection.locator('form');
     await expect(registrationForm.getByLabel('Jméno a příjmení')).toHaveValue(fullname);
     await expect(registrationForm.getByLabel('E-mail')).toHaveValue(email);
-    await expect(registrationForm.getByRole('button', { name: /^Ročně/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(registrationForm.getByText('199 Kč měsíčně')).toBeVisible();
+    await expect(registrationForm.getByText('Živé AI webináře zůstávají zdarma.')).toBeVisible();
+    await expect(registrationForm.getByText('Členství můžete kdykoli zrušit.')).toBeVisible();
     await registrationForm.getByRole('checkbox', { name: 'Souhlasím s obchodními podmínkami' }).click();
 
     await submitAndExpectApiSuccess(page, '/api/community/membership/registration', () =>
-        registrationForm.getByRole('button', { name: 'Aktivovat 7 dní zdarma' }).click(),
+        registrationForm.getByRole('button', { name: 'Chci placené členství za 199 Kč / měsíc' }).click(),
     );
 
-    await expect(registrationSection.getByRole('heading', { name: new RegExp(`${fullname}.*Premium`) })).toBeVisible();
-
-    // The accepted result remains canonical even if another pricing card changes the page-level selection afterwards.
-    await page.getByRole('button', { name: /Vyzkoušet Standard zdarma/ }).click();
-    await expect(registrationSection.getByRole('heading', { name: new RegExp(`${fullname}.*Premium`) })).toBeVisible();
+    await expect(
+        registrationSection.getByRole('heading', { name: `${fullname}, připravujeme vaše placené členství.` }),
+    ).toBeVisible();
+    await expect(registrationSection.getByText('Platba každý měsíc, bez ročního závazku.')).toBeVisible();
 });
 
 test('submits an available AI Supervize Mini workshop registration', async ({ page }) => {

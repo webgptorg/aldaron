@@ -2,6 +2,7 @@ import {
     COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
     COMMUNITY_MEMBERSHIP_REGISTRATION_PLACE_NAME,
     isCommunityMembershipBillingPeriod,
+    isCommunityMembershipBillingPeriodSupportedForPlan,
     isPaidCommunityMembershipPlanId,
 } from '@/businesses/community/membership/communityMembershipConfig';
 import {
@@ -54,10 +55,13 @@ function readCommunityMembershipRegistrationRequest(
     const fullname = readRequiredText(body.fullname, MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH);
     const email = readRequiredText(body.email, MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH);
     const discountCode = readDiscountCode(body.discountCode);
+    const planId = body.planId;
+    const billingPeriod = body.billingPeriod;
 
     if (
-        !isPaidCommunityMembershipPlanId(body.planId) ||
-        !isCommunityMembershipBillingPeriod(body.billingPeriod) ||
+        !isPaidCommunityMembershipPlanId(planId) ||
+        !isCommunityMembershipBillingPeriod(billingPeriod) ||
+        !isCommunityMembershipBillingPeriodSupportedForPlan(planId, billingPeriod) ||
         fullname === null ||
         email === null ||
         !isEmailAddressValid(email) ||
@@ -68,8 +72,8 @@ function readCommunityMembershipRegistrationRequest(
     }
 
     return {
-        planId: body.planId,
-        billingPeriod: body.billingPeriod,
+        planId,
+        billingPeriod,
         fullname,
         email,
         discountCode,

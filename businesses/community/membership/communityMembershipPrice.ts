@@ -3,6 +3,7 @@ import {
     COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT,
     getCommunityMembershipPlan,
     type CommunityMembershipBillingPeriod,
+    type CommunityMembershipPlan,
     type PaidCommunityMembershipPlanId,
 } from './communityMembershipConfig';
 
@@ -14,6 +15,22 @@ export type CommunityMembershipPrice = {
     readonly finalMonthlyEquivalentCzk: number;
 };
 
+function getCommunityMembershipBaseBillingPriceCzk(
+    planId: PaidCommunityMembershipPlanId,
+    plan: CommunityMembershipPlan,
+    billingPeriod: CommunityMembershipBillingPeriod,
+): number {
+    if (billingPeriod === 'monthly') {
+        return plan.monthlyPriceCzk;
+    }
+
+    if (plan.yearlyPriceCzk === null) {
+        throw new Error(`Yearly billing is not available for the ${planId} community membership plan.`);
+    }
+
+    return plan.yearlyPriceCzk;
+}
+
 export function createCommunityMembershipPrice(
     planId: PaidCommunityMembershipPlanId,
     billingPeriod: CommunityMembershipBillingPeriod,
@@ -21,7 +38,7 @@ export function createCommunityMembershipPrice(
 ): CommunityMembershipPrice {
     const plan = getCommunityMembershipPlan(planId);
     const billedMonthCount = billingPeriod === 'yearly' ? COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT : 1;
-    const baseBillingPriceCzk = billingPeriod === 'yearly' ? plan.yearlyPriceCzk : plan.monthlyPriceCzk;
+    const baseBillingPriceCzk = getCommunityMembershipBaseBillingPriceCzk(planId, plan, billingPeriod);
     const discountAmountCzk =
         activeDiscount === null ? 0 : Math.round((baseBillingPriceCzk * activeDiscount.percent) / 100);
     const finalBillingPriceCzk = baseBillingPriceCzk - discountAmountCzk;

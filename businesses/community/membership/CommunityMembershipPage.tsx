@@ -1,10 +1,10 @@
 'use client';
 
-import { MinimalFooter } from '@/components/minimal-footer';
-import { Header } from '@/components/header';
 import { ScrollToRegistrationSection } from '@/components/discounts/ScrollToRegistrationSection';
+import { Header } from '@/components/header';
+import { MinimalFooter } from '@/components/minimal-footer';
 import { Button } from '@/components/ui/button';
-import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
+import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 import { REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
 import { useDiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValidation';
 import { cn } from '@/lib/utils';
@@ -12,41 +12,24 @@ import {
     ArrowRight,
     BookOpenCheck,
     Check,
-    CircleGauge,
     Code2,
     Crown,
     FolderGit2,
-    Infinity as InfinityIcon,
     LockKeyhole,
     MessageSquareText,
-    Minus,
-    Radio,
-    Rss,
     ShieldCheck,
-    Sparkles,
-    UsersRound,
     Video,
     type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { CommunityMembershipBillingToggle } from './CommunityMembershipBillingToggle';
+import { useMemo } from 'react';
 import {
     COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
-    COMMUNITY_MEMBERSHIP_FEATURES,
-    COMMUNITY_MEMBERSHIP_PLANS,
-    COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
-    COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT,
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
     getCommunityMembershipFeature,
-    getCommunityMembershipFeatureIds,
-    getCommunityMembershipPlan,
-    isPaidCommunityMembershipPlanId,
-    type CommunityMembershipBillingPeriod,
-    type CommunityMembershipPlan,
-    type PaidCommunityMembershipPlanId,
+    type CommunityMembershipFeatureId,
 } from './communityMembershipConfig';
 import { CommunityMembershipIllustration } from './CommunityMembershipIllustration';
-import { CommunityMembershipPriceDisplay } from './CommunityMembershipPriceDisplay';
 import { CommunityMembershipRegistrationForm } from './CommunityMembershipRegistrationForm';
 import { formatCommunityMembershipPrice } from './communityMembershipPrice';
 
@@ -63,25 +46,77 @@ type BenefitCard = {
     readonly description: string;
 };
 
+type MembershipOption = {
+    readonly id: 'free' | 'paid';
+    readonly icon: LucideIcon;
+    readonly title: string;
+    readonly description: string;
+    readonly price: string;
+    readonly priceDetail: string;
+    readonly featureIds: readonly CommunityMembershipFeatureId[];
+    readonly isHighlighted: boolean;
+};
+
 const BENEFIT_CARDS: readonly BenefitCard[] = [
     {
         icon: Video,
-        title: 'Záznamy, které nezmizí',
-        description: 'Vraťte se ke každému workshopu ve chvíli, kdy řešíte konkrétní problém v projektu.',
+        title: 'Záznamy všech webinářů',
+        description: 'K novým záznamům i k archivu předchozích webinářů se vrátíte, kdy se vám to hodí.',
     },
     {
         icon: FolderGit2,
-        title: 'Materiály rovnou do práce',
-        description: 'Repozitáře, checklisty, návody a RSS bez hledání ve starých chatech a e-mailech.',
+        title: 'Materiály do praxe',
+        description: 'Praktické návody, repozitáře, checklisty a další obsah na jednom místě.',
     },
     {
         icon: MessageSquareText,
-        title: 'Lidé se stejnými problémy',
-        description: 'Vývojáři, tvůrci a majitelé malých firem, kteří AI opravdu zavádějí do praxe.',
+        title: 'Dotazy předem i během',
+        description: 'Pošlete otázku před webinářem; během živého vysílání mají placení členové přednost.',
+    },
+    {
+        icon: Code2,
+        title: 'Discord pro členy',
+        description: 'Přístup do Discordu a k funkcím komunity určeným pro placené členy.',
     },
 ];
 
-const SPECIALIZED_WORKSHOPS = ['Git do hloubky', 'AI a databáze', 'Testování', 'Práce s kontextem'] as const;
+const SPECIALIZED_WEBINARS = ['Git do hloubky', 'AI a databáze', 'Testování', 'Práce s kontextem'] as const;
+
+const FREE_MEMBERSHIP_FEATURE_IDS = [
+    'live-workshops',
+    'community-materials',
+    'member-discussion',
+] as const satisfies readonly CommunityMembershipFeatureId[];
+
+const PAID_MEMBERSHIP_FEATURE_IDS = [
+    'workshop-recordings',
+    'exclusive-content',
+    'workshop-question-priority',
+    'paid-discord',
+] as const satisfies readonly CommunityMembershipFeatureId[];
+
+const MEMBERSHIP_OPTIONS: readonly MembershipOption[] = [
+    {
+        id: 'free',
+        icon: Code2,
+        title: 'Free komunita',
+        description: 'Pro účast na živých AI webinářích a základní přístup do komunity.',
+        price: '0 Kč',
+        priceDetail: 'bez platebních údajů',
+        featureIds: FREE_MEMBERSHIP_FEATURE_IDS,
+        isHighlighted: false,
+    },
+    {
+        id: 'paid',
+        icon: Crown,
+        title: 'Placené členství',
+        description: 'Pro záznamy, materiály a další obsah kolem bezplatných živých webinářů.',
+        price: formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK),
+        priceDetail: 'kdykoli zrušíte',
+        featureIds: PAID_MEMBERSHIP_FEATURE_IDS,
+        isHighlighted: true,
+    },
+];
 
 function createCommunityRoomHref(fullname: string, email: string): string {
     const searchParameters = new URLSearchParams();
@@ -96,82 +131,57 @@ function createCommunityRoomHref(fullname: string, email: string): string {
     return query ? `/cs/komunita?${query}` : '/cs/komunita';
 }
 
-function PricingPlanCard({
-    plan,
-    billingPeriod,
-    activeDiscount,
+function MembershipOptionCard({
+    option,
     basicHref,
-    onSelectPaidPlan,
+    onSelectPaidMembership,
 }: {
-    plan: CommunityMembershipPlan;
-    billingPeriod: CommunityMembershipBillingPeriod;
-    activeDiscount: ActiveDiscount | null;
+    option: MembershipOption;
     basicHref: string;
-    onSelectPaidPlan: (planId: PaidCommunityMembershipPlanId) => void;
+    onSelectPaidMembership: () => void;
 }) {
-    const paidPlanId = isPaidCommunityMembershipPlanId(plan.id) ? plan.id : null;
-    const isBasic = paidPlanId === null;
-    const isPremium = plan.id === 'premium';
-    const previousPlanName = plan.id === 'standard' ? 'Basic' : plan.id === 'premium' ? 'Standard' : null;
-
     return (
         <article
             className={cn(
                 'relative flex h-full flex-col rounded-[2rem] border bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-7',
-                isPremium ? 'border-cyan-400 ring-4 ring-cyan-100/70' : 'border-slate-200',
+                option.isHighlighted ? 'border-cyan-400 ring-4 ring-cyan-100/70' : 'border-slate-200',
             )}
         >
-            {isPremium && (
+            {option.isHighlighted && (
                 <div className="absolute -top-3 left-6 inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                    <Sparkles className="h-3.5 w-3.5 text-cyan-300" /> Doporučeno
+                    <Check className="h-3.5 w-3.5 text-cyan-300" /> 199 Kč měsíčně
                 </div>
             )}
 
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h3 className="text-2xl font-bold text-slate-950">{plan.name}</h3>
-                    <p className="mt-2 min-h-12 text-sm leading-relaxed text-slate-500">{plan.description}</p>
+                    <h3 className="text-2xl font-bold text-slate-950">{option.title}</h3>
+                    <p className="mt-2 min-h-12 text-sm leading-relaxed text-slate-500">{option.description}</p>
                 </div>
                 <div
                     className={cn(
                         'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-                        isPremium ? 'bg-slate-950 text-cyan-200' : 'bg-slate-100 text-slate-600',
+                        option.isHighlighted ? 'bg-slate-950 text-cyan-200' : 'bg-slate-100 text-slate-600',
                     )}
                 >
-                    {isBasic ? (
-                        <Code2 className="h-5 w-5" />
-                    ) : isPremium ? (
-                        <Crown className="h-5 w-5" />
-                    ) : (
-                        <Radio className="h-5 w-5" />
-                    )}
+                    <option.icon className="h-5 w-5" />
                 </div>
             </div>
 
             <div className="mt-7 border-t border-slate-100 pt-6">
-                {paidPlanId === null ? (
-                    <div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-bold tracking-tight text-slate-950">0 Kč</span>
-                            <span className="text-sm text-slate-500">/ měsíc</span>
-                        </div>
-                        <p className="mt-2 text-xs text-slate-500">Bez platebních údajů.</p>
-                    </div>
-                ) : (
-                    <CommunityMembershipPriceDisplay
-                        planId={paidPlanId}
-                        billingPeriod={billingPeriod}
-                        activeDiscount={activeDiscount}
-                    />
-                )}
+                <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold tracking-tight text-slate-950">{option.price}</span>
+                    {option.id === 'paid' && <span className="text-sm text-slate-500">/ měsíc</span>}
+                </div>
+                <p className="mt-2 text-xs text-slate-500">{option.priceDetail}</p>
             </div>
 
             <div className="mt-6 flex-1 border-t border-slate-100 pt-6">
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-                    {previousPlanName ? `Vše z ${previousPlanName} a navíc` : 'V plánu'}
+                    {option.id === 'paid' ? 'Vše z Free a navíc' : 'Ve Free komunitě'}
                 </p>
                 <ul className="mt-4 space-y-3">
-                    {plan.addedFeatureIds.map((featureId) => (
+                    {option.featureIds.map((featureId) => (
                         <li key={featureId} className="flex gap-3 text-sm leading-relaxed text-slate-700">
                             <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                             <span>{getCommunityMembershipFeature(featureId).label}</span>
@@ -180,92 +190,40 @@ function PricingPlanCard({
                 </ul>
             </div>
 
-            {paidPlanId === null ? (
+            {option.id === 'free' ? (
                 <Button asChild variant="outline" className="mt-7 h-11 rounded-full border-slate-300">
-                    <Link href={basicHref}>Vstoupit do Basic</Link>
+                    <Link href={basicHref}>Vstoupit zdarma</Link>
                 </Button>
             ) : (
                 <Button
                     type="button"
-                    onClick={() => onSelectPaidPlan(paidPlanId)}
-                    className={cn(
-                        'mt-7 h-11 rounded-full',
-                        isPremium
-                            ? 'bg-slate-950 text-white hover:bg-slate-800'
-                            : 'bg-cyan-700 text-white hover:bg-cyan-800',
-                    )}
+                    onClick={onSelectPaidMembership}
+                    className="mt-7 h-11 rounded-full bg-slate-950 text-white hover:bg-slate-800"
                 >
-                    Vyzkoušet {plan.name} zdarma <ArrowRight className="ml-2 h-4 w-4" />
+                    Stát se placeným členem <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-            )}
-
-            {paidPlanId !== null && (
-                <p className="mt-3 text-center text-xs text-slate-400">
-                    {COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT} dní zdarma · poté podle zvolené platby
-                </p>
             )}
         </article>
     );
 }
 
-function FeatureComparisonTable() {
-    const featureIdsByPlan = new Map(
-        COMMUNITY_MEMBERSHIP_PLANS.map(
-            (plan) => [plan.id, new Set(getCommunityMembershipFeatureIds(plan.id))] as const,
-        ),
-    );
-
+function SimpleMembershipComparison({
+    basicHref,
+    onSelectPaidMembership,
+}: {
+    basicHref: string;
+    onSelectPaidMembership: () => void;
+}) {
     return (
-        <div className="overflow-x-auto rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <table className="w-full min-w-[720px] border-collapse text-left">
-                <caption className="sr-only">Porovnání funkcí plánů Basic, Standard a Premium</caption>
-                <thead>
-                    <tr className="border-b border-slate-200">
-                        <th className="sticky left-0 z-10 w-[42%] bg-white px-5 py-5 text-sm font-semibold text-slate-500 sm:px-7">
-                            Součást členství
-                        </th>
-                        {COMMUNITY_MEMBERSHIP_PLANS.map((plan) => (
-                            <th
-                                key={plan.id}
-                                scope="col"
-                                className={cn(
-                                    'px-4 py-5 text-center text-base font-bold text-slate-950',
-                                    plan.id === 'premium' && 'bg-cyan-50',
-                                )}
-                            >
-                                {plan.name}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {COMMUNITY_MEMBERSHIP_FEATURES.map((feature, featureIndex) => (
-                        <tr key={feature.id} className={featureIndex === 0 ? undefined : 'border-t border-slate-100'}>
-                            <th
-                                scope="row"
-                                className="sticky left-0 z-10 bg-white px-5 py-4 text-sm font-medium text-slate-700 sm:px-7"
-                            >
-                                {feature.shortLabel}
-                            </th>
-                            {COMMUNITY_MEMBERSHIP_PLANS.map((plan) => {
-                                const isIncluded = featureIdsByPlan.get(plan.id)?.has(feature.id) === true;
-                                return (
-                                    <td
-                                        key={plan.id}
-                                        className={cn('px-4 py-4 text-center', plan.id === 'premium' && 'bg-cyan-50')}
-                                    >
-                                        {isIncluded ? (
-                                            <Check aria-label="Ano" className="mx-auto h-5 w-5 text-emerald-600" />
-                                        ) : (
-                                            <Minus aria-label="Ne" className="mx-auto h-5 w-5 text-slate-300" />
-                                        )}
-                                    </td>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2 md:items-stretch">
+            {MEMBERSHIP_OPTIONS.map((option) => (
+                <MembershipOptionCard
+                    key={option.id}
+                    option={option}
+                    basicHref={basicHref}
+                    onSelectPaidMembership={onSelectPaidMembership}
+                />
+            ))}
         </div>
     );
 }
@@ -276,8 +234,6 @@ export function CommunityMembershipPage({
     initialDiscountCode,
     initialActiveDiscountByPlaceId,
 }: CommunityMembershipPageProps) {
-    const [billingPeriod, setBillingPeriod] = useState<CommunityMembershipBillingPeriod>('yearly');
-    const [selectedPlanId, setSelectedPlanId] = useState<PaidCommunityMembershipPlanId>('premium');
     const discountCodeValidation = useDiscountCodeValidation({
         initialDiscountCode,
         initialActiveDiscountByPlaceId,
@@ -287,22 +243,14 @@ export function CommunityMembershipPage({
         () => createCommunityRoomHref(initialFullname, initialEmail),
         [initialEmail, initialFullname],
     );
-
     const personalizedHeroTitle = initialFullname
-        ? `${initialFullname}, vstupte do Premium komunity, která posouvá práci s AI.`
-        : 'Vstupte do Premium komunity, která posouvá práci s AI.';
-    const personalizedBenefitLead = initialFullname
-        ? `${initialFullname}, nemusíte všechno objevovat sami.`
-        : 'Nemusíte všechno objevovat sami.';
-    const personalizedComparisonTitle = initialFullname
-        ? `${initialFullname}, vyberte si míru zapojení.`
-        : 'Vyberte si míru zapojení.';
+        ? `${initialFullname}, živé AI webináře zůstávají zdarma.`
+        : 'Živé AI webináře zůstávají zdarma.';
     const personalizedRegistrationTitle = initialFullname
-        ? `${initialFullname}, začněte 7 dny zdarma.`
-        : 'Začněte 7 dny zdarma.';
+        ? `${initialFullname}, placené členství za 199 Kč měsíčně.`
+        : 'Placené členství za 199 Kč měsíčně.';
 
-    const selectPaidPlan = (planId: PaidCommunityMembershipPlanId) => {
-        setSelectedPlanId(planId);
+    const selectPaidMembership = () => {
         window.requestAnimationFrame(() => {
             document.getElementById(REGISTRATION_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
@@ -320,14 +268,14 @@ export function CommunityMembershipPage({
                 brandContext={{ label: 'Komunita', href: '/cs/komunita' }}
                 centerContent={
                     <>
-                        <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                        <span>7 dní zdarma · cena zůstává</span>
+                        <Video className="h-4 w-4 text-emerald-600" />
+                        <span>Živé AI webináře zdarma</span>
                     </>
                 }
                 secondaryAction={{ label: 'Otevřít komunitu', href: basicHref }}
                 primaryAction={{
-                    label: 'Vyzkoušet Premium',
-                    mobileLabel: 'Trial zdarma',
+                    label: 'Členství · 199 Kč',
+                    mobileLabel: '199 Kč / měs.',
                     href: `#${REGISTRATION_SECTION_ID}`,
                 }}
             />
@@ -345,14 +293,14 @@ export function CommunityMembershipPage({
                 <div className="container relative mx-auto grid items-center gap-14 px-4 pb-20 pt-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)] lg:pb-28 lg:pt-16">
                     <div className="max-w-3xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-cyan-100/15 bg-cyan-200/10 px-4 py-2 text-sm font-semibold text-cyan-100">
-                            <Crown className="h-4 w-4" /> Premium členství Promptbooku
+                            <Video className="h-4 w-4" /> Živé AI webináře zdarma
                         </div>
                         <h1 className="mt-6 text-4xl font-bold leading-[1.07] tracking-tight text-white sm:text-5xl lg:text-6xl">
                             {personalizedHeroTitle}
                         </h1>
                         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
-                            Záznamy všech workshopů, exkluzivní materiály, přednostní dotazy a každý měsíc osobní
-                            setkání s lidmi, kteří tvoří produkty a firmy s AI.
+                            Za 199 Kč měsíčně získáte záznamy, materiály a další obsah, díky kterému se můžete k
+                            tématům vracet a jít více do hloubky.
                         </p>
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button
@@ -360,8 +308,8 @@ export function CommunityMembershipPage({
                                 size="lg"
                                 className="h-13 rounded-full bg-cyan-300 px-7 text-base font-bold text-slate-950 hover:bg-cyan-200"
                             >
-                                <Link href="#ceny">
-                                    Porovnat členství <ArrowRight className="ml-2 h-5 w-5" />
+                                <Link href={`#${REGISTRATION_SECTION_ID}`}>
+                                    Stát se členem za 199 Kč <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
                             <Button
@@ -370,14 +318,14 @@ export function CommunityMembershipPage({
                                 variant="outline"
                                 className="h-13 rounded-full border-white/20 bg-white/5 px-7 text-base text-white hover:bg-white/10 hover:text-white"
                             >
-                                <Link href={`#${REGISTRATION_SECTION_ID}`}>7 dní zdarma</Link>
+                                <Link href="#ceny">Porovnat Free a placené</Link>
                             </Button>
                         </div>
                         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-300">
                             {[
-                                'Standard i Premium',
-                                `Roční cena = ${COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT} měsíce zdarma`,
-                                'Slevové kódy navíc',
+                                'Živé webináře zdarma',
+                                `${formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} / měsíc`,
+                                'Kdykoli zrušíte',
                             ].map((item) => (
                                 <span key={item} className="flex items-center gap-2">
                                     <Check className="h-4 w-4 text-emerald-300" /> {item}
@@ -392,18 +340,16 @@ export function CommunityMembershipPage({
             <section id="vyhody" className="bg-white py-20 sm:py-24">
                 <div className="container mx-auto px-4">
                     <div className="max-w-3xl">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">
-                            Pro praxi, ne do počtu
-                        </p>
+                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Placené členství</p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                            {personalizedBenefitLead}
+                            Obsah, který vám zůstane i po živém vysílání.
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Komunita spojuje lidi, kteří vyvíjejí, tvoří a podnikají. Dostanete konkrétní obsah i místo,
-                            kde lze rozpracovanou věc ukázat a získat užitečnou reakci.
+                            Živý webinář si můžete pustit zdarma. Členství dává smysl ve chvíli, kdy se chcete k
+                            tématu vracet, projít materiály nebo položit otázku s předstihem.
                         </p>
                     </div>
-                    <div className="mt-10 grid gap-5 md:grid-cols-3">
+                    <div className="mt-10 grid gap-5 md:grid-cols-2">
                         {BENEFIT_CARDS.map((benefit) => (
                             <article
                                 key={benefit.title}
@@ -426,27 +372,28 @@ export function CommunityMembershipPage({
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
                             <BookOpenCheck className="h-6 w-6" />
                         </div>
-                        <h2 className="mt-5 text-3xl font-bold text-slate-950 sm:text-4xl">Celá knihovna workshopů</h2>
+                        <h2 className="mt-5 text-3xl font-bold text-slate-950 sm:text-4xl">
+                            Záznamy i archiv na jednom místě
+                        </h2>
                         <p className="mt-4 leading-relaxed text-slate-600">
-                            Živé workshopy zůstávají zdarma pro připojené účastníky. Jejich záznamy budou po skončení
-                            dostupné jen členům Standard a Premium; současná mimořádná dostupnost starších záznamů je
-                            dočasná.
+                            Živé online webináře zůstávají zdarma. Placené členství zpřístupní jejich záznamy po
+                            skončení i archiv předchozích témat.
                         </p>
                     </div>
                     <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                         <p className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-                            Specializované hodiny
+                            Témata, ke kterým se můžete vracet
                         </p>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                            {SPECIALIZED_WORKSHOPS.map((workshop, index) => (
+                            {SPECIALIZED_WEBINARS.map((webinar, index) => (
                                 <div
-                                    key={workshop}
+                                    key={webinar}
                                     className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100"
                                 >
                                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-950 font-mono text-xs font-bold text-cyan-200">
                                         {String(index + 1).padStart(2, '0')}
                                     </span>
-                                    <span className="font-semibold text-slate-800">{workshop}</span>
+                                    <span className="font-semibold text-slate-800">{webinar}</span>
                                 </div>
                             ))}
                         </div>
@@ -457,58 +404,16 @@ export function CommunityMembershipPage({
             <section id="ceny" className="bg-white py-20 sm:py-24">
                 <div className="container mx-auto px-4">
                     <div className="mx-auto max-w-3xl text-center">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Členství</p>
+                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Jednoduchá volba</p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                            Premium je nejblíž komunitě.
+                            Free komunita, nebo obsah navíc.
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Každý vyšší plán obsahuje vše z předchozího. Roční varianta je předvolená a ušetří dvě
-                            měsíční platby.
-                        </p>
-                        <CommunityMembershipBillingToggle
-                            billingPeriod={billingPeriod}
-                            onChange={setBillingPeriod}
-                            className="mt-7"
-                        />
-                    </div>
-
-                    {discountCodeValidation.activeDiscount !== null && (
-                        <div className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-center text-sm font-semibold text-emerald-800">
-                            <ShieldCheck className="h-4 w-4 shrink-0" /> Kód{' '}
-                            {discountCodeValidation.activeDiscount.code}
-                            přidává dalších {discountCodeValidation.activeDiscount.percent} % ke všem placeným plánům.
-                        </div>
-                    )}
-
-                    <div className="mt-12 grid gap-6 lg:grid-cols-3 lg:items-stretch">
-                        {COMMUNITY_MEMBERSHIP_PLANS.map((plan) => (
-                            <PricingPlanCard
-                                key={plan.id}
-                                plan={plan}
-                                billingPeriod={billingPeriod}
-                                activeDiscount={discountCodeValidation.activeDiscount}
-                                basicHref={basicHref}
-                                onSelectPaidPlan={selectPaidPlan}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section id="porovnani" className="bg-slate-50 py-20 sm:py-24">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-3xl">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Přímé porovnání</p>
-                        <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                            {personalizedComparisonTitle}
-                        </h2>
-                        <p className="mt-4 text-slate-600 sm:text-lg">
-                            Na telefonu můžete tabulku posunout do strany. Premium obsahuje celý Standard i Basic.
+                            Živé AI webináře jsou zdarma pro každého. Placené členství stojí 199 Kč měsíčně a můžete
+                            ho kdykoli zrušit.
                         </p>
                     </div>
-                    <div className="mt-10">
-                        <FeatureComparisonTable />
-                    </div>
+                    <SimpleMembershipComparison basicHref={basicHref} onSelectPaidMembership={selectPaidMembership} />
                 </div>
             </section>
 
@@ -517,29 +422,31 @@ export function CommunityMembershipPage({
                 <div className="container relative mx-auto grid gap-10 px-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                     <div>
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-300/10 text-cyan-200 ring-1 ring-cyan-200/20">
-                            <UsersRound className="h-6 w-6" />
+                            <BookOpenCheck className="h-6 w-6" />
                         </div>
                         <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-cyan-200">
-                            Jen v Premium
+                            Bez dlouhého závazku
                         </p>
-                        <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Jednou měsíčně se potkáme osobně.</h2>
+                        <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+                            Připojte se živě. Vracejte se, kdy potřebujete.
+                        </h2>
                         <p className="mt-4 max-w-xl leading-relaxed text-slate-300 sm:text-lg">
-                            Ne konferenční networking. Komorní setkání nad tím, co právě stavíte, kde se AI zasekla a co
-                            vám pomohlo. Premium členové mají také nejvyšší prioritu u dotazů, materiálů a diskuze.
+                            Za členství platíte po měsících. Je tu pro záznamy, materiály a dotazy navíc — ne proto,
+                            abyste platili za samotné živé webináře.
                         </p>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                         {[
-                            { icon: UsersRound, value: '1× měsíčně', label: 'osobní setkání' },
-                            { icon: CircleGauge, value: 'Nejvyšší', label: 'priorita odpovědí' },
-                            { icon: Rss, value: 'Průběžně', label: 'nové materiály' },
-                            { icon: InfinityIcon, value: 'Celá', label: 'knihovna záznamů' },
+                            { value: 'Zdarma', label: 'živé AI webináře' },
+                            { value: '199 Kč', label: 'za měsíc' },
+                            { value: 'Archiv', label: 'předchozích záznamů' },
+                            { value: 'Předem', label: 'můžete poslat dotaz' },
                         ].map((metric) => (
                             <div
                                 key={metric.label}
                                 className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 backdrop-blur"
                             >
-                                <metric.icon className="h-5 w-5 text-cyan-200" />
+                                <Check className="h-5 w-5 text-cyan-200" />
                                 <p className="mt-4 text-xl font-bold">{metric.value}</p>
                                 <p className="mt-1 text-sm text-slate-400">{metric.label}</p>
                             </div>
@@ -556,25 +463,25 @@ export function CommunityMembershipPage({
                             {personalizedRegistrationTitle}
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Vyberte Standard nebo Premium. Během zkušebního období nic neplatíte; další postup a
-                            potvrzení členství dostanete e-mailem.
+                            Po odeslání vám pošleme potvrzení, platební údaje a další krok k aktivaci. Členství můžete
+                            kdykoli zrušit.
                         </p>
                         <div className="mt-8 space-y-4">
                             {[
                                 {
                                     icon: ShieldCheck,
-                                    title: '7 dní bez platby',
-                                    text: 'Trial platí pro Standard i Premium.',
+                                    title: '199 Kč za měsíc',
+                                    text: 'Platíte měsíčně, bez roční platby předem.',
                                 },
                                 {
                                     icon: LockKeyhole,
-                                    title: 'Cena se vám nezvýší',
-                                    text: 'Dokud stejné členství běží bez přerušení.',
+                                    title: 'Kdykoli zrušíte',
+                                    text: 'Není potřeba zůstávat déle, než vám členství dává smysl.',
                                 },
                                 {
-                                    icon: Sparkles,
-                                    title: 'Slevy se sčítají',
-                                    text: 'Platný kód se přidá i k ročnímu zvýhodnění.',
+                                    icon: BookOpenCheck,
+                                    title: 'Záznamy a materiály',
+                                    text: 'Po aktivaci se k nim dostanete vedle živých webinářů zdarma.',
                                 },
                             ].map((item) => (
                                 <div key={item.title} className="flex gap-4">
@@ -593,10 +500,6 @@ export function CommunityMembershipPage({
                     <CommunityMembershipRegistrationForm
                         initialFullname={initialFullname}
                         initialEmail={initialEmail}
-                        selectedPlanId={selectedPlanId}
-                        onSelectedPlanIdChange={setSelectedPlanId}
-                        billingPeriod={billingPeriod}
-                        onBillingPeriodChange={setBillingPeriod}
                         discountCodeValidation={discountCodeValidation}
                     />
                 </div>
@@ -607,12 +510,10 @@ export function CommunityMembershipPage({
                     <div className="mx-auto flex max-w-4xl items-start gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 sm:p-6">
                         <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
                         <div>
-                            <h2 className="font-bold text-slate-950">Cenová garance a změny členství</h2>
+                            <h2 className="font-bold text-slate-950">Členství bez dlouhého závazku</h2>
                             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                Ceny, plány a benefity můžeme pro nové registrace změnit. Pokud se přihlásíte nyní,
-                                sjednanou cenu vám po dobu nepřerušeného členství ve stejném plánu nezvýšíme, a to ani
-                                při zdražení ceníku. Rozsah benefitů a dostupnost členství se mohou měnit za podmínek
-                                uvedených v obchodních podmínkách; vaše zákonná práva tím nejsou dotčena.
+                                Placené členství stojí 199 Kč za měsíc. Kdykoli ho můžete zrušit e-mailem; skončí po
+                                právě zaplaceném období. Podrobnosti najdete v obchodních podmínkách.
                             </p>
                         </div>
                     </div>

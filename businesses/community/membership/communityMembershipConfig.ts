@@ -1,6 +1,9 @@
 import { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID, COMMUNITY_MEMBERSHIP_PATH } from '@/lib/discounts/discountPlaces';
 
-export type CommunityMembershipPlanId = 'basic' | 'standard' | 'premium';
+/** Plans kept for members who joined under the previous offer. */
+export type LegacyCommunityMembershipPlanId = 'basic' | 'standard' | 'premium';
+export type CurrentPaidCommunityMembershipPlanId = 'membership';
+export type CommunityMembershipPlanId = LegacyCommunityMembershipPlanId | CurrentPaidCommunityMembershipPlanId;
 export type PaidCommunityMembershipPlanId = Exclude<CommunityMembershipPlanId, 'basic'>;
 export type CommunityMembershipBillingPeriod = 'monthly' | 'yearly';
 
@@ -9,7 +12,8 @@ export type CommunityMembershipPlan = {
     readonly name: string;
     readonly description: string;
     readonly monthlyPriceCzk: number;
-    readonly yearlyPriceCzk: number;
+    /** Null means that the plan is deliberately not available with yearly billing. */
+    readonly yearlyPriceCzk: number | null;
     readonly addedFeatureIds: readonly CommunityMembershipFeatureId[];
 };
 
@@ -36,6 +40,8 @@ export type CommunityMembershipFeature = {
 export const COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT = 7;
 export const COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT = 12;
 export const COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT = 2;
+export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID: CurrentPaidCommunityMembershipPlanId = 'membership';
+export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK = 199;
 const COMMUNITY_MEMBERSHIP_YEARLY_CHARGED_MONTH_COUNT =
     COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT - COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT;
 export const COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE = 'COMMUNITY_MEMBERSHIP_REGISTRATION';
@@ -44,13 +50,13 @@ export const COMMUNITY_MEMBERSHIP_REGISTRATION_API_PATH = '/api/community/member
 export { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID, COMMUNITY_MEMBERSHIP_PATH };
 
 export const COMMUNITY_MEMBERSHIP_FEATURES: readonly CommunityMembershipFeature[] = [
-    { id: 'live-workshops', label: 'Pozvánky na živé online workshopy', shortLabel: 'Živé workshopy' },
-    { id: 'community-materials', label: 'Materiály komunity', shortLabel: 'Materiály komunity' },
+    { id: 'live-workshops', label: 'Živé AI webináře zdarma', shortLabel: 'Živé webináře' },
+    { id: 'community-materials', label: 'Základní materiály komunity', shortLabel: 'Materiály komunity' },
     { id: 'starter-repositories', label: 'Startovací repozitáře', shortLabel: 'Starter repozitáře' },
     { id: 'member-discussion', label: 'Diskuze s ostatními členy', shortLabel: 'Komunitní diskuze' },
-    { id: 'paid-discord', label: 'Discord pro platící členy', shortLabel: 'Členský Discord' },
-    { id: 'workshop-recordings', label: 'Všechny záznamy workshopů', shortLabel: 'Záznamy workshopů' },
-    { id: 'exclusive-content', label: 'Exkluzivní obsah a praktické návody', shortLabel: 'Exkluzivní obsah' },
+    { id: 'paid-discord', label: 'Discord a funkce pro placené členy', shortLabel: 'Členský Discord' },
+    { id: 'workshop-recordings', label: 'Záznamy všech webinářů včetně archivu', shortLabel: 'Záznamy webinářů' },
+    { id: 'exclusive-content', label: 'Praktické materiály a další obsah', shortLabel: 'Materiály a obsah' },
     { id: 'creation-showcase', label: 'Prostor sdílet vlastní tvorbu', shortLabel: 'Sdílení vlastní tvorby' },
     {
         id: 'workshop-question-priority',
@@ -100,7 +106,31 @@ export const COMMUNITY_MEMBERSHIP_PLANS: readonly CommunityMembershipPlan[] = [
     },
 ];
 
+/**
+ * The current public offer has its own id so historic Standard and Premium agreements retain their agreed prices
+ * and billing terms. It intentionally has no yearly price or free trial.
+ */
+export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN: CommunityMembershipPlan = {
+    id: CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
+    name: 'Placené členství',
+    description: 'Záznamy, materiály a další obsah k bezplatným živým webinářům.',
+    monthlyPriceCzk: CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+    yearlyPriceCzk: null,
+    addedFeatureIds: [
+        'paid-discord',
+        'workshop-recordings',
+        'exclusive-content',
+        'creation-showcase',
+        'workshop-question-priority',
+        'materials-rss',
+    ],
+};
+
 export function getCommunityMembershipPlan(planId: CommunityMembershipPlanId): CommunityMembershipPlan {
+    if (planId === CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID) {
+        return CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN;
+    }
+
     const plan = COMMUNITY_MEMBERSHIP_PLANS.find((candidate) => candidate.id === planId);
 
     if (plan === undefined) {
@@ -111,6 +141,17 @@ export function getCommunityMembershipPlan(planId: CommunityMembershipPlanId): C
 }
 
 export function isPaidCommunityMembershipPlanId(value: unknown): value is PaidCommunityMembershipPlanId {
+    return value === CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID || value === 'standard' || value === 'premium';
+}
+
+export function isCurrentPaidCommunityMembershipPlanId(value: unknown): value is CurrentPaidCommunityMembershipPlanId {
+    return value === CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID;
+}
+
+export function isLegacyPaidCommunityMembershipPlanId(value: unknown): value is Exclude<
+    PaidCommunityMembershipPlanId,
+    CurrentPaidCommunityMembershipPlanId
+> {
     return value === 'standard' || value === 'premium';
 }
 
@@ -118,16 +159,27 @@ export function isCommunityMembershipBillingPeriod(value: unknown): value is Com
     return value === 'monthly' || value === 'yearly';
 }
 
+export function isCommunityMembershipBillingPeriodSupportedForPlan(
+    planId: PaidCommunityMembershipPlanId,
+    billingPeriod: CommunityMembershipBillingPeriod,
+): boolean {
+    return planId !== CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID || billingPeriod === 'monthly';
+}
+
 /**
  * Expands inherited features once from the ordered plan registry. Cards and the comparison table therefore cannot
  * disagree about what "everything from the lower plan" means.
  */
 export function getCommunityMembershipFeatureIds(
-    planId: CommunityMembershipPlanId,
+    planId: LegacyCommunityMembershipPlanId,
 ): readonly CommunityMembershipFeatureId[] {
     const selectedPlanIndex = COMMUNITY_MEMBERSHIP_PLANS.findIndex((plan) => plan.id === planId);
 
     return COMMUNITY_MEMBERSHIP_PLANS.slice(0, selectedPlanIndex + 1).flatMap((plan) => plan.addedFeatureIds);
+}
+
+export function getCurrentPaidCommunityMembershipFeatureIds(): readonly CommunityMembershipFeatureId[] {
+    return [...getCommunityMembershipFeatureIds('basic'), ...CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN.addedFeatureIds];
 }
 
 export function getCommunityMembershipFeature(featureId: CommunityMembershipFeatureId): CommunityMembershipFeature {

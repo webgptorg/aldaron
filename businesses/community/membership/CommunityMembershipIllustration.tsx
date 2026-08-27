@@ -56,7 +56,7 @@ export function CommunityMembershipIllustration() {
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 rounded-full bg-emerald-300/10 px-3 py-1.5 text-xs font-medium text-emerald-200 ring-1 ring-emerald-200/20">
-                        <Users className="h-3.5 w-3.5" /> aktivní
+                        <Users className="h-3.5 w-3.5" /> pro členy
                     </div>
                 </div>
 

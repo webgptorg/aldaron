@@ -142,4 +142,43 @@ describe('community membership registration endpoint', () => {
         expect(responseBody.price.finalBillingPriceCzk).toBe(9_000);
         expect(insertContactMock).toHaveBeenCalledOnce();
     });
+
+    it('registers the current 199 Kč monthly membership without a trial', async () => {
+        consumeDiscountCodeMock.mockResolvedValue({ status: 'unusable', activeDiscount: null, errorMessage: null });
+
+        const response = await POST(
+            createRegistrationRequest({ planId: 'membership', billingPeriod: 'monthly', discountCode: '' }),
+        );
+        const responseBody = (await response.json()) as {
+            planId: string;
+            billingPeriod: string;
+            price: { finalBillingPriceCzk: number; finalMonthlyEquivalentCzk: number };
+            trialDayCount: number | null;
+        };
+
+        expect(response.status).toBe(200);
+        expect(responseBody).toMatchObject({
+            planId: 'membership',
+            billingPeriod: 'monthly',
+            price: { finalBillingPriceCzk: 199, finalMonthlyEquivalentCzk: 199 },
+            trialDayCount: null,
+        });
+
+        const storedContact = insertContactMock.mock.calls[0]![1] as { readonly userNote: string };
+        expect(JSON.parse(storedContact.userNote)).toMatchObject({
+            status: 'payment-requested',
+            planId: 'membership',
+            billingPeriod: 'monthly',
+            trialDayCount: null,
+            agreedBillingPriceCzk: 199,
+        });
+    });
+
+    it('refuses yearly billing for the current monthly membership before consuming a code', async () => {
+        const response = await POST(createRegistrationRequest({ planId: 'membership', billingPeriod: 'yearly' }));
+
+        expect(response.status).toBe(400);
+        expect(consumeDiscountCodeMock).not.toHaveBeenCalled();
+        expect(insertContactMock).not.toHaveBeenCalled();
+    });
 });

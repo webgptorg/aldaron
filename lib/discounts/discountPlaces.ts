@@ -38,7 +38,7 @@ export const DISCOUNT_PLACES: readonly DiscountPlace[] = [
     {
         id: COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
         label: 'Komunita Promptbooku – placené členství',
-        description: 'Standard a Premium členství v komunitě Promptbooku',
+        description: 'Záznamy, materiály a další obsah komunity Promptbooku',
         pagePath: COMMUNITY_MEMBERSHIP_PATH,
         registrationSectionId: REGISTRATION_SECTION_ID,
     },

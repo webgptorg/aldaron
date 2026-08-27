@@ -12,4 +12,11 @@ describe('community membership metadata', () => {
             language: 'cs',
         });
     });
+
+    it('describes the 199 Kč monthly membership without the retired Premium offer', () => {
+        expect(COMMUNITY_MEMBERSHIP_PAGE_DEFINITION.title).toContain('199 Kč měsíčně');
+        expect(COMMUNITY_MEMBERSHIP_PAGE_DEFINITION.description).toContain('Živé AI webináře zůstávají zdarma');
+        expect(COMMUNITY_MEMBERSHIP_PAGE_DEFINITION.title).not.toContain('Premium');
+        expect(COMMUNITY_MEMBERSHIP_PAGE_DEFINITION.socialDescription).not.toContain('Sedm dní zdarma');
+    });
 });

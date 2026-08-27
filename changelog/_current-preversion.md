@@ -1,5 +1,13 @@
 # Current preversion
 
+- Simplified `/cs/komunita/clenstvi` to two easy-to-understand choices: the community and live AI webinars remain
+  free, while one paid membership costs 199 Kč per month and can be cancelled anytime. The paid offer now focuses on
+  webinar recordings and their archive, practical materials, additional content, priority questions and the existing
+  paid-member Discord/community features; it no longer presents Standard versus Premium, annual billing or a free
+  trial. New registrations are stored as a monthly payment request without a trial under a new plan id, while the
+  legacy Standard/Premium plans, their billing terms and previously agreed prices remain supported for existing
+  registrations. Discount codes, personalized name copy and e-mail prefilling continue to work.
+
 - Added click analytics to `/admin/shortener`: every short link now shows its count of recorded public navigations,
   and its clickable count opens a private, newest-first history with timestamps, IP addresses, referrers, user agents,
   languages, platforms, and—for landing pages—the time the visitor opened the destination. The list search, provenance

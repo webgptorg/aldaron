@@ -14,15 +14,12 @@ import {
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
 } from '@/lib/workshops/workshopConstants';
-import { Check, CheckCircle2, Crown, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Check, CheckCircle2, Crown, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-import { CommunityMembershipBillingToggle } from './CommunityMembershipBillingToggle';
 import {
-    COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
-    getCommunityMembershipPlan,
-    type CommunityMembershipBillingPeriod,
-    type PaidCommunityMembershipPlanId,
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
 } from './communityMembershipConfig';
 import { CommunityMembershipPriceDisplay } from './CommunityMembershipPriceDisplay';
 import { submitCommunityMembershipRegistration } from './communityMembershipRegistrationApi';
@@ -32,22 +29,14 @@ import { formatCommunityMembershipPrice } from './communityMembershipPrice';
 type CommunityMembershipRegistrationFormProps = {
     readonly initialFullname: string;
     readonly initialEmail: string;
-    readonly selectedPlanId: PaidCommunityMembershipPlanId;
-    readonly onSelectedPlanIdChange: (planId: PaidCommunityMembershipPlanId) => void;
-    readonly billingPeriod: CommunityMembershipBillingPeriod;
-    readonly onBillingPeriodChange: (billingPeriod: CommunityMembershipBillingPeriod) => void;
     readonly discountCodeValidation: DiscountCodeValidation;
 };
 
-const PAID_PLAN_IDS = ['standard', 'premium'] as const satisfies readonly PaidCommunityMembershipPlanId[];
+const MONTHLY_BILLING_PERIOD = 'monthly' as const;
 
 export function CommunityMembershipRegistrationForm({
     initialFullname,
     initialEmail,
-    selectedPlanId,
-    onSelectedPlanIdChange,
-    billingPeriod,
-    onBillingPeriodChange,
     discountCodeValidation,
 }: CommunityMembershipRegistrationFormProps) {
     const [fullname, setFullname] = useState(initialFullname);
@@ -96,8 +85,8 @@ export function CommunityMembershipRegistrationForm({
 
         try {
             const result = await submitCommunityMembershipRegistration({
-                planId: selectedPlanId,
-                billingPeriod,
+                planId: CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
+                billingPeriod: MONTHLY_BILLING_PERIOD,
                 fullname: fullname.trim(),
                 email: email.trim(),
                 discountCode: discountCodeValidation.discountCode,
@@ -121,30 +110,20 @@ export function CommunityMembershipRegistrationForm({
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
                     <CheckCircle2 className="h-6 w-6" />
                 </div>
-                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Registraci máme</p>
+                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Máme to</p>
                 <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {fullname}, připravujeme vaše zkušební členství{' '}
-                    {getCommunityMembershipPlan(registrationResult.planId).name}.
+                    {fullname}, připravujeme vaše placené členství.
                 </h3>
                 <p className="mt-3 leading-relaxed text-slate-600">
-                    Na <strong>{email}</strong> pošleme potvrzení a další krok k aktivaci. Prvních{' '}
-                    {registrationResult.trialDayCount} dní je zdarma.
+                    Na <strong>{email}</strong> pošleme potvrzení, platební údaje a další krok k aktivaci. Členství
+                    můžete kdykoli zrušit.
                 </p>
                 <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">
-                        Vaše garantovaná cena
-                    </p>
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Vaše měsíční cena</p>
                     <p className="mt-2 text-2xl font-bold text-slate-950">
                         {formatCommunityMembershipPrice(registrationResult.price.finalMonthlyEquivalentCzk)} / měsíc
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                        {registrationResult.billingPeriod === 'yearly'
-                            ? `Po zkušebním období platba ${formatCommunityMembershipPrice(
-                                  registrationResult.price.finalBillingPriceCzk,
-                              )} jednou ročně.`
-                            : 'Po zkušebním období platba každý měsíc.'}{' '}
-                        Cena vám zůstává po dobu nepřerušeného členství ve stejném plánu.
-                    </p>
+                    <p className="mt-1 text-sm text-slate-500">Platba každý měsíc, bez ročního závazku.</p>
                 </div>
             </div>
         );
@@ -161,66 +140,25 @@ export function CommunityMembershipRegistrationForm({
                     <Crown className="h-5 w-5" />
                 </div>
                 <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-700">7 dní zdarma</p>
-                    <h3 className="mt-1 text-2xl font-bold text-slate-950">Aktivace členství</h3>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-700">Placené členství</p>
+                    <h3 className="mt-1 text-2xl font-bold text-slate-950">
+                        {formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} měsíčně
+                    </h3>
                     <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                        Smlouva vznikne až naším potvrzením e-mailem.
+                        Živé AI webináře zůstávají zdarma.
                     </p>
                 </div>
             </div>
 
-            <fieldset className="mt-7">
-                <legend className="text-sm font-semibold text-slate-700">Vyberte plán</legend>
-                <div className="mt-2 grid grid-cols-2 gap-3">
-                    {PAID_PLAN_IDS.map((planId) => {
-                        const plan = getCommunityMembershipPlan(planId);
-                        const isSelected = planId === selectedPlanId;
-
-                        return (
-                            <button
-                                key={plan.id}
-                                type="button"
-                                aria-pressed={isSelected}
-                                onClick={() => onSelectedPlanIdChange(planId)}
-                                className={cn(
-                                    'rounded-2xl border p-4 text-left transition',
-                                    isSelected
-                                        ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
-                                        : 'border-slate-200 hover:border-slate-300',
-                                )}
-                            >
-                                <span className="flex items-center gap-2 font-bold text-slate-950">
-                                    {planId === 'premium' ? <Sparkles className="h-4 w-4 text-violet-600" /> : null}
-                                    {plan.name}
-                                </span>
-                                <span className="mt-1 block text-xs text-slate-500">
-                                    od {formatCommunityMembershipPrice(plan.yearlyPriceCzk / 12)} / měs.
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-            </fieldset>
-
-            <div className="mt-5">
-                <p className="text-sm font-semibold text-slate-700">Platba</p>
-                <CommunityMembershipBillingToggle
-                    billingPeriod={billingPeriod}
-                    onChange={onBillingPeriodChange}
-                    className="mt-2 w-full justify-center"
-                />
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-100">
+            <div className="mt-6 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-100">
                 <CommunityMembershipPriceDisplay
-                    planId={selectedPlanId}
-                    billingPeriod={billingPeriod}
+                    planId={CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID}
+                    billingPeriod={MONTHLY_BILLING_PERIOD}
                     activeDiscount={discountCodeValidation.activeDiscount}
                 />
                 <div className="mt-4 flex items-start gap-2 border-t border-slate-200 pt-4 text-xs leading-relaxed text-slate-600">
                     <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    Prvních {COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT} dní nic neplatíte. Sjednanou cenu držíme po dobu
-                    nepřerušeného členství ve stejném plánu.
+                    Platba je každý měsíc. Členství můžete kdykoli zrušit.
                 </div>
             </div>
 
@@ -271,7 +209,7 @@ export function CommunityMembershipRegistrationForm({
             <div className="mt-5">
                 <DiscountCodeField inputId="community-membership-discount-code" validation={discountCodeValidation} />
                 <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                    Kód se kombinuje s výhodnější roční cenou.
+                    Máte slevový kód? Zadejte ho; jinak nechte pole prázdné.
                 </p>
             </div>
 
@@ -290,7 +228,7 @@ export function CommunityMembershipRegistrationForm({
                     >
                         obchodními podmínkami
                     </Link>{' '}
-                    a žádám o aktivaci 7denního zkušebního období.
+                    a žádám o placené členství za zobrazenou měsíční cenu.
                 </span>
             </label>
             {showValidation && !areTermsAccepted && (
@@ -309,7 +247,11 @@ export function CommunityMembershipRegistrationForm({
                 className="mt-6 h-12 w-full rounded-full bg-slate-950 text-base text-white hover:bg-slate-800"
             >
                 {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Check className="mr-2 h-5 w-5" />}
-                {isSubmitting ? 'Odesílám…' : `Aktivovat ${COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT} dní zdarma`}
+                {isSubmitting
+                    ? 'Odesílám…'
+                    : `Chci placené členství za ${formatCommunityMembershipPrice(
+                          CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+                      )} / měsíc`}
             </Button>
 
             <PersonalDataConsentNote language="cs" className="mt-4 text-center text-slate-400">
