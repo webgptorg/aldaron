@@ -6,7 +6,7 @@ import {
     createShortcodeLinkInsertValues,
     createShortcodeLinkMutationErrorResponse,
     getShortcodeLinkDatabaseOrNull,
-    loadShortcodeLinks,
+    loadShortcodeLinkSummaries,
     mapShortcodeLinkRow,
     SHORTCODE_LINK_SELECTED_COLUMNS,
     type ShortcodeLinkRow,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         return createShortcodeLinkDatabaseUnavailableResponse();
     }
 
-    const { shortcodeLinks, errorMessage } = await loadShortcodeLinks(supabase);
+    const { shortcodeLinks, errorMessage } = await loadShortcodeLinkSummaries(supabase);
 
     return shortcodeLinks === null
         ? NextResponse.json({ error: errorMessage }, { status: 500 })

@@ -37,6 +37,11 @@ const SHORTCODE_LINK = {
     sourceApp: 'admin-shortener',
 };
 
+const SHORTCODE_LINK_SUMMARY = {
+    ...SHORTCODE_LINK,
+    clickCount: 2,
+};
+
 function createShortcodeLinkInsertDatabase(result: {
     readonly data: unknown;
     readonly error: { readonly code?: string; readonly message: string } | null;
@@ -49,14 +54,30 @@ function createShortcodeLinkInsertDatabase(result: {
     return { from, insert, select };
 }
 
-function createShortcodeLinkListDatabase(rows: readonly unknown[]) {
-    const range = vi.fn().mockResolvedValue({ data: rows, error: null });
-    const orderById = vi.fn(() => ({ range }));
-    const orderByCreation = vi.fn(() => ({ order: orderById }));
-    const select = vi.fn(() => ({ order: orderByCreation }));
-    const from = vi.fn(() => ({ select }));
+function createShortcodeLinkListDatabase(shortcodeLinkRows: readonly unknown[], shortcodeLinkClickRows: readonly unknown[]) {
+    const shortcodeLinkRange = vi.fn().mockResolvedValue({ data: shortcodeLinkRows, error: null });
+    const shortcodeLinkOrderById = vi.fn(() => ({ range: shortcodeLinkRange }));
+    const shortcodeLinkOrderByCreation = vi.fn(() => ({ order: shortcodeLinkOrderById }));
+    const shortcodeLinkSelect = vi.fn(() => ({ order: shortcodeLinkOrderByCreation }));
 
-    return { from, select, range };
+    const shortcodeLinkClickRange = vi.fn().mockResolvedValue({ data: shortcodeLinkClickRows, error: null });
+    const shortcodeLinkClickOrderById = vi.fn(() => ({ range: shortcodeLinkClickRange }));
+    const shortcodeLinkClickOrderByLink = vi.fn(() => ({ order: shortcodeLinkClickOrderById }));
+    const shortcodeLinkClickNotNavigated = vi.fn(() => ({ order: shortcodeLinkClickOrderByLink }));
+    const shortcodeLinkClickSelect = vi.fn(() => ({ not: shortcodeLinkClickNotNavigated }));
+
+    const from = vi.fn((tableName: string) =>
+        tableName === 'ShortcodeLink'
+            ? { select: shortcodeLinkSelect }
+            : { select: shortcodeLinkClickSelect },
+    );
+
+    return {
+        from,
+        shortcodeLinkRange,
+        shortcodeLinkClickRange,
+        shortcodeLinkClickNotNavigated,
+    };
 }
 
 function createShortcodeLinkRequest(
@@ -102,15 +123,21 @@ describe('admin shortcode link collection', () => {
     });
 
     it('lists every short link for an administrator', async () => {
-        const database = createShortcodeLinkListDatabase([SHORTCODE_LINK_ROW]);
+        const database = createShortcodeLinkListDatabase([SHORTCODE_LINK_ROW], [
+            { shortcodeLinkId: SHORTCODE_LINK_ROW.id },
+            { shortcodeLinkId: SHORTCODE_LINK_ROW.id },
+        ]);
         createSupabaseServiceRoleClientMock.mockReturnValue({ from: database.from });
 
         const response = await GET(createShortcodeLinkRequest('GET', true));
 
         expect(response.status).toBe(200);
-        expect(await response.json()).toEqual({ shortcodeLinks: [SHORTCODE_LINK] });
+        expect(await response.json()).toEqual({ shortcodeLinks: [SHORTCODE_LINK_SUMMARY] });
         expect(database.from).toHaveBeenCalledWith('ShortcodeLink');
-        expect(database.range).toHaveBeenCalledWith(0, 999);
+        expect(database.from).toHaveBeenCalledWith('ShortcodeLinkClick');
+        expect(database.shortcodeLinkRange).toHaveBeenCalledWith(0, 999);
+        expect(database.shortcodeLinkClickRange).toHaveBeenCalledWith(0, 999);
+        expect(database.shortcodeLinkClickNotNavigated).toHaveBeenCalledWith('navigatedAt', 'is', null);
     });
 
     it('refuses a request without the session of an administrator before reaching the database', async () => {

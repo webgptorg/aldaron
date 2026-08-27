@@ -3,10 +3,13 @@
  */
 
 import { ShortcodeLinkAdmin } from '@/components/shortener/ShortcodeLinkAdmin';
-import type { ShortcodeLink } from '@/lib/shortener/shortcodeLink';
-import { fetchAdminShortcodeLinks } from '@/lib/shortener/shortcodeLinkAdminApiClient';
+import type { ShortcodeLinkClick, ShortcodeLinkSummary } from '@/lib/shortener/shortcodeLink';
+import {
+    fetchAdminShortcodeLinkClicks,
+    fetchAdminShortcodeLinks,
+} from '@/lib/shortener/shortcodeLinkAdminApiClient';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/url-shortener', () => ({
     UrlShortener: () => <div data-testid="url-shortener" />,
@@ -14,11 +17,16 @@ vi.mock('@/components/url-shortener', () => ({
 
 vi.mock('@/lib/shortener/shortcodeLinkAdminApiClient', () => ({
     deleteAdminShortcodeLink: vi.fn(),
+    fetchAdminShortcodeLinkClicks: vi.fn(),
     fetchAdminShortcodeLinks: vi.fn(),
     updateAdminShortcodeLink: vi.fn(),
 }));
 
-const SHORTCODE_LINKS: readonly ShortcodeLink[] = [
+vi.mock('next/navigation', () => ({
+    useSearchParams: () => new URLSearchParams(window.location.search),
+}));
+
+const SHORTCODE_LINKS: readonly ShortcodeLinkSummary[] = [
     {
         id: 3,
         createdAt: '2026-08-24T12:00:00.000Z',
@@ -28,6 +36,7 @@ const SHORTCODE_LINKS: readonly ShortcodeLink[] = [
         landingPage: null,
         isAdHoc: true,
         sourceApp: 'online-workshop',
+        clickCount: 2,
     },
     {
         id: 1,
@@ -38,6 +47,7 @@ const SHORTCODE_LINKS: readonly ShortcodeLink[] = [
         landingPage: null,
         isAdHoc: false,
         sourceApp: 'admin-shortener',
+        clickCount: 1,
     },
     {
         id: 2,
@@ -48,14 +58,35 @@ const SHORTCODE_LINKS: readonly ShortcodeLink[] = [
         landingPage: null,
         isAdHoc: true,
         sourceApp: 'community',
+        clickCount: 0,
+    },
+];
+
+const SHORTCODE_LINK_CLICKS: readonly ShortcodeLinkClick[] = [
+    {
+        id: 11,
+        shortcodeLinkId: 1,
+        navigatedAt: '2026-08-24T13:30:00.000Z',
+        clickedAt: '2026-08-24T13:31:00.000Z',
+        ip: '203.0.113.42',
+        userAgent: 'Example browser',
+        referer: 'https://example.com/newsletter',
+        language: 'cs-CZ',
+        platform: 'Windows',
     },
 ];
 
 const fetchAdminShortcodeLinksMock = vi.mocked(fetchAdminShortcodeLinks);
+const fetchAdminShortcodeLinkClicksMock = vi.mocked(fetchAdminShortcodeLinkClicks);
+
+beforeEach(() => {
+    window.history.replaceState(null, '', '/admin/shortener');
+});
 
 afterEach(() => {
     cleanup();
     fetchAdminShortcodeLinksMock.mockReset();
+    fetchAdminShortcodeLinkClicksMock.mockReset();
 });
 
 describe('shortcode link administration', () => {
@@ -92,5 +123,49 @@ describe('shortcode link administration', () => {
             expect(shortcodeRows[1]).toContain('community-link');
             expect(shortcodeRows[2]).toContain('workshop-link');
         });
+    });
+
+    it('opens one click history and saves the history and list filters into the URL', async () => {
+        fetchAdminShortcodeLinksMock.mockResolvedValue(SHORTCODE_LINKS);
+        fetchAdminShortcodeLinkClicksMock.mockResolvedValue(SHORTCODE_LINK_CLICKS);
+        render(<ShortcodeLinkAdmin />);
+
+        await screen.findByRole('button', { name: 'Show 1 click for manual-link' });
+        fireEvent.click(screen.getByRole('button', { name: 'Show 1 click for manual-link' }));
+
+        await screen.findByRole('heading', { name: 'Click history for manual-link' });
+        expect(fetchAdminShortcodeLinkClicksMock).toHaveBeenCalledWith(1);
+        expect(await screen.findByText('203.0.113.42')).not.toBeNull();
+        expect(screen.getByText('Example browser')).not.toBeNull();
+
+        fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'manual' } });
+
+        await waitFor(() => {
+            const searchParams = new URLSearchParams(window.location.search);
+            expect(searchParams.get('clicksFor')).toBe('1');
+            expect(searchParams.get('search')).toBe('manual');
+        });
+    });
+
+    it('restores the filters and click history from a shared URL', async () => {
+        window.history.replaceState(
+            null,
+            '',
+            '/admin/shortener?search=manual&creation=manual&sourceApp=admin-shortener&sortDirection=ascending&clicksFor=1',
+        );
+        fetchAdminShortcodeLinksMock.mockResolvedValue(SHORTCODE_LINKS);
+        fetchAdminShortcodeLinkClicksMock.mockResolvedValue(SHORTCODE_LINK_CLICKS);
+
+        render(<ShortcodeLinkAdmin />);
+
+        await screen.findByRole('heading', { name: 'Click history for manual-link' });
+        expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('manual');
+        expect((screen.getByLabelText('Creation type') as HTMLSelectElement).value).toBe('manual');
+        expect((screen.getByLabelText('Source application') as HTMLSelectElement).value).toBe('admin-shortener');
+        expect((screen.getByLabelText('Short-link sort direction') as HTMLSelectElement).value).toBe('ascending');
+        expect(screen.getByRole('link', { name: 'manual-link' })).not.toBeNull();
+        expect(screen.queryByRole('link', { name: 'workshop-link' })).toBeNull();
+        expect(screen.queryByRole('link', { name: 'community-link' })).toBeNull();
+        expect(fetchAdminShortcodeLinkClicksMock).toHaveBeenCalledWith(1);
     });
 });

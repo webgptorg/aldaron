@@ -2,6 +2,7 @@ import { ShortcodeLinkAdmin } from '@/components/shortener/ShortcodeLinkAdmin';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { ADMIN_SHORTENER_METADATA } from '@/lib/metadata/site-page-definitions';
 import { ADMIN_SHORTENER_PATH } from '@/lib/shortener/shortcodeLinkConstants';
+import { Suspense } from 'react';
 
 export const metadata = ADMIN_SHORTENER_METADATA;
 
@@ -10,7 +11,9 @@ export default async function AdminShortenerPage() {
 
     return (
         <main className="min-h-screen bg-slate-50">
-            <ShortcodeLinkAdmin />
+            <Suspense>
+                <ShortcodeLinkAdmin />
+            </Suspense>
         </main>
     );
 }

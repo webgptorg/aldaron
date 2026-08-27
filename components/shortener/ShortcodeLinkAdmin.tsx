@@ -1,7 +1,9 @@
 'use client';
 
+import { ShortcodeLinkClickTable } from '@/components/shortener/ShortcodeLinkClickTable';
 import { ShortcodeLinkEditForm } from '@/components/shortener/ShortcodeLinkEditForm';
 import { ShortcodeLinkTable } from '@/components/shortener/ShortcodeLinkTable';
+import { useShortcodeLinkAdminViewState } from '@/components/shortener/useShortcodeLinkAdminViewState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UrlShortener } from '@/components/url-shortener';
@@ -11,11 +13,18 @@ import {
     getShortcodeLinkSourceAppLabel,
     SHORTCODE_LINK_SOURCE_APP_VALUES,
     type ShortcodeLink,
-    type ShortcodeLinkSourceApp,
+    type ShortcodeLinkClick,
+    type ShortcodeLinkSummary,
     type ShortcodeLinkValues,
 } from '@/lib/shortener/shortcodeLink';
 import {
+    type ShortcodeLinkCreationFilter,
+    type ShortcodeLinkSortBy,
+    type ShortcodeLinkSortDirection,
+} from '@/lib/shortener/shortcodeLinkAdminViewState';
+import {
     deleteAdminShortcodeLink,
+    fetchAdminShortcodeLinkClicks,
     fetchAdminShortcodeLinks,
     updateAdminShortcodeLink,
 } from '@/lib/shortener/shortcodeLinkAdminApiClient';
@@ -23,12 +32,9 @@ import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SHORTCODE_LINK_LOADING_ERROR_MESSAGE = 'The short links could not be loaded';
+const SHORTCODE_LINK_CLICKS_LOADING_ERROR_MESSAGE = 'The short-link clicks could not be loaded';
 const SHORTCODE_LINK_SAVING_ERROR_MESSAGE = 'The short link could not be saved';
 const SHORTCODE_LINK_DELETION_ERROR_MESSAGE = 'The short link could not be deleted';
-
-type ShortcodeLinkCreationFilter = 'all' | 'manual' | 'ad-hoc';
-type ShortcodeLinkSortBy = 'createdAt' | 'creation' | 'sourceApp';
-type ShortcodeLinkSortDirection = 'ascending' | 'descending';
 
 /**
  * Whether one short link answers to what an administrator is looking for.
@@ -40,11 +46,11 @@ function isShortcodeLinkMatchingSearch(shortcodeLink: ShortcodeLink, normalizedS
 }
 
 function filterShortcodeLinks(
-    shortcodeLinks: readonly ShortcodeLink[],
+    shortcodeLinks: readonly ShortcodeLinkSummary[],
     searchQuery: string,
     creationFilter: ShortcodeLinkCreationFilter,
-    sourceAppFilter: ShortcodeLinkSourceApp | 'all',
-): readonly ShortcodeLink[] {
+    sourceAppFilter: ShortcodeLinkSummary['sourceApp'] | 'all',
+): readonly ShortcodeLinkSummary[] {
     const normalizedSearchQuery = searchQuery.trim().toLowerCase();
 
     return shortcodeLinks.filter(
@@ -57,8 +63,8 @@ function filterShortcodeLinks(
 }
 
 function compareShortcodeLinks(
-    firstShortcodeLink: ShortcodeLink,
-    secondShortcodeLink: ShortcodeLink,
+    firstShortcodeLink: ShortcodeLinkSummary,
+    secondShortcodeLink: ShortcodeLinkSummary,
     sortBy: ShortcodeLinkSortBy,
 ): number {
     switch (sortBy) {
@@ -76,10 +82,10 @@ function compareShortcodeLinks(
 }
 
 function sortShortcodeLinks(
-    shortcodeLinks: readonly ShortcodeLink[],
+    shortcodeLinks: readonly ShortcodeLinkSummary[],
     sortBy: ShortcodeLinkSortBy,
     sortDirection: ShortcodeLinkSortDirection,
-): readonly ShortcodeLink[] {
+): readonly ShortcodeLinkSummary[] {
     const sortMultiplier = sortDirection === 'ascending' ? 1 : -1;
 
     return [...shortcodeLinks].sort(
@@ -91,39 +97,92 @@ function sortShortcodeLinks(
 
 /**
  * Holds the list of every short link and the writes which change it, while the creation of a new link stays in the
- * shortener form and the editing of an existing one in its own form.
+ * shortener form, editing stays in its own form, and one selected link reveals its click history.
  */
 export function ShortcodeLinkAdmin() {
-    const [shortcodeLinks, setShortcodeLinks] = useState<readonly ShortcodeLink[]>([]);
+    const {
+        searchQuery,
+        creationFilter,
+        sourceAppFilter,
+        sortBy,
+        sortDirection,
+        selectedShortcodeLinkId,
+        changeShortcodeLinkAdminViewState,
+    } = useShortcodeLinkAdminViewState();
+    const [shortcodeLinks, setShortcodeLinks] = useState<readonly ShortcodeLinkSummary[]>([]);
+    const [shortcodeLinkClicks, setShortcodeLinkClicks] = useState<readonly ShortcodeLinkClick[]>([]);
     const [editedShortcodeLink, setEditedShortcodeLink] = useState<ShortcodeLink | null>(null);
     const [deletedShortcodeLinkId, setDeletedShortcodeLinkId] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [creationFilter, setCreationFilter] = useState<ShortcodeLinkCreationFilter>('all');
-    const [sourceAppFilter, setSourceAppFilter] = useState<ShortcodeLinkSourceApp | 'all'>('all');
-    const [sortBy, setSortBy] = useState<ShortcodeLinkSortBy>('createdAt');
-    const [sortDirection, setSortDirection] = useState<ShortcodeLinkSortDirection>('descending');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingShortcodeLinks, setIsLoadingShortcodeLinks] = useState(true);
+    const [isShortcodeLinksLoaded, setIsShortcodeLinksLoaded] = useState(false);
+    const [isClicksLoading, setIsClicksLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [clicksErrorMessage, setClicksErrorMessage] = useState<string | null>(null);
 
     const loadShortcodeLinks = useCallback(async (): Promise<boolean> => {
-        setIsLoading(true);
+        setIsLoadingShortcodeLinks(true);
 
         try {
             const loadedShortcodeLinks = await fetchAdminShortcodeLinks();
             setShortcodeLinks(loadedShortcodeLinks);
+            setIsShortcodeLinksLoaded(true);
             setErrorMessage(null);
             return true;
         } catch (error) {
             setErrorMessage(error instanceof Error ? error.message : SHORTCODE_LINK_LOADING_ERROR_MESSAGE);
             return false;
         } finally {
-            setIsLoading(false);
+            setIsLoadingShortcodeLinks(false);
         }
     }, []);
 
     useEffect(() => {
         void loadShortcodeLinks();
     }, [loadShortcodeLinks]);
+
+    const selectedShortcodeLink = useMemo(
+        () => shortcodeLinks.find((shortcodeLink) => shortcodeLink.id === selectedShortcodeLinkId),
+        [selectedShortcodeLinkId, shortcodeLinks],
+    );
+
+    useEffect(() => {
+        if (selectedShortcodeLink === undefined) {
+            setShortcodeLinkClicks([]);
+            setClicksErrorMessage(null);
+            setIsClicksLoading(false);
+            return;
+        }
+
+        let isCurrentClickHistory = true;
+        const loadShortcodeLinkClicks = async () => {
+            setIsClicksLoading(true);
+            setClicksErrorMessage(null);
+
+            try {
+                const loadedShortcodeLinkClicks = await fetchAdminShortcodeLinkClicks(selectedShortcodeLink.id);
+                if (isCurrentClickHistory) {
+                    setShortcodeLinkClicks(loadedShortcodeLinkClicks);
+                }
+            } catch (error) {
+                if (isCurrentClickHistory) {
+                    setShortcodeLinkClicks([]);
+                    setClicksErrorMessage(
+                        error instanceof Error ? error.message : SHORTCODE_LINK_CLICKS_LOADING_ERROR_MESSAGE,
+                    );
+                }
+            } finally {
+                if (isCurrentClickHistory) {
+                    setIsClicksLoading(false);
+                }
+            }
+        };
+
+        void loadShortcodeLinkClicks();
+
+        return () => {
+            isCurrentClickHistory = false;
+        };
+    }, [selectedShortcodeLink]);
 
     const handleSave = async (values: ShortcodeLinkValues): Promise<boolean> => {
         if (editedShortcodeLink === null) {
@@ -153,6 +212,9 @@ export function ShortcodeLinkAdmin() {
             await deleteAdminShortcodeLink(shortcodeLink.id);
             if (editedShortcodeLink?.id === shortcodeLink.id) {
                 setEditedShortcodeLink(null);
+            }
+            if (selectedShortcodeLinkId === shortcodeLink.id) {
+                changeShortcodeLinkAdminViewState({ selectedShortcodeLinkId: null });
             }
             await loadShortcodeLinks();
         } catch (error) {
@@ -184,6 +246,61 @@ export function ShortcodeLinkAdmin() {
                 />
             )}
 
+            {selectedShortcodeLink !== undefined && (
+                <section className="overflow-hidden rounded-2xl border border-cyan-200 bg-white shadow-sm">
+                    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-cyan-100 px-6 py-5">
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-950">
+                                Click history for {selectedShortcodeLink.shortcode}
+                            </h2>
+                            <p className="mt-1 text-sm text-slate-500">
+                                {selectedShortcodeLink.clickCount} recorded{' '}
+                                {selectedShortcodeLink.clickCount === 1 ? 'navigation' : 'navigations'} of{' '}
+                                {createPublicShortcodeLinkUrl(selectedShortcodeLink.shortcode)}
+                            </p>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => changeShortcodeLinkAdminViewState({ selectedShortcodeLinkId: null })}
+                        >
+                            Close click history
+                        </Button>
+                    </div>
+
+                    {clicksErrorMessage !== null && (
+                        <p className="m-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{clicksErrorMessage}</p>
+                    )}
+
+                    {isClicksLoading ? (
+                        <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-slate-500">
+                            <Loader2 className="h-5 w-5 animate-spin" /> Loading the clicks…
+                        </div>
+                    ) : clicksErrorMessage === null && shortcodeLinkClicks.length === 0 ? (
+                        <p className="px-6 py-16 text-center text-sm text-slate-500">
+                            This short link has not been opened yet.
+                        </p>
+                    ) : clicksErrorMessage === null ? (
+                        <ShortcodeLinkClickTable shortcodeLinkClicks={shortcodeLinkClicks} />
+                    ) : null}
+                </section>
+            )}
+
+            {isShortcodeLinksLoaded && selectedShortcodeLinkId !== null && selectedShortcodeLink === undefined && (
+                <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm text-amber-900">
+                    <p>The short link whose click history was requested no longer exists.</p>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => changeShortcodeLinkAdminViewState({ selectedShortcodeLinkId: null })}
+                    >
+                        Close click history
+                    </Button>
+                </section>
+            )}
+
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
                     <div>
@@ -198,14 +315,20 @@ export function ShortcodeLinkAdmin() {
                         <Input
                             type="search"
                             value={searchQuery}
-                            onChange={(event) => setSearchQuery(event.target.value)}
+                            onChange={(event) =>
+                                changeShortcodeLinkAdminViewState({ searchQuery: event.target.value })
+                            }
                             placeholder="Search shortcode, URL or note"
                             className="w-64"
                         />
                         <select
                             aria-label="Creation type"
                             value={creationFilter}
-                            onChange={(event) => setCreationFilter(event.target.value as ShortcodeLinkCreationFilter)}
+                            onChange={(event) =>
+                                changeShortcodeLinkAdminViewState({
+                                    creationFilter: event.target.value as ShortcodeLinkCreationFilter,
+                                })
+                            }
                             className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800"
                         >
                             <option value="all">All creation types</option>
@@ -215,7 +338,11 @@ export function ShortcodeLinkAdmin() {
                         <select
                             aria-label="Source application"
                             value={sourceAppFilter}
-                            onChange={(event) => setSourceAppFilter(event.target.value as ShortcodeLinkSourceApp | 'all')}
+                            onChange={(event) =>
+                                changeShortcodeLinkAdminViewState({
+                                    sourceAppFilter: event.target.value as ShortcodeLinkSummary['sourceApp'] | 'all',
+                                })
+                            }
                             className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800"
                         >
                             <option value="all">All applications</option>
@@ -228,7 +355,9 @@ export function ShortcodeLinkAdmin() {
                         <select
                             aria-label="Sort short links by"
                             value={sortBy}
-                            onChange={(event) => setSortBy(event.target.value as ShortcodeLinkSortBy)}
+                            onChange={(event) =>
+                                changeShortcodeLinkAdminViewState({ sortBy: event.target.value as ShortcodeLinkSortBy })
+                            }
                             className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800"
                         >
                             <option value="createdAt">Sort by created</option>
@@ -238,7 +367,11 @@ export function ShortcodeLinkAdmin() {
                         <select
                             aria-label="Short-link sort direction"
                             value={sortDirection}
-                            onChange={(event) => setSortDirection(event.target.value as ShortcodeLinkSortDirection)}
+                            onChange={(event) =>
+                                changeShortcodeLinkAdminViewState({
+                                    sortDirection: event.target.value as ShortcodeLinkSortDirection,
+                                })
+                            }
                             className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800"
                         >
                             <option value="descending">Descending</option>
@@ -249,7 +382,7 @@ export function ShortcodeLinkAdmin() {
                             variant="outline"
                             size="sm"
                             onClick={() => void loadShortcodeLinks()}
-                            disabled={isLoading}
+                            disabled={isLoadingShortcodeLinks}
                         >
                             Refresh
                         </Button>
@@ -260,7 +393,7 @@ export function ShortcodeLinkAdmin() {
                     <p className="m-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
                 )}
 
-                {isLoading ? (
+                {isLoadingShortcodeLinks ? (
                     <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-slate-500">
                         <Loader2 className="h-5 w-5 animate-spin" /> Loading the short links…
                     </div>
@@ -268,7 +401,7 @@ export function ShortcodeLinkAdmin() {
                     <p className="px-6 py-16 text-center text-sm text-slate-500">
                         {shortcodeLinks.length === 0
                             ? 'There is no shortened link yet.'
-                            : 'No shortened link matches the search.'}
+                            : 'No shortened link matches the filters.'}
                     </p>
                 ) : (
                     <ShortcodeLinkTable
@@ -277,6 +410,9 @@ export function ShortcodeLinkAdmin() {
                         deletedShortcodeLinkId={deletedShortcodeLinkId}
                         onEdit={setEditedShortcodeLink}
                         onDelete={(shortcodeLink) => void handleDelete(shortcodeLink)}
+                        onShowClicks={(shortcodeLink) =>
+                            changeShortcodeLinkAdminViewState({ selectedShortcodeLinkId: shortcodeLink.id })
+                        }
                     />
                 )}
             </section>

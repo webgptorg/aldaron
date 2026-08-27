@@ -1,6 +1,7 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
+import { parseShortcodeLinkId } from '@/lib/shortener/shortcodeLinkId';
 import {
     createShortcodeLinkDatabaseUnavailableResponse,
     createShortcodeLinkDatabaseValues,
@@ -12,12 +13,9 @@ import {
 } from '@/lib/shortener/shortcodeLinkDatabase';
 import { SHORTCODE_LINK_VALUES_SCHEMA } from '@/lib/shortener/shortcodeLinkSchema';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 
 const SHORTCODE_LINK_NOT_FOUND_ERROR_MESSAGE = 'Short link not found';
 const INVALID_SHORTCODE_LINK_ERROR_MESSAGE = 'Invalid short link';
-
-const SHORTCODE_LINK_ID_SCHEMA = z.coerce.number().int().positive();
 
 type ShortcodeLinkRouteContext = {
     readonly params: Promise<{ readonly shortcodeLinkId: string }>;
@@ -25,9 +23,7 @@ type ShortcodeLinkRouteContext = {
 
 async function readShortcodeLinkId(context: ShortcodeLinkRouteContext): Promise<number | null> {
     const { shortcodeLinkId } = await context.params;
-    const parsedResult = SHORTCODE_LINK_ID_SCHEMA.safeParse(shortcodeLinkId);
-
-    return parsedResult.success ? parsedResult.data : null;
+    return parseShortcodeLinkId(shortcodeLinkId);
 }
 
 function createShortcodeLinkNotFoundResponse(): NextResponse {

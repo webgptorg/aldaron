@@ -83,6 +83,32 @@ export type ShortcodeLink = ShortcodeLinkValues & {
 };
 
 /**
+ * One short link together with the aggregate that is useful only to the administration list.
+ */
+export type ShortcodeLinkSummary = ShortcodeLink & {
+    /**
+     * How many times the public short address was navigated to.
+     */
+    readonly clickCount: number;
+};
+
+/**
+ * One recorded navigation of a public short link. These values are held privately by the administration; public
+ * visitors never receive another visitor's click data.
+ */
+export type ShortcodeLinkClick = {
+    readonly id: number;
+    readonly shortcodeLinkId: number;
+    readonly navigatedAt: string;
+    readonly clickedAt: string | null;
+    readonly ip: string | null;
+    readonly userAgent: string | null;
+    readonly referer: string | null;
+    readonly language: string | null;
+    readonly platform: string | null;
+};
+
+/**
  * The address which is handed out for a shortcode
  */
 export function createPublicShortcodeLinkUrl(shortcode: string): string {

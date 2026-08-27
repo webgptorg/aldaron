@@ -2,26 +2,29 @@
 
 import { CopyTextButton } from '@/components/shortener/CopyTextButton';
 import { Button } from '@/components/ui/button';
+import { formatShortcodeLinkDateTime } from '@/lib/shortener/formatShortcodeLinkDateTime';
 import {
     createPublicShortcodeLinkUrl,
     getShortcodeLinkCreationLabel,
     getShortcodeLinkSourceAppLabel,
     type ShortcodeLink,
+    type ShortcodeLinkSummary,
 } from '@/lib/shortener/shortcodeLink';
-import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
+import { ExternalLink, MousePointerClick, Pencil, Trash2 } from 'lucide-react';
 
-const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'medium', timeStyle: 'short' });
+const CZECH_SHORTCODE_LINK_CLICK_COUNT_FORMAT = new Intl.NumberFormat('cs-CZ');
 
-function formatShortcodeLinkDateTime(timestamp: string): string {
-    return CZECH_DATE_TIME_FORMAT.format(new Date(timestamp));
+function getShortcodeLinkClickLabel(clickCount: number): string {
+    return `${CZECH_SHORTCODE_LINK_CLICK_COUNT_FORMAT.format(clickCount)} ${clickCount === 1 ? 'click' : 'clicks'}`;
 }
 
 type ShortcodeLinkTableProps = {
-    readonly shortcodeLinks: readonly ShortcodeLink[];
+    readonly shortcodeLinks: readonly ShortcodeLinkSummary[];
     readonly editedShortcodeLinkId: number | null;
     readonly deletedShortcodeLinkId: number | null;
     readonly onEdit: (shortcodeLink: ShortcodeLink) => void;
     readonly onDelete: (shortcodeLink: ShortcodeLink) => void;
+    readonly onShowClicks: (shortcodeLink: ShortcodeLinkSummary) => void;
 };
 
 /**
@@ -33,10 +36,11 @@ export function ShortcodeLinkTable({
     deletedShortcodeLinkId,
     onEdit,
     onDelete,
+    onShowClicks,
 }: ShortcodeLinkTableProps) {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-[1020px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                         <th className="px-6 py-3 font-semibold">Short link</th>
@@ -45,6 +49,7 @@ export function ShortcodeLinkTable({
                         <th className="px-6 py-3 font-semibold">Landing page</th>
                         <th className="px-6 py-3 font-semibold">Creation</th>
                         <th className="px-6 py-3 font-semibold">Application</th>
+                        <th className="px-6 py-3 text-right font-semibold">Clicks</th>
                         <th className="px-6 py-3 font-semibold">Created</th>
                         <th className="px-6 py-3 text-right font-semibold">Actions</th>
                     </tr>
@@ -109,6 +114,19 @@ export function ShortcodeLinkTable({
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4 text-slate-600">
                                     {getShortcodeLinkSourceAppLabel(shortcodeLink.sourceApp)}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-right">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-cyan-700 hover:text-cyan-800"
+                                        aria-label={`Show ${getShortcodeLinkClickLabel(shortcodeLink.clickCount)} for ${shortcodeLink.shortcode}`}
+                                        onClick={() => onShowClicks(shortcodeLink)}
+                                    >
+                                        <MousePointerClick className="mr-1.5 h-4 w-4" />
+                                        {getShortcodeLinkClickLabel(shortcodeLink.clickCount)}
+                                    </Button>
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4 text-slate-600">
                                     {formatShortcodeLinkDateTime(shortcodeLink.createdAt)}

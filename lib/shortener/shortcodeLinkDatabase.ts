@@ -3,8 +3,10 @@ import {
     isShortcodeLinkSourceApp,
     type ShortcodeLink,
     type ShortcodeLinkSourceApp,
+    type ShortcodeLinkSummary,
     type ShortcodeLinkValues,
 } from '@/lib/shortener/shortcodeLink';
+import { loadShortcodeLinkClickCounts } from '@/lib/shortener/shortcodeLinkClickDatabase';
 import { CUSTOM_SHORTCODE_LINK_TYPE, SHORTCODE_LINK_TABLE_NAME } from '@/lib/shortener/shortcodeLinkConstants';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows } from '@/lib/supabase/loadAllSupabaseRows';
@@ -40,6 +42,11 @@ export type ShortcodeLinkRow = {
 
 export type ShortcodeLinkLoadResult = {
     readonly shortcodeLinks: readonly ShortcodeLink[] | null;
+    readonly errorMessage: string | null;
+};
+
+export type ShortcodeLinkSummaryLoadResult = {
+    readonly shortcodeLinks: readonly ShortcodeLinkSummary[] | null;
     readonly errorMessage: string | null;
 };
 
@@ -168,4 +175,31 @@ export async function loadShortcodeLinks(supabase: SupabaseClient): Promise<Shor
     return rows === null
         ? { shortcodeLinks: null, errorMessage }
         : { shortcodeLinks: rows.map(mapShortcodeLinkRow), errorMessage: null };
+}
+
+/**
+ * Reads the short-link list and its click totals together. The browser receives only the aggregate with each link;
+ * individual IP addresses and other click metadata stay behind the separate authenticated detail endpoint.
+ */
+export async function loadShortcodeLinkSummaries(supabase: SupabaseClient): Promise<ShortcodeLinkSummaryLoadResult> {
+    const [shortcodeLinkLoadResult, shortcodeLinkClickCountLoadResult] = await Promise.all([
+        loadShortcodeLinks(supabase),
+        loadShortcodeLinkClickCounts(supabase),
+    ]);
+
+    if (shortcodeLinkLoadResult.shortcodeLinks === null) {
+        return { shortcodeLinks: null, errorMessage: shortcodeLinkLoadResult.errorMessage };
+    }
+    const clickCountByShortcodeLinkId = shortcodeLinkClickCountLoadResult.clickCountByShortcodeLinkId;
+    if (clickCountByShortcodeLinkId === null) {
+        return { shortcodeLinks: null, errorMessage: shortcodeLinkClickCountLoadResult.errorMessage };
+    }
+
+    return {
+        shortcodeLinks: shortcodeLinkLoadResult.shortcodeLinks.map((shortcodeLink) => ({
+            ...shortcodeLink,
+            clickCount: clickCountByShortcodeLinkId.get(shortcodeLink.id) ?? 0,
+        })),
+        errorMessage: null,
+    };
 }

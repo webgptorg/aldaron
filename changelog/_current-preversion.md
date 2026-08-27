@@ -1,5 +1,11 @@
 # Current preversion
 
+- Added click analytics to `/admin/shortener`: every short link now shows its count of recorded public navigations,
+  and its clickable count opens a private, newest-first history with timestamps, IP addresses, referrers, user agents,
+  languages, platforms, and—for landing pages—the time the visitor opened the destination. The list search, provenance
+  filters, sorting, and selected click history are all held in GET parameters, so an administrator can bookmark or
+  share the exact view without exposing click metadata through the public short-link endpoint.
+
 - Moved every community-project mutation out of PostgreSQL procedures and triggers into backend-owned transactions.
   Creating a project now generates its UUIDs and initial session hash in Node, makes the project room and author
   moderator together, and validates the member identity there; opening a discussion reuses or creates exactly one mapped room
