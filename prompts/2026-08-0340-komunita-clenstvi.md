@@ -55,9 +55,9 @@ Even more priority with materials and discussion participation
 
 ---
 
-[-] !!!!
+[ ] !!!!
 
-[✨🥇] Simplify `/cs/komunita/clenstvi`
+[✨🥇] Simplify (and unbullshitify) `/cs/komunita/clenstvi`
 
 - Analyze the current implementation before making changes.
 - Keep the **current visual design and graphical style of the page**. Do not redesign it from scratch.
