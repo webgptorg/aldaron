@@ -1,5 +1,9 @@
 import {
-    COMMUNITY_PROJECT_VOTE_VALUES,
+    COMMUNITY_PROJECT_TABLE_NAME,
+    COMMUNITY_PROJECT_VOTE_TABLE_NAME,
+} from '@/lib/community-projects/communityProjectConstants';
+import {
+    getCommunityProjectVoteFromDatabaseValue,
     type CommunityProject,
     type CommunityProjectVote,
 } from '@/lib/community-projects/communityProjectTypes';
@@ -7,8 +11,6 @@ import { loadAllSupabaseRows } from '@/lib/supabase/loadAllSupabaseRows';
 import { WORKSHOP_PARTICIPANT_TABLE_NAME } from '@/lib/workshops/workshopConstants';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const COMMUNITY_PROJECT_TABLE_NAME = 'community_projects';
-const COMMUNITY_PROJECT_VOTE_TABLE_NAME = 'community_project_votes';
 const COMMUNITY_PROJECT_COLUMNS =
     'id, author_community_participant_id, discussion_workshop_id, url, title, description, preview_image_url, upvote_count, downvote_count, created_at';
 const COMMUNITY_PROJECT_SUPPLEMENTAL_QUERY_PAGE_SIZE = 500;
@@ -40,26 +42,6 @@ type CommunityProjectDiscussionRow = {
     readonly id: string;
     readonly slug: string;
 };
-
-type CreatedCommunityProjectRow = {
-    readonly project_id: string;
-};
-
-type CommunityProjectDiscussionConnectionRow = {
-    readonly discussion_workshop_id: string;
-    readonly discussion_workshop_slug: string;
-    readonly discussion_participant_id: string;
-};
-
-type CommunityProjectVoteResultRow = {
-    readonly vote: number | null;
-    readonly upvote_count: number;
-    readonly downvote_count: number;
-};
-
-function getCommunityProjectVote(value: number | null): CommunityProjectVote | null {
-    return value === 1 ? 'up' : value === -1 ? 'down' : null;
-}
 
 function getProjectIdChunks(projectIds: readonly string[]): readonly string[][] {
     const chunks: string[][] = [];
@@ -115,7 +97,7 @@ async function loadCommunityProjectVotes(
         }
 
         ((data ?? []) as readonly CommunityProjectVoteRow[]).forEach((projectVote) => {
-            const vote = getCommunityProjectVote(projectVote.vote);
+            const vote = getCommunityProjectVoteFromDatabaseValue(projectVote.vote);
             if (vote !== null) {
                 voteByProjectId.set(projectVote.project_id, vote);
             }
@@ -267,91 +249,4 @@ export async function loadCommunityProjectById(
         communityParticipantId,
     );
     return { project: mappedProjects.projects?.[0] ?? null, errorMessage: mappedProjects.errorMessage };
-}
-
-export async function createCommunityProject(
-    supabase: SupabaseClient,
-    values: {
-        readonly communityParticipantId: string;
-        readonly url: string;
-        readonly title: string;
-        readonly description: string;
-        readonly previewImageUrl: string | null;
-    },
-): Promise<{ readonly projectId: string | null; readonly errorMessage: string | null }> {
-    const { data, error } = await supabase.rpc('create_community_project', {
-        target_community_participant_id: values.communityParticipantId,
-        target_url: values.url,
-        target_title: values.title,
-        target_description: values.description,
-        target_preview_image_url: values.previewImageUrl,
-    });
-    if (error) {
-        return { projectId: null, errorMessage: error.message };
-    }
-
-    const projectId = ((data ?? []) as readonly CreatedCommunityProjectRow[])[0]?.project_id ?? null;
-    return projectId === null
-        ? { projectId: null, errorMessage: 'Community project could not be created' }
-        : { projectId, errorMessage: null };
-}
-
-export async function connectCommunityProjectDiscussion(
-    supabase: SupabaseClient,
-    projectId: string,
-    communityParticipantId: string,
-): Promise<{
-    readonly connection: CommunityProjectDiscussionConnectionRow | null;
-    readonly errorMessage: string | null;
-}> {
-    const { data, error } = await supabase.rpc('connect_community_project_discussion', {
-        target_project_id: projectId,
-        target_community_participant_id: communityParticipantId,
-    });
-    if (error) {
-        return { connection: null, errorMessage: error.message };
-    }
-
-    const connection = ((data ?? []) as readonly CommunityProjectDiscussionConnectionRow[])[0] ?? null;
-    return connection === null
-        ? { connection: null, errorMessage: 'Community project discussion could not be connected' }
-        : { connection, errorMessage: null };
-}
-
-export async function setCommunityProjectVote(
-    supabase: SupabaseClient,
-    projectId: string,
-    communityParticipantId: string,
-    vote: CommunityProjectVote,
-): Promise<{
-    readonly result: {
-        readonly vote: CommunityProjectVote | null;
-        readonly upvoteCount: number;
-        readonly downvoteCount: number;
-    } | null;
-    readonly errorMessage: string | null;
-}> {
-    const databaseVote = vote === COMMUNITY_PROJECT_VOTE_VALUES[0] ? 1 : -1;
-    const { data, error } = await supabase.rpc('set_community_project_vote', {
-        target_project_id: projectId,
-        target_community_participant_id: communityParticipantId,
-        target_vote: databaseVote,
-    });
-    if (error) {
-        return { result: null, errorMessage: error.message };
-    }
-
-    const result = ((data ?? []) as readonly CommunityProjectVoteResultRow[])[0] ?? null;
-    if (result === null) {
-        return { result: null, errorMessage: 'Community project vote could not be saved' };
-    }
-
-    return {
-        result: {
-            vote: getCommunityProjectVote(result.vote),
-            upvoteCount: result.upvote_count,
-            downvoteCount: result.downvote_count,
-        },
-        errorMessage: null,
-    };
 }

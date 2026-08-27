@@ -83,6 +83,19 @@ const COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH = path.resolve(
 const COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH, 'utf8');
 const COMMUNITY_PROJECT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2800-community-projects.sql');
 const COMMUNITY_PROJECT_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_MIGRATION_PATH, 'utf8');
+const COMMUNITY_PROJECT_BACKEND_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-3000-community-project-backend-logic.sql',
+);
+const COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_BACKEND_MIGRATION_PATH, 'utf8');
+const COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-3010-community-project-member-vote-deletion.sql',
+);
+const COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL = readFileSync(
+    COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_PATH,
+    'utf8',
+);
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -450,6 +463,38 @@ describe('workshop database migration', () => {
         expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('is_moderator\n    )');
         expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('connect_community_project_discussion');
         expect(COMMUNITY_PROJECT_MIGRATION_SQL).toContain('FORCE ROW LEVEL SECURITY');
+    });
+
+    it('removes the community-project database procedures after their logic moved to the backend', () => {
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain(
+            'DROP TRIGGER IF EXISTS community_projects_set_updated_at',
+        );
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain(
+            'DROP TRIGGER IF EXISTS community_project_votes_update_counts',
+        );
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain(
+            'DROP FUNCTION IF EXISTS public.create_community_project(uuid, text, text, text, text)',
+        );
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain(
+            'DROP FUNCTION IF EXISTS public.connect_community_project_discussion(uuid, uuid)',
+        );
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain(
+            'DROP FUNCTION IF EXISTS public.set_community_project_vote(uuid, uuid, smallint)',
+        );
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).toContain('ALTER COLUMN id DROP DEFAULT');
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).not.toContain('CREATE FUNCTION');
+        expect(COMMUNITY_PROJECT_BACKEND_MIGRATION_SQL).not.toContain('CREATE TRIGGER');
+    });
+
+    it('requires backend reconciliation before deleting a community member with project votes', () => {
+        expect(COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL).toContain(
+            'DROP CONSTRAINT IF EXISTS community_project_votes_community_participant_id_fkey',
+        );
+        expect(COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL).toContain(
+            'REFERENCES public.workshop_participants(id) ON DELETE RESTRICT',
+        );
+        expect(COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL).not.toContain('CREATE FUNCTION');
+        expect(COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL).not.toContain('CREATE TRIGGER');
     });
 
     it('selects one ordinary follow-up material and keeps feedback private and attributable', () => {

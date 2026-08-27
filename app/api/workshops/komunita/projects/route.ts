@@ -1,10 +1,10 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import {
-    createCommunityProject,
     loadCommunityProjectById,
     loadCommunityProjects,
 } from '@/lib/community-projects/communityProjectDatabase';
+import { createCommunityProject } from '@/lib/community-projects/communityProjectService';
 import {
     isAuthenticatedCommunityProjectRequest,
     getAuthenticatedCommunityProjectRequest,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const createdProject = await createCommunityProject(authenticatedRequest.supabase, {
+    const createdProject = await createCommunityProject({
         communityParticipantId: authenticatedRequest.participant.id,
         url: preview.url,
         title: parsedResult.data.title,

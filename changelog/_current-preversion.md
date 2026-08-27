@@ -1,5 +1,15 @@
 # Current preversion
 
+- Moved every community-project mutation out of PostgreSQL procedures and triggers into backend-owned transactions.
+  Creating a project now generates its UUIDs and initial session hash in Node, makes the project room and author
+  moderator together, and validates the member identity there; opening a discussion reuses or creates exactly one mapped room
+  identity; and voting calculates the Reddit-style transition and both cached totals under a locked project row. The
+  forward migration removes the old project-specific RPCs, identity/count/timestamp triggers, and the extension-backed
+  project-ID default, so `gen_random_bytes(integer)` is no longer evaluated by this flow while foreign keys, uniqueness,
+  RLS, and column constraints remain the database's storage boundary. Deleting a community member now removes their
+  votes and reconciles the affected totals in that same backend transaction; a restrictive foreign key prevents a
+  cascading delete from silently bypassing that reconciliation.
+
 - Let a community poll be about workshop occurrences. The editor of `/admin/community?tab=polls` now offers every
   workshop beside the question and its choices; one poll can name several occurrences and one occurrence can be the
   subject of several polls. The shared transaction writes those attachments together with a poll and its settings.

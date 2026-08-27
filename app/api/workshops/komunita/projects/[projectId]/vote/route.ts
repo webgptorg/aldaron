@@ -5,7 +5,7 @@ import {
     getAuthenticatedCommunityProjectRequest,
 } from '@/lib/community-projects/communityProjectRequest';
 import { communityProjectIdSchema, communityProjectVoteSchema } from '@/lib/community-projects/communityProjectSchemas';
-import { setCommunityProjectVote } from '@/lib/community-projects/communityProjectDatabase';
+import { setCommunityProjectVote } from '@/lib/community-projects/communityProjectService';
 import { NextRequest, NextResponse } from 'next/server';
 
 type CommunityProjectVoteRouteContext = {
@@ -34,14 +34,9 @@ export async function POST(request: NextRequest, context: CommunityProjectVoteRo
         return NextResponse.json({ error: 'Hlas projektu není platný.' }, { status: 400 });
     }
 
-    const savedVote = await setCommunityProjectVote(
-        authenticatedRequest.supabase,
-        projectId,
-        authenticatedRequest.participant.id,
-        parsedResult.data.vote,
-    );
+    const savedVote = await setCommunityProjectVote(projectId, authenticatedRequest.participant.id, parsedResult.data.vote);
     if (savedVote.result === null) {
-        const isProjectMissing = savedVote.errorMessage?.includes('COMMUNITY_PROJECT_NOT_FOUND') ?? false;
+        const isProjectMissing = savedVote.isProjectMissing;
         if (!isProjectMissing) {
             console.error('Failed to save community project vote:', savedVote.errorMessage);
         }

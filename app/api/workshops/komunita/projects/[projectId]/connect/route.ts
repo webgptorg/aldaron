@@ -1,7 +1,5 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
-import {
-    connectCommunityProjectDiscussion,
-} from '@/lib/community-projects/communityProjectDatabase';
+import { connectCommunityProjectDiscussion } from '@/lib/community-projects/communityProjectService';
 import {
     isAuthenticatedCommunityProjectRequest,
     getAuthenticatedCommunityProjectRequest,
@@ -40,13 +38,9 @@ export async function POST(request: NextRequest, context: CommunityProjectDiscus
         return NextResponse.json({ error: 'Projekt nebyl nalezen.' }, { status: 404 });
     }
 
-    const connectedDiscussion = await connectCommunityProjectDiscussion(
-        authenticatedRequest.supabase,
-        projectId,
-        authenticatedRequest.participant.id,
-    );
+    const connectedDiscussion = await connectCommunityProjectDiscussion(projectId, authenticatedRequest.participant.id);
     if (connectedDiscussion.connection === null) {
-        const isProjectMissing = connectedDiscussion.errorMessage?.includes('COMMUNITY_PROJECT_NOT_FOUND') ?? false;
+        const isProjectMissing = connectedDiscussion.isProjectMissing;
         if (!isProjectMissing) {
             console.error('Failed to connect community project discussion:', connectedDiscussion.errorMessage);
         }
@@ -60,22 +54,22 @@ export async function POST(request: NextRequest, context: CommunityProjectDiscus
     const { error: sessionError } = await authenticatedRequest.supabase
         .from(WORKSHOP_PARTICIPANT_TABLE_NAME)
         .update({ session_token_hash: hashWorkshopSessionToken(sessionToken) })
-        .eq('id', connectedDiscussion.connection.discussion_participant_id)
-        .eq('workshop_id', connectedDiscussion.connection.discussion_workshop_id);
+        .eq('id', connectedDiscussion.connection.discussionParticipantId)
+        .eq('workshop_id', connectedDiscussion.connection.discussionWorkshopId);
     if (sessionError) {
         console.error('Failed to create community project discussion session:', sessionError.message);
         return NextResponse.json({ error: 'Do diskuze projektu se nepodařilo připojit.' }, { status: 500 });
     }
 
-    const response = NextResponse.json({ discussionWorkshopSlug: connectedDiscussion.connection.discussion_workshop_slug });
+    const response = NextResponse.json({ discussionWorkshopSlug: connectedDiscussion.connection.discussionWorkshopSlug });
     response.cookies.set(
-        getWorkshopSessionCookieName(connectedDiscussion.connection.discussion_workshop_slug),
+        getWorkshopSessionCookieName(connectedDiscussion.connection.discussionWorkshopSlug),
         sessionToken,
         {
             httpOnly: true,
             sameSite: 'strict',
             secure: process.env.NODE_ENV === 'production',
-            path: `/api/workshops/${connectedDiscussion.connection.discussion_workshop_slug}`,
+            path: `/api/workshops/${connectedDiscussion.connection.discussionWorkshopSlug}`,
             maxAge: WORKSHOP_SESSION_MAX_AGE_SECONDS,
         },
     );
