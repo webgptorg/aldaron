@@ -1,12 +1,14 @@
-import {
-    AI_TA_KRAJTA_BACKGROUND_COLOR,
-    AI_TA_KRAJTA_COVER_IMAGE_PATH,
-    AI_TA_KRAJTA_KIND,
-    AI_TA_KRAJTA_NAME,
-    AI_TA_KRAJTA_PATH,
-    AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE,
-} from '@/businesses/ai-ta-krajta/config';
 import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
+
+const AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@aitakrajta_tv';
+const AI_TA_KRAJTA_COVER_IMAGE_PATH = '/pavol/media/ai-ta-krajta.jpg';
+const AI_TA_KRAJTA_BACKGROUND_COLOR = '#303832';
+const AI_TA_KRAJTA_KIND = 'Video podcast';
+const AI_TA_KRAJTA_NAME = 'AI ta Krajta';
+const AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
+    cs: 'Vše o AI na jednom místě, každý týden. Novinky, poutavé zajímavosti a diskuze z oblasti umělé inteligence.',
+    en: 'Everything about AI in one place, every week. News, engaging points of interest, and discussions from the field of artificial intelligence.',
+};
 
 export type PavolMediaImportance = 'highlight' | 'rest';
 
@@ -40,10 +42,7 @@ export const pavolMediaMoreHref = 'https://www.linkedin.com/in/hejny/';
 
 const sharedMediaAppearances: SharedMediaAppearance[] = [
     {
-        // Note: The podcast has a page of its own, which is where a visitor learns the most about it and finds the way
-        //       to the YouTube channel. Everything the card says about it is taken from the very same configuration
-        //       that page is built from.
-        href: AI_TA_KRAJTA_PATH,
+        href: AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL,
         imageSrc: AI_TA_KRAJTA_COVER_IMAGE_PATH,
         source: 'YouTube',
         importance: 'highlight',

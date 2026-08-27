@@ -71,20 +71,6 @@ test('submits the homepage qualification lead flow', async ({ page }) => {
     await expect(page).toHaveURL(/\/dekujeme\?/);
 });
 
-test('submits the AI Ta Krajta subscription form', async ({ page }) => {
-    await page.goto('/ai-ta-krajta');
-
-    const email = page.locator('#ai-ta-krajta-email');
-    const subscriptionForm = email.locator('xpath=ancestor::form');
-    await email.fill(createE2eTestEmail('ai-ta-krajta'));
-
-    await submitAndExpectApiSuccess(page, '/api/waitlist', () =>
-        subscriptionForm.getByRole('button', { name: 'Chci vědět o novém dílu' }).click(),
-    );
-
-    await expect(page.getByRole('heading', { name: 'Hotovo, jsi v obraze' })).toBeVisible();
-});
-
 test('submits Pavol’s personal contact form', async ({ page }) => {
     await page.goto('/cs/pavol');
 

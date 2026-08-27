@@ -15,7 +15,6 @@ const CZECH_PATH_PREFIXES: readonly string[] = [
     '/for-agro',
     '/ai-supervize',
     '/ai-supervize-mini',
-    '/ai-ta-krajta',
     '/hackathon-factory',
     '/dekujeme',
     '/skoleni',
