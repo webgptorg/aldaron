@@ -66,13 +66,13 @@ describe('community membership page', () => {
         );
 
         expect(screen.getByText('Promptbook > Komunita')).toBeTruthy();
-        expect(screen.getByRole('heading', { name: 'Pavol Hejný, živé AI webináře zůstávají zdarma.' })).toBeTruthy();
-        expect(screen.getByText('Free komunita')).toBeTruthy();
+        expect(screen.getByRole('heading', { name: 'Pavol Hejný, živé webináře máte zdarma.' })).toBeTruthy();
+        expect(screen.getByText('Komunita zdarma')).toBeTruthy();
         expect(screen.getAllByText('Placené členství').length).toBeGreaterThan(0);
         expect(screen.getByText('199 Kč / měsíc')).toBeTruthy();
-        expect(screen.getAllByText('Kdykoli zrušíte').length).toBeGreaterThan(0);
-        expect(screen.getByText('Záznamy všech webinářů včetně archivu')).toBeTruthy();
-        expect(screen.getByText('Discord a funkce pro placené členy')).toBeTruthy();
+        expect(screen.getAllByText('Zrušení e-mailem').length).toBeGreaterThan(0);
+        expect(screen.getByText('Záznamy a archiv webinářů')).toBeTruthy();
+        expect(screen.getByText('Placená část komunitního Discordu')).toBeTruthy();
         expect(screen.queryByText('Premium')).toBeNull();
         expect(screen.queryByText('Standard')).toBeNull();
         expect(screen.queryByText(/7 dní zdarma/i)).toBeNull();

@@ -40,7 +40,7 @@ export function CommunityMembershipIllustration() {
     return (
         <figure
             className="relative mx-auto w-full max-w-[560px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#071b27] p-3 shadow-2xl shadow-cyan-950/30 sm:p-5"
-            aria-label="Ukázka diskuze, materiálů a reakcí v komunitě Promptbooku"
+            aria-label="Ukázka diskuze a materiálů v komunitě Promptbooku"
         >
             <div className="relative min-h-[410px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-[#0d2a37] to-[#071923] p-4 sm:min-h-[450px] sm:p-6">
                 <WorkshopReactionStream reactions={flyingReactions} className="z-20" />
@@ -52,7 +52,7 @@ export function CommunityMembershipIllustration() {
                         </div>
                         <div>
                             <p className="font-semibold">Komunita Promptbooku</p>
-                            <p className="text-xs text-cyan-100/55">vývoj · tvorba · podnikání</p>
+                            <p className="text-xs text-cyan-100/55">vývoj a práce s AI</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 rounded-full bg-emerald-300/10 px-3 py-1.5 text-xs font-medium text-emerald-200 ring-1 ring-emerald-200/20">
@@ -63,10 +63,10 @@ export function CommunityMembershipIllustration() {
                 <div className="mt-5 space-y-4">
                     <div className="mr-8 rounded-2xl rounded-tl-md bg-white/[0.07] p-4 ring-1 ring-white/10">
                         <div className="flex items-center gap-2 text-xs font-semibold text-cyan-200">
-                            <span className="h-2 w-2 rounded-full bg-cyan-300" /> Andrea · tvůrkyně
+                            <span className="h-2 w-2 rounded-full bg-cyan-300" /> Andrea, členka
                         </div>
                         <p className="mt-2 text-sm leading-relaxed text-slate-200">
-                            Sdílím první verzi svého AI workflow. Co byste zjednodušili před nasazením?
+                            Zkouším AI na nabídky. Kam mám dát výjimky, aby je model nepřehlédl?
                         </p>
                     </div>
 
@@ -75,17 +75,17 @@ export function CommunityMembershipIllustration() {
                             <span className="flex h-5 w-5 items-center justify-center rounded-md bg-cyan-300/15 font-mono text-[10px]">
                                 &lt;/&gt;
                             </span>
-                            Pavol · moderátor
+                            Pavol, moderátor
                         </div>
                         <p className="mt-2 text-sm leading-relaxed text-slate-100">
-                            Na workshopu projdeme kontext i testy. Repo jsem připnul do materiálů.
+                            Dejte je do kontextu hned na začátek. Na workshopu ukážu i verzi, která selhala.
                         </p>
                     </div>
 
                     <div className="mr-14 flex items-start gap-3 rounded-2xl rounded-tl-md bg-white/[0.055] p-4 ring-1 ring-white/10">
                         <MessageCircleMore className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
                         <p className="text-sm leading-relaxed text-slate-300">
-                            Super, přidám dotaz předem. <span aria-hidden="true">🔥</span>
+                            Dobře, dotaz pošlu předem.
                         </p>
                     </div>
                 </div>

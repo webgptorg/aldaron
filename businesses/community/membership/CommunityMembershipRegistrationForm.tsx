@@ -110,20 +110,20 @@ export function CommunityMembershipRegistrationForm({
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
                     <CheckCircle2 className="h-6 w-6" />
                 </div>
-                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Máme to</p>
+                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Žádost máme</p>
                 <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {fullname}, připravujeme vaše placené členství.
+                    {fullname}, ozveme se e-mailem.
                 </h3>
                 <p className="mt-3 leading-relaxed text-slate-600">
-                    Na <strong>{email}</strong> pošleme potvrzení, platební údaje a další krok k aktivaci. Členství
-                    můžete kdykoli zrušit.
+                    Na <strong>{email}</strong> pošleme potvrzení a platební údaje. V e-mailu najdete i další krok k
+                    aktivaci.
                 </p>
                 <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Vaše měsíční cena</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Měsíční cena</p>
                     <p className="mt-2 text-2xl font-bold text-slate-950">
                         {formatCommunityMembershipPrice(registrationResult.price.finalMonthlyEquivalentCzk)} / měsíc
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">Platba každý měsíc, bez ročního závazku.</p>
+                    <p className="mt-1 text-sm text-slate-500">Platíte po měsících, ne celý rok dopředu.</p>
                 </div>
             </div>
         );
@@ -142,10 +142,10 @@ export function CommunityMembershipRegistrationForm({
                 <div>
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-cyan-700">Placené členství</p>
                     <h3 className="mt-1 text-2xl font-bold text-slate-950">
-                        {formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} měsíčně
+                        {formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} za měsíc
                     </h3>
                     <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                        Živé AI webináře zůstávají zdarma.
+                        Živé webináře jsou zdarma.
                     </p>
                 </div>
             </div>
@@ -158,7 +158,7 @@ export function CommunityMembershipRegistrationForm({
                 />
                 <div className="mt-4 flex items-start gap-2 border-t border-slate-200 pt-4 text-xs leading-relaxed text-slate-600">
                     <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    Platba je každý měsíc. Členství můžete kdykoli zrušit.
+                    Platíte každý měsíc. Když budete chtít skončit, napište nám e-mail.
                 </div>
             </div>
 
@@ -209,7 +209,7 @@ export function CommunityMembershipRegistrationForm({
             <div className="mt-5">
                 <DiscountCodeField inputId="community-membership-discount-code" validation={discountCodeValidation} />
                 <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                    Máte slevový kód? Zadejte ho; jinak nechte pole prázdné.
+                    Máte slevový kód? Zadejte ho. Jinak pole nechte prázdné.
                 </p>
             </div>
 
@@ -249,7 +249,7 @@ export function CommunityMembershipRegistrationForm({
                 {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Check className="mr-2 h-5 w-5" />}
                 {isSubmitting
                     ? 'Odesílám…'
-                    : `Chci placené členství za ${formatCommunityMembershipPrice(
+                    : `Poslat žádost za ${formatCommunityMembershipPrice(
                           CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
                       )} / měsíc`}
             </Button>

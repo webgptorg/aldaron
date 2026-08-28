@@ -121,19 +121,19 @@ test('personalizes and submits the 199 Kč Promptbook paid community membership'
     const registrationForm = registrationSection.locator('form');
     await expect(registrationForm.getByLabel('Jméno a příjmení')).toHaveValue(fullname);
     await expect(registrationForm.getByLabel('E-mail')).toHaveValue(email);
-    await expect(registrationForm.getByText('199 Kč měsíčně')).toBeVisible();
-    await expect(registrationForm.getByText('Živé AI webináře zůstávají zdarma.')).toBeVisible();
-    await expect(registrationForm.getByText('Členství můžete kdykoli zrušit.')).toBeVisible();
+    await expect(registrationForm.getByText('199 Kč za měsíc')).toBeVisible();
+    await expect(registrationForm.getByText('Živé webináře jsou zdarma.')).toBeVisible();
+    await expect(registrationForm.getByText('Když budete chtít skončit, napište nám e-mail.')).toBeVisible();
     await registrationForm.getByRole('checkbox', { name: 'Souhlasím s obchodními podmínkami' }).click();
 
     await submitAndExpectApiSuccess(page, '/api/community/membership/registration', () =>
-        registrationForm.getByRole('button', { name: 'Chci placené členství za 199 Kč / měsíc' }).click(),
+        registrationForm.getByRole('button', { name: 'Poslat žádost za 199 Kč / měsíc' }).click(),
     );
 
     await expect(
-        registrationSection.getByRole('heading', { name: `${fullname}, připravujeme vaše placené členství.` }),
+        registrationSection.getByRole('heading', { name: `${fullname}, ozveme se e-mailem.` }),
     ).toBeVisible();
-    await expect(registrationSection.getByText('Platba každý měsíc, bez ročního závazku.')).toBeVisible();
+    await expect(registrationSection.getByText('Platíte po měsících, ne celý rok dopředu.')).toBeVisible();
 });
 
 test('submits an available AI Supervize Mini workshop registration', async ({ page }) => {

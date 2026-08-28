@@ -2,17 +2,26 @@ import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
 import type { Metadata } from 'next';
-import { COMMUNITY_MEMBERSHIP_PATH } from './communityMembershipConfig';
+import {
+    COMMUNITY_MEMBERSHIP_PATH,
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+} from './communityMembershipConfig';
+import { formatCommunityMembershipPrice } from './communityMembershipPrice';
+
+const CURRENT_PAID_MEMBERSHIP_PRICE_LABEL = formatCommunityMembershipPrice(
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+);
 
 export const COMMUNITY_MEMBERSHIP_PAGE_DEFINITION: PageMetadataDefinition = {
     path: COMMUNITY_MEMBERSHIP_PATH,
     language: 'cs',
-    title: 'Členství v komunitě Promptbooku | 199 Kč měsíčně',
-    socialTitle: 'Komunita Promptbooku | 199 Kč měsíčně',
+    title: `AI webináře a záznamy | ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně`,
+    socialTitle: `Živě zdarma. Záznamy za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL}.`,
     description:
-        'Živé AI webináře zůstávají zdarma. Za 199 Kč měsíčně získáte záznamy, materiály a další obsah.',
-    socialDescription: 'Živé AI webináře zdarma. Záznamy, praktické materiály a další obsah za 199 Kč měsíčně.',
-    socialPreviewImageAlt: 'Členství v komunitě Promptbooku za 199 Kč měsíčně',
+        `Živě se připojíte zdarma. Placené členství za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně otevře záznamy, archiv, materiály a přednostní dotazy.`,
+    socialDescription:
+        `Živé AI webináře jsou zdarma. Za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně dostanete záznamy, archiv, materiály a přednostní dotazy.`,
+    socialPreviewImageAlt: `Členství Promptbooku. Záznamy a materiály za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně.`,
     isSocialPreviewImageGenerated: true,
     sitemapPriority: 0.7,
     sitemapChangeFrequency: 'monthly',
@@ -28,14 +37,14 @@ export const COMMUNITY_MEMBERSHIP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOp
     COMMUNITY_MEMBERSHIP_PAGE_DEFINITION,
     {
         eyebrow: 'Komunita Promptbooku',
-        audienceLabel: 'Pro vývojáře, tvůrce a malé firmy',
-        bullets: ['Živé AI webináře zdarma', 'Záznamy včetně archivu', 'Praktické materiály a další obsah'],
+        audienceLabel: 'Pro lidi, kteří chtějí AI používat v práci',
+        bullets: ['Živé webináře zdarma', 'Záznamy a archiv', 'Materiály a dotazy předem'],
         stats: [
             { label: 'Živě', value: 'zdarma' },
-            { label: 'Členství', value: '199 Kč / měs.' },
-            { label: 'Zrušení', value: 'kdykoli' },
+            { label: 'Členství', value: `${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} za měsíc` },
+            { label: 'Ukončení', value: 'e-mailem' },
         ],
-        callToActionLabel: 'Stát se členem',
+        callToActionLabel: 'Chci záznamy a materiály',
         paletteSeed: {
             backgroundStart: '#061923',
             backgroundEnd: '#12384a',

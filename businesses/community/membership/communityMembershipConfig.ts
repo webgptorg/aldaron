@@ -54,13 +54,13 @@ export const COMMUNITY_MEMBERSHIP_FEATURES: readonly CommunityMembershipFeature[
     { id: 'community-materials', label: 'Základní materiály komunity', shortLabel: 'Materiály komunity' },
     { id: 'starter-repositories', label: 'Startovací repozitáře', shortLabel: 'Starter repozitáře' },
     { id: 'member-discussion', label: 'Diskuze s ostatními členy', shortLabel: 'Komunitní diskuze' },
-    { id: 'paid-discord', label: 'Discord a funkce pro placené členy', shortLabel: 'Členský Discord' },
-    { id: 'workshop-recordings', label: 'Záznamy všech webinářů včetně archivu', shortLabel: 'Záznamy webinářů' },
-    { id: 'exclusive-content', label: 'Praktické materiály a další obsah', shortLabel: 'Materiály a obsah' },
+    { id: 'paid-discord', label: 'Placená část komunitního Discordu', shortLabel: 'Členský Discord' },
+    { id: 'workshop-recordings', label: 'Záznamy a archiv webinářů', shortLabel: 'Záznamy webinářů' },
+    { id: 'exclusive-content', label: 'Praktické materiály k tématům', shortLabel: 'Materiály' },
     { id: 'creation-showcase', label: 'Prostor sdílet vlastní tvorbu', shortLabel: 'Sdílení vlastní tvorby' },
     {
         id: 'workshop-question-priority',
-        label: 'Přednostní dotazy před workshopem i během něj',
+        label: 'Přednost pro dotazy před vysíláním i během něj',
         shortLabel: 'Přednostní dotazy',
     },
     { id: 'materials-rss', label: 'Soukromý RSS kanál s materiály', shortLabel: 'RSS s materiály' },
@@ -113,7 +113,7 @@ export const COMMUNITY_MEMBERSHIP_PLANS: readonly CommunityMembershipPlan[] = [
 export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN: CommunityMembershipPlan = {
     id: CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
     name: 'Placené členství',
-    description: 'Záznamy, materiály a další obsah k bezplatným živým webinářům.',
+    description: 'Záznamy, archiv, materiály a přednost pro dotazy k živým webinářům.',
     monthlyPriceCzk: CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
     yearlyPriceCzk: null,
     addedFeatureIds: [

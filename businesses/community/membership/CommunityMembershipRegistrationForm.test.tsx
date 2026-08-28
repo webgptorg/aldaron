@@ -62,9 +62,9 @@ describe('community membership registration form', () => {
 
         expect((screen.getByLabelText('Jméno a příjmení') as HTMLInputElement).value).toBe('Jana Nováková');
         expect((screen.getByLabelText('E-mail') as HTMLInputElement).value).toBe('jana@example.com');
-        expect(screen.getByText('199 Kč měsíčně')).toBeTruthy();
-        expect(screen.getByText('Živé AI webináře zůstávají zdarma.')).toBeTruthy();
-        expect(screen.getByText(/Členství můžete kdykoli zrušit\./)).toBeTruthy();
+        expect(screen.getByText('199 Kč za měsíc')).toBeTruthy();
+        expect(screen.getByText('Živé webináře jsou zdarma.')).toBeTruthy();
+        expect(screen.getByText(/Když budete chtít skončit, napište nám e-mail\./)).toBeTruthy();
         expect(screen.queryByText(/7 dní zdarma/i)).toBeNull();
         expect(screen.queryByText('Premium')).toBeNull();
         expect(screen.queryByText('Ročně')).toBeNull();
@@ -94,7 +94,7 @@ describe('community membership registration form', () => {
         );
 
         fireEvent.click(screen.getByLabelText('Souhlasím s obchodními podmínkami'));
-        fireEvent.click(screen.getByRole('button', { name: 'Chci placené členství za 199 Kč / měsíc' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Poslat žádost za 199 Kč / měsíc' }));
 
         await waitFor(() => {
             expect(submitCommunityMembershipRegistrationMock).toHaveBeenCalledWith({
@@ -106,7 +106,7 @@ describe('community membership registration form', () => {
                 termsAccepted: true,
             });
         });
-        expect(await screen.findByText('Jana Nováková, připravujeme vaše placené členství.')).toBeTruthy();
-        expect(screen.getByText('Platba každý měsíc, bez ročního závazku.')).toBeTruthy();
+        expect(await screen.findByText('Jana Nováková, ozveme se e-mailem.')).toBeTruthy();
+        expect(screen.getByText('Platíte po měsících, ne celý rok dopředu.')).toBeTruthy();
     });
 });

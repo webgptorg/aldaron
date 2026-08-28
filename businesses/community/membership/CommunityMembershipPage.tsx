@@ -60,27 +60,31 @@ type MembershipOption = {
 const BENEFIT_CARDS: readonly BenefitCard[] = [
     {
         icon: Video,
-        title: 'Záznamy všech webinářů',
-        description: 'K novým záznamům i k archivu předchozích webinářů se vrátíte, kdy se vám to hodí.',
+        title: 'Záznamy, které nezmizí',
+        description: 'Po vysílání otevřeme záznam. V archivu najdete i starší webináře.',
     },
     {
         icon: FolderGit2,
-        title: 'Materiály do praxe',
-        description: 'Praktické návody, repozitáře, checklisty a další obsah na jednom místě.',
+        title: 'Materiály k práci',
+        description: 'Praktické návody, repozitáře a checklisty k jednotlivým tématům.',
     },
     {
         icon: MessageSquareText,
-        title: 'Dotazy předem i během',
-        description: 'Pošlete otázku před webinářem; během živého vysílání mají placení členové přednost.',
+        title: 'Dotaz předem',
+        description: 'Pošlete ho před vysíláním. V živém chatu ho vezmeme přednostně.',
     },
     {
         icon: Code2,
         title: 'Discord pro členy',
-        description: 'Přístup do Discordu a k funkcím komunity určeným pro placené členy.',
+        description: 'Dostanete vstup do placené části komunitního Discordu.',
     },
 ];
 
-const SPECIALIZED_WEBINARS = ['Git do hloubky', 'AI a databáze', 'Testování', 'Práce s kontextem'] as const;
+const ARCHIVE_WEBINAR_TOPICS = ['Git do hloubky', 'AI a databáze', 'Testování', 'Práce s kontextem'] as const;
+
+const CURRENT_PAID_MEMBERSHIP_PRICE_LABEL = formatCommunityMembershipPrice(
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
+);
 
 const FREE_MEMBERSHIP_FEATURE_IDS = [
     'live-workshops',
@@ -99,8 +103,8 @@ const MEMBERSHIP_OPTIONS: readonly MembershipOption[] = [
     {
         id: 'free',
         icon: Code2,
-        title: 'Free komunita',
-        description: 'Pro účast na živých AI webinářích a základní přístup do komunity.',
+        title: 'Komunita zdarma',
+        description: 'Pro živá vysílání a vstup do komunity.',
         price: '0 Kč',
         priceDetail: 'bez platebních údajů',
         featureIds: FREE_MEMBERSHIP_FEATURE_IDS,
@@ -110,9 +114,9 @@ const MEMBERSHIP_OPTIONS: readonly MembershipOption[] = [
         id: 'paid',
         icon: Crown,
         title: 'Placené členství',
-        description: 'Pro záznamy, materiály a další obsah kolem bezplatných živých webinářů.',
-        price: formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK),
-        priceDetail: 'kdykoli zrušíte',
+        description: 'Pro chvíle po vysílání. Záznamy, materiály a dotazy předem.',
+        price: CURRENT_PAID_MEMBERSHIP_PRICE_LABEL,
+        priceDetail: 'ukončení e-mailem',
         featureIds: PAID_MEMBERSHIP_FEATURE_IDS,
         isHighlighted: true,
     },
@@ -149,7 +153,7 @@ function MembershipOptionCard({
         >
             {option.isHighlighted && (
                 <div className="absolute -top-3 left-6 inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                    <Check className="h-3.5 w-3.5 text-cyan-300" /> 199 Kč měsíčně
+                    <Check className="h-3.5 w-3.5 text-cyan-300" /> {CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} za měsíc
                 </div>
             )}
 
@@ -178,7 +182,7 @@ function MembershipOptionCard({
 
             <div className="mt-6 flex-1 border-t border-slate-100 pt-6">
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-                    {option.id === 'paid' ? 'Vše z Free a navíc' : 'Ve Free komunitě'}
+                    {option.id === 'paid' ? 'Co přidá placené členství' : 'Co máte zdarma'}
                 </p>
                 <ul className="mt-4 space-y-3">
                     {option.featureIds.map((featureId) => (
@@ -200,7 +204,7 @@ function MembershipOptionCard({
                     onClick={onSelectPaidMembership}
                     className="mt-7 h-11 rounded-full bg-slate-950 text-white hover:bg-slate-800"
                 >
-                    Stát se placeným členem <ArrowRight className="ml-2 h-4 w-4" />
+                    Chci přístup po vysílání <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             )}
         </article>
@@ -244,11 +248,11 @@ export function CommunityMembershipPage({
         [initialEmail, initialFullname],
     );
     const personalizedHeroTitle = initialFullname
-        ? `${initialFullname}, živé AI webináře zůstávají zdarma.`
-        : 'Živé AI webináře zůstávají zdarma.';
+        ? `${initialFullname}, živé webináře máte zdarma.`
+        : 'Živé webináře máte zdarma.';
     const personalizedRegistrationTitle = initialFullname
-        ? `${initialFullname}, placené členství za 199 Kč měsíčně.`
-        : 'Placené členství za 199 Kč měsíčně.';
+        ? `${initialFullname}, chcete se k webinářům vracet?`
+        : 'Chcete se k webinářům vracet?';
 
     const selectPaidMembership = () => {
         window.requestAnimationFrame(() => {
@@ -269,13 +273,13 @@ export function CommunityMembershipPage({
                 centerContent={
                     <>
                         <Video className="h-4 w-4 text-emerald-600" />
-                        <span>Živé AI webináře zdarma</span>
+                        <span>Komunita pro práci s AI</span>
                     </>
                 }
                 secondaryAction={{ label: 'Otevřít komunitu', href: basicHref }}
                 primaryAction={{
-                    label: 'Členství · 199 Kč',
-                    mobileLabel: '199 Kč / měs.',
+                    label: `Členství za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL}`,
+                    mobileLabel: CURRENT_PAID_MEMBERSHIP_PRICE_LABEL,
                     href: `#${REGISTRATION_SECTION_ID}`,
                 }}
             />
@@ -293,14 +297,14 @@ export function CommunityMembershipPage({
                 <div className="container relative mx-auto grid items-center gap-14 px-4 pb-20 pt-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)] lg:pb-28 lg:pt-16">
                     <div className="max-w-3xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-cyan-100/15 bg-cyan-200/10 px-4 py-2 text-sm font-semibold text-cyan-100">
-                            <Video className="h-4 w-4" /> Živé AI webináře zdarma
+                            <Video className="h-4 w-4" /> Záznamy a materiály po vysílání
                         </div>
                         <h1 className="mt-6 text-4xl font-bold leading-[1.07] tracking-tight text-white sm:text-5xl lg:text-6xl">
                             {personalizedHeroTitle}
                         </h1>
                         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
-                            Za 199 Kč měsíčně získáte záznamy, materiály a další obsah, díky kterému se můžete k
-                            tématům vracet a jít více do hloubky.
+                            Živě přijďte bez placení. Za {CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně dostanete
+                            záznamy, archiv, materiály a možnost poslat dotaz předem.
                         </p>
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button
@@ -309,7 +313,7 @@ export function CommunityMembershipPage({
                                 className="h-13 rounded-full bg-cyan-300 px-7 text-base font-bold text-slate-950 hover:bg-cyan-200"
                             >
                                 <Link href={`#${REGISTRATION_SECTION_ID}`}>
-                                    Stát se členem za 199 Kč <ArrowRight className="ml-2 h-5 w-5" />
+                                    Chci záznamy a materiály <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
                             <Button
@@ -318,14 +322,14 @@ export function CommunityMembershipPage({
                                 variant="outline"
                                 className="h-13 rounded-full border-white/20 bg-white/5 px-7 text-base text-white hover:bg-white/10 hover:text-white"
                             >
-                                <Link href="#ceny">Porovnat Free a placené</Link>
+                                <Link href="#ceny">Srovnat možnosti</Link>
                             </Button>
                         </div>
                         <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-300">
                             {[
-                                'Živé webináře zdarma',
-                                `${formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} / měsíc`,
-                                'Kdykoli zrušíte',
+                                'Živě bez placení',
+                                `${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} / měsíc`,
+                                'Zrušení e-mailem',
                             ].map((item) => (
                                 <span key={item} className="flex items-center gap-2">
                                     <Check className="h-4 w-4 text-emerald-300" /> {item}
@@ -340,13 +344,13 @@ export function CommunityMembershipPage({
             <section id="vyhody" className="bg-white py-20 sm:py-24">
                 <div className="container mx-auto px-4">
                     <div className="max-w-3xl">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Placené členství</p>
+                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Po vysílání</p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                            Obsah, který vám zůstane i po živém vysílání.
+                            Webinář skončí. Záznam zůstane.
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Živý webinář si můžete pustit zdarma. Členství dává smysl ve chvíli, kdy se chcete k
-                            tématu vracet, projít materiály nebo položit otázku s předstihem.
+                            Členství má cenu, když chcete znovu projít ukázku, stáhnout materiál nebo poslat otázku
+                            ještě před začátkem.
                         </p>
                     </div>
                     <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -373,19 +377,19 @@ export function CommunityMembershipPage({
                             <BookOpenCheck className="h-6 w-6" />
                         </div>
                         <h2 className="mt-5 text-3xl font-bold text-slate-950 sm:text-4xl">
-                            Záznamy i archiv na jednom místě
+                            Některé věci se nepoberou napoprvé.
                         </h2>
                         <p className="mt-4 leading-relaxed text-slate-600">
-                            Živé online webináře zůstávají zdarma. Placené členství zpřístupní jejich záznamy po
-                            skončení i archiv předchozích témat.
+                            V archivu si zastavíte část, kterou zrovna potřebujete. Třeba Git, databáze, testy nebo
+                            práci s kontextem.
                         </p>
                     </div>
                     <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                         <p className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-                            Témata, ke kterým se můžete vracet
+                            V archivu najdete třeba
                         </p>
                         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                            {SPECIALIZED_WEBINARS.map((webinar, index) => (
+                            {ARCHIVE_WEBINAR_TOPICS.map((webinar, index) => (
                                 <div
                                     key={webinar}
                                     className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100"
@@ -404,84 +408,48 @@ export function CommunityMembershipPage({
             <section id="ceny" className="bg-white py-20 sm:py-24">
                 <div className="container mx-auto px-4">
                     <div className="mx-auto max-w-3xl text-center">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Jednoduchá volba</p>
+                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">
+                            Vyberte si podle toho, co využijete
+                        </p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                            Free komunita, nebo obsah navíc.
+                            Živě zdarma. Záznamy a materiály za {CURRENT_PAID_MEMBERSHIP_PRICE_LABEL}.
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Živé AI webináře jsou zdarma pro každého. Placené členství stojí 199 Kč měsíčně a můžete
-                            ho kdykoli zrušit.
+                            Chcete jen přijít na webinář a být v komunitě? Nic neplaťte. Placené členství si nechte na
+                            chvíli, kdy využijete záznamy, archiv, materiály nebo dotazy předem.
                         </p>
                     </div>
                     <SimpleMembershipComparison basicHref={basicHref} onSelectPaidMembership={selectPaidMembership} />
                 </div>
             </section>
 
-            <section className="relative overflow-hidden bg-[#081c27] py-20 text-white sm:py-24">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-violet-500/15 blur-3xl" />
-                <div className="container relative mx-auto grid gap-10 px-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-                    <div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-300/10 text-cyan-200 ring-1 ring-cyan-200/20">
-                            <BookOpenCheck className="h-6 w-6" />
-                        </div>
-                        <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-cyan-200">
-                            Bez dlouhého závazku
-                        </p>
-                        <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-                            Připojte se živě. Vracejte se, kdy potřebujete.
-                        </h2>
-                        <p className="mt-4 max-w-xl leading-relaxed text-slate-300 sm:text-lg">
-                            Za členství platíte po měsících. Je tu pro záznamy, materiály a dotazy navíc — ne proto,
-                            abyste platili za samotné živé webináře.
-                        </p>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {[
-                            { value: 'Zdarma', label: 'živé AI webináře' },
-                            { value: '199 Kč', label: 'za měsíc' },
-                            { value: 'Archiv', label: 'předchozích záznamů' },
-                            { value: 'Předem', label: 'můžete poslat dotaz' },
-                        ].map((metric) => (
-                            <div
-                                key={metric.label}
-                                className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 backdrop-blur"
-                            >
-                                <Check className="h-5 w-5 text-cyan-200" />
-                                <p className="mt-4 text-xl font-bold">{metric.value}</p>
-                                <p className="mt-1 text-sm text-slate-400">{metric.label}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             <section id={REGISTRATION_SECTION_ID} className="scroll-mt-20 bg-white py-20 sm:py-24">
                 <div className="container mx-auto grid gap-12 px-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(430px,1fr)] lg:items-start">
                     <div className="lg:sticky lg:top-28">
-                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Aktivace</p>
+                        <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Přihláška</p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
                             {personalizedRegistrationTitle}
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Po odeslání vám pošleme potvrzení, platební údaje a další krok k aktivaci. Členství můžete
-                            kdykoli zrušit.
+                            Pošlete nám jméno a e-mail. Potvrzení, platební údaje a další krok k aktivaci vám pošleme
+                            e-mailem.
                         </p>
                         <div className="mt-8 space-y-4">
                             {[
                                 {
                                     icon: ShieldCheck,
                                     title: '199 Kč za měsíc',
-                                    text: 'Platíte měsíčně, bez roční platby předem.',
+                                    text: 'Neplatíte nic na rok dopředu.',
                                 },
                                 {
                                     icon: LockKeyhole,
-                                    title: 'Kdykoli zrušíte',
-                                    text: 'Není potřeba zůstávat déle, než vám členství dává smysl.',
+                                    title: 'Zrušení e-mailem',
+                                    text: 'Napište nám. Členství doběhne do konce zaplaceného období.',
                                 },
                                 {
                                     icon: BookOpenCheck,
-                                    title: 'Záznamy a materiály',
-                                    text: 'Po aktivaci se k nim dostanete vedle živých webinářů zdarma.',
+                                    title: 'Po aktivaci',
+                                    text: 'Dostanete záznamy, archiv, materiály a přednost pro dotazy.',
                                 },
                             ].map((item) => (
                                 <div key={item.title} className="flex gap-4">
@@ -510,10 +478,11 @@ export function CommunityMembershipPage({
                     <div className="mx-auto flex max-w-4xl items-start gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-5 sm:p-6">
                         <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
                         <div>
-                            <h2 className="font-bold text-slate-950">Členství bez dlouhého závazku</h2>
+                            <h2 className="font-bold text-slate-950">Když budete chtít skončit</h2>
                             <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                Placené členství stojí 199 Kč za měsíc. Kdykoli ho můžete zrušit e-mailem; skončí po
-                                právě zaplaceném období. Podrobnosti najdete v obchodních podmínkách.
+                                Členství stojí {CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} za měsíc. Když ho budete chtít
+                                ukončit, napište nám e-mail. Skončí na konci právě zaplaceného období. Podrobnosti
+                                najdete v obchodních podmínkách.
                             </p>
                         </div>
                     </div>
