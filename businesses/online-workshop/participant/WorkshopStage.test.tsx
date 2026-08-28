@@ -32,6 +32,11 @@ const WORKSHOP_WITH_VIDEO: WorkshopDetails = {
     youtubeVideoId: 'dQw4w9WgXcQ',
 };
 
+const OPEN_ENDED_WORKSHOP_WITH_VIDEO: WorkshopDetails = {
+    ...WORKSHOP_WITH_VIDEO,
+    endsAt: null,
+};
+
 const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
     id: 'follow-up-material',
     title: 'Materiály pro další krok',
@@ -164,6 +169,37 @@ describe('workshop stage', () => {
         expect(postMessage).not.toHaveBeenCalled();
 
         contentWindowSpy.mockRestore();
+    });
+
+    it('keeps the video of a workshop without an end on the stage however long it runs', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={OPEN_ENDED_WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-21T09:00:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).not.toBeNull();
+        expect(screen.queryByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).toBeNull();
+    });
+
+    it('wraps a workshop without an end up as soon as the administration records its end', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={{ ...OPEN_ENDED_WORKSHOP_WITH_VIDEO, endsAt: '2026-08-20T21:12:00+02:00' }}
+                serverTime="2026-08-20T21:13:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
     });
 
     it('replaces the video with the wrap-up while reactions keep their stage stream', () => {

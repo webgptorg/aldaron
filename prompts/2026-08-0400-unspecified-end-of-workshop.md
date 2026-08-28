@@ -1,4 +1,4 @@
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `high` - Implementation $5.72 9 minutes; Testing 5 minutes
 
 [✨📨] Workshops should have been able to have undefined ending.
 
@@ -8,3 +8,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

@@ -14,6 +14,8 @@ export type WorkshopPhase = (typeof WORKSHOP_PHASE_VALUES)[number];
  *
  * Note: Both a summary and the full details of a workshop satisfy this shape, so nothing has to be loaded just to
  *       place an occurrence in time.
+ * Note: An occurrence without an end has not ended. It runs for as long as it takes and is only over once its end is
+ *       recorded, which is what the administration does when the workshop is really finished.
  */
 export type WorkshopOccurrenceTiming = {
     readonly startsAt: string;
@@ -31,22 +33,43 @@ const WORKSHOP_PHASE_ORDER: Readonly<Record<WorkshopPhase, number>> = {
 };
 
 /**
- * Moment a workshop ends, taken from its usual length whenever the workshop itself does not say
+ * Moment an occurrence was really given as its end, or `null` while that end is left open
  *
- * Note: This is the single rule for the length of a workshop without a recorded end, so a calendar invitation and the
- *       administration never disagree about whether an occurrence is over.
+ * Note: This is the single rule for whether an occurrence has an end at all, so nothing decides on its own that an
+ *       unwritten or nonsensical end means the workshop is over.
  */
-export function getWorkshopEndsAtMilliseconds(occurrence: WorkshopOccurrenceTiming): number {
-    const startsAtMilliseconds = Date.parse(occurrence.startsAt);
+export function getWorkshopRecordedEndsAtMilliseconds(occurrence: WorkshopOccurrenceTiming): number | null {
     const endsAtMilliseconds = occurrence.endsAt === null ? Number.NaN : Date.parse(occurrence.endsAt);
 
-    return endsAtMilliseconds > startsAtMilliseconds
-        ? endsAtMilliseconds
-        : startsAtMilliseconds + DEFAULT_WORKSHOP_DURATION_MINUTES * MILLISECONDS_PER_MINUTE;
+    return endsAtMilliseconds > Date.parse(occurrence.startsAt) ? endsAtMilliseconds : null;
+}
+
+/**
+ * Whether an occurrence still has no end, so it runs until the administration ends it
+ */
+export function isWorkshopEndOpen(occurrence: WorkshopOccurrenceTiming): boolean {
+    return getWorkshopRecordedEndsAtMilliseconds(occurrence) === null;
+}
+
+/**
+ * Moment an occurrence is expected to end, taken from the usual length of a workshop while its end is left open
+ *
+ * Note: A calendar invitation and a duration label have to name a length before an occurrence has one, which is what
+ *       this expectation is for. It deliberately never decides whether an occurrence is over — only a recorded end
+ *       does that.
+ */
+export function getWorkshopExpectedEndsAtMilliseconds(occurrence: WorkshopOccurrenceTiming): number {
+    return (
+        getWorkshopRecordedEndsAtMilliseconds(occurrence) ??
+        Date.parse(occurrence.startsAt) + DEFAULT_WORKSHOP_DURATION_MINUTES * MILLISECONDS_PER_MINUTE
+    );
 }
 
 /**
  * Decides whether an occurrence is still ahead, running right now, or already over
+ *
+ * Note: An occurrence whose end is open never becomes past by itself. It keeps running — and keeps its stage on —
+ *       until an administrator records the end of it.
  *
  * @param currentTimeMilliseconds moment to compare against, so a list places every occurrence against the same instant
  */
@@ -58,7 +81,10 @@ export function getWorkshopPhase(
         return 'upcoming';
     }
 
-    return getWorkshopEndsAtMilliseconds(occurrence) > currentTimeMilliseconds ? 'ongoing' : 'past';
+    const recordedEndsAtMilliseconds = getWorkshopRecordedEndsAtMilliseconds(occurrence);
+    return recordedEndsAtMilliseconds === null || recordedEndsAtMilliseconds > currentTimeMilliseconds
+        ? 'ongoing'
+        : 'past';
 }
 
 /**

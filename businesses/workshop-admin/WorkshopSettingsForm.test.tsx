@@ -35,7 +35,17 @@ const COMMUNITY: WorkshopDetails = {
     youtubeVideoId: null,
 };
 
+/**
+ * A workshop which is running with no end recorded, whatever moment this test is run at
+ */
+const OPEN_ENDED_WORKSHOP: WorkshopDetails = {
+    ...WORKSHOP,
+    startsAt: '2020-01-01T10:00:00+01:00',
+    endsAt: null,
+};
+
 const SCHEDULE_LABELS = ['Začátek', 'Konec'];
+const END_WORKSHOP_LABEL = 'Ukončit workshop';
 const STAGE_LABEL = 'YouTube URL nebo video ID';
 const REACTION_LABEL = 'Reakce oddělené mezerou';
 
@@ -96,6 +106,54 @@ describe('workshop settings form', () => {
                 disabledPanels: COMMUNITY.disabledPanels,
             }),
         );
+    });
+
+    it('offers to end a running workshop whose end is still open', () => {
+        renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
+
+        expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).not.toBeNull();
+    });
+
+    it('leaves a workshop which already has an end and a workshop which has not started without that button', () => {
+        renderWorkshopSettingsForm(WORKSHOP);
+        expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).toBeNull();
+
+        cleanup();
+
+        renderWorkshopSettingsForm({ ...OPEN_ENDED_WORKSHOP, startsAt: '2099-01-01T10:00:00+01:00' });
+        expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).toBeNull();
+    });
+
+    it('ends a workshop by saving the current moment as its end', async () => {
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+        const { onSave } = renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
+        const momentBeforeEnding = Date.now();
+
+        fireEvent.click(screen.getByRole('button', { name: END_WORKSHOP_LABEL }));
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+        const endsAt = Date.parse(onSave.mock.calls[0][0].endsAt);
+        expect(endsAt).toBeGreaterThanOrEqual(momentBeforeEnding);
+        expect(endsAt).toBeLessThanOrEqual(Date.now());
+        confirmSpy.mockRestore();
+    });
+
+    it('leaves a workshop running when the ending of it is not confirmed', () => {
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+        const { onSave } = renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
+
+        fireEvent.click(screen.getByRole('button', { name: END_WORKSHOP_LABEL }));
+
+        expect(onSave).not.toHaveBeenCalled();
+        confirmSpy.mockRestore();
+    });
+
+    it('keeps saving the settings of a workshop whose end is left open without an end', async () => {
+        const { onSave, submit } = renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
+
+        submit();
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ endsAt: null })));
     });
 
     it('saves a workshop occurrence with its schedule, its stage, and its reactions', async () => {

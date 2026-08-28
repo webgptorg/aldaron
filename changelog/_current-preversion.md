@@ -1,5 +1,14 @@
 # Current preversion
 
+- Let a workshop have no end at all. A term whose end is left empty in `/admin/workshops` now runs from its start for
+  as long as it takes: `/cs/online-workshop/participant` keeps its stream on the stage and its room open indefinitely
+  instead of declaring the workshop over an hour after it started, which is what an unwritten end used to mean. The
+  settings of such a running term offer an `Ukončit workshop` button which writes the current moment as its end, so
+  the room replaces the stage with the closing wrap-up and its feedback the moment the workshop really ends, and the
+  administration lists the term as finished. An end is still typed in by hand whenever it is known in advance, and a
+  term whose end is open is still announced with the usual length of a workshop where a duration has to be named
+  before the fact, such as in a calendar invitation.
+
 - Made every event term of every kind of event administered from the one place and stored in the one table. A room
   which happens at a time is now a term of an event: it says which kind of event it is, whether it is held online or
   at a place, what one seat costs, and how many people fit into it. The administration of workshops asks these

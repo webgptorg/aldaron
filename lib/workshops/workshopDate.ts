@@ -1,4 +1,5 @@
 import { DEFAULT_WORKSHOP_DURATION_MINUTES } from '@/lib/workshops/workshopConstants';
+import { getWorkshopExpectedEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
 
 const CZECH_LOCALE = 'cs-CZ';
 const PRAGUE_TIME_ZONE = 'Europe/Prague';
@@ -104,16 +105,18 @@ export function formatCzechWorkshopTime(startsAt: string): string {
 }
 
 /**
- * Describes the calendar duration recorded for a workshop. A workshop without an end follows the same one-hour
- * default as its calendar invitation.
+ * Describes how long a workshop is expected to take. A workshop whose end is still left open is announced with the
+ * same usual length as its calendar invitation, because a visitor is told how long to set aside before anybody can
+ * know when the workshop will really be ended.
  */
 export function formatCzechWorkshopDuration(startsAt: string, endsAt: string | null): string {
     const startsAtMilliseconds = Date.parse(startsAt);
-    const endsAtMilliseconds = endsAt === null ? NaN : Date.parse(endsAt);
-    const durationMinutes =
-        Number.isFinite(startsAtMilliseconds) && Number.isFinite(endsAtMilliseconds) && endsAtMilliseconds > startsAtMilliseconds
-            ? Math.round((endsAtMilliseconds - startsAtMilliseconds) / MILLISECONDS_PER_MINUTE)
-            : DEFAULT_WORKSHOP_DURATION_MINUTES;
+    const durationMinutes = Number.isFinite(startsAtMilliseconds)
+        ? Math.round(
+              (getWorkshopExpectedEndsAtMilliseconds({ startsAt, endsAt }) - startsAtMilliseconds) /
+                  MILLISECONDS_PER_MINUTE,
+          )
+        : DEFAULT_WORKSHOP_DURATION_MINUTES;
 
     return `${durationMinutes} minut`;
 }
