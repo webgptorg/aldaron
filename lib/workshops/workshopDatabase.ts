@@ -1,3 +1,5 @@
+import { createEventDetailsOrNull } from '@/lib/events/event';
+import type { EventType } from '@/lib/events/eventTypes';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { loadAllSupabaseRows, SUPABASE_ROW_PAGE_SIZE, type SupabaseRowsPage } from '@/lib/supabase/loadAllSupabaseRows';
 import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
@@ -77,6 +79,15 @@ export type WorkshopRow = {
     readonly allowed_reactions: string[];
 
     /**
+     * The event fields of one occurrence, which a permanent room leaves empty because it is no event
+     */
+    readonly event_type: string | null;
+    readonly location_kind: string | null;
+    readonly location_label: string;
+    readonly price_czk: number | null;
+    readonly maximum_participant_count: number | null;
+
+    /**
      * The keys of the panels this workshop switched off for its participants
      */
     readonly disabled_panels: string[];
@@ -91,14 +102,26 @@ export type WorkshopRow = {
 
 type WorkshopSummaryRow = Pick<
     WorkshopRow,
-    'id' | 'room_kind' | 'slug' | 'title' | 'starts_at' | 'ends_at' | 'is_published'
+    | 'id'
+    | 'room_kind'
+    | 'slug'
+    | 'title'
+    | 'starts_at'
+    | 'ends_at'
+    | 'is_published'
+    | 'event_type'
+    | 'location_kind'
+    | 'location_label'
+    | 'price_czk'
+    | 'maximum_participant_count'
 >;
 
 /**
- * Fields the public list and the administration selector need to identify one occurrence without exposing its live
- * room configuration.
+ * Fields the public list and the administration selector need to identify one occurrence and describe the event it is
+ * a term of, without exposing its live room configuration.
  */
-export const WORKSHOP_SUMMARY_COLUMNS = 'id, room_kind, slug, title, starts_at, ends_at, is_published';
+export const WORKSHOP_SUMMARY_COLUMNS =
+    'id, room_kind, slug, title, starts_at, ends_at, is_published, event_type, location_kind, location_label, price_czk, maximum_participant_count';
 
 type WorkshopContentRow = {
     readonly id: string;
@@ -367,15 +390,9 @@ export function createWorkshopDatabaseUnavailableResponse(): NextResponse {
 
 export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
     return {
-        id: row.id,
-        kind: row.room_kind,
-        slug: row.slug,
-        title: row.title,
+        ...mapWorkshopSummaryRow(row),
         description: row.description,
-        startsAt: row.starts_at,
-        endsAt: row.ends_at,
         youtubeVideoId: row.youtube_video_id,
-        isPublished: row.is_published,
         allowedReactions: row.allowed_reactions,
         disabledPanels: normalizeWorkshopDisabledPanels(row.disabled_panels),
         createdAt: row.created_at,
@@ -392,6 +409,13 @@ export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary 
         startsAt: row.starts_at,
         endsAt: row.ends_at,
         isPublished: row.is_published,
+        event: createEventDetailsOrNull({
+            type: row.event_type,
+            locationKind: row.location_kind,
+            locationLabel: row.location_label,
+            priceCzk: row.price_czk,
+            maximumParticipantCount: row.maximum_participant_count,
+        }),
     };
 }
 
@@ -737,23 +761,25 @@ export async function findWorkshopBySlug(
 }
 
 /**
- * Lists terms which have not started yet in chronological order, which is the order visitors should choose from on
- * the landing page.
+ * Lists the terms of one kind of event which have not started yet in chronological order, which is the order visitors
+ * should choose from on the landing page of that event.
  */
 export async function findUpcomingPublishedWorkshops(
     supabase: SupabaseClient,
+    eventType: EventType,
     currentTime = new Date().toISOString(),
 ): Promise<readonly WorkshopSummaryRow[]> {
     const { data, error } = await supabase
         .from(WORKSHOP_TABLE_NAME)
         .select(WORKSHOP_SUMMARY_COLUMNS)
         .eq('room_kind', 'workshop')
+        .eq('event_type', eventType)
         .eq('is_published', true)
         .gt('starts_at', currentTime)
         .order('starts_at', { ascending: true });
 
     if (error) {
-        console.error('Failed to load upcoming workshops:', error.message);
+        console.error(`Failed to load upcoming "${eventType}" terms:`, error.message);
         return [];
     }
 
@@ -761,13 +787,18 @@ export async function findUpcomingPublishedWorkshops(
 }
 
 /**
- * Resolves legacy public URLs which did not name an occurrence to the workshop with the newest start date.
+ * Resolves legacy public URLs which did not name an occurrence to the term of that very event with the newest start
+ * date, so a link of one event never opens a term of another one.
  */
-export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient): Promise<WorkshopRow | null> {
+export async function findMostRecentPublishedWorkshop(
+    supabase: SupabaseClient,
+    eventType: EventType,
+): Promise<WorkshopRow | null> {
     const { data, error } = await supabase
         .from(WORKSHOP_TABLE_NAME)
         .select('*')
         .eq('room_kind', 'workshop')
+        .eq('event_type', eventType)
         .eq('is_published', true)
         .order('starts_at', { ascending: false })
         .limit(1)
@@ -782,8 +813,8 @@ export async function findMostRecentPublishedWorkshop(supabase: SupabaseClient):
 }
 
 /**
- * Lists every published workshop occurrence for the persistent community room. Drafts stay private, while past
- * terms stay available as useful community history.
+ * Lists every published term of every kind of event for the persistent community room. Drafts stay private, while
+ * past terms stay available as useful community history.
  */
 export async function findPublishedWorkshops(supabase: SupabaseClient): Promise<readonly WorkshopSummaryRow[]> {
     const { rows, errorMessage } = await loadAllSupabaseRows<WorkshopSummaryRow>((fromIndex, toIndex) =>

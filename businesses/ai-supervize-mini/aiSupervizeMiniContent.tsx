@@ -1,21 +1,29 @@
-import {
-    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
-    getAiSupervizeMiniWorkshopDateByFormat,
-} from '@/businesses/ai-supervize-mini/config';
 import { FAQ } from '@/components/faq-section';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
+import {
+    formatEventOccurrenceCapacitySummary,
+    formatEventOccurrenceLocationSummary,
+    formatEventOccurrencePriceSummary,
+    formatEventOccurrenceSummaries,
+} from '@/lib/events/eventSummary';
 import { Bot, Code2, GitPullRequest, ShieldCheck, TestTube2, Workflow } from 'lucide-react';
 import Link from 'next/link';
 
-const ONSITE_WORKSHOP_DATE =
-    getAiSupervizeMiniWorkshopDateByFormat('onsite') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
-const ONLINE_WORKSHOP_DATE =
-    getAiSupervizeMiniWorkshopDateByFormat('online') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[1]!;
+const AUDIENCE_HERO_BULLET = 'Pro TypeScript / JavaScript produktový vývoj';
 
-export const aiSupervizeMiniHeroBullets = [
-    'Prezenčně v Praze i online',
-    `Max ${ONSITE_WORKSHOP_DATE.maximumParticipantCount} prezenčně / ${ONLINE_WORKSHOP_DATE.maximumParticipantCount} online`,
-    'Pro TypeScript / JavaScript produktový vývoj',
-];
+/**
+ * What the hero promises about the published terms
+ *
+ * Note: Everything about a term is read from the administered terms, so a term added, moved, or withdrawn changes
+ *       this page without a single line of copy being rewritten. A promise which has no term to be made about is left
+ *       out rather than made up.
+ */
+export function createAiSupervizeMiniHeroBullets(occurrences: readonly EventOccurrence[]): readonly string[] {
+    const locationSummary = formatEventOccurrenceLocationSummary(occurrences);
+    const capacitySummary = formatEventOccurrenceCapacitySummary(occurrences);
+
+    return [locationSummary, capacitySummary, AUDIENCE_HERO_BULLET].filter((heroBullet) => heroBullet !== '');
+}
 
 export const aiSupervizeMiniTerminalMetrics = [
     { metric: 'Nejasná zadání', before: 8, after: 3, unit: '×' },
@@ -75,125 +83,140 @@ export const aiSupervizeMiniTakeaways = [
     },
 ];
 
-export const aiSupervizeMiniFaqs: FAQ[] = [
-    {
-        question: 'V čem se AI Supervize Mini liší od běžného školení nebo workshopu o AI?',
-        answer: (
-            <p>
-                Supervize není jen předávání informací. Je to komplexní pohled na AI vývoj včetně rizik, testování,
-                verzování, kvality kódu a rozhodování nad nástroji. Nejde o naučení jednoho konkrétního nástroje, ale o
-                způsob, jak přemýšlet nad celým procesem vývoje s AI.
-            </p>
-        ),
-    },
-    {
-        question: 'Je to školení Claude Code?',
-        answer: (
-            <p>
-                Ne. Claude Code může být jedním z probíraných nástrojů, ale workshop není postavený jako produktové
-                školení jednoho vendoru. Cílem je, abyste uměli zvolit správný nástroj, model a workflow podle typu
-                práce, rizika a kvality výstupu.
-            </p>
-        ),
-    },
-    {
-        question: 'Jaké jsou hlavní přínosy pro účastníky?',
-        answer: (
-            <div className="space-y-3">
-                <p>
-                    Účastníci získají praktický mindset pro AI vývoj: jak delegovat práci na AI, jak brzy chytat chyby,
-                    jak pracovat s PRD a jak měřit, že se produkt skutečně posouvá kupředu.
-                </p>
-                <ul className="list-disc space-y-1 pl-5">
-                    <li>Jak nechat víc práce delegovat na AI místo neustálého ručního dohledu.</li>
-                    <li>Jak co nejdřív odchytit potenciální chyby a průšvihy.</li>
-                    <li>Jak správně dělit práci pro AI do PRD, issue a kontrolovatelných PR.</li>
-                    <li>Kdy přecházet na jiný nástroj nebo model.</li>
-                    <li>Konkrétní tipy pro Git, unit testy, e2e testy, TypeScript typy a code review.</li>
-                </ul>
-            </div>
-        ),
-    },
-    {
-        question: 'Jak dlouho workshop trvá a jak je strukturovaný?',
-        answer: (
-            <p>
-                Prezenční workshop {ONSITE_WORKSHOP_DATE.label} běží od {ONSITE_WORKSHOP_DATE.timeRange}, online
-                workshop {ONLINE_WORKSHOP_DATE.label} od {ONLINE_WORKSHOP_DATE.timeRange}. Oba jsou rozdělené do
-                praktických bloků: mindset a rizika, tooling, PRD a zadávání práce AI, verzování, testování, code
-                review a měření dopadu.
-            </p>
-        ),
-    },
-    {
-        question: 'Pro koho je workshop vhodný?',
-        answer: (
-            <p>
-                Pro vývojáře a produkťáky, kteří pracují s TypeScriptem nebo JavaScriptem, případně obecně s webovým či
-                aplikačním vývojem. Není potřeba být AI expert, ale základní zkušenost s AI nástroji pomůže dostat z dne
-                víc praktických výsledků.
-            </p>
-        ),
-    },
-    {
-        question: 'Může firma poslat víc lidí najednou?',
-        answer: (
-            <p>
-                Ano. Formulář umožňuje vybrat počet účastníků podle zbývající kapacity konkrétního termínu. V Praze je
-                workshop vedený pro malou skupinu s maximem {ONSITE_WORKSHOP_DATE.maximumParticipantCount} lidí;
-                online se může připojit až {ONLINE_WORKSHOP_DATE.maximumParticipantCount} lidí.
-                <br />
-                <br />
-                Zároveň však nabízíme <Link href="/ai-supervize">AI Supervizi i pro celé firmy</Link>, kde přizpůsobíme
-                obsah a formát přímo na míru týmu a jeho potřebám.
-            </p>
-        ),
-    },
-    {
-        question: 'Co si mám přinést?',
-        answer: (
-            <p>
-                Vlastní notebook a ideálně konkrétní příklad produktu, repozitáře nebo workflow, na kterém chcete AI
-                vývoj zlepšit. Není nutné sdílet citlivý kód. Stačí popsat situaci, typ práce a místa, kde dnes AI
-                pomáhá nebo selhává.
-            </p>
-        ),
-    },
-    {
-        question: 'Co si mám přinést?',
-        answer: (
-            <p>
-                Vlastní notebook a ideálně konkrétní příklad produktu, repozitáře nebo workflow, na kterém chcete AI
-                vývoj zlepšit. Není nutné sdílet citlivý kód. Stačí popsat situaci, typ práce a místa, kde dnes AI
-                pomáhá nebo selhává.
-            </p>
-        ),
-    },
+/**
+ * One list of every published term, which is how an answer names the terms it is about
+ */
+function EventOccurrenceList({ occurrences }: { readonly occurrences: readonly EventOccurrence[] }) {
+    return (
+        <ul className="list-disc space-y-1 pl-5">
+            {formatEventOccurrenceSummaries(occurrences).map((occurrenceSummary) => (
+                <li key={occurrenceSummary}>{occurrenceSummary}</li>
+            ))}
+        </ul>
+    );
+}
 
-    {
-        question: `Proč je cena ${ONSITE_WORKSHOP_DATE.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč prezenčně a ${ONLINE_WORKSHOP_DATE.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč online, když jiné kurzy a školení o AI bývají levnější?`,
-        answer: (
-            <p>
-                AI Supervize není běžný kurz o AI, kterých je na trhu spousta. Je to komplexní a praktický workshop
-                zaměřený na konkrétní výzvy a řešení v AI vývoji, včetně rizik, testování, verzování a code review. Cena
-                odráží hloubku obsahu, praktickou hodnotu a individuální přístup v malých skupinách s expertem s
-                reálnými zkušenostmi z AI vývoje. Online termín je levnější díky online formátu a kratšímu programu.
-                Ceny jsou konečné, nejsme plátci DPH. Konkrétně máme několik důvodů pro nastavení této ceny:
-                <ul>
-                    <li>
-                        AI Supervizí Vás provází Pavol Hejný, který má za sebou 15+ let zkušeností s vývojem a
-                        produktovým managementem, včetně 3 let intenzivní práce s AI nástroji v reálných projektech.
-                    </li>
-                    <li>
-                        Jiné kurzy o AI často vedou lidé bez hluboké praktické zkušenosti s AI vývojem, což se může
-                        odrazit na kvalitě obsahu a jeho aplikovatelnosti v reálných situacích.
-                    </li>
-                    <li>
-                        Workshop není jen teorie, ale praktický trénink s konkrétními příklady, cvičeními a zpětnou
-                        vazbou na vaše konkrétní výzvy.
-                    </li>
-                </ul>
-            </p>
-        ),
-    },
-];
+/**
+ * The questions visitors ask about the workshop, answered for the terms which are really published
+ *
+ * Note: An answer about the terms reads them from the administration, so nothing here can disagree with the terms the
+ *       registration form offers.
+ */
+export function createAiSupervizeMiniFaqs(occurrences: readonly EventOccurrence[]): FAQ[] {
+    const capacitySummary = formatEventOccurrenceCapacitySummary(occurrences);
+    const priceSummary = formatEventOccurrencePriceSummary(occurrences);
+
+    return [
+        {
+            question: 'V čem se AI Supervize Mini liší od běžného školení nebo workshopu o AI?',
+            answer: (
+                <p>
+                    Supervize není jen předávání informací. Je to komplexní pohled na AI vývoj včetně rizik, testování,
+                    verzování, kvality kódu a rozhodování nad nástroji. Nejde o naučení jednoho konkrétního nástroje,
+                    ale o způsob, jak přemýšlet nad celým procesem vývoje s AI.
+                </p>
+            ),
+        },
+        {
+            question: 'Je to školení Claude Code?',
+            answer: (
+                <p>
+                    Ne. Claude Code může být jedním z probíraných nástrojů, ale workshop není postavený jako produktové
+                    školení jednoho vendoru. Cílem je, abyste uměli zvolit správný nástroj, model a workflow podle typu
+                    práce, rizika a kvality výstupu.
+                </p>
+            ),
+        },
+        {
+            question: 'Jaké jsou hlavní přínosy pro účastníky?',
+            answer: (
+                <div className="space-y-3">
+                    <p>
+                        Účastníci získají praktický mindset pro AI vývoj: jak delegovat práci na AI, jak brzy chytat
+                        chyby, jak pracovat s PRD a jak měřit, že se produkt skutečně posouvá kupředu.
+                    </p>
+                    <ul className="list-disc space-y-1 pl-5">
+                        <li>Jak nechat víc práce delegovat na AI místo neustálého ručního dohledu.</li>
+                        <li>Jak co nejdřív odchytit potenciální chyby a průšvihy.</li>
+                        <li>Jak správně dělit práci pro AI do PRD, issue a kontrolovatelných PR.</li>
+                        <li>Kdy přecházet na jiný nástroj nebo model.</li>
+                        <li>Konkrétní tipy pro Git, unit testy, e2e testy, TypeScript typy a code review.</li>
+                    </ul>
+                </div>
+            ),
+        },
+        {
+            question: 'Jak dlouho workshop trvá a jak je strukturovaný?',
+            answer: (
+                <div className="space-y-3">
+                    <p>
+                        Každý termín je rozdělený do praktických bloků: mindset a rizika, tooling, PRD a zadávání práce
+                        AI, verzování, testování, code review a měření dopadu. Aktuálně vypsané termíny:
+                    </p>
+                    <EventOccurrenceList occurrences={occurrences} />
+                </div>
+            ),
+        },
+        {
+            question: 'Pro koho je workshop vhodný?',
+            answer: (
+                <p>
+                    Pro vývojáře a produkťáky, kteří pracují s TypeScriptem nebo JavaScriptem, případně obecně s webovým
+                    či aplikačním vývojem. Není potřeba být AI expert, ale základní zkušenost s AI nástroji pomůže
+                    dostat z dne víc praktických výsledků.
+                </p>
+            ),
+        },
+        {
+            question: 'Může firma poslat víc lidí najednou?',
+            answer: (
+                <p>
+                    Ano. Formulář umožňuje vybrat počet účastníků podle zbývající kapacity konkrétního termínu.
+                    Kapacita jednotlivých termínů: {capacitySummary}. Skupina tak zůstává dost malá na konkrétní dotazy
+                    a zpětnou vazbu.
+                    <br />
+                    <br />
+                    Zároveň však nabízíme <Link href="/ai-supervize">AI Supervizi i pro celé firmy</Link>, kde
+                    přizpůsobíme obsah a formát přímo na míru týmu a jeho potřebám.
+                </p>
+            ),
+        },
+        {
+            question: 'Co si mám přinést?',
+            answer: (
+                <p>
+                    Vlastní notebook a ideálně konkrétní příklad produktu, repozitáře nebo workflow, na kterém chcete AI
+                    vývoj zlepšit. Není nutné sdílet citlivý kód. Stačí popsat situaci, typ práce a místa, kde dnes AI
+                    pomáhá nebo selhává.
+                </p>
+            ),
+        },
+        {
+            question: `Proč je cena ${priceSummary}, když jiné kurzy a školení o AI bývají levnější?`,
+            answer: (
+                <p>
+                    AI Supervize není běžný kurz o AI, kterých je na trhu spousta. Je to komplexní a praktický workshop
+                    zaměřený na konkrétní výzvy a řešení v AI vývoji, včetně rizik, testování, verzování a code review.
+                    Cena odráží hloubku obsahu, praktickou hodnotu a individuální přístup v malých skupinách s expertem
+                    s reálnými zkušenostmi z AI vývoje. Online termín je levnější díky online formátu a kratšímu
+                    programu. Ceny jsou konečné, nejsme plátci DPH. Konkrétně máme několik důvodů pro nastavení této
+                    ceny:
+                    <ul>
+                        <li>
+                            AI Supervizí Vás provází Pavol Hejný, který má za sebou 15+ let zkušeností s vývojem a
+                            produktovým managementem, včetně 3 let intenzivní práce s AI nástroji v reálných projektech.
+                        </li>
+                        <li>
+                            Jiné kurzy o AI často vedou lidé bez hluboké praktické zkušenosti s AI vývojem, což se může
+                            odrazit na kvalitě obsahu a jeho aplikovatelnosti v reálných situacích.
+                        </li>
+                        <li>
+                            Workshop není jen teorie, ale praktický trénink s konkrétními příklady, cvičeními a zpětnou
+                            vazbou na vaše konkrétní výzvy.
+                        </li>
+                    </ul>
+                </p>
+            ),
+        },
+    ];
+}

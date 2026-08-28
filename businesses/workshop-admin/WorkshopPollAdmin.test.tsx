@@ -3,6 +3,7 @@
  */
 
 import { WorkshopPollAdmin } from '@/businesses/workshop-admin/WorkshopPollAdmin';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopAdminPoll, WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -40,6 +41,7 @@ const POLL: WorkshopAdminPoll = {
 const ATTACHABLE_WORKSHOP: WorkshopAdminSummary = {
     id: 'workshop-1',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'zari',
     title: 'Zářijový workshop',
     startsAt: '2026-09-10T16:00:00.000Z',

@@ -2,10 +2,8 @@
 
 import { Button } from '@/components/ui/button';
 import { WorkshopPollAttachedWorkshops } from '@/components/workshops/WorkshopPollAttachedWorkshops';
-import {
-    createWorkshopRoomLink,
-    type WorkshopParticipantIdentity,
-} from '@/lib/workshops/workshopParticipantLink';
+import { createEventLinkOrNull } from '@/lib/events/eventLinks';
+import type { WorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 import { getWorkshopPollOptionVotePercentage, getWorkshopPollVoteCount } from '@/lib/workshops/workshopPollValues';
 import type { WorkshopPoll } from '@/lib/workshops/workshopTypes';
 import { BarChart3, Check, Lock, Vote } from 'lucide-react';
@@ -16,15 +14,13 @@ type WorkshopPollsProps = {
     readonly isInteractionBanned: boolean;
 
     /**
-     * Where a workshop a poll is about is entered, together with the identity the reading member already verified.
+     * The identity the reading member already verified, carried into every term a poll is about.
      *
-     * Note: A room which leads nowhere leaves this out, and the occurrences of a poll are then named without linking
-     *       to a room this page cannot address.
+     * Note: A room which leads nowhere leaves this out, and the terms of a poll are then named without linking
+     *       anywhere. Where one term leads is decided by the kind of event it is a term of, so a poll about a paid
+     *       workshop leads to its landing page while a poll about an online workshop leads into its room.
      */
-    readonly workshopRoomLink?: {
-        readonly participantPath: string;
-        readonly participantIdentity: WorkshopParticipantIdentity;
-    };
+    readonly linkedParticipantIdentity?: WorkshopParticipantIdentity;
     readonly onVote: (pollId: string, optionId: string) => Promise<boolean>;
 };
 
@@ -32,7 +28,12 @@ type WorkshopPollsProps = {
  * The member-facing side of a room poll. It accepts only the aggregated poll state, therefore it cannot accidentally
  * reveal who voted for an option; a member knows solely whether the highlighted choice is their own.
  */
-export function WorkshopPolls({ polls, isInteractionBanned, workshopRoomLink, onVote }: WorkshopPollsProps) {
+export function WorkshopPolls({
+    polls,
+    isInteractionBanned,
+    linkedParticipantIdentity,
+    onVote,
+}: WorkshopPollsProps) {
     const [votingPollId, setVotingPollId] = useState<string | null>(null);
 
     if (polls.length === 0) {
@@ -71,14 +72,10 @@ export function WorkshopPolls({ polls, isInteractionBanned, workshopRoomLink, on
                                     variant="dark"
                                     className="mt-2.5"
                                     createWorkshopLink={
-                                        workshopRoomLink === undefined
+                                        linkedParticipantIdentity === undefined
                                             ? undefined
                                             : (attachedWorkshop) =>
-                                                  createWorkshopRoomLink(
-                                                      workshopRoomLink.participantPath,
-                                                      workshopRoomLink.participantIdentity,
-                                                      attachedWorkshop.slug,
-                                                  )
+                                                  createEventLinkOrNull(attachedWorkshop, linkedParticipantIdentity)
                                     }
                                 />
                             </div>

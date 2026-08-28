@@ -1,5 +1,27 @@
 # Current preversion
 
+- Made every event term of every kind of event administered from the one place and stored in the one table. A room
+  which happens at a time is now a term of an event: it says which kind of event it is, whether it is held online or
+  at a place, what one seat costs, and how many people fit into it. The administration of workshops asks these
+  questions in the very same fields whether a term is being created or edited, and offering another kind of event
+  means describing it in the event registry of the application rather than migrating the database or changing any
+  page which lists terms.
+
+- Removed the hard-coded terms of `/ai-supervize-mini` from the application. The page now lists the terms which the
+  administration really published: its header, its hero, its dates, places, prices, capacities, the FAQ answers about
+  the schedule, the capacity and the price, the registration form and the participant information page all read the
+  same administered terms, so a term added, moved, withdrawn or repriced changes the page without a deploy. A term
+  which is held somewhere names that place, a term held online says so, and a price of zero is presented as a free
+  event. While no term is published, the page offers a short notice instead of a form nobody could submit. The seats
+  already reserved keep being counted against the very same terms, because a registration written before this change
+  named its term by the day it is held on and that identifier is still honoured.
+
+- Listed the terms of every kind of event on `/cs/komunita`, each with the kind of event it is, its form and place,
+  and its price. Where a term leads is now decided by the kind of event it is a term of: a term with a live room
+  leads into that room carrying the already verified identity of the member, while a term without one leads to its
+  landing page. Community polls about terms follow the same rule, so a poll about a paid workshop no longer offers a
+  room that workshop does not have.
+
 - Added a clickable `Free členství` badge beside the signed-in member information in `/cs/komunita`. It opens the
   existing membership page with the benefits of the paid membership, while the shared participant-room header now
   exposes a reusable slot for room-specific member information instead of duplicating its layout for the community.

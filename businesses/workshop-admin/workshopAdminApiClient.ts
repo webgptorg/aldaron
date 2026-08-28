@@ -1,3 +1,6 @@
+import type { EventDetails } from '@/lib/events/event';
+import type { EventLocationKind } from '@/lib/events/eventLocation';
+import type { EventType } from '@/lib/events/eventTypes';
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import type {
     WorkshopAdminAnalytics,
@@ -33,17 +36,40 @@ export type WorkshopWriteValues = {
     readonly slug?: string;
     readonly startsAt?: string;
     readonly endsAt?: string | null;
+    readonly eventType?: EventType;
+    readonly locationKind?: EventLocationKind;
+    readonly locationLabel?: string;
+    readonly priceCzk?: number;
+    readonly maximumParticipantCount?: number | null;
     readonly youtubeVideoId?: string | null;
     readonly allowedReactions?: readonly string[];
 };
 
 /**
- * A new room always starts as an occurrence in time at an address of its own, so its creation says both.
+ * A new room always starts as one term of an event in time at an address of its own, so its creation says all of it.
  */
 export type WorkshopCreateValues = WorkshopWriteValues & {
     readonly slug: string;
     readonly startsAt: string;
+    readonly eventType: EventType;
+    readonly locationKind: EventLocationKind;
 };
+
+/**
+ * The event of one term as its administration writes it
+ *
+ * Note: The form of the administration edits the very same shape every page reads, so a field added to an event is
+ *       written, stored, and listed without a second description of it anywhere.
+ */
+export function createWorkshopEventWriteValues(event: EventDetails) {
+    return {
+        eventType: event.type,
+        locationKind: event.locationKind,
+        locationLabel: event.locationLabel,
+        priceCzk: event.priceCzk,
+        maximumParticipantCount: event.maximumParticipantCount,
+    };
+}
 
 export type WorkshopContentWriteValues = {
     readonly title: string;

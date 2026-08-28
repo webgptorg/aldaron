@@ -5,7 +5,6 @@ import {
 } from '@/businesses/community/communityContent';
 import { CommunityMembershipBadge } from '@/businesses/community/membership/CommunityMembershipBadge';
 import { CommunityProjectsSection } from '@/businesses/community/projects/CommunityProjectsSection';
-import { ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import type { WorkshopDetails, WorkshopSummary } from '@/lib/workshops/workshopTypes';
 
@@ -41,7 +40,6 @@ export function CommunityParticipantPage({
             participantHeaderSupplement={<CommunityMembershipBadge />}
             workshopNavigation={{
                 workshops,
-                participantPath: ONLINE_WORKSHOP_PARTICIPANT_PATH,
                 ...CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY,
             }}
             mainContentAfterWorkshopNavigation={<CommunityProjectsSection isLimited />}

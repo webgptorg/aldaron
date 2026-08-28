@@ -3,6 +3,8 @@
  */
 
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
+import { formatEventPrice } from '@/lib/events/eventPrice';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11,6 +13,7 @@ const WORKSHOPS: readonly WorkshopSummary[] = [
     {
         id: 'workshop-id',
         kind: 'workshop',
+        event: DEFAULT_EVENT_DETAILS,
         slug: 'production-ai-2026-09-10',
         title: 'Produkční kód s AI agenty',
         startsAt: '2026-09-10T19:00:00+02:00',
@@ -27,7 +30,6 @@ describe('workshop links panel', () => {
             <WorkshopLinksPanel
                 workshops={WORKSHOPS}
                 participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                participantPath="/cs/online-workshop/participant"
                 title="Workshopy Promptbooku"
                 description="Vyberte si workshop."
                 emptyMessage="Žádný workshop není dostupný."
@@ -41,12 +43,44 @@ describe('workshop links panel', () => {
         );
     });
 
+    it('leads a term of a paid workshop to its landing page instead of a room it does not have', () => {
+        render(
+            <WorkshopLinksPanel
+                workshops={[
+                    {
+                        ...WORKSHOPS[0]!,
+                        id: 'paid-workshop-id',
+                        slug: 'ai-supervize-mini-2026-09-04',
+                        title: 'AI Supervize Mini',
+                        event: {
+                            ...DEFAULT_EVENT_DETAILS,
+                            type: 'ai-supervize-mini',
+                            locationKind: 'onsite',
+                            locationLabel: 'Praha',
+                            priceCzk: 12000,
+                        },
+                    },
+                ]}
+                participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
+                title="Termíny akcí"
+                description="Vyberte si termín."
+                emptyMessage="Žádný termín není dostupný."
+                locale="cs-CZ"
+                timeZone="Europe/Prague"
+            />,
+        );
+
+        const paidWorkshopLink = screen.getByRole('link', { name: /AI Supervize Mini/ });
+        expect(paidWorkshopLink.getAttribute('href')).toBe('/ai-supervize-mini');
+        expect(paidWorkshopLink.textContent).toContain('Praha');
+        expect(paidWorkshopLink.textContent).toContain(formatEventPrice(12000));
+    });
+
     it('explains an empty workshop list without emitting a broken link', () => {
         render(
             <WorkshopLinksPanel
                 workshops={[]}
                 participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                participantPath="/cs/online-workshop/participant"
                 title="Workshopy Promptbooku"
                 description="Vyberte si workshop."
                 emptyMessage="Žádný workshop není dostupný."

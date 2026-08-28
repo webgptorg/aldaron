@@ -1,3 +1,4 @@
+import { ONLINE_WORKSHOP_EVENT_TYPE } from '@/businesses/online-workshop/config';
 import { OnlineWorkshopThankYouPage } from '@/businesses/online-workshop/_OnlineWorkshopThankYouPage';
 import { ONLINE_WORKSHOP_THANK_YOU_METADATA } from '@/businesses/online-workshop/onlineWorkshopMetadata';
 import { readWorkshopParticipantIdentity, readWorkshopSlug } from '@/lib/workshops/workshopParticipantLink';
@@ -21,7 +22,10 @@ export default async function CsOnlineWorkshopThankYouRoute({ searchParams }: On
         resolvedSearchParams.email,
         resolvedSearchParams.fullname,
     );
-    const workshop = await loadSelectedPublishedWorkshop(readWorkshopSlug(resolvedSearchParams.workshop));
+    const workshop = await loadSelectedPublishedWorkshop(
+        readWorkshopSlug(resolvedSearchParams.workshop),
+        ONLINE_WORKSHOP_EVENT_TYPE,
+    );
     if (workshop === null) {
         notFound();
     }

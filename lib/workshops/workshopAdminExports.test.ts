@@ -5,12 +5,14 @@ import {
     serializeWorkshopAdminParticipantsAsCsv,
     serializeWorkshopAdminParticipantsAsVcard,
 } from '@/lib/workshops/workshopAdminExports';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopAdminParticipant, WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
 
 const WORKSHOP: WorkshopDetails = {
     id: 'workshop-id',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'production-code-with-agents',
     title: 'Produkční kód s AI agenty',
     description: 'Praktický online workshop.',

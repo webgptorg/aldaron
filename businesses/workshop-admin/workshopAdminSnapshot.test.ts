@@ -1,4 +1,5 @@
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopAdminSnapshot } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
 
@@ -7,6 +8,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
         workshop: {
             id: 'workshop-1',
             kind: 'workshop',
+            event: DEFAULT_EVENT_DETAILS,
             slug: 'workshop-1',
             title: 'Workshop',
             description: '',

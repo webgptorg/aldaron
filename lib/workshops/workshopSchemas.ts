@@ -15,6 +15,13 @@ import {
     MINIMAL_WORKSHOP_POLL_OPTION_COUNT,
 } from '@/lib/workshops/workshopConstants';
 import {
+    MAXIMAL_EVENT_LOCATION_LABEL_LENGTH,
+    MAXIMAL_EVENT_PARTICIPANT_COUNT,
+    MAXIMAL_EVENT_PRICE_CZK,
+} from '@/lib/events/eventConstants';
+import { isEventLocationKind, type EventLocationKind } from '@/lib/events/eventLocation';
+import { isEventType, type EventType } from '@/lib/events/eventTypes';
+import {
     isWorkshopParticipantFullnameValid,
     normalizeWorkshopParticipantFullname,
 } from '@/lib/workshops/workshopParticipantFullname';
@@ -233,6 +240,42 @@ export const workshopPresenceSchema = z.object({
     activeDurationSeconds: z.number().int().min(1).max(MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS),
 });
 
+/**
+ * Whether a term held somewhere really says where it is held
+ *
+ * Note: An edit which leaves the place alone is judged by the database against the place already written there, so
+ *       only a written empty place is refused here.
+ */
+function isEventLocationWritten(values: {
+    readonly locationKind?: EventLocationKind;
+    readonly locationLabel?: string;
+}): boolean {
+    return values.locationKind !== 'onsite' || values.locationLabel === undefined || values.locationLabel !== '';
+}
+
+/**
+ * What one term says about the event it is a term of
+ *
+ * Note: The kind of event and the place are validated against the very registries every page reads, so a kind of
+ *       event nothing knows is refused instead of stored and later listed nowhere.
+ */
+const eventTypeSchema = z.custom<EventType>(
+    (value) => typeof value === 'string' && isEventType(value),
+    'Unknown event type',
+);
+const eventLocationKindSchema = z.custom<EventLocationKind>(
+    (value) => typeof value === 'string' && isEventLocationKind(value),
+    'Unknown event location',
+);
+const eventLocationLabelSchema = z.string().trim().max(MAXIMAL_EVENT_LOCATION_LABEL_LENGTH);
+const eventPriceCzkSchema = z.number().int().min(0).max(MAXIMAL_EVENT_PRICE_CZK);
+const eventMaximumParticipantCountSchema = z
+    .number()
+    .int()
+    .min(1)
+    .max(MAXIMAL_EVENT_PARTICIPANT_COUNT)
+    .nullable();
+
 export const workshopCreateSchema = z
     .object({
         slug: WORKSHOP_SLUG_SCHEMA,
@@ -240,6 +283,11 @@ export const workshopCreateSchema = z
         description: z.string().trim().max(2000).default(''),
         startsAt: z.string().datetime({ offset: true }),
         endsAt: nullableTimestampSchema.default(null),
+        eventType: eventTypeSchema,
+        locationKind: eventLocationKindSchema,
+        locationLabel: eventLocationLabelSchema.default(''),
+        priceCzk: eventPriceCzkSchema.default(0),
+        maximumParticipantCount: eventMaximumParticipantCountSchema.default(null),
         youtubeVideoId: nullableYoutubeVideoIdSchema.default(null),
         isPublished: z.boolean().default(false),
         allowedReactions: workshopAllowedReactionsSchema.default([...DEFAULT_WORKSHOP_REACTIONS]),
@@ -248,6 +296,10 @@ export const workshopCreateSchema = z
     .refine(({ startsAt, endsAt }) => endsAt === null || Date.parse(endsAt) > Date.parse(startsAt), {
         message: 'Workshop end must be after its start',
         path: ['endsAt'],
+    })
+    .refine(isEventLocationWritten, {
+        message: 'An on-site event needs the place it is held at',
+        path: ['locationLabel'],
     });
 
 export const workshopUpdateSchema = z
@@ -257,12 +309,21 @@ export const workshopUpdateSchema = z
         description: z.string().trim().max(2000).optional(),
         startsAt: z.string().datetime({ offset: true }).optional(),
         endsAt: nullableTimestampSchema.optional(),
+        eventType: eventTypeSchema.optional(),
+        locationKind: eventLocationKindSchema.optional(),
+        locationLabel: eventLocationLabelSchema.optional(),
+        priceCzk: eventPriceCzkSchema.optional(),
+        maximumParticipantCount: eventMaximumParticipantCountSchema.optional(),
         youtubeVideoId: nullableYoutubeVideoIdSchema.optional(),
         isPublished: z.boolean().optional(),
         allowedReactions: workshopAllowedReactionsSchema.optional(),
         disabledPanels: workshopDisabledPanelsSchema.optional(),
     })
-    .refine((value) => Object.keys(value).length > 0, 'At least one workshop field is required');
+    .refine((value) => Object.keys(value).length > 0, 'At least one workshop field is required')
+    .refine(isEventLocationWritten, {
+        message: 'An on-site event needs the place it is held at',
+        path: ['locationLabel'],
+    });
 
 const workshopContentFieldsSchema = z.object({
     title: z.string().trim().max(200),

@@ -25,6 +25,7 @@ import { CommunityParticipantPage } from './CommunityParticipantPage';
 const COMMUNITY: WorkshopDetails = {
     id: '0d6b0f1c-9b0a-4b7e-9c02-6f2f7a3f5f31',
     kind: 'community',
+    event: null,
     slug: 'komunita',
     title: 'Komunita Promptbooku',
     description: 'Prostor pro členy komunity.',

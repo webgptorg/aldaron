@@ -6,12 +6,14 @@ const {
     consumeDiscountCodeMock,
     getContactsTableOrNullMock,
     insertContactMock,
+    loadEventsMock,
     loadWorkshopAvailabilityMock,
 } = vi.hoisted(() => ({
     createContactsUnreachableResponseMock: vi.fn(),
     consumeDiscountCodeMock: vi.fn(),
     getContactsTableOrNullMock: vi.fn(),
     insertContactMock: vi.fn(),
+    loadEventsMock: vi.fn(),
     loadWorkshopAvailabilityMock: vi.fn(),
 }));
 
@@ -22,6 +24,7 @@ vi.mock('@/lib/contacts/contactsDatabase', () => ({
 }));
 
 vi.mock('@/businesses/ai-supervize-mini/workshopRegistrationDatabase', () => ({
+    loadAiSupervizeMiniEvents: loadEventsMock,
     loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable: loadWorkshopAvailabilityMock,
 }));
 
@@ -32,16 +35,56 @@ vi.mock('@/lib/discounts/discountCodeDatabase', () => ({
 import { POST } from './route';
 
 const CONTACTS_TABLE = {};
+
+/**
+ * The terms this workshop publishes, exactly as the administration of events stores them
+ */
+const ONSITE_EVENT_SLUG = 'ai-supervize-mini-2026-09-04';
+const ONLINE_EVENT_SLUG = 'ai-supervize-mini-2026-09-09';
+const EVENTS = [
+    {
+        id: 'onsite-event-id',
+        kind: 'workshop',
+        slug: ONSITE_EVENT_SLUG,
+        title: 'AI Supervize Mini · Praha',
+        startsAt: '2026-09-04T10:00:00+02:00',
+        endsAt: '2026-09-04T16:00:00+02:00',
+        isPublished: true,
+        event: {
+            type: 'ai-supervize-mini',
+            locationKind: 'onsite',
+            locationLabel: 'Praha',
+            priceCzk: 12000,
+            maximumParticipantCount: 10,
+        },
+    },
+    {
+        id: 'online-event-id',
+        kind: 'workshop',
+        slug: ONLINE_EVENT_SLUG,
+        title: 'AI Supervize Mini · online',
+        startsAt: '2026-09-09T13:00:00+02:00',
+        endsAt: '2026-09-09T17:00:00+02:00',
+        isPublished: true,
+        event: {
+            type: 'ai-supervize-mini',
+            locationKind: 'online',
+            locationLabel: '',
+            priceCzk: 3000,
+            maximumParticipantCount: 50,
+        },
+    },
+] as const;
 const WORKSHOP_AVAILABILITIES = [
-    { workshopDateId: '2026-09-04', registeredParticipantCount: 2, remainingSeatCount: 8 },
-    { workshopDateId: '2026-09-09', registeredParticipantCount: 4, remainingSeatCount: 46 },
+    { eventSlug: ONSITE_EVENT_SLUG, registeredParticipantCount: 2, remainingSeatCount: 8 },
+    { eventSlug: ONLINE_EVENT_SLUG, registeredParticipantCount: 4, remainingSeatCount: 46 },
 ] as const;
 
 function createRegistrationRequest(overrides: Readonly<Record<string, unknown>> = {}): NextRequest {
     return new NextRequest('http://localhost/api/ai-supervize-mini/registration', {
         method: 'POST',
         body: JSON.stringify({
-            selectedDateId: '2026-09-04',
+            eventSlug: ONSITE_EVENT_SLUG,
             participantCount: 2,
             fullname: 'Jana Nováková',
             email: 'jana@example.com',
@@ -64,8 +107,10 @@ describe('AI Supervize Mini registration endpoint', () => {
         consumeDiscountCodeMock.mockReset();
         getContactsTableOrNullMock.mockReset();
         insertContactMock.mockReset();
+        loadEventsMock.mockReset();
         loadWorkshopAvailabilityMock.mockReset();
         getContactsTableOrNullMock.mockReturnValue(CONTACTS_TABLE);
+        loadEventsMock.mockResolvedValue(EVENTS);
         loadWorkshopAvailabilityMock.mockResolvedValue({
             workshopAvailabilities: WORKSHOP_AVAILABILITIES,
             errorMessage: null,
@@ -90,7 +135,7 @@ describe('AI Supervize Mini registration endpoint', () => {
         };
 
         expect(response.status).toBe(200);
-        expect(loadWorkshopAvailabilityMock).toHaveBeenCalledWith(CONTACTS_TABLE);
+        expect(loadWorkshopAvailabilityMock).toHaveBeenCalledWith(CONTACTS_TABLE, EVENTS);
         expect(consumeDiscountCodeMock).toHaveBeenCalledWith('webinar-2026-08-20', 'ai-supervize-mini-onsite');
         expect(insertContactMock).toHaveBeenCalledTimes(1);
         expect(responseBody.workshopPrice).toEqual({
@@ -99,7 +144,7 @@ describe('AI Supervize Mini registration endpoint', () => {
             finalPriceCzk: 18000,
         });
         expect(responseBody.workshopAvailabilities).toContainEqual({
-            workshopDateId: '2026-09-04',
+            eventSlug: ONSITE_EVENT_SLUG,
             registeredParticipantCount: 4,
             remainingSeatCount: 6,
         });
@@ -112,8 +157,11 @@ describe('AI Supervize Mini registration endpoint', () => {
             email: 'jana@example.com',
             placeName: 'AiSupervizeMiniWorkshopRegistration',
         });
+        // The stored payload keeps the field name every earlier registration was written with, so the seats already
+        // taken keep being counted against the very same term.
         expect(storedRegistration).toMatchObject({
-            selectedDateId: '2026-09-04',
+            selectedDateId: ONSITE_EVENT_SLUG,
+            selectedFormat: 'Prezenčně · Praha',
             participantCount: 2,
             discountCodeUsed: 'WEBINAR_2026_08_20',
             discountPercentApplied: 25,
@@ -135,8 +183,8 @@ describe('AI Supervize Mini registration endpoint', () => {
 
     it('stores a full term as a waitlist registration instead of refusing it', async () => {
         const fullWorkshopAvailabilities = [
-            { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
-            { workshopDateId: '2026-09-09', registeredParticipantCount: 4, remainingSeatCount: 46 },
+            { eventSlug: ONSITE_EVENT_SLUG, registeredParticipantCount: 10, remainingSeatCount: 0 },
+            { eventSlug: ONLINE_EVENT_SLUG, registeredParticipantCount: 4, remainingSeatCount: 46 },
         ] as const;
         loadWorkshopAvailabilityMock.mockResolvedValue({
             workshopAvailabilities: fullWorkshopAvailabilities,
@@ -156,7 +204,7 @@ describe('AI Supervize Mini registration endpoint', () => {
         );
         expect(responseBody.isWaitlisted).toBe(true);
         expect(responseBody.workshopAvailabilities).toContainEqual({
-            workshopDateId: '2026-09-04',
+            eventSlug: ONSITE_EVENT_SLUG,
             registeredParticipantCount: 10,
             remainingSeatCount: 0,
         });

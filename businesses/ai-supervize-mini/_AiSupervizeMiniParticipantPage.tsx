@@ -1,11 +1,10 @@
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
-import {
-    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
-    getAiSupervizeMiniWorkshopDateByFormat,
-} from '@/businesses/ai-supervize-mini/config';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
+import { formatEventLocation } from '@/lib/events/eventLocation';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
+import { formatCzechWorkshopDay, formatCzechWorkshopTimeRange } from '@/lib/workshops/workshopDate';
 import type { LucideIcon } from 'lucide-react';
 import {
     ArrowRight,
@@ -27,6 +26,14 @@ import Link from 'next/link';
 
 type AiSupervizeMiniParticipantPageProps = {
     registrationId: string | null;
+
+    /**
+     * The term this participant is expected at, or `null` when no such term is published anymore
+     *
+     * Note: The term is read from the administration of events like everywhere else, so a moved term moves this page
+     *       with it.
+     */
+    event: EventOccurrence | null;
 };
 
 type InfoItem = {
@@ -49,8 +56,9 @@ type FaqItem = {
     answer: string;
 };
 
-const workshopDate =
-    getAiSupervizeMiniWorkshopDateByFormat('onsite') ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
+const UNPUBLISHED_EVENT_DAY_LABEL = 'termín upřesníme';
+const UNPUBLISHED_EVENT_TIME_LABEL = 'čas upřesníme';
+
 const workshopLocation = {
     city: 'Praha',
     venue: 'Scott.Weber Workspace - The Flow Building',
@@ -63,26 +71,31 @@ const workshopLocation = {
 
 const fakturoidAccountSlug = 'aiweb';
 
-const infoItems: InfoItem[] = [
-    {
-        icon: CalendarDays,
-        label: 'Termín',
-        value: workshopDate.label,
-        description: 'Celodenní praktická AI Supervize Mini pro registrované účastníky.',
-    },
-    {
-        icon: Clock,
-        label: 'Čas',
-        value: workshopDate.timeRange,
-        description: 'Doporučujeme dorazit pár minut před začátkem, abychom mohli začít včas.',
-    },
-    {
-        icon: MapPin,
-        label: 'Místo',
-        value: workshopLocation.city,
-        description: `Pravděpodobně ${workshopLocation.venue}, ${workshopLocation.address}.`,
-    },
-];
+function createInfoItems(event: EventOccurrence | null): InfoItem[] {
+    return [
+        {
+            icon: CalendarDays,
+            label: 'Termín',
+            value: event === null ? UNPUBLISHED_EVENT_DAY_LABEL : formatCzechWorkshopDay(event.startsAt),
+            description: 'Celodenní praktická AI Supervize Mini pro registrované účastníky.',
+        },
+        {
+            icon: Clock,
+            label: 'Čas',
+            value:
+                event === null
+                    ? UNPUBLISHED_EVENT_TIME_LABEL
+                    : formatCzechWorkshopTimeRange(event.startsAt, event.endsAt),
+            description: 'Doporučujeme dorazit pár minut před začátkem, abychom mohli začít včas.',
+        },
+        {
+            icon: MapPin,
+            label: 'Místo',
+            value: event === null ? workshopLocation.city : formatEventLocation(event.event),
+            description: `Pravděpodobně ${workshopLocation.venue}, ${workshopLocation.address}.`,
+        },
+    ];
+}
 
 const scheduleItems: ScheduleItem[] = [
     {
@@ -197,7 +210,9 @@ function SectionHeading({
     );
 }
 
-export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMiniParticipantPageProps) {
+export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupervizeMiniParticipantPageProps) {
+    const eventDayLabel = event === null ? UNPUBLISHED_EVENT_DAY_LABEL : formatCzechWorkshopDay(event.startsAt);
+    const infoItems = createInfoItems(event);
     const invoiceUrl = registrationId ? getFakturoidInvoiceUrl(registrationId) : null;
     const encodedRegistrationId = registrationId ? encodeURIComponent(registrationId) : null;
     const participantPageUrl = encodedRegistrationId
@@ -231,7 +246,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMi
                     <>
                         <span>AI Supervize Mini</span>
                         <span className="text-slate-300">|</span>
-                        <strong className="text-slate-900">{workshopDate.label}</strong>
+                        <strong className="text-slate-900">{eventDayLabel}</strong>
                     </>
                 }
             />
@@ -250,7 +265,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId }: AiSupervizeMi
                             <CalendarDays className="h-4 w-4 text-cyan-200" />
                             <span>Informace pro účastníka</span>
                             <span className="text-white/35">|</span>
-                            <span>{workshopDate.label}</span>
+                            <span>{eventDayLabel}</span>
                         </div>
 
                         <h1 className="mt-7 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">

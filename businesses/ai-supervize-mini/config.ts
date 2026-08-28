@@ -1,22 +1,17 @@
+import type { EventLocationKind } from '@/lib/events/eventLocation';
+import type { EventType } from '@/lib/events/eventTypes';
 import {
     AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
     AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID,
 } from '@/lib/discounts/discountPlaces';
 
-export type AiSupervizeMiniWorkshopFormat = 'onsite' | 'online';
-
-export type AiSupervizeMiniWorkshopDate = {
-    readonly id: string;
-    readonly label: string;
-    readonly format: AiSupervizeMiniWorkshopFormat;
-    readonly formatLabel: string;
-    readonly placeLabel: string;
-    readonly timeRange: string;
-    readonly pricePerParticipantCzk: number;
-    readonly maximumParticipantCount: number;
-    /** The shared discount place which prices this offer. */
-    readonly discountPlaceId: string;
-};
+/**
+ * The kind of event whose terms this landing page lists and registers visitors for
+ *
+ * Note: The terms themselves are administered together with every other event and stored in the very same table, so
+ *       nothing about them is written here anymore.
+ */
+export const AI_SUPERVIZE_MINI_EVENT_TYPE: EventType = 'ai-supervize-mini';
 
 /**
  * The discriminator makes a workshop registration distinguishable from other
@@ -35,53 +30,24 @@ export const AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME = 'AiSupervizeMiniWo
 export const AI_SUPERVIZE_MINI_WORKSHOP_CONFIG = {
     title: 'AI Supervize Mini',
     isVatPayer: false,
-    workshopDates: [
-        {
-            id: '2026-09-04',
-            label: '4. 9. 2026',
-            format: 'onsite',
-            formatLabel: 'Prezenčně v Praze',
-            placeLabel: 'Praha',
-            timeRange: '10:00–16:00',
-            pricePerParticipantCzk: 12000,
-            maximumParticipantCount: 10,
-            discountPlaceId: AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID,
-        },
-        {
-            id: '2026-09-09',
-            label: '9. 9. 2026',
-            format: 'online',
-            formatLabel: 'Online workshop',
-            placeLabel: 'Online',
-            timeRange: '13:00–17:00',
-            pricePerParticipantCzk: 3000,
-            maximumParticipantCount: 50,
-            discountPlaceId: AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
-        },
-        {
-            id: '2026-09-18',
-            label: '18. 9. 2026',
-            format: 'online',
-            formatLabel: 'Online workshop',
-            placeLabel: 'Online',
-            timeRange: '13:00–17:00',
-            pricePerParticipantCzk: 3000,
-            maximumParticipantCount: 50,
-            discountPlaceId: AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
-        },
-    ] as const satisfies readonly AiSupervizeMiniWorkshopDate[],
 } as const;
 
-export function getAiSupervizeMiniWorkshopDateById(workshopDateId: string): AiSupervizeMiniWorkshopDate | null {
-    return AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.find((workshopDate) => workshopDate.id === workshopDateId) ?? null;
+/**
+ * The shared discount place which prices one term
+ *
+ * Note: A code is limited to the prezenční or the online form of the workshop rather than to one date, so a term
+ *       added later is priced by the very same codes as the terms already published in that form.
+ */
+export function getAiSupervizeMiniDiscountPlaceId(locationKind: EventLocationKind): string {
+    return locationKind === 'onsite'
+        ? AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID
+        : AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID;
 }
 
-export function getAiSupervizeMiniWorkshopDateByFormat(
-    workshopFormat: AiSupervizeMiniWorkshopFormat,
-): AiSupervizeMiniWorkshopDate | null {
-    return (
-        AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.find(
-            (workshopDate) => workshopDate.format === workshopFormat,
-        ) ?? null
-    );
-}
+/**
+ * Every discount place the terms of this workshop can be priced by
+ */
+export const AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS: readonly string[] = [
+    AI_SUPERVIZE_MINI_ONSITE_DISCOUNT_PLACE_ID,
+    AI_SUPERVIZE_MINI_ONLINE_DISCOUNT_PLACE_ID,
+];

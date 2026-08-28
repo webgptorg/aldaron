@@ -7,6 +7,7 @@ import {
     loadWorkshopParticipantStateCache,
     saveWorkshopParticipantStateCache,
 } from '@/businesses/online-workshop/participant/workshopParticipantStateCache';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -18,6 +19,7 @@ function createState(workshopSlug = WORKSHOP_SLUG): WorkshopPublicState {
         workshop: {
             id: '5a7eb2ad-2583-4e98-9640-50bc773e5fde',
             kind: 'workshop',
+            event: DEFAULT_EVENT_DETAILS,
             slug: workshopSlug,
             title: 'Produkční kód s AI agenty',
             description: 'Online workshop.',

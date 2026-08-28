@@ -26,6 +26,8 @@ const VALID_WORKSHOP = {
     description: '',
     startsAt: '2026-08-20T19:00:00+02:00',
     endsAt: '2026-08-20T20:30:00+02:00',
+    eventType: 'online-workshop',
+    locationKind: 'online',
     youtubeVideoId: null,
     isPublished: true,
     allowedReactions: ['👍', '👏'],
@@ -101,6 +103,41 @@ describe('workshop request validation', () => {
                 endsAt: '2026-08-20T18:59:59+02:00',
             }).success,
         ).toBe(false);
+    });
+
+    it('describes a term as a free online event of a known kind unless it says otherwise', () => {
+        const workshop = workshopCreateSchema.parse(VALID_WORKSHOP);
+
+        expect(workshop).toMatchObject({
+            eventType: 'online-workshop',
+            locationKind: 'online',
+            locationLabel: '',
+            priceCzk: 0,
+            maximumParticipantCount: null,
+        });
+        expect(
+            workshopCreateSchema.parse({
+                ...VALID_WORKSHOP,
+                eventType: 'ai-supervize-mini',
+                locationKind: 'onsite',
+                locationLabel: '  Praha  ',
+                priceCzk: 12000,
+                maximumParticipantCount: 10,
+            }),
+        ).toMatchObject({ eventType: 'ai-supervize-mini', locationLabel: 'Praha', priceCzk: 12000 });
+    });
+
+    it('refuses a kind of event nothing knows, a negative price, and a term held nowhere in particular', () => {
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, eventType: 'zumba' }).success).toBe(false);
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, locationKind: 'moon' }).success).toBe(false);
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, priceCzk: -1 }).success).toBe(false);
+        expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, maximumParticipantCount: 0 }).success).toBe(false);
+        expect(
+            workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, locationKind: 'onsite', locationLabel: '   ' })
+                .success,
+        ).toBe(false);
+        expect(workshopUpdateSchema.safeParse({ locationKind: 'onsite', locationLabel: '' }).success).toBe(false);
+        expect(workshopUpdateSchema.safeParse({ locationKind: 'onsite' }).success).toBe(true);
     });
 
     it('offers every panel to a workshop which switched none of them off', () => {

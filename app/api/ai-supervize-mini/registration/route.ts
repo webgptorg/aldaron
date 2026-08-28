@@ -1,18 +1,22 @@
 import {
     AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_PLACE_NAME,
-    getAiSupervizeMiniWorkshopDateById,
+    getAiSupervizeMiniDiscountPlaceId,
 } from '@/businesses/ai-supervize-mini/config';
 import {
     createAiSupervizeMiniStoredWorkshopRegistration,
     createAiSupervizeMiniWorkshopAvailabilityAfterRegistration,
     createAiSupervizeMiniWorkshopPrice,
     createAiSupervizeMiniWorkshopRegistrationContactNote,
-    getAiSupervizeMiniWorkshopAvailabilityByDateId,
+    getAiSupervizeMiniEventBySlug,
+    getAiSupervizeMiniWorkshopAvailabilityByEventSlug,
     getAiSupervizeMiniWorkshopRegistrationState,
     type AiSupervizeMiniInvoiceType,
     type AiSupervizeMiniWorkshopRegistrationRequest,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
-import { loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable } from '@/businesses/ai-supervize-mini/workshopRegistrationDatabase';
+import {
+    loadAiSupervizeMiniEvents,
+    loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable,
+} from '@/businesses/ai-supervize-mini/workshopRegistrationDatabase';
 import { APP_NAME } from '@/config';
 import { readClientIpAddress } from '@/lib/api/readClientIpAddress';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
@@ -53,7 +57,7 @@ function readParticipantCount(value: unknown): number | null {
 function readAiSupervizeMiniWorkshopRegistrationRequest(
     body: Readonly<Record<string, unknown>>,
 ): AiSupervizeMiniWorkshopRegistrationRequest | null {
-    const selectedDateId = readTextValue(body.selectedDateId);
+    const eventSlug = readRequiredTextValue(body.eventSlug);
     const participantCount = readParticipantCount(body.participantCount);
     const fullname = readRequiredTextValue(body.fullname);
     const email = readRequiredTextValue(body.email);
@@ -64,7 +68,7 @@ function readAiSupervizeMiniWorkshopRegistrationRequest(
     const discountCode = readTextValue(body.discountCode);
 
     if (
-        selectedDateId === null ||
+        eventSlug === null ||
         participantCount === null ||
         fullname === null ||
         email === null ||
@@ -79,7 +83,7 @@ function readAiSupervizeMiniWorkshopRegistrationRequest(
     }
 
     return {
-        selectedDateId,
+        eventSlug,
         participantCount,
         fullname,
         email,
@@ -110,14 +114,22 @@ export async function POST(request: NextRequest) {
     }
 
     const registrationRequest = readAiSupervizeMiniWorkshopRegistrationRequest(body);
-    const workshopDate =
-        registrationRequest === null ? null : getAiSupervizeMiniWorkshopDateById(registrationRequest.selectedDateId);
 
-    if (registrationRequest === null || workshopDate === null) {
+    if (registrationRequest === null) {
         return NextResponse.json({ error: INVALID_REGISTRATION_ERROR_MESSAGE }, { status: 400 });
     }
 
-    if (registrationRequest.participantCount > workshopDate.maximumParticipantCount) {
+    // The published terms decide which registration is possible at all, so a link to a term which was withdrawn or
+    // has already started is refused instead of being written against a term nobody offers anymore.
+    const events = await loadAiSupervizeMiniEvents();
+    const event = getAiSupervizeMiniEventBySlug(events, registrationRequest.eventSlug);
+
+    if (event === null) {
+        return NextResponse.json({ error: INVALID_REGISTRATION_ERROR_MESSAGE }, { status: 400 });
+    }
+
+    const maximumParticipantCount = event.event.maximumParticipantCount;
+    if (maximumParticipantCount !== null && registrationRequest.participantCount > maximumParticipantCount) {
         return NextResponse.json({ error: INVALID_REGISTRATION_ERROR_MESSAGE }, { status: 400 });
     }
 
@@ -129,6 +141,7 @@ export async function POST(request: NextRequest) {
 
     const { workshopAvailabilities, errorMessage } = await loadAiSupervizeMiniWorkshopAvailabilityFromContactsTable(
         contactsTable,
+        events,
     );
 
     if (workshopAvailabilities === null) {
@@ -136,9 +149,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: AVAILABILITY_NOT_LOADED_ERROR_MESSAGE }, { status: 500 });
     }
 
-    const workshopAvailability = getAiSupervizeMiniWorkshopAvailabilityByDateId(
+    const workshopAvailability = getAiSupervizeMiniWorkshopAvailabilityByEventSlug(
         workshopAvailabilities,
-        workshopDate.id,
+        event.slug,
     );
 
     const registrationState = getAiSupervizeMiniWorkshopRegistrationState(
@@ -166,7 +179,7 @@ export async function POST(request: NextRequest) {
     // so concurrent registrations cannot both receive its last use.
     const discountCodeConsumption = await consumeDiscountCode(
         registrationRequest.discountCode,
-        workshopDate.discountPlaceId,
+        getAiSupervizeMiniDiscountPlaceId(event.event.locationKind),
     );
     if (discountCodeConsumption.errorMessage !== null) {
         console.error(
@@ -186,7 +199,7 @@ export async function POST(request: NextRequest) {
 
     const storedRegistration = createAiSupervizeMiniStoredWorkshopRegistration(
         registrationRequest,
-        workshopDate,
+        event,
         activeDiscount,
     );
     const contactNote = createAiSupervizeMiniWorkshopRegistrationContactNote(storedRegistration);
@@ -216,12 +229,12 @@ export async function POST(request: NextRequest) {
         isWaitlisted,
         workshopAvailabilities: createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
             workshopAvailabilities,
-            workshopDate.id,
+            event.slug,
             registrationRequest.participantCount,
             registrationState,
         ),
         workshopPrice: createAiSupervizeMiniWorkshopPrice(
-            workshopDate,
+            event,
             registrationRequest.participantCount,
             activeDiscount,
         ),

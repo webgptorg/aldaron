@@ -3,6 +3,7 @@
  */
 
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -10,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'produkcni-kod-2026-08-21',
     title: 'Produkční kód s AI agenty',
     description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem.',

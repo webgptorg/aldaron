@@ -1,4 +1,5 @@
 import type { AdminContactJoin } from '@/lib/admin/adminContactJoin';
+import type { EventDetails } from '@/lib/events/event';
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 
 /**
@@ -24,6 +25,14 @@ export type WorkshopSummary = {
     readonly startsAt: string;
     readonly endsAt: string | null;
     readonly isPublished: boolean;
+
+    /**
+     * The event this room is a term of, or `null` for a permanent room which is no event at all
+     *
+     * Note: Every kind of event is administered in the very same place and stored in the very same table, so a page
+     *       listing terms only ever asks which kind of event it wants to list.
+     */
+    readonly event: EventDetails | null;
 };
 
 /**

@@ -1,5 +1,9 @@
 import { OnlineWorkshopParticipantPage } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
-import { ONLINE_WORKSHOP_HOST_FULLNAME, ONLINE_WORKSHOP_PARTICIPANT_PATH } from '@/businesses/online-workshop/config';
+import {
+    ONLINE_WORKSHOP_EVENT_TYPE,
+    ONLINE_WORKSHOP_HOST_FULLNAME,
+    ONLINE_WORKSHOP_PARTICIPANT_PATH,
+} from '@/businesses/online-workshop/config';
 import { ONLINE_WORKSHOP_PARTICIPANT_METADATA } from '@/businesses/online-workshop/onlineWorkshopMetadata';
 import {
     readWorkshopParticipantIdentity,
@@ -30,7 +34,10 @@ export default async function OnlineWorkshopParticipantRoute({ searchParams }: O
         resolvedSearchParams.email,
         resolvedSearchParams.fullname,
     );
-    const workshop = await loadSelectedPublishedWorkshop(readWorkshopSlug(resolvedSearchParams.workshop));
+    const workshop = await loadSelectedPublishedWorkshop(
+        readWorkshopSlug(resolvedSearchParams.workshop),
+        ONLINE_WORKSHOP_EVENT_TYPE,
+    );
     if (workshop === null) {
         notFound();
     }

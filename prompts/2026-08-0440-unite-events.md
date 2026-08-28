@@ -1,7 +1,12 @@
-[ ] !
+[^] by Claude Code `claude-opus-5` thinking `high` - Implementation in progress
+
+---
+
+[x] by Claude Code `claude-opus-5` thinking `high` - Implementation $9.32 2 hours; Testing 3 minutes
 
 [✨📵] Events should be managed from the same place in admin and be saved in the same table in a database.
 
+- You have already started implementing this task:
 - No termín of the event should be hard-coded in the app.
 - When managing events, you should be able to pick whether it's the Supervize Mini or online workshop.
     - Make this in such a way that it is easily extendable in the future to other types of events.
@@ -12,3 +17,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

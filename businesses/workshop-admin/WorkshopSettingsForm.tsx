@@ -1,12 +1,17 @@
 'use client';
 
-import type { WorkshopWriteValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import {
+    createWorkshopEventWriteValues,
+    type WorkshopWriteValues,
+} from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { WorkshopEventFields } from '@/businesses/workshop-admin/WorkshopEventFields';
 import { WorkshopPanelSettings } from '@/businesses/workshop-admin/WorkshopPanelSettings';
 import { WorkshopReactionAnimationPreview } from '@/businesses/workshop-admin/WorkshopReactionAnimationPreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { isWorkshopPanelOfferedByKind } from '@/lib/workshops/workshopPanels';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
@@ -40,6 +45,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     const [description, setDescription] = useState(workshop.description);
     const [startsAt, setStartsAt] = useState(() => toDateTimeLocalValue(workshop.startsAt));
     const [endsAt, setEndsAt] = useState(() => toDateTimeLocalValue(workshop.endsAt));
+    const [eventDetails, setEventDetails] = useState(() => workshop.event ?? DEFAULT_EVENT_DETAILS);
     const [youtubeVideoId, setYoutubeVideoId] = useState(workshop.youtubeVideoId ?? '');
     const [reactionText, setReactionText] = useState(workshop.allowedReactions.join(' '));
     const [disabledPanels, setDisabledPanels] = useState(workshop.disabledPanels);
@@ -52,6 +58,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
         setDescription(workshop.description);
         setStartsAt(toDateTimeLocalValue(workshop.startsAt));
         setEndsAt(toDateTimeLocalValue(workshop.endsAt));
+        setEventDetails(workshop.event ?? DEFAULT_EVENT_DETAILS);
         setYoutubeVideoId(workshop.youtubeVideoId ?? '');
         setReactionText(workshop.allowedReactions.join(' '));
         setDisabledPanels(workshop.disabledPanels);
@@ -75,6 +82,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
             ...(roomCapabilities.isScheduled && startsAtIso
                 ? { startsAt: startsAtIso, endsAt: fromDateTimeLocalValue(endsAt) }
                 : {}),
+            ...(roomCapabilities.isEvent ? createWorkshopEventWriteValues(eventDetails) : {}),
             ...(roomCapabilities.isStageOffered ? { youtubeVideoId: youtubeVideoId.trim() || null } : {}),
             ...(isReactionSettingOffered ? { allowedReactions: parseWorkshopReactions(reactionText) } : {}),
         });
@@ -154,6 +162,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
                         </label>
                     </>
                 )}
+                {roomCapabilities.isEvent && <WorkshopEventFields event={eventDetails} onChange={setEventDetails} />}
                 {roomCapabilities.isStageOffered && (
                     <label className="text-sm font-medium text-slate-700">
                         YouTube URL nebo video ID

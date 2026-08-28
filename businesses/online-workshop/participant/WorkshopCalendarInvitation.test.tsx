@@ -3,6 +3,7 @@
  */
 
 import { WorkshopCalendarInvitation } from '@/businesses/online-workshop/participant/WorkshopCalendarInvitation';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,6 +19,7 @@ vi.mock('@/lib/tracking/track-google-analytics-event', () => ({
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'online-workshop-2026-08-20',
     title: 'Produkční kód s AI agenty',
     description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem.',

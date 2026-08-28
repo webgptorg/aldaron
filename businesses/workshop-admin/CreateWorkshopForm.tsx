@@ -1,9 +1,14 @@
 'use client';
 
-import type { WorkshopCreateValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import {
+    createWorkshopEventWriteValues,
+    type WorkshopCreateValues,
+} from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { WorkshopEventFields } from '@/businesses/workshop-admin/WorkshopEventFields';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import { DEFAULT_WORKSHOP_REACTIONS } from '@/lib/workshops/workshopConstants';
 import { Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
@@ -24,6 +29,7 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
     const [endsAt, setEndsAt] = useState(() =>
         toDateTimeLocalValue(new Date(defaultStart + DEFAULT_WORKSHOP_DURATION_MILLISECONDS).toISOString()),
     );
+    const [eventDetails, setEventDetails] = useState(DEFAULT_EVENT_DETAILS);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -40,6 +46,7 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
             description: '',
             startsAt: startsAtIso,
             endsAt: endsAtIso,
+            ...createWorkshopEventWriteValues(eventDetails),
             youtubeVideoId: null,
             isPublished: false,
             allowedReactions: [...DEFAULT_WORKSHOP_REACTIONS],
@@ -51,6 +58,7 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
         if (isCreated) {
             setSlug('');
             setTitle('');
+            setEventDetails(DEFAULT_EVENT_DETAILS);
             setIsOpen(false);
         }
     };
@@ -99,10 +107,11 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
                 <Input
                     type="datetime-local"
                     value={endsAt}
-                    onChange={(event) => setEndsAt(event.target.value)}
+                    onChange={(changeEvent) => setEndsAt(changeEvent.target.value)}
                     className="mt-1"
                 />
             </label>
+            <WorkshopEventFields event={eventDetails} onChange={setEventDetails} />
             <Button type="submit" size="sm" className="w-full" disabled={isSaving}>
                 {isSaving ? 'Vytvářím…' : 'Vytvořit'}
             </Button>
