@@ -90,7 +90,7 @@
         },
         {
             "name": "🔎 Verify database backup",
-            "command": "npm run backup-database:verify",
+            "commands": ["export PATH=\"$PATH:/c/Program Files/PostgreSQL/18/bin\"", "npm run backup-database:verify"],
             "execute": false
         },
         {
