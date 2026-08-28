@@ -6,7 +6,7 @@ import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { FlyingWorkshopReaction } from '@/lib/workshops/workshopReactionAnimations';
-import type { WorkshopContentBlock, WorkshopDetails } from '@/lib/workshops/workshopTypes';
+import type { WorkshopCommentReference, WorkshopContentBlock, WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -50,6 +50,12 @@ const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
     linkClickCount: 0,
 };
 
+const STAGE_COMMENT: WorkshopCommentReference = {
+    id: 'stage-question',
+    authorName: 'Jana Nováková',
+    body: 'Jak poznám, že agent opravdu běží v produkci?',
+};
+
 /**
  * The room as far as the stage is concerned: something which tells it about a reaction
  */
@@ -89,6 +95,22 @@ describe('workshop stage', () => {
         await reactionSource.sendReaction({ flightId: 'first', reactionText: '🎉' });
         await waitFor(() => expect(container.querySelectorAll('.workshop-reaction')).toHaveLength(1));
         expect(container.querySelector('.workshop-reaction')?.className).toContain('workshop-reaction-flight--launch');
+    });
+
+    it('shows the question the host selected over the stream', () => {
+        const reactionSource = createReactionSource();
+        render(
+            <WorkshopStage
+                workshop={WORKSHOP}
+                serverTime="2026-08-20T19:10:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                stageComment={STAGE_COMMENT}
+            />,
+        );
+
+        expect(screen.getByRole('status').textContent).toContain('Otázka na stage');
+        expect(screen.getByRole('status').textContent).toContain(STAGE_COMMENT.authorName);
+        expect(screen.getByRole('status').textContent).toContain(STAGE_COMMENT.body);
     });
 
     it('stops listening once the room leaves the stage', () => {

@@ -252,6 +252,7 @@ export function OnlineWorkshopParticipantPage({
                             subscribeToReactions={controller.subscribeToReactions}
                             feedback={state.feedback}
                             followUpContentBlock={followUpContentBlock}
+                            stageComment={state.stageComment}
                             onSaveFeedback={controller.saveFeedback}
                         />
                     )}

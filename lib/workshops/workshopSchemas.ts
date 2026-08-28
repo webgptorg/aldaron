@@ -205,6 +205,13 @@ export const workshopArtificialCommentSchema = z.object({
     body: workshopCommentBodySchema,
 });
 
+/**
+ * Selects the one existing comment which the host is answering on stage, or clears the stage again.
+ */
+export const workshopStageCommentSchema = z.object({
+    commentId: z.string().uuid().nullable(),
+});
+
 export const workshopArtificialReactionSchema = workshopReactionSchema;
 
 export const workshopCommentArtificialUpvoteSchema = z.object({

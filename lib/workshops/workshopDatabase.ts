@@ -96,6 +96,11 @@ export type WorkshopRow = {
      * The message pinned on top of the chat of this workshop, or `null` when nothing is pinned
      */
     readonly pinned_comment_id: string | null;
+
+    /**
+     * The comment currently presented over the live stage, or `null` when the host is not answering a question
+     */
+    readonly stage_comment_id: string | null;
     readonly created_at: string;
     readonly updated_at: string;
 };
@@ -549,6 +554,31 @@ async function loadWorkshopCommentAuthors(
 
 function mapWorkshopCommentReferenceRow(row: WorkshopCommentReferenceRow): WorkshopCommentReference {
     return { id: row.id, authorName: row.author_name, body: row.body };
+}
+
+/**
+ * Reads a comment only when it belongs to the requested room, so an administrative stage selection can never point
+ * one workshop at a question from another one.
+ */
+export async function loadWorkshopCommentReference(
+    supabase: SupabaseClient,
+    workshopId: string,
+    commentId: string,
+): Promise<{ readonly comment: WorkshopCommentReference | null; readonly errorMessage: string | null }> {
+    const { data, error } = await supabase
+        .from(WORKSHOP_COMMENT_TABLE_NAME)
+        .select(WORKSHOP_COMMENT_REFERENCE_COLUMNS)
+        .eq('id', commentId)
+        .eq('workshop_id', workshopId)
+        .maybeSingle();
+    if (error) {
+        return { comment: null, errorMessage: error.message };
+    }
+
+    return {
+        comment: data === null ? null : mapWorkshopCommentReferenceRow(data as WorkshopCommentReferenceRow),
+        errorMessage: null,
+    };
 }
 
 export function mapWorkshopAdminParticipantRow(
@@ -1925,6 +1955,29 @@ export async function updatePinnedWorkshopComment(
     return { errorMessage: null };
 }
 
+/**
+ * Chooses the one comment the host is answering over the stage, or leaves the stage without a question.
+ *
+ * Note: The database checks that a selected comment belongs to this room. The stage keeps no copied text: the selected
+ *       comment remains the one source of the question in both chat and live presentation.
+ */
+export async function updateWorkshopStageComment(
+    supabase: SupabaseClient,
+    workshopId: string,
+    stageCommentId: string | null,
+): Promise<{ readonly errorMessage: string | null }> {
+    const { error } = await supabase
+        .from(WORKSHOP_TABLE_NAME)
+        .update({ stage_comment_id: stageCommentId })
+        .eq('id', workshopId);
+    if (error) {
+        console.error('Failed to change the comment on a workshop stage:', error.message);
+        return { errorMessage: 'Stage comment could not be changed' };
+    }
+
+    return { errorMessage: null };
+}
+
 export async function loadWorkshopPublicState(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
@@ -1942,6 +1995,7 @@ export async function loadWorkshopPublicState(
         workshopRow.disabled_panels,
         'reactions',
     );
+    const isStageOffered = getWorkshopKindCapabilities(workshopRow.room_kind).isStageOffered;
 
     // Note: A moderator is shown every message which waits for a decision, because making that decision is exactly
     //       what they are in the room for. Everybody else only ever sees the messages they wrote themselves.
@@ -1978,6 +2032,7 @@ export async function loadWorkshopPublicState(
         reactionCountsResult,
         watchingParticipantCount,
         pinnedCommentRow,
+        stageCommentResult,
         pollsResult,
     ] = await Promise.all([
         supabase
@@ -2026,6 +2081,9 @@ export async function loadWorkshopPublicState(
         loadWorkshopReactionCounts(supabase, workshopRow),
         countWatchingWorkshopParticipants(supabase, workshopRow),
         loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow),
+        isStageOffered && workshopRow.stage_comment_id !== null
+            ? loadWorkshopCommentReference(supabase, workshopRow.id, workshopRow.stage_comment_id)
+            : Promise.resolve({ comment: null, errorMessage: null }),
         loadWorkshopPolls(supabase, workshopRow, participant.id),
     ]);
 
@@ -2037,7 +2095,11 @@ export async function loadWorkshopPublicState(
         commentsResult.error ??
         pendingCommentsResult.error ??
         reactionsResult.error;
-    const errorMessage = stateQueryError?.message ?? reactionCountsResult.errorMessage ?? pollsResult.errorMessage;
+    const errorMessage =
+        stateQueryError?.message ??
+        reactionCountsResult.errorMessage ??
+        stageCommentResult.errorMessage ??
+        pollsResult.errorMessage;
     if (errorMessage !== null) {
         return { state: null, errorMessage };
     }
@@ -2160,6 +2222,7 @@ export async function loadWorkshopPublicState(
                 ),
                 commentSort,
             ),
+            stageComment: stageCommentResult.comment,
             recentReactions: ((reactionsResult.data ?? []) as WorkshopReactionRow[]).map(mapWorkshopReactionRow),
             reactionCounts: reactionCountsResult.reactionCounts,
             polls: pollsResult.polls,
@@ -2230,6 +2293,7 @@ export async function loadWorkshopAdminSnapshot(
         reactionsResult,
         artificialReactionsResult,
         pinnedCommentRow,
+        stageCommentResult,
         pollsResult,
         attachedPollsResult,
     ] = await Promise.all([
@@ -2267,6 +2331,9 @@ export async function loadWorkshopAdminSnapshot(
             .eq('workshop_id', workshopRow.id)
             .eq('is_artificial', true),
         options.isCommentsIncluded ? loadPinnedWorkshopCommentRowOrNull(supabase, workshopRow) : Promise.resolve(null),
+        getWorkshopKindCapabilities(workshopRow.room_kind).isStageOffered && workshopRow.stage_comment_id !== null
+            ? loadWorkshopCommentReference(supabase, workshopRow.id, workshopRow.stage_comment_id)
+            : Promise.resolve({ comment: null, errorMessage: null }),
         loadWorkshopAdminPolls(supabase, workshopRow),
         loadWorkshopAttachedAdminPolls(supabase, workshopRow),
     ]);
@@ -2284,6 +2351,9 @@ export async function loadWorkshopAdminSnapshot(
     }
     if (pollsResult.errorMessage !== null || attachedPollsResult.errorMessage !== null) {
         return { snapshot: null, errorMessage: pollsResult.errorMessage ?? attachedPollsResult.errorMessage };
+    }
+    if (stageCommentResult.errorMessage !== null) {
+        return { snapshot: null, errorMessage: stageCommentResult.errorMessage };
     }
 
     const commentRows = (commentsResult.data ?? []) as WorkshopCommentRow[];
@@ -2326,6 +2396,7 @@ export async function loadWorkshopAdminSnapshot(
             attachedPolls: attachedPollsResult.polls,
             comments,
             pinnedComment: pinnedCommentRow === null ? null : mapWorkshopCommentReferenceRow(pinnedCommentRow),
+            stageComment: stageCommentResult.comment,
             participants: [],
             participantCount: participantCountResult.count ?? 0,
             commentCount: commentsCountResult.count ?? 0,

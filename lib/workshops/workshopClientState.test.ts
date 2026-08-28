@@ -68,6 +68,17 @@ describe('workshop realtime events', () => {
             }),
         ).toBe(true);
         expect(isWorkshopRealtimeEvent({ kind: 'upvote', commentId: 'comment-1', upvoteCount: 7 })).toBe(true);
+        expect(
+            isWorkshopRealtimeEvent({
+                kind: 'stage-comment',
+                stageComment: {
+                    id: 'comment-1',
+                    authorName: 'Jana Nováková',
+                    body: 'Jak agent nasadit?',
+                },
+            }),
+        ).toBe(true);
+        expect(isWorkshopRealtimeEvent({ kind: 'stage-comment', stageComment: null })).toBe(true);
     });
 
     it('rejects malformed broadcast payloads before they reach the UI', () => {
@@ -86,6 +97,7 @@ describe('workshop realtime events', () => {
             }),
         ).toBe(false);
         expect(isWorkshopRealtimeEvent({ kind: 'upvote', commentId: 'comment-1', upvoteCount: -1 })).toBe(false);
+        expect(isWorkshopRealtimeEvent({ kind: 'stage-comment', stageComment: { id: 'comment-1' } })).toBe(false);
         expect(isWorkshopRealtimeEvent({ kind: 'unknown' })).toBe(false);
     });
 });

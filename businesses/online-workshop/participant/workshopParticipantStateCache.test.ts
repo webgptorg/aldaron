@@ -46,6 +46,7 @@ function createState(workshopSlug = WORKSHOP_SLUG): WorkshopPublicState {
         nextContentUnlockAt: null,
         feedback: null,
         comments: [],
+        stageComment: null,
         recentReactions: [],
         reactionCounts: [],
         polls: [],

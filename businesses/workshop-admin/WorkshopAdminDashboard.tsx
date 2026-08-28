@@ -19,6 +19,7 @@ import {
     moderateAdminWorkshopComment,
     pinAdminWorkshopComment,
     sendAdminWorkshopArtificialReaction,
+    setAdminWorkshopStageComment,
     updateAdminWorkshopPoll,
     updateAdminWorkshop,
     updateAdminWorkshopContent,
@@ -110,6 +111,7 @@ export function WorkshopAdminDashboard({
     const {
         isSingleton,
         isScheduled: isRoomScheduled,
+        isStageOffered,
         isPollsOffered,
     } = getWorkshopKindCapabilities(workshopKind);
     const isRoomSelectionOffered = !isSingleton;
@@ -351,10 +353,19 @@ export function WorkshopAdminDashboard({
                       artificialUpvoteAdjustment,
                   ),
               );
-    const handleCreateArtificialComment = (values: WorkshopArtificialCommentValues) =>
+    const handleCreateArtificialComment = (values: WorkshopArtificialCommentValues, isSentToStage: boolean) =>
         snapshot === null
             ? Promise.resolve(false)
-            : runAndReload(() => createAdminWorkshopArtificialComment(snapshot.workshop.id, values));
+            : runAndReload(async () => {
+                  const commentId = await createAdminWorkshopArtificialComment(snapshot.workshop.id, values);
+                  if (isSentToStage) {
+                      await setAdminWorkshopStageComment(snapshot.workshop.id, commentId);
+                  }
+              });
+    const handleSetStageComment = (commentId: string | null) =>
+        snapshot === null
+            ? Promise.resolve(false)
+            : runAndReload(() => setAdminWorkshopStageComment(snapshot.workshop.id, commentId));
     const handleSendArtificialReaction = (values: WorkshopArtificialReactionValues) =>
         snapshot === null
             ? Promise.resolve(false)
@@ -526,14 +537,19 @@ export function WorkshopAdminDashboard({
                                 comments={snapshot.comments}
                                 commentStatus={commentStatus}
                                 pinnedComment={snapshot.pinnedComment}
+                                stageComment={isStageOffered ? snapshot.stageComment : null}
                                 onChangeCommentStatus={setCommentStatus}
                                 onModerate={handleModerateComment}
                                 onEditBody={handleEditCommentBody}
                                 onChangePin={handleChangeCommentPin}
+                                onSetStageComment={isStageOffered ? handleSetStageComment : null}
                                 onAdjustArtificialUpvotes={handleAdjustArtificialUpvotes}
                                 onDelete={handleDeleteComment}
                             />
-                            <WorkshopArtificialComment onCreate={handleCreateArtificialComment} />
+                            <WorkshopArtificialComment
+                                onCreate={handleCreateArtificialComment}
+                                isStageOffered={isStageOffered}
+                            />
                         </TabsContent>
 
                         <TabsContent value="reactions" className="space-y-4">

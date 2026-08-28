@@ -117,6 +117,31 @@ describe('workshop comment moderation', () => {
         expect(onChangePin).toHaveBeenCalledWith('question', true);
     });
 
+    it('selects an attendee question for the shared stage and can clear it again', async () => {
+        const onSetStageComment = vi.fn().mockResolvedValue(true);
+        render(
+            <WorkshopCommentModeration
+                comments={[COMMENT]}
+                commentStatus="pending"
+                pinnedComment={null}
+                stageComment={{ id: COMMENT.id, authorName: COMMENT.authorName, body: COMMENT.body }}
+                onChangeCommentStatus={vi.fn()}
+                onModerate={vi.fn()}
+                onEditBody={vi.fn()}
+                onChangePin={vi.fn()}
+                onSetStageComment={onSetStageComment}
+                onAdjustArtificialUpvotes={vi.fn()}
+                onDelete={vi.fn()}
+            />,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: `Poslat komentář od ${COMMENT.authorName} na stage` }));
+        await waitFor(() => expect(onSetStageComment).toHaveBeenCalledWith(COMMENT.id));
+
+        fireEvent.click(screen.getByRole('button', { name: `Skrýt komentář od ${COMMENT.authorName} ze stage` }));
+        await waitFor(() => expect(onSetStageComment).toHaveBeenCalledWith(null));
+    });
+
     it('releases the top of the chat from the message which holds it, whatever the list shows', () => {
         const onChangePin = vi.fn().mockResolvedValue(true);
         renderModeration(vi.fn(), [COMMENT], onChangePin, PINNED_COMMENT);

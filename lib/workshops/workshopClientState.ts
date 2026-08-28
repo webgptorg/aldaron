@@ -18,6 +18,10 @@ function isWorkshopReaction(value: unknown): value is WorkshopReaction {
     );
 }
 
+function isWorkshopCommentReference(value: unknown): boolean {
+    return isObject(value) && typeof value.id === 'string' && typeof value.authorName === 'string' && typeof value.body === 'string';
+}
+
 export function isWorkshopRealtimeEvent(value: unknown): value is WorkshopRealtimeEvent {
     if (!isObject(value) || typeof value.kind !== 'string') {
         return false;
@@ -34,6 +38,10 @@ export function isWorkshopRealtimeEvent(value: unknown): value is WorkshopRealti
             Number.isSafeInteger(value.reactionCount) &&
             value.reactionCount >= 0
         );
+    }
+
+    if (value.kind === 'stage-comment') {
+        return value.stageComment === null || isWorkshopCommentReference(value.stageComment);
     }
 
     return (

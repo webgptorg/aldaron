@@ -2,6 +2,7 @@
 
 import { WorkshopCommentEditor } from '@/businesses/workshop-admin/WorkshopCommentEditor';
 import { WorkshopPinnedComment } from '@/businesses/workshop-admin/WorkshopPinnedComment';
+import { WorkshopStageCommentControls } from '@/businesses/workshop-admin/WorkshopStageCommentControls';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkshopCommentMarkdown } from '@/components/workshop-comment-markdown';
@@ -11,17 +12,19 @@ import type {
     WorkshopCommentReference,
     WorkshopCommentStatus,
 } from '@/lib/workshops/workshopTypes';
-import { Check, Clock3, MessageCircle, Pencil, Pin, PinOff, ThumbsUp, Trash2, X } from 'lucide-react';
+import { Check, Clock3, MessageCircle, Pencil, Pin, PinOff, Send, ThumbsUp, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 type WorkshopCommentModerationProps = {
     readonly comments: readonly WorkshopAdminComment[];
     readonly commentStatus: WorkshopCommentStatus;
     readonly pinnedComment: WorkshopCommentReference | null;
+    readonly stageComment?: WorkshopCommentReference | null;
     readonly onChangeCommentStatus: (commentStatus: WorkshopCommentStatus) => void;
     readonly onModerate: (commentId: string, status: Exclude<WorkshopCommentStatus, 'pending'>) => Promise<void>;
     readonly onEditBody: (commentId: string, body: string) => Promise<boolean>;
     readonly onChangePin: (commentId: string, isPinned: boolean) => Promise<boolean>;
+    readonly onSetStageComment?: ((commentId: string | null) => Promise<boolean>) | null;
     readonly onAdjustArtificialUpvotes: (commentId: string, artificialUpvoteAdjustment: number) => Promise<boolean>;
     readonly onDelete: (commentId: string) => Promise<void>;
 };
@@ -41,16 +44,19 @@ export function WorkshopCommentModeration({
     comments,
     commentStatus,
     pinnedComment,
+    stageComment = null,
     onChangeCommentStatus,
     onModerate,
     onEditBody,
     onChangePin,
+    onSetStageComment = null,
     onAdjustArtificialUpvotes,
     onDelete,
 }: WorkshopCommentModerationProps) {
     const [processingCommentIds, setProcessingCommentIds] = useState<ReadonlySet<string>>(new Set());
     const [artificialUpvoteAdjustments, setArtificialUpvoteAdjustments] = useState<Readonly<Record<string, string>>>({});
     const [editedCommentId, setEditedCommentId] = useState<string | null>(null);
+    const isStageCommentControlsOffered = onSetStageComment !== null;
 
     const runCommentAction = async (commentId: string, action: () => Promise<unknown>) => {
         setProcessingCommentIds((currentIds) => new Set(currentIds).add(commentId));
@@ -78,6 +84,14 @@ export function WorkshopCommentModeration({
 
     const handleChangePin = (commentId: string, isPinned: boolean) =>
         runCommentAction(commentId, () => onChangePin(commentId, isPinned));
+
+    const changeStageComment = (nextStageCommentId: string | null, processingCommentId: string) => {
+        if (onSetStageComment === null) {
+            return;
+        }
+
+        return runCommentAction(processingCommentId, () => onSetStageComment(nextStageCommentId));
+    };
 
     const handleArtificialUpvoteAdjustment = async (commentId: string) => {
         const artificialUpvoteAdjustment = Number(artificialUpvoteAdjustments[commentId] ?? '');
@@ -132,6 +146,14 @@ export function WorkshopCommentModeration({
                 onUnpin={(commentId) => void handleChangePin(commentId, false)}
             />
 
+            {isStageCommentControlsOffered && (
+                <WorkshopStageCommentControls
+                    stageComment={stageComment}
+                    isProcessing={stageComment !== null && processingCommentIds.has(stageComment.id)}
+                    onClear={(commentId) => void changeStageComment(null, commentId)}
+                />
+            )}
+
             <div className="mt-6 space-y-3">
                 {comments.length === 0 && (
                     <div className="rounded-xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
@@ -161,6 +183,11 @@ export function WorkshopCommentModeration({
                                     {comment.isPinned && (
                                         <span className="flex items-center gap-1 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800">
                                             <Pin className="h-3 w-3" /> Připnuto
+                                        </span>
+                                    )}
+                                    {stageComment?.id === comment.id && (
+                                        <span className="flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-800">
+                                            <Send className="h-3 w-3" /> Na stage
                                         </span>
                                     )}
                                     {comment.isArtificial && (
@@ -265,6 +292,20 @@ export function WorkshopCommentModeration({
                                         </>
                                     )}
                                 </Button>
+                                {isStageCommentControlsOffered && comment.status !== 'rejected' && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={isProcessing}
+                                        onClick={() => void changeStageComment(comment.id, comment.id)}
+                                        aria-label={`Poslat komentář od ${comment.authorName} na stage`}
+                                        className="border-violet-200 text-violet-800 hover:bg-violet-50"
+                                    >
+                                        <Send className="mr-1.5 h-4 w-4" />
+                                        {stageComment?.id === comment.id ? 'Znovu poslat na stage' : 'Poslat na stage'}
+                                    </Button>
+                                )}
                                 {comment.status !== 'rejected' && (
                                     <Button
                                         type="button"

@@ -101,6 +101,11 @@ const ATTENDANCE_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-3200-workshop-active-and-passive-attendance.sql',
 );
 const ATTENDANCE_MIGRATION_SQL = readFileSync(ATTENDANCE_MIGRATION_PATH, 'utf8');
+const STAGE_COMMENT_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-3300-workshop-stage-comments.sql',
+);
+const STAGE_COMMENT_MIGRATION_SQL = readFileSync(STAGE_COMMENT_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -232,6 +237,18 @@ describe('workshop database migration', () => {
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('workshops_enforce_pinned_comment_identity');
     });
 
+    it('keeps one non-rejected question on a live stage without copying its comment body', () => {
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('ADD COLUMN IF NOT EXISTS stage_comment_id uuid');
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain(
+            'ADD CONSTRAINT workshops_stage_comment_fk FOREIGN KEY (stage_comment_id)',
+        );
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('REFERENCES public.workshop_comments(id) ON DELETE SET NULL');
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('CREATE INDEX IF NOT EXISTS workshops_stage_comment_idx');
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('WORKSHOP_STAGE_COMMENT_INVALID');
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain("stage_comment.status <> 'rejected'");
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('workshop_comments_clear_rejected_stage_comment');
+    });
+
     it('remembers the switched-off panels of a workshop and offers every other one without a backfill', () => {
         expect(DISABLED_PANEL_MIGRATION_SQL).toContain(
             'ADD COLUMN IF NOT EXISTS disabled_panels text[] NOT NULL DEFAULT ARRAY[]::text[]',
@@ -279,6 +296,11 @@ describe('workshop database migration', () => {
             "to_jsonb(NEW) - 'pinned_comment_id' - 'updated_at' = to_jsonb(OLD) - 'pinned_comment_id' - 'updated_at'",
         );
         expect(PINNED_COMMENT_MIGRATION_SQL).toContain('NEW.updated_at = OLD.updated_at');
+    });
+
+    it('keeps a live-stage selection out of the workshop settings revision too', () => {
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain("- 'stage_comment_id' - 'updated_at'");
+        expect(STAGE_COMMENT_MIGRATION_SQL).toContain('NEW.updated_at = OLD.updated_at');
     });
 
     it('pages and orders a large workshop audience in the database while keeping timeline queries indexed', () => {

@@ -96,6 +96,7 @@ function renderParticipantRoom(
         nextContentUnlockAt: null,
         feedback: null,
         comments: [],
+        stageComment: null,
         recentReactions: [],
         reactionCounts: [],
         polls: [],

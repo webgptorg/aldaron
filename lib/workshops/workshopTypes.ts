@@ -390,6 +390,15 @@ export type WorkshopPublicState = {
     readonly nextContentUnlockAt: string | null;
     readonly feedback: WorkshopFeedback | null;
     readonly comments: readonly WorkshopComment[];
+
+    /**
+     * The one question the host selected for the shared stage, or `null` while no question is being answered
+     *
+     * Note: This is a reference to the ordinary comment which supplied the question. Keeping that comment as the
+     *       source of truth lets an attendee and the host read the same words without copying a second message body
+     *       into a stage-only record.
+     */
+    readonly stageComment: WorkshopCommentReference | null;
     readonly recentReactions: readonly WorkshopReaction[];
     readonly reactionCounts: readonly WorkshopReactionCount[];
     readonly polls: readonly WorkshopPoll[];
@@ -429,6 +438,11 @@ export type WorkshopAdminSnapshot = {
      * The message pinned on top of the chat, whatever moderation state the administration is listing
      */
     readonly pinnedComment: WorkshopCommentReference | null;
+
+    /**
+     * The question currently shown over the shared stage, if the room has one
+     */
+    readonly stageComment: WorkshopCommentReference | null;
     readonly participants: readonly WorkshopAdminParticipant[];
     readonly participantCount: number;
     readonly commentCount: number;
@@ -439,4 +453,5 @@ export type WorkshopAdminSnapshot = {
 export type WorkshopRealtimeEvent =
     | { readonly kind: 'state-changed' }
     | { readonly kind: 'reaction'; readonly reaction: WorkshopReaction; readonly reactionCount: number }
-    | { readonly kind: 'upvote'; readonly commentId: string; readonly upvoteCount: number };
+    | { readonly kind: 'upvote'; readonly commentId: string; readonly upvoteCount: number }
+    | { readonly kind: 'stage-comment'; readonly stageComment: WorkshopCommentReference | null };

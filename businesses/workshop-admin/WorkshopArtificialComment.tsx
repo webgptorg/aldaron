@@ -8,34 +8,47 @@ import {
     MAXIMAL_WORKSHOP_COMMENT_LENGTH,
     MAXIMAL_WORKSHOP_PARTICIPANT_FULLNAME_LENGTH,
 } from '@/lib/workshops/workshopConstants';
-import { MessageCirclePlus } from 'lucide-react';
+import { MessageCirclePlus, Send } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 type WorkshopArtificialCommentProps = {
-    readonly onCreate: (values: WorkshopArtificialCommentValues) => Promise<boolean>;
+    /**
+     * Whether this room has a live stage which can receive the newly-created comment
+     */
+    readonly isStageOffered?: boolean;
+
+    /**
+     * The normal artificial-comment path, with the optional stage selection kept in the same action so custom stage
+     * questions never need a second, competing text form.
+     */
+    readonly onCreate: (values: WorkshopArtificialCommentValues, isSentToStage: boolean) => Promise<boolean>;
 };
 
 /**
  * Keeps artificial comments alongside comment moderation, instead of mixing them into the reactions administration.
  */
-export function WorkshopArtificialComment({ onCreate }: WorkshopArtificialCommentProps) {
+export function WorkshopArtificialComment({ onCreate, isStageOffered = false }: WorkshopArtificialCommentProps) {
     const [authorName, setAuthorName] = useState('');
     const [commentBody, setCommentBody] = useState('');
     const [isCreatingComment, setIsCreatingComment] = useState(false);
 
-    const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const createComment = async (isSentToStage: boolean) => {
         if (!authorName.trim() || !commentBody.trim()) {
             return;
         }
 
         setIsCreatingComment(true);
-        const isCreated = await onCreate({ authorName, body: commentBody });
+        const isCreated = await onCreate({ authorName, body: commentBody }, isSentToStage);
         setIsCreatingComment(false);
         if (isCreated) {
             setAuthorName('');
             setCommentBody('');
         }
+    };
+
+    const handleCreate = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        void createComment(false);
     };
 
     return (
@@ -44,7 +57,8 @@ export function WorkshopArtificialComment({ onCreate }: WorkshopArtificialCommen
                 <MessageCirclePlus className="h-5 w-5 text-violet-600" /> Umělý komentář
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-                Komentář zůstane v databázi i administraci výslovně označený jako umělý.
+                Komentář zůstane v databázi i administraci výslovně označený jako umělý. Můžete jej rovnou poslat i
+                nad živé vysílání.
             </p>
             <form onSubmit={handleCreate} className="mt-5 max-w-2xl rounded-xl border border-violet-200 bg-white p-5">
                 <label className="block text-xs font-medium text-slate-600">
@@ -69,10 +83,24 @@ export function WorkshopArtificialComment({ onCreate }: WorkshopArtificialCommen
                         required
                     />
                 </label>
-                <Button type="submit" size="sm" disabled={isCreatingComment} className="mt-4">
-                    <MessageCirclePlus className="mr-2 h-4 w-4" />
-                    {isCreatingComment ? 'Přidávám…' : 'Přidat umělý komentář'}
-                </Button>
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <Button type="submit" size="sm" disabled={isCreatingComment}>
+                        <MessageCirclePlus className="mr-2 h-4 w-4" />
+                        {isCreatingComment ? 'Přidávám…' : 'Přidat do chatu'}
+                    </Button>
+                    {isStageOffered && (
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={isCreatingComment}
+                            onClick={() => void createComment(true)}
+                        >
+                            <Send className="mr-2 h-4 w-4" />
+                            {isCreatingComment ? 'Posílám…' : 'Přidat a poslat na stage'}
+                        </Button>
+                    )}
+                </div>
             </form>
         </section>
     );

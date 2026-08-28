@@ -522,6 +522,12 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
                     applyReactionCount(payload.reaction.emoji, payload.reactionCount);
                     return;
                 }
+                if (payload.kind === 'stage-comment') {
+                    setState((currentState) =>
+                        currentState === null ? currentState : { ...currentState, stageComment: payload.stageComment },
+                    );
+                    return;
+                }
                 setState((currentState) => {
                     if (currentState === null) {
                         return currentState;

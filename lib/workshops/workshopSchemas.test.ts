@@ -16,6 +16,7 @@ import {
     workshopFeedbackUpdateSchema,
     workshopPresenceSchema,
     workshopReactionSchema,
+    workshopStageCommentSchema,
     workshopUpdateSchema,
 } from '@/lib/workshops/workshopSchemas';
 import { describe, expect, it } from 'vitest';
@@ -284,6 +285,15 @@ describe('workshop request validation', () => {
             artificialVoteAdjustment: -12,
         });
         expect(workshopPollOptionArtificialVoteSchema.safeParse({ artificialVoteAdjustment: 0 }).success).toBe(false);
+    });
+
+    it('selects an existing comment for the stage or clears the selected question', () => {
+        expect(
+            workshopStageCommentSchema.parse({ commentId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde' }),
+        ).toEqual({ commentId: '5a7eb2ad-2583-4e98-9640-50bc773b5fde' });
+        expect(workshopStageCommentSchema.parse({ commentId: null })).toEqual({ commentId: null });
+        expect(workshopStageCommentSchema.safeParse({ commentId: 'not-a-comment-id' }).success).toBe(false);
+        expect(workshopStageCommentSchema.safeParse({}).success).toBe(false);
     });
 
     it('accepts trusted participant changes and bounded active-time reports', () => {

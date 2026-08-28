@@ -350,10 +350,21 @@ export async function pinAdminWorkshopComment(workshopId: string, commentId: str
 export async function createAdminWorkshopArtificialComment(
     workshopId: string,
     values: WorkshopArtificialCommentValues,
-): Promise<void> {
-    await requestAdminJson(
+): Promise<string> {
+    const result = await requestAdminJson<{ readonly commentId: string }>(
         createAdminApiUrl(`/${encodeURIComponent(workshopId)}/comments`),
         createJsonMutation('POST', values),
+    );
+    return result.commentId;
+}
+
+/**
+ * Changes the comment shared over the live stage. Passing `null` returns the stage to the stream alone.
+ */
+export async function setAdminWorkshopStageComment(workshopId: string, commentId: string | null): Promise<void> {
+    await requestAdminJson(
+        createAdminApiUrl(`/${encodeURIComponent(workshopId)}/stage-comment`),
+        createJsonMutation('POST', { commentId }),
     );
 }
 

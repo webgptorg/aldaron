@@ -39,6 +39,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
         attachedPolls: [],
         comments: [],
         pinnedComment: null,
+        stageComment: null,
         participants: [],
         participantCount: 0,
         commentCount: 0,

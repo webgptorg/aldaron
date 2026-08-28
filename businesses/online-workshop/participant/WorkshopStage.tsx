@@ -1,6 +1,7 @@
 'use client';
 
 import { WorkshopWrapUp } from '@/businesses/online-workshop/participant/WorkshopWrapUp';
+import { WorkshopStageComment } from '@/businesses/online-workshop/participant/WorkshopStageComment';
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { useWorkshopReactionStream } from '@/components/workshops/useWorkshopReactionStream';
@@ -9,7 +10,12 @@ import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import { keepYoutubeVideoSubtitlesHidden, unmuteYoutubeVideo } from '@/lib/youtube/youtubePlayerCommands';
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
-import type { WorkshopContentBlock, WorkshopDetails, WorkshopFeedback } from '@/lib/workshops/workshopTypes';
+import type {
+    WorkshopCommentReference,
+    WorkshopContentBlock,
+    WorkshopDetails,
+    WorkshopFeedback,
+} from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDownLeft, Maximize, Radio, Volume2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -33,6 +39,7 @@ type WorkshopStageProps = {
      */
     readonly feedback?: WorkshopFeedback | null;
     readonly followUpContentBlock?: WorkshopContentBlock | null;
+    readonly stageComment?: WorkshopCommentReference | null;
     readonly onSaveFeedback?: (values: WorkshopFeedbackValues) => Promise<boolean>;
 };
 
@@ -63,6 +70,7 @@ export function WorkshopStage({
     subscribeToReactions,
     feedback = null,
     followUpContentBlock = null,
+    stageComment = null,
     onSaveFeedback = refuseStandaloneFeedbackSave,
 }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
@@ -173,6 +181,7 @@ export function WorkshopStage({
             )}
 
             <WorkshopReactionStream reactions={flyingReactions} />
+            {isWorkshopOngoing && <WorkshopStageComment stageComment={stageComment} />}
 
             {isWorkshopOngoing && workshop.youtubeVideoId && (
                 <button

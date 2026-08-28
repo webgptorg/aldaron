@@ -1,5 +1,14 @@
 # Current preversion
 
+- Let the host put a question on the live stage from `/admin/workshops`. In the `Komentáře` section, any attendee
+  question which has not been rejected can now be sent above the stream of `/cs/online-workshop/participant`, replaced
+  with another question, or hidden again; the artificial-comment form also has one action which creates arbitrary text
+  and sends it to the stage immediately. Every connected attendee receives the change through the same private live
+  channel as reactions, while the selected comment is kept as the room's current stage question so late joiners and
+  reconnecting attendees see the same thing instead of missing a transient announcement. The database retains one
+  comment reference rather than duplicating a message body, refuses a question from another workshop or a rejected
+  comment, and clears a selected question if it is later rejected or deleted.
+
 - Told apart the people who really attend a workshop from the people who only have it running. The room of
   `/cs/online-workshop/participant` now watches whether somebody is at their computer or phone at all — whether they
   move a pointer, type, scroll or touch the screen — and says so in the presence heartbeat it already sends, so every
