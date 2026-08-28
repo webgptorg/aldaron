@@ -1,4 +1,4 @@
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `high` - Implementation $4.68 4 hours; Testing 2 minutes
 
 [✨☀️] Workshops should be tracking the Active and passive attendance 
 

@@ -4,6 +4,7 @@ import {
     formatWorkshopOverviewAxisTime,
     formatWorkshopOverviewPointTime,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import { WorkshopOverviewSeriesSwatch } from '@/businesses/workshop-admin/WorkshopOverviewSeriesSwatch';
 import type { WorkshopOverviewSeriesDescriptor } from '@/lib/workshops/workshopOverviewSeries';
 import type {
     WorkshopOverviewSeriesPoint,
@@ -169,11 +170,7 @@ function WorkshopOverviewTooltip({
             <ul className="mt-1.5 space-y-1">
                 {descriptors.map((descriptor) => (
                     <li key={descriptor.id} className="flex items-center gap-2 text-sm">
-                        <span
-                            aria-hidden="true"
-                            className="h-0.5 w-3.5 shrink-0 rounded-full"
-                            style={{ backgroundColor: descriptor.color }}
-                        />
+                        <WorkshopOverviewSeriesSwatch descriptor={descriptor} />
                         <span className="font-bold tabular-nums text-slate-950">{chartRow[descriptor.id] ?? 0}</span>
                         <span className="text-xs text-slate-500">{descriptor.label}</span>
                     </li>
@@ -346,6 +343,7 @@ export function WorkshopOverviewChart({
                             name={descriptor.label}
                             stroke={descriptor.color}
                             strokeWidth={2}
+                            strokeDasharray={descriptor.dashPattern ?? undefined}
                             dot={false}
                             activeDot={{ r: 4, strokeWidth: 2, stroke: '#ffffff' }}
                             isAnimationActive={false}

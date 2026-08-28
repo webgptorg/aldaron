@@ -236,8 +236,16 @@ export const workshopParticipantUpdateSchema = z
         message: 'At least one participant field is required',
     });
 
+/**
+ * One heartbeat of an open room: for how long it was open and whether anybody was in front of it
+ *
+ * Note: A room which does not say how it was attended is taken to have been attended passively, so a page which was
+ *       opened before the attendance was measured at all is never counted as an active audience it was never asked
+ *       about.
+ */
 export const workshopPresenceSchema = z.object({
     activeDurationSeconds: z.number().int().min(1).max(MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS),
+    isActivelyAttending: z.boolean().default(false),
 });
 
 /**

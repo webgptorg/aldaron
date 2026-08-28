@@ -289,7 +289,17 @@ describe('workshop request validation', () => {
     it('accepts trusted participant changes and bounded active-time reports', () => {
         expect(workshopParticipantUpdateSchema.parse({ isTrusted: true })).toEqual({ isTrusted: true });
         expect(workshopParticipantUpdateSchema.safeParse({}).success).toBe(false);
-        expect(workshopPresenceSchema.parse({ activeDurationSeconds: 30 })).toEqual({ activeDurationSeconds: 30 });
+        expect(workshopPresenceSchema.parse({ activeDurationSeconds: 30, isActivelyAttending: true })).toEqual({
+            activeDurationSeconds: 30,
+            isActivelyAttending: true,
+        });
         expect(workshopPresenceSchema.safeParse({ activeDurationSeconds: 121 }).success).toBe(false);
+    });
+
+    it('takes a heartbeat which says nothing about its attendance as a passively attended room', () => {
+        expect(workshopPresenceSchema.parse({ activeDurationSeconds: 30 })).toEqual({
+            activeDurationSeconds: 30,
+            isActivelyAttending: false,
+        });
     });
 });

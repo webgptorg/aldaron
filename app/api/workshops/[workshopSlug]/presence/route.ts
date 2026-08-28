@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: WorkshopPresenceRouteC
     const body = await readJsonObjectOrNull(request);
     const parsedResult = workshopPresenceSchema.safeParse(body);
     if (!parsedResult.success) {
-        return NextResponse.json({ error: 'Active duration is invalid' }, { status: 400 });
+        return NextResponse.json({ error: 'Presence report is invalid' }, { status: 400 });
     }
 
     const { workshopSlug } = await context.params;
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest, context: WorkshopPresenceRouteC
         target_workshop_id: authenticatedRequest.workshopRow.id,
         target_participant_id: authenticatedRequest.participant.id,
         reported_active_duration_seconds: parsedResult.data.activeDurationSeconds,
+        reported_is_actively_attending: parsedResult.data.isActivelyAttending,
     });
     if (error) {
         console.error('Failed to record workshop participant presence:', error.message);

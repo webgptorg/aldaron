@@ -16,6 +16,8 @@ export type WorkshopOverviewAggregationKind = 'sum' | 'maximum';
 
 export const WORKSHOP_OVERVIEW_SERIES_KEYS = [
     'watchingParticipants',
+    'activelyWatchingParticipants',
+    'passivelyWatchingParticipants',
     'joinedParticipants',
     'comments',
     'reactions',
@@ -48,11 +50,25 @@ const WORKSHOP_OVERVIEW_SERIES_COLORS = {
  */
 export const MAXIMAL_WORKSHOP_OVERVIEW_SERIES_COUNT = Object.keys(WORKSHOP_OVERVIEW_SERIES_COLORS).length;
 
+/**
+ * How a line is drawn where its colour alone would not tell it apart
+ *
+ * A colour belongs to one measured quantity, and the palette has as many colours as a reader can still tell apart, so
+ * a line which only refines another one - the part of the audience which was really at their computer, and the part
+ * which was not - shares the colour of the audience it is a part of and is told apart by its dashes instead of by a
+ * ninth hue. The value is the dash pattern of an SVG stroke, and `null` is an unbroken line.
+ */
+export type WorkshopOverviewSeriesDashPattern = string | null;
+
+export const WORKSHOP_OVERVIEW_ACTIVE_ATTENDANCE_DASH_PATTERN = '7 3';
+export const WORKSHOP_OVERVIEW_PASSIVE_ATTENDANCE_DASH_PATTERN = '2 3';
+
 export type WorkshopOverviewSeriesDefinition = {
     readonly key: WorkshopOverviewSeriesKey;
     readonly label: string;
     readonly description: string;
     readonly color: string;
+    readonly dashPattern: WorkshopOverviewSeriesDashPattern;
     readonly aggregationKind: WorkshopOverviewAggregationKind;
 };
 
@@ -62,6 +78,23 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Diváci',
         description: 'Kolik lidí mělo místnost otevřenou',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.blue,
+        dashPattern: null,
+        aggregationKind: 'maximum',
+    },
+    {
+        key: 'activelyWatchingParticipants',
+        label: 'Aktivní diváci',
+        description: 'Kolik z nich bylo opravdu u počítače – hýbali myší, psali nebo scrollovali',
+        color: WORKSHOP_OVERVIEW_SERIES_COLORS.blue,
+        dashPattern: WORKSHOP_OVERVIEW_ACTIVE_ATTENDANCE_DASH_PATTERN,
+        aggregationKind: 'maximum',
+    },
+    {
+        key: 'passivelyWatchingParticipants',
+        label: 'Pasivní diváci',
+        description: 'Kolik z nich mělo místnost jen puštěnou a pravděpodobně u ní nesedělo',
+        color: WORKSHOP_OVERVIEW_SERIES_COLORS.blue,
+        dashPattern: WORKSHOP_OVERVIEW_PASSIVE_ATTENDANCE_DASH_PATTERN,
         aggregationKind: 'maximum',
     },
     {
@@ -69,6 +102,7 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Nově připojení',
         description: 'Kolik lidí se v tomto úseku registrovalo',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.green,
+        dashPattern: null,
         aggregationKind: 'sum',
     },
     {
@@ -76,6 +110,7 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Komentáře',
         description: 'Kolik zpráv v tomto úseku přibylo',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.orange,
+        dashPattern: null,
         aggregationKind: 'sum',
     },
     {
@@ -83,6 +118,7 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Reakce',
         description: 'Kolik reakcí v tomto úseku přiletělo',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.aqua,
+        dashPattern: null,
         aggregationKind: 'sum',
     },
     {
@@ -90,6 +126,7 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Hlasy',
         description: 'Kolik hlasů zprávy v tomto úseku dostaly',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.yellow,
+        dashPattern: null,
         aggregationKind: 'sum',
     },
     {
@@ -97,6 +134,7 @@ export const WORKSHOP_OVERVIEW_SERIES_DEFINITIONS: readonly WorkshopOverviewSeri
         label: 'Kliknutí na materiály',
         description: 'Kolikrát někdo otevřel odkaz z materiálů',
         color: WORKSHOP_OVERVIEW_SERIES_COLORS.magenta,
+        dashPattern: null,
         aggregationKind: 'sum',
     },
 ];
@@ -127,6 +165,7 @@ export type WorkshopOverviewSeriesDescriptor = {
     readonly label: string;
     readonly description: string;
     readonly color: string;
+    readonly dashPattern: WorkshopOverviewSeriesDashPattern;
     readonly aggregationKind: WorkshopOverviewAggregationKind;
 };
 

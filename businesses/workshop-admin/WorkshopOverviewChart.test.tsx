@@ -24,6 +24,8 @@ function createChartPoint(startsAtMilliseconds: number, valueIndex: number = 0):
         startsAtMilliseconds,
         values: {
             watchingParticipants: 10 + valueIndex,
+            activelyWatchingParticipants: 6 + valueIndex,
+            passivelyWatchingParticipants: 4,
             joinedParticipants: valueIndex,
             comments: valueIndex * 2,
             reactions: 1,
@@ -119,8 +121,21 @@ describe('WorkshopOverviewChart', () => {
         const drawnLines = Array.from(container.querySelectorAll('path.recharts-line-curve'));
         const drawnColors = drawnLines.map((line) => line.getAttribute('stroke'));
 
-        expect(drawnLines).toHaveLength(4);
-        expect(drawnColors).toEqual(['#2a78d6', '#008300', '#eb6834', '#1baf7a']);
+        expect(drawnLines).toHaveLength(5);
+        expect(drawnColors).toEqual(['#2a78d6', '#2a78d6', '#008300', '#eb6834', '#1baf7a']);
+    });
+
+    // Note: The attendance of an audience is a part of that very audience, so it shares its colour instead of taking a
+    //       hue of its own. The dashes are then the only thing which tells the two lines apart.
+    it('tells the attendance of an audience apart from the audience itself by its dashes', () => {
+        const { container } = renderChart();
+
+        const drawnDashPatterns = Array.from(container.querySelectorAll('path.recharts-line-curve')).map((line) =>
+            line.getAttribute('stroke-dasharray'),
+        );
+
+        expect(drawnDashPatterns[0]).toBeNull();
+        expect(drawnDashPatterns[1]).toBe('7 3');
     });
 
     it('really plots the measured values, so that a line is never silently empty or flat', () => {

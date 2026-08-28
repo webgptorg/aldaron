@@ -1,7 +1,7 @@
 'use client';
 
 import {
-    formatWorkshopActiveDuration,
+    formatWorkshopPresenceDuration,
     formatWorkshopAdminDateTime,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
 import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
@@ -125,7 +125,7 @@ export function WorkshopParticipantTimeline({
                     <DialogDescription>
                         {participant === undefined
                             ? 'Načítám historii účastníka.'
-                            : `${participant.email} · aktivně ${formatWorkshopActiveDuration(participant.activeDurationSeconds)}`}
+                            : `${participant.email} · v místnosti ${formatWorkshopPresenceDuration(participant.activeDurationSeconds)}`}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -157,7 +157,7 @@ export function WorkshopParticipantTimeline({
                                     </p>
                                 </div>
                                 <p className="font-semibold text-cyan-800">
-                                    Aktivně {formatWorkshopActiveDuration(participant.activeDurationSeconds)}
+                                    V místnosti {formatWorkshopPresenceDuration(participant.activeDurationSeconds)}
                                 </p>
                             </div>
                             {attendanceSchedule !== null && (

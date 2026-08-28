@@ -66,6 +66,7 @@ export function getWorkshopOverviewSeriesDescriptors(
             label: customMetric.label,
             description: `Zprávy odpovídající výrazu ${customMetric.pattern}`,
             color: getWorkshopOverviewCustomMetricColor(customMetricIndex),
+            dashPattern: null,
             aggregationKind: 'sum',
         }),
     );
@@ -179,6 +180,8 @@ export function buildWorkshopOverviewSeries(
         const bucketStartsAtMilliseconds = alignToBucketStart(pointStartsAtMilliseconds, bucketDurationSeconds);
         const measuredValues: Readonly<Record<string, number>> = {
             watchingParticipants: point.watchingParticipantCount,
+            activelyWatchingParticipants: point.activelyWatchingParticipantCount,
+            passivelyWatchingParticipants: point.passivelyWatchingParticipantCount,
             joinedParticipants: point.participantCount,
             comments: point.commentCount,
             reactions: getTimelinePointReactionCount(point, graphState.reactionEmoji),

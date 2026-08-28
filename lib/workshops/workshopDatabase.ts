@@ -270,6 +270,8 @@ type WorkshopParticipantTimelineCommentReferenceRow = Pick<WorkshopCommentRow, '
 type WorkshopAdminTimelinePointRow = {
     readonly bucket_starts_at: string;
     readonly watching_participant_count: number | string;
+    readonly actively_watching_participant_count: number | string;
+    readonly passively_watching_participant_count: number | string;
     readonly participant_count: number | string;
     readonly comment_count: number | string;
     readonly reaction_count: number | string;
@@ -620,6 +622,8 @@ function mapWorkshopAdminTimelinePointRow(
     return {
         startsAt: row.bucket_starts_at,
         watchingParticipantCount: getNonNegativeWholeNumber(row.watching_participant_count),
+        activelyWatchingParticipantCount: getNonNegativeWholeNumber(row.actively_watching_participant_count),
+        passivelyWatchingParticipantCount: getNonNegativeWholeNumber(row.passively_watching_participant_count),
         participantCount: getNonNegativeWholeNumber(row.participant_count),
         commentCount: getNonNegativeWholeNumber(row.comment_count),
         reactionCount: getNonNegativeWholeNumber(row.reaction_count),

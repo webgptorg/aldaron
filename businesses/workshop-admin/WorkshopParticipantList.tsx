@@ -5,7 +5,7 @@ import {
     fetchAdminWorkshopParticipantTimeline,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import {
-    formatWorkshopActiveDuration,
+    formatWorkshopPresenceDuration,
     formatWorkshopAdminDateTime,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
 import { WorkshopExportButton } from '@/businesses/workshop-admin/WorkshopExportButton';
@@ -287,7 +287,7 @@ export function WorkshopParticipantList({
                                     <TableHead>Účastník</TableHead>
                                     <TableHead>Kontaktní údaje</TableHead>
                                     <TableHead>Čas v místnosti</TableHead>
-                                    <TableHead>Aktivně</TableHead>
+                                    <TableHead>V místnosti</TableHead>
                                     <TableHead>Komentáře</TableHead>
                                     <TableHead>Reakce</TableHead>
                                     <TableHead>Hlasy</TableHead>
@@ -322,7 +322,7 @@ export function WorkshopParticipantList({
                                             <TableCell className="align-top text-sm font-medium text-slate-800">
                                                 <span className="flex items-center gap-1.5">
                                                     <Clock3 className="h-3.5 w-3.5 text-slate-400" />
-                                                    {formatWorkshopActiveDuration(participant.activeDurationSeconds)}
+                                                    {formatWorkshopPresenceDuration(participant.activeDurationSeconds)}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="align-top">

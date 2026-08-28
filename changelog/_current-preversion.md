@@ -1,5 +1,22 @@
 # Current preversion
 
+- Told apart the people who really attend a workshop from the people who only have it running. The room of
+  `/cs/online-workshop/participant` now watches whether somebody is at their computer or phone at all — whether they
+  move a pointer, type, scroll or touch the screen — and says so in the presence heartbeat it already sends, so every
+  measured minute of a room is either actively or passively attended. Somebody who is watching without moving a hand
+  for a while stays active, because the room waits two minutes of complete stillness before it decides that a chair is
+  empty; somebody who left the tab open and walked away becomes passive and turns active again the moment they come
+  back. Nothing new is asked of the browser and nothing is stored twice: the very same presence sample which already
+  counted the audience now also remembers how that minute was attended.
+
+  The overview graph of `/admin/workshops` and `/admin/community` draws it: next to `Diváci`, which is everybody who
+  had the room open, there are now `Aktivní diváci` and `Pasivní diváci`, dashed in the colour of the audience they
+  are a part of so that a reader sees at a glance how much of the room was really watching. The active audience is
+  drawn from the start and the passive one is one click away, both are exported into the CSV and the picture of the
+  graph like every other line, and which of them a graph draws travels in its link as usual. The time an individual
+  participant is listed with is now named `Čas v místnosti` throughout the administration and its exports, because it
+  has always meant how long that person had the room open rather than how attentively they watched it.
+
 - Let a workshop have no end at all. A term whose end is left empty in `/admin/workshops` now runs from its start for
   as long as it takes: `/cs/online-workshop/participant` keeps its stream on the stage and its room open indefinitely
   instead of declaring the workshop over an hour after it started, which is what an unwritten end used to mean. The

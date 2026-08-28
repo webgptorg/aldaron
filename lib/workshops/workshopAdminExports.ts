@@ -94,7 +94,7 @@ export function serializeWorkshopAdminParticipantsAsCsv(participants: readonly W
             { header: 'E-mail', getValue: (participant) => participant.email },
             { header: 'Registrace', getValue: (participant) => participant.connectedAt },
             { header: 'Naposledy aktivní', getValue: (participant) => participant.lastSeenAt },
-            { header: 'Aktivní čas (s)', getValue: (participant) => participant.activeDurationSeconds },
+            { header: 'Čas v místnosti (s)', getValue: (participant) => participant.activeDurationSeconds },
             { header: 'Komentáře', getValue: (participant) => participant.commentCount },
             { header: 'Reakce', getValue: (participant) => participant.reactionCount },
             { header: 'Hlasy', getValue: (participant) => participant.upvoteCount },
@@ -135,7 +135,7 @@ export function serializeWorkshopAdminParticipantsAsVcard(
                 note: [
                     `${workshop.kind === 'community' ? 'Člen komunity' : 'Účastník workshopu'}: ${workshop.title}`,
                     `Registrace: ${participant.connectedAt}`,
-                    `Aktivní čas: ${participant.activeDurationSeconds} s`,
+                    `Čas v místnosti: ${participant.activeDurationSeconds} s`,
                     contactRecords === '' ? '' : `Záznamy kontaktu:\n${contactRecords}`,
                     workshopParticipations === '' ? '' : `Účasti ve workshopech:\n${workshopParticipations}`,
                 ]
