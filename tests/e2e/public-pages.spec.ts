@@ -9,6 +9,7 @@ const PUBLIC_PAGE_PATHS = [
     '/for-industry',
     '/ai-supervize',
     '/ai-supervize-mini',
+    '/ai-ta-krajta',
     '/hackathon-factory',
     '/cs/online-workshop',
     '/cs/komunita/clenstvi',

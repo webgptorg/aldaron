@@ -79,6 +79,17 @@ export const TEXT_VALUE_CODEC: UrlViewValueCodec<string> = {
 };
 
 /**
+ * Switch which is either on or off, written as `1` so that the shared link stays short
+ *
+ * Note: A link written by hand may say `true` or `yes` instead, and anything else means off, because a switch has no
+ *       third position to fall back to.
+ */
+export const FLAG_VALUE_CODEC: UrlViewValueCodec<boolean> = {
+    parseValue: (parameterValue) => ['1', 'true', 'yes'].includes(parameterValue.trim().toLowerCase()),
+    serializeValue: (value) => (value ? '1' : '0'),
+};
+
+/**
  * Value which is one of a few known options, understood no matter the letter case, so that a link can also be written
  * by hand
  */

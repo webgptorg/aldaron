@@ -156,6 +156,31 @@ export function createOnlineEventStructuredData(options: OnlineEventStructuredDa
 }
 
 /**
+ * One episode of a podcast, as far as a search engine needs to know it
+ */
+export type PodcastEpisodeStructuredDataOptions = {
+    readonly name: string;
+
+    /**
+     * Address which plays this exact episode, which is the page of the show with the episode chosen
+     */
+    readonly url: string;
+
+    /**
+     * Address of the recording itself
+     */
+    readonly audioUrl: string;
+
+    /**
+     * Moment the episode was published, as an ISO 8601 string
+     */
+    readonly publishedAt: string;
+
+    readonly episodeNumber: number | null;
+    readonly durationInSeconds: number | null;
+};
+
+/**
  * Everything needed to describe a podcast published by the site
  */
 export type PodcastSeriesStructuredDataOptions = {
@@ -164,13 +189,57 @@ export type PodcastSeriesStructuredDataOptions = {
     readonly path: string;
     readonly imagePath: string;
     readonly language: SupportedHomepageLanguage;
-    readonly authorName: string;
+
+    /**
+     * Who makes the show, which is a person for a solo show and an organization for a show with a rotating lineup
+     */
+    readonly author: {
+        readonly name: string;
+        readonly type: 'Person' | 'Organization';
+    };
 
     /**
      * Places the very same podcast can be watched or listened to, for example its YouTube channel
      */
     readonly channelUrls: readonly string[];
+
+    /**
+     * Episodes worth listing, usually the newest ones rather than the whole archive
+     */
+    readonly episodes?: readonly PodcastEpisodeStructuredDataOptions[];
 };
+
+/**
+ * Writes a length of a recording as the ISO 8601 duration schema.org expects, for example `PT35M34S`
+ */
+function createIsoDuration(durationInSeconds: number): string {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor((durationInSeconds % 3600) / 60);
+    const seconds = Math.floor(durationInSeconds % 60);
+
+    return `PT${hours === 0 ? '' : `${hours}H`}${minutes === 0 ? '' : `${minutes}M`}${seconds}S`;
+}
+
+/**
+ * Describes one episode of a podcast
+ *
+ * @see https://schema.org/PodcastEpisode
+ */
+function createPodcastEpisodeStructuredData(episode: PodcastEpisodeStructuredDataOptions): StructuredDataNode {
+    return {
+        '@type': 'PodcastEpisode',
+        name: episode.name,
+        url: episode.url,
+        datePublished: episode.publishedAt,
+        ...(episode.episodeNumber === null ? {} : { episodeNumber: episode.episodeNumber }),
+        associatedMedia: {
+            '@type': 'AudioObject',
+            contentUrl: episode.audioUrl,
+            encodingFormat: 'audio/mpeg',
+            ...(episode.durationInSeconds === null ? {} : { duration: createIsoDuration(episode.durationInSeconds) }),
+        },
+    };
+}
 
 /**
  * Describes a podcast, which lets search engines present it as a show rather than as one more page
@@ -188,10 +257,13 @@ export function createPodcastSeriesStructuredData(options: PodcastSeriesStructur
         inLanguage: STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE[options.language],
         sameAs: [...options.channelUrls],
         author: {
-            '@type': 'Person',
-            name: options.authorName,
+            '@type': options.author.type,
+            name: options.author.name,
         },
         publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
+        ...(options.episodes === undefined
+            ? {}
+            : { episode: options.episodes.map(createPodcastEpisodeStructuredData) }),
     };
 }
 
