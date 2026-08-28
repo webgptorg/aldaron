@@ -10,8 +10,10 @@ import { Input } from '@/components/ui/input';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import {
     formatCzechWorkshopDate,
+    formatCzechWorkshopDay,
     formatCzechWorkshopDuration,
     formatCzechWorkshopTime,
+    formatCzechWorkshopTimeRange,
 } from '@/lib/workshops/workshopDate';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { createWorkshopRegistrationThankYouPath } from '@/lib/workshops/workshopRegistrationTiming';
@@ -19,7 +21,7 @@ import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
-import { Loader2 } from 'lucide-react';
+import { Clock, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, type FormEvent } from 'react';
 
@@ -44,34 +46,127 @@ function createOnlineWorkshopRegistrationNote(workshop: WorkshopSummary): string
 }
 
 type OnlineWorkshopRegistrationFormProps = {
-    readonly workshop: WorkshopSummary;
+    /**
+     * The published terms a visitor can choose from. One form deliberately serves all of them, so a person never has
+     * to retype their contact details just to choose another date.
+     */
+    readonly workshops: readonly WorkshopSummary[];
 };
 
-export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegistrationFormProps) {
+type OnlineWorkshopTermPickerProps = {
+    readonly workshops: readonly WorkshopSummary[];
+    readonly selectedWorkshop: WorkshopSummary;
+    readonly onSelectWorkshop: (workshop: WorkshopSummary) => void;
+};
+
+/**
+ * Lets a visitor select one online-workshop occurrence without owning any registration-field state.
+ */
+function OnlineWorkshopTermPicker({ workshops, selectedWorkshop, onSelectWorkshop }: OnlineWorkshopTermPickerProps) {
+    return (
+        <fieldset>
+            <legend className="text-sm font-semibold text-slate-700">Termín online workshopu</legend>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {workshops.map((workshop) => {
+                    const isSelectedWorkshop = selectedWorkshop.slug === workshop.slug;
+
+                    return (
+                        <button
+                            key={workshop.id}
+                            type="button"
+                            aria-pressed={isSelectedWorkshop}
+                            onClick={() => onSelectWorkshop(workshop)}
+                            className={cn(
+                                'rounded-xl border p-4 text-left transition-all',
+                                isSelectedWorkshop
+                                    ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
+                                    : 'border-slate-200 bg-white hover:border-cyan-200',
+                            )}
+                        >
+                            <p className="text-lg font-bold text-slate-950">
+                                {formatCzechWorkshopDay(workshop.startsAt)} ·{' '}
+                                {formatCzechWorkshopTimeRange(workshop.startsAt, workshop.endsAt)}
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                                    Online
+                                </span>
+                                <span className="font-medium text-slate-700">Zdarma</span>
+                            </div>
+                            <p className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+                                <Clock className="h-4 w-4 text-cyan-600" />
+                                {formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt)} + Q&amp;A
+                            </p>
+                        </button>
+                    );
+                })}
+            </div>
+        </fieldset>
+    );
+}
+
+function OnlineWorkshopNoTermNotice() {
+    return (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600 shadow-xl">
+            Zatím není vypsaný žádný další termín. Sleduj Promptbook, nový workshop sem přidáme hned po zveřejnění.
+        </div>
+    );
+}
+
+export function OnlineWorkshopRegistrationForm({ workshops }: OnlineWorkshopRegistrationFormProps) {
+    const [firstWorkshop] = workshops;
+
+    if (firstWorkshop === undefined) {
+        return <OnlineWorkshopNoTermNotice />;
+    }
+
+    return <OnlineWorkshopSelectedTermRegistrationForm workshops={workshops} firstWorkshop={firstWorkshop} />;
+}
+
+type OnlineWorkshopSelectedTermRegistrationFormProps = {
+    readonly workshops: readonly WorkshopSummary[];
+    readonly firstWorkshop: WorkshopSummary;
+};
+
+/**
+ * The one registration form shared by every published online-workshop term.
+ */
+function OnlineWorkshopSelectedTermRegistrationForm({
+    workshops,
+    firstWorkshop,
+}: OnlineWorkshopSelectedTermRegistrationFormProps) {
+    const [selectedWorkshopSlug, setSelectedWorkshopSlug] = useState(firstWorkshop.slug);
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [showValidation, setShowValidation] = useState(false);
+    const [isValidationShown, setIsValidationShown] = useState(false);
 
     const { fullnameError, emailError } = getFieldErrors({ fullname, email });
-    const canSubmit = !fullnameError && !emailError;
-    const dateLabel = formatCzechWorkshopDate(workshop.startsAt);
-    const timeLabel = formatCzechWorkshopTime(workshop.startsAt);
-    const durationLabel = formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt);
-    const fieldIdPrefix = `workshop-${workshop.slug}`;
+    const isSubmissionAllowed = !fullnameError && !emailError;
+    const selectedWorkshop = workshops.find((workshop) => workshop.slug === selectedWorkshopSlug) ?? firstWorkshop;
+    const dateLabel = formatCzechWorkshopDate(selectedWorkshop.startsAt);
+    const timeLabel = formatCzechWorkshopTime(selectedWorkshop.startsAt);
+    const durationLabel = formatCzechWorkshopDuration(selectedWorkshop.startsAt, selectedWorkshop.endsAt);
+    const fieldIdPrefix = `workshop-${selectedWorkshop.slug}`;
+
+    const handleWorkshopSelection = (workshop: WorkshopSummary) => {
+        setSelectedWorkshopSlug(workshop.slug);
+        setErrorMessage(null);
+        setIsValidationShown(false);
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!canSubmit) {
-            setShowValidation(true);
+        if (!isSubmissionAllowed) {
+            setIsValidationShown(true);
             setErrorMessage('Vyplňte prosím jméno a platný e-mail.');
             return;
         }
 
-        setShowValidation(false);
+        setIsValidationShown(false);
         setIsSubmitting(true);
         setErrorMessage(null);
         const registrationAtMilliseconds = Date.now();
@@ -82,7 +177,7 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
                 email,
                 phone: phone.trim() || undefined,
                 placeName: ONLINE_WORKSHOP_REGISTRATION_PLACE_NAME,
-                note: createOnlineWorkshopRegistrationNote(workshop),
+                note: createOnlineWorkshopRegistrationNote(selectedWorkshop),
             });
 
             // Note: A full page load, not a client side route change - only that runs the Meta Pixel again and reports
@@ -92,8 +187,8 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
             window.location.assign(
                 createWorkshopRegistrationThankYouPath({
                     thankYouPath: ONLINE_WORKSHOP_THANK_YOU_PATH,
-                    workshopSlug: workshop.slug,
-                    startsAt: workshop.startsAt,
+                    workshopSlug: selectedWorkshop.slug,
+                    startsAt: selectedWorkshop.startsAt,
                     participantIdentity: { email, fullname },
                     registrationAtMilliseconds,
                 }),
@@ -107,9 +202,26 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
     return (
         <form
             onSubmit={handleSubmit}
-            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl sm:p-8"
+            className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl sm:p-8"
         >
-            <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-6">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-6">
+                <div>
+                    <p className="text-sm font-semibold uppercase text-cyan-700">Registrace</p>
+                    <h3 className="mt-2 text-2xl font-bold text-slate-950">Vyber si termín</h3>
+                </div>
+                <div className="rounded-xl bg-slate-950 px-4 py-3 text-right text-white">
+                    <p className="text-xs text-slate-300">Online workshop</p>
+                    <p className="text-xl font-bold">Zdarma</p>
+                </div>
+            </div>
+
+            <OnlineWorkshopTermPicker
+                workshops={workshops}
+                selectedWorkshop={selectedWorkshop}
+                onSelectWorkshop={handleWorkshopSelection}
+            />
+
+            <div className="flex items-center gap-3 border-y border-slate-100 py-5" aria-live="polite">
                 <span className="flex shrink-0">
                     <Image
                         src={pavolHejny}
@@ -127,7 +239,7 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
                     />
                 </span>
                 <div>
-                    <p className="text-sm font-semibold text-slate-950">{workshop.title}</p>
+                    <p className="text-sm font-semibold text-slate-950">{selectedWorkshop.title}</p>
                     <p className="text-xs text-slate-400">
                         {dateLabel} · {timeLabel} · {durationLabel} · online
                     </p>
@@ -146,13 +258,17 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
                         onChange={(event) => setFullname(event.target.value)}
                         placeholder="Jana Nováková"
                         autoComplete="name"
-                        aria-invalid={showValidation && !!fullnameError}
+                        aria-invalid={isValidationShown && !!fullnameError}
                         className={cn(
                             'mt-2 h-11',
-                            showValidation && fullnameError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                            isValidationShown &&
+                                fullnameError &&
+                                'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
                         )}
                     />
-                    {showValidation && fullnameError && <p className="mt-1 text-xs text-red-600">{fullnameError}</p>}
+                    {isValidationShown && fullnameError && (
+                        <p className="mt-1 text-xs text-red-600">{fullnameError}</p>
+                    )}
                 </div>
 
                 <div>
@@ -168,13 +284,15 @@ export function OnlineWorkshopRegistrationForm({ workshop }: OnlineWorkshopRegis
                         onChange={(event) => setEmail(event.target.value)}
                         placeholder="jmeno@firma.cz"
                         autoComplete="email"
-                        aria-invalid={showValidation && !!emailError}
+                        aria-invalid={isValidationShown && !!emailError}
                         className={cn(
                             'mt-2 h-11',
-                            showValidation && emailError && 'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
+                            isValidationShown &&
+                                emailError &&
+                                'border-red-300 bg-red-50/70 focus-visible:ring-red-200',
                         )}
                     />
-                    {showValidation && emailError && <p className="mt-1 text-xs text-red-600">{emailError}</p>}
+                    {isValidationShown && emailError && <p className="mt-1 text-xs text-red-600">{emailError}</p>}
                 </div>
 
                 <div>

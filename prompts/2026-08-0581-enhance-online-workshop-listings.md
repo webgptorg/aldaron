@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.2485 5 minutes; Testing 5 minutes
 
 [✨🚔] Create some nice picker for online workshops
 
@@ -11,3 +11,4 @@
 
 ![good](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings.png)
 ![bad](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings-1.png)
+

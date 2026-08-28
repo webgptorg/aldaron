@@ -417,18 +417,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                             </p>
                         </div>
 
-                        <div className="space-y-6">
-                            {workshops.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">
-                                    Zatím není vypsaný žádný další termín. Sleduj Promptbook, nový workshop sem
-                                    přidáme hned po zveřejnění.
-                                </div>
-                            ) : (
-                                workshops.map((workshop) => (
-                                    <OnlineWorkshopRegistrationForm key={workshop.id} workshop={workshop} />
-                                ))
-                            )}
-                        </div>
+                        <OnlineWorkshopRegistrationForm workshops={workshops} />
                     </div>
                 </div>
             </section>

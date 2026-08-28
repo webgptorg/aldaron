@@ -1,5 +1,11 @@
 # Current preversion
 
+- Replaced the stack of repeated registration forms on `/cs/online-workshop` with one clear term picker and one shared
+  form. Every published online workshop is now a selectable date-and-time card, modelled after the picker on
+  `/ai-supervize-mini`; choosing another card keeps the already entered name, e-mail and phone number, updates the
+  selected workshop summary, and records that exact term in the registration and confirmation link. When no term is
+  published, the page still shows a notice rather than a form that cannot be submitted.
+
 - Let the host put a question on the live stage from `/admin/workshops`. In the `Komentáře` section, any attendee
   question which has not been rejected can now be sent above the stream of `/cs/online-workshop/participant`, replaced
   with another question, or hidden again; the artificial-comment form also has one action which creates arbitrary text
