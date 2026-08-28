@@ -1,8 +1,29 @@
+import { createAbsoluteUrl } from '@/lib/metadata/site-config';
+
 /**
  * Czech community entry point. Future localized routes can reuse the room component while supplying their own path
  * and copy, without changing the stable community room in the database.
  */
 export const COMMUNITY_PATH = '/cs/komunita';
+
+/**
+ * Public iCalendar feed of the event terms the community lists.
+ */
+export const COMMUNITY_CALENDAR_PATH = COMMUNITY_PATH + '/calendar.ics';
+
+export const COMMUNITY_CALENDAR_FILE_NAME = 'promptbook-community-events.ics';
+export const COMMUNITY_CALENDAR_NAME = 'Termíny akcí Promptbooku';
+
+const COMMUNITY_CALENDAR_SUBSCRIPTION_PROTOCOL = 'webcal:';
+const COMMUNITY_CALENDAR_HTTP_PROTOCOL = 'https:';
+
+/**
+ * Opens a compatible calendar application with the public calendar feed selected for subscription.
+ */
+export function createCommunityCalendarSubscriptionUrl(): string {
+    const calendarUrl = createAbsoluteUrl(COMMUNITY_CALENDAR_PATH);
+    return COMMUNITY_CALENDAR_SUBSCRIPTION_PROTOCOL + calendarUrl.slice(COMMUNITY_CALENDAR_HTTP_PROTOCOL.length);
+}
 
 /**
  * The public index of creations shared by community members.

@@ -13,6 +13,14 @@ const ICALENDAR_PRODUCT_ID = '-//Promptbook//Landing page//CS';
 const ENCODED_ICALENDAR_LINE_SEPARATOR = '%0D%0A';
 
 /**
+ * CRLF pair required between iCalendar lines.
+ *
+ * Note: Building it from character codes keeps a minifier from normalizing it to a bare LF in a server-served
+ * calendar file.
+ */
+const ICALENDAR_LINE_SEPARATOR = String.fromCharCode(13, 10);
+
+/**
  * One event a visitor can put into their calendar
  */
 export type CalendarEvent = {
@@ -65,6 +73,13 @@ export type CalendarLinks = {
 };
 
 /**
+ * Names an iCalendar file after the thing it describes.
+ */
+export function createCalendarFileName(calendarIdentifier: string): string {
+    return calendarIdentifier + '.ics';
+}
+
+/**
  * Formats a moment as the basic UTC timestamp both Google Calendar and the iCalendar format understand
  *
  * @param isoDateTime ISO 8601 string including the time zone offset
@@ -107,20 +122,12 @@ function createGoogleCalendarUrl(event: CalendarEvent): string {
 }
 
 /**
- * Builds the data url of an iCalendar file describing the event
- *
- * Note: The event start doubles as the creation timestamp on purpose - a real timestamp would differ between the server
- *       and the browser render and break the React hydration of the link.
+ * Serializes the lines belonging to one iCalendar event.
  */
-function createIcalendarDataUrl(event: CalendarEvent): string {
+function createIcalendarEventLines(event: CalendarEvent): readonly string[] {
     const startTimestamp = formatUtcTimestamp(event.startsAt);
 
-    const icalendarLines = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        `PRODID:${ICALENDAR_PRODUCT_ID}`,
-        'CALSCALE:GREGORIAN',
-        'METHOD:PUBLISH',
+    return [
         'BEGIN:VEVENT',
         `UID:${event.id ?? startTimestamp}@${new URL(event.url).hostname}`,
         `DTSTAMP:${startTimestamp}`,
@@ -131,10 +138,37 @@ function createIcalendarDataUrl(event: CalendarEvent): string {
         `LOCATION:${escapeIcalendarText(event.url)}`,
         `URL:${escapeIcalendarText(event.url)}`,
         'END:VEVENT',
+    ];
+}
+
+/**
+ * Serializes a calendar that can contain one event download or every event of a subscription feed.
+ */
+export function createIcalendarContent(events: readonly CalendarEvent[], calendarName?: string): string {
+    const calendarNameLines = calendarName === undefined ? [] : [`X-WR-CALNAME:${escapeIcalendarText(calendarName)}`];
+    const icalendarLines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        `PRODID:${ICALENDAR_PRODUCT_ID}`,
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        ...calendarNameLines,
+        ...events.flatMap(createIcalendarEventLines),
         'END:VCALENDAR',
     ];
 
-    return `data:text/calendar;charset=utf-8,${icalendarLines
+    return icalendarLines.join(ICALENDAR_LINE_SEPARATOR) + ICALENDAR_LINE_SEPARATOR;
+}
+
+/**
+ * Builds the data url of an iCalendar file describing one event.
+ *
+ * Note: The event start doubles as the creation timestamp on purpose - a real timestamp would differ between the server
+ *       and the browser render and break the React hydration of the link.
+ */
+function createIcalendarDataUrl(event: CalendarEvent): string {
+    return `data:text/calendar;charset=utf-8,${createIcalendarContent([event])
+        .split(ICALENDAR_LINE_SEPARATOR)
         .map((line) => encodeURIComponent(line))
         .join(ENCODED_ICALENDAR_LINE_SEPARATOR)}`;
 }

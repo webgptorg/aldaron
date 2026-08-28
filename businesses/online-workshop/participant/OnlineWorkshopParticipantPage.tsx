@@ -15,7 +15,10 @@ import { WorkshopServerConnectionStatus } from '@/businesses/online-workshop/par
 import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/WorkshopWatchingBadge';
 import { useWorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
-import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
+import {
+    WorkshopLinksPanel,
+    type WorkshopCalendarSubscription,
+} from '@/components/workshops/WorkshopLinksPanel';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
@@ -47,6 +50,7 @@ export type WorkshopNavigationDetails = {
     readonly emptyMessage: string;
     readonly locale: string;
     readonly timeZone: string;
+    readonly calendarSubscription?: WorkshopCalendarSubscription;
 };
 
 type OnlineWorkshopParticipantPageProps = {
@@ -284,6 +288,7 @@ export function OnlineWorkshopParticipantPage({
                             emptyMessage={workshopNavigation.emptyMessage}
                             locale={workshopNavigation.locale}
                             timeZone={workshopNavigation.timeZone}
+                            calendarSubscription={workshopNavigation.calendarSubscription}
                         />
                     )}
                     {mainContentAfterWorkshopNavigation}

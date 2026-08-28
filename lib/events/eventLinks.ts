@@ -2,6 +2,11 @@ import { getEventTypeDefinition } from '@/lib/events/eventTypes';
 import { createWorkshopRoomLink, type WorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 
+const EMPTY_WORKSHOP_PARTICIPANT_IDENTITY: WorkshopParticipantIdentity = {
+    email: '',
+    fullname: '',
+};
+
 /**
  * Where one term of an event leads a member who is already connected somewhere else
  *
@@ -24,4 +29,11 @@ export function createEventLinkOrNull(
     return participantPath === null
         ? landingPagePath
         : createWorkshopRoomLink(participantPath, participantIdentity, workshop.slug);
+}
+
+/**
+ * Public destination of one event, suitable for a shared calendar feed because it never carries a member's identity.
+ */
+export function createPublicEventLinkOrNull(workshop: WorkshopSummary): string | null {
+    return createEventLinkOrNull(workshop, EMPTY_WORKSHOP_PARTICIPANT_IDENTITY);
 }

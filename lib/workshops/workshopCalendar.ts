@@ -1,4 +1,4 @@
-import type { CalendarEvent } from '@/lib/calendar/create-calendar-links';
+import { createCalendarFileName, type CalendarEvent } from '@/lib/calendar/create-calendar-links';
 import { getFirstName } from '@/lib/getFirstName';
 import { createAbsoluteUrl } from '@/lib/metadata/site-config';
 import {
@@ -6,7 +6,10 @@ import {
     createWorkshopSelectionPath,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
-import { getWorkshopExpectedEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
+import {
+    getWorkshopExpectedEndsAtMilliseconds,
+    type WorkshopOccurrenceTiming,
+} from '@/lib/workshops/workshopPhase';
 
 /**
  * Separator between the two sides of the meeting in the name of the event
@@ -71,7 +74,7 @@ export function createWorkshopCalendarEventTitle(
  * Note: A calendar entry has to last for something, so an occurrence which will run until it is ended is written into
  *       the calendar of a participant with the length such a workshop usually takes.
  */
-function getWorkshopCalendarEndsAt(occurrence: WorkshopCalendarOccurrence): string {
+export function getWorkshopCalendarEndsAt(occurrence: WorkshopOccurrenceTiming): string {
     return occurrence.endsAt ?? new Date(getWorkshopExpectedEndsAtMilliseconds(occurrence)).toISOString();
 }
 
@@ -104,7 +107,7 @@ export function createWorkshopCalendarEvent({
  * Names the downloaded iCalendar file after the workshop it describes
  */
 export function createWorkshopCalendarFileName(workshopSlug: string): string {
-    return `${workshopSlug}.ics`;
+    return createCalendarFileName(workshopSlug);
 }
 
 /**
