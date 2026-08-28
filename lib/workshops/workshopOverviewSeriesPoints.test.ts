@@ -22,6 +22,8 @@ function createTimelinePoint(
     return {
         startsAt,
         watchingParticipantCount: 0,
+        activelyWatchingParticipantCount: 0,
+        passivelyWatchingParticipantCount: 0,
         participantCount: 0,
         commentCount: 0,
         reactionCount: 0,
@@ -154,6 +156,51 @@ describe('buildWorkshopOverviewSeries', () => {
         expect(bucketDurationSeconds).toBe(120);
         expect(points[0]?.values.comments).toBe(5);
         expect(points[0]?.values.watchingParticipants).toBe(12);
+    });
+
+    it('draws the audience which was at the computer apart from the audience which only had the room open', () => {
+        const analytics = createAnalytics([
+            createTimelinePoint('2026-08-23T10:00:00.000Z', {
+                watchingParticipantCount: 9,
+                activelyWatchingParticipantCount: 6,
+                passivelyWatchingParticipantCount: 3,
+            }),
+        ]);
+
+        const { points } = buildWorkshopOverviewSeries(analytics, DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE, {
+            fromMilliseconds: Date.parse('2026-08-23T10:00:00.000Z'),
+            toMilliseconds: Date.parse('2026-08-23T10:00:30.000Z'),
+        });
+
+        expect(points[0]?.values.watchingParticipants).toBe(9);
+        expect(points[0]?.values.activelyWatchingParticipants).toBe(6);
+        expect(points[0]?.values.passivelyWatchingParticipants).toBe(3);
+    });
+
+    it('keeps the highest of each attendance when buckets are joined together, never their sum', () => {
+        const analytics = createAnalytics([
+            createTimelinePoint('2026-08-23T10:00:00.000Z', {
+                activelyWatchingParticipantCount: 4,
+                passivelyWatchingParticipantCount: 1,
+            }),
+            createTimelinePoint('2026-08-23T10:01:00.000Z', {
+                activelyWatchingParticipantCount: 7,
+                passivelyWatchingParticipantCount: 2,
+            }),
+        ]);
+
+        const { points } = buildWorkshopOverviewSeries(
+            analytics,
+            DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE,
+            {
+                fromMilliseconds: Date.parse('2026-08-23T10:00:00.000Z'),
+                toMilliseconds: Date.parse('2026-08-23T10:01:30.000Z'),
+            },
+            1,
+        );
+
+        expect(points[0]?.values.activelyWatchingParticipants).toBe(7);
+        expect(points[0]?.values.passivelyWatchingParticipants).toBe(2);
     });
 
     it('counts one chosen reaction instead of all of them', () => {

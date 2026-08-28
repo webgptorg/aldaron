@@ -48,10 +48,20 @@ export type WorkshopOverviewGraphState = {
 };
 
 /**
- * The graph a link without any query parameter opens: the audience, who joined, and the two things a room does most
+ * The graph a link without any query parameter opens: the audience, how much of it was really at the computer, who
+ * joined, and the two things a room does most
+ *
+ * Note: The passive audience is the distance between the two audience lines, so it is offered as a line of its own
+ *       rather than drawn by default, which keeps the opening graph readable while saying the same thing.
  */
 export const DEFAULT_WORKSHOP_OVERVIEW_GRAPH_STATE: WorkshopOverviewGraphState = {
-    visibleSeriesKeys: ['watchingParticipants', 'joinedParticipants', 'comments', 'reactions'],
+    visibleSeriesKeys: [
+        'watchingParticipants',
+        'activelyWatchingParticipants',
+        'joinedParticipants',
+        'comments',
+        'reactions',
+    ],
     reactionEmoji: null,
     zoomFromMilliseconds: null,
     zoomToMilliseconds: null,

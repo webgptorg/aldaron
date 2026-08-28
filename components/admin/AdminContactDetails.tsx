@@ -1,4 +1,4 @@
-import { formatWorkshopActiveDuration, formatWorkshopAdminDateTime } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import { formatWorkshopPresenceDuration, formatWorkshopAdminDateTime } from '@/businesses/workshop-admin/workshopAdminFormatting';
 import { CONTACT_COLUMN_DEFINITIONS } from '@/lib/contacts/contactColumnDefinitions';
 import { formatContactValueForDisplay } from '@/lib/contacts/contactValues';
 import { getAdminContactPhoneNumbers, type AdminContactGroup } from '@/lib/admin/adminContactJoin';
@@ -30,8 +30,8 @@ function AdminWorkshopParticipationDetails({ contactGroup }: { readonly contactG
                     <li key={workshopParticipation.participantId} className="border-l-2 border-cyan-200 pl-2">
                         <p className="font-medium text-slate-800">{workshopParticipation.workshopTitle}</p>
                         <p>
-                            {formatWorkshopAdminDateTime(workshopParticipation.connectedAt)} · aktivně{' '}
-                            {formatWorkshopActiveDuration(workshopParticipation.activeDurationSeconds)}
+                            {formatWorkshopAdminDateTime(workshopParticipation.connectedAt)} · v místnosti{' '}
+                            {formatWorkshopPresenceDuration(workshopParticipation.activeDurationSeconds)}
                         </p>
                     </li>
                 ))}

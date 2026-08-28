@@ -1,5 +1,6 @@
 'use client';
 
+import { useWorkshopAttendanceTracker } from '@/businesses/online-workshop/participant/useWorkshopAttendanceTracker';
 import {
     useWorkshopReactionAnimations,
     type SubscribeToWorkshopReactions,
@@ -153,6 +154,7 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [newlyUnlockedContentBlockIds, setNewlyUnlockedContentBlockIds] = useState<ReadonlySet<string>>(new Set());
     const { subscribeToReactions, showReaction, showLoadedReactions } = useWorkshopReactionAnimations();
+    const getIsActivelyAttending = useWorkshopAttendanceTracker();
     const refreshSequenceRef = useRef(0);
     const realtimeRefreshTimeoutRef = useRef<number | null>(null);
     const isContentHistoryLoadedRef = useRef(false);
@@ -411,12 +413,15 @@ export function useWorkshopParticipant(workshopSlug: string): WorkshopParticipan
             return;
         }
 
-        void reportWorkshopPresence(workshopSlug, activeDurationSeconds)
+        void reportWorkshopPresence(workshopSlug, {
+            activeDurationSeconds,
+            isActivelyAttending: getIsActivelyAttending(),
+        })
             .then(({ watchingParticipantCount }) => applyWatchingParticipantCount(watchingParticipantCount))
             .catch((error) => {
                 console.warn('Failed to report workshop participant presence:', error);
             });
-    }, [applyWatchingParticipantCount, isUsingCachedState, workshopSlug]);
+    }, [applyWatchingParticipantCount, getIsActivelyAttending, isUsingCachedState, workshopSlug]);
 
     useEffect(() => {
         if (!isConnected) {

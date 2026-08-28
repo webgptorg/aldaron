@@ -1,6 +1,7 @@
 'use client';
 
 import { formatWorkshopOverviewPointTime } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import { WorkshopOverviewSeriesSwatch } from '@/businesses/workshop-admin/WorkshopOverviewSeriesSwatch';
 import { Button } from '@/components/ui/button';
 import type { WorkshopOverviewGraphState } from '@/lib/workshops/workshopOverviewGraphState';
 import {
@@ -84,11 +85,7 @@ export function WorkshopOverviewChartControls({
                                         : 'border-slate-200 bg-slate-50 text-slate-400'
                                 } ${isStandardSeries ? 'hover:border-slate-400' : 'cursor-default'}`}
                             >
-                                <span
-                                    aria-hidden="true"
-                                    className="h-0.5 w-4 shrink-0 rounded-full"
-                                    style={{ backgroundColor: isVisible ? descriptor.color : '#c3c2b7' }}
-                                />
+                                <WorkshopOverviewSeriesSwatch descriptor={descriptor} isVisible={isVisible} />
                                 <span className="text-xs text-slate-500">{descriptor.label}</span>
                                 <span
                                     className={`text-sm font-bold tabular-nums ${

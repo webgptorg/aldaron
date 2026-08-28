@@ -159,6 +159,16 @@ export type WorkshopAdminTimelinePoint = {
     readonly watchingParticipantCount: number;
 
     /**
+     * How many of the watching people were really at their computer during this bucket, and how many only had the room
+     * open, which together are the whole audience of it
+     *
+     * Note: How that is told apart is decided by `workshopAttendance`, and a bucket which was measured before the
+     *       attendance of a room was measured at all is passive throughout.
+     */
+    readonly activelyWatchingParticipantCount: number;
+    readonly passivelyWatchingParticipantCount: number;
+
+    /**
      * How many people registered into the room during this bucket
      */
     readonly participantCount: number;

@@ -96,6 +96,11 @@ const COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_SQL = readFileSync(
     COMMUNITY_PROJECT_MEMBER_VOTE_DELETION_MIGRATION_PATH,
     'utf8',
 );
+const ATTENDANCE_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-08-3200-workshop-active-and-passive-attendance.sql',
+);
+const ATTENDANCE_MIGRATION_SQL = readFileSync(ATTENDANCE_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -554,6 +559,33 @@ describe('workshop database migration', () => {
         );
         expect(SHORTCODE_CHAT_LINK_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_comment_shortcode_links FROM PUBLIC, anon, authenticated',
+        );
+    });
+
+    it('remembers how every measured minute of a room was attended', () => {
+        expect(ATTENDANCE_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS is_actively_attending boolean NOT NULL DEFAULT false',
+        );
+        expect(ATTENDANCE_MIGRATION_SQL).toContain(
+            'DROP FUNCTION IF EXISTS public.record_workshop_participant_presence(uuid, uuid, integer);',
+        );
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('reported_is_actively_attending boolean DEFAULT false');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain(
+            'ON CONFLICT (workshop_id, bucket_starts_at, participant_id) DO UPDATE',
+        );
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('NOT workshop_participant_presence_samples.is_actively_attending');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain(
+            'GRANT EXECUTE ON FUNCTION public.record_workshop_participant_presence(uuid, uuid, integer, boolean) TO service_role;',
+        );
+    });
+
+    it('draws the audience of a room apart into the people who were at their computer and the people who were not', () => {
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('DROP FUNCTION IF EXISTS public.get_workshop_admin_timeline');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('actively_watching_participant_count bigint');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('passively_watching_participant_count bigint');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain('WHERE presence_sample.is_actively_attending');
+        expect(ATTENDANCE_MIGRATION_SQL).toContain(
+            'GRANT EXECUTE ON FUNCTION public.get_workshop_admin_timeline(uuid, integer) TO service_role;',
         );
     });
 });

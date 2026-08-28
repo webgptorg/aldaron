@@ -39,6 +39,17 @@ export type WorkshopAuthorModerationValues = {
 };
 
 /**
+ * One heartbeat of an open room, see `workshopPresenceSchema`
+ *
+ * Note: How the room was attended is measured by `workshopAttendance`, so the browser says what it observed and the
+ *       server decides nothing about it.
+ */
+export type WorkshopPresenceValues = {
+    readonly activeDurationSeconds: number;
+    readonly isActivelyAttending: boolean;
+};
+
+/**
  * One independently persisted step of post-workshop feedback.
  */
 export type WorkshopFeedbackValues = {
@@ -218,14 +229,14 @@ export async function saveWorkshopFeedback(
 
 export async function reportWorkshopPresence(
     workshopSlug: string,
-    activeDurationSeconds: number,
+    values: WorkshopPresenceValues,
 ): Promise<{ readonly watchingParticipantCount: number }> {
     const response = await fetch(getWorkshopApiUrl(workshopSlug, 'presence'), {
         method: 'POST',
         credentials: 'same-origin',
         keepalive: true,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activeDurationSeconds }),
+        body: JSON.stringify(values),
     });
     return readResponseJson(response);
 }

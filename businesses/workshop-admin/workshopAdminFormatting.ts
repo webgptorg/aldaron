@@ -59,9 +59,12 @@ export function formatWorkshopParticipantCount(participantCount: number): string
 }
 
 /**
- * Turns active seconds into a compact, human-readable duration.
+ * Turns the seconds somebody had a room open into a compact, human-readable duration.
+ *
+ * Note: This is the time the room was open rather than the time somebody was really in front of it. Whether an open
+ *       room was actively or passively attended is measured by `workshopAttendance` and drawn by the overview graph.
  */
-export function formatWorkshopActiveDuration(activeDurationSeconds: number): string {
+export function formatWorkshopPresenceDuration(activeDurationSeconds: number): string {
     if (activeDurationSeconds < 60) {
         return 'méně než minutu';
     }

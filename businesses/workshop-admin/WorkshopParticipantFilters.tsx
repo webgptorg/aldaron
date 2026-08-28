@@ -14,7 +14,7 @@ const WORKSHOP_PARTICIPANT_SORT_LABELS: Readonly<Record<WorkshopAdminParticipant
     email: 'E-mail',
     connectedAt: 'Registrace',
     lastSeenAt: 'Naposledy aktivní',
-    activeDurationSeconds: 'Aktivní čas',
+    activeDurationSeconds: 'Čas v místnosti',
     commentCount: 'Komentáře',
     reactionCount: 'Reakce',
     upvoteCount: 'Hlasy',
