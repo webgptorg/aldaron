@@ -2,11 +2,9 @@
 
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { AiTaKrajtaSnakeTerrarium } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeTerrarium';
-import {
-    formatAiTaKrajtaMonthAfterOd,
-    formatCzechCountedNoun,
-} from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
+import { formatAiTaKrajtaMonthAfterOd } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
 import { AI_TA_KRAJTA_PLATFORMS, AI_TA_KRAJTA_SECTION_IDS } from '@/businesses/ai-ta-krajta/config';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { ArrowUpRight, Play } from 'lucide-react';
 
 /**

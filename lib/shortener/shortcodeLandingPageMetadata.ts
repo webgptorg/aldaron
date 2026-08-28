@@ -1,3 +1,4 @@
+import { shortenText } from '@/lib/language/shortenText';
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import type { Metadata } from 'next';
 
@@ -50,15 +51,6 @@ function toPlainText(value: string): string {
         .replace(/&#39;/gi, "'")
         .replace(/\s+/g, ' ')
         .trim();
-}
-
-/** Keeps a metadata value useful without creating an unwieldy social card. */
-function truncate(value: string, maximumLength: number): string {
-    if (value.length <= maximumLength) {
-        return value;
-    }
-
-    return `${value.slice(0, maximumLength - 1).trimEnd()}…`;
 }
 
 function getHtmlMetaContent(landingPage: string, expectedName: string): string | null {
@@ -177,8 +169,8 @@ export function extractShortcodeLandingPageMetadata(landingPage: string): Shortc
     );
 
     return {
-        title: title === '' ? null : truncate(title, MAXIMUM_TITLE_LENGTH),
-        description: description === '' ? null : truncate(description, MAXIMUM_DESCRIPTION_LENGTH),
+        title: title === '' ? null : shortenText(title, MAXIMUM_TITLE_LENGTH),
+        description: description === '' ? null : shortenText(description, MAXIMUM_DESCRIPTION_LENGTH),
         image:
             getSocialPreviewImagePath(getFirstMarkdownImageSource(landingPage)) ??
             getSocialPreviewImagePath(getFirstHtmlImageSource(landingPage)),

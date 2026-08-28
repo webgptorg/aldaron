@@ -2,7 +2,7 @@
 
 import type { AiTaKrajtaPerson } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import { AiTaKrajtaPersonAvatar } from '@/businesses/ai-ta-krajta/AiTaKrajtaPersonAvatar';
-import { formatCzechCountedNoun } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, ListFilter, X } from 'lucide-react';
 

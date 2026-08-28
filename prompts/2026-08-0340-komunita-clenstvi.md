@@ -113,9 +113,10 @@ The key goal is simplicity:
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation 7.96 an hour; Testing 5 minutes
 
 [✨🥇] Base the live preview of `/cs/komunita/clenstvi` on the real data
 
 - But you can fake the emoji reactions
 - Show there more from the community content, such as recent webinars, discussions, projects, and member interactions,...
+

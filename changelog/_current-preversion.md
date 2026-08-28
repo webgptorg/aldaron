@@ -1,5 +1,20 @@
 # Current preversion
 
+- Put the real community on `/cs/komunita/clenstvi`. The window in its header is no longer an invented conversation:
+  it says how many members the community has, shows the newest approved messages of its chat in the order they were
+  written, marks the moderators among their authors, and counts the messages and reactions the members really sent.
+  Only the flight of the reactions is still made up, because nobody is reacting while a landing page is being read —
+  which reactions fly is read from the ones the rooms celebrated most recently.
+
+- Said the rest of the community on the same page out of the same source. The archive block now names the webinars
+  which are really published, each with the day it is held on, and says how many have already been broadcast instead
+  of listing four topics written by hand. A new section below it counts the members, the broadcast webinars, the
+  messages and the reactions, shows the projects members shared with their preview, author and support, and gives the
+  most chosen answers of the community poll. Nothing of it is claimed when it did not happen: a total of nothing is
+  left out, a poll nobody answered is not shown, and the whole section disappears when the community has nothing to
+  show yet. A member is named by their first name alone, so a page anybody can open never carries more of an identity
+  than the room already showed.
+
 - Replaced the stack of repeated registration forms on `/cs/online-workshop` with one clear term picker and one shared
   form. Every published online workshop is now a selectable date-and-time card, modelled after the picker on
   `/ai-supervize-mini`; choosing another card keeps the already entered name, e-mail and phone number, updates the

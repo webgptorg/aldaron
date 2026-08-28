@@ -4,6 +4,7 @@ import { ScrollToRegistrationSection } from '@/components/discounts/ScrollToRegi
 import { Header } from '@/components/header';
 import { MinimalFooter } from '@/components/minimal-footer';
 import { Button } from '@/components/ui/button';
+import type { CommunityPreview } from '@/lib/community/communityPreviewTypes';
 import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 import { REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
 import { useDiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValidation';
@@ -23,14 +24,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { CommunityMembershipActivitySection } from './CommunityMembershipActivitySection';
 import {
     COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
     getCommunityMembershipFeature,
     type CommunityMembershipFeatureId,
 } from './communityMembershipConfig';
-import { CommunityMembershipIllustration } from './CommunityMembershipIllustration';
+import { CommunityMembershipLivePreview } from './CommunityMembershipLivePreview';
 import { CommunityMembershipRegistrationForm } from './CommunityMembershipRegistrationForm';
+import { CommunityMembershipWebinarArchive } from './CommunityMembershipWebinarArchive';
 import { formatCommunityMembershipPrice } from './communityMembershipPrice';
 
 type CommunityMembershipPageProps = {
@@ -38,6 +41,11 @@ type CommunityMembershipPageProps = {
     readonly initialEmail: string;
     readonly initialDiscountCode: string;
     readonly initialActiveDiscountByPlaceId: ActiveDiscountByPlaceId;
+
+    /**
+     * The community as it really is right now, which the page shows instead of an imagined one
+     */
+    readonly communityPreview: CommunityPreview;
 };
 
 type BenefitCard = {
@@ -79,8 +87,6 @@ const BENEFIT_CARDS: readonly BenefitCard[] = [
         description: 'Dostanete vstup do placené části komunitního Discordu.',
     },
 ];
-
-const ARCHIVE_WEBINAR_TOPICS = ['Git do hloubky', 'AI a databáze', 'Testování', 'Práce s kontextem'] as const;
 
 const CURRENT_PAID_MEMBERSHIP_PRICE_LABEL = formatCommunityMembershipPrice(
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
@@ -237,6 +243,7 @@ export function CommunityMembershipPage({
     initialEmail,
     initialDiscountCode,
     initialActiveDiscountByPlaceId,
+    communityPreview,
 }: CommunityMembershipPageProps) {
     const discountCodeValidation = useDiscountCodeValidation({
         initialDiscountCode,
@@ -337,7 +344,7 @@ export function CommunityMembershipPage({
                             ))}
                         </div>
                     </div>
-                    <CommunityMembershipIllustration />
+                    <CommunityMembershipLivePreview preview={communityPreview} />
                 </div>
             </section>
 
@@ -370,40 +377,9 @@ export function CommunityMembershipPage({
                 </div>
             </section>
 
-            <section className="border-y border-slate-200 bg-slate-50 py-16 sm:py-20">
-                <div className="container mx-auto grid gap-10 px-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-                    <div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
-                            <BookOpenCheck className="h-6 w-6" />
-                        </div>
-                        <h2 className="mt-5 text-3xl font-bold text-slate-950 sm:text-4xl">
-                            Některé věci se nepoberou napoprvé.
-                        </h2>
-                        <p className="mt-4 leading-relaxed text-slate-600">
-                            V archivu si zastavíte část, kterou zrovna potřebujete. Třeba Git, databáze, testy nebo
-                            práci s kontextem.
-                        </p>
-                    </div>
-                    <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                        <p className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-                            V archivu najdete třeba
-                        </p>
-                        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                            {ARCHIVE_WEBINAR_TOPICS.map((webinar, index) => (
-                                <div
-                                    key={webinar}
-                                    className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100"
-                                >
-                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-950 font-mono text-xs font-bold text-cyan-200">
-                                        {String(index + 1).padStart(2, '0')}
-                                    </span>
-                                    <span className="font-semibold text-slate-800">{webinar}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <CommunityMembershipWebinarArchive preview={communityPreview} />
+
+            <CommunityMembershipActivitySection preview={communityPreview} communityHref={basicHref} />
 
             <section id="ceny" className="bg-white py-20 sm:py-24">
                 <div className="container mx-auto px-4">

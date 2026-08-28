@@ -2,6 +2,7 @@ import { CommunityMembershipPage } from '@/businesses/community/membership/Commu
 import { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID } from '@/businesses/community/membership/communityMembershipConfig';
 import { COMMUNITY_MEMBERSHIP_METADATA } from '@/businesses/community/membership/communityMembershipMetadata';
 import { readFirstSearchParameter, type SearchParameterValue } from '@/lib/api/readFirstSearchParameter';
+import { loadCommunityPreview } from '@/lib/community/communityPreview';
 import { DISCOUNT_CODE_QUERY_PARAMETER } from '@/lib/discounts/discountCodeConstants';
 import { loadActiveDiscountsByPlace } from '@/lib/discounts/discountCodeDatabase';
 import { readWorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
@@ -20,8 +21,9 @@ export default async function CzechCommunityMembershipRoute({ searchParams }: Co
         resolvedSearchParams.fullname,
     );
     const initialDiscountCode = readFirstSearchParameter(resolvedSearchParams[DISCOUNT_CODE_QUERY_PARAMETER]) ?? '';
-    const initialDiscountResult = await loadActiveDiscountsByPlace(initialDiscountCode, [
-        COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
+    const [initialDiscountResult, communityPreview] = await Promise.all([
+        loadActiveDiscountsByPlace(initialDiscountCode, [COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID]),
+        loadCommunityPreview(),
     ]);
 
     if (initialDiscountResult.errorMessage !== null) {
@@ -34,6 +36,7 @@ export default async function CzechCommunityMembershipRoute({ searchParams }: Co
             initialEmail={participantIdentity.email}
             initialDiscountCode={initialDiscountCode}
             initialActiveDiscountByPlaceId={initialDiscountResult.activeDiscountByPlaceId}
+            communityPreview={communityPreview}
         />
     );
 }

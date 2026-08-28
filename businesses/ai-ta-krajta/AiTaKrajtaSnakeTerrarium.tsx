@@ -3,7 +3,7 @@
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { AiTaKrajtaSnakeGame } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeGame';
-import { formatCzechCountedNoun } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { motion } from 'framer-motion';
 import { useCallback, useState } from 'react';
 

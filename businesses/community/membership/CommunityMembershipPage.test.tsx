@@ -2,8 +2,9 @@
  * @vitest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { EMPTY_COMMUNITY_PREVIEW, type CommunityPreview } from '@/lib/community/communityPreviewTypes';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/discounts/ScrollToRegistrationSection', () => ({
     ScrollToRegistrationSection: () => null,
@@ -38,8 +39,10 @@ vi.mock('@/lib/discounts/useDiscountCodeValidation', () => ({
     }),
 }));
 
-vi.mock('./CommunityMembershipIllustration', () => ({
-    CommunityMembershipIllustration: () => <div>Ilustrace komunity</div>,
+vi.mock('./CommunityMembershipLivePreview', () => ({
+    CommunityMembershipLivePreview: ({ preview }: { preview: CommunityPreview }) => (
+        <div data-testid="live-preview" data-member-count={preview.totals.memberCount} />
+    ),
 }));
 
 vi.mock('./CommunityMembershipRegistrationForm', () => ({
@@ -54,7 +57,23 @@ vi.mock('./CommunityMembershipRegistrationForm', () => ({
 
 import { CommunityMembershipPage } from './CommunityMembershipPage';
 
+const REAL_COMMUNITY_PREVIEW: CommunityPreview = {
+    ...EMPTY_COMMUNITY_PREVIEW,
+    totals: {
+        memberCount: 244,
+        messageCount: 129,
+        reactionCount: 1_275,
+        projectCount: 2,
+        heldWebinarCount: 2,
+    },
+    upcomingWebinars: [{ id: 'git-a-ai', title: 'Git a AI', startsAt: '2026-09-07T11:00:00.000Z' }],
+};
+
 describe('community membership page', () => {
+    afterEach(() => {
+        cleanup();
+    });
+
     it('presents free live webinars and one 199 Kč monthly paid option', () => {
         render(
             <CommunityMembershipPage
@@ -62,6 +81,7 @@ describe('community membership page', () => {
                 initialEmail="pavol@example.com"
                 initialDiscountCode=""
                 initialActiveDiscountByPlaceId={{}}
+                communityPreview={EMPTY_COMMUNITY_PREVIEW}
             />,
         );
 
@@ -81,5 +101,22 @@ describe('community membership page', () => {
         const registrationForm = screen.getByTestId('registration-form');
         expect(registrationForm.getAttribute('data-fullname')).toBe('Pavol Hejný');
         expect(registrationForm.getAttribute('data-email')).toBe('pavol@example.com');
+    });
+
+    it('hands the real community on to its preview and its sections', () => {
+        render(
+            <CommunityMembershipPage
+                initialFullname=""
+                initialEmail=""
+                initialDiscountCode=""
+                initialActiveDiscountByPlaceId={{}}
+                communityPreview={REAL_COMMUNITY_PREVIEW}
+            />,
+        );
+
+        expect(screen.getByTestId('live-preview').getAttribute('data-member-count')).toBe('244');
+        expect(screen.getByText('Git a AI')).toBeTruthy();
+        expect(screen.getByText('členů komunity')).toBeTruthy();
+        expect(screen.getByText(/2 odvysílané webináře/)).toBeTruthy();
     });
 });

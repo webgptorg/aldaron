@@ -2,13 +2,13 @@
 
 import { AiTaKrajtaEpisodeCard } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisodeCard';
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
-import { formatCzechCountedNoun } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
 import { getAiTaKrajtaPersonById } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import {
     AI_TA_KRAJTA_INITIAL_EPISODE_COUNT,
     AI_TA_KRAJTA_PLATFORMS,
     AI_TA_KRAJTA_SECTION_IDS,
 } from '@/businesses/ai-ta-krajta/config';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { Search, X } from 'lucide-react';
 
 /**
