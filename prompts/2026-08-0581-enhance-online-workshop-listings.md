@@ -12,3 +12,13 @@
 ![good](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings.png)
 ![bad](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings-1.png)
 
+---
+
+[ ]
+
+[✨🚔] There should be name and description of the online workshop directly on the badge
+
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+
+![alt text](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings-2.png)

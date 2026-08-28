@@ -103,3 +103,19 @@ The key goal is simplicity:
 
 > **Free webinars stay free. Paid membership costs 199 CZK/month and gives access mainly to recordings, materials and additional community benefits.**
 
+---
+
+[ ]
+
+[✨🥇] Simplify (and unbullshitify) `/cs/komunita/clenstvi`
+
+- @@@@@@
+
+---
+
+[ ]
+
+[✨🥇] Base the live preview of `/cs/komunita/clenstvi` on the real data
+
+- But you can fake the emoji reactions
+- Show there more from the community content, such as recent webinars, discussions, projects, and member interactions,...
