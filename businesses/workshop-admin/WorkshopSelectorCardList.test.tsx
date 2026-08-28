@@ -4,6 +4,7 @@
 
 import { formatWorkshopAdminDateTime } from '@/businesses/workshop-admin/workshopAdminFormatting';
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const ONGOING_WORKSHOP: WorkshopAdminSummary = {
     id: 'ongoing-workshop-id',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'produkcni-kod-2026-08-21',
     title: 'Produkční kód s AI agenty',
     startsAt: '2026-08-21T19:00:00+02:00',
@@ -21,6 +23,7 @@ const ONGOING_WORKSHOP: WorkshopAdminSummary = {
 const UPCOMING_WORKSHOP: WorkshopAdminSummary = {
     id: 'upcoming-workshop-id',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'produkcni-kod-2026-09-10',
     title: 'Produkční kód s AI agenty v září',
     startsAt: '2026-09-10T19:00:00+02:00',
@@ -31,6 +34,7 @@ const UPCOMING_WORKSHOP: WorkshopAdminSummary = {
 const PAST_WORKSHOP: WorkshopAdminSummary = {
     id: 'past-workshop-id',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'produkcni-kod-2026-07-10',
     title: 'Produkční kód s AI agenty v červenci',
     startsAt: '2026-07-10T19:00:00+02:00',

@@ -17,8 +17,11 @@ type WorkshopPollAttachedWorkshopsProps = {
 
     /**
      * Where an occurrence leads when it is more than a label, for example into the room of that occurrence.
+     *
+     * Note: An occurrence this page cannot lead anywhere is named without a link rather than linked into a room which
+     *       is not its own.
      */
-    readonly createWorkshopLink?: (workshop: WorkshopSummary) => string;
+    readonly createWorkshopLink?: (workshop: WorkshopSummary) => string | null;
     readonly label?: string;
     readonly className?: string;
 };
@@ -55,12 +58,14 @@ export function WorkshopPollAttachedWorkshops({
                     </>
                 );
 
+                const workshopLink = createWorkshopLink?.(workshop) ?? null;
+
                 return (
                     <li key={workshop.id} className="min-w-0">
-                        {createWorkshopLink === undefined ? (
+                        {workshopLink === null ? (
                             <span className={badgeClassName}>{workshopLabel}</span>
                         ) : (
-                            <Link href={createWorkshopLink(workshop)} className={badgeClassName}>
+                            <Link href={workshopLink} className={badgeClassName}>
                                 {workshopLabel}
                             </Link>
                         )}

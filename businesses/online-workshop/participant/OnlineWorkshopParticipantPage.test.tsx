@@ -6,6 +6,7 @@ import {
     OnlineWorkshopParticipantPage,
     type WorkshopNavigationDetails,
 } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopDetails, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -23,6 +24,7 @@ vi.mock('@/businesses/online-workshop/participant/useWorkshopParticipant', () =>
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'produkcni-kod-2026-08-21',
     title: 'Produkční kód s AI agenty',
     description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem.',
@@ -56,6 +58,7 @@ const WORKSHOP_NAVIGATION: WorkshopNavigationDetails = {
         {
             id: WORKSHOP.id,
             kind: WORKSHOP.kind,
+            event: WORKSHOP.event,
             slug: WORKSHOP.slug,
             title: WORKSHOP.title,
             startsAt: WORKSHOP.startsAt,
@@ -63,7 +66,6 @@ const WORKSHOP_NAVIGATION: WorkshopNavigationDetails = {
             isPublished: WORKSHOP.isPublished,
         },
     ],
-    participantPath: '/cs/online-workshop/participant',
     title: 'Workshopy Promptbooku',
     description: 'Vyberte si workshop.',
     emptyMessage: 'Žádný workshop není dostupný.',

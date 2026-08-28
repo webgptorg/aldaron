@@ -121,7 +121,7 @@ In production, a missing `DATABASE_URL` stops startup rather than serving an out
 | --- | --- |
 | `npm run test` | Vitest unit and component tests. |
 | `npm run test-types` | A production build followed by TypeScript checking. The build refreshes Next.js route types before `tsc` runs. |
-| `npm run test-e2e` | Playwright public-flow tests on port `4009`. Each public-page route is checked independently, a redirecting address is checked by the destination it names rather than by following it, and without a configured Supabase service-role key it uses an isolated in-memory Supabase-compatible store. Its development server keeps every route it compiled for the whole run, so no route is rebuilt underneath a later test. |
+| `npm run test-e2e` | Playwright public-flow tests on port `4009`. Each public-page route and each public submission is checked independently, every test is given enough time for the development server to compile the route it reaches first, and without a configured Supabase service-role key it uses an isolated in-memory Supabase-compatible store. Recordings of the most recent runs are kept in `tests/e2e/videos/`. |
 | `npm run lint` | The configured Next.js lint command. |
 | `npm run test-for-ptbk-coder` | The repository's full automated-agent verification sequence. |
 

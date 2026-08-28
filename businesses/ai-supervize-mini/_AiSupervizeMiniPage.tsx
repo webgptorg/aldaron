@@ -3,18 +3,17 @@
 import { czechBusinessFooterProps } from '@/businesses/_generic/czechBusinessFooterProps';
 import { AiSupervizeMiniRegistrationForm } from '@/businesses/ai-supervize-mini/AiSupervizeMiniRegistrationForm';
 import {
-    aiSupervizeMiniFaqs,
-    aiSupervizeMiniHeroBullets,
     aiSupervizeMiniImpactMetrics,
     aiSupervizeMiniTakeaways,
     aiSupervizeMiniTerminalMetrics,
+    createAiSupervizeMiniFaqs,
+    createAiSupervizeMiniHeroBullets,
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
 import { aiSupervizeMiniTestimonials } from '@/businesses/ai-supervize-mini/aiSupervizeMiniTestimonials';
 import {
-    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
-    getAiSupervizeMiniWorkshopDateByFormat,
-} from '@/businesses/ai-supervize-mini/config';
-import type { AiSupervizeMiniWorkshopAvailability } from '@/businesses/ai-supervize-mini/workshopRegistration';
+    getAiSupervizeMiniWorkshopAvailabilityByEventSlug,
+    type AiSupervizeMiniWorkshopAvailability,
+} from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
 import { ScrollToRegistrationSection } from '@/components/discounts/ScrollToRegistrationSection';
 import { FAQSection } from '@/components/faq-section';
@@ -24,6 +23,15 @@ import { TestimonialsSection } from '@/components/testimonials-section';
 import { Button } from '@/components/ui/button';
 import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 import { REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
+import {
+    formatEventOccurrenceCapacitySummary,
+    formatEventOccurrenceDaySummary,
+    formatEventOccurrenceLocationSummary,
+    formatEventOccurrencePriceSummary,
+    formatEventOccurrenceSummaries,
+} from '@/lib/events/eventSummary';
+import { formatCzechWorkshopDayAndMonth } from '@/lib/workshops/workshopDate';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import { motion } from 'framer-motion';
 import { ArrowRight, CalendarDays, CheckCircle, MapPin, Users } from 'lucide-react';
@@ -31,40 +39,60 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 type AiSupervizeMiniPageProps = {
+    /**
+     * The published terms of this workshop, which is everything this page says about when it is held
+     *
+     * Note: Nothing about a term is written into this page. A term is added, moved, or withdrawn in the administration
+     *       of events, and this page follows it.
+     */
+    readonly events: readonly EventOccurrence[];
     readonly initialDiscountCode: string;
     readonly initialActiveDiscountByPlaceId: ActiveDiscountByPlaceId;
     readonly workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
 };
 
-function getWorkshopSeatSummary(workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[]): string {
-    return AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates
-        .map((workshopDate) => {
-            const workshopAvailability = workshopAvailabilities.find(
-                (availability) => availability.workshopDateId === workshopDate.id,
+/**
+ * How many seats every published term still has, as the header of the page announces it
+ *
+ * Note: A term whose capacity could not be read says so rather than being announced as empty.
+ */
+function getWorkshopSeatSummary(
+    events: readonly EventOccurrence[],
+    workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
+): string {
+    return events
+        .map((event) => {
+            const eventDayLabel = formatCzechWorkshopDayAndMonth(event.startsAt);
+            const workshopAvailability = getAiSupervizeMiniWorkshopAvailabilityByEventSlug(
+                workshopAvailabilities,
+                event.slug,
             );
 
-            return workshopAvailability === undefined
-                ? `kapacitu ${workshopDate.label.replace(' 2026', '')} ověřujeme`
-                : `${workshopAvailability.remainingSeatCount} míst ${workshopDate.label.replace(' 2026', '')}`;
+            if (workshopAvailability === null || workshopAvailability.remainingSeatCount === null) {
+                return `kapacitu ${eventDayLabel} ověřujeme`;
+            }
+
+            return `${workshopAvailability.remainingSeatCount} míst ${eventDayLabel}`;
         })
         .join(' · ');
 }
 
 export function AiSupervizeMiniPage({
+    events,
     initialDiscountCode,
     initialActiveDiscountByPlaceId,
     workshopAvailabilities,
 }: AiSupervizeMiniPageProps) {
-    const dateSummary = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates
-        .map((workshopDate) => workshopDate.label.replace(' 2026', ''))
-        .join(' / ');
-    const placeSummary = Array.from(new Set(AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map((date) => date.placeLabel)))
-        .map((placeLabel) => (placeLabel === 'Online' ? 'online' : placeLabel))
-        .join(' + ');
+    const dateSummary = formatEventOccurrenceDaySummary(events);
+    const placeSummary = formatEventOccurrenceLocationSummary(events);
+    const capacitySummary = formatEventOccurrenceCapacitySummary(events);
+    const priceSummary = formatEventOccurrencePriceSummary(events);
+    const eventSummaries = formatEventOccurrenceSummaries(events);
+    const heroBullets = createAiSupervizeMiniHeroBullets(events);
     const seatSummary =
-        workshopAvailabilities === null ? null : getWorkshopSeatSummary(workshopAvailabilities);
-    const onsiteWorkshopDate = getAiSupervizeMiniWorkshopDateByFormat('onsite');
-    const onlineWorkshopDate = getAiSupervizeMiniWorkshopDateByFormat('online');
+        workshopAvailabilities === null || events.length === 0
+            ? null
+            : getWorkshopSeatSummary(events, workshopAvailabilities);
 
     return (
         <main className="min-h-screen bg-white">
@@ -115,7 +143,9 @@ export function AiSupervizeMiniPage({
                             <div className="space-y-5">
                                 <div className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
                                     <CalendarDays className="h-4 w-4" />
-                                    AI Supervize Mini · {dateSummary} · {placeSummary}
+                                    {['AI Supervize Mini', dateSummary, placeSummary]
+                                        .filter((labelPart) => labelPart !== '')
+                                        .join(' · ')}
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
@@ -155,7 +185,7 @@ export function AiSupervizeMiniPage({
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4 text-sm text-white/75 sm:gap-5">
-                                {aiSupervizeMiniHeroBullets.map((bullet) => (
+                                {heroBullets.map((bullet) => (
                                     <div key={bullet} className="flex items-center gap-2 px-3">
                                         <CheckCircle className="h-4 w-4 text-cyan-300" />
                                         {bullet}
@@ -195,11 +225,10 @@ export function AiSupervizeMiniPage({
                             Konkrétní workflow, živě a prakticky
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi. Prezenční termín stojí{' '}
-                            {onsiteWorkshopDate?.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč, online termín{' '}
-                            {onlineWorkshopDate?.pricePerParticipantCzk.toLocaleString('cs-CZ')} Kč za účastníka. V Praze
-                            je maximálně {onsiteWorkshopDate?.maximumParticipantCount} lidí, online maximálně{' '}
-                            {onlineWorkshopDate?.maximumParticipantCount}. Ceny jsou konečné, nejsme plátci DPH.
+                            Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi.
+                            {priceSummary === '' ? '' : ` Cena za účastníka je ${priceSummary}.`}
+                            {capacitySummary === '' ? '' : ` Kapacita termínů: ${capacitySummary}.`} Ceny jsou konečné,
+                            nejsme plátci DPH.
                         </p>
                     </div>
 
@@ -208,16 +237,27 @@ export function AiSupervizeMiniPage({
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <MapPin className="h-6 w-6 text-cyan-700" />
-                                    <h3 className="mt-3 font-bold text-slate-950">Praha i online</h3>
-                                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                        {onsiteWorkshopDate?.label.replace(' 2026', '')} proběhne prezenčně v Praze v čase{' '}
-                                        {onsiteWorkshopDate?.timeRange}, {onlineWorkshopDate?.label.replace(' 2026', '')}{' '}
-                                        online v čase {onlineWorkshopDate?.timeRange}.
-                                    </p>
+                                    <h3 className="mt-3 font-bold text-slate-950">
+                                        {placeSummary === '' ? 'Vypsané termíny' : placeSummary}
+                                    </h3>
+                                    {eventSummaries.length === 0 ? (
+                                        <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                                            Další termín právě připravujeme. Napište si o něj a ozveme se, jakmile bude
+                                            vypsaný.
+                                        </p>
+                                    ) : (
+                                        <ul className="mt-2 space-y-1 text-sm leading-relaxed text-slate-600">
+                                            {eventSummaries.map((eventSummary) => (
+                                                <li key={eventSummary}>{eventSummary}</li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </div>
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <Users className="h-6 w-6 text-cyan-700" />
-                                    <h3 className="mt-3 font-bold text-slate-950">10 v Praze, 50 online</h3>
+                                    <h3 className="mt-3 font-bold text-slate-950">
+                                        {capacitySummary === '' ? 'Malá skupina' : capacitySummary}
+                                    </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         Prezenční skupina zůstává komorní pro dotazy, konkrétní situace a zpětnou vazbu.
                                         Online formát umožní workshop absolvovat i většímu týmu odkudkoli.
@@ -246,6 +286,7 @@ export function AiSupervizeMiniPage({
                         </div>
 
                         <AiSupervizeMiniRegistrationForm
+                            events={events}
                             initialDiscountCode={initialDiscountCode}
                             initialActiveDiscountByPlaceId={initialActiveDiscountByPlaceId}
                             initialWorkshopAvailabilities={workshopAvailabilities}
@@ -255,7 +296,7 @@ export function AiSupervizeMiniPage({
             </section>
 
             <FAQSection
-                faqs={aiSupervizeMiniFaqs}
+                faqs={createAiSupervizeMiniFaqs(events)}
                 eyebrow="FAQ"
                 title={
                     <>

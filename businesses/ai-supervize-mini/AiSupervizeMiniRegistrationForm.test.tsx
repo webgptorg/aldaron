@@ -2,6 +2,8 @@
  * @vitest-environment jsdom
  */
 
+import { AI_SUPERVIZE_MINI_EVENT_TYPE } from '@/businesses/ai-supervize-mini/config';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -20,6 +22,42 @@ vi.mock('@/lib/discounts/discountCodeApi', () => ({
 
 import { AiSupervizeMiniRegistrationForm } from './AiSupervizeMiniRegistrationForm';
 
+const ONSITE_EVENT: EventOccurrence = {
+    id: 'onsite-event-id',
+    kind: 'workshop',
+    slug: 'ai-supervize-mini-2026-09-04',
+    title: 'AI Supervize Mini · Praha',
+    startsAt: '2026-09-04T10:00:00+02:00',
+    endsAt: '2026-09-04T16:00:00+02:00',
+    isPublished: true,
+    event: {
+        type: AI_SUPERVIZE_MINI_EVENT_TYPE,
+        locationKind: 'onsite',
+        locationLabel: 'Praha',
+        priceCzk: 12000,
+        maximumParticipantCount: 10,
+    },
+};
+
+const ONLINE_EVENT: EventOccurrence = {
+    id: 'online-event-id',
+    kind: 'workshop',
+    slug: 'ai-supervize-mini-2026-09-09',
+    title: 'AI Supervize Mini · online',
+    startsAt: '2026-09-09T13:00:00+02:00',
+    endsAt: '2026-09-09T17:00:00+02:00',
+    isPublished: true,
+    event: {
+        type: AI_SUPERVIZE_MINI_EVENT_TYPE,
+        locationKind: 'online',
+        locationLabel: '',
+        priceCzk: 3000,
+        maximumParticipantCount: 50,
+    },
+};
+
+const EVENTS: readonly EventOccurrence[] = [ONSITE_EVENT, ONLINE_EVENT];
+
 describe('AI Supervize Mini registration form', () => {
     afterEach(() => {
         cleanup();
@@ -29,14 +67,15 @@ describe('AI Supervize Mini registration form', () => {
     it('prefills the discount input from the code passed by the route', () => {
         render(
             <AiSupervizeMiniRegistrationForm
+                events={EVENTS}
                 initialDiscountCode="webinar-2026-08-20"
                 initialActiveDiscountByPlaceId={{
                     'ai-supervize-mini-onsite': null,
                     'ai-supervize-mini-online': null,
                 }}
                 initialWorkshopAvailabilities={[
-                    { workshopDateId: '2026-09-04', registeredParticipantCount: 0, remainingSeatCount: 10 },
-                    { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+                    { eventSlug: ONSITE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 10 },
+                    { eventSlug: ONLINE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 50 },
                 ]}
             />,
         );
@@ -47,6 +86,7 @@ describe('AI Supervize Mini registration form', () => {
     it('shows the remaining uses for a prefilled limited code', () => {
         render(
             <AiSupervizeMiniRegistrationForm
+                events={EVENTS}
                 initialDiscountCode="WEBINAR_2026_08_20"
                 initialActiveDiscountByPlaceId={{
                     'ai-supervize-mini-onsite': {
@@ -57,8 +97,8 @@ describe('AI Supervize Mini registration form', () => {
                     'ai-supervize-mini-online': null,
                 }}
                 initialWorkshopAvailabilities={[
-                    { workshopDateId: '2026-09-04', registeredParticipantCount: 0, remainingSeatCount: 10 },
-                    { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+                    { eventSlug: ONSITE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 10 },
+                    { eventSlug: ONLINE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 50 },
                 ]}
             />,
         );
@@ -70,21 +110,22 @@ describe('AI Supervize Mini registration form', () => {
         submitAiSupervizeMiniWorkshopRegistrationMock.mockResolvedValue({
             isWaitlisted: true,
             workshopAvailabilities: [
-                { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
-                { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+                { eventSlug: ONSITE_EVENT.slug, registeredParticipantCount: 10, remainingSeatCount: 0 },
+                { eventSlug: ONLINE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 50 },
             ],
             workshopPrice: { basePriceCzk: 12000, discountAmountCzk: 0, finalPriceCzk: 12000 },
         });
         render(
             <AiSupervizeMiniRegistrationForm
+                events={EVENTS}
                 initialDiscountCode=""
                 initialActiveDiscountByPlaceId={{
                     'ai-supervize-mini-onsite': null,
                     'ai-supervize-mini-online': null,
                 }}
                 initialWorkshopAvailabilities={[
-                    { workshopDateId: '2026-09-04', registeredParticipantCount: 10, remainingSeatCount: 0 },
-                    { workshopDateId: '2026-09-09', registeredParticipantCount: 0, remainingSeatCount: 50 },
+                    { eventSlug: ONSITE_EVENT.slug, registeredParticipantCount: 10, remainingSeatCount: 0 },
+                    { eventSlug: ONLINE_EVENT.slug, registeredParticipantCount: 0, remainingSeatCount: 50 },
                 ]}
             />,
         );

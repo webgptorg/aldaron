@@ -1,5 +1,36 @@
 # Current preversion
 
+- Let a workshop have no end at all. A term whose end is left empty in `/admin/workshops` now runs from its start for
+  as long as it takes: `/cs/online-workshop/participant` keeps its stream on the stage and its room open indefinitely
+  instead of declaring the workshop over an hour after it started, which is what an unwritten end used to mean. The
+  settings of such a running term offer an `Ukončit workshop` button which writes the current moment as its end, so
+  the room replaces the stage with the closing wrap-up and its feedback the moment the workshop really ends, and the
+  administration lists the term as finished. An end is still typed in by hand whenever it is known in advance, and a
+  term whose end is open is still announced with the usual length of a workshop where a duration has to be named
+  before the fact, such as in a calendar invitation.
+
+- Made every event term of every kind of event administered from the one place and stored in the one table. A room
+  which happens at a time is now a term of an event: it says which kind of event it is, whether it is held online or
+  at a place, what one seat costs, and how many people fit into it. The administration of workshops asks these
+  questions in the very same fields whether a term is being created or edited, and offering another kind of event
+  means describing it in the event registry of the application rather than migrating the database or changing any
+  page which lists terms.
+
+- Removed the hard-coded terms of `/ai-supervize-mini` from the application. The page now lists the terms which the
+  administration really published: its header, its hero, its dates, places, prices, capacities, the FAQ answers about
+  the schedule, the capacity and the price, the registration form and the participant information page all read the
+  same administered terms, so a term added, moved, withdrawn or repriced changes the page without a deploy. A term
+  which is held somewhere names that place, a term held online says so, and a price of zero is presented as a free
+  event. While no term is published, the page offers a short notice instead of a form nobody could submit. The seats
+  already reserved keep being counted against the very same terms, because a registration written before this change
+  named its term by the day it is held on and that identifier is still honoured.
+
+- Listed the terms of every kind of event on `/cs/komunita`, each with the kind of event it is, its form and place,
+  and its price. Where a term leads is now decided by the kind of event it is a term of: a term with a live room
+  leads into that room carrying the already verified identity of the member, while a term without one leads to its
+  landing page. Community polls about terms follow the same rule, so a poll about a paid workshop no longer offers a
+  room that workshop does not have.
+
 - Added a clickable `Free členství` badge beside the signed-in member information in `/cs/komunita`. It opens the
   existing membership page with the benefits of the paid membership, while the shared participant-room header now
   exposes a reusable slot for room-specific member information instead of duplicating its layout for the community.

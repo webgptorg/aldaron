@@ -17,6 +17,7 @@ describe('workshop kind capabilities', () => {
             isSingleton: false,
             isSlugFixed: false,
             isScheduled: true,
+            isEvent: true,
             isStageOffered: true,
             isPollsOffered: false,
             isRealtime: true,
@@ -28,6 +29,7 @@ describe('workshop kind capabilities', () => {
             isSingleton: true,
             isSlugFixed: true,
             isScheduled: false,
+            isEvent: false,
             isStageOffered: false,
             isPollsOffered: true,
             isRealtime: false,
@@ -39,6 +41,7 @@ describe('workshop kind capabilities', () => {
             isSingleton: false,
             isSlugFixed: true,
             isScheduled: false,
+            isEvent: false,
             isStageOffered: false,
             isPollsOffered: false,
             isRealtime: false,
@@ -54,6 +57,18 @@ describe('workshop kind capabilities', () => {
                 youtubeVideoId: 'dQw4w9WgXcQ',
             }),
         ).toEqual(['startsAt', 'endsAt', 'youtubeVideoId', 'slug']);
+    });
+
+    it('refuses the fields of an event written into a room which is no event at all', () => {
+        expect(
+            getUnsupportedWorkshopKindFieldNames('community', {
+                eventType: 'online-workshop',
+                locationKind: 'onsite',
+                locationLabel: 'Praha',
+                priceCzk: 12000,
+                maximumParticipantCount: 10,
+            }),
+        ).toEqual(['eventType', 'locationKind', 'locationLabel', 'priceCzk', 'maximumParticipantCount']);
     });
 
     it('leaves the address of a workshop occurrence editable', () => {

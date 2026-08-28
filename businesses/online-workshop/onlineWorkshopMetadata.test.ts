@@ -2,12 +2,14 @@ import {
     createOnlineWorkshopStructuredData,
     ONLINE_WORKSHOP_PAGE_DEFINITION,
 } from '@/businesses/online-workshop/onlineWorkshopMetadata';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
 
 const UPCOMING_WORKSHOP: WorkshopSummary = {
     id: 'workshop-id',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'production-code-with-ai-2026-09-10',
     title: 'Produkční kód s AI agenty',
     startsAt: '2026-09-10T17:00:00.000Z',

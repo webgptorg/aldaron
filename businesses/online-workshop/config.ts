@@ -1,7 +1,17 @@
+import type { EventType } from '@/lib/events/eventTypes';
+
 /**
  * Site-relative path of the online workshop landing page
  */
 export const ONLINE_WORKSHOP_PATH = '/cs/online-workshop';
+
+/**
+ * The kind of event whose terms this landing page lists and registers visitors for
+ *
+ * Note: The event registry reads the paths of this configuration, so the kind of event is only named here as a type
+ *       and never imported back as a value, which keeps the two modules free of a cycle.
+ */
+export const ONLINE_WORKSHOP_EVENT_TYPE: EventType = 'online-workshop';
 
 /**
  * Site-relative path of the page confirming a finished registration

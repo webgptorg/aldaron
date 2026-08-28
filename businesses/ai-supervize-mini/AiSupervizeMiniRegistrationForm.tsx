@@ -1,9 +1,8 @@
 'use client';
 
 import {
-    AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
     AI_SUPERVIZE_MINI_WORKSHOP_INTEREST_PLACE_NAME,
-    getAiSupervizeMiniWorkshopDateById,
+    getAiSupervizeMiniDiscountPlaceId,
 } from '@/businesses/ai-supervize-mini/config';
 import {
     AiSupervizeMiniWorkshopRegistrationError,
@@ -11,10 +10,10 @@ import {
 } from '@/businesses/ai-supervize-mini/workshopRegistrationApi';
 import {
     createAiSupervizeMiniWorkshopPrice,
-    formatCzechKoruna,
-    getAiSupervizeMiniWorkshopAvailabilityByDateId,
-    getInitialAiSupervizeMiniWorkshopDateId,
+    getAiSupervizeMiniEventBySlug,
+    getAiSupervizeMiniWorkshopAvailabilityByEventSlug,
     getAiSupervizeMiniWorkshopRegistrationState,
+    getInitialAiSupervizeMiniEventSlug,
     isAiSupervizeMiniWorkshopFull,
     type AiSupervizeMiniInvoiceType,
     type AiSupervizeMiniWorkshopAvailability,
@@ -29,9 +28,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 import { useDiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValidation';
+import { MAXIMAL_EVENT_PARTICIPANT_COUNT } from '@/lib/events/eventConstants';
+import { formatEventFormat } from '@/lib/events/eventLocation';
+import {
+    isNonEmptyEventOccurrenceList,
+    type EventOccurrence,
+    type NonEmptyEventOccurrenceList,
+} from '@/lib/events/eventOccurrence';
+import { formatCzechKoruna, formatEventPrice } from '@/lib/events/eventPrice';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
+import { formatCzechWorkshopDay, formatCzechWorkshopTimeRange } from '@/lib/workshops/workshopDate';
 import { AlertTriangle, CheckCircle2, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
@@ -207,29 +215,92 @@ function getParticipantCountError(
         : null;
 }
 
+/**
+ * How many people still fit into one term, as the term picker says it
+ *
+ * Note: A term whose capacity could not be read says so, a term nobody has to be turned away from says it has room,
+ *       and a full term offers the waiting list instead of a number.
+ */
+function formatEventSeatCount(
+    event: EventOccurrence,
+    workshopAvailability: AiSupervizeMiniWorkshopAvailability | null,
+): string {
+    if (workshopAvailability === null) {
+        return 'Kapacitu ověřujeme';
+    }
+
+    if (isAiSupervizeMiniWorkshopFull(workshopAvailability)) {
+        return 'Termín je obsazený · čekací listina';
+    }
+
+    if (workshopAvailability.remainingSeatCount === null || event.event.maximumParticipantCount === null) {
+        return 'Volná kapacita';
+    }
+
+    return `Zbývá ${workshopAvailability.remainingSeatCount} míst z ${event.event.maximumParticipantCount}`;
+}
+
 type AiSupervizeMiniRegistrationFormProps = {
+    /**
+     * The published terms a visitor can register for, as the administration of events published them
+     */
+    readonly events: readonly EventOccurrence[];
     readonly initialDiscountCode: string;
     readonly initialActiveDiscountByPlaceId: ActiveDiscountByPlaceId;
     readonly initialWorkshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[] | null;
 };
 
-export function AiSupervizeMiniRegistrationForm({
+/**
+ * What the page offers while no term of the workshop is published
+ *
+ * Note: A workshop without a published term deliberately offers nothing to register for rather than a form which
+ *       could not be submitted.
+ */
+function AiSupervizeMiniNoEventNotice() {
+    return (
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xl">
+            <h3 className="text-2xl font-bold text-slate-950">Připravujeme další termín</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Právě teď není vypsaný žádný termín workshopu. Nový termín sem přidáme, jakmile bude potvrzený.
+            </p>
+        </div>
+    );
+}
+
+export function AiSupervizeMiniRegistrationForm(props: AiSupervizeMiniRegistrationFormProps) {
+    if (!isNonEmptyEventOccurrenceList(props.events)) {
+        return <AiSupervizeMiniNoEventNotice />;
+    }
+
+    return <AiSupervizeMiniEventRegistrationForm {...props} events={props.events} />;
+}
+
+type AiSupervizeMiniEventRegistrationFormProps = AiSupervizeMiniRegistrationFormProps & {
+    readonly events: NonEmptyEventOccurrenceList;
+};
+
+function AiSupervizeMiniEventRegistrationForm({
+    events,
     initialDiscountCode,
     initialActiveDiscountByPlaceId,
     initialWorkshopAvailabilities,
-}: AiSupervizeMiniRegistrationFormProps) {
-    const [selectedDateId, setSelectedDateId] = useState<string>(() =>
-        getInitialAiSupervizeMiniWorkshopDateId(initialActiveDiscountByPlaceId),
+}: AiSupervizeMiniEventRegistrationFormProps) {
+    const [firstEvent] = events;
+    const [selectedEventSlug, setSelectedEventSlug] = useState<string>(
+        () => getInitialAiSupervizeMiniEventSlug(events, initialActiveDiscountByPlaceId) ?? firstEvent.slug,
     );
-    const selectedWorkshopDate =
-        getAiSupervizeMiniWorkshopDateById(selectedDateId) ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!;
+    const selectedEvent = getAiSupervizeMiniEventBySlug(events, selectedEventSlug) ?? firstEvent;
     const [workshopAvailabilities, setWorkshopAvailabilities] = useState(initialWorkshopAvailabilities);
     const selectedWorkshopAvailability =
         workshopAvailabilities === null
             ? null
-            : getAiSupervizeMiniWorkshopAvailabilityByDateId(workshopAvailabilities, selectedWorkshopDate.id);
+            : getAiSupervizeMiniWorkshopAvailabilityByEventSlug(workshopAvailabilities, selectedEvent.slug);
     const isAvailabilityKnown = selectedWorkshopAvailability !== null;
-    const availableSeatCount = selectedWorkshopAvailability?.remainingSeatCount ?? 0;
+
+    // A term nobody has to be turned away from has no number of free seats, so it is only ever limited by the highest
+    // number of people one registration can be written for.
+    const remainingSeatCount = selectedWorkshopAvailability?.remainingSeatCount ?? null;
+    const availableSeatCount = remainingSeatCount ?? MAXIMAL_EVENT_PARTICIPANT_COUNT;
     const [participantCount, setParticipantCount] = useState(1);
     const registrationState = getAiSupervizeMiniWorkshopRegistrationState(
         selectedWorkshopAvailability,
@@ -237,7 +308,7 @@ export function AiSupervizeMiniRegistrationForm({
     );
     const isSelectedWorkshopFull = registrationState === 'waitlisted';
     const maximumRegistrationParticipantCount = isSelectedWorkshopFull
-        ? selectedWorkshopDate.maximumParticipantCount
+        ? selectedEvent.event.maximumParticipantCount ?? MAXIMAL_EVENT_PARTICIPANT_COUNT
         : availableSeatCount;
     const [fullname, setFullname] = useState('');
     const [email, setEmail] = useState('');
@@ -247,7 +318,7 @@ export function AiSupervizeMiniRegistrationForm({
     const discountCodeValidation = useDiscountCodeValidation({
         initialDiscountCode,
         initialActiveDiscountByPlaceId,
-        discountPlaceId: selectedWorkshopDate.discountPlaceId,
+        discountPlaceId: getAiSupervizeMiniDiscountPlaceId(selectedEvent.event.locationKind),
     });
     const activeDiscount = discountCodeValidation.activeDiscount;
     const isDiscountApplied = activeDiscount !== null;
@@ -278,8 +349,8 @@ export function AiSupervizeMiniRegistrationForm({
     }, [maximumRegistrationParticipantCount]);
 
     const price = useMemo(() => {
-        return createAiSupervizeMiniWorkshopPrice(selectedWorkshopDate, participantCount, activeDiscount);
-    }, [activeDiscount, participantCount, selectedWorkshopDate]);
+        return createAiSupervizeMiniWorkshopPrice(selectedEvent, participantCount, activeDiscount);
+    }, [activeDiscount, participantCount, selectedEvent]);
 
     const participantError = getParticipantCountError(registrationState, availableSeatCount);
     const { fullnameError, emailError, companyError } = getContactFieldErrors({ fullname, email, company });
@@ -331,7 +402,7 @@ export function AiSupervizeMiniRegistrationForm({
 
         try {
             const registrationResult = await submitAiSupervizeMiniWorkshopRegistration({
-                selectedDateId: selectedWorkshopDate.id,
+                eventSlug: selectedEvent.slug,
                 participantCount,
                 fullname,
                 email,
@@ -432,7 +503,7 @@ export function AiSupervizeMiniRegistrationForm({
                     <h2 className="mt-2 text-2xl font-bold text-slate-950">Vyberte termín a formát</h2>
                 </div>
                 <div className="rounded-xl bg-slate-950 px-4 py-3 text-white">
-                    <div className="text-xs text-slate-300">{selectedWorkshopDate.formatLabel}</div>
+                    <div className="text-xs text-slate-300">{formatEventFormat(selectedEvent.event)}</div>
                     <div className="text-2xl font-bold">{formatCzechKoruna(price.finalPriceCzk)}</div>
                     {activeDiscount !== null && (
                         <div className="text-xs text-cyan-300">Sleva {activeDiscount.percent} % započtena</div>
@@ -444,21 +515,21 @@ export function AiSupervizeMiniRegistrationForm({
                 <div>
                     <label className="text-sm font-semibold text-slate-700">Termín workshopu</label>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        {AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map((workshopDate) => {
-                            const isSelected = selectedDateId === workshopDate.id;
+                        {events.map((event) => {
+                            const isSelected = selectedEvent.slug === event.slug;
                             const workshopAvailability =
                                 workshopAvailabilities === null
                                     ? null
-                                    : getAiSupervizeMiniWorkshopAvailabilityByDateId(
+                                    : getAiSupervizeMiniWorkshopAvailabilityByEventSlug(
                                           workshopAvailabilities,
-                                          workshopDate.id,
+                                          event.slug,
                                       );
                             return (
                                 <button
                                     type="button"
-                                    key={workshopDate.id}
+                                    key={event.slug}
                                     aria-pressed={isSelected}
-                                    onClick={() => setSelectedDateId(workshopDate.id)}
+                                    onClick={() => setSelectedEventSlug(event.slug)}
                                     className={`rounded-xl border p-4 text-left transition-all ${
                                         isSelected
                                             ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
@@ -466,23 +537,20 @@ export function AiSupervizeMiniRegistrationForm({
                                     }`}
                                 >
                                     <div className="text-lg font-bold text-slate-950">
-                                        {workshopDate.label} · {workshopDate.timeRange}
+                                        {formatCzechWorkshopDay(event.startsAt)} ·{' '}
+                                        {formatCzechWorkshopTimeRange(event.startsAt, event.endsAt)}
                                     </div>
                                     <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                            {workshopDate.formatLabel}
+                                            {formatEventFormat(event.event)}
                                         </span>
                                         <span className="font-medium text-slate-700">
-                                            {formatCzechKoruna(workshopDate.pricePerParticipantCzk)}
+                                            {formatEventPrice(event.event.priceCzk)}
                                         </span>
                                     </div>
                                     <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
                                         <Users className="h-4 w-4 text-cyan-600" />
-                                        {workshopAvailability === null
-                                            ? 'Kapacitu ověřujeme'
-                                            : isAiSupervizeMiniWorkshopFull(workshopAvailability)
-                                            ? 'Termín je obsazený · čekací listina'
-                                            : `Zbývá ${workshopAvailability.remainingSeatCount} míst z ${workshopDate.maximumParticipantCount}`}
+                                        {formatEventSeatCount(event, workshopAvailability)}
                                     </div>
                                 </button>
                             );
@@ -542,8 +610,10 @@ export function AiSupervizeMiniRegistrationForm({
                                 ? participantError
                                 : isAvailabilityKnown
                                 ? isSelectedWorkshopFull
-                                    ? `Na čekací listinu můžete přihlásit až ${selectedWorkshopDate.maximumParticipantCount} účastníků.`
-                                    : `Maximum pro tento termín: ${availableSeatCount}`
+                                    ? `Na čekací listinu můžete přihlásit až ${maximumRegistrationParticipantCount} účastníků.`
+                                    : remainingSeatCount === null
+                                    ? 'Počet účastníků tohoto termínu není omezený.'
+                                    : `Maximum pro tento termín: ${remainingSeatCount}`
                                 : 'Kapacitu ověřujeme.'}
                         </p>
                     </div>

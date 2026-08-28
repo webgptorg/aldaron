@@ -21,6 +21,12 @@ export type WorkshopKindCapabilities = {
     readonly isScheduled: boolean;
 
     /**
+     * Whether a room is one term of a public event, so it says which kind of event it is, where it is held, what it
+     * costs, and how many people fit into it
+     */
+    readonly isEvent: boolean;
+
+    /**
      * Whether a room gathers its participants around a shared stage with a video stream
      */
     readonly isStageOffered: boolean;
@@ -50,6 +56,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isSingleton: false,
         isSlugFixed: false,
         isScheduled: true,
+        isEvent: true,
         isStageOffered: true,
         isPollsOffered: false,
         isRealtime: true,
@@ -58,6 +65,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isSingleton: true,
         isSlugFixed: true,
         isScheduled: false,
+        isEvent: false,
         isStageOffered: false,
         isPollsOffered: true,
         isRealtime: false,
@@ -66,6 +74,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isSingleton: false,
         isSlugFixed: true,
         isScheduled: false,
+        isEvent: false,
         isStageOffered: false,
         isPollsOffered: false,
         isRealtime: false,
@@ -82,6 +91,13 @@ export function getWorkshopKindCapabilities(workshopKind: WorkshopKind): Worksho
 const WORKSHOP_SCHEDULE_FIELD_NAMES = ['startsAt', 'endsAt'] as const;
 const WORKSHOP_STAGE_FIELD_NAMES = ['youtubeVideoId'] as const;
 const WORKSHOP_SLUG_FIELD_NAMES = ['slug'] as const;
+const WORKSHOP_EVENT_FIELD_NAMES = [
+    'eventType',
+    'locationKind',
+    'locationLabel',
+    'priceCzk',
+    'maximumParticipantCount',
+] as const;
 
 /**
  * The written settings which the kind of a room does not have
@@ -97,6 +113,7 @@ export function getUnsupportedWorkshopKindFieldNames(
     const capabilities = getWorkshopKindCapabilities(workshopKind);
     const unsupportedFieldNames = [
         ...(capabilities.isScheduled ? [] : WORKSHOP_SCHEDULE_FIELD_NAMES),
+        ...(capabilities.isEvent ? [] : WORKSHOP_EVENT_FIELD_NAMES),
         ...(capabilities.isStageOffered ? [] : WORKSHOP_STAGE_FIELD_NAMES),
         ...(capabilities.isSlugFixed ? WORKSHOP_SLUG_FIELD_NAMES : []),
     ];

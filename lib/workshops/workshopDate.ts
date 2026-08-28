@@ -1,4 +1,5 @@
 import { DEFAULT_WORKSHOP_DURATION_MINUTES } from '@/lib/workshops/workshopConstants';
+import { getWorkshopExpectedEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
 
 const CZECH_LOCALE = 'cs-CZ';
 const PRAGUE_TIME_ZONE = 'Europe/Prague';
@@ -38,6 +39,64 @@ export function formatCzechWorkshopShortDate(startsAt: string): string {
     return CZECH_WORKSHOP_SHORT_DATE_FORMAT.format(new Date(startsAt));
 }
 
+const CZECH_WORKSHOP_DAY_FORMAT = new Intl.DateTimeFormat(CZECH_LOCALE, {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    timeZone: PRAGUE_TIME_ZONE,
+});
+
+/**
+ * The day one occurrence falls on, for example `4. 9. 2026`
+ *
+ * Note: This is how a term a visitor has to put in their calendar is named, so it says its year in full rather than
+ *       shortening it the way a compact label beside a title does.
+ */
+export function formatCzechWorkshopDay(startsAt: string): string {
+    return CZECH_WORKSHOP_DAY_FORMAT.format(new Date(startsAt));
+}
+
+const CZECH_WORKSHOP_DAY_AND_MONTH_FORMAT = new Intl.DateTimeFormat(CZECH_LOCALE, {
+    day: 'numeric',
+    month: 'numeric',
+    timeZone: PRAGUE_TIME_ZONE,
+});
+
+/**
+ * The day one occurrence falls on without its year, for example `4. 9.`
+ *
+ * Note: This is how a term is named where several terms are listed beside each other and the year they share would
+ *       only be repeated.
+ */
+export function formatCzechWorkshopDayAndMonth(startsAt: string): string {
+    return CZECH_WORKSHOP_DAY_AND_MONTH_FORMAT.format(new Date(startsAt));
+}
+
+const PRAGUE_CALENDAR_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: PRAGUE_TIME_ZONE,
+});
+
+/**
+ * The calendar day one occurrence falls on in Prague, written as `2026-09-04`
+ *
+ * Note: This is the machine-readable day of a term rather than a label for a visitor, which is what identifies a term
+ *       by the day it is held on.
+ */
+export function formatPragueCalendarDate(startsAt: string): string {
+    return PRAGUE_CALENDAR_DATE_FORMAT.format(new Date(startsAt));
+}
+
+/**
+ * The time span one occurrence runs for in Prague time, for example `10:00–16:00`
+ */
+export function formatCzechWorkshopTimeRange(startsAt: string, endsAt: string | null): string {
+    const startTime = formatCzechWorkshopTime(startsAt);
+    return endsAt === null ? startTime : `${startTime}–${formatCzechWorkshopTime(endsAt)}`;
+}
+
 /**
  * Formats the start time of a Czech workshop in Prague time.
  */
@@ -46,16 +105,18 @@ export function formatCzechWorkshopTime(startsAt: string): string {
 }
 
 /**
- * Describes the calendar duration recorded for a workshop. A workshop without an end follows the same one-hour
- * default as its calendar invitation.
+ * Describes how long a workshop is expected to take. A workshop whose end is still left open is announced with the
+ * same usual length as its calendar invitation, because a visitor is told how long to set aside before anybody can
+ * know when the workshop will really be ended.
  */
 export function formatCzechWorkshopDuration(startsAt: string, endsAt: string | null): string {
     const startsAtMilliseconds = Date.parse(startsAt);
-    const endsAtMilliseconds = endsAt === null ? NaN : Date.parse(endsAt);
-    const durationMinutes =
-        Number.isFinite(startsAtMilliseconds) && Number.isFinite(endsAtMilliseconds) && endsAtMilliseconds > startsAtMilliseconds
-            ? Math.round((endsAtMilliseconds - startsAtMilliseconds) / MILLISECONDS_PER_MINUTE)
-            : DEFAULT_WORKSHOP_DURATION_MINUTES;
+    const durationMinutes = Number.isFinite(startsAtMilliseconds)
+        ? Math.round(
+              (getWorkshopExpectedEndsAtMilliseconds({ startsAt, endsAt }) - startsAtMilliseconds) /
+                  MILLISECONDS_PER_MINUTE,
+          )
+        : DEFAULT_WORKSHOP_DURATION_MINUTES;
 
     return `${durationMinutes} minut`;
 }

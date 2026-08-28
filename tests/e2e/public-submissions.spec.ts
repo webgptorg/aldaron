@@ -2,7 +2,9 @@ import { createE2eTestEmail } from '@/lib/e2e/testData';
 import { expect, test } from '@playwright/test';
 import { submitAndExpectApiSuccess } from './support/submissions';
 
-test.describe.configure({ mode: 'serial' });
+// Every submission here stands on its own: it opens its own page and submits its own unique test e-mail, and the
+// single Playwright worker already runs them one after another. Nothing is therefore declared serial, so one slow
+// form cannot hide whether the remaining public forms still accept a submission.
 
 test('submits the shared footer newsletter form', async ({ page }) => {
     await page.goto('/en');
@@ -179,6 +181,41 @@ test('submits the AI Supervize Mini future-term interest form', async ({ page })
     );
 
     await expect(dialog.getByRole('heading', { name: 'Děkujeme za zájem' })).toBeVisible();
+});
+
+test('submits the AI ta Krajta collaboration form', async ({ page }) => {
+    await page.goto('/ai-ta-krajta?zajem=partnerstvi');
+
+    await page.locator('#ai-ta-krajta-jmeno').fill('E2E Krajta');
+    await page.locator('#ai-ta-krajta-email').fill(createE2eTestEmail('ai-ta-krajta-collaboration'));
+    await page.locator('#ai-ta-krajta-firma').fill('E2E Example s.r.o.');
+    await page.locator('#ai-ta-krajta-zprava').fill('E2E zpráva o partnerství.');
+
+    await submitAndExpectApiSuccess(page, '/api/waitlist', () =>
+        page.getByRole('button', { name: 'Poslat zprávu' }).click(),
+    );
+
+    await expect(page.getByRole('heading', { name: 'Máme to.' })).toBeVisible();
+});
+
+test('plays the newest AI ta Krajta episode from the header', async ({ page }) => {
+    await page.goto('/ai-ta-krajta');
+
+    await page.getByRole('button', { name: 'Poslouchat' }).click();
+
+    await expect(page.getByRole('button', { name: 'Zavřít přehrávač' })).toBeVisible();
+    await expect(page).toHaveURL(/[?&]dil=/);
+});
+
+test('filters the AI ta Krajta archive by a person and keeps it in the address', async ({ page }) => {
+    await page.goto('/ai-ta-krajta');
+
+    await page.getByRole('button', { name: /^Pavol Hejný/ }).first().click();
+
+    await expect(page).toHaveURL(/[?&]osoba=pavol-hejny/);
+    await expect(
+        page.locator('section#dily').getByRole('button', { name: 'Pavol Hejný', exact: true }),
+    ).toBeVisible();
 });
 
 test('connects a public online-workshop participant', async ({ page }) => {

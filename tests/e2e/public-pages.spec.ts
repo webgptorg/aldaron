@@ -13,6 +13,8 @@ const PUBLIC_PAGE_PATHS = [
     '/for-industry',
     '/ai-supervize',
     AI_SUPERVIZE_MINI_PATH,
+    // '/ai-supervize-mini',
+    '/ai-ta-krajta',
     '/hackathon-factory',
     '/cs/online-workshop',
     '/cs/komunita/clenstvi',
@@ -114,12 +116,9 @@ async function readRedirectDestination(
 }
 
 for (const path of PUBLIC_PAGE_PATHS) {
+    // Next.js compiles a route on its first dev-server visit. Isolating every route keeps earlier cold compilations
+    // from exhausting the timeout of a healthy page later in the smoke suite.
     test(`public landing and information page loads: ${path}`, async ({ page }) => {
-        // Next.js compiles a route on its first dev-server visit. Isolating
-        // every route keeps earlier cold compilations from exhausting the
-        // timeout of a healthy page later in the smoke suite.
-        test.setTimeout(PUBLIC_PAGE_TEST_TIMEOUT_MS);
-
         await expectPublicPageToLoad(page, path);
     });
 }

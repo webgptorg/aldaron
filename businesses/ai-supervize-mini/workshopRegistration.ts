@@ -1,17 +1,27 @@
 import {
     AI_SUPERVIZE_MINI_WORKSHOP_CONFIG,
     AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_TYPE,
-    getAiSupervizeMiniWorkshopDateById,
-    type AiSupervizeMiniWorkshopDate,
+    getAiSupervizeMiniDiscountPlaceId,
 } from '@/businesses/ai-supervize-mini/config';
 import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
+import { formatEventFormat } from '@/lib/events/eventLocation';
+import {
+    formatCzechWorkshopDay,
+    formatCzechWorkshopTimeRange,
+    formatPragueCalendarDate,
+} from '@/lib/workshops/workshopDate';
 
 export type AiSupervizeMiniInvoiceType = 'company' | 'individual';
 
 export type AiSupervizeMiniWorkshopAvailability = {
-    readonly workshopDateId: string;
+    readonly eventSlug: string;
     readonly registeredParticipantCount: number;
-    readonly remainingSeatCount: number;
+
+    /**
+     * How many seats are still free, or `null` when the term takes everybody who registers for it
+     */
+    readonly remainingSeatCount: number | null;
 };
 
 /**
@@ -46,7 +56,7 @@ export type AiSupervizeMiniWorkshopPrice = {
 };
 
 export type AiSupervizeMiniWorkshopRegistrationRequest = {
-    readonly selectedDateId: string;
+    readonly eventSlug: string;
     readonly participantCount: number;
     readonly fullname: string;
     readonly email: string;
@@ -60,6 +70,13 @@ export type AiSupervizeMiniWorkshopRegistrationRequest = {
 export type AiSupervizeMiniStoredWorkshopRegistration = {
     readonly registrationType: typeof AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_TYPE;
     readonly workshop: typeof AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.title;
+
+    /**
+     * The term this registration reserves seats in
+     *
+     * Note: The field keeps the name every stored registration was written with, so a registration written before the
+     *       terms were administered from one place is still counted against the very term it was made for.
+     */
     readonly selectedDateId: string;
     readonly selectedDate: string;
     readonly selectedFormat: string;
@@ -133,7 +150,6 @@ function getAiSupervizeMiniSeatReservation(contactNote: string | null): AiSuperv
     if (
         !isKnownRegistration ||
         typeof selectedDateId !== 'string' ||
-        getAiSupervizeMiniWorkshopDateById(selectedDateId) === null ||
         typeof participantCount !== 'number' ||
         !Number.isSafeInteger(participantCount) ||
         participantCount < 1
@@ -144,10 +160,36 @@ function getAiSupervizeMiniSeatReservation(contactNote: string | null): AiSuperv
     return { selectedDateId, participantCount };
 }
 
+/**
+ * Every identifier one term has ever been registered for under
+ *
+ * Note: Registrations written before the terms were administered from one place name their term by the day it is held
+ *       on, so those seats keep being counted against that very term.
+ */
+function getAiSupervizeMiniEventRegistrationIds(event: EventOccurrence): readonly string[] {
+    return [event.slug, formatPragueCalendarDate(event.startsAt)];
+}
+
+export function getAiSupervizeMiniEventBySlug(
+    events: readonly EventOccurrence[],
+    eventSlug: string,
+): EventOccurrence | null {
+    return events.find((event) => event.slug === eventSlug) ?? null;
+}
+
+function getRemainingSeatCount(event: EventOccurrence, registeredParticipantCount: number): number | null {
+    const maximumParticipantCount = event.event.maximumParticipantCount;
+
+    return maximumParticipantCount === null
+        ? null
+        : Math.max(maximumParticipantCount - registeredParticipantCount, 0);
+}
+
 export function createAiSupervizeMiniWorkshopAvailability(
+    events: readonly EventOccurrence[],
     contactNotes: readonly (string | null)[],
 ): readonly AiSupervizeMiniWorkshopAvailability[] {
-    const registeredParticipantCountByDateId = new Map<string, number>();
+    const registeredParticipantCountByRegistrationId = new Map<string, number>();
 
     for (const contactNote of contactNotes) {
         const seatReservation = getAiSupervizeMiniSeatReservation(contactNote);
@@ -156,20 +198,25 @@ export function createAiSupervizeMiniWorkshopAvailability(
             continue;
         }
 
-        const registeredParticipantCount = registeredParticipantCountByDateId.get(seatReservation.selectedDateId) ?? 0;
-        registeredParticipantCountByDateId.set(
+        const registeredParticipantCount =
+            registeredParticipantCountByRegistrationId.get(seatReservation.selectedDateId) ?? 0;
+        registeredParticipantCountByRegistrationId.set(
             seatReservation.selectedDateId,
             registeredParticipantCount + seatReservation.participantCount,
         );
     }
 
-    return AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map((workshopDate) => {
-        const registeredParticipantCount = registeredParticipantCountByDateId.get(workshopDate.id) ?? 0;
+    return events.map((event) => {
+        const registeredParticipantCount = getAiSupervizeMiniEventRegistrationIds(event).reduce(
+            (participantCount, registrationId) =>
+                participantCount + (registeredParticipantCountByRegistrationId.get(registrationId) ?? 0),
+            0,
+        );
 
         return {
-            workshopDateId: workshopDate.id,
+            eventSlug: event.slug,
             registeredParticipantCount,
-            remainingSeatCount: Math.max(workshopDate.maximumParticipantCount - registeredParticipantCount, 0),
+            remainingSeatCount: getRemainingSeatCount(event, registeredParticipantCount),
         };
     });
 }
@@ -179,20 +226,22 @@ export function createAiSupervizeMiniWorkshopAvailability(
  * flag is the single source of truth for whether a registration is waitlisted.
  */
 export function createAiSupervizeMiniWorkshopAvailabilityFromRegistrationContacts(
+    events: readonly EventOccurrence[],
     registrationContacts: readonly AiSupervizeMiniWorkshopRegistrationContact[],
 ): readonly AiSupervizeMiniWorkshopAvailability[] {
     return createAiSupervizeMiniWorkshopAvailability(
+        events,
         registrationContacts
             .filter((registrationContact) => registrationContact.isWaitlisted !== true)
             .map((registrationContact) => registrationContact.userNote),
     );
 }
 
-export function getAiSupervizeMiniWorkshopAvailabilityByDateId(
+export function getAiSupervizeMiniWorkshopAvailabilityByEventSlug(
     workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
-    workshopDateId: string,
+    eventSlug: string,
 ): AiSupervizeMiniWorkshopAvailability | null {
-    return workshopAvailabilities.find((workshopAvailability) => workshopAvailability.workshopDateId === workshopDateId) ?? null;
+    return workshopAvailabilities.find((workshopAvailability) => workshopAvailability.eventSlug === eventSlug) ?? null;
 }
 
 /**
@@ -212,6 +261,10 @@ export function getAiSupervizeMiniWorkshopRegistrationState(
         return 'does-not-fit';
     }
 
+    if (workshopAvailability.remainingSeatCount === null) {
+        return 'confirmed';
+    }
+
     if (workshopAvailability.remainingSeatCount === 0) {
         return 'waitlisted';
     }
@@ -229,22 +282,24 @@ export function isAiSupervizeMiniWorkshopFull(
  * A code link opens the first term where that code is active, so a code limited to one format does
  * not initially look invalid in the other format.
  */
-export function getInitialAiSupervizeMiniWorkshopDateId(
+export function getInitialAiSupervizeMiniEventSlug(
+    events: readonly EventOccurrence[],
     activeDiscountByPlaceId: ActiveDiscountByPlaceId,
-): string {
-    const discountedWorkshopDate = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.find(
-        (workshopDate) => (activeDiscountByPlaceId[workshopDate.discountPlaceId] ?? null) !== null,
+): string | null {
+    const discountedEvent = events.find(
+        (event) =>
+            (activeDiscountByPlaceId[getAiSupervizeMiniDiscountPlaceId(event.event.locationKind)] ?? null) !== null,
     );
 
-    return (discountedWorkshopDate ?? AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates[0]!).id;
+    return (discountedEvent ?? events[0])?.slug ?? null;
 }
 
 export function createAiSupervizeMiniWorkshopPrice(
-    workshopDate: AiSupervizeMiniWorkshopDate,
+    event: EventOccurrence,
     participantCount: number,
     activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniWorkshopPrice {
-    const basePriceCzk = workshopDate.pricePerParticipantCzk * participantCount;
+    const basePriceCzk = event.event.priceCzk * participantCount;
     const discountAmountCzk =
         activeDiscount === null ? 0 : Math.round((basePriceCzk * activeDiscount.percent) / 100);
 
@@ -257,11 +312,11 @@ export function createAiSupervizeMiniWorkshopPrice(
 
 export function createAiSupervizeMiniStoredWorkshopRegistration(
     registrationRequest: AiSupervizeMiniWorkshopRegistrationRequest,
-    workshopDate: AiSupervizeMiniWorkshopDate,
+    event: EventOccurrence,
     activeDiscount: ActiveDiscount | null,
 ): AiSupervizeMiniStoredWorkshopRegistration {
     const workshopPrice = createAiSupervizeMiniWorkshopPrice(
-        workshopDate,
+        event,
         registrationRequest.participantCount,
         activeDiscount,
     );
@@ -269,11 +324,11 @@ export function createAiSupervizeMiniStoredWorkshopRegistration(
     return {
         registrationType: AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_TYPE,
         workshop: AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.title,
-        selectedDateId: workshopDate.id,
-        selectedDate: workshopDate.label,
-        selectedFormat: workshopDate.formatLabel,
-        place: workshopDate.placeLabel,
-        timeRange: workshopDate.timeRange,
+        selectedDateId: event.slug,
+        selectedDate: formatCzechWorkshopDay(event.startsAt),
+        selectedFormat: formatEventFormat(event.event),
+        place: event.event.locationLabel,
+        timeRange: formatCzechWorkshopTimeRange(event.startsAt, event.endsAt),
         participantCount: registrationRequest.participantCount,
         company: registrationRequest.company,
         invoiceType: registrationRequest.invoiceType,
@@ -282,7 +337,7 @@ export function createAiSupervizeMiniStoredWorkshopRegistration(
         discountCodeEntered: registrationRequest.discountCode.trim() || null,
         discountCodeUsed: activeDiscount?.code ?? null,
         discountPercentApplied: activeDiscount?.percent ?? 0,
-        unitPriceCzk: workshopDate.pricePerParticipantCzk,
+        unitPriceCzk: event.event.priceCzk,
         basePriceCzk: workshopPrice.basePriceCzk,
         discountAmountCzk: workshopPrice.discountAmountCzk,
         computedFinalPriceCzk: workshopPrice.finalPriceCzk,
@@ -298,7 +353,7 @@ export function createAiSupervizeMiniWorkshopRegistrationContactNote(
 
 export function createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
     workshopAvailabilities: readonly AiSupervizeMiniWorkshopAvailability[],
-    workshopDateId: string,
+    eventSlug: string,
     participantCount: number,
     registrationState: AiSupervizeMiniAcceptedWorkshopRegistrationState,
 ): readonly AiSupervizeMiniWorkshopAvailability[] {
@@ -307,7 +362,7 @@ export function createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
     }
 
     return workshopAvailabilities.map((workshopAvailability) => {
-        if (workshopAvailability.workshopDateId !== workshopDateId) {
+        if (workshopAvailability.eventSlug !== eventSlug) {
             return workshopAvailability;
         }
 
@@ -316,11 +371,10 @@ export function createAiSupervizeMiniWorkshopAvailabilityAfterRegistration(
         return {
             ...workshopAvailability,
             registeredParticipantCount,
-            remainingSeatCount: Math.max(workshopAvailability.remainingSeatCount - participantCount, 0),
+            remainingSeatCount:
+                workshopAvailability.remainingSeatCount === null
+                    ? null
+                    : Math.max(workshopAvailability.remainingSeatCount - participantCount, 0),
         };
     });
-}
-
-export function formatCzechKoruna(amount: number): string {
-    return `${amount.toLocaleString('cs-CZ')} Kč`;
 }

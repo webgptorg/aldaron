@@ -1,17 +1,16 @@
 import { AiSupervizeMiniPage } from '@/businesses/ai-supervize-mini/_AiSupervizeMiniPage';
 import { AI_SUPERVIZE_MINI_METADATA } from '@/businesses/ai-supervize-mini/aiSupervizeMiniMetadata';
-import { AI_SUPERVIZE_MINI_WORKSHOP_CONFIG } from '@/businesses/ai-supervize-mini/config';
-import { loadAiSupervizeMiniWorkshopAvailability } from '@/businesses/ai-supervize-mini/workshopRegistrationDatabase';
+import { AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS } from '@/businesses/ai-supervize-mini/config';
+import {
+    loadAiSupervizeMiniEvents,
+    loadAiSupervizeMiniWorkshopAvailability,
+} from '@/businesses/ai-supervize-mini/workshopRegistrationDatabase';
 import { readFirstSearchParameter, type SearchParameterValue } from '@/lib/api/readFirstSearchParameter';
 import { DISCOUNT_CODE_QUERY_PARAMETER } from '@/lib/discounts/discountCodeConstants';
 import { loadActiveDiscountsByPlace } from '@/lib/discounts/discountCodeDatabase';
 
 export const metadata = AI_SUPERVIZE_MINI_METADATA;
 export const dynamic = 'force-dynamic';
-
-const AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS = AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.workshopDates.map(
-    (workshopDate) => workshopDate.discountPlaceId,
-);
 
 type AiSupervizeMiniRouteProps = {
     readonly searchParams: Promise<Readonly<Record<string, SearchParameterValue>>>;
@@ -20,10 +19,11 @@ type AiSupervizeMiniRouteProps = {
 export default async function AiSupervizeMiniRoute({ searchParams }: AiSupervizeMiniRouteProps) {
     const resolvedSearchParams = await searchParams;
     const initialDiscountCode = readFirstSearchParameter(resolvedSearchParams[DISCOUNT_CODE_QUERY_PARAMETER]) ?? '';
-    const [workshopAvailabilities, initialDiscountResult] = await Promise.all([
-        loadAiSupervizeMiniWorkshopAvailability(),
+    const [events, initialDiscountResult] = await Promise.all([
+        loadAiSupervizeMiniEvents(),
         loadActiveDiscountsByPlace(initialDiscountCode, AI_SUPERVIZE_MINI_DISCOUNT_PLACE_IDS),
     ]);
+    const workshopAvailabilities = await loadAiSupervizeMiniWorkshopAvailability(events);
 
     if (initialDiscountResult.errorMessage !== null) {
         console.error('Failed to load the initial AI Supervize Mini discount:', initialDiscountResult.errorMessage);
@@ -31,6 +31,7 @@ export default async function AiSupervizeMiniRoute({ searchParams }: AiSupervize
 
     return (
         <AiSupervizeMiniPage
+            events={events}
             initialDiscountCode={initialDiscountCode}
             initialActiveDiscountByPlaceId={initialDiscountResult.activeDiscountByPlaceId}
             workshopAvailabilities={workshopAvailabilities}

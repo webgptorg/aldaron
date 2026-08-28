@@ -6,7 +6,7 @@ import {
     createWorkshopSelectionPath,
     type WorkshopParticipantIdentity,
 } from '@/lib/workshops/workshopParticipantLink';
-import { getWorkshopEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
+import { getWorkshopExpectedEndsAtMilliseconds } from '@/lib/workshops/workshopPhase';
 
 /**
  * Separator between the two sides of the meeting in the name of the event
@@ -66,10 +66,13 @@ export function createWorkshopCalendarEventTitle(
 }
 
 /**
- * Moment a workshop ends, taken from its usual length whenever the workshop itself does not say
+ * Moment a workshop is expected to end, taken from its usual length whenever its end is still left open
+ *
+ * Note: A calendar entry has to last for something, so an occurrence which will run until it is ended is written into
+ *       the calendar of a participant with the length such a workshop usually takes.
  */
-function getWorkshopEndsAt(occurrence: WorkshopCalendarOccurrence): string {
-    return occurrence.endsAt ?? new Date(getWorkshopEndsAtMilliseconds(occurrence)).toISOString();
+function getWorkshopCalendarEndsAt(occurrence: WorkshopCalendarOccurrence): string {
+    return occurrence.endsAt ?? new Date(getWorkshopExpectedEndsAtMilliseconds(occurrence)).toISOString();
 }
 
 /**
@@ -92,7 +95,7 @@ export function createWorkshopCalendarEvent({
         title: createWorkshopCalendarEventTitle(occurrence.title, hostFullname, participantIdentity.fullname),
         description: occurrence.description,
         startsAt: occurrence.startsAt,
-        endsAt: getWorkshopEndsAt(occurrence),
+        endsAt: getWorkshopCalendarEndsAt(occurrence),
         url: createAbsoluteUrl(participantLink ?? createWorkshopSelectionPath(participantPath, occurrence.slug)),
     };
 }

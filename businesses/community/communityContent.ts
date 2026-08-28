@@ -26,9 +26,10 @@ export const CZECH_COMMUNITY_ROOM_COPY = {
 } as const;
 
 export const CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY = {
-    title: 'Workshopy Promptbooku',
-    description: 'Vyberte si workshop. Odkaz vás vezme přímo do jeho místnosti se stejnými údaji.',
-    emptyMessage: 'Zatím není publikovaný žádný workshop. Další termíny sem přidáme hned po zveřejnění.',
+    title: 'Termíny akcí Promptbooku',
+    description:
+        'Vyberte si termín. Odkaz vás vezme přímo do místnosti workshopu se stejnými údaji, u placených akcí na jejich stránku.',
+    emptyMessage: 'Zatím není publikovaný žádný termín. Další sem přidáme hned po zveřejnění.',
     locale: 'cs-CZ',
     timeZone: 'Europe/Prague',
 } as const;

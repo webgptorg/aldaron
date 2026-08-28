@@ -8,6 +8,7 @@ import {
 } from '@/businesses/online-workshop/participant/workshopParticipantStateCache';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopApiError } from '@/businesses/online-workshop/participant/workshopParticipantApi';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -32,6 +33,7 @@ function createState(title = 'Produkční kód s AI agenty'): WorkshopPublicStat
         workshop: {
             id: '5a7eb2ad-2583-4e98-9640-50bc773e5fde',
             kind: 'workshop',
+            event: DEFAULT_EVENT_DETAILS,
             slug: WORKSHOP_SLUG,
             title,
             description: 'Online workshop.',

@@ -4,6 +4,7 @@
 
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { FlyingWorkshopReaction } from '@/lib/workshops/workshopReactionAnimations';
 import type { WorkshopContentBlock, WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -12,6 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
     kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
     slug: 'online-workshop-2026-08-20',
     title: 'Produkční kód s AI agenty',
     description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem.',
@@ -28,6 +30,11 @@ const WORKSHOP: WorkshopDetails = {
 const WORKSHOP_WITH_VIDEO: WorkshopDetails = {
     ...WORKSHOP,
     youtubeVideoId: 'dQw4w9WgXcQ',
+};
+
+const OPEN_ENDED_WORKSHOP_WITH_VIDEO: WorkshopDetails = {
+    ...WORKSHOP_WITH_VIDEO,
+    endsAt: null,
 };
 
 const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
@@ -162,6 +169,37 @@ describe('workshop stage', () => {
         expect(postMessage).not.toHaveBeenCalled();
 
         contentWindowSpy.mockRestore();
+    });
+
+    it('keeps the video of a workshop without an end on the stage however long it runs', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={OPEN_ENDED_WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-21T09:00:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).not.toBeNull();
+        expect(screen.queryByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).toBeNull();
+    });
+
+    it('wraps a workshop without an end up as soon as the administration records its end', () => {
+        const reactionSource = createReactionSource();
+        const { container } = render(
+            <WorkshopStage
+                workshop={{ ...OPEN_ENDED_WORKSHOP_WITH_VIDEO, endsAt: '2026-08-20T21:12:00+02:00' }}
+                serverTime="2026-08-20T21:13:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
     });
 
     it('replaces the video with the wrap-up while reactions keep their stage stream', () => {

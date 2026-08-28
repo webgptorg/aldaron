@@ -34,12 +34,14 @@ export type WorkshopCalendarDetails = {
 };
 
 /**
- * Optional hand-off from a persistent room to individual workshop rooms. The shared participant room only needs the
- * data required to keep a participant identity in those links, never business-specific UI knowledge.
+ * Optional hand-off from a persistent room to the terms of every kind of event. The shared participant room only needs
+ * the data required to keep a participant identity in those links, never business-specific UI knowledge.
+ *
+ * Note: Where one term leads is decided by the kind of event it is a term of, so this hand-off never names a path and
+ *       a kind of event added later is led to without changing anything here.
  */
 export type WorkshopNavigationDetails = {
     readonly workshops: readonly WorkshopSummary[];
-    readonly participantPath: string;
     readonly title: string;
     readonly description: string;
     readonly emptyMessage: string;
@@ -266,13 +268,8 @@ export function OnlineWorkshopParticipantPage({
                         <WorkshopPolls
                             polls={state.polls}
                             isInteractionBanned={state.participant.isInteractionBanned}
-                            workshopRoomLink={
-                                workshopNavigation === undefined
-                                    ? undefined
-                                    : {
-                                          participantPath: workshopNavigation.participantPath,
-                                          participantIdentity: state.participant,
-                                      }
+                            linkedParticipantIdentity={
+                                workshopNavigation === undefined ? undefined : state.participant
                             }
                             onVote={controller.voteOnPoll}
                         />
@@ -280,7 +277,6 @@ export function OnlineWorkshopParticipantPage({
                     {workshopNavigation !== undefined && (
                         <WorkshopLinksPanel
                             workshops={workshopNavigation.workshops}
-                            participantPath={workshopNavigation.participantPath}
                             participantIdentity={state.participant}
                             title={workshopNavigation.title}
                             description={workshopNavigation.description}
