@@ -2,7 +2,9 @@ import { createE2eTestEmail } from '@/lib/e2e/testData';
 import { expect, test } from '@playwright/test';
 import { submitAndExpectApiSuccess } from './support/submissions';
 
-test.describe.configure({ mode: 'serial' });
+// Every submission here stands on its own: it opens its own page and submits its own unique test e-mail, and the
+// single Playwright worker already runs them one after another. Nothing is therefore declared serial, so one slow
+// form cannot hide whether the remaining public forms still accept a submission.
 
 test('submits the shared footer newsletter form', async ({ page }) => {
     await page.goto('/en');

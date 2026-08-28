@@ -25,8 +25,6 @@ const PUBLIC_PAGE_PATHS = [
     '/skoleni',
 ] as const;
 
-const PUBLIC_PAGE_TEST_TIMEOUT_MS = 180_000;
-
 type PublicPagePath = (typeof PUBLIC_PAGE_PATHS)[number];
 
 async function expectPublicPageToLoad(page: Page, path: PublicPagePath): Promise<void> {
@@ -41,12 +39,9 @@ async function expectPublicPageToLoad(page: Page, path: PublicPagePath): Promise
 }
 
 for (const path of PUBLIC_PAGE_PATHS) {
+    // Next.js compiles a route on its first dev-server visit. Isolating every route keeps earlier cold compilations
+    // from exhausting the timeout of a healthy page later in the smoke suite.
     test(`public landing and information page loads: ${path}`, async ({ page }) => {
-        // Next.js compiles a route on its first dev-server visit. Isolating
-        // every route keeps earlier cold compilations from exhausting the
-        // timeout of a healthy page later in the smoke suite.
-        test.setTimeout(PUBLIC_PAGE_TEST_TIMEOUT_MS);
-
         await expectPublicPageToLoad(page, path);
     });
 }

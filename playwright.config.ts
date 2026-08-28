@@ -1,6 +1,14 @@
 import 'dotenv/config';
 import { defineConfig } from '@playwright/test';
 
+/**
+ * How long one E2E test may take, cold Next.js compilation included
+ *
+ * Note: This is the single budget of every E2E test, so no test file has to repeat it, and a route which is reached
+ *       first cannot be reported as broken merely for having been compiled.
+ */
+const E2E_COLD_COMPILATION_TEST_TIMEOUT_MS = 180_000;
+
 const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4009';
 const usesExternalServer = process.env.E2E_BASE_URL !== undefined;
 const usesIsolatedInMemorySupabase = !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -10,7 +18,10 @@ export default defineConfig({
     outputDir: './tests/e2e/.artifacts',
     fullyParallel: false,
     workers: 1,
-    timeout: 45_000,
+    // The Next.js development server compiles a page or an API endpoint the first time a test reaches it, so the first
+    // test which visits a page or submits into an endpoint pays for that compilation on top of its own work. The
+    // budget of one test is therefore that compilation headroom rather than the time its assertions need.
+    timeout: E2E_COLD_COMPILATION_TEST_TIMEOUT_MS,
     expect: {
         timeout: 10_000,
     },
