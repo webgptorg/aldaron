@@ -1,4 +1,3 @@
-import { createCommunityCalendarSubscriptionUrl } from '@/businesses/community/config';
 import type { WorkshopConnectionDetails } from '@/businesses/online-workshop/participant/WorkshopConnectionForm';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
 
@@ -33,8 +32,4 @@ export const CZECH_COMMUNITY_WORKSHOP_NAVIGATION_COPY = {
     emptyMessage: 'Zatím není publikovaný žádný termín. Další sem přidáme hned po zveřejnění.',
     locale: 'cs-CZ',
     timeZone: 'Europe/Prague',
-    calendarSubscription: {
-        url: createCommunityCalendarSubscriptionUrl(),
-        label: 'Odebírat kalendář',
-    },
 } as const;

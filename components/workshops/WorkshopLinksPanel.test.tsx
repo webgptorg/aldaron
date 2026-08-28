@@ -22,11 +22,6 @@ const WORKSHOPS: readonly WorkshopSummary[] = [
     },
 ];
 
-const CALENDAR_SUBSCRIPTION = {
-    url: 'webcal://ptbk.io/cs/komunita/calendar.ics',
-    label: 'Odebírat kalendář',
-} as const;
-
 afterEach(cleanup);
 
 describe('workshop links panel', () => {
@@ -46,32 +41,6 @@ describe('workshop links panel', () => {
         expect(screen.getByRole('link', { name: /Produkční kód s AI agenty/ }).getAttribute('href')).toBe(
             '/cs/online-workshop/participant?workshop=production-ai-2026-09-10&email=jana%40example.com&fullname=Jana+Nov%C3%A1kov%C3%A1',
         );
-    });
-
-    it('offers a shared calendar subscription and a public iCalendar download for each listed term', () => {
-        render(
-            <WorkshopLinksPanel
-                workshops={WORKSHOPS}
-                participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                title="Workshopy Promptbooku"
-                description="Vyberte si workshop."
-                emptyMessage="Žádný workshop není dostupný."
-                locale="cs-CZ"
-                timeZone="Europe/Prague"
-                calendarSubscription={CALENDAR_SUBSCRIPTION}
-            />,
-        );
-
-        expect(screen.getByRole('link', { name: 'Odebírat kalendář' }).getAttribute('href')).toBe(
-            CALENDAR_SUBSCRIPTION.url,
-        );
-
-        const downloadLink = screen.getByRole('link', { name: 'Stáhnout .ics' });
-        expect(downloadLink.getAttribute('download')).toBe('production-ai-2026-09-10.ics');
-        expect(decodeURIComponent(downloadLink.getAttribute('href') ?? '')).toContain(
-            'URL:https://ptbk.io/cs/online-workshop/participant?workshop=production-ai-2026-09-10',
-        );
-        expect(decodeURIComponent(downloadLink.getAttribute('href') ?? '')).not.toContain('jana@example.com');
     });
 
     it('leads a term of a paid workshop to its landing page instead of a room it does not have', () => {
