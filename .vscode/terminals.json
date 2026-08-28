@@ -85,7 +85,7 @@
         },
         {
             "name": "💾 Backup database",
-            "command": "npm run backup-database",
+            "commands": ["export PATH=\"$PATH:/c/Program Files/PostgreSQL/18/bin\"", "npm run backup-database"],
             "execute": false
         },
         {
