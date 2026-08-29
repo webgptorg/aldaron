@@ -192,6 +192,19 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
     });
 });
 
+test('AI ta Krajta shows its all-platform audience and listening-time estimates', async ({ page }) => {
+    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
+
+    const audienceFact = page.getByText('Posluchačů a odběratelů', { exact: true }).locator('..');
+    const listeningTimeFact = page.getByText('Hodin poslechu', { exact: true }).locator('..');
+
+    await expect(audienceFact).toBeVisible();
+    await expect(audienceFact.locator('dd')).toHaveText(/^\d[\d\s]*\+$/);
+    await expect(listeningTimeFact).toBeVisible();
+    await expect(listeningTimeFact.locator('dd')).toHaveText(/^\d[\d\s]*\+$/);
+    await expect(page.getByText(/Zaokrouhlený odhad napříč YouTube, Spotify, Apple Podcasts/)).toBeVisible();
+});
+
 for (const publicRedirect of PUBLIC_REDIRECTS) {
     test(`public address redirects to its page: ${publicRedirect.path}`, async ({ request }) => {
         test.setTimeout(PUBLIC_PAGE_TEST_TIMEOUT_MS);
