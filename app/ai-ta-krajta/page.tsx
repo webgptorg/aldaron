@@ -28,8 +28,8 @@ export default async function AiTaKrajtaRoute() {
     return (
         <>
             <StructuredData nodes={createAiTaKrajtaStructuredData(archive.episodes)} />
-            {/* Note: The whole page reads its state from the query parameters, which Next.js only hands over inside
-                      a suspense boundary. */}
+            {/* Note: The page reads its shareable state from the query parameters, which Next.js only hands over
+                      inside a suspense boundary. */}
             <Suspense>
                 <AiTaKrajtaPage archive={archive} />
             </Suspense>

@@ -16,7 +16,8 @@ import {
 } from '@/lib/api/urlViewState';
 
 /**
- * Everything the visitor did on the page, so that the link they copy opens exactly what they were looking at
+ * Everything shareable which the visitor did on the page, so that the link they copy opens exactly what they were
+ * looking at
  */
 export type AiTaKrajtaViewState = {
     /**
@@ -45,11 +46,6 @@ export type AiTaKrajtaViewState = {
     readonly isWholeArchiveShown: boolean;
 
     /**
-     * Whether the snake in the header woke up and turned into the game
-     */
-    readonly isGamePlayed: boolean;
-
-    /**
      * Which kind of collaboration the form at the bottom is filled in for
      */
     readonly collaborationKind: AiTaKrajtaCollaborationKind;
@@ -64,9 +60,20 @@ export const DEFAULT_AI_TA_KRAJTA_VIEW_STATE: AiTaKrajtaViewState = {
     playingEpisodeSlug: null,
     isPlaying: false,
     isWholeArchiveShown: false,
-    isGamePlayed: false,
     collaborationKind: AI_TA_KRAJTA_COLLABORATION_OPTIONS[0].id,
 };
+
+/**
+ * English names of the query parameters which describe the shareable page state
+ */
+export const AI_TA_KRAJTA_VIEW_PARAMETER_NAMES = {
+    PERSON: 'person',
+    SEARCH: 'search',
+    EPISODE: 'episode',
+    PLAYING: 'playing',
+    ARCHIVE: 'archive',
+    COLLABORATION: 'collaboration',
+} as const;
 
 /**
  * Kind of collaboration which is one of the offered ones, so that a hand written link cannot ask for something the
@@ -100,47 +107,41 @@ function defineAiTaKrajtaViewParameter<TValue>(
 }
 
 /**
- * Every query parameter of the page, each one owning exactly one part of the view
+ * Every English query parameter of the page, each one owning exactly one part of the shareable view
  */
 const AI_TA_KRAJTA_VIEW_PARAMETERS: readonly UrlViewParameter<AiTaKrajtaViewState, unknown>[] = [
     defineAiTaKrajtaViewParameter<string | null>({
-        parameterName: 'osoba',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PERSON,
         ...PERSON_VALUE_CODEC,
         readValue: (viewState) => viewState.personId,
         writeValue: (viewState, personId) => ({ ...viewState, personId }),
     }),
     defineAiTaKrajtaViewParameter<string>({
-        parameterName: 'hledat',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.SEARCH,
         ...TEXT_VALUE_CODEC,
         readValue: (viewState) => viewState.searchQuery,
         writeValue: (viewState, searchQuery) => ({ ...viewState, searchQuery }),
     }),
     defineAiTaKrajtaViewParameter<string | null>({
-        parameterName: 'dil',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.EPISODE,
         ...EPISODE_VALUE_CODEC,
         readValue: (viewState) => viewState.playingEpisodeSlug,
         writeValue: (viewState, playingEpisodeSlug) => ({ ...viewState, playingEpisodeSlug }),
     }),
     defineAiTaKrajtaViewParameter<boolean>({
-        parameterName: 'hraje',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PLAYING,
         ...FLAG_VALUE_CODEC,
         readValue: (viewState) => viewState.isPlaying,
         writeValue: (viewState, isPlaying) => ({ ...viewState, isPlaying }),
     }),
     defineAiTaKrajtaViewParameter<boolean>({
-        parameterName: 'archiv',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.ARCHIVE,
         ...FLAG_VALUE_CODEC,
         readValue: (viewState) => viewState.isWholeArchiveShown,
         writeValue: (viewState, isWholeArchiveShown) => ({ ...viewState, isWholeArchiveShown }),
     }),
-    defineAiTaKrajtaViewParameter<boolean>({
-        parameterName: 'hra',
-        ...FLAG_VALUE_CODEC,
-        readValue: (viewState) => viewState.isGamePlayed,
-        writeValue: (viewState, isGamePlayed) => ({ ...viewState, isGamePlayed }),
-    }),
     defineAiTaKrajtaViewParameter<AiTaKrajtaCollaborationKind>({
-        parameterName: 'zajem',
+        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION,
         ...COLLABORATION_KIND_VALUE_CODEC,
         readValue: (viewState) => viewState.collaborationKind,
         writeValue: (viewState, collaborationKind) => ({ ...viewState, collaborationKind }),
@@ -176,7 +177,7 @@ export function serializeAiTaKrajtaViewState(
  *       data and the share button of the mini player build it here, so a shared link always behaves the same.
  *
  * @param episodeSlug short identifier of the episode, for example `64`
- * @returns site relative link, for example `/ai-ta-krajta?dil=64&hraje=1`
+ * @returns site relative link, for example `/ai-ta-krajta?episode=64&playing=1`
  */
 export function createAiTaKrajtaEpisodePath(episodeSlug: string): string {
     const searchParams = serializeAiTaKrajtaViewState(

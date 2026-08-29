@@ -1,7 +1,6 @@
 'use client';
 
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
-import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { AiTaKrajtaSnakeGame } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeGame';
 import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { motion } from 'framer-motion';
@@ -20,7 +19,7 @@ const PLAYING_HINT = 'Sbírejte tokeny. Roste z nich.';
  *       find an episode gets a moving canvas thrown at them.
  */
 export function AiTaKrajtaSnakeTerrarium() {
-    const { viewState, setIsGamePlayed } = useAiTaKrajtaPageState();
+    const [isGamePlayed, setIsGamePlayed] = useState(false);
     const [score, setScore] = useState(0);
 
     const handleScoreChange = useCallback((newScore: number) => setScore(newScore), []);
@@ -30,7 +29,7 @@ export function AiTaKrajtaSnakeTerrarium() {
             <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#232a25] shadow-[0_30px_80px_rgba(0,0,0,0.45)] sm:rounded-[2.5rem]">
                 <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.18)_1px,transparent_0)] [background-size:22px_22px]" />
 
-                {viewState.isGamePlayed ? (
+                {isGamePlayed ? (
                     <AiTaKrajtaSnakeGame onScoreChange={handleScoreChange} />
                 ) : (
                     <button
@@ -50,9 +49,9 @@ export function AiTaKrajtaSnakeTerrarium() {
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-                <p className="text-white/50">{viewState.isGamePlayed ? PLAYING_HINT : SLEEPING_HINT}</p>
+                <p className="text-white/50">{isGamePlayed ? PLAYING_HINT : SLEEPING_HINT}</p>
 
-                {viewState.isGamePlayed ? (
+                {isGamePlayed ? (
                     <div className="flex shrink-0 items-center gap-3">
                         <span className="tabular-nums font-semibold text-white">
                             {formatCzechCountedNoun(score, ['token', 'tokeny', 'tokenů'])}

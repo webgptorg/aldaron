@@ -13,8 +13,8 @@ import { AiTaKrajtaPeopleSection } from '@/businesses/ai-ta-krajta/AiTaKrajtaPeo
 /**
  * The page of the AI ta Krajta podcast
  *
- * Note: Everything below the provider reads the same state, which the provider keeps in the query parameters. The
- *       mini player is last so that it lies over the whole page, and the padding at the bottom leaves room for it.
+ * Note: The provider shares the archive and its shareable URL state. The game keeps its own local state, while the
+ *       mini player is last so that it lies over the whole page and the padding at the bottom leaves room for it.
  *
  * @param archive episodes of the show as they were read from its feed on the server
  */

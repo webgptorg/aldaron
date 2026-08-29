@@ -1,4 +1,5 @@
 import {
+    AI_TA_KRAJTA_VIEW_PARAMETER_NAMES,
     createAiTaKrajtaEpisodePath,
     DEFAULT_AI_TA_KRAJTA_VIEW_STATE,
     parseAiTaKrajtaViewState,
@@ -20,28 +21,48 @@ describe('aiTaKrajtaViewState', () => {
         expect(serializeToSearch(DEFAULT_AI_TA_KRAJTA_VIEW_STATE)).toBe('');
     });
 
-    it('carries the whole view, so that the copied link opens the same page', () => {
+    it('carries the shareable view in English query parameters', () => {
         const viewState: AiTaKrajtaViewState = {
             personId: 'jiri-jahn',
             searchQuery: 'lokální modely',
             playingEpisodeSlug: '64',
             isPlaying: true,
             isWholeArchiveShown: true,
-            isGamePlayed: true,
             collaborationKind: 'partnerstvi',
         };
+        const searchParams = new URLSearchParams(serializeToSearch(viewState));
 
-        expect(parseAiTaKrajtaViewState(new URLSearchParams(serializeToSearch(viewState)))).toEqual(viewState);
+        expect(Object.fromEntries(searchParams)).toEqual({
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PERSON]: 'jiri-jahn',
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.SEARCH]: 'lokální modely',
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.EPISODE]: '64',
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PLAYING]: '1',
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.ARCHIVE]: '1',
+            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION]: 'partnerstvi',
+        });
+        expect(parseAiTaKrajtaViewState(searchParams)).toEqual(viewState);
     });
 
     it('ignores a filter for somebody who is not in the roster', () => {
-        expect(parseAiTaKrajtaViewState(new URLSearchParams('osoba=nekdo-jiny')).personId).toBeNull();
+        expect(
+            parseAiTaKrajtaViewState(
+                new URLSearchParams(`${AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PERSON}=nekdo-jiny`),
+            ).personId,
+        ).toBeNull();
     });
 
     it('ignores a kind of collaboration which the form does not offer', () => {
-        expect(parseAiTaKrajtaViewState(new URLSearchParams('zajem=cokoliv')).collaborationKind).toBe(
-            DEFAULT_AI_TA_KRAJTA_VIEW_STATE.collaborationKind,
-        );
+        expect(
+            parseAiTaKrajtaViewState(
+                new URLSearchParams(`${AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION}=cokoliv`),
+            ).collaborationKind,
+        ).toBe(DEFAULT_AI_TA_KRAJTA_VIEW_STATE.collaborationKind);
+    });
+
+    it('does not read former Czech query parameters as page state', () => {
+        expect(
+            parseAiTaKrajtaViewState(new URLSearchParams('osoba=pavol-hejny&hledat=AI&hra=1&zajem=partnerstvi')),
+        ).toEqual(DEFAULT_AI_TA_KRAJTA_VIEW_STATE);
     });
 
     it('keeps the query parameters which belong to somebody else', () => {
@@ -51,7 +72,7 @@ describe('aiTaKrajtaViewState', () => {
         );
 
         expect(searchParams.get('utm_source')).toBe('linkedin');
-        expect(searchParams.get('osoba')).toBe('pavol-hejny');
+        expect(searchParams.get(AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PERSON)).toBe('pavol-hejny');
     });
 
     it('builds a link which opens one episode and plays it', () => {
@@ -59,6 +80,9 @@ describe('aiTaKrajtaViewState', () => {
         const viewState = parseAiTaKrajtaViewState(new URLSearchParams(episodePath.split('?')[1]));
 
         expect(episodePath.startsWith('/ai-ta-krajta?')).toBe(true);
+        expect(
+            new URLSearchParams(episodePath.split('?')[1]).get(AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.EPISODE),
+        ).toBe('64');
         expect(viewState.playingEpisodeSlug).toBe('64');
         expect(viewState.isPlaying).toBe(true);
     });

@@ -30,10 +30,8 @@ export function AiTaKrajtaPeopleSection() {
         togglePersonFilter(personId);
 
         // Note: The cards are below the archive they filter, so the visitor has to be taken back up to see what their
-        //       click did.
-        document
-            .getElementById(AI_TA_KRAJTA_SECTION_IDS.EPISODES)
-            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        //       click did. The hash makes that destination shareable and lets the browser perform the anchor scroll.
+        window.location.hash = AI_TA_KRAJTA_SECTION_IDS.EPISODES;
     };
 
     return (

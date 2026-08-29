@@ -184,7 +184,7 @@ test('submits the AI Supervize Mini future-term interest form', async ({ page })
 });
 
 test('submits the AI ta Krajta collaboration form', async ({ page }) => {
-    await page.goto('/ai-ta-krajta?zajem=partnerstvi');
+    await page.goto('/ai-ta-krajta?collaboration=partnerstvi');
 
     await page.locator('#ai-ta-krajta-jmeno').fill('E2E Krajta');
     await page.locator('#ai-ta-krajta-email').fill(createE2eTestEmail('ai-ta-krajta-collaboration'));
@@ -204,15 +204,25 @@ test('plays the newest AI ta Krajta episode from the header', async ({ page }) =
     await page.getByRole('button', { name: 'Poslouchat' }).click();
 
     await expect(page.getByRole('button', { name: 'Zavřít přehrávač' })).toBeVisible();
-    await expect(page).toHaveURL(/[?&]dil=/);
+    await expect(page).toHaveURL(/[?&]episode=/);
 });
 
-test('filters the AI ta Krajta archive by a person and keeps it in the address', async ({ page }) => {
+test('keeps the AI ta Krajta minigame local to the page', async ({ page }) => {
     await page.goto('/ai-ta-krajta');
 
-    await page.getByRole('button', { name: /^Pavol Hejný/ }).first().click();
+    await page.getByRole('button', { name: 'Probudit' }).click();
 
-    await expect(page).toHaveURL(/[?&]osoba=pavol-hejny/);
+    await expect(page.getByRole('button', { name: 'Uspat' })).toBeVisible();
+    await expect(page).toHaveURL(/\/ai-ta-krajta$/);
+});
+
+test('filters the AI ta Krajta archive by a person and keeps its destination in the hash', async ({ page }) => {
+    await page.goto('/ai-ta-krajta');
+
+    await page.locator('section#lidi').getByRole('button', { name: /^Pavol Hejný/ }).click();
+
+    await expect(page).toHaveURL(/[?&]person=pavol-hejny/);
+    await expect(page).toHaveURL(/#dily$/);
     await expect(
         page.locator('section#dily').getByRole('button', { name: 'Pavol Hejný', exact: true }),
     ).toBeVisible();

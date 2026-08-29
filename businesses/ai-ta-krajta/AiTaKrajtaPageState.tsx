@@ -48,7 +48,6 @@ type AiTaKrajtaPageStateValue = {
 
     readonly setSearchQuery: (searchQuery: string) => void;
     readonly showWholeArchive: () => void;
-    readonly setIsGamePlayed: (isGamePlayed: boolean) => void;
     readonly setCollaborationKind: (collaborationKind: AiTaKrajtaCollaborationKind) => void;
 };
 
@@ -57,8 +56,8 @@ const AiTaKrajtaPageStateContext = createContext<AiTaKrajtaPageStateValue | null
 /**
  * Holds the one state of the page and keeps it in the address bar
  *
- * Note: The filter, the chosen episode and the game all live in the query parameters, so whatever a visitor is looking
- *       at is what the link they copy opens.
+ * Note: The filter, chosen episode and collaboration choice live in the query parameters. The game is deliberately
+ *       local to its terrarium, because a copied link should not start an interactive animation unexpectedly.
  */
 export function AiTaKrajtaPageStateProvider({
     archive,
@@ -130,11 +129,6 @@ export function AiTaKrajtaPageStateProvider({
         [changeViewState],
     );
 
-    const setIsGamePlayed = useCallback(
-        (isGamePlayed: boolean) => changeViewState((previousViewState) => ({ ...previousViewState, isGamePlayed })),
-        [changeViewState],
-    );
-
     const setCollaborationKind = useCallback(
         (collaborationKind: AiTaKrajtaCollaborationKind) =>
             changeViewState((previousViewState) => ({ ...previousViewState, collaborationKind })),
@@ -153,7 +147,6 @@ export function AiTaKrajtaPageStateProvider({
             togglePersonFilter,
             setSearchQuery,
             showWholeArchive,
-            setIsGamePlayed,
             setCollaborationKind,
         }),
         [
@@ -167,7 +160,6 @@ export function AiTaKrajtaPageStateProvider({
             togglePersonFilter,
             setSearchQuery,
             showWholeArchive,
-            setIsGamePlayed,
             setCollaborationKind,
         ],
     );
