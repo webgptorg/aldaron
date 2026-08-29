@@ -78,6 +78,16 @@ export const AI_TA_KRAJTA_APPLE_PODCASTS_SHOW_URL = 'https://podcasts.apple.com/
 export const AI_TA_KRAJTA_LINKEDIN_URL = 'https://www.linkedin.com/company/aitakrajta';
 export const AI_TA_KRAJTA_INSTAGRAM_URL = 'https://www.instagram.com/aitakrajta_tv/';
 
+/**
+ * The coding tool which built this podcast page.
+ */
+export const AI_TA_KRAJTA_PROMPTBOOK_CODER_URL = 'https://coder.ptbk.io/';
+
+/**
+ * Visible credit for the coding tool which built this podcast page.
+ */
+export const AI_TA_KRAJTA_PROMPTBOOK_CODER_BADGE_LABEL = 'Done by Promptbook coder';
+
 const AI_TA_KRAJTA_X_USERNAME = 'aitakrajta_tv';
 
 export const AI_TA_KRAJTA_X_HANDLE = `@${AI_TA_KRAJTA_X_USERNAME}`;
