@@ -111,6 +111,7 @@ type WorkshopSummaryRow = Pick<
     | 'room_kind'
     | 'slug'
     | 'title'
+    | 'description'
     | 'starts_at'
     | 'ends_at'
     | 'is_published'
@@ -122,11 +123,11 @@ type WorkshopSummaryRow = Pick<
 >;
 
 /**
- * Fields the public list and the administration selector need to identify one occurrence and describe the event it is
- * a term of, without exposing its live room configuration.
+ * Fields the public list and the administration selector need to identify one occurrence, say what it is about, and
+ * describe the event it is a term of, without exposing its live room configuration.
  */
 export const WORKSHOP_SUMMARY_COLUMNS =
-    'id, room_kind, slug, title, starts_at, ends_at, is_published, event_type, location_kind, location_label, price_czk, maximum_participant_count';
+    'id, room_kind, slug, title, description, starts_at, ends_at, is_published, event_type, location_kind, location_label, price_czk, maximum_participant_count';
 
 type WorkshopContentRow = {
     readonly id: string;
@@ -398,7 +399,6 @@ export function createWorkshopDatabaseUnavailableResponse(): NextResponse {
 export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
     return {
         ...mapWorkshopSummaryRow(row),
-        description: row.description,
         youtubeVideoId: row.youtube_video_id,
         allowedReactions: row.allowed_reactions,
         disabledPanels: normalizeWorkshopDisabledPanels(row.disabled_panels),
@@ -413,6 +413,7 @@ export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary 
         kind: row.room_kind,
         slug: row.slug,
         title: row.title,
+        description: row.description,
         startsAt: row.starts_at,
         endsAt: row.ends_at,
         isPublished: row.is_published,

@@ -25,6 +25,7 @@ function createEventOccurrence(occurrence: {
         kind: 'workshop',
         slug: occurrence.slug,
         title: 'AI Supervize Mini',
+        description: 'Workshop AI Supervize Mini pro vývojáře a produkťáky.',
         startsAt: occurrence.startsAt,
         endsAt: null,
         isPublished: true,

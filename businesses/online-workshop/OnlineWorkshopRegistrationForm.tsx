@@ -4,20 +4,19 @@ import {
     ONLINE_WORKSHOP_REGISTRATION_PLACE_NAME,
     ONLINE_WORKSHOP_THANK_YOU_PATH,
 } from '@/businesses/online-workshop/config';
+import { EventTermOptionCard } from '@/components/events/EventTermOptionCard';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import {
     formatCzechWorkshopDate,
-    formatCzechWorkshopDay,
     formatCzechWorkshopDuration,
     formatCzechWorkshopTime,
-    formatCzechWorkshopTimeRange,
 } from '@/lib/workshops/workshopDate';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { createWorkshopRegistrationThankYouPath } from '@/lib/workshops/workshopRegistrationTiming';
-import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import pavolHejny from '@/public/people/pavol-hejny-transparent-square.png';
@@ -36,7 +35,7 @@ function getFieldErrors({ fullname, email }: { fullname: string; email: string }
     };
 }
 
-function createOnlineWorkshopRegistrationNote(workshop: WorkshopSummary): string {
+function createOnlineWorkshopRegistrationNote(workshop: EventOccurrence): string {
     return [
         'Online workshop registration',
         `Workshop: ${workshop.title}`,
@@ -50,56 +49,37 @@ type OnlineWorkshopRegistrationFormProps = {
      * The published terms a visitor can choose from. One form deliberately serves all of them, so a person never has
      * to retype their contact details just to choose another date.
      */
-    readonly workshops: readonly WorkshopSummary[];
+    readonly workshops: readonly EventOccurrence[];
 };
 
 type OnlineWorkshopTermPickerProps = {
-    readonly workshops: readonly WorkshopSummary[];
-    readonly selectedWorkshop: WorkshopSummary;
-    readonly onSelectWorkshop: (workshop: WorkshopSummary) => void;
+    readonly workshops: readonly EventOccurrence[];
+    readonly selectedWorkshop: EventOccurrence;
+    readonly onSelectWorkshop: (workshop: EventOccurrence) => void;
 };
 
 /**
  * Lets a visitor select one online-workshop occurrence without owning any registration-field state.
+ *
+ * Note: Every term of this event is a workshop about something of its own, so each card names its subject and says
+ *       what it is about rather than leaving a visitor to choose between dates alone.
  */
 function OnlineWorkshopTermPicker({ workshops, selectedWorkshop, onSelectWorkshop }: OnlineWorkshopTermPickerProps) {
     return (
         <fieldset>
             <legend className="text-sm font-semibold text-slate-700">Termín online workshopu</legend>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {workshops.map((workshop) => {
-                    const isSelectedWorkshop = selectedWorkshop.slug === workshop.slug;
-
-                    return (
-                        <button
-                            key={workshop.id}
-                            type="button"
-                            aria-pressed={isSelectedWorkshop}
-                            onClick={() => onSelectWorkshop(workshop)}
-                            className={cn(
-                                'rounded-xl border p-4 text-left transition-all',
-                                isSelectedWorkshop
-                                    ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
-                                    : 'border-slate-200 bg-white hover:border-cyan-200',
-                            )}
-                        >
-                            <p className="text-lg font-bold text-slate-950">
-                                {formatCzechWorkshopDay(workshop.startsAt)} ·{' '}
-                                {formatCzechWorkshopTimeRange(workshop.startsAt, workshop.endsAt)}
-                            </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                    Online
-                                </span>
-                                <span className="font-medium text-slate-700">Zdarma</span>
-                            </div>
-                            <p className="mt-2 flex items-center gap-2 text-sm text-slate-600">
-                                <Clock className="h-4 w-4 text-cyan-600" />
-                                {formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt)} + Q&amp;A
-                            </p>
-                        </button>
-                    );
-                })}
+                {workshops.map((workshop) => (
+                    <EventTermOptionCard
+                        key={workshop.id}
+                        occurrence={workshop}
+                        isSelected={selectedWorkshop.slug === workshop.slug}
+                        onSelect={() => onSelectWorkshop(workshop)}
+                        isTopicShown={true}
+                        noteIcon={Clock}
+                        noteText={`${formatCzechWorkshopDuration(workshop.startsAt, workshop.endsAt)} + Q&A`}
+                    />
+                ))}
             </div>
         </fieldset>
     );
@@ -124,8 +104,8 @@ export function OnlineWorkshopRegistrationForm({ workshops }: OnlineWorkshopRegi
 }
 
 type OnlineWorkshopSelectedTermRegistrationFormProps = {
-    readonly workshops: readonly WorkshopSummary[];
-    readonly firstWorkshop: WorkshopSummary;
+    readonly workshops: readonly EventOccurrence[];
+    readonly firstWorkshop: EventOccurrence;
 };
 
 /**
@@ -151,7 +131,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
     const durationLabel = formatCzechWorkshopDuration(selectedWorkshop.startsAt, selectedWorkshop.endsAt);
     const fieldIdPrefix = `workshop-${selectedWorkshop.slug}`;
 
-    const handleWorkshopSelection = (workshop: WorkshopSummary) => {
+    const handleWorkshopSelection = (workshop: EventOccurrence) => {
         setSelectedWorkshopSlug(workshop.slug);
         setErrorMessage(null);
         setIsValidationShown(false);

@@ -61,6 +61,7 @@ const WORKSHOP_NAVIGATION: WorkshopNavigationDetails = {
             event: WORKSHOP.event,
             slug: WORKSHOP.slug,
             title: WORKSHOP.title,
+            description: WORKSHOP.description,
             startsAt: WORKSHOP.startsAt,
             endsAt: WORKSHOP.endsAt,
             isPublished: WORKSHOP.isPublished,

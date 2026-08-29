@@ -14,7 +14,7 @@
 
 ---
 
-[ ]
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $9.00 17 minutes; Testing 5 minutes
 
 [✨🚔] There should be name and description of the online workshop directly on the badge
 
@@ -22,3 +22,4 @@
 - Do a analysis of the current functionality before you start implementing.
 
 ![alt text](prompts/screenshots/2026-08-0581-enhance-online-workshop-listings-2.png)
+

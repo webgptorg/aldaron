@@ -12,6 +12,7 @@ const UPCOMING_WORKSHOP: WorkshopSummary = {
     event: DEFAULT_EVENT_DETAILS,
     slug: 'production-code-with-ai-2026-09-10',
     title: 'Produkční kód s AI agenty',
+    description: 'Online workshop s Pavolem Hejným a Jiřím Jahnem',
     startsAt: '2026-09-10T17:00:00.000Z',
     endsAt: '2026-09-10T18:00:00.000Z',
     isPublished: true,

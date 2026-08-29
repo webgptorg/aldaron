@@ -22,6 +22,15 @@ export type WorkshopSummary = {
     readonly kind: WorkshopKind;
     readonly slug: string;
     readonly title: string;
+
+    /**
+     * What this very term is about, in the words an administrator wrote about it
+     *
+     * Note: Terms of one event each have a subject of their own, so a list of them says what every single one is
+     *       about rather than describing them all by the event they belong to. The room and the list read the very
+     *       same words, so a term is never described in two different ways.
+     */
+    readonly description: string;
     readonly startsAt: string;
     readonly endsAt: string | null;
     readonly isPublished: boolean;
@@ -46,7 +55,6 @@ export type WorkshopAdminSummary = WorkshopSummary & {
 };
 
 export type WorkshopDetails = WorkshopSummary & {
-    readonly description: string;
     readonly youtubeVideoId: string | null;
     readonly allowedReactions: readonly string[];
 

@@ -2,6 +2,8 @@
  * @vitest-environment jsdom
  */
 
+import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { ImgHTMLAttributes } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -12,26 +14,28 @@ vi.mock('next/image', () => ({
 
 import { OnlineWorkshopRegistrationForm } from './OnlineWorkshopRegistrationForm';
 
-const FIRST_WORKSHOP = {
+const FIRST_WORKSHOP: EventOccurrence = {
     id: 'first-workshop-id',
-    kind: 'workshop' as const,
+    kind: 'workshop',
     slug: 'production-ai-2026-09-04',
     title: 'Produkční kód s AI agenty',
+    description: 'Celé workflow od issue po merge na reálném repu.',
     startsAt: '2026-09-04T16:00:00+02:00',
     endsAt: '2026-09-04T17:00:00+02:00',
     isPublished: true,
-    event: null,
+    event: DEFAULT_EVENT_DETAILS,
 };
 
-const SECOND_WORKSHOP = {
+const SECOND_WORKSHOP: EventOccurrence = {
     id: 'second-workshop-id',
-    kind: 'workshop' as const,
+    kind: 'workshop',
     slug: 'git-a-ai-2026-09-09',
     title: 'Git a AI',
+    description: 'Jak držet změny malé a dohledatelné, i když je píše agent.',
     startsAt: '2026-09-09T13:00:00+02:00',
     endsAt: '2026-09-09T14:00:00+02:00',
     isPublished: true,
-    event: null,
+    event: DEFAULT_EVENT_DETAILS,
 };
 
 describe('Online workshop registration form', () => {
@@ -54,8 +58,20 @@ describe('Online workshop registration form', () => {
 
         expect(firstWorkshopButton.getAttribute('aria-pressed')).toBe('false');
         expect(secondWorkshopButton.getAttribute('aria-pressed')).toBe('true');
-        expect(screen.getByText(SECOND_WORKSHOP.title)).toBeTruthy();
+        expect(container.querySelector('[aria-live="polite"]')?.textContent).toContain(SECOND_WORKSHOP.title);
         expect((screen.getByLabelText('Jméno') as HTMLInputElement).value).toBe('Jana Nováková');
+    });
+
+    it('says on every term what that very workshop is called and what it is about', () => {
+        render(<OnlineWorkshopRegistrationForm workshops={[FIRST_WORKSHOP, SECOND_WORKSHOP]} />);
+
+        const firstWorkshopButton = screen.getByRole('button', { name: /4\. 9\. 2026/ });
+        expect(firstWorkshopButton.textContent).toContain(FIRST_WORKSHOP.title);
+        expect(firstWorkshopButton.textContent).toContain(FIRST_WORKSHOP.description);
+
+        const secondWorkshopButton = screen.getByRole('button', { name: /9\. 9\. 2026/ });
+        expect(secondWorkshopButton.textContent).toContain(SECOND_WORKSHOP.title);
+        expect(secondWorkshopButton.textContent).toContain(SECOND_WORKSHOP.description);
     });
 
     it('offers no registration form until an online workshop is published', () => {

@@ -44,6 +44,7 @@ const ATTACHABLE_WORKSHOP: WorkshopAdminSummary = {
     event: DEFAULT_EVENT_DETAILS,
     slug: 'zari',
     title: 'Zářijový workshop',
+    description: 'Zářijový termín online workshopu.',
     startsAt: '2026-09-10T16:00:00.000Z',
     endsAt: null,
     isPublished: true,

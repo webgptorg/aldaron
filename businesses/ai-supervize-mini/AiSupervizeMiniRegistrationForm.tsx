@@ -20,6 +20,7 @@ import {
     type AiSupervizeMiniWorkshopRegistrationState,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { DiscountCodeField } from '@/components/discounts/DiscountCodeField';
+import { EventTermOptionCard } from '@/components/events/EventTermOptionCard';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -35,11 +36,10 @@ import {
     type EventOccurrence,
     type NonEmptyEventOccurrenceList,
 } from '@/lib/events/eventOccurrence';
-import { formatCzechKoruna, formatEventPrice } from '@/lib/events/eventPrice';
+import { formatCzechKoruna } from '@/lib/events/eventPrice';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { cn } from '@/lib/utils';
-import { formatCzechWorkshopDay, formatCzechWorkshopTimeRange } from '@/lib/workshops/workshopDate';
 import { AlertTriangle, CheckCircle2, Loader2, Users } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
@@ -516,7 +516,6 @@ function AiSupervizeMiniEventRegistrationForm({
                     <label className="text-sm font-semibold text-slate-700">Termín workshopu</label>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                         {events.map((event) => {
-                            const isSelected = selectedEvent.slug === event.slug;
                             const workshopAvailability =
                                 workshopAvailabilities === null
                                     ? null
@@ -525,34 +524,14 @@ function AiSupervizeMiniEventRegistrationForm({
                                           event.slug,
                                       );
                             return (
-                                <button
-                                    type="button"
+                                <EventTermOptionCard
                                     key={event.slug}
-                                    aria-pressed={isSelected}
-                                    onClick={() => setSelectedEventSlug(event.slug)}
-                                    className={`rounded-xl border p-4 text-left transition-all ${
-                                        isSelected
-                                            ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-100'
-                                            : 'border-slate-200 bg-white hover:border-cyan-200'
-                                    }`}
-                                >
-                                    <div className="text-lg font-bold text-slate-950">
-                                        {formatCzechWorkshopDay(event.startsAt)} ·{' '}
-                                        {formatCzechWorkshopTimeRange(event.startsAt, event.endsAt)}
-                                    </div>
-                                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                                            {formatEventFormat(event.event)}
-                                        </span>
-                                        <span className="font-medium text-slate-700">
-                                            {formatEventPrice(event.event.priceCzk)}
-                                        </span>
-                                    </div>
-                                    <div className="mt-1 flex items-center gap-2 text-sm text-slate-600">
-                                        <Users className="h-4 w-4 text-cyan-600" />
-                                        {formatEventSeatCount(event, workshopAvailability)}
-                                    </div>
-                                </button>
+                                    occurrence={event}
+                                    isSelected={selectedEvent.slug === event.slug}
+                                    onSelect={() => setSelectedEventSlug(event.slug)}
+                                    noteIcon={Users}
+                                    noteText={formatEventSeatCount(event, workshopAvailability)}
+                                />
                             );
                         })}
                     </div>

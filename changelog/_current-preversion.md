@@ -1,5 +1,14 @@
 # Current preversion
 
+- Said on every term of `/cs/online-workshop` which workshop it is. Each card of the picker now names the workshop
+  held on that date and says what it is about, in the very words `/admin/workshops` wrote about that term, so a
+  visitor chooses a subject rather than guessing behind which of four dates the topic they came for is hiding. What a
+  term is about is read from the term itself and is now part of every list of terms rather than of the live room
+  alone, so the room and the list can never describe one term in two different ways. Both landing pages which let a
+  visitor choose between the terms of their event now offer them with the very same card: `/ai-supervize-mini` keeps
+  choosing its terms by when and where they are held, because its terms are the same workshop in another form, and
+  reads their form and price from the administered event instead of from words written into the page.
+
 - Put the terms listed on `/cs/komunita` into a calendar. The terms of every kind of event are now read as a month of
   a Czech calendar, which is what the room opens on: its weeks start on Monday, its days are dated in Prague, and each
   day is coloured by whether what is held on it is over, running, or still ahead. Choosing a day narrows the cards

@@ -28,7 +28,7 @@ import {
     formatCzechWorkshopDuration,
     formatCzechWorkshopTime,
 } from '@/lib/workshops/workshopDate';
-import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
+import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import pavolHejny from '@/public/people/pavol-hejny-transparent.png';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
 import { motion } from 'framer-motion';
@@ -37,7 +37,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 type OnlineWorkshopPageProps = {
-    readonly workshops: readonly WorkshopSummary[];
+    readonly workshops: readonly EventOccurrence[];
 };
 
 export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
