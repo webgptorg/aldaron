@@ -74,4 +74,23 @@ describe('createPageMetadata', () => {
             },
         });
     });
+
+    it('lets an independently branded page replace the site identity everywhere a sharing card reads it', () => {
+        const metadata = createPageMetadata({
+            ...TRANSLATED_PAGE,
+            brand: {
+                name: 'Ukázková značka 🐍',
+                socialHandle: '@ukazka',
+            },
+        });
+
+        expect(metadata).toMatchObject({
+            applicationName: 'Ukázková značka 🐍',
+            authors: [{ name: 'Ukázková značka 🐍', url: 'https://ptbk.io/cs/example' }],
+            creator: 'Ukázková značka 🐍',
+            publisher: 'Ukázková značka 🐍',
+            openGraph: { siteName: 'Ukázková značka 🐍' },
+            twitter: { site: '@ukazka', creator: '@ukazka' },
+        });
+    });
 });

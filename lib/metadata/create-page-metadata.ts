@@ -89,6 +89,8 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
     const socialPreviewImagePath = resolveSocialPreviewImagePath(definition);
     const isIndexed = definition.isIndexed ?? true;
     const openGraphAlternateLocales = resolveOpenGraphAlternateLocales(definition);
+    const brandName = definition.brand?.name ?? SITE_NAME;
+    const socialHandle = definition.brand?.socialHandle ?? SITE_TWITTER_HANDLE;
 
     const socialPreviewImage = {
         url: socialPreviewImagePath,
@@ -104,6 +106,14 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
     };
 
     return {
+        ...(definition.brand
+            ? {
+                  applicationName: definition.brand.name,
+                  authors: [{ name: definition.brand.name, url: createAbsoluteUrl(definition.path) }],
+                  creator: definition.brand.name,
+                  publisher: definition.brand.name,
+              }
+            : {}),
         title: definition.title,
         description: definition.description,
         ...(definition.keywords ? { keywords: [...definition.keywords] } : {}),
@@ -113,7 +123,7 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
         },
         openGraph: {
             type: definition.openGraphType ?? 'website',
-            siteName: SITE_NAME,
+            siteName: brandName,
             locale: OPEN_GRAPH_LOCALE_BY_LANGUAGE[definition.language],
             ...(openGraphAlternateLocales ? { alternateLocale: [...openGraphAlternateLocales] } : {}),
             title: socialTitle,
@@ -123,8 +133,8 @@ export function createPageMetadata(definition: PageMetadataDefinition): Metadata
         },
         twitter: {
             card: 'summary_large_image',
-            site: SITE_TWITTER_HANDLE,
-            creator: SITE_TWITTER_HANDLE,
+            site: socialHandle,
+            creator: socialHandle,
             title: socialTitle,
             description: socialDescription,
             images: [socialPreviewImage],

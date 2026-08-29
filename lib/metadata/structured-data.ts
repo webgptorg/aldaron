@@ -30,30 +30,88 @@ const ORGANIZATION_STRUCTURED_DATA_ID = `${SITE_URL}/#organization`;
 const WEBSITE_STRUCTURED_DATA_ID = `${SITE_URL}/#website`;
 
 /**
+ * Organization identity used by a structured-data graph
+ */
+export type OrganizationStructuredDataOptions = {
+    readonly id: string;
+    readonly name: string;
+    readonly description: string;
+    readonly url: string;
+    readonly logoPath: string;
+    readonly socialUrls: readonly string[];
+    readonly legalName?: string;
+    readonly countryCode?: string;
+    readonly registrationNumber?: string;
+};
+
+const SITE_ORGANIZATION_STRUCTURED_DATA_OPTIONS: OrganizationStructuredDataOptions = {
+    id: ORGANIZATION_STRUCTURED_DATA_ID,
+    name: SITE_NAME,
+    legalName: ORGANIZATION_LEGAL_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    logoPath: SITE_LOGO_PATH,
+    socialUrls: ORGANIZATION_SOCIAL_URLS,
+    countryCode: ORGANIZATION_COUNTRY_CODE,
+    registrationNumber: ORGANIZATION_REGISTRATION_NUMBER,
+};
+
+/**
+ * Website identity used by a structured-data graph
+ */
+export type WebSiteStructuredDataOptions = {
+    readonly id: string;
+    readonly name: string;
+    readonly description: string;
+    readonly url: string;
+    readonly languageCodes: readonly string[];
+    readonly publisherId: string;
+};
+
+const SITE_WEBSITE_STRUCTURED_DATA_OPTIONS: WebSiteStructuredDataOptions = {
+    id: WEBSITE_STRUCTURED_DATA_ID,
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    languageCodes: Object.values(STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE),
+    publisherId: ORGANIZATION_STRUCTURED_DATA_ID,
+};
+
+/**
  * Describes the company behind the site for search engines and knowledge panels
  *
  * @see https://schema.org/Organization
  */
-export function createOrganizationStructuredData(): StructuredDataNode {
+export function createOrganizationStructuredData(
+    options: OrganizationStructuredDataOptions = SITE_ORGANIZATION_STRUCTURED_DATA_OPTIONS,
+): StructuredDataNode {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        '@id': ORGANIZATION_STRUCTURED_DATA_ID,
-        name: SITE_NAME,
-        legalName: ORGANIZATION_LEGAL_NAME,
-        description: SITE_DESCRIPTION,
-        url: SITE_URL,
-        logo: createAbsoluteUrl(SITE_LOGO_PATH),
-        sameAs: [...ORGANIZATION_SOCIAL_URLS],
-        address: {
-            '@type': 'PostalAddress',
-            addressCountry: ORGANIZATION_COUNTRY_CODE,
-        },
-        identifier: {
-            '@type': 'PropertyValue',
-            name: 'IČO',
-            value: ORGANIZATION_REGISTRATION_NUMBER,
-        },
+        '@id': options.id,
+        name: options.name,
+        ...(options.legalName ? { legalName: options.legalName } : {}),
+        description: options.description,
+        url: options.url,
+        logo: createAbsoluteUrl(options.logoPath),
+        sameAs: [...options.socialUrls],
+        ...(options.countryCode
+            ? {
+                  address: {
+                      '@type': 'PostalAddress',
+                      addressCountry: options.countryCode,
+                  },
+              }
+            : {}),
+        ...(options.registrationNumber
+            ? {
+                  identifier: {
+                      '@type': 'PropertyValue',
+                      name: 'IČO',
+                      value: options.registrationNumber,
+                  },
+              }
+            : {}),
     };
 }
 
@@ -62,18 +120,28 @@ export function createOrganizationStructuredData(): StructuredDataNode {
  *
  * @see https://schema.org/WebSite
  */
-export function createWebSiteStructuredData(): StructuredDataNode {
+export function createWebSiteStructuredData(
+    options: WebSiteStructuredDataOptions = SITE_WEBSITE_STRUCTURED_DATA_OPTIONS,
+): StructuredDataNode {
     return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        '@id': WEBSITE_STRUCTURED_DATA_ID,
-        name: SITE_NAME,
-        description: SITE_DESCRIPTION,
-        url: SITE_URL,
-        inLanguage: Object.values(STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE),
-        publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
+        '@id': options.id,
+        name: options.name,
+        description: options.description,
+        url: options.url,
+        inLanguage: [...options.languageCodes],
+        publisher: { '@id': options.publisherId },
     };
 }
+
+/**
+ * Relationships which place a page inside a website and describe its organization
+ */
+export type WebPageStructuredDataContext = {
+    readonly websiteId?: string;
+    readonly organizationId?: string;
+};
 
 /**
  * Describes one indexable page in the context of the site and its publisher.
@@ -81,7 +149,10 @@ export function createWebSiteStructuredData(): StructuredDataNode {
  * This is deliberately a generic `WebPage`, rather than pretending every
  * landing page is a richer Schema.org type it does not actually satisfy.
  */
-export function createWebPageStructuredData(definition: PageMetadataDefinition): StructuredDataNode {
+export function createWebPageStructuredData(
+    definition: PageMetadataDefinition,
+    context: WebPageStructuredDataContext = {},
+): StructuredDataNode {
     const pageUrl = createAbsoluteUrl(definition.path);
     const imageUrl = createAbsoluteUrl(resolveSocialPreviewImagePath(definition));
 
@@ -93,8 +164,8 @@ export function createWebPageStructuredData(definition: PageMetadataDefinition):
         description: definition.description,
         url: pageUrl,
         inLanguage: STRUCTURED_DATA_LANGUAGE_BY_LANGUAGE[definition.language],
-        isPartOf: { '@id': WEBSITE_STRUCTURED_DATA_ID },
-        about: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
+        isPartOf: { '@id': context.websiteId ?? WEBSITE_STRUCTURED_DATA_ID },
+        about: { '@id': context.organizationId ?? ORGANIZATION_STRUCTURED_DATA_ID },
         primaryImageOfPage: {
             '@type': 'ImageObject',
             url: imageUrl,
@@ -199,6 +270,11 @@ export type PodcastSeriesStructuredDataOptions = {
     };
 
     /**
+     * Organization which publishes the show, defaulting to the site's organization
+     */
+    readonly publisherId?: string;
+
+    /**
      * Places the very same podcast can be watched or listened to, for example its YouTube channel
      */
     readonly channelUrls: readonly string[];
@@ -260,7 +336,7 @@ export function createPodcastSeriesStructuredData(options: PodcastSeriesStructur
             '@type': options.author.type,
             name: options.author.name,
         },
-        publisher: { '@id': ORGANIZATION_STRUCTURED_DATA_ID },
+        publisher: { '@id': options.publisherId ?? ORGANIZATION_STRUCTURED_DATA_ID },
         ...(options.episodes === undefined
             ? {}
             : { episode: options.episodes.map(createPodcastEpisodeStructuredData) }),

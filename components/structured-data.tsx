@@ -1,4 +1,5 @@
 import type { StructuredDataNode } from '@/lib/metadata/structured-data';
+import { serializeStructuredDataNode } from '@/lib/metadata/serialize-structured-data';
 
 type StructuredDataProps = {
     /**
@@ -6,13 +7,6 @@ type StructuredDataProps = {
      */
     readonly nodes: readonly StructuredDataNode[];
 };
-
-/**
- * Serializes a schema.org node, escaping the characters which would otherwise break out of the `<script>` element
- */
-function serializeStructuredDataNode(node: StructuredDataNode): string {
-    return JSON.stringify(node).replace(/</g, '\\u003c');
-}
 
 /**
  * Embeds schema.org structured data as JSON-LD, which is the format Google recommends

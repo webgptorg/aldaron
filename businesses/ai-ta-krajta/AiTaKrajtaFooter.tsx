@@ -25,9 +25,8 @@ const CURRENT_YEAR = new Date().getFullYear();
 /**
  * Footer of the podcast page with the legal documents of the site
  *
- * Note: It deliberately does not reuse the footer of the product. That one sells Promptbook and asks for a newsletter
- *       subscription, neither of which belongs under a podcast. What has to be the same everywhere are the legal
- *       links, and those come from `LegalFooterLinks`.
+ * Note: It deliberately does not reuse the product footer. A podcast needs neither its sales message nor its
+ *       newsletter signup; only the legal links are shared through `LegalFooterLinks`.
  */
 export function AiTaKrajtaFooter() {
     return (
@@ -80,11 +79,6 @@ export function AiTaKrajtaFooter() {
                                 <a href={`#${AI_TA_KRAJTA_SECTION_IDS.PEOPLE}`} className={FOOTER_LINK_CLASS_NAME}>
                                     Kdo v tom jede
                                 </a>
-                            </li>
-                            <li>
-                                <Link href="/cs" className={FOOTER_LINK_CLASS_NAME}>
-                                    Promptbook
-                                </Link>
                             </li>
                         </ul>
                     </nav>

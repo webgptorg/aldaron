@@ -12,6 +12,21 @@ export type SitemapChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]['
 export type OpenGraphType = 'website' | 'profile' | 'article';
 
 /**
+ * A page-specific brand which replaces the site's default identity in crawler and sharing metadata
+ */
+export type PageMetadataBrand = {
+    /**
+     * Name shown in the document-level and Open Graph brand fields
+     */
+    readonly name: string;
+
+    /**
+     * Handle shown on X cards, when the page has an identity separate from the site
+     */
+    readonly socialHandle?: string;
+};
+
+/**
  * Single source of truth describing one page of the site
  *
  * Note: The very same definition is used to build the page `Metadata`, the social preview image and the sitemap entry,
@@ -27,6 +42,11 @@ export type PageMetadataDefinition = {
      * Language the page content is written in
      */
     readonly language: SupportedHomepageLanguage;
+
+    /**
+     * Identity used instead of the site's brand in document and sharing metadata
+     */
+    readonly brand?: PageMetadataBrand;
 
     /**
      * Text of the `<title>` element and the primary search result headline

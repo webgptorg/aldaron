@@ -1,10 +1,15 @@
 import { AiTaKrajtaPage } from '@/businesses/ai-ta-krajta/_AiTaKrajtaPage';
 import { fetchAiTaKrajtaArchive } from '@/businesses/ai-ta-krajta/aiTaKrajtaArchive';
-import { AI_TA_KRAJTA_METADATA, createAiTaKrajtaStructuredData } from '@/businesses/ai-ta-krajta/aiTaKrajtaMetadata';
+import {
+    AI_TA_KRAJTA_METADATA,
+    AI_TA_KRAJTA_VIEWPORT,
+    createAiTaKrajtaStructuredData,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaMetadata';
 import { StructuredData } from '@/components/structured-data';
 import { Suspense } from 'react';
 
 export const metadata = AI_TA_KRAJTA_METADATA;
+export const viewport = AI_TA_KRAJTA_VIEWPORT;
 
 /**
  * How long the built page and the feed it was built from are reused, in seconds

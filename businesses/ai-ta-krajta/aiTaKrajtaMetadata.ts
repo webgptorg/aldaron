@@ -1,12 +1,16 @@
 import type { AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { createAiTaKrajtaEpisodePath } from '@/businesses/ai-ta-krajta/aiTaKrajtaViewState';
 import {
+    AI_TA_KRAJTA_APP_ICON,
+    AI_TA_KRAJTA_BRAND_NAME,
     AI_TA_KRAJTA_COLORS,
     AI_TA_KRAJTA_COVER_IMAGE_PATH,
-    AI_TA_KRAJTA_NAME,
+    AI_TA_KRAJTA_MANIFEST_PATH,
     AI_TA_KRAJTA_PATH,
     AI_TA_KRAJTA_SOCIAL_URLS,
     AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE,
+    AI_TA_KRAJTA_THEME_COLOR,
+    AI_TA_KRAJTA_X_HANDLE,
 } from '@/businesses/ai-ta-krajta/config';
 import { createPageMetadata } from '@/lib/metadata/create-page-metadata';
 import { createSocialPreviewOptions } from '@/lib/metadata/create-social-preview-options';
@@ -15,16 +19,22 @@ import { createAbsoluteUrl } from '@/lib/metadata/site-config';
 import type { SocialPreviewImageOptions } from '@/lib/metadata/social-preview-image';
 import {
     createPodcastSeriesStructuredData,
+    createOrganizationStructuredData,
     createWebPageStructuredData,
+    createWebSiteStructuredData,
     type StructuredDataNode,
 } from '@/lib/metadata/structured-data';
-import type { Metadata } from 'next';
+import type { Metadata, MetadataRoute, Viewport } from 'next';
 
 /**
  * How many newest episodes the structured data lists, which is enough for a search engine to understand the show
  * without repeating the whole archive in every response
  */
 const STRUCTURED_DATA_EPISODE_COUNT = 10;
+
+const AI_TA_KRAJTA_STRUCTURED_DATA_URL = createAbsoluteUrl(AI_TA_KRAJTA_PATH);
+const AI_TA_KRAJTA_ORGANIZATION_STRUCTURED_DATA_ID = `${AI_TA_KRAJTA_STRUCTURED_DATA_URL}#organization`;
+const AI_TA_KRAJTA_WEBSITE_STRUCTURED_DATA_ID = `${AI_TA_KRAJTA_STRUCTURED_DATA_URL}#website`;
 
 /**
  * The definition every piece of metadata of this page stems from, including the canonical url, the sharing tags and
@@ -33,13 +43,18 @@ const STRUCTURED_DATA_EPISODE_COUNT = 10;
 export const AI_TA_KRAJTA_PAGE_DEFINITION: PageMetadataDefinition = {
     path: AI_TA_KRAJTA_PATH,
     language: 'cs',
-    title: 'AI ta Krajta | Český podcast o umělé inteligenci',
-    socialTitle: AI_TA_KRAJTA_NAME,
+    brand: {
+        name: AI_TA_KRAJTA_BRAND_NAME,
+        socialHandle: AI_TA_KRAJTA_X_HANDLE,
+    },
+    title: `${AI_TA_KRAJTA_BRAND_NAME} | Český podcast o umělé inteligenci`,
+    socialTitle: AI_TA_KRAJTA_BRAND_NAME,
     description:
         'Každý týden si sedneme a probereme, co se v AI stalo. Poslechněte si díly přímo tady, nebo se na ně podívejte na YouTube.',
     socialDescription: AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE.cs,
-    socialPreviewImageAlt: 'AI ta Krajta, český podcast o umělé inteligenci',
+    socialPreviewImageAlt: `${AI_TA_KRAJTA_BRAND_NAME}, český podcast o umělé inteligenci`,
     keywords: [
+        AI_TA_KRAJTA_BRAND_NAME,
         'AI ta Krajta',
         'AI podcast',
         'český podcast o AI',
@@ -53,12 +68,73 @@ export const AI_TA_KRAJTA_PAGE_DEFINITION: PageMetadataDefinition = {
     sitemapChangeFrequency: 'weekly',
 };
 
-export const AI_TA_KRAJTA_METADATA: Metadata = createPageMetadata(AI_TA_KRAJTA_PAGE_DEFINITION);
+/**
+ * Route-level metadata which must use the podcast identity instead of the site's default one
+ */
+export const AI_TA_KRAJTA_METADATA: Metadata = {
+    ...createPageMetadata(AI_TA_KRAJTA_PAGE_DEFINITION),
+    icons: {
+        icon: [
+            {
+                url: AI_TA_KRAJTA_APP_ICON.path,
+                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
+                type: AI_TA_KRAJTA_APP_ICON.type,
+            },
+        ],
+        apple: [
+            {
+                url: AI_TA_KRAJTA_APP_ICON.path,
+                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
+                type: AI_TA_KRAJTA_APP_ICON.type,
+            },
+        ],
+    },
+    manifest: AI_TA_KRAJTA_MANIFEST_PATH,
+    appleWebApp: {
+        capable: true,
+        title: AI_TA_KRAJTA_BRAND_NAME,
+        statusBarStyle: 'black-translucent',
+    },
+    other: {
+        'msapplication-TileColor': AI_TA_KRAJTA_THEME_COLOR,
+    },
+};
+
+/**
+ * Browser chrome of the dark podcast page
+ */
+export const AI_TA_KRAJTA_VIEWPORT: Viewport = {
+    themeColor: AI_TA_KRAJTA_THEME_COLOR,
+    colorScheme: 'dark',
+};
+
+/**
+ * Manifest of the installable podcast page, read by its route file
+ */
+export function createAiTaKrajtaManifest(): MetadataRoute.Manifest {
+    return {
+        name: AI_TA_KRAJTA_BRAND_NAME,
+        short_name: AI_TA_KRAJTA_BRAND_NAME,
+        description: AI_TA_KRAJTA_PAGE_DEFINITION.description,
+        start_url: AI_TA_KRAJTA_PATH,
+        display: 'standalone',
+        background_color: AI_TA_KRAJTA_THEME_COLOR,
+        theme_color: AI_TA_KRAJTA_THEME_COLOR,
+        icons: [
+            {
+                src: AI_TA_KRAJTA_APP_ICON.path,
+                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
+                type: AI_TA_KRAJTA_APP_ICON.type,
+                purpose: 'any',
+            },
+        ],
+    };
+}
 
 export const AI_TA_KRAJTA_SOCIAL_PREVIEW_OPTIONS: SocialPreviewImageOptions = createSocialPreviewOptions(
     AI_TA_KRAJTA_PAGE_DEFINITION,
     {
-        brandLabel: AI_TA_KRAJTA_NAME,
+        brandLabel: AI_TA_KRAJTA_BRAND_NAME,
         eyebrow: 'Podcast',
         audienceLabel: 'Pro lidi, kteří AI staví i používají',
         bullets: ['Česky', 'Video i audio', 'Bez PR balastu'],
@@ -87,14 +163,34 @@ export const AI_TA_KRAJTA_SOCIAL_PREVIEW_OPTIONS: SocialPreviewImageOptions = cr
  */
 export function createAiTaKrajtaStructuredData(episodes: readonly AiTaKrajtaEpisode[]): readonly StructuredDataNode[] {
     return [
-        createWebPageStructuredData(AI_TA_KRAJTA_PAGE_DEFINITION),
+        createOrganizationStructuredData({
+            id: AI_TA_KRAJTA_ORGANIZATION_STRUCTURED_DATA_ID,
+            name: AI_TA_KRAJTA_BRAND_NAME,
+            description: AI_TA_KRAJTA_PAGE_DEFINITION.description,
+            url: AI_TA_KRAJTA_STRUCTURED_DATA_URL,
+            logoPath: AI_TA_KRAJTA_COVER_IMAGE_PATH,
+            socialUrls: AI_TA_KRAJTA_SOCIAL_URLS,
+        }),
+        createWebSiteStructuredData({
+            id: AI_TA_KRAJTA_WEBSITE_STRUCTURED_DATA_ID,
+            name: AI_TA_KRAJTA_BRAND_NAME,
+            description: AI_TA_KRAJTA_PAGE_DEFINITION.description,
+            url: AI_TA_KRAJTA_STRUCTURED_DATA_URL,
+            languageCodes: ['cs-CZ'],
+            publisherId: AI_TA_KRAJTA_ORGANIZATION_STRUCTURED_DATA_ID,
+        }),
+        createWebPageStructuredData(AI_TA_KRAJTA_PAGE_DEFINITION, {
+            websiteId: AI_TA_KRAJTA_WEBSITE_STRUCTURED_DATA_ID,
+            organizationId: AI_TA_KRAJTA_ORGANIZATION_STRUCTURED_DATA_ID,
+        }),
         createPodcastSeriesStructuredData({
-            name: AI_TA_KRAJTA_NAME,
+            name: AI_TA_KRAJTA_BRAND_NAME,
             description: AI_TA_KRAJTA_PAGE_DEFINITION.description,
             path: AI_TA_KRAJTA_PATH,
             imagePath: AI_TA_KRAJTA_COVER_IMAGE_PATH,
             language: 'cs',
-            author: { name: AI_TA_KRAJTA_NAME, type: 'Organization' },
+            author: { name: AI_TA_KRAJTA_BRAND_NAME, type: 'Organization' },
+            publisherId: AI_TA_KRAJTA_ORGANIZATION_STRUCTURED_DATA_ID,
             channelUrls: AI_TA_KRAJTA_SOCIAL_URLS,
             episodes: episodes.slice(0, STRUCTURED_DATA_EPISODE_COUNT).map((episode) => ({
                 name: episode.title,

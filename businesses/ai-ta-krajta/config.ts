@@ -11,9 +11,23 @@ export const AI_TA_KRAJTA_PATH = '/ai-ta-krajta';
 export const AI_TA_KRAJTA_NAME = 'AI ta Krajta';
 
 /**
+ * Name used in browser and sharing metadata, where the snake is part of the podcast identity
+ */
+export const AI_TA_KRAJTA_BRAND_NAME = `${AI_TA_KRAJTA_NAME} 🐍`;
+
+/**
  * Cover artwork of the show, also used by Pavol Hejný's media list
  */
 export const AI_TA_KRAJTA_COVER_IMAGE_PATH = '/pavol/media/ai-ta-krajta.jpg';
+
+/**
+ * The square podcast cover doubles as its favicon, touch icon and installed-app icon
+ */
+export const AI_TA_KRAJTA_APP_ICON = {
+    path: AI_TA_KRAJTA_COVER_IMAGE_PATH,
+    sizes: '900x900',
+    type: 'image/jpeg',
+} as const;
 
 /**
  * Colors read off the cover artwork, so that the page, the mini player and the generated sharing image agree
@@ -46,6 +60,11 @@ export const AI_TA_KRAJTA_COLORS = {
 } as const;
 
 /**
+ * Browser chrome and installed-app background drawn from the dark cover artwork
+ */
+export const AI_TA_KRAJTA_THEME_COLOR = AI_TA_KRAJTA_COLORS.MOSS_DEEP;
+
+/**
  * One sentence describing the show, taken from the podcast feed
  */
 export const AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
@@ -58,7 +77,16 @@ export const AI_TA_KRAJTA_SPOTIFY_SHOW_URL = 'https://open.spotify.com/show/31vL
 export const AI_TA_KRAJTA_APPLE_PODCASTS_SHOW_URL = 'https://podcasts.apple.com/cz/podcast/ai-ta-krajta/id1813389353';
 export const AI_TA_KRAJTA_LINKEDIN_URL = 'https://www.linkedin.com/company/aitakrajta';
 export const AI_TA_KRAJTA_INSTAGRAM_URL = 'https://www.instagram.com/aitakrajta_tv/';
-export const AI_TA_KRAJTA_X_URL = 'https://x.com/aitakrajta_tv';
+
+const AI_TA_KRAJTA_X_USERNAME = 'aitakrajta_tv';
+
+export const AI_TA_KRAJTA_X_HANDLE = `@${AI_TA_KRAJTA_X_USERNAME}`;
+export const AI_TA_KRAJTA_X_URL = `https://x.com/${AI_TA_KRAJTA_X_USERNAME}`;
+
+/**
+ * Route at which Next.js serves the podcast's installable web-app manifest
+ */
+export const AI_TA_KRAJTA_MANIFEST_PATH = `${AI_TA_KRAJTA_PATH}/manifest.webmanifest`;
 
 /**
  * Feed which every episode of the show comes from
