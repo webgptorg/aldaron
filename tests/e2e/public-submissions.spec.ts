@@ -210,9 +210,14 @@ test('plays the newest AI ta Krajta episode from the header', async ({ page }) =
 test('keeps the AI ta Krajta minigame local to the page', async ({ page }) => {
     await page.goto('/ai-ta-krajta');
 
-    await page.getByRole('button', { name: 'Probudit' }).click();
+    const gameToggle = page.getByRole('button', { name: 'Probudit' });
 
-    await expect(page.getByRole('button', { name: 'Uspat' })).toBeVisible();
+    await expect(gameToggle).toHaveAttribute('aria-pressed', 'false');
+    await gameToggle.click();
+
+    await expect(page.getByRole('button', { name: 'Uspat' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByText('Sbírejte tokeny. Roste z nich.')).toHaveCount(0);
+    await expect(page.getByText('Veďte krajtu myší nebo prstem.')).toHaveCount(0);
     await expect(page).toHaveURL(/\/ai-ta-krajta$/);
 });
 

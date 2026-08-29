@@ -9,7 +9,7 @@ import {
     type SnakeState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeSimulation';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useRef, type PointerEvent } from 'react';
 
 /**
  * Radius of the head and of the tip of the tail, in pixels
@@ -24,29 +24,116 @@ const FOOD_RADIUS_IN_PIXELS = 6;
 const FOOD_GLOW_RADIUS_IN_PIXELS = 14;
 
 /**
- * Reads a color written as `#rrggbb`
+ * Radius of the body at one point along its center line
  */
-function readColorChannels(hexColor: string): readonly [number, number, number] {
-    return [
-        Number.parseInt(hexColor.slice(1, 3), 16),
-        Number.parseInt(hexColor.slice(3, 5), 16),
-        Number.parseInt(hexColor.slice(5, 7), 16),
-    ];
+function getSnakeRadius(segmentIndex: number, segmentCount: number): number {
+    const ratioFromHead = segmentIndex / Math.max(1, segmentCount - 1);
+
+    return HEAD_RADIUS_IN_PIXELS - (HEAD_RADIUS_IN_PIXELS - TAIL_RADIUS_IN_PIXELS) * ratioFromHead;
 }
 
 /**
- * Mixes two colors, so that the body of the snake runs from one end of the palette to the other
- *
- * @param ratio zero for the first color, one for the second one
+ * A unit vector pointing in an angle used by the simulation
  */
-function mixColors(firstColor: string, secondColor: string, ratio: number): string {
-    const firstChannels = readColorChannels(firstColor);
-    const secondChannels = readColorChannels(secondColor);
-    const mixedChannels = firstChannels.map((channel, channelIndex) =>
-        Math.round(channel + (secondChannels[channelIndex] - channel) * ratio),
-    );
+function getDirectionFromAngle(angleInRadians: number): SnakePoint {
+    return { x: Math.cos(angleInRadians), y: Math.sin(angleInRadians) };
+}
 
-    return `rgb(${mixedChannels.join(', ')})`;
+/**
+ * The heading of a point along the snake, falling back to the head direction while its trail is still being built
+ */
+function getSnakeDirection(
+    segments: readonly SnakePoint[],
+    segmentIndex: number,
+    fallbackAngleInRadians: number,
+): SnakePoint {
+    const currentSegment = segments[segmentIndex];
+
+    if (currentSegment === undefined) {
+        return getDirectionFromAngle(fallbackAngleInRadians);
+    }
+
+    const previousSegment = segments[Math.max(0, segmentIndex - 1)] ?? currentSegment;
+    const nextSegment = segments[Math.min(segments.length - 1, segmentIndex + 1)] ?? currentSegment;
+    const directionX = previousSegment.x - nextSegment.x;
+    const directionY = previousSegment.y - nextSegment.y;
+    const directionLength = Math.hypot(directionX, directionY);
+
+    if (directionLength === 0) {
+        return getDirectionFromAngle(fallbackAngleInRadians);
+    }
+
+    return { x: directionX / directionLength, y: directionY / directionLength };
+}
+
+/**
+ * The left and right edge of the snake, ordered into one closed contour
+ */
+function getSnakeBodyOutline(segments: readonly SnakePoint[], fallbackAngleInRadians: number): readonly SnakePoint[] {
+    const leftSide: SnakePoint[] = [];
+    const rightSide: SnakePoint[] = [];
+
+    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
+        const segment = segments[segmentIndex];
+
+        if (segment === undefined) {
+            continue;
+        }
+
+        const direction = getSnakeDirection(segments, segmentIndex, fallbackAngleInRadians);
+        const radius = getSnakeRadius(segmentIndex, segments.length);
+        const normalX = -direction.y * radius;
+        const normalY = direction.x * radius;
+
+        leftSide.push({ x: segment.x + normalX, y: segment.y + normalY });
+        rightSide.push({ x: segment.x - normalX, y: segment.y - normalY });
+    }
+
+    return [...leftSide, ...rightSide.reverse()];
+}
+
+/**
+ * Draws a contour with rounded transitions, avoiding visible joints between the remembered trail points
+ */
+function drawRoundedContour(context: CanvasRenderingContext2D, outline: readonly SnakePoint[]): void {
+    const firstPoint = outline[0];
+    const lastPoint = outline[outline.length - 1];
+
+    if (firstPoint === undefined || lastPoint === undefined) {
+        return;
+    }
+
+    context.beginPath();
+    context.moveTo((lastPoint.x + firstPoint.x) / 2, (lastPoint.y + firstPoint.y) / 2);
+
+    for (let pointIndex = 0; pointIndex < outline.length; pointIndex++) {
+        const point = outline[pointIndex];
+        const nextPoint = outline[(pointIndex + 1) % outline.length];
+
+        if (point === undefined || nextPoint === undefined) {
+            continue;
+        }
+
+        context.quadraticCurveTo(point.x, point.y, (point.x + nextPoint.x) / 2, (point.y + nextPoint.y) / 2);
+    }
+
+    context.closePath();
+}
+
+/**
+ * The color which flows from the tail to the head of the snake
+ */
+function createSnakeGradient(
+    context: CanvasRenderingContext2D,
+    tailPosition: SnakePoint,
+    headPosition: SnakePoint,
+): CanvasGradient {
+    const gradient = context.createLinearGradient(tailPosition.x, tailPosition.y, headPosition.x, headPosition.y);
+
+    gradient.addColorStop(0, AI_TA_KRAJTA_COLORS.INDIGO);
+    gradient.addColorStop(1, AI_TA_KRAJTA_COLORS.CORAL);
+
+    return gradient;
 }
 
 /**
@@ -106,21 +193,25 @@ function drawEyes(context: CanvasRenderingContext2D, state: SnakeState): void {
 }
 
 /**
- * Draws the snake from the tip of its tail up to its head, so that the head ends up on top
+ * Draws the continuous, tapered body and puts a round head over its leading edge
  */
 function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
     const segments = getSnakeSegments(state);
+    const headPosition = segments[0];
+    const tailPosition = segments[segments.length - 1];
 
-    for (let segmentIndex = segments.length - 1; segmentIndex >= 0; segmentIndex--) {
-        const segment = segments[segmentIndex];
-        const ratioFromHead = segmentIndex / Math.max(1, segments.length - 1);
-        const radius = HEAD_RADIUS_IN_PIXELS - (HEAD_RADIUS_IN_PIXELS - TAIL_RADIUS_IN_PIXELS) * ratioFromHead;
-
-        context.fillStyle = mixColors(AI_TA_KRAJTA_COLORS.CORAL, AI_TA_KRAJTA_COLORS.INDIGO, ratioFromHead);
-        context.beginPath();
-        context.arc(segment.x, segment.y, radius, 0, Math.PI * 2);
-        context.fill();
+    if (headPosition === undefined || tailPosition === undefined) {
+        return;
     }
+
+    drawRoundedContour(context, getSnakeBodyOutline(segments, state.headAngleInRadians));
+    context.fillStyle = createSnakeGradient(context, tailPosition, headPosition);
+    context.fill();
+
+    context.fillStyle = AI_TA_KRAJTA_COLORS.CORAL;
+    context.beginPath();
+    context.arc(state.headPosition.x, state.headPosition.y, HEAD_RADIUS_IN_PIXELS, 0, Math.PI * 2);
+    context.fill();
 
     drawEyes(context, state);
 }
@@ -132,12 +223,10 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
  *       does. The whole game is `aiTaKrajtaSnakeSimulation`, this only draws what it returns and feeds the pointer
  *       into it.
  *
- * @param onScoreChange called whenever a token is eaten, so the section around can show the score
  */
-export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?: (score: number) => void }) {
+export function AiTaKrajtaSnakeGame() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const targetPositionRef = useRef<SnakePoint | null>(null);
-    const [isPointerOnField, setIsPointerOnField] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -151,7 +240,6 @@ export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?
         let state = createSnakeState(bounds, Math.random);
         let lastFrameTimestamp: number | null = null;
         let animationFrameId = 0;
-        let lastReportedScore = 0;
 
         const resizeCanvas = () => {
             const devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
@@ -173,11 +261,6 @@ export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?
                 createRandomNumber: Math.random,
             });
 
-            if (state.score !== lastReportedScore) {
-                lastReportedScore = state.score;
-                onScoreChange?.(state.score);
-            }
-
             context.clearRect(0, 0, bounds.width, bounds.height);
             drawFood(context, state);
             drawSnake(context, state);
@@ -195,7 +278,7 @@ export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?
             window.cancelAnimationFrame(animationFrameId);
             resizeObserver.disconnect();
         };
-    }, [onScoreChange]);
+    }, []);
 
     const handlePointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
         const canvasBounds = event.currentTarget.getBoundingClientRect();
@@ -204,12 +287,10 @@ export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?
             x: event.clientX - canvasBounds.left,
             y: event.clientY - canvasBounds.top,
         };
-        setIsPointerOnField(true);
     };
 
     const handlePointerLeave = () => {
         targetPositionRef.current = null;
-        setIsPointerOnField(false);
     };
 
     return (
@@ -221,14 +302,9 @@ export function AiTaKrajtaSnakeGame({ onScoreChange }: { readonly onScoreChange?
                 onPointerLeave={handlePointerLeave}
                 onPointerCancel={handlePointerLeave}
                 className="h-full w-full cursor-crosshair touch-none"
-                aria-label="Hra s krajtou, veďte ji myší za body"
+                aria-label="Krajta, veďte ji myší nebo prstem"
                 role="img"
             />
-            {!isPointerOnField && (
-                <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center text-xs text-white/50">
-                    Veďte krajtu myší nebo prstem.
-                </p>
-            )}
         </div>
     );
 }

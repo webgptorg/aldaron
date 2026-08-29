@@ -54,6 +54,13 @@ describe('aiTaKrajtaSnakeSimulation', () => {
         expect(state.food.length).toBeGreaterThan(0);
     });
 
+    it('starts with a full body behind its head', () => {
+        const state = createSnakeState(BOUNDS, createPredictableRandomNumber());
+        const bodyPositions = getSnakeSegments(state).map((segment) => `${segment.x},${segment.y}`);
+
+        expect(new Set(bodyPositions).size).toBeGreaterThan(1);
+    });
+
     it('turns towards the pointer instead of jumping to it', () => {
         const state = createSnakeState(BOUNDS, createPredictableRandomNumber());
         const afterOneStep = advanceSnakeState(state, {

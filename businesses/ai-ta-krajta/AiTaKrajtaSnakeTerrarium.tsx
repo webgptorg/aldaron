@@ -2,15 +2,8 @@
 
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
 import { AiTaKrajtaSnakeGame } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeGame';
-import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { motion } from 'framer-motion';
-import { useCallback, useState } from 'react';
-
-/**
- * What the snake says while it is still asleep and while it is being fed
- */
-const SLEEPING_HINT = 'Klikněte na krajtu. Nudí se.';
-const PLAYING_HINT = 'Sbírejte tokeny. Roste z nich.';
+import { useState } from 'react';
 
 /**
  * The logo which turns into a game
@@ -20,9 +13,6 @@ const PLAYING_HINT = 'Sbírejte tokeny. Roste z nich.';
  */
 export function AiTaKrajtaSnakeTerrarium() {
     const [isGamePlayed, setIsGamePlayed] = useState(false);
-    const [score, setScore] = useState(0);
-
-    const handleScoreChange = useCallback((newScore: number) => setScore(newScore), []);
 
     return (
         <div className="relative">
@@ -30,49 +20,29 @@ export function AiTaKrajtaSnakeTerrarium() {
                 <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.18)_1px,transparent_0)] [background-size:22px_22px]" />
 
                 {isGamePlayed ? (
-                    <AiTaKrajtaSnakeGame onScoreChange={handleScoreChange} />
+                    <AiTaKrajtaSnakeGame />
                 ) : (
-                    <button
-                        type="button"
-                        onClick={() => setIsGamePlayed(true)}
-                        className="group absolute inset-0 flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#ff6b6b] focus-visible:ring-offset-2 focus-visible:ring-offset-[#232a25]"
-                    >
+                    <div className="absolute inset-0 flex items-center justify-center">
                         <motion.span
                             animate={{ y: [0, -12, 0], rotate: [-1.5, 1.5, -1.5] }}
                             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
                             className="block w-1/2 max-w-[13rem]"
                         >
-                            <AiTaKrajtaMark className="h-full w-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-105" />
+                            <AiTaKrajtaMark className="h-full w-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.45)]" />
                         </motion.span>
-                    </button>
+                    </div>
                 )}
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-                <p className="text-white/50">{isGamePlayed ? PLAYING_HINT : SLEEPING_HINT}</p>
-
-                {isGamePlayed ? (
-                    <div className="flex shrink-0 items-center gap-3">
-                        <span className="tabular-nums font-semibold text-white">
-                            {formatCzechCountedNoun(score, ['token', 'tokeny', 'tokenů'])}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => setIsGamePlayed(false)}
-                            className="text-white/50 underline underline-offset-4 transition-colors hover:text-white"
-                        >
-                            Uspat
-                        </button>
-                    </div>
-                ) : (
-                    <button
-                        type="button"
-                        onClick={() => setIsGamePlayed(true)}
-                        className="shrink-0 font-semibold text-[#ff9b8f] underline underline-offset-4 transition-colors hover:text-white"
-                    >
-                        Probudit
-                    </button>
-                )}
+            <div className="mt-4 flex justify-end">
+                <button
+                    type="button"
+                    aria-pressed={isGamePlayed}
+                    onClick={() => setIsGamePlayed((isGamePlayed) => !isGamePlayed)}
+                    className="font-semibold text-[#ff9b8f] underline underline-offset-4 transition-colors hover:text-white"
+                >
+                    {isGamePlayed ? 'Uspat' : 'Probudit'}
+                </button>
             </div>
         </div>
     );

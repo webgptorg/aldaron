@@ -89,6 +89,11 @@ export const SEGMENT_DISTANCE_IN_PIXELS = 8;
 const INITIAL_SEGMENT_COUNT = 14;
 
 /**
+ * Direction of the snake while it first appears in the middle of the field
+ */
+const INITIAL_HEAD_ANGLE_IN_RADIANS = -Math.PI / 2;
+
+/**
  * How much longer the body gets with every eaten token
  */
 const SEGMENT_COUNT_PER_FOOD = 3;
@@ -147,6 +152,29 @@ function clamp(value: number, minimum: number, maximum: number): number {
 }
 
 /**
+ * How many remembered trail points make up a body of the requested length
+ */
+function getNeededTrailLength(segmentCount: number): number {
+    const trailPointsPerSegment = SEGMENT_DISTANCE_IN_PIXELS / TRAIL_POINT_DISTANCE_IN_PIXELS;
+
+    return Math.ceil(segmentCount * trailPointsPerSegment) + 2;
+}
+
+/**
+ * Fills the body behind the head before the first animation frame, so the snake never starts as overlapping dots
+ */
+function createInitialTrail(headPosition: SnakePoint): SnakePoint[] {
+    return Array.from({ length: getNeededTrailLength(INITIAL_SEGMENT_COUNT) }, (_, trailPointIndex) => {
+        const distanceFromHead = trailPointIndex * TRAIL_POINT_DISTANCE_IN_PIXELS;
+
+        return {
+            x: headPosition.x - Math.cos(INITIAL_HEAD_ANGLE_IN_RADIANS) * distanceFromHead,
+            y: headPosition.y - Math.sin(INITIAL_HEAD_ANGLE_IN_RADIANS) * distanceFromHead,
+        };
+    });
+}
+
+/**
  * Places one token somewhere on the field, out of reach of the head
  */
 function createFood(
@@ -187,8 +215,8 @@ export function createSnakeState(bounds: SnakeBounds, createRandomNumber: Create
 
     return {
         headPosition,
-        headAngleInRadians: -Math.PI / 2,
-        trail: [headPosition],
+        headAngleInRadians: INITIAL_HEAD_ANGLE_IN_RADIANS,
+        trail: createInitialTrail(headPosition),
         segmentCount: INITIAL_SEGMENT_COUNT,
         food,
         score: 0,
@@ -245,8 +273,7 @@ function reflectOffWalls(
  * Remembers where the head has been, dropping what is already behind the tail
  */
 function extendTrail(trail: readonly SnakePoint[], headPosition: SnakePoint, segmentCount: number): SnakePoint[] {
-    const trailPointsPerSegment = SEGMENT_DISTANCE_IN_PIXELS / TRAIL_POINT_DISTANCE_IN_PIXELS;
-    const neededTrailLength = Math.ceil(segmentCount * trailPointsPerSegment) + 2;
+    const neededTrailLength = getNeededTrailLength(segmentCount);
     const newestPoint = trail[0];
 
     if (newestPoint !== undefined && getDistance(newestPoint, headPosition) < TRAIL_POINT_DISTANCE_IN_PIXELS) {
