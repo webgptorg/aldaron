@@ -3,93 +3,180 @@
  */
 
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
+import { formatCalendarDayTitle } from '@/lib/calendar/calendarMonth';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import { formatEventPrice } from '@/lib/events/eventPrice';
+import { getWorkshopPhaseAppearance } from '@/components/workshops/workshopPhaseAppearance';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-const WORKSHOPS: readonly WorkshopSummary[] = [
-    {
-        id: 'workshop-id',
-        kind: 'workshop',
-        event: DEFAULT_EVENT_DETAILS,
-        slug: 'production-ai-2026-09-10',
-        title: 'Produkční kód s AI agenty',
-        startsAt: '2026-09-10T19:00:00+02:00',
-        endsAt: '2026-09-10T20:30:00+02:00',
-        isPublished: true,
+const TERM_LIST_LABEL = 'Termíny akcí';
+
+const SERVER_TIME = '2026-09-10T19:30:00+02:00';
+const CALENDAR_FEED_URL = 'https://ptbk.io/cs/komunita/calendar.ics';
+const PARTICIPANT_IDENTITY = { fullname: 'Jana Nováková', email: 'jana@example.com' };
+
+const ONGOING_WORKSHOP: WorkshopSummary = {
+    id: 'ongoing-workshop-id',
+    kind: 'workshop',
+    event: DEFAULT_EVENT_DETAILS,
+    slug: 'production-ai-2026-09-10',
+    title: 'Produkční kód s AI agenty',
+    startsAt: '2026-09-10T19:00:00+02:00',
+    endsAt: '2026-09-10T20:30:00+02:00',
+    isPublished: true,
+};
+
+const UPCOMING_WORKSHOP: WorkshopSummary = {
+    ...ONGOING_WORKSHOP,
+    id: 'upcoming-workshop-id',
+    slug: 'ai-supervize-mini-2026-09-24',
+    title: 'AI Supervize Mini',
+    event: {
+        ...DEFAULT_EVENT_DETAILS,
+        type: 'ai-supervize-mini',
+        locationKind: 'onsite',
+        locationLabel: 'Praha',
+        priceCzk: 12000,
     },
-];
+    startsAt: '2026-09-24T10:00:00+02:00',
+    endsAt: '2026-09-24T16:00:00+02:00',
+};
+
+const PAST_WORKSHOP: WorkshopSummary = {
+    ...ONGOING_WORKSHOP,
+    id: 'past-workshop-id',
+    slug: 'production-ai-2026-07-10',
+    title: 'Produkční kód s AI agenty v červenci',
+    startsAt: '2026-07-10T19:00:00+02:00',
+    endsAt: '2026-07-10T20:30:00+02:00',
+};
+
+const WORKSHOPS: readonly WorkshopSummary[] = [PAST_WORKSHOP, ONGOING_WORKSHOP, UPCOMING_WORKSHOP];
+
+function renderWorkshopLinksPanel(workshops: readonly WorkshopSummary[] = WORKSHOPS) {
+    render(
+        <WorkshopLinksPanel
+            workshops={workshops}
+            participantIdentity={PARTICIPANT_IDENTITY}
+            title="Termíny akcí Promptbooku"
+            description="Vyberte si termín."
+            emptyMessage="Žádný termín není dostupný."
+            locale="cs-CZ"
+            timeZone="Europe/Prague"
+            serverTime={SERVER_TIME}
+            calendarFeedUrl={CALENDAR_FEED_URL}
+        />,
+    );
+}
+
+function findCalendarDay(dayKey: string): HTMLElement {
+    return screen.getByRole('button', { name: formatCalendarDayTitle(dayKey, 'cs-CZ') });
+}
+
+function findTermLinks(): readonly HTMLElement[] {
+    return within(screen.getByRole('list', { name: TERM_LIST_LABEL })).getAllByRole('link');
+}
+
+function showCardsView(): void {
+    fireEvent.click(screen.getByRole('button', { name: 'Karty' }));
+}
 
 afterEach(cleanup);
 
 describe('workshop links panel', () => {
-    it('links a community member to every workshop room with their identity prefilled', () => {
-        render(
-            <WorkshopLinksPanel
-                workshops={WORKSHOPS}
-                participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                title="Workshopy Promptbooku"
-                description="Vyberte si workshop."
-                emptyMessage="Žádný workshop není dostupný."
-                locale="cs-CZ"
-                timeZone="Europe/Prague"
-            />,
-        );
+    it('opens on the calendar of the month a member is in', () => {
+        renderWorkshopLinksPanel();
 
-        expect(screen.getByRole('link', { name: /Produkční kód s AI agenty/ }).getAttribute('href')).toBe(
+        expect(screen.getAllByText('září 2026').length).toBeGreaterThan(0);
+        expect(screen.getByRole('link', { name: /Produkční kód s AI agenty/ })).not.toBeNull();
+        expect(screen.queryByRole('link', { name: /v červenci/ })).toBeNull();
+    });
+
+    it('colours every day of the calendar by where the term held on it stands in time', () => {
+        renderWorkshopLinksPanel();
+
+        expect(findCalendarDay('2026-09-10').className).toContain(
+            getWorkshopPhaseAppearance('ongoing').calendarDayClassName,
+        );
+        expect(findCalendarDay('2026-09-24').className).toContain(
+            getWorkshopPhaseAppearance('upcoming').calendarDayClassName,
+        );
+        expect(findCalendarDay('2026-09-11').getAttribute('disabled')).not.toBeNull();
+    });
+
+    it('narrows the listed terms to the chosen day and back to the whole month', () => {
+        renderWorkshopLinksPanel();
+
+        fireEvent.click(findCalendarDay('2026-09-24'));
+
+        expect(screen.getByRole('link', { name: /AI Supervize Mini/ })).not.toBeNull();
+        expect(screen.queryByRole('link', { name: /Produkční kód s AI agenty/ })).toBeNull();
+
+        fireEvent.click(screen.getByRole('button', { name: 'Celý měsíc' }));
+
+        expect(screen.getByRole('link', { name: /Produkční kód s AI agenty/ })).not.toBeNull();
+    });
+
+    it('lists every term of every month once the cards are chosen', () => {
+        renderWorkshopLinksPanel();
+        showCardsView();
+
+        expect(findTermLinks().map((termLink) => termLink.textContent)).toEqual([
+            expect.stringContaining(ONGOING_WORKSHOP.title),
+            expect.stringContaining(UPCOMING_WORKSHOP.title),
+            expect.stringContaining(PAST_WORKSHOP.title),
+        ]);
+    });
+
+    it('says on every card whether its term is running, still ahead, or already over', () => {
+        renderWorkshopLinksPanel();
+        showCardsView();
+
+        const [ongoingCard, upcomingCard, pastCard] = findTermLinks();
+
+        expect(ongoingCard?.textContent).toContain('Probíhá');
+        expect(upcomingCard?.textContent).toContain('Nadchází');
+        expect(pastCard?.textContent).toContain('Proběhlo');
+    });
+
+    it('links a community member to every workshop room with their identity prefilled', () => {
+        renderWorkshopLinksPanel();
+        showCardsView();
+
+        expect(findTermLinks()[0]?.getAttribute('href')).toBe(
             '/cs/online-workshop/participant?workshop=production-ai-2026-09-10&email=jana%40example.com&fullname=Jana+Nov%C3%A1kov%C3%A1',
         );
     });
 
     it('leads a term of a paid workshop to its landing page instead of a room it does not have', () => {
-        render(
-            <WorkshopLinksPanel
-                workshops={[
-                    {
-                        ...WORKSHOPS[0]!,
-                        id: 'paid-workshop-id',
-                        slug: 'ai-supervize-mini-2026-09-04',
-                        title: 'AI Supervize Mini',
-                        event: {
-                            ...DEFAULT_EVENT_DETAILS,
-                            type: 'ai-supervize-mini',
-                            locationKind: 'onsite',
-                            locationLabel: 'Praha',
-                            priceCzk: 12000,
-                        },
-                    },
-                ]}
-                participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                title="Termíny akcí"
-                description="Vyberte si termín."
-                emptyMessage="Žádný termín není dostupný."
-                locale="cs-CZ"
-                timeZone="Europe/Prague"
-            />,
-        );
+        renderWorkshopLinksPanel();
+        showCardsView();
 
         const paidWorkshopLink = screen.getByRole('link', { name: /AI Supervize Mini/ });
+
         expect(paidWorkshopLink.getAttribute('href')).toBe('/ai-supervize-mini');
         expect(paidWorkshopLink.textContent).toContain('Praha');
         expect(paidWorkshopLink.textContent).toContain(formatEventPrice(12000));
     });
 
-    it('explains an empty workshop list without emitting a broken link', () => {
-        render(
-            <WorkshopLinksPanel
-                workshops={[]}
-                participantIdentity={{ fullname: 'Jana Nováková', email: 'jana@example.com' }}
-                title="Workshopy Promptbooku"
-                description="Vyberte si workshop."
-                emptyMessage="Žádný workshop není dostupný."
-                locale="cs-CZ"
-                timeZone="Europe/Prague"
-            />,
-        );
+    it('offers the whole calendar to the calendar application of a member', () => {
+        renderWorkshopLinksPanel();
 
-        expect(screen.getByText('Žádný workshop není dostupný.')).not.toBeNull();
+        expect(screen.getByRole('link', { name: /Google/ }).getAttribute('href')).toBe(
+            'https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fptbk.io%2Fcs%2Fkomunita%2Fcalendar.ics',
+        );
+        expect(screen.getByRole('link', { name: /Jiná kalendářová aplikace/ }).getAttribute('href')).toBe(
+            'webcal://ptbk.io/cs/komunita/calendar.ics',
+        );
+    });
+
+    it('explains an empty list of terms without offering a view of nothing', () => {
+        renderWorkshopLinksPanel([]);
+
+        expect(screen.getByText('Žádný termín není dostupný.')).not.toBeNull();
         expect(screen.queryByRole('link')).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Karty' })).toBeNull();
     });
 });

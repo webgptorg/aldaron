@@ -10,6 +10,21 @@ export const COMMUNITY_PATH = '/cs/komunita';
 export const COMMUNITY_PROJECTS_PATH = `${COMMUNITY_PATH}/projects`;
 
 /**
+ * The published calendar of every term the community lists, which a calendar application subscribes to.
+ */
+export const COMMUNITY_CALENDAR_PATH = `${COMMUNITY_PATH}/calendar.ics`;
+
+/**
+ * How a calendar application names this subscription among the calendars of its owner.
+ */
+export const COMMUNITY_CALENDAR_NAME = 'Termíny akcí Promptbooku';
+
+/**
+ * Name of the calendar file itself, which is what a browser downloading it saves.
+ */
+export const COMMUNITY_CALENDAR_FILE_NAME = 'promptbook-terminy-akci.ics';
+
+/**
  * The persistent room which the community migration creates and protects from being renamed.
  */
 export const COMMUNITY_WORKSHOP_SLUG = 'komunita';

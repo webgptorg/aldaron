@@ -47,6 +47,11 @@ export type WorkshopNavigationDetails = {
     readonly emptyMessage: string;
     readonly locale: string;
     readonly timeZone: string;
+
+    /**
+     * Absolute url of the published calendar of these terms, which a room without one leaves out
+     */
+    readonly calendarFeedUrl?: string;
 };
 
 type OnlineWorkshopParticipantPageProps = {
@@ -284,6 +289,8 @@ export function OnlineWorkshopParticipantPage({
                             emptyMessage={workshopNavigation.emptyMessage}
                             locale={workshopNavigation.locale}
                             timeZone={workshopNavigation.timeZone}
+                            serverTime={state.serverTime}
+                            calendarFeedUrl={workshopNavigation.calendarFeedUrl}
                         />
                     )}
                     {mainContentAfterWorkshopNavigation}

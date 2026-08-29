@@ -1,4 +1,9 @@
-import { createCalendarLinks, type CalendarEvent } from '@/lib/calendar/create-calendar-links';
+import {
+    createCalendarLinks,
+    createCalendarSubscriptionLinks,
+    createIcalendarContent,
+    type CalendarEvent,
+} from '@/lib/calendar/create-calendar-links';
 import { describe, expect, it } from 'vitest';
 
 const WORKSHOP_EVENT: CalendarEvent = {
@@ -41,5 +46,38 @@ describe('calendar links', () => {
         expect(readIcalendarLines(createCalendarLinks(eventWithoutId).icalendarDataUrl)).toContain(
             'UID:20260820T170000Z@ptbk.io',
         );
+    });
+});
+
+describe('published calendar', () => {
+    it('carries every event of the calendar under the name of that calendar', () => {
+        const icalendarLines = createIcalendarContent(
+            [WORKSHOP_EVENT, { ...WORKSHOP_EVENT, id: 'online-workshop-2026-09-10' }],
+            'Termíny akcí Promptbooku',
+        ).split('\r\n');
+
+        expect(icalendarLines).toContain('X-WR-CALNAME:Termíny akcí Promptbooku');
+        expect(icalendarLines.filter((icalendarLine) => icalendarLine === 'BEGIN:VEVENT')).toHaveLength(2);
+        expect(icalendarLines[0]).toBe('BEGIN:VCALENDAR');
+        expect(icalendarLines[icalendarLines.length - 2]).toBe('END:VCALENDAR');
+    });
+
+    it('stays a calendar even while nothing at all is published in it', () => {
+        const icalendarLines = createIcalendarContent([]).split('\r\n');
+
+        expect(icalendarLines).toContain('BEGIN:VCALENDAR');
+        expect(icalendarLines).toContain('END:VCALENDAR');
+        expect(icalendarLines).not.toContain('BEGIN:VEVENT');
+        expect(icalendarLines.some((icalendarLine) => icalendarLine.startsWith('X-WR-CALNAME'))).toBe(false);
+    });
+
+    it('subscribes a calendar application to the published calendar rather than downloading it once', () => {
+        const { googleCalendarUrl, webcalUrl } = createCalendarSubscriptionLinks(
+            'https://ptbk.io/cs/komunita/calendar.ics',
+        );
+
+        expect(webcalUrl).toBe('webcal://ptbk.io/cs/komunita/calendar.ics');
+        expect(new URL(googleCalendarUrl).searchParams.get('cid')).toBe(webcalUrl);
+        expect(googleCalendarUrl.startsWith('https://calendar.google.com/calendar/r?')).toBe(true);
     });
 });

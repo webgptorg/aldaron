@@ -1,14 +1,33 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { createEventLinkOrNull } from '@/lib/events/eventLinks';
-import { formatEventFormat } from '@/lib/events/eventLocation';
-import { formatEventPrice } from '@/lib/events/eventPrice';
-import { getEventTypeDefinition } from '@/lib/events/eventTypes';
+import { SubscribeToCalendarLinks } from '@/components/calendar/SubscribeToCalendarLinks';
+import { WorkshopCalendarMonth } from '@/components/workshops/WorkshopCalendarMonth';
+import { WorkshopEventCardList } from '@/components/workshops/WorkshopEventCardList';
+import { createCalendarDayKey } from '@/lib/calendar/calendarMonth';
+import { createEventListings } from '@/lib/events/eventListing';
 import type { WorkshopParticipantIdentity } from '@/lib/workshops/workshopParticipantLink';
 import type { WorkshopSummary } from '@/lib/workshops/workshopTypes';
-import { ArrowUpRight, CalendarDays } from 'lucide-react';
-import Link from 'next/link';
+import { CalendarDays, LayoutGrid } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
+/**
+ * The two ways of reading the very same terms
+ *
+ * Note: The calendar leads, because a member asks when something is happening far more often than they ask what is
+ *       listed at all.
+ */
+const WORKSHOP_LINKS_VIEWS = [
+    { id: 'calendar', label: 'Kalendář', icon: CalendarDays },
+    { id: 'cards', label: 'Karty', icon: LayoutGrid },
+] as const;
+
+type WorkshopLinksView = (typeof WORKSHOP_LINKS_VIEWS)[number]['id'];
+
+const DEFAULT_WORKSHOP_LINKS_VIEW: WorkshopLinksView = 'calendar';
+
+const WORKSHOP_LINKS_PANEL_COPY = {
+    viewSwitchLabel: 'Zobrazení termínů',
+} as const;
 
 type WorkshopLinksPanelProps = {
     readonly workshops: readonly WorkshopSummary[];
@@ -18,12 +37,28 @@ type WorkshopLinksPanelProps = {
     readonly emptyMessage: string;
     readonly locale: string;
     readonly timeZone: string;
+
+    /**
+     * Moment the server is at, which decides which terms are over, running, and still ahead
+     *
+     * Note: The room refreshes its state while it is open, so this moment moves on its own and a term which starts
+     *       while a member is reading the list becomes a running one there.
+     */
+    readonly serverTime: string;
+
+    /**
+     * Absolute url of the published calendar of these terms, or `undefined` for a room which publishes none
+     */
+    readonly calendarFeedUrl?: string;
 };
 
 /**
- * A compact list of the terms of every kind of event, which preserves the already verified identity of the
- * participant in each link. It is independent of the page which shows it, so another persistent room can offer the
- * same hand-off, and a kind of event added later is listed here without a change of this list.
+ * A list of the terms of every kind of event, which preserves the already verified identity of the participant in each
+ * link. It is independent of the page which shows it, so another persistent room can offer the same hand-off, and a
+ * kind of event added later is listed here without a change of this list.
+ *
+ * Note: The same terms are offered as a month of a calendar and as a list of cards. Both of them are made of the same
+ *       listed terms and say where a term stands in time with the same colours, so the two views can never disagree.
  */
 export function WorkshopLinksPanel({
     workshops,
@@ -33,66 +68,64 @@ export function WorkshopLinksPanel({
     emptyMessage,
     locale,
     timeZone,
+    serverTime,
+    calendarFeedUrl,
 }: WorkshopLinksPanelProps) {
-    const dateFormatter = new Intl.DateTimeFormat(locale, {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric',
-        timeZone,
-    });
-    const timeFormatter = new Intl.DateTimeFormat(locale, {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone,
-    });
+    const [shownView, setShownView] = useState<WorkshopLinksView>(DEFAULT_WORKSHOP_LINKS_VIEW);
 
-    // Note: A term the application cannot lead anywhere is deliberately left out instead of being offered as a link
-    //       which would open a different event.
-    const linkedWorkshops = workshops.flatMap((workshop) => {
-        const workshopLink = createEventLinkOrNull(workshop, participantIdentity);
-        return workshopLink === null || workshop.event === null ? [] : [{ workshop, workshopLink, event: workshop.event }];
-    });
+    const currentTimeMilliseconds = Date.parse(serverTime);
+    const listings = useMemo(
+        () => createEventListings({ workshops, participantIdentity, currentTimeMilliseconds, timeZone }),
+        [workshops, participantIdentity, currentTimeMilliseconds, timeZone],
+    );
+    const todayDayKey = createCalendarDayKey(serverTime, timeZone);
 
     return (
         <section className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:p-5">
-            <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-bold text-white">{title}</h2>
-                <p className="text-sm leading-6 text-slate-400">{description}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 flex-col gap-1">
+                    <h2 className="text-lg font-bold text-white">{title}</h2>
+                    <p className="text-sm leading-6 text-slate-400">{description}</p>
+                </div>
+                {listings.length > 0 && (
+                    <div
+                        role="group"
+                        aria-label={WORKSHOP_LINKS_PANEL_COPY.viewSwitchLabel}
+                        className="flex shrink-0 rounded-lg bg-white/5 p-1 text-xs"
+                    >
+                        {WORKSHOP_LINKS_VIEWS.map(({ id, label, icon: ViewIcon }) => (
+                            <button
+                                key={id}
+                                type="button"
+                                aria-pressed={shownView === id}
+                                onClick={() => setShownView(id)}
+                                className={`flex items-center justify-center gap-1.5 rounded-md px-3 py-2 font-semibold transition ${shownView === id ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                <ViewIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {linkedWorkshops.length === 0 ? (
+            {calendarFeedUrl !== undefined && listings.length > 0 && (
+                <SubscribeToCalendarLinks calendarFeedUrl={calendarFeedUrl} className="mt-3" />
+            )}
+
+            {listings.length === 0 ? (
                 <p className="mt-5 rounded-xl border border-dashed border-white/15 bg-white/[0.025] px-4 py-5 text-sm text-slate-400">
                     {emptyMessage}
                 </p>
+            ) : shownView === 'calendar' ? (
+                <WorkshopCalendarMonth
+                    listings={listings}
+                    locale={locale}
+                    timeZone={timeZone}
+                    todayDayKey={todayDayKey}
+                />
             ) : (
-                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                    {linkedWorkshops.map(({ workshop, workshopLink, event }) => (
-                        <li key={workshop.id}>
-                            <Button
-                                asChild
-                                variant="outline"
-                                className="h-auto w-full justify-between whitespace-normal border-white/10 bg-white/[0.035] p-4 text-left text-slate-100 hover:border-cyan-200/50 hover:bg-cyan-300/10 hover:text-white"
-                            >
-                                <Link href={workshopLink}>
-                                    <span className="min-w-0">
-                                        <span className="block break-words font-semibold">{workshop.title}</span>
-                                        <span className="mt-1 flex items-center gap-1.5 text-xs font-normal text-slate-400">
-                                            <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                                            {dateFormatter.format(new Date(workshop.startsAt))} ·{' '}
-                                            {timeFormatter.format(new Date(workshop.startsAt))}
-                                        </span>
-                                        <span className="mt-1 block break-words text-xs font-normal text-slate-500">
-                                            {getEventTypeDefinition(event.type).label} · {formatEventFormat(event)} ·{' '}
-                                            {formatEventPrice(event.priceCzk)}
-                                        </span>
-                                    </span>
-                                    <ArrowUpRight className="ml-3 h-4 w-4 shrink-0 text-cyan-200" aria-hidden="true" />
-                                </Link>
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
+                <WorkshopEventCardList listings={listings} locale={locale} timeZone={timeZone} className="mt-5" />
             )}
         </section>
     );

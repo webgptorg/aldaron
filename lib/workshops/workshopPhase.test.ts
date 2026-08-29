@@ -1,4 +1,5 @@
 import {
+    getMostProminentWorkshopPhase,
     getWorkshopExpectedEndsAtMilliseconds,
     getWorkshopPhase,
     isWorkshopEndOpen,
@@ -99,5 +100,12 @@ describe('workshop phase ordering', () => {
         sortWorkshopsByPhase(workshops, CURRENT_TIME_MILLISECONDS);
 
         expect(workshops).toEqual([UPCOMING_WORKSHOP, ONGOING_WORKSHOP]);
+    });
+
+    it('lets the most pressing phase speak for a group of occurrences', () => {
+        expect(getMostProminentWorkshopPhase(['past', 'upcoming', 'ongoing'])).toBe('ongoing');
+        expect(getMostProminentWorkshopPhase(['past', 'upcoming'])).toBe('upcoming');
+        expect(getMostProminentWorkshopPhase(['past'])).toBe('past');
+        expect(getMostProminentWorkshopPhase([])).toBe('past');
     });
 });

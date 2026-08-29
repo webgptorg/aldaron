@@ -88,6 +88,21 @@ export function getWorkshopPhase(
 }
 
 /**
+ * The one phase which speaks for a group of occurrences, which is the most pressing among them
+ *
+ * Note: A day of a calendar carries whatever terms fall on it, and it can only be coloured by one of them. It is
+ *       coloured by the very same ranking which puts a running term on top of a list, so a day where something is
+ *       happening right now never looks like history.
+ */
+export function getMostProminentWorkshopPhase(phases: readonly WorkshopPhase[]): WorkshopPhase {
+    return phases.reduce(
+        (mostProminentPhase, phase) =>
+            WORKSHOP_PHASE_ORDER[phase] < WORKSHOP_PHASE_ORDER[mostProminentPhase] ? phase : mostProminentPhase,
+        'past',
+    );
+}
+
+/**
  * The two keys which order one occurrence among the others
  *
  * Note: The history is ranked by its negated date, so the term which ended last leads it while the future is led by

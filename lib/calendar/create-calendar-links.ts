@@ -13,6 +13,28 @@ const ICALENDAR_PRODUCT_ID = '-//Promptbook//Landing page//CS';
 const ENCODED_ICALENDAR_LINE_SEPARATOR = '%0D%0A';
 
 /**
+ * The CRLF pair itself, for a calendar which is served as a file rather than carried in a url
+ *
+ * Note: It is built from its character codes for the very same reason the encoded separator exists - a plain `\r\n`
+ *       written in the source does not survive the build.
+ */
+const ICALENDAR_LINE_SEPARATOR = String.fromCharCode(13, 10);
+
+/**
+ * Where Google Calendar receives what a visitor wants to keep
+ */
+const GOOGLE_CALENDAR_EVENT_URL = 'https://calendar.google.com/calendar/render';
+const GOOGLE_CALENDAR_SUBSCRIPTION_URL = 'https://calendar.google.com/calendar/r';
+
+/**
+ * Protocols of the address of a published calendar
+ *
+ * Note: A calendar application subscribes to `webcal:`, which is the very same address as its `https:` one. Handing
+ *       it out that way is what makes a click subscribe to the calendar instead of downloading it once.
+ */
+const WEBCAL_PROTOCOL = 'webcal:';
+
+/**
  * One event a visitor can put into their calendar
  */
 export type CalendarEvent = {
@@ -103,24 +125,19 @@ function createGoogleCalendarUrl(event: CalendarEvent): string {
         location: event.url,
     });
 
-    return `https://calendar.google.com/calendar/render?${parameters.toString()}`;
+    return `${GOOGLE_CALENDAR_EVENT_URL}?${parameters.toString()}`;
 }
 
 /**
- * Builds the data url of an iCalendar file describing the event
+ * The lines describing one event inside a calendar
  *
  * Note: The event start doubles as the creation timestamp on purpose - a real timestamp would differ between the server
  *       and the browser render and break the React hydration of the link.
  */
-function createIcalendarDataUrl(event: CalendarEvent): string {
+function createIcalendarEventLines(event: CalendarEvent): readonly string[] {
     const startTimestamp = formatUtcTimestamp(event.startsAt);
 
-    const icalendarLines = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        `PRODID:${ICALENDAR_PRODUCT_ID}`,
-        'CALSCALE:GREGORIAN',
-        'METHOD:PUBLISH',
+    return [
         'BEGIN:VEVENT',
         `UID:${event.id ?? startTimestamp}@${new URL(event.url).hostname}`,
         `DTSTAMP:${startTimestamp}`,
@@ -131,10 +148,37 @@ function createIcalendarDataUrl(event: CalendarEvent): string {
         `LOCATION:${escapeIcalendarText(event.url)}`,
         `URL:${escapeIcalendarText(event.url)}`,
         'END:VEVENT',
-        'END:VCALENDAR',
     ];
+}
 
-    return `data:text/calendar;charset=utf-8,${icalendarLines
+/**
+ * The whole content of an iCalendar file, whether it carries one event or every event of a published calendar
+ *
+ * @param events events the calendar consists of, which a calendar nothing is published in may have none of
+ * @param calendarName how a calendar application names the subscription in its own list of calendars
+ */
+export function createIcalendarContent(events: readonly CalendarEvent[], calendarName?: string): string {
+    const calendarNameLines = calendarName === undefined ? [] : [`X-WR-CALNAME:${escapeIcalendarText(calendarName)}`];
+
+    return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        `PRODID:${ICALENDAR_PRODUCT_ID}`,
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        ...calendarNameLines,
+        ...events.flatMap(createIcalendarEventLines),
+        'END:VCALENDAR',
+        '',
+    ].join(ICALENDAR_LINE_SEPARATOR);
+}
+
+/**
+ * Builds the data url of an iCalendar file describing the event
+ */
+function createIcalendarDataUrl(event: CalendarEvent): string {
+    return `data:text/calendar;charset=utf-8,${createIcalendarContent([event])
+        .split(ICALENDAR_LINE_SEPARATOR)
         .map((line) => encodeURIComponent(line))
         .join(ENCODED_ICALENDAR_LINE_SEPARATOR)}`;
 }
@@ -150,4 +194,42 @@ export function createCalendarLinks(event: CalendarEvent): CalendarLinks {
         googleCalendarUrl: createGoogleCalendarUrl(event),
         icalendarDataUrl: createIcalendarDataUrl(event),
     };
+}
+
+/**
+ * Ways of subscribing to a whole published calendar, so that every term it will ever carry arrives on its own
+ */
+export type CalendarSubscriptionLinks = {
+    /**
+     * Url which offers the calendar to Google Calendar
+     */
+    readonly googleCalendarUrl: string;
+
+    /**
+     * Url which offers the calendar to Apple Calendar, Outlook and every other calendar application of a device
+     */
+    readonly webcalUrl: string;
+};
+
+/**
+ * Turns the address of a published calendar into the links which subscribe to it
+ *
+ * @param calendarFeedUrl absolute `https:` url the calendar is served from
+ */
+export function createCalendarSubscriptionLinks(calendarFeedUrl: string): CalendarSubscriptionLinks {
+    const calendarUrl = new URL(calendarFeedUrl);
+    const webcalUrl = `${WEBCAL_PROTOCOL}//${calendarUrl.host}${calendarUrl.pathname}${calendarUrl.search}`;
+    const parameters = new URLSearchParams({ cid: webcalUrl });
+
+    return {
+        googleCalendarUrl: `${GOOGLE_CALENDAR_SUBSCRIPTION_URL}?${parameters.toString()}`,
+        webcalUrl,
+    };
+}
+
+/**
+ * Names an iCalendar file after what it describes
+ */
+export function createCalendarFileName(calendarIdentifier: string): string {
+    return `${calendarIdentifier}.ics`;
 }

@@ -1,5 +1,21 @@
 # Current preversion
 
+- Put the terms listed on `/cs/komunita` into a calendar. The terms of every kind of event are now read as a month of
+  a Czech calendar, which is what the room opens on: its weeks start on Monday, its days are dated in Prague, and each
+  day is coloured by whether what is held on it is over, running, or still ahead. Choosing a day narrows the cards
+  under the month to that day, and a day nothing is held on cannot be chosen at all. The very same terms are still
+  read as cards, which now carry that same colour as a badge saying where the term stands in time, so the calendar and
+  the cards can never say two different things about one term. A month a member is in which has no term at all is not
+  opened on — the calendar opens on the month of the term which matters most instead of on an empty grid.
+
+- Offered the whole calendar of those terms to the calendar application of a member. It is published at
+  `/cs/komunita/calendar.ics` and taken either into Google Calendar or into any application which subscribes to
+  `webcal:`, so a term which is published, moved or withdrawn later reaches everybody who took it without anybody
+  deploying anything. The published calendar names no member: it carries neither an e-mail nor a name, leads to the
+  public page of every term, leaves out the permanent community room which is no term of anything, and identifies each
+  term by its own slug, so a renamed or moved term is corrected in a calendar which already knows it rather than
+  appearing in it twice.
+
 - Put the real community on `/cs/komunita/clenstvi`. The window in its header is no longer an invented conversation:
   it says how many members the community has, shows the newest approved messages of its chat in the order they were
   written, marks the moderators among their authors, and counts the messages and reactions the members really sent.
