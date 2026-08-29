@@ -1,5 +1,10 @@
 # Current preversion
 
+- Made every wide table in the administration usable without travelling to its last row first: a shared table viewport
+  now mirrors horizontal scrolling into a clearly visible bar fixed to the bottom of the screen while that table is in
+  view, yet keeps the native scrollbar as a fallback. The participant, contact, discount-code and short-link tables
+  all use it, and their useful identity column — the participant or contact name, a discount code, or a shortcode —
+  stays pinned while the rest is explored.
 - Said on every term of `/cs/online-workshop` which workshop it is. Each card of the picker now names the workshop
   held on that date and says what it is about, in the very words `/admin/workshops` wrote about that term, so a
   visitor chooses a subject rather than guessing behind which of four dates the topic they came for is hiding. What a

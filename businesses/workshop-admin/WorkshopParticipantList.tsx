@@ -281,10 +281,13 @@ export function WorkshopParticipantList({
                     </div>
                 ) : (
                     <div className="mt-4 rounded-xl border border-slate-200">
-                        <Table className="min-w-[1260px]">
+                        <Table
+                            className="min-w-[1260px]"
+                            horizontalScrollLabel="Posunout tabulku účastníků vodorovně"
+                        >
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Účastník</TableHead>
+                                    <TableHead isPinned>Účastník</TableHead>
                                     <TableHead>Kontaktní údaje</TableHead>
                                     <TableHead>Čas v místnosti</TableHead>
                                     <TableHead>V místnosti</TableHead>
@@ -300,7 +303,7 @@ export function WorkshopParticipantList({
                                     const isProcessing = processingParticipantIds.has(participant.id);
                                     return (
                                         <TableRow key={participant.id}>
-                                            <TableCell className="min-w-60 align-top">
+                                            <TableCell isPinned className="min-w-60 align-top">
                                                 <p className="font-semibold text-slate-900">{participant.fullname}</p>
                                                 <p className="mt-1 flex items-center gap-1.5 break-all text-xs text-slate-500">
                                                     <Mail className="h-3.5 w-3.5 shrink-0" /> {participant.email}

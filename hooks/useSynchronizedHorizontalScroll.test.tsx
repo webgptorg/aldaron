@@ -8,32 +8,32 @@ import { describe, expect, it } from 'vitest';
 import { useSynchronizedHorizontalScroll } from './useSynchronizedHorizontalScroll';
 
 function SynchronizedHorizontalScrollTestComponent() {
-    const { topScrollContainerRef, bottomScrollContainerRef, handleTopScroll, handleBottomScroll } =
+    const { firstScrollContainerRef, secondScrollContainerRef, handleFirstScroll, handleSecondScroll } =
         useSynchronizedHorizontalScroll();
 
     return (
         <>
-            <div ref={topScrollContainerRef} data-testid="top-scroll-container" onScroll={handleTopScroll} />
-            <div ref={bottomScrollContainerRef} data-testid="bottom-scroll-container" onScroll={handleBottomScroll} />
+            <div ref={firstScrollContainerRef} data-testid="first-scroll-container" onScroll={handleFirstScroll} />
+            <div ref={secondScrollContainerRef} data-testid="second-scroll-container" onScroll={handleSecondScroll} />
         </>
     );
 }
 
 describe('useSynchronizedHorizontalScroll', () => {
-    it('keeps the top and bottom scroll containers at the same horizontal position', () => {
+    it('keeps both scroll containers at the same horizontal position', () => {
         render(<SynchronizedHorizontalScrollTestComponent />);
 
-        const topScrollContainer = screen.getByTestId('top-scroll-container');
-        const bottomScrollContainer = screen.getByTestId('bottom-scroll-container');
+        const firstScrollContainer = screen.getByTestId('first-scroll-container');
+        const secondScrollContainer = screen.getByTestId('second-scroll-container');
 
-        topScrollContainer.scrollLeft = 240;
-        fireEvent.scroll(topScrollContainer);
+        firstScrollContainer.scrollLeft = 240;
+        fireEvent.scroll(firstScrollContainer);
 
-        expect(bottomScrollContainer.scrollLeft).toBe(240);
+        expect(secondScrollContainer.scrollLeft).toBe(240);
 
-        bottomScrollContainer.scrollLeft = 120;
-        fireEvent.scroll(bottomScrollContainer);
+        secondScrollContainer.scrollLeft = 120;
+        fireEvent.scroll(secondScrollContainer);
 
-        expect(topScrollContainer.scrollLeft).toBe(120);
+        expect(firstScrollContainer.scrollLeft).toBe(120);
     });
 });

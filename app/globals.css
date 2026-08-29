@@ -106,6 +106,48 @@ html {
     }
 }
 
+@layer components {
+    .table-scroll-area thead tr {
+        background-color: rgb(248 250 252);
+    }
+
+    .table-scroll-area tbody tr {
+        background-color: rgb(255 255 255);
+    }
+
+    .table-scroll-area [data-table-pinned-column='true'] {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background-color: inherit;
+        box-shadow: 2px 0 5px -4px rgb(15 23 42 / 0.55);
+    }
+
+    .table-scroll-area thead [data-table-pinned-column='true'] {
+        z-index: 20;
+    }
+
+    .admin-fixed-horizontal-scrollbar {
+        scrollbar-color: rgb(100 116 139) rgb(226 232 240);
+        scrollbar-width: auto;
+    }
+
+    .admin-fixed-horizontal-scrollbar::-webkit-scrollbar {
+        height: 16px;
+    }
+
+    .admin-fixed-horizontal-scrollbar::-webkit-scrollbar-track {
+        background: rgb(226 232 240);
+    }
+
+    .admin-fixed-horizontal-scrollbar::-webkit-scrollbar-thumb {
+        min-width: 3rem;
+        border: 3px solid rgb(226 232 240);
+        border-radius: 999px;
+        background: rgb(100 116 139);
+    }
+}
+
 /* Hide Next.js badge and error messages */
 body > nextjs-portal {
     display: none;

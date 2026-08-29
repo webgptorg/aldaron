@@ -3,10 +3,10 @@
 import { useCallback, useRef, type RefObject, type UIEvent } from 'react';
 
 type UseSynchronizedHorizontalScrollResult = {
-    readonly topScrollContainerRef: RefObject<HTMLDivElement | null>;
-    readonly bottomScrollContainerRef: RefObject<HTMLDivElement | null>;
-    readonly handleTopScroll: (scrollEvent: UIEvent<HTMLDivElement>) => void;
-    readonly handleBottomScroll: (scrollEvent: UIEvent<HTMLDivElement>) => void;
+    readonly firstScrollContainerRef: RefObject<HTMLDivElement | null>;
+    readonly secondScrollContainerRef: RefObject<HTMLDivElement | null>;
+    readonly handleFirstScroll: (scrollEvent: UIEvent<HTMLDivElement>) => void;
+    readonly handleSecondScroll: (scrollEvent: UIEvent<HTMLDivElement>) => void;
 };
 
 /**
@@ -21,19 +21,19 @@ function copyHorizontalScrollPosition(sourceElement: HTMLElement, destinationEle
 }
 
 /**
- * Keep the horizontal scrollbars placed above and below the same content in sync
+ * Keep any two horizontal scroll containers in sync.
  */
 export function useSynchronizedHorizontalScroll(): UseSynchronizedHorizontalScrollResult {
-    const topScrollContainerRef = useRef<HTMLDivElement>(null);
-    const bottomScrollContainerRef = useRef<HTMLDivElement>(null);
+    const firstScrollContainerRef = useRef<HTMLDivElement>(null);
+    const secondScrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const handleTopScroll = useCallback((scrollEvent: UIEvent<HTMLDivElement>) => {
-        copyHorizontalScrollPosition(scrollEvent.currentTarget, bottomScrollContainerRef.current);
+    const handleFirstScroll = useCallback((scrollEvent: UIEvent<HTMLDivElement>) => {
+        copyHorizontalScrollPosition(scrollEvent.currentTarget, secondScrollContainerRef.current);
     }, []);
 
-    const handleBottomScroll = useCallback((scrollEvent: UIEvent<HTMLDivElement>) => {
-        copyHorizontalScrollPosition(scrollEvent.currentTarget, topScrollContainerRef.current);
+    const handleSecondScroll = useCallback((scrollEvent: UIEvent<HTMLDivElement>) => {
+        copyHorizontalScrollPosition(scrollEvent.currentTarget, firstScrollContainerRef.current);
     }, []);
 
-    return { topScrollContainerRef, bottomScrollContainerRef, handleTopScroll, handleBottomScroll };
+    return { firstScrollContainerRef, secondScrollContainerRef, handleFirstScroll, handleSecondScroll };
 }

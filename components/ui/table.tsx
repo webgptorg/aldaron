@@ -1,28 +1,29 @@
+'use client';
+
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { TableScrollArea } from './table-scroll-area';
 
 type TableProps = React.HTMLAttributes<HTMLTableElement> & {
   readonly containerClassName?: string;
-  readonly containerRef?: React.Ref<HTMLDivElement>;
-  readonly onContainerScroll?: React.UIEventHandler<HTMLDivElement>;
+  readonly horizontalScrollLabel?: string;
 };
 
 const Table = React.forwardRef<
   HTMLTableElement,
   TableProps
->(({ className, containerClassName, containerRef, onContainerScroll, ...props }, ref) => (
-  <div
-    ref={containerRef}
-    className={cn('relative w-full overflow-auto', containerClassName)}
-    onScroll={onContainerScroll}
+>(({ className, containerClassName, horizontalScrollLabel, ...props }, ref) => (
+  <TableScrollArea
+    className={containerClassName}
+    horizontalScrollLabel={horizontalScrollLabel}
   >
     <table
       ref={ref}
       className={cn('w-full caption-bottom text-sm', className)}
       {...props}
     />
-  </div>
+  </TableScrollArea>
 ));
 Table.displayName = 'Table';
 
@@ -76,12 +77,17 @@ const TableRow = React.forwardRef<
 ));
 TableRow.displayName = 'TableRow';
 
+type TableHeadProps = React.ThHTMLAttributes<HTMLTableCellElement> & {
+  readonly isPinned?: boolean;
+};
+
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+  TableHeadProps
+>(({ className, isPinned = false, ...props }, ref) => (
   <th
     ref={ref}
+    data-table-pinned-column={isPinned ? 'true' : undefined}
     className={cn(
       'h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
       className
@@ -91,12 +97,17 @@ const TableHead = React.forwardRef<
 ));
 TableHead.displayName = 'TableHead';
 
+type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement> & {
+  readonly isPinned?: boolean;
+};
+
 const TableCell = React.forwardRef<
   HTMLTableCellElement,
-  React.TdHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
+  TableCellProps
+>(({ className, isPinned = false, ...props }, ref) => (
   <td
     ref={ref}
+    data-table-pinned-column={isPinned ? 'true' : undefined}
     className={cn('p-4 align-middle [&:has([role=checkbox])]:pr-0', className)}
     {...props}
   />

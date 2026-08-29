@@ -1,5 +1,6 @@
 import { formatShortcodeLinkDateTime } from '@/lib/shortener/formatShortcodeLinkDateTime';
 import type { ShortcodeLinkClick } from '@/lib/shortener/shortcodeLink';
+import { TableScrollArea } from '@/components/ui/table-scroll-area';
 
 type ShortcodeLinkClickTableProps = {
     readonly shortcodeLinkClicks: readonly ShortcodeLinkClick[];
@@ -15,11 +16,13 @@ function getClickValue(value: string | null): string {
  */
 export function ShortcodeLinkClickTable({ shortcodeLinkClicks }: ShortcodeLinkClickTableProps) {
     return (
-        <div className="overflow-x-auto">
+        <TableScrollArea horizontalScrollLabel="Scroll short-link click history horizontally">
             <table className="w-full min-w-[1250px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
-                        <th className="px-6 py-3 font-semibold">Short link opened at</th>
+                        <th data-table-pinned-column="true" className="px-6 py-3 font-semibold">
+                            Short link opened at
+                        </th>
                         <th className="px-6 py-3 font-semibold">Destination opened at</th>
                         <th className="px-6 py-3 font-semibold">IP address</th>
                         <th className="px-6 py-3 font-semibold">Referrer</th>
@@ -32,6 +35,7 @@ export function ShortcodeLinkClickTable({ shortcodeLinkClicks }: ShortcodeLinkCl
                     {shortcodeLinkClicks.map((shortcodeLinkClick) => (
                         <tr key={shortcodeLinkClick.id} className="align-top">
                             <td
+                                data-table-pinned-column="true"
                                 className="whitespace-nowrap px-6 py-4 text-slate-600"
                                 title={shortcodeLinkClick.navigatedAt}
                             >
@@ -70,6 +74,6 @@ export function ShortcodeLinkClickTable({ shortcodeLinkClicks }: ShortcodeLinkCl
                     ))}
                 </tbody>
             </table>
-        </div>
+        </TableScrollArea>
     );
 }

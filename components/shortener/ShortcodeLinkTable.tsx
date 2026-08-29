@@ -2,6 +2,7 @@
 
 import { CopyTextButton } from '@/components/shortener/CopyTextButton';
 import { Button } from '@/components/ui/button';
+import { TableScrollArea } from '@/components/ui/table-scroll-area';
 import { formatShortcodeLinkDateTime } from '@/lib/shortener/formatShortcodeLinkDateTime';
 import {
     createPublicShortcodeLinkUrl,
@@ -39,11 +40,13 @@ export function ShortcodeLinkTable({
     onShowClicks,
 }: ShortcodeLinkTableProps) {
     return (
-        <div className="overflow-x-auto">
+        <TableScrollArea horizontalScrollLabel="Scroll shortened links horizontally">
             <table className="w-full min-w-[1020px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
-                        <th className="px-6 py-3 font-semibold">Short link</th>
+                        <th data-table-pinned-column="true" className="px-6 py-3 font-semibold">
+                            Short link
+                        </th>
                         <th className="px-6 py-3 font-semibold">Destinations</th>
                         <th className="px-6 py-3 font-semibold">Note</th>
                         <th className="px-6 py-3 font-semibold">Landing page</th>
@@ -62,7 +65,7 @@ export function ShortcodeLinkTable({
 
                         return (
                             <tr key={shortcodeLink.id} className={isEdited ? 'bg-cyan-50/60 align-top' : 'align-top'}>
-                                <td className="px-6 py-4">
+                                <td data-table-pinned-column="true" className="px-6 py-4">
                                     <div className="flex items-center gap-1">
                                         <a
                                             href={publicUrl}
@@ -164,6 +167,6 @@ export function ShortcodeLinkTable({
                     })}
                 </tbody>
             </table>
-        </div>
+        </TableScrollArea>
     );
 }

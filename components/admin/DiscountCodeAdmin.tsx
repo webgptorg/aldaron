@@ -2,6 +2,7 @@
 
 import { DiscountCodeForm } from '@/components/admin/DiscountCodeForm';
 import { Button } from '@/components/ui/button';
+import { TableScrollArea } from '@/components/ui/table-scroll-area';
 import {
     getRemainingDiscountCodeUseCount,
     isDiscountCodeActive,
@@ -165,11 +166,13 @@ export function DiscountCodeAdmin() {
                 ) : discountCodes.length === 0 ? (
                     <p className="px-6 py-16 text-center text-sm text-slate-500">Zatím nemáte žádný slevový kód.</p>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <TableScrollArea horizontalScrollLabel="Posunout tabulku slevových kódů vodorovně">
                         <table className="w-full min-w-[980px] text-left text-sm">
                             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                                 <tr>
-                                    <th className="px-6 py-3 font-semibold">Kód</th>
+                                    <th data-table-pinned-column="true" className="px-6 py-3 font-semibold">
+                                        Kód
+                                    </th>
                                     <th className="px-6 py-3 font-semibold">Sleva</th>
                                     <th className="px-6 py-3 font-semibold">Platnost</th>
                                     <th className="px-6 py-3 font-semibold">Stav</th>
@@ -186,7 +189,7 @@ export function DiscountCodeAdmin() {
 
                                     return (
                                         <tr key={discountCode.id} className="align-top">
-                                            <td className="px-6 py-4">
+                                            <td data-table-pinned-column="true" className="px-6 py-4">
                                                 <span className="block font-mono font-semibold text-slate-950">{discountCode.code}</span>
                                                 <span className="mt-1 block space-y-0.5">
                                                     {discountCodePlaces.map((discountPlace) => (
@@ -238,7 +241,7 @@ export function DiscountCodeAdmin() {
                                 })}
                             </tbody>
                         </table>
-                    </div>
+                    </TableScrollArea>
                 )}
             </section>
         </div>
