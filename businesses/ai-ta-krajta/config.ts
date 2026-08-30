@@ -230,6 +230,14 @@ export const AI_TA_KRAJTA_NAVIGATION_ITEMS: readonly AiTaKrajtaNavigationItem[] 
  */
 export const AI_TA_KRAJTA_INITIAL_EPISODE_COUNT = 12;
 
+/**
+ * Key under which a browser remembers which episodes of this show it played and where it left them
+ *
+ * Note: The version is part of the key, so that a change of what is remembered about an episode is answered by an
+ *       archive of unplayed episodes rather than by progress which cannot be read.
+ */
+export const AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY = 'promptbook.ai-ta-krajta-playback-progress.v1';
+
 export type AiTaKrajtaCollaborationKind = 'host' | 'tema' | 'partnerstvi' | 'jine';
 
 export type AiTaKrajtaCollaborationOption = {

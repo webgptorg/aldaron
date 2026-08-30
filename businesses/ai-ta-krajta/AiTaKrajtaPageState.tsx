@@ -12,8 +12,14 @@ import {
     serializeAiTaKrajtaViewState,
     type AiTaKrajtaViewState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaViewState';
-import type { AiTaKrajtaCollaborationKind } from '@/businesses/ai-ta-krajta/config';
+import {
+    AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY,
+    type AiTaKrajtaCollaborationKind,
+} from '@/businesses/ai-ta-krajta/config';
+import { usePodcastPlaybackProgress } from '@/hooks/usePodcastPlaybackProgress';
 import { useUrlSynchronizedViewState } from '@/hooks/useUrlSynchronizedViewState';
+import type { PodcastEpisodePlayback, PodcastEpisodePlaybackProgress } from '@/lib/podcast/podcastPlaybackProgress';
+import type { PodcastPlaybackProgressByEpisodeSlug } from '@/lib/podcast/podcastPlaybackProgressStorage';
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 
 /**
@@ -41,6 +47,29 @@ type AiTaKrajtaPageStateValue = {
     readonly newestPlayableEpisode: PlayableAiTaKrajtaEpisode | null;
 
     readonly viewState: AiTaKrajtaViewState;
+
+    /**
+     * How far this browser got in every episode it ever played, so the archive can mark them
+     *
+     * Note: This is empty until the page is mounted, because only a browser knows what it remembers.
+     */
+    readonly playbackProgressByEpisodeSlug: PodcastPlaybackProgressByEpisodeSlug;
+
+    /**
+     * Whether the browser has already said what it remembers, which the player waits for before resuming an episode
+     * it was opened straight on
+     */
+    readonly isPlaybackProgressRestored: boolean;
+
+    /**
+     * How far this browser got in one episode, as it stands at this very moment rather than as it was last rendered
+     */
+    readonly getEpisodePlaybackProgress: (episodeSlug: string | null) => PodcastEpisodePlaybackProgress | null;
+
+    /**
+     * Writes down where the listener got to in one episode
+     */
+    readonly recordEpisodePlaybackProgress: (episodeSlug: string, playback: PodcastEpisodePlayback) => void;
 
     /**
      * Loads one episode into the mini player and starts it
@@ -83,6 +112,15 @@ export function AiTaKrajtaPageStateProvider({
         parseViewState: parseAiTaKrajtaViewState,
         serializeViewState: serializeAiTaKrajtaViewState,
     });
+
+    // Note: What was played is deliberately not in the address bar. A link is shared with somebody else, while what a
+    //       listener already heard belongs to their browser alone.
+    const {
+        playbackProgressByEpisodeSlug,
+        isPlaybackProgressRestored,
+        getEpisodePlaybackProgress,
+        recordEpisodePlaybackProgress,
+    } = usePodcastPlaybackProgress(AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY);
 
     const filteredEpisodes = useMemo(
         () =>
@@ -164,6 +202,10 @@ export function AiTaKrajtaPageStateProvider({
             playingEpisode,
             newestPlayableEpisode,
             viewState,
+            playbackProgressByEpisodeSlug,
+            isPlaybackProgressRestored,
+            getEpisodePlaybackProgress,
+            recordEpisodePlaybackProgress,
             playEpisode,
             setIsPlaying,
             closePlayer,
@@ -178,6 +220,10 @@ export function AiTaKrajtaPageStateProvider({
             playingEpisode,
             newestPlayableEpisode,
             viewState,
+            playbackProgressByEpisodeSlug,
+            isPlaybackProgressRestored,
+            getEpisodePlaybackProgress,
+            recordEpisodePlaybackProgress,
             playEpisode,
             setIsPlaying,
             closePlayer,

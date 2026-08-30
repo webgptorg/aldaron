@@ -1,3 +1,8 @@
+import {
+    readBrowserLocalStorageItem,
+    removeBrowserLocalStorageItem,
+    writeBrowserLocalStorageItem,
+} from '@/lib/browser/browserStorage';
 import { WORKSHOP_SESSION_MAX_AGE_SECONDS } from '@/lib/workshops/workshopConstants';
 import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 
@@ -73,25 +78,8 @@ function getWorkshopParticipantStateCacheKey(workshopSlug: string): string {
     return `${WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX}${encodeURIComponent(workshopSlug)}`;
 }
 
-function getBrowserStorage(): Storage | null {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    try {
-        return window.localStorage;
-    } catch {
-        // Privacy settings can disable browser storage. The live room still works normally without its fallback.
-        return null;
-    }
-}
-
-function removeWorkshopParticipantStateCacheEntry(storage: Storage, workshopSlug: string): void {
-    try {
-        storage.removeItem(getWorkshopParticipantStateCacheKey(workshopSlug));
-    } catch {
-        // Storage can become unavailable between reading and removing. There is no live-room failure to report.
-    }
+function removeWorkshopParticipantStateCacheEntry(workshopSlug: string): void {
+    removeBrowserLocalStorageItem(getWorkshopParticipantStateCacheKey(workshopSlug));
 }
 
 /**
@@ -99,19 +87,10 @@ function removeWorkshopParticipantStateCacheEntry(storage: Storage, workshopSlug
  * participant session, so a long-expired browser session cannot reopen private participant data as a room snapshot.
  */
 export function saveWorkshopParticipantStateCache(workshopSlug: string, state: WorkshopPublicState): void {
-    const storage = getBrowserStorage();
-    if (storage === null) {
-        return;
-    }
-
-    try {
-        storage.setItem(
-            getWorkshopParticipantStateCacheKey(workshopSlug),
-            JSON.stringify({ savedAt: Date.now(), state } satisfies WorkshopParticipantStateCacheEntry),
-        );
-    } catch {
-        // A full or disabled storage area must not interrupt watching a live stream.
-    }
+    writeBrowserLocalStorageItem(
+        getWorkshopParticipantStateCacheKey(workshopSlug),
+        JSON.stringify({ savedAt: Date.now(), state } satisfies WorkshopParticipantStateCacheEntry),
+    );
 }
 
 /**
@@ -119,20 +98,15 @@ export function saveWorkshopParticipantStateCache(workshopSlug: string, state: W
  * participant never mistakes data from a different room or an old browser session for the current one.
  */
 export function loadWorkshopParticipantStateCache(workshopSlug: string): WorkshopParticipantStateCacheEntry | null {
-    const storage = getBrowserStorage();
-    if (storage === null) {
+    const rawCacheEntry = readBrowserLocalStorageItem(getWorkshopParticipantStateCacheKey(workshopSlug));
+    if (rawCacheEntry === null) {
         return null;
     }
 
     try {
-        const rawCacheEntry = storage.getItem(getWorkshopParticipantStateCacheKey(workshopSlug));
-        if (rawCacheEntry === null) {
-            return null;
-        }
-
         const cacheEntry: unknown = JSON.parse(rawCacheEntry);
         if (!isWorkshopPublicStateCacheEntry(cacheEntry, workshopSlug)) {
-            removeWorkshopParticipantStateCacheEntry(storage, workshopSlug);
+            removeWorkshopParticipantStateCacheEntry(workshopSlug);
             return null;
         }
 
@@ -145,13 +119,13 @@ export function loadWorkshopParticipantStateCache(workshopSlug: string): Worksho
             participantConnectedAtMilliseconds <= now &&
             now - participantConnectedAtMilliseconds <= WORKSHOP_PARTICIPANT_STATE_CACHE_MAX_AGE_MILLISECONDS;
         if (!isCacheEntryUsable) {
-            removeWorkshopParticipantStateCacheEntry(storage, workshopSlug);
+            removeWorkshopParticipantStateCacheEntry(workshopSlug);
             return null;
         }
 
         return cacheEntry;
     } catch {
-        removeWorkshopParticipantStateCacheEntry(storage, workshopSlug);
+        removeWorkshopParticipantStateCacheEntry(workshopSlug);
         return null;
     }
 }
@@ -161,8 +135,5 @@ export function loadWorkshopParticipantStateCache(workshopSlug: string): Worksho
  * local copy is no longer a safe fallback.
  */
 export function clearWorkshopParticipantStateCache(workshopSlug: string): void {
-    const storage = getBrowserStorage();
-    if (storage !== null) {
-        removeWorkshopParticipantStateCacheEntry(storage, workshopSlug);
-    }
+    removeWorkshopParticipantStateCacheEntry(workshopSlug);
 }

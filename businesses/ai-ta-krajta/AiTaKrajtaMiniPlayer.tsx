@@ -6,6 +6,7 @@ import { getAiTaKrajtaEpisodePeople } from '@/businesses/ai-ta-krajta/aiTaKrajta
 import { AiTaKrajtaPersonAvatar } from '@/businesses/ai-ta-krajta/AiTaKrajtaPersonAvatar';
 import { createAiTaKrajtaEpisodePath } from '@/businesses/ai-ta-krajta/aiTaKrajtaViewState';
 import { formatPodcastEpisodeDuration } from '@/lib/podcast/podcastEpisodeDuration';
+import { getPodcastEpisodeResumePositionInSeconds } from '@/lib/podcast/podcastPlaybackProgress';
 import { cn } from '@/lib/utils';
 import { Check, Link2, Pause, Play, RotateCcw, RotateCw, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -21,6 +22,15 @@ const FAST_FORWARD_IN_SECONDS = 30;
  */
 const COPIED_CONFIRMATION_IN_MILLISECONDS = 2000;
 
+/**
+ * How much of a recording has to play before its position is written down again, in seconds
+ *
+ * Note: A recording reports its position several times a second, which is far more often than anything needs to be
+ *       remembered. This is therefore also the most a listener can lose by closing the tab in the middle of an
+ *       episode, and it is no larger than the rewind on resuming: what would be replayed anyway cannot be missed.
+ */
+const PLAYBACK_PROGRESS_SAVE_INTERVAL_IN_SECONDS = 5;
+
 const CONTROL_BUTTON_CLASS_NAME =
     'flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white';
 
@@ -31,20 +41,47 @@ const CONTROL_BUTTON_CLASS_NAME =
  *       game never interrupts what is playing.
  */
 export function AiTaKrajtaMiniPlayer() {
-    const { playingEpisode, viewState, setIsPlaying, closePlayer } = useAiTaKrajtaPageState();
+    const {
+        playingEpisode,
+        viewState,
+        setIsPlaying,
+        closePlayer,
+        isPlaybackProgressRestored,
+        getEpisodePlaybackProgress,
+        recordEpisodePlaybackProgress,
+    } = useAiTaKrajtaPageState();
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [currentTimeInSeconds, setCurrentTimeInSeconds] = useState(0);
     const [loadedDurationInSeconds, setLoadedDurationInSeconds] = useState<number | null>(null);
     const [isLinkCopied, setIsLinkCopied] = useState(false);
 
+    /**
+     * Position the loaded recording still has to be moved to, `0` once there is nothing to resume
+     */
+    const pendingResumePositionRef = useRef(0);
+
+    /**
+     * Position which was written down last, against which the next one is worth writing down or is not
+     */
+    const lastRememberedPositionRef = useRef(0);
+
     const episodeSlug = playingEpisode?.slug ?? null;
     const { isPlaying } = viewState;
 
-    // Note: A new episode starts from its beginning, and the length of the previous one must not stay on the bar.
+    // Note: An episode opens where the listener left it, and the length of the previous one must not stay on the bar.
+    //       The position is read once per loaded episode, because playing it immediately starts rewriting it. It is
+    //       read again as soon as the browser has said what it remembers, which is how a page opened straight on an
+    //       episode resumes it: until then, the answer would be that nobody ever played it.
     useEffect(() => {
-        setCurrentTimeInSeconds(0);
+        const resumePositionInSeconds = getPodcastEpisodeResumePositionInSeconds(
+            getEpisodePlaybackProgress(episodeSlug),
+        );
+
+        pendingResumePositionRef.current = resumePositionInSeconds;
+        lastRememberedPositionRef.current = resumePositionInSeconds;
+        setCurrentTimeInSeconds(resumePositionInSeconds);
         setLoadedDurationInSeconds(null);
-    }, [episodeSlug]);
+    }, [episodeSlug, isPlaybackProgressRestored, getEpisodePlaybackProgress]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -79,6 +116,33 @@ export function AiTaKrajtaMiniPlayer() {
 
         audio.currentTime = Math.min(Math.max(0, seconds), durationInSeconds || audio.duration || 0);
         setCurrentTimeInSeconds(audio.currentTime);
+    };
+
+    /**
+     * Writes down where this episode stands, so that the archive marks it and the next visit continues here
+     *
+     * Note: Seeking needs no call of its own, because a recording reports its position again right after it was moved.
+     *
+     * @param isEnded whether the recording ran out rather than being left in the middle
+     */
+    const rememberPlaybackPosition = (isEnded: boolean) => {
+        const audio = audioRef.current;
+
+        if (audio === null) {
+            return;
+        }
+
+        lastRememberedPositionRef.current = audio.currentTime;
+        recordEpisodePlaybackProgress(playingEpisode.slug, {
+            positionInSeconds: audio.currentTime,
+            durationInSeconds: Number.isFinite(audio.duration) ? audio.duration : playingEpisode.durationInSeconds,
+            isEnded,
+        });
+    };
+
+    const handleClosePlayer = () => {
+        rememberPlaybackPosition(false);
+        closePlayer();
     };
 
     const handleCopyLink = async () => {
@@ -181,7 +245,7 @@ export function AiTaKrajtaMiniPlayer() {
                         </button>
                         <button
                             type="button"
-                            onClick={closePlayer}
+                            onClick={handleClosePlayer}
                             aria-label="Zavřít přehrávač"
                             className={CONTROL_BUTTON_CLASS_NAME}
                         >
@@ -195,12 +259,31 @@ export function AiTaKrajtaMiniPlayer() {
                 ref={audioRef}
                 src={playingEpisode.audioUrl}
                 preload="metadata"
-                onTimeUpdate={(event) => setCurrentTimeInSeconds(event.currentTarget.currentTime)}
-                onLoadedMetadata={(event) =>
-                    setLoadedDurationInSeconds(
-                        Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : null,
-                    )
-                }
+                onTimeUpdate={(event) => {
+                    const { currentTime } = event.currentTarget;
+
+                    setCurrentTimeInSeconds(currentTime);
+
+                    if (
+                        Math.abs(currentTime - lastRememberedPositionRef.current) >=
+                        PLAYBACK_PROGRESS_SAVE_INTERVAL_IN_SECONDS
+                    ) {
+                        rememberPlaybackPosition(false);
+                    }
+                }}
+                onLoadedMetadata={(event) => {
+                    const audio = event.currentTarget;
+
+                    setLoadedDurationInSeconds(Number.isFinite(audio.duration) ? audio.duration : null);
+
+                    // Note: A recording can only be moved once the browser knows it, which is exactly what this event
+                    //       says. The position is cleared right after, so a recording which announces itself twice is
+                    //       not pulled back to where the listener has meanwhile moved on from.
+                    if (pendingResumePositionRef.current > 0) {
+                        audio.currentTime = pendingResumePositionRef.current;
+                        pendingResumePositionRef.current = 0;
+                    }
+                }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={(event) => {
                     // Note: Loading another episode pauses the element as a step of loading it. That pause says
@@ -208,9 +291,13 @@ export function AiTaKrajtaMiniPlayer() {
                     //       loaded counts. Without this, switching episodes would stop the one just chosen.
                     if (event.currentTarget.readyState !== event.currentTarget.HAVE_NOTHING) {
                         setIsPlaying(false);
+                        rememberPlaybackPosition(false);
                     }
                 }}
-                onEnded={() => setIsPlaying(false)}
+                onEnded={() => {
+                    setIsPlaying(false);
+                    rememberPlaybackPosition(true);
+                }}
             />
         </div>
     );

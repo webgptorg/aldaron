@@ -52,6 +52,7 @@ export function AiTaKrajtaEpisodeList() {
         archive,
         filteredEpisodes,
         playingEpisode,
+        playbackProgressByEpisodeSlug,
         viewState,
         playEpisode,
         setIsPlaying,
@@ -134,6 +135,7 @@ export function AiTaKrajtaEpisodeList() {
                                             episode={episode}
                                             isLoaded={isLoaded}
                                             isPlaying={isLoaded && viewState.isPlaying}
+                                            playbackProgress={playbackProgressByEpisodeSlug[episode.slug] ?? null}
                                             selectedPersonId={viewState.personId}
                                             onPlayToggle={() => {
                                                 if (isLoaded) {

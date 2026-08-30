@@ -9,8 +9,35 @@ import { getAiTaKrajtaEpisodePeople } from '@/businesses/ai-ta-krajta/aiTaKrajta
 import { formatAiTaKrajtaDate } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
 import { AiTaKrajtaPersonAvatar } from '@/businesses/ai-ta-krajta/AiTaKrajtaPersonAvatar';
 import { formatPodcastEpisodeDuration } from '@/lib/podcast/podcastEpisodeDuration';
+import {
+    getPodcastEpisodePlaybackStatus,
+    getPodcastEpisodePlayedRatio,
+    getPodcastEpisodeRemainingInSeconds,
+    type PodcastEpisodePlaybackProgress,
+    type PodcastEpisodePlaybackStatus,
+} from '@/lib/podcast/podcastPlaybackProgress';
 import { cn } from '@/lib/utils';
-import { ArrowUpRight, Pause, Play } from 'lucide-react';
+import { ArrowUpRight, Check, Pause, Play } from 'lucide-react';
+
+/**
+ * What the round button of an episode does, said so that a half-played episode is told from a new one without seeing
+ * the card
+ */
+function getEpisodeControlLabel(
+    episode: AiTaKrajtaEpisode,
+    isPlaying: boolean,
+    playbackStatus: PodcastEpisodePlaybackStatus,
+): string {
+    if (isPlaying) {
+        return `Pozastavit ${episode.title}`;
+    }
+
+    if (playbackStatus === 'partiallyPlayed') {
+        return `Pokračovat v ${episode.title}`;
+    }
+
+    return `Přehrát ${episode.title}`;
+}
 
 /**
  * The round button an episode is started from
@@ -24,12 +51,14 @@ function AiTaKrajtaEpisodeControl({
     episodeLink,
     isLoaded,
     isPlaying,
+    playbackStatus,
     onPlayToggle,
 }: {
     readonly episode: AiTaKrajtaEpisode;
     readonly episodeLink: AiTaKrajtaEpisodeLink | null;
     readonly isLoaded: boolean;
     readonly isPlaying: boolean;
+    readonly playbackStatus: PodcastEpisodePlaybackStatus;
     readonly onPlayToggle: () => void;
 }) {
     const controlClassName = cn(
@@ -42,7 +71,7 @@ function AiTaKrajtaEpisodeControl({
             <button
                 type="button"
                 onClick={onPlayToggle}
-                aria-label={isPlaying ? `Pozastavit ${episode.title}` : `Přehrát ${episode.title}`}
+                aria-label={getEpisodeControlLabel(episode, isPlaying, playbackStatus)}
                 className={cn(controlClassName, 'hover:scale-105')}
             >
                 {isPlaying ? (
@@ -76,12 +105,61 @@ function AiTaKrajtaEpisodeControl({
 }
 
 /**
+ * What this browser already heard of the episode, the way a podcast application marks it
+ *
+ * Note: An episode nobody started is marked with nothing at all, because an archive of untouched episodes should look
+ *       like an archive rather than like a checklist.
+ */
+function AiTaKrajtaEpisodePlaybackMark({
+    episode,
+    playbackStatus,
+    playbackProgress,
+}: {
+    readonly episode: AiTaKrajtaEpisode;
+    readonly playbackStatus: PodcastEpisodePlaybackStatus;
+    readonly playbackProgress: PodcastEpisodePlaybackProgress | null;
+}) {
+    if (playbackStatus === 'played') {
+        return (
+            <span className="inline-flex items-center gap-1 text-[#8fa4ff]">
+                <Check className="h-3.5 w-3.5" />
+                Přehráno
+            </span>
+        );
+    }
+
+    if (playbackStatus !== 'partiallyPlayed') {
+        return null;
+    }
+
+    const playedRatio = getPodcastEpisodePlayedRatio(playbackProgress, episode.durationInSeconds);
+    const remainingInSeconds = getPodcastEpisodeRemainingInSeconds(playbackProgress, episode.durationInSeconds);
+
+    return (
+        <span className="inline-flex items-center gap-2 text-[#ff9b8f]">
+            {playedRatio !== null && (
+                <span aria-hidden="true" className="h-1 w-12 overflow-hidden rounded-full bg-white/15">
+                    <span
+                        className="block h-full rounded-full bg-[#ff6b6b]"
+                        style={{ width: `${Math.round(playedRatio * 100)}%` }}
+                    />
+                </span>
+            )}
+            {remainingInSeconds === null
+                ? 'Rozposlouchané'
+                : `Zbývá ${formatPodcastEpisodeDuration(remainingInSeconds)}`}
+        </span>
+    );
+}
+
+/**
  * One episode of the archive, with everything a listener decides by before pressing play
  */
 export function AiTaKrajtaEpisodeCard({
     episode,
     isLoaded,
     isPlaying,
+    playbackProgress,
     selectedPersonId,
     onPlayToggle,
     onPersonClick,
@@ -98,12 +176,18 @@ export function AiTaKrajtaEpisodeCard({
      */
     readonly isPlaying: boolean;
 
+    /**
+     * How far this browser got in the episode, `null` for an episode nobody here ever started
+     */
+    readonly playbackProgress: PodcastEpisodePlaybackProgress | null;
+
     readonly selectedPersonId: string | null;
     readonly onPlayToggle: () => void;
     readonly onPersonClick: (personId: string) => void;
 }) {
     const people = getAiTaKrajtaEpisodePeople(episode);
     const episodeLink = getAiTaKrajtaEpisodeLink(episode);
+    const playbackStatus = getPodcastEpisodePlaybackStatus(playbackProgress);
 
     return (
         <article
@@ -120,6 +204,7 @@ export function AiTaKrajtaEpisodeCard({
                     episodeLink={episodeLink}
                     isLoaded={isLoaded}
                     isPlaying={isPlaying}
+                    playbackStatus={playbackStatus}
                     onPlayToggle={onPlayToggle}
                 />
 
@@ -132,6 +217,11 @@ export function AiTaKrajtaEpisodeCard({
                         {episode.durationInSeconds !== null && (
                             <span>{formatPodcastEpisodeDuration(episode.durationInSeconds)}</span>
                         )}
+                        <AiTaKrajtaEpisodePlaybackMark
+                            episode={episode}
+                            playbackStatus={playbackStatus}
+                            playbackProgress={playbackProgress}
+                        />
                     </div>
 
                     <h3 className="mt-1.5 text-lg font-semibold leading-snug text-white">{episode.shortTitle}</h3>

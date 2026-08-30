@@ -1,3 +1,4 @@
+import { AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY } from '@/businesses/ai-ta-krajta/config';
 import { createE2eTestEmail } from '@/lib/e2e/testData';
 import { expect, test } from '@playwright/test';
 import { submitAndExpectApiSuccess } from './support/submissions';
@@ -205,6 +206,40 @@ test('plays the newest AI ta Krajta episode from the header', async ({ page }) =
 
     await expect(page.getByRole('button', { name: 'Zavřít přehrávač' })).toBeVisible();
     await expect(page).toHaveURL(/[?&]episode=/);
+});
+
+test('resumes a half-played AI ta Krajta episode where its listener left it', async ({ page }) => {
+    await page.goto('/ai-ta-krajta');
+
+    // Note: The feed decides which episode is the newest one, so the test reads it off the page instead of naming a
+    //       díl which is the newest only until the next Thursday.
+    const listenButtonLabel = await page.getByRole('button', { name: /^Pustit díl / }).textContent();
+    const episodeSlug = (listenButtonLabel ?? '').replace('Pustit díl ', '').trim();
+    expect(episodeSlug).not.toBe('');
+
+    await page.evaluate(
+        ([storageKey, slug]) =>
+            window.localStorage.setItem(
+                storageKey,
+                JSON.stringify({
+                    [slug]: {
+                        positionInSeconds: 300,
+                        durationInSeconds: 1800,
+                        isPlayed: false,
+                        updatedAt: Date.now(),
+                    },
+                }),
+            ),
+        [AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY, episodeSlug],
+    );
+    await page.reload();
+
+    await expect(page.locator('section#dily').getByText('Zbývá 25:00')).toBeVisible();
+
+    await page.getByRole('button', { name: `Pustit díl ${episodeSlug}` }).click();
+
+    // Note: The five seconds are the rewind which leads a listener back into the sentence they were interrupted in.
+    await expect(page.getByLabel('Pozice v dílu')).toHaveValue('295');
 });
 
 test('starts the AI ta Krajta minigame from its snake and keeps it local to the page', async ({ page }) => {
