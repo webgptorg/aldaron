@@ -1,0 +1,471 @@
+[
+    {
+        "number": 65,
+        "title": "AI ta Krajta #65 | AI zrychlí vývoj 10x. Celý proces ale ne | Qwen 3.8 Flash a testování Huawei čipů",
+        "publishedAt": "2026-08-28T14:00:38.000Z",
+        "durationInSeconds": 2329,
+        "youtubeVideoId": "zbVvChkQQHs"
+    },
+    {
+        "number": 64,
+        "title": "AI ta Krajta #64 | Čtyři AI lídři opouštějí Google. Co chystá Discovery Loop?",
+        "publishedAt": "2026-08-27T08:25:22.000Z",
+        "durationInSeconds": 2134,
+        "youtubeVideoId": "9kMN7t4kLNs"
+    },
+    {
+        "number": 63,
+        "title": "AI ta Krajta #63 | Google přesouvá šéfa AI. Co to znamená pro Gemini?",
+        "publishedAt": "2026-08-25T08:00:00.000Z",
+        "durationInSeconds": 3186,
+        "youtubeVideoId": "7drdqrvimS0"
+    },
+    {
+        "number": 62,
+        "title": "AI ta Krajta #62 | AI modely na ESP32, AI Act a praktický vibecoding",
+        "publishedAt": "2026-08-09T18:00:00.000Z",
+        "durationInSeconds": 2374,
+        "youtubeVideoId": "J3gLNpOPr6o"
+    },
+    {
+        "number": 61,
+        "title": "AI ta Krajta #61 | AI Agent zdivočel a napadl konkurenci! Průlom k AGI, nebo konec světa?",
+        "publishedAt": "2026-08-04T08:30:01.000Z",
+        "durationInSeconds": 2238,
+        "youtubeVideoId": "XkjNwXu9b4w"
+    },
+    {
+        "number": 60,
+        "title": "AI ta Krajta #60 | Konec jedné éry? Proč se AI vrací k terminálu a co umí čínská Kimi 3 | 1. část",
+        "publishedAt": "2026-07-26T16:30:01.000Z",
+        "durationInSeconds": 2241,
+        "youtubeVideoId": "7So2NSC-UEw"
+    },
+    {
+        "number": 59,
+        "title": "AI ta Krajta #59 | Jak kódovat s AI agenty? Sonnet 5, testování a historicky PRVNÍ LIVESTREAM",
+        "publishedAt": "2026-07-20T18:00:23.000Z",
+        "durationInSeconds": 3509,
+        "youtubeVideoId": "CTzZ0gm5RhQ"
+    },
+    {
+        "number": 58,
+        "title": "AI ta Krajta #58 | PixelRAG, AI kyberútoky a proč budoucnost agentů stojí na knowledge base",
+        "publishedAt": "2026-07-13T12:00:00.000Z",
+        "durationInSeconds": 4104,
+        "youtubeVideoId": "p30kZEcrivI"
+    },
+    {
+        "number": 57,
+        "title": "AI ta Krajta #57 | Anthropic Fable 5, Google OKF a proč vývoj softwaru míří k dark factory",
+        "publishedAt": "2026-06-27T08:25:32.000Z",
+        "durationInSeconds": 2528,
+        "youtubeVideoId": "nC4hb2KoCno"
+    },
+    {
+        "number": 56,
+        "title": "AI ta Krajta #56 | Anthropic Fable 5, bezpečnost vibe codingu a ztrátová komprese reality",
+        "publishedAt": "2026-06-20T13:11:59.000Z",
+        "durationInSeconds": 2482,
+        "youtubeVideoId": "BQqEjLX2k5o"
+    },
+    {
+        "number": 55,
+        "title": "AI ta Krajta #55 | OpenAI Codex Sites, capacity wall a proč coding agenti opouštějí IDE",
+        "publishedAt": "2026-06-08T14:00:01.000Z",
+        "durationInSeconds": 2835,
+        "youtubeVideoId": "8-sTGboWE1o"
+    },
+    {
+        "number": 54,
+        "title": "AI ta Krajta #54 | Claude Opus 4.8, DeepSWE a proč coding agenti míří za hranice IDE",
+        "publishedAt": "2026-05-30T14:15:15.000Z",
+        "durationInSeconds": 3169,
+        "youtubeVideoId": "8GQ7q3dm1MM"
+    },
+    {
+        "number": 53,
+        "title": "AI ta Krajta #53 | Google I/O, Karpathy v Anthropic a proč IDEčka brzy nahradí Dark Code Factory",
+        "publishedAt": "2026-05-26T07:00:00.000Z",
+        "durationInSeconds": 2540,
+        "youtubeVideoId": "KG9A8ry0MfI"
+    },
+    {
+        "number": null,
+        "title": "AI ta Krajta Speciál | Hnutí Pause AI, riziko extinkce a proč je alignment otázkou dobra a zla",
+        "publishedAt": "2026-05-25T13:19:50.000Z",
+        "durationInSeconds": 3502,
+        "youtubeVideoId": "h2WGGZsH8Yk"
+    },
+    {
+        "number": 52,
+        "title": "AI ta Krajta #52 | Bun přechází na Rust, forward-deployed-engineers a proč vyměnit SDK za Markdown",
+        "publishedAt": "2026-05-22T08:01:03.000Z",
+        "durationInSeconds": 2707,
+        "youtubeVideoId": "IO9jqmJzWSs"
+    },
+    {
+        "number": 51,
+        "title": "AI ta Krajta #51 | context window 12M tokenů, tajná válka o Manus AI a proč přejít na Read Only AI",
+        "publishedAt": "2026-05-12T11:30:00.000Z",
+        "durationInSeconds": 2584,
+        "youtubeVideoId": "wqfwjPznGo8"
+    },
+    {
+        "number": 50,
+        "title": "AI ta Krajta #50 | Agentní ekonomika o přežití, AI pro čínské babičky a konec levných tokenů",
+        "publishedAt": "2026-05-09T16:42:50.000Z",
+        "durationInSeconds": 2934,
+        "youtubeVideoId": "c7YeaZFSmqs"
+    },
+    {
+        "number": 49,
+        "title": "AI ta Krajta #49 | ClaudeGate TDI, konec neomezeného Copilota a proč AI kód potřebuje Effect TS",
+        "publishedAt": "2026-04-30T11:32:23.000Z",
+        "durationInSeconds": 2627,
+        "youtubeVideoId": "5Sf1xOILuiI"
+    },
+    {
+        "number": 48,
+        "title": "AI ta Krajta #48 | AI on fire, brutální zrychlení lokálních modelů a záchrana díky Effect TS",
+        "publishedAt": "2026-04-22T14:19:20.000Z",
+        "durationInSeconds": 2732,
+        "youtubeVideoId": "WJa9RGNRbUw"
+    },
+    {
+        "number": 46,
+        "title": "AI ta Krajta #46 | Uniklé zdrojáky Claude Code, supply chain útoky a jak V-JEPA modely chápou svět",
+        "publishedAt": "2026-04-19T20:05:21.000Z",
+        "durationInSeconds": 2284,
+        "youtubeVideoId": "O1o1QhYVKB4"
+    },
+    {
+        "number": 47,
+        "title": "AI ta Krajta #47 | Emoce v LLM, nebezpečný Mythos a agenti v cloudu",
+        "publishedAt": "2026-04-19T20:03:26.000Z",
+        "durationInSeconds": 3468,
+        "youtubeVideoId": "p9PvTNkc2qY"
+    },
+    {
+        "number": null,
+        "title": "AI ta krajta: speciální díl č. 1 | O dezinformacích s Tomášem Koblížkem",
+        "publishedAt": "2026-04-02T16:02:06.000Z",
+        "durationInSeconds": 3608,
+        "youtubeVideoId": "VGm3XFBLgvg"
+    },
+    {
+        "number": 45,
+        "title": "AI ta Krajta #45 | Adam Zvada o prodeji Steer Codu, agent engineeringu a orchestraci AI",
+        "publishedAt": "2026-04-02T08:20:53.000Z",
+        "durationInSeconds": 3571,
+        "youtubeVideoId": "c3NusktZPH8"
+    },
+    {
+        "number": 44,
+        "title": "AI ta Krajta #44 | Lukáš Caha z Youklidu: Jak ignorovat AI hype a vydělávat v offline světě",
+        "publishedAt": "2026-03-26T08:40:01.000Z",
+        "durationInSeconds": 3131,
+        "youtubeVideoId": "L0_AZh8i9Wg"
+    },
+    {
+        "number": 43,
+        "title": "AI ta Krajta #43 | Kódovací želví ninjové, kódování hlasem a AI psychóza",
+        "publishedAt": "2026-03-16T10:30:02.000Z",
+        "durationInSeconds": 3631,
+        "youtubeVideoId": "xCdy420Cpw0"
+    },
+    {
+        "number": 42,
+        "title": "AI ta Krajta #42 | Spor Anthropicu s vládou a boj proti AI plevelu",
+        "publishedAt": "2026-03-13T07:30:00.000Z",
+        "durationInSeconds": 1776,
+        "youtubeVideoId": "VgPuJyJL5oE"
+    },
+    {
+        "number": 41,
+        "title": "AI ta Krajta #41 | Hardwarové LLM a AI Big Brother měřící vývojáře",
+        "publishedAt": "2026-03-12T09:42:13.000Z",
+        "durationInSeconds": 3146,
+        "youtubeVideoId": "P8Z6nbPKklU"
+    },
+    {
+        "number": 40,
+        "title": "AI ta Krajta #40 | Dark Software Factory: autonomní továrny na kód",
+        "publishedAt": "2026-03-04T14:43:50.000Z",
+        "durationInSeconds": 3366,
+        "youtubeVideoId": "9Hv-Ci3o-jQ"
+    },
+    {
+        "number": 39,
+        "title": "AI ta Krajta #39 | SaaS Apokalypsa: opravdu přijde a co bude dál?",
+        "publishedAt": "2026-02-25T13:02:28.000Z",
+        "durationInSeconds": 2411,
+        "youtubeVideoId": "yVtLkDWrKe4"
+    },
+    {
+        "number": 38,
+        "title": "AI ta Krajta #38 | Agenti běžící 2 hodiny samostatně, skills databáze, feedback loop",
+        "publishedAt": "2026-02-06T13:24:25.000Z",
+        "durationInSeconds": 2416,
+        "youtubeVideoId": "Z8BnVKbWWT8"
+    },
+    {
+        "number": 37,
+        "title": "AI ta Krajta #37 | Kolik agentů dokáže řídit jeden senior developer?",
+        "publishedAt": "2026-02-01T11:32:34.000Z",
+        "durationInSeconds": 2545,
+        "youtubeVideoId": "uEYZATkfRcA"
+    },
+    {
+        "number": 36,
+        "title": "AI ta Krajta #36 | Jak řídit AI agenty přes Git, subscription vs API, tipy pro workflows",
+        "publishedAt": "2026-01-22T20:14:58.000Z",
+        "durationInSeconds": 2901,
+        "youtubeVideoId": "2Uiqu4hEx_g"
+    },
+    {
+        "number": 35,
+        "title": "AI ta Krajta #35 | Jak nastavit správný AI development setup, Agent Skills, Claude Cowork",
+        "publishedAt": "2026-01-16T08:53:06.000Z",
+        "durationInSeconds": 2934,
+        "youtubeVideoId": "OG2rRDX8Evw"
+    },
+    {
+        "number": 34,
+        "title": "AI ta Krajta #34 | Exit Macaly, Convex vs Supabase, AI engineering vs vibe coding",
+        "publishedAt": "2026-01-08T20:49:36.000Z",
+        "durationInSeconds": 2558,
+        "youtubeVideoId": "W5RVPpiolYs"
+    },
+    {
+        "number": 33,
+        "title": "AI ta Krajta #33 | Vibe coding v praxi, GitHub Copilot, komentáře jako kontext v kódu",
+        "publishedAt": "2025-12-18T22:22:17.000Z",
+        "durationInSeconds": 2556,
+        "youtubeVideoId": "S-kv0ORNa_U"
+    },
+    {
+        "number": 32,
+        "title": "AI ta Krajta #32 | Stovky agentů v produkci, MCP workflow, a když agenti přerostou infrastrukturu",
+        "publishedAt": "2025-12-12T22:03:32.000Z",
+        "durationInSeconds": 2405,
+        "youtubeVideoId": "relN1UILe5U"
+    },
+    {
+        "number": 31,
+        "title": "AI ta Krajta #31 | Gemini 3 Pro, nové modely pro programování, autentizace AI agentů",
+        "publishedAt": "2025-12-04T23:37:44.000Z",
+        "durationInSeconds": 2949,
+        "youtubeVideoId": "ZGjPAEQhM0g"
+    },
+    {
+        "number": 30,
+        "title": "AI ta Krajta #30 | Pavel Ungr: jak být viditelný v ChatGPT, Gemini a Googlu",
+        "publishedAt": "2025-11-27T21:04:45.000Z",
+        "durationInSeconds": 2982,
+        "youtubeVideoId": "8pe_TMlItOY"
+    },
+    {
+        "number": 29,
+        "title": "AI ta Krajta #29 | Gemini 3, limity Codexu, UI pro MCP, ideální AI stack",
+        "publishedAt": "2025-11-20T20:11:08.000Z",
+        "durationInSeconds": 2826,
+        "youtubeVideoId": "UkgMgDup1zg"
+    },
+    {
+        "number": 28,
+        "title": "AI ta Krajta #28 | Startup zvalidovaný pomocí AI, MCP tooling, agenti vs asistenti",
+        "publishedAt": "2025-11-14T12:54:32.000Z",
+        "durationInSeconds": 3268,
+        "youtubeVideoId": "t7P1siPskAM"
+    },
+    {
+        "number": 27,
+        "title": "AI ta Krajta #27 | Cursor 2.0, A2A protokol, paralelní agenti, konec promptování?",
+        "publishedAt": "2025-11-06T23:17:40.000Z",
+        "durationInSeconds": 3088,
+        "youtubeVideoId": "3zW6VeE0lCs"
+    },
+    {
+        "number": 26,
+        "title": "AI ta Krajta #26 | AI bublina splaskla, AI prohlížeče jako špioni, Grokipedia a pravda podle Muska",
+        "publishedAt": "2025-10-30T10:09:36.000Z",
+        "durationInSeconds": 2468,
+        "youtubeVideoId": "zfw2OFjYxH8"
+    },
+    {
+        "number": 25,
+        "title": "AI ta Krajta #25 | Nanochat od Andreje Karpathyho, generované a personalizované UI, orchestrace LLM",
+        "publishedAt": "2025-10-23T14:10:16.000Z",
+        "durationInSeconds": 2852,
+        "youtubeVideoId": "_wI-urWvALU"
+    },
+    {
+        "number": 24,
+        "title": "AI ta Krajta #24 | CloudTalk: voice agenti, evaluace, LangChain, conversational intelligence",
+        "publishedAt": "2025-10-16T11:31:48.000Z",
+        "durationInSeconds": 3045,
+        "youtubeVideoId": "Kev5eZwiWMU"
+    },
+    {
+        "number": 23,
+        "title": "AI ta Krajta #23 | Tomáš Mikolov: BottleCap AI, budoucnost jazykových modelů, AGI",
+        "publishedAt": "2025-10-09T13:36:07.000Z",
+        "durationInSeconds": 3570,
+        "youtubeVideoId": "RrKFAyYjbgg"
+    },
+    {
+        "number": 22,
+        "title": "AI ta Krajta #22 | Claude Sonnet 4.5, Vector Space Day Berlín, AI partneři, AGENTS.md",
+        "publishedAt": "2025-10-02T10:02:38.000Z",
+        "durationInSeconds": 2996,
+        "youtubeVideoId": "0dfaV9MSyzk"
+    },
+    {
+        "number": 21,
+        "title": "AI ta Krajta #21 | Agent ID - hlídací pes pro AI agenty, bourání jazykových bariér ve zdravotnictví",
+        "publishedAt": "2025-09-25T11:30:06.000Z",
+        "durationInSeconds": 2439,
+        "youtubeVideoId": "xtebb91xaIo"
+    },
+    {
+        "number": 20,
+        "title": "AI ta Krajta #20 | Determinismus v LLM, malé jazykové modely pro agenty, budoucnost AI asistentů",
+        "publishedAt": "2025-09-18T14:57:27.000Z",
+        "durationInSeconds": 2716,
+        "youtubeVideoId": "OlUNTW1zNNM"
+    },
+    {
+        "number": 19,
+        "title": "AI ta Krajta #19 | OpenAI certifikace, nový startup QuantumSpring, kritika Apple Intelligence",
+        "publishedAt": "2025-09-11T11:26:01.000Z",
+        "durationInSeconds": 2724,
+        "youtubeVideoId": "HkfwsujLKJE"
+    },
+    {
+        "number": 18,
+        "title": "AI ta Krajta #18 | OpenAI Codex v CLI, Anthropic valuace, GPT real-time voice, vibecoding benchmarky",
+        "publishedAt": "2025-09-04T15:23:18.000Z",
+        "durationInSeconds": 2713,
+        "youtubeVideoId": "lRQvIPZ7Zmg"
+    },
+    {
+        "number": 17,
+        "title": "AI ta Krajta #17 | Velké kontextové okna v praxi, GPT-5, vektorové databáze a live coding",
+        "publishedAt": "2025-08-28T20:13:40.000Z",
+        "durationInSeconds": 3427,
+        "youtubeVideoId": "nD1v9dMvnLY"
+    },
+    {
+        "number": 16,
+        "title": "AI ta Krajta #16 | Jak učit týmy používat AI, MCP servery, Databricks valuace, změny v GitHubu",
+        "publishedAt": "2025-08-21T07:46:23.000Z",
+        "durationInSeconds": 2778,
+        "youtubeVideoId": "qJGlaeJzKb0"
+    },
+    {
+        "number": 15,
+        "title": "AI ta Krajta #15 | Coding s GPT-5, generované světy a AI vztahová epidemie",
+        "publishedAt": "2025-08-14T22:19:00.000Z",
+        "durationInSeconds": 2701,
+        "youtubeVideoId": "286qEr6Cjj0"
+    },
+    {
+        "number": 14,
+        "title": "AI ta Krajta #14 | Nové modely OpenAI, robotické simulace s AI, sociální sítě pro AI agenty",
+        "publishedAt": "2025-08-07T05:40:58.000Z",
+        "durationInSeconds": 2912,
+        "youtubeVideoId": "L7wFV3zND7s"
+    },
+    {
+        "number": 13,
+        "title": "AI ta Krajta #13 | AI novinky, diskuze o E2B, AI-native webové prohlížeče, Claude Code Subagents",
+        "publishedAt": "2025-07-31T13:37:50.000Z",
+        "durationInSeconds": 3340,
+        "youtubeVideoId": "Vy4qWZQuyP4"
+    },
+    {
+        "number": 12,
+        "title": "AI ta Krajta #12 | Jak správně vytvářet a využívat Evals pro AI modely",
+        "publishedAt": "2025-07-24T10:53:11.000Z",
+        "durationInSeconds": 2958,
+        "youtubeVideoId": "yyjDIIz-rSw"
+    },
+    {
+        "number": 11,
+        "title": "AI ta Krajta #11 | Bitvy o AI talenty, AI IDE Kiro, multiagentní systémy, projektový management a AI",
+        "publishedAt": "2025-07-17T06:35:31.000Z",
+        "durationInSeconds": 2329,
+        "youtubeVideoId": "U6cN0r4NIgs"
+    },
+    {
+        "number": 10,
+        "title": "AI ta Krajta #10 | AI novinky, implementace AI ve firmách, kdy budeme mít AGI?",
+        "publishedAt": "2025-07-10T05:01:34.000Z",
+        "durationInSeconds": 2572,
+        "youtubeVideoId": "x8jGleNWbGM"
+    },
+    {
+        "number": 9,
+        "title": "AI ta Krajta #9 | Kde brát AI novinky, Context vs. Prompt Engineering, co jsou (AI) Evals? 🤔",
+        "publishedAt": "2025-07-03T05:05:05.000Z",
+        "durationInSeconds": 2343,
+        "youtubeVideoId": "XbJ38bwAI0s"
+    },
+    {
+        "number": 8,
+        "title": "AI ta Krajta #8 | Co vedlo k rozhodnutí stavět Macaly, Testování LLM aplikací, MCP a Tool Calling",
+        "publishedAt": "2025-06-26T09:16:01.000Z",
+        "durationInSeconds": 3389,
+        "youtubeVideoId": "nybIDZw5tAs"
+    },
+    {
+        "number": 7,
+        "title": "AI ta Krajta #7 | Autopilot Tesly v Evropě, Cursor vs. Cline, AI agenti a jejich bezpečnost",
+        "publishedAt": "2025-06-19T16:25:41.000Z",
+        "durationInSeconds": 2842,
+        "youtubeVideoId": "PPBfxWi_glM"
+    },
+    {
+        "number": 6,
+        "title": "AI ta Krajta #6 | Benchmarky, AI v akademické sféře a průmyslu, jak dostat práci v Googlu?",
+        "publishedAt": "2025-06-12T11:03:27.000Z",
+        "durationInSeconds": 3589,
+        "youtubeVideoId": "tcpqmy-t7Y0"
+    },
+    {
+        "number": 5,
+        "title": "AI ta Krajta #5 | OpenAI Codex, AI v datové analytice, GoodData AI, chyby v Cursoru, e-commerce a AI",
+        "publishedAt": "2025-06-05T15:47:35.000Z",
+        "durationInSeconds": 3658,
+        "youtubeVideoId": "H7cKQjOwmBM"
+    },
+    {
+        "number": 4,
+        "title": "AI ta Krajta #4 | Claude 4, český startup Macaly 🚀, agenturní vývoj a AI, Jony Ive a OpenAI",
+        "publishedAt": "2025-05-29T10:08:20.000Z",
+        "durationInSeconds": 2794,
+        "youtubeVideoId": "ePOYetVQiS0"
+    },
+    {
+        "number": 3,
+        "title": "AI ta Krajta #3 | Google I/O, OpenAI Codex a další podobné nástroje, dává AI-first podpora smysl?",
+        "publishedAt": "2025-05-22T15:31:48.000Z",
+        "durationInSeconds": 3011,
+        "youtubeVideoId": "9cHpxAIF0XQ"
+    },
+    {
+        "number": 2,
+        "title": "AI ta Krajta #2 | MCP, A2A a další \"AI\" protokoly, nové architektury modelů, Google AI Studio",
+        "publishedAt": "2025-05-15T12:45:51.000Z",
+        "durationInSeconds": 3019,
+        "youtubeVideoId": null
+    },
+    {
+        "number": 1,
+        "title": "AI ta Krajta #1 | AI (coding) agents, data council v San Franciscu, budoucnost grafického rozhraní",
+        "publishedAt": "2025-05-08T18:22:56.000Z",
+        "durationInSeconds": 3155,
+        "youtubeVideoId": "WkqtptW099E"
+    }
+]

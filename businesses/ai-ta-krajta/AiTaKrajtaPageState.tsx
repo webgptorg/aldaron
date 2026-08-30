@@ -1,6 +1,11 @@
 'use client';
 
-import type { AiTaKrajtaArchive, AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
+import {
+    isPlayableAiTaKrajtaEpisode,
+    type AiTaKrajtaArchive,
+    type AiTaKrajtaEpisode,
+    type PlayableAiTaKrajtaEpisode,
+} from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { filterAiTaKrajtaEpisodes } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
 import {
     parseAiTaKrajtaViewState,
@@ -25,14 +30,22 @@ type AiTaKrajtaPageStateValue = {
     /**
      * Episode loaded in the mini player, `null` when the player is closed
      */
-    readonly playingEpisode: AiTaKrajtaEpisode | null;
+    readonly playingEpisode: PlayableAiTaKrajtaEpisode | null;
+
+    /**
+     * Newest episode there is a recording of, which is what the buttons offering to listen play
+     *
+     * Note: This is not always the newest episode. The video of an episode regularly comes out before its recording
+     *       is published, and an episode which cannot be played must not be what a `Poslouchat` button loads.
+     */
+    readonly newestPlayableEpisode: PlayableAiTaKrajtaEpisode | null;
 
     readonly viewState: AiTaKrajtaViewState;
 
     /**
      * Loads one episode into the mini player and starts it
      */
-    readonly playEpisode: (episode: AiTaKrajtaEpisode) => void;
+    readonly playEpisode: (episode: PlayableAiTaKrajtaEpisode) => void;
 
     /**
      * Starts the loaded episode or pauses it
@@ -80,13 +93,22 @@ export function AiTaKrajtaPageStateProvider({
         [archive.episodes, viewState.personId, viewState.searchQuery],
     );
 
-    const playingEpisode = useMemo(
-        () => archive.episodes.find((episode) => episode.slug === viewState.playingEpisodeSlug) ?? null,
-        [archive.episodes, viewState.playingEpisodeSlug],
+    const playableEpisodes = useMemo(
+        () => archive.episodes.filter(isPlayableAiTaKrajtaEpisode),
+        [archive.episodes],
     );
 
+    // Note: The player exists to play a recording, so a link naming an episode which has none simply opens the page
+    //       with the player closed instead of showing a player with nothing in it.
+    const playingEpisode = useMemo(
+        () => playableEpisodes.find((episode) => episode.slug === viewState.playingEpisodeSlug) ?? null,
+        [playableEpisodes, viewState.playingEpisodeSlug],
+    );
+
+    const newestPlayableEpisode = playableEpisodes[0] ?? null;
+
     const playEpisode = useCallback(
-        (episode: AiTaKrajtaEpisode) =>
+        (episode: PlayableAiTaKrajtaEpisode) =>
             changeViewState((previousViewState) => ({
                 ...previousViewState,
                 playingEpisodeSlug: episode.slug,
@@ -140,6 +162,7 @@ export function AiTaKrajtaPageStateProvider({
             archive,
             filteredEpisodes,
             playingEpisode,
+            newestPlayableEpisode,
             viewState,
             playEpisode,
             setIsPlaying,
@@ -153,6 +176,7 @@ export function AiTaKrajtaPageStateProvider({
             archive,
             filteredEpisodes,
             playingEpisode,
+            newestPlayableEpisode,
             viewState,
             playEpisode,
             setIsPlaying,

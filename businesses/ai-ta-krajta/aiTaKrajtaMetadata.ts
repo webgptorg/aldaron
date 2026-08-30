@@ -219,6 +219,7 @@ export function createAiTaKrajtaStructuredData(episodes: readonly AiTaKrajtaEpis
                 name: episode.title,
                 url: createAbsoluteUrl(createAiTaKrajtaEpisodePath(episode.slug)),
                 audioUrl: episode.audioUrl,
+                videoUrl: episode.videoUrl,
                 publishedAt: episode.publishedAt,
                 episodeNumber: episode.number,
                 durationInSeconds: episode.durationInSeconds,

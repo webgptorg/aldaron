@@ -23,8 +23,7 @@ function AiTaKrajtaFact({ label, value }: { readonly label: string; readonly val
  * The opening of the page, which says what the show is, where it comes out and lets the logo be played with
  */
 export function AiTaKrajtaHero() {
-    const { archive, playEpisode } = useAiTaKrajtaPageState();
-    const newestEpisode = archive.episodes[0] ?? null;
+    const { archive, newestPlayableEpisode, playEpisode } = useAiTaKrajtaPageState();
 
     return (
         <section className="relative overflow-hidden">
@@ -56,12 +55,12 @@ export function AiTaKrajtaHero() {
                     <div className="mt-8 flex flex-wrap items-center gap-3">
                         <button
                             type="button"
-                            onClick={() => newestEpisode !== null && playEpisode(newestEpisode)}
-                            disabled={newestEpisode === null}
+                            onClick={() => newestPlayableEpisode !== null && playEpisode(newestPlayableEpisode)}
+                            disabled={newestPlayableEpisode === null}
                             className="inline-flex h-12 items-center gap-2 rounded-full bg-[#ff6b6b] px-6 text-base font-semibold text-[#1a201c] transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <Play className="h-5 w-5 fill-current" />
-                            {newestEpisode === null ? 'Poslední díl' : `Pustit díl ${newestEpisode.slug}`}
+                            {newestPlayableEpisode === null ? 'Poslední díl' : `Pustit díl ${newestPlayableEpisode.slug}`}
                         </button>
 
                         <a

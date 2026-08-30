@@ -18,6 +18,7 @@ function createFeedEpisode(values: Partial<PodcastEpisode>): PodcastEpisode {
         summary: '',
         descriptionText: '',
         audioUrl: 'https://example.com/1.mp3',
+        videoUrl: null,
         pageUrl: null,
         publishedAt: '2026-08-01T00:00:00.000Z',
         durationInSeconds: 1800,

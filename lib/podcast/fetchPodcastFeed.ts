@@ -1,3 +1,4 @@
+import { fetchCachedText } from '@/lib/network/fetchCachedText';
 import { parsePodcastRssFeed, type ParsePodcastRssFeedOptions } from '@/lib/podcast/parsePodcastRssFeed';
 import { EMPTY_PODCAST_FEED, type PodcastFeed } from '@/lib/podcast/PodcastFeed';
 
@@ -14,31 +15,26 @@ export type FetchPodcastFeedOptions = ParsePodcastRssFeedOptions & {
 };
 
 /**
+ * Every kind of document a podcast host answers a request for a feed with
+ */
+const RSS_FEED_MEDIA_TYPES = 'application/rss+xml, application/xml;q=0.9, text/xml;q=0.8';
+
+/**
  * Reads the feed of a podcast from its publisher
  *
- * Note: A page which lists episodes is a landing page first. When the publisher is unreachable or answers with
- *       something which is not a feed, the page still has to render, so the failure ends here and the caller receives
- *       a show without episodes instead of an exception.
+ * Note: A page which lists episodes has to render even when the publisher is unreachable or answers with something
+ *       which is not a feed, so the caller receives a show without episodes instead of an exception.
  *
  * @returns the show with its episodes, or `EMPTY_PODCAST_FEED` when the feed could not be read
  */
 export async function fetchPodcastFeed(options: FetchPodcastFeedOptions): Promise<PodcastFeed> {
     const { feedUrl, revalidateSeconds, ...parseOptions } = options;
 
-    try {
-        const response = await fetch(feedUrl, {
-            headers: { Accept: 'application/rss+xml, application/xml;q=0.9, text/xml;q=0.8' },
-            next: { revalidate: revalidateSeconds },
-        });
+    const feedXml = await fetchCachedText({
+        url: feedUrl,
+        revalidateSeconds,
+        acceptedMediaTypes: RSS_FEED_MEDIA_TYPES,
+    });
 
-        if (!response.ok) {
-            console.error(`Podcast feed ${feedUrl} answered with the status ${response.status}`);
-            return EMPTY_PODCAST_FEED;
-        }
-
-        return parsePodcastRssFeed(await response.text(), parseOptions);
-    } catch (feedError) {
-        console.error(`Podcast feed ${feedUrl} could not be read`, feedError);
-        return EMPTY_PODCAST_FEED;
-    }
+    return feedXml === null ? EMPTY_PODCAST_FEED : parsePodcastRssFeed(feedXml, parseOptions);
 }

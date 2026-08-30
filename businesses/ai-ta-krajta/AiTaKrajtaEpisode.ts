@@ -14,6 +14,21 @@ export type AiTaKrajtaEpisode = Omit<PodcastEpisode, 'descriptionText'> & {
 };
 
 /**
+ * One episode there really is a recording of, which is the only kind the mini player can be given
+ *
+ * Note: The video of an episode is regularly published before its recording is, so an episode of the archive is not
+ *       necessarily playable. Saying that in the type keeps the player from having to check it again.
+ */
+export type PlayableAiTaKrajtaEpisode = AiTaKrajtaEpisode & { readonly audioUrl: string };
+
+/**
+ * Whether there is a recording of this episode to play
+ */
+export function isPlayableAiTaKrajtaEpisode(episode: AiTaKrajtaEpisode): episode is PlayableAiTaKrajtaEpisode {
+    return episode.audioUrl !== null;
+}
+
+/**
  * Everything the page needs to know about the show and its episodes
  */
 export type AiTaKrajtaArchive = {

@@ -1,6 +1,7 @@
 'use client';
 
 import { AiTaKrajtaEpisodeCard } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisodeCard';
+import { isPlayableAiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { getAiTaKrajtaPersonById } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import {
@@ -134,9 +135,13 @@ export function AiTaKrajtaEpisodeList() {
                                             isLoaded={isLoaded}
                                             isPlaying={isLoaded && viewState.isPlaying}
                                             selectedPersonId={viewState.personId}
-                                            onPlayToggle={() =>
-                                                isLoaded ? setIsPlaying(!viewState.isPlaying) : playEpisode(episode)
-                                            }
+                                            onPlayToggle={() => {
+                                                if (isLoaded) {
+                                                    setIsPlaying(!viewState.isPlaying);
+                                                } else if (isPlayableAiTaKrajtaEpisode(episode)) {
+                                                    playEpisode(episode);
+                                                }
+                                            }}
                                             onPersonClick={togglePersonFilter}
                                         />
                                     </li>

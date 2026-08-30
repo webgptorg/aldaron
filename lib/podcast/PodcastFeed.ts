@@ -1,8 +1,9 @@
 /**
- * One episode of a podcast, as it is published in an RSS feed
+ * One episode of a podcast, however many places publish it
  *
- * Note: Everything here comes straight from the feed, so a page never has to keep its own copy of an episode which
- *       the publisher can change at any time.
+ * Note: The same episode is published in the RSS feed of the show, on its video channel and in the list this
+ *       application keeps of it, and no one of those knows everything about it. What every source says is merged into
+ *       one episode of this shape, so nothing beyond `mergePodcastEpisodes` has to know where a value came from.
  */
 export type PodcastEpisode = {
     /**
@@ -45,8 +46,20 @@ export type PodcastEpisode = {
 
     /**
      * Address of the audio file, which is what the player of the page plays
+     *
+     * Note: `null` for an episode which is only published as a video, which can be watched but not played here. Only
+     *       the feed of the show carries a recording, so this is also `null` for the whole archive while that feed
+     *       cannot be read.
      */
-    readonly audioUrl: string;
+    readonly audioUrl: string | null;
+
+    /**
+     * Address of the video of the episode, which is where a listener is sent to watch it
+     *
+     * Note: This is the primary link of an episode, because the show is made as a video and the recording is what is
+     *       published from it. `null` when no source names a video.
+     */
+    readonly videoUrl: string | null;
 
     /**
      * Page of the episode at the publisher, `null` when the feed does not name one

@@ -99,6 +99,15 @@ export const AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE: Readonly<Record<SupportedHomepage
 };
 
 export const AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@aitakrajta_tv';
+
+/**
+ * The very same channel as the address above, said the way its public feed asks to be named
+ *
+ * Note: YouTube serves the feed of a channel by this identifier alone and not by the handle the channel is linked
+ *       under, which is why both are written here.
+ */
+export const AI_TA_KRAJTA_YOUTUBE_CHANNEL_ID = 'UC5Tbrm0RPCqaye9Nf5qIYGQ';
+
 export const AI_TA_KRAJTA_SPOTIFY_SHOW_URL = 'https://open.spotify.com/show/31vLTHTV4vlCBeHpnbMKlK';
 export const AI_TA_KRAJTA_APPLE_PODCASTS_SHOW_URL = 'https://podcasts.apple.com/cz/podcast/ai-ta-krajta/id1813389353';
 export const AI_TA_KRAJTA_LINKEDIN_URL = 'https://www.linkedin.com/company/aitakrajta';

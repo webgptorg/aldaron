@@ -238,9 +238,14 @@ export type PodcastEpisodeStructuredDataOptions = {
     readonly url: string;
 
     /**
-     * Address of the recording itself
+     * Address of the recording itself, `null` for an episode which is only published as a video
      */
-    readonly audioUrl: string;
+    readonly audioUrl: string | null;
+
+    /**
+     * Address of the video of the episode, `null` when the episode has none
+     */
+    readonly videoUrl?: string | null;
 
     /**
      * Moment the episode was published, as an ISO 8601 string
@@ -308,12 +313,22 @@ function createPodcastEpisodeStructuredData(episode: PodcastEpisodeStructuredDat
         url: episode.url,
         datePublished: episode.publishedAt,
         ...(episode.episodeNumber === null ? {} : { episodeNumber: episode.episodeNumber }),
-        associatedMedia: {
-            '@type': 'AudioObject',
-            contentUrl: episode.audioUrl,
-            encodingFormat: 'audio/mpeg',
-            ...(episode.durationInSeconds === null ? {} : { duration: createIsoDuration(episode.durationInSeconds) }),
-        },
+
+        // Note: The video of an episode is the same work published elsewhere rather than a second episode, which is
+        //       what `sameAs` says and what connects this page to that video for a search engine.
+        ...(episode.videoUrl === undefined || episode.videoUrl === null ? {} : { sameAs: episode.videoUrl }),
+        ...(episode.audioUrl === null
+            ? {}
+            : {
+                  associatedMedia: {
+                      '@type': 'AudioObject',
+                      contentUrl: episode.audioUrl,
+                      encodingFormat: 'audio/mpeg',
+                      ...(episode.durationInSeconds === null
+                          ? {}
+                          : { duration: createIsoDuration(episode.durationInSeconds) }),
+                  },
+              }),
     };
 }
 
