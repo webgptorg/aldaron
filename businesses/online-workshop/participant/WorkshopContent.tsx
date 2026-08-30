@@ -74,7 +74,7 @@ function WorkshopMaterialQrCodes({ materialLinks }: { readonly materialLinks: re
                     aria-label={`QR kód materiálu: ${materialLink.label}`}
                     className="w-44"
                 >
-                    <div className="rounded-xl bg-white p-2 shadow-lg shadow-cyan-300/10">
+                    <div className="rounded-xl bg-white p-3 shadow-lg shadow-cyan-300/10">
                         <PromptbookQrCode
                             value={materialLink.href}
                             size={MATERIAL_QR_CODE_SIZE}

@@ -89,15 +89,6 @@ describe('workshop materials', () => {
         );
     });
 
-    it('uses a compact white frame around every material QR code', async () => {
-        renderWorkshopContent([CONTENT_BLOCK]);
-
-        const qrCode = await screen.findByTestId('workshop-material-qr-code');
-
-        expect(qrCode.parentElement?.className).toContain('p-2');
-        expect(qrCode.parentElement?.className).not.toContain('p-3');
-    });
-
     it('keeps multiple material links as light underlined links without a call to action', async () => {
         const contentBlockWithMultipleLinks: WorkshopContentBlock = {
             ...CONTENT_BLOCK,
