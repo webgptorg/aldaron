@@ -19,3 +19,14 @@
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
+
+[ ]
+
+[✨🌇] Projects shared in the community should be also approved by moderators or admins.
+
+- Trusted Users and moderators has their projects auto approved.
+- Same pattern as for the chat messages.
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do an analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
