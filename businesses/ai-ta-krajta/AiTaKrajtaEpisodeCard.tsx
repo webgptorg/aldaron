@@ -4,7 +4,6 @@ import type { AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpis
 import { getAiTaKrajtaEpisodePeople } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
 import { formatAiTaKrajtaDate } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
 import { AiTaKrajtaPersonAvatar } from '@/businesses/ai-ta-krajta/AiTaKrajtaPersonAvatar';
-import { AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL } from '@/businesses/ai-ta-krajta/config';
 import { formatPodcastEpisodeDuration } from '@/lib/podcast/podcastEpisodeDuration';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, Pause, Play } from 'lucide-react';
@@ -105,15 +104,17 @@ export function AiTaKrajtaEpisodeCard({
                             </ul>
                         )}
 
-                        <a
-                            href={AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-sm text-white/45 transition-colors hover:text-white"
-                        >
-                            Otevřít u vydavatele
-                            <ArrowUpRight className="h-3.5 w-3.5" />
-                        </a>
+                        {episode.pageUrl !== null && (
+                            <a
+                                href={episode.pageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-sm text-white/45 transition-colors hover:text-white"
+                            >
+                                Otevřít u vydavatele
+                                <ArrowUpRight className="h-3.5 w-3.5" />
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
