@@ -34,8 +34,13 @@
 [✨🐪] Alongside all the materials, there is the QR code
 
 - There should be smaller white padding around the QR code, so it looks better
-- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Now there is a big ugly padding/margin/border around the QR code.
+- Ideally it should be as small as possible while still being clearly scannable.
+- They must be also same from all sides.
+- Also remove the "Otevřít v telefonu" - it is obviously redundant when showing the QR code.
+- Keep in mind the DRY _(don't repeat yourself)_ principle - Do this principle throughout the repository.
 - Do a analysis of the current functionality before you start implementing.
 
 ![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR.png)
 ![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR-1.png)
+![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR-2.png)
