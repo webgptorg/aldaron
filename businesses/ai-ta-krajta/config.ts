@@ -21,12 +21,38 @@ export const AI_TA_KRAJTA_BRAND_NAME = `${AI_TA_KRAJTA_NAME} 🐍`;
 export const AI_TA_KRAJTA_COVER_IMAGE_PATH = '/pavol/media/ai-ta-krajta.jpg';
 
 /**
- * The square podcast cover doubles as its favicon, touch icon and installed-app icon
+ * Edge an icon of the podcast is drawn at, in pixels
+ *
+ * Note: 512 is the largest size a home screen and an installed application ask for. The scalable icon is only
+ *       nominally this big, because a browser scales it to whatever the tab needs.
  */
-export const AI_TA_KRAJTA_APP_ICON = {
-    path: AI_TA_KRAJTA_COVER_IMAGE_PATH,
-    sizes: '900x900',
-    type: 'image/jpeg',
+export const AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS = 512;
+
+/**
+ * Icons of the podcast, drawn from the same snake the page draws
+ *
+ * Note: The cover artwork is a JPEG, and JPEG has no transparency, so the corners around its rounding are painted
+ *       white. Used as a favicon it therefore shows four white notches in every browser tab, which is what these two
+ *       drawn icons replace. Each is shaped for what shows it: see `AiTaKrajtaIconTileShape`.
+ */
+export const AI_TA_KRAJTA_APP_ICONS = {
+    /**
+     * Icon of a browser tab and of a bookmark, which round nothing themselves
+     */
+    SCALABLE: {
+        path: `${AI_TA_KRAJTA_PATH}/logo.svg`,
+        sizes: 'any',
+        type: 'image/svg+xml',
+    },
+
+    /**
+     * Icon of a home screen and of an installed application, which round it themselves
+     */
+    RASTER: {
+        path: `${AI_TA_KRAJTA_PATH}/logo.png`,
+        sizes: `${AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS}x${AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS}`,
+        type: 'image/png',
+    },
 } as const;
 
 /**

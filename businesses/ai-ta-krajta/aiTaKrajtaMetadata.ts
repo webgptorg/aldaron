@@ -1,7 +1,7 @@
 import type { AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { createAiTaKrajtaEpisodePath } from '@/businesses/ai-ta-krajta/aiTaKrajtaViewState';
 import {
-    AI_TA_KRAJTA_APP_ICON,
+    AI_TA_KRAJTA_APP_ICONS,
     AI_TA_KRAJTA_BRAND_NAME,
     AI_TA_KRAJTA_COLORS,
     AI_TA_KRAJTA_COVER_IMAGE_PATH,
@@ -74,18 +74,26 @@ export const AI_TA_KRAJTA_PAGE_DEFINITION: PageMetadataDefinition = {
 export const AI_TA_KRAJTA_METADATA: Metadata = {
     ...createPageMetadata(AI_TA_KRAJTA_PAGE_DEFINITION),
     icons: {
+        // Note: A browser which cannot draw the scalable icon falls back to the raster one below it.
         icon: [
             {
-                url: AI_TA_KRAJTA_APP_ICON.path,
-                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
-                type: AI_TA_KRAJTA_APP_ICON.type,
+                url: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.SCALABLE.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.SCALABLE.type,
+            },
+            {
+                url: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.RASTER.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.RASTER.type,
             },
         ],
+
+        // Note: iOS ignores a scalable touch icon and rounds the raster one itself.
         apple: [
             {
-                url: AI_TA_KRAJTA_APP_ICON.path,
-                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
-                type: AI_TA_KRAJTA_APP_ICON.type,
+                url: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.RASTER.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.RASTER.type,
             },
         ],
     },
@@ -122,10 +130,25 @@ export function createAiTaKrajtaManifest(): MetadataRoute.Manifest {
         theme_color: AI_TA_KRAJTA_THEME_COLOR,
         icons: [
             {
-                src: AI_TA_KRAJTA_APP_ICON.path,
-                sizes: AI_TA_KRAJTA_APP_ICON.sizes,
-                type: AI_TA_KRAJTA_APP_ICON.type,
+                src: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.SCALABLE.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.SCALABLE.type,
                 purpose: 'any',
+            },
+            {
+                src: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.RASTER.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.RASTER.type,
+                purpose: 'any',
+            },
+            {
+                // Note: The raster icon fills its whole tile, so a launcher which cuts its own shape out of an icon
+                //       has something to cut into and the snake still sits inside the safe area of that cut. A
+                //       launcher reads the very same file for both purposes, which is why it is offered twice.
+                src: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
+                sizes: AI_TA_KRAJTA_APP_ICONS.RASTER.sizes,
+                type: AI_TA_KRAJTA_APP_ICONS.RASTER.type,
+                purpose: 'maskable',
             },
         ],
     };

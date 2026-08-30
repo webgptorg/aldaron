@@ -5,7 +5,7 @@ import {
     createAiTaKrajtaStructuredData,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaMetadata';
 import {
-    AI_TA_KRAJTA_APP_ICON,
+    AI_TA_KRAJTA_APP_ICONS,
     AI_TA_KRAJTA_BRAND_NAME,
     AI_TA_KRAJTA_MANIFEST_PATH,
     AI_TA_KRAJTA_PATH,
@@ -24,8 +24,8 @@ describe('AI ta Krajta metadata', () => {
             publisher: AI_TA_KRAJTA_BRAND_NAME,
             manifest: AI_TA_KRAJTA_MANIFEST_PATH,
             icons: {
-                icon: [{ url: AI_TA_KRAJTA_APP_ICON.path }],
-                apple: [{ url: AI_TA_KRAJTA_APP_ICON.path }],
+                icon: [{ url: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path }, { url: AI_TA_KRAJTA_APP_ICONS.RASTER.path }],
+                apple: [{ url: AI_TA_KRAJTA_APP_ICONS.RASTER.path }],
             },
             openGraph: {
                 siteName: AI_TA_KRAJTA_BRAND_NAME,
@@ -39,14 +39,18 @@ describe('AI ta Krajta metadata', () => {
         });
     });
 
-    it('keeps the podcast cover and dark palette in its manifest', () => {
+    it('keeps the drawn icons and dark palette in its manifest', () => {
         expect(createAiTaKrajtaManifest()).toMatchObject({
             name: AI_TA_KRAJTA_BRAND_NAME,
             short_name: AI_TA_KRAJTA_BRAND_NAME,
             start_url: AI_TA_KRAJTA_PATH,
             background_color: AI_TA_KRAJTA_THEME_COLOR,
             theme_color: AI_TA_KRAJTA_THEME_COLOR,
-            icons: [{ src: AI_TA_KRAJTA_APP_ICON.path }],
+            icons: [
+                { src: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path, purpose: 'any' },
+                { src: AI_TA_KRAJTA_APP_ICONS.RASTER.path, purpose: 'any' },
+                { src: AI_TA_KRAJTA_APP_ICONS.RASTER.path, purpose: 'maskable' },
+            ],
         });
     });
 

@@ -1,7 +1,7 @@
 import { DISCOUNT_CODE_QUERY_PARAMETER, REGISTRATION_SECTION_ID } from '@/lib/discounts/discountCodeConstants';
 import { AI_SUPERVIZE_MINI_PATH, createDiscountCodePrefillPath } from '@/lib/discounts/discountPlaces';
 import {
-    AI_TA_KRAJTA_APP_ICON,
+    AI_TA_KRAJTA_APP_ICONS,
     AI_TA_KRAJTA_BRAND_NAME,
     AI_TA_KRAJTA_MANIFEST_PATH,
     AI_TA_KRAJTA_PATH,
@@ -135,7 +135,7 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
     await expect(page).toHaveTitle(`${AI_TA_KRAJTA_BRAND_NAME} | Český podcast o umělé inteligenci`);
 
     const metadataIdentity = await page.evaluate(
-        ({ appIconPath, manifestPath }) => {
+        ({ scalableIconPath, rasterIconPath, manifestPath }) => {
             const identityTags = Array.from(document.head.querySelectorAll('meta, link'));
             const structuredDataNodes = Array.from(document.head.querySelectorAll('script[type*=ld]'));
             const footerText = document.querySelector('footer')?.textContent ?? '';
@@ -147,11 +147,13 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
                 (element) => !(element.textContent ?? '').includes('Promptbook'),
             );
             const isPodcastIconUsed = identityTags.some(
-                (element) => element.getAttribute('rel') === 'icon' && element.getAttribute('href') === appIconPath,
+                (element) =>
+                    element.getAttribute('rel') === 'icon' && element.getAttribute('href') === scalableIconPath,
             );
             const isPodcastTouchIconUsed = identityTags.some(
                 (element) =>
-                    element.getAttribute('rel') === 'apple-touch-icon' && element.getAttribute('href') === appIconPath,
+                    element.getAttribute('rel') === 'apple-touch-icon' &&
+                    element.getAttribute('href') === rasterIconPath,
             );
             const isPodcastManifestUsed = identityTags.some(
                 (element) => element.getAttribute('rel') === 'manifest' && element.getAttribute('href') === manifestPath,
@@ -169,7 +171,11 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
                 isLegalCompanyPresent,
             };
         },
-        { appIconPath: AI_TA_KRAJTA_APP_ICON.path, manifestPath: AI_TA_KRAJTA_MANIFEST_PATH },
+        {
+            scalableIconPath: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path,
+            rasterIconPath: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
+            manifestPath: AI_TA_KRAJTA_MANIFEST_PATH,
+        },
     );
 
     expect(metadataIdentity).toEqual({
@@ -188,8 +194,19 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
     expect(await manifestResponse.json()).toMatchObject({
         name: AI_TA_KRAJTA_BRAND_NAME,
         short_name: AI_TA_KRAJTA_BRAND_NAME,
-        icons: [{ src: AI_TA_KRAJTA_APP_ICON.path }],
+        icons: [
+            { src: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path, purpose: 'any' },
+            { src: AI_TA_KRAJTA_APP_ICONS.RASTER.path, purpose: 'any' },
+            { src: AI_TA_KRAJTA_APP_ICONS.RASTER.path, purpose: 'maskable' },
+        ],
     });
+
+    for (const appIcon of [AI_TA_KRAJTA_APP_ICONS.SCALABLE, AI_TA_KRAJTA_APP_ICONS.RASTER]) {
+        const iconResponse = await page.request.get(appIcon.path);
+
+        expect(iconResponse.ok(), `Expected ${appIcon.path} to be served`).toBeTruthy();
+        expect(iconResponse.headers()['content-type']).toContain(appIcon.type);
+    }
 });
 
 for (const publicRedirect of PUBLIC_REDIRECTS) {
