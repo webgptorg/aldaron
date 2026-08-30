@@ -1,7 +1,6 @@
 'use client';
 
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
-import { AiTaKrajtaPromptbookCoderBadge } from '@/businesses/ai-ta-krajta/AiTaKrajtaPromptbookCoderBadge';
 import {
     AI_TA_KRAJTA_NAME,
     AI_TA_KRAJTA_PATH,
@@ -90,14 +89,11 @@ export function AiTaKrajtaFooter() {
                         © {CURRENT_YEAR} {AI_TA_KRAJTA_NAME}. Vydává {ORGANIZATION_LEGAL_NAME}. Všechna práva
                         vyhrazena.
                     </p>
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-                        <AiTaKrajtaPromptbookCoderBadge />
-                        <LegalFooterLinks
-                            language="cs"
-                            className="gap-x-5"
-                            linkClassName="text-white/45 hover:text-white"
-                        />
-                    </div>
+                    <LegalFooterLinks
+                        language="cs"
+                        className="gap-x-5"
+                        linkClassName="text-white/45 hover:text-white"
+                    />
                 </div>
             </div>
         </footer>
