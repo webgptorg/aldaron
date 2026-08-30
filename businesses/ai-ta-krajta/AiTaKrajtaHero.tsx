@@ -2,7 +2,7 @@
 
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { AiTaKrajtaSnakeTerrarium } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeTerrarium';
-import { formatAiTaKrajtaMonthAfterOd } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
+import { formatAiTaKrajtaEstimate } from '@/businesses/ai-ta-krajta/aiTaKrajtaFormatting';
 import { AI_TA_KRAJTA_PLATFORMS, AI_TA_KRAJTA_SECTION_IDS } from '@/businesses/ai-ta-krajta/config';
 import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { ArrowUpRight, Play } from 'lucide-react';
@@ -24,6 +24,7 @@ function AiTaKrajtaFact({ label, value }: { readonly label: string; readonly val
  */
 export function AiTaKrajtaHero() {
     const { archive, newestPlayableEpisode, playEpisode } = useAiTaKrajtaPageState();
+    const { estimatedSubscriberCount, estimatedListeningHours } = archive.statistics;
 
     return (
         <section className="relative overflow-hidden">
@@ -60,7 +61,9 @@ export function AiTaKrajtaHero() {
                             className="inline-flex h-12 items-center gap-2 rounded-full bg-[#ff6b6b] px-6 text-base font-semibold text-[#1a201c] transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <Play className="h-5 w-5 fill-current" />
-                            {newestPlayableEpisode === null ? 'Poslední díl' : `Pustit díl ${newestPlayableEpisode.slug}`}
+                            {newestPlayableEpisode === null
+                                ? 'Poslední díl'
+                                : `Pustit díl ${newestPlayableEpisode.slug}`}
                         </button>
 
                         <a
@@ -92,28 +95,33 @@ export function AiTaKrajtaHero() {
                     </div>
 
                     {archive.episodes.length > 0 && (
-                        <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
-                            <AiTaKrajtaFact
-                                label="Zatím venku"
-                                value={formatCzechCountedNoun(archive.episodes.length, ['díl', 'díly', 'dílů'])}
-                            />
-                            {archive.firstPublishedAt !== null && (
+                        <>
+                            <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
                                 <AiTaKrajtaFact
-                                    label="Běží od"
-                                    value={formatAiTaKrajtaMonthAfterOd(archive.firstPublishedAt)}
+                                    label="Zatím venku"
+                                    value={formatCzechCountedNoun(archive.episodes.length, ['díl', 'díly', 'dílů'])}
                                 />
+                                {estimatedSubscriberCount !== null && (
+                                    <AiTaKrajtaFact
+                                        label="Napříč kanály"
+                                        value={`${formatAiTaKrajtaEstimate(estimatedSubscriberCount)} odběrů`}
+                                    />
+                                )}
+                                {estimatedListeningHours !== null && (
+                                    <AiTaKrajtaFact
+                                        label="Odhad poslechu"
+                                        value={`${formatAiTaKrajtaEstimate(estimatedListeningHours)} hodin`}
+                                    />
+                                )}
+                            </dl>
+
+                            {(estimatedSubscriberCount !== null || estimatedListeningHours !== null) && (
+                                <p className="mt-4 max-w-xl text-xs leading-relaxed text-white/40">
+                                    Odběry jsou součtem veřejných kanálů; Spotify a Apple Podcasts nezveřejňují počet
+                                    poslechů, proto je čas konzervativní odhad z veřejných zhlédnutí a délky dílů.
+                                </p>
                             )}
-                            {archive.medianDurationInMinutes !== null && (
-                                <AiTaKrajtaFact
-                                    label="Obvyklá délka"
-                                    value={formatCzechCountedNoun(archive.medianDurationInMinutes, [
-                                        'minuta',
-                                        'minuty',
-                                        'minut',
-                                    ])}
-                                />
-                            )}
-                        </dl>
+                        </>
                     )}
                 </div>
 

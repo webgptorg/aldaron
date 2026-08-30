@@ -29,10 +29,30 @@ export function isPlayableAiTaKrajtaEpisode(episode: AiTaKrajtaEpisode): episode
 }
 
 /**
+ * Rounded, cross-platform reach estimates the server derived from the public profiles and the merged archive.
+ */
+export type AiTaKrajtaAudienceStatistics = {
+    /**
+     * Public subscriptions, follows and reviews summed across platforms, `null` when every count source is unreadable
+     */
+    readonly estimatedSubscriberCount: number | null;
+
+    /**
+     * Conservative estimate of time played across video and published audio homes, in whole hours
+     */
+    readonly estimatedListeningHours: number | null;
+};
+
+/**
  * Everything the page needs to know about the show and its episodes
  */
 export type AiTaKrajtaArchive = {
     readonly episodes: readonly AiTaKrajtaEpisode[];
+
+    /**
+     * Cross-platform reach estimates, already aggregated on the server instead of from a browser request
+     */
+    readonly statistics: AiTaKrajtaAudienceStatistics;
 
     /**
      * When the show published its first episode, as an ISO 8601 string, `null` when there is no episode

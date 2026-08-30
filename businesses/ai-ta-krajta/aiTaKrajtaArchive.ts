@@ -1,6 +1,8 @@
 import type { AiTaKrajtaArchive, AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
+import { createAiTaKrajtaAudienceStatistics } from '@/businesses/ai-ta-krajta/aiTaKrajtaAudienceStatistics';
 import { resolveAiTaKrajtaEpisodePersonIds } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
 import { createAiTaKrajtaInternalEpisodes } from '@/businesses/ai-ta-krajta/aiTaKrajtaInternalEpisodes';
+import { fetchAiTaKrajtaPublicPlatformStatistics } from '@/businesses/ai-ta-krajta/aiTaKrajtaPublicPlatformStatistics';
 import {
     AI_TA_KRAJTA_NAME,
     AI_TA_KRAJTA_RSS_FEED_URL,
@@ -72,11 +74,7 @@ async function fetchAiTaKrajtaEpisodeSources(
         fetchYoutubeChannelVideos({ channelId: AI_TA_KRAJTA_YOUTUBE_CHANNEL_ID, revalidateSeconds }),
     ]);
 
-    return [
-        feed.episodes,
-        createPodcastEpisodesFromYoutubeVideos(youtubeVideos),
-        createAiTaKrajtaInternalEpisodes(),
-    ];
+    return [feed.episodes, createPodcastEpisodesFromYoutubeVideos(youtubeVideos), createAiTaKrajtaInternalEpisodes()];
 }
 
 /**
@@ -91,11 +89,15 @@ async function fetchAiTaKrajtaEpisodeSources(
  *                          reuses the page built from it
  */
 export const fetchAiTaKrajtaArchive = cache(async (revalidateSeconds: number): Promise<AiTaKrajtaArchive> => {
-    const sources = await fetchAiTaKrajtaEpisodeSources(revalidateSeconds);
+    const [sources, platformStatistics] = await Promise.all([
+        fetchAiTaKrajtaEpisodeSources(revalidateSeconds),
+        fetchAiTaKrajtaPublicPlatformStatistics(revalidateSeconds),
+    ]);
     const episodes = mergePodcastEpisodes(sources, AI_TA_KRAJTA_SHOW_CONVENTIONS).map(createAiTaKrajtaEpisode);
 
     return {
         episodes,
+        statistics: createAiTaKrajtaAudienceStatistics(episodes, platformStatistics),
         firstPublishedAt: episodes[episodes.length - 1]?.publishedAt ?? null,
         medianDurationInMinutes: getMedianDurationInMinutes(episodes),
     };
