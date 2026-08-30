@@ -1,8 +1,4 @@
-[^] by Claude Code `claude-opus-5` thinking `high` - Implementation in progress
-
----
-
-[x] by Claude Code `claude-opus-5` thinking `high` - Implementation $9.32 2 hours; Testing 3 minutes
+[x] by Claude Code `claude-opus-5` thinking `high` - Implementation in progress, interrupted; by Claude Code `claude-opus-5` thinking `high` - Implementation $9.32 2 hours; Testing 3 minutes
 
 [✨📵] Events should be managed from the same place in admin and be saved in the same table in a database.
 
@@ -17,4 +13,3 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-
