@@ -9,7 +9,7 @@ import {
     type SnakeState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeSimulation';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
-import { useEffect, useRef, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 
 /**
  * Radius of the head and of the tip of the tail, in pixels
@@ -227,6 +227,7 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
 export function AiTaKrajtaSnakeGame() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const targetPositionRef = useRef<SnakePoint | null>(null);
+    const [score, setScore] = useState(0);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -254,12 +255,17 @@ export function AiTaKrajtaSnakeGame() {
             const stepInSeconds = lastFrameTimestamp === null ? 0 : (frameTimestamp - lastFrameTimestamp) / 1000;
             lastFrameTimestamp = frameTimestamp;
 
+            const previousScore = state.score;
             state = advanceSnakeState(state, {
                 bounds,
                 targetPosition: targetPositionRef.current,
                 stepInSeconds,
                 createRandomNumber: Math.random,
             });
+
+            if (state.score !== previousScore) {
+                setScore(state.score);
+            }
 
             context.clearRect(0, 0, bounds.width, bounds.height);
             drawFood(context, state);
@@ -305,6 +311,12 @@ export function AiTaKrajtaSnakeGame() {
                 aria-label="Krajta, veďte ji myší nebo prstem"
                 role="img"
             />
+            <output
+                aria-live="polite"
+                className="pointer-events-none absolute right-4 top-4 rounded-full border border-white/20 bg-[#101916]/80 px-3 py-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-sm"
+            >
+                Skóre: {score}
+            </output>
         </div>
     );
 }

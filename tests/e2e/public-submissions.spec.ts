@@ -207,17 +207,17 @@ test('plays the newest AI ta Krajta episode from the header', async ({ page }) =
     await expect(page).toHaveURL(/[?&]episode=/);
 });
 
-test('keeps the AI ta Krajta minigame local to the page', async ({ page }) => {
+test('starts the AI ta Krajta minigame from its snake and keeps it local to the page', async ({ page }) => {
     await page.goto('/ai-ta-krajta');
 
-    const gameToggle = page.getByRole('button', { name: 'Probudit' });
+    await expect(page.getByRole('button', { name: 'Probudit' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Uspat' })).toHaveCount(0);
 
-    await expect(gameToggle).toHaveAttribute('aria-pressed', 'false');
-    await gameToggle.click();
+    const snakeStartButton = page.getByRole('button', { name: 'Spustit minihru s krajtou' });
+    await snakeStartButton.click();
 
-    await expect(page.getByRole('button', { name: 'Uspat' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByText('Sbírejte tokeny. Roste z nich.')).toHaveCount(0);
-    await expect(page.getByText('Veďte krajtu myší nebo prstem.')).toHaveCount(0);
+    await expect(page.getByRole('img', { name: 'Krajta, veďte ji myší nebo prstem' })).toBeVisible();
+    await expect(page.getByText(/^Skóre: \d+$/)).toBeVisible();
     await expect(page).toHaveURL(/\/ai-ta-krajta$/);
 });
 
