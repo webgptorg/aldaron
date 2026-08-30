@@ -1,7 +1,9 @@
-import type { WorkshopCommentStatus } from '@/lib/workshops/workshopTypes';
-
-const WORKSHOP_COMMENT_STATUSES = ['pending', 'approved', 'rejected'] as const;
+import {
+    WORKSHOP_SUBMISSION_STATUS_VALUES,
+    type WorkshopCommentStatus,
+    type WorkshopSubmissionStatus,
+} from '@/lib/workshops/workshopTypes';
 
 export function isWorkshopCommentStatus(value: string | null): value is WorkshopCommentStatus {
-    return value !== null && WORKSHOP_COMMENT_STATUSES.includes(value as WorkshopCommentStatus);
+    return value !== null && WORKSHOP_SUBMISSION_STATUS_VALUES.includes(value as WorkshopSubmissionStatus);
 }

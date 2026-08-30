@@ -6,6 +6,14 @@ export const COMMUNITY_PROJECT_VOTE_VALUES = ['up', 'down'] as const;
 
 export type CommunityProjectVote = (typeof COMMUNITY_PROJECT_VOTE_VALUES)[number];
 
+/**
+ * A decision a moderator or an administrator may make about a project. The database defaults a new project to
+ * `pending`, while the shared participant-submission policy may auto-approve a trusted user or a moderator.
+ */
+export const COMMUNITY_PROJECT_MODERATION_STATUS_VALUES = ['approved', 'rejected'] as const;
+
+export type CommunityProjectModerationStatus = (typeof COMMUNITY_PROJECT_MODERATION_STATUS_VALUES)[number];
+
 const COMMUNITY_PROJECT_DATABASE_VOTE_BY_VOTE: Readonly<Record<CommunityProjectVote, number>> = {
     up: 1,
     down: -1,
@@ -26,7 +34,8 @@ export function getCommunityProjectVoteFromDatabaseValue(value: number | null): 
 
 /**
  * The card-shaped public projection of a project. It intentionally carries no e-mail address or internal discussion
- * participant identity; members only need the display name of its author and their own vote.
+ * participant identity; members only need the display name of its author and their own vote. A pending card reaches
+ * only its author or a community moderator, exactly like a pending chat message.
  */
 export type CommunityProject = {
     readonly id: string;
@@ -34,6 +43,7 @@ export type CommunityProject = {
     readonly title: string;
     readonly description: string;
     readonly previewImageUrl: string | null;
+    readonly status: WorkshopSubmissionStatus;
     readonly authorName: string;
     readonly upvoteCount: number;
     readonly downvoteCount: number;
@@ -48,3 +58,4 @@ export type CommunityProjectPreview = {
     readonly description: string;
     readonly previewImageUrl: string | null;
 };
+import type { WorkshopSubmissionStatus } from '@/lib/workshops/workshopTypes';

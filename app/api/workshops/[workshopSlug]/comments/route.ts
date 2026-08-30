@@ -12,7 +12,7 @@ import { materializeWorkshopCommentShortLinks } from '@/lib/workshops/workshopMa
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import {
     getDisabledWorkshopPanelResponseOrNull,
-    getWorkshopCommentStatusForParticipant,
+    getWorkshopParticipantSubmissionStatus,
 } from '@/lib/workshops/workshopParticipantInteraction';
 import { broadcastWorkshopEvent } from '@/lib/workshops/workshopRealtime';
 import {
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest, context: WorkshopCommentsRouteC
         }
     }
 
-    const commentStatus = getWorkshopCommentStatusForParticipant(authenticatedRequest.participant);
+    const commentStatus = getWorkshopParticipantSubmissionStatus(authenticatedRequest.participant);
 
     const { data, error } = await authenticatedRequest.supabase
         .from(WORKSHOP_COMMENT_TABLE_NAME)

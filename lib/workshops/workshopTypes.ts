@@ -14,7 +14,19 @@ export function isWorkshopKind(value: string): value is WorkshopKind {
     return WORKSHOP_KIND_VALUES.includes(value as WorkshopKind);
 }
 
-export type WorkshopCommentStatus = 'pending' | 'approved' | 'rejected';
+/**
+ * The lifecycle of something a participant submits for moderation. Chat messages and community projects deliberately
+ * use these same states, so trust and moderator privileges never approve one kind of submission differently from the
+ * other.
+ */
+export const WORKSHOP_SUBMISSION_STATUS_VALUES = ['pending', 'approved', 'rejected'] as const;
+
+export type WorkshopSubmissionStatus = (typeof WORKSHOP_SUBMISSION_STATUS_VALUES)[number];
+
+/**
+ * A chat message keeps this alias because it is the public type used by the existing room API.
+ */
+export type WorkshopCommentStatus = WorkshopSubmissionStatus;
 export type WorkshopCommentSort = 'recent' | 'upvotes';
 
 export type WorkshopSummary = {

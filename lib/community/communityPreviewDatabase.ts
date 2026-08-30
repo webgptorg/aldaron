@@ -90,7 +90,10 @@ export function countMemberReactions(supabase: SupabaseClient): Promise<number> 
 
 export function countCommunityProjects(supabase: SupabaseClient): Promise<number> {
     return countCommunityRows(
-        supabase.from(COMMUNITY_PROJECT_TABLE_NAME).select('id', { count: 'exact', head: true }),
+        supabase
+            .from(COMMUNITY_PROJECT_TABLE_NAME)
+            .select('id', { count: 'exact', head: true })
+            .eq('status', 'approved'),
         'the projects of the community',
     );
 }

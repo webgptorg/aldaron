@@ -1,6 +1,7 @@
 import { COMMUNITY_PROJECTS_API_PATH } from '@/businesses/community/config';
 import type {
     CommunityProject,
+    CommunityProjectModerationStatus,
     CommunityProjectPreview,
     CommunityProjectVote,
 } from '@/lib/community-projects/communityProjectTypes';
@@ -30,14 +31,19 @@ function getCommunityProjectApiUrl(path: string = ''): string {
     return `${COMMUNITY_PROJECTS_API_PATH}${path}`;
 }
 
-export async function fetchCommunityProjects(limit: number | null): Promise<readonly CommunityProject[]> {
+export async function fetchCommunityProjects(limit: number | null): Promise<{
+    readonly projects: readonly CommunityProject[];
+    readonly isModerationOffered: boolean;
+}> {
     const searchParameters = limit === null ? '' : `?${new URLSearchParams({ limit: String(limit) })}`;
     const response = await fetch(`${getCommunityProjectApiUrl()}${searchParameters}`, {
         credentials: 'same-origin',
         cache: 'no-store',
     });
-    const body = await readCommunityProjectResponse<{ readonly projects: readonly CommunityProject[] }>(response);
-    return body.projects;
+    return readCommunityProjectResponse<{
+        readonly projects: readonly CommunityProject[];
+        readonly isModerationOffered: boolean;
+    }>(response);
 }
 
 export async function previewCommunityProject(url: string): Promise<CommunityProjectPreview> {
@@ -64,6 +70,23 @@ export async function saveCommunityProject(values: {
     });
     const body = await readCommunityProjectResponse<{ readonly project: CommunityProject }>(response);
     return body.project;
+}
+
+/**
+ * A community moderator decides about a project through the same authenticated community session which revealed the
+ * pending card.
+ */
+export async function moderateCommunityProject(
+    projectId: string,
+    status: CommunityProjectModerationStatus,
+): Promise<void> {
+    const response = await fetch(getCommunityProjectApiUrl(`/${encodeURIComponent(projectId)}`), {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+    });
+    await readCommunityProjectResponse(response);
 }
 
 export async function voteOnCommunityProject(

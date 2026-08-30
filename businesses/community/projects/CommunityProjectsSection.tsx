@@ -4,11 +4,16 @@ import { COMMUNITY_PROJECTS_PATH } from '@/businesses/community/config';
 import {
     CommunityProjectApiError,
     fetchCommunityProjects,
+    moderateCommunityProject,
     voteOnCommunityProject,
 } from '@/businesses/community/projects/communityProjectsApi';
 import { CommunityProjectCard } from '@/businesses/community/projects/CommunityProjectCard';
 import { CommunityProjectCreationWizard } from '@/businesses/community/projects/CommunityProjectCreationWizard';
-import type { CommunityProject, CommunityProjectVote } from '@/lib/community-projects/communityProjectTypes';
+import type {
+    CommunityProject,
+    CommunityProjectModerationStatus,
+    CommunityProjectVote,
+} from '@/lib/community-projects/communityProjectTypes';
 import { FolderOpen, LoaderCircle, Plus, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,6 +30,20 @@ function sortCommunityProjects(projects: readonly CommunityProject[]): readonly 
             secondProject.upvoteCount - firstProject.upvoteCount ||
             Date.parse(secondProject.createdAt) - Date.parse(firstProject.createdAt),
     );
+}
+
+function limitCommunityProjectsForHome(projects: readonly CommunityProject[], isLimited: boolean): readonly CommunityProject[] {
+    if (!isLimited) {
+        return projects;
+    }
+
+    const sortedProjects = sortCommunityProjects(projects);
+    return [
+        ...sortedProjects
+            .filter((project) => project.status === 'approved')
+            .slice(0, COMMUNITY_HOME_PROJECT_COUNT),
+        ...sortedProjects.filter((project) => project.status !== 'approved'),
+    ];
 }
 
 function getCommunityProjectsErrorMessage(error: unknown): string {
@@ -44,6 +63,8 @@ export function CommunityProjectsSection({ isLimited }: CommunityProjectsSection
     const [isLoading, setIsLoading] = useState(true);
     const [isCreationOpen, setIsCreationOpen] = useState(false);
     const [isVotingProjectId, setIsVotingProjectId] = useState<string | null>(null);
+    const [isModeratingProjectId, setIsModeratingProjectId] = useState<string | null>(null);
+    const [isModerationOffered, setIsModerationOffered] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const loadProjects = useCallback(async () => {
@@ -51,7 +72,8 @@ export function CommunityProjectsSection({ isLimited }: CommunityProjectsSection
         setErrorMessage(null);
         try {
             const loadedProjects = await fetchCommunityProjects(isLimited ? COMMUNITY_HOME_PROJECT_COUNT : null);
-            setProjects(sortCommunityProjects(loadedProjects));
+            setProjects(sortCommunityProjects(loadedProjects.projects));
+            setIsModerationOffered(loadedProjects.isModerationOffered);
         } catch (error) {
             setErrorMessage(getCommunityProjectsErrorMessage(error));
         } finally {
@@ -90,7 +112,28 @@ export function CommunityProjectsSection({ isLimited }: CommunityProjectsSection
     };
 
     const handleProjectCreated = (project: CommunityProject) => {
-        setProjects((currentProjects) => sortCommunityProjects([project, ...currentProjects]).slice(0, isLimited ? 5 : undefined));
+        setProjects((currentProjects) =>
+            limitCommunityProjectsForHome([project, ...currentProjects], isLimited),
+        );
+    };
+
+    const handleModerate = async (projectId: string, status: CommunityProjectModerationStatus) => {
+        setIsModeratingProjectId(projectId);
+        setErrorMessage(null);
+        try {
+            await moderateCommunityProject(projectId, status);
+            setProjects((currentProjects) =>
+                status === 'rejected'
+                    ? currentProjects.filter((project) => project.id !== projectId)
+                    : currentProjects.map((project) =>
+                          project.id === projectId ? { ...project, status } : project,
+                      ),
+            );
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : 'Projekt se nepodařilo změnit.');
+        } finally {
+            setIsModeratingProjectId(null);
+        }
     };
 
     return (
@@ -134,7 +177,10 @@ export function CommunityProjectsSection({ isLimited }: CommunityProjectsSection
                             key={project.id}
                             project={project}
                             isVoting={isVotingProjectId === project.id}
+                            isModerating={isModeratingProjectId === project.id}
+                            isModerationOffered={isModerationOffered}
                             onVote={handleVote}
+                            onModerate={handleModerate}
                         />
                     ))}
                     {projects.length === 0 && (

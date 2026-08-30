@@ -1,5 +1,8 @@
 import { isCommunityProjectUrl } from '@/lib/community-projects/communityProjectUrl';
-import { COMMUNITY_PROJECT_VOTE_VALUES } from '@/lib/community-projects/communityProjectTypes';
+import {
+    COMMUNITY_PROJECT_MODERATION_STATUS_VALUES,
+    COMMUNITY_PROJECT_VOTE_VALUES,
+} from '@/lib/community-projects/communityProjectTypes';
 import { z } from 'zod';
 
 export const MAXIMAL_COMMUNITY_PROJECT_URL_LENGTH = 2_048;
@@ -27,4 +30,12 @@ export const communityProjectCreateSchema = z.object({
 
 export const communityProjectVoteSchema = z.object({
     vote: z.enum(COMMUNITY_PROJECT_VOTE_VALUES),
+});
+
+/**
+ * A pending project is resolved into one final moderation decision, mirroring the decisions available for chat
+ * messages.
+ */
+export const communityProjectModerationSchema = z.object({
+    status: z.enum(COMMUNITY_PROJECT_MODERATION_STATUS_VALUES),
 });

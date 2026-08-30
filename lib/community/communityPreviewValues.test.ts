@@ -38,6 +38,7 @@ function createProject(values: Partial<CommunityProject>): CommunityProject {
         title: 'Projekt',
         description: 'Popis projektu.',
         previewImageUrl: null,
+        status: 'approved',
         authorName: 'Jana Nováková',
         upvoteCount: 0,
         downvoteCount: 0,

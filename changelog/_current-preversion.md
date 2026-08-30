@@ -1,5 +1,12 @@
 # Current preversion
 
+- Put community projects through the same moderation lifecycle as chat messages. A regular member's newly shared
+  project waits for a community moderator or an administrator, while a trusted member or moderator has their project
+  approved immediately by the same shared submission policy. Pending cards stay visible only to their author and the
+  moderators deciding them; until approved they cannot be voted on or opened into a public project discussion. A
+  community moderator can decide from the project gallery, and `/admin/community` now has the complete project queue,
+  including rejected cards, so an administrator can approve, reject, and audit every decision.
+
 - Made the material QR codes in the workshop and community rooms compact and square. Their shared renderer now owns
   the exact canvas dimensions and removes browser baseline space, while each material uses only the code's built-in
   scannable white quiet zone rather than a second padded white card. The redundant `Otevřít v telefonu` caption is

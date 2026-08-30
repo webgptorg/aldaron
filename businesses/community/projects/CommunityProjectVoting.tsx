@@ -8,6 +8,7 @@ type CommunityProjectVotingProps = {
     readonly downvoteCount: number;
     readonly voteByParticipant: CommunityProjectVote | null;
     readonly isVoting: boolean;
+    readonly isVotingOffered: boolean;
     readonly onVote: (vote: CommunityProjectVote) => Promise<void>;
 };
 
@@ -20,6 +21,7 @@ export function CommunityProjectVoting({
     downvoteCount,
     voteByParticipant,
     isVoting,
+    isVotingOffered,
     onVote,
 }: CommunityProjectVotingProps) {
     return (
@@ -28,7 +30,7 @@ export function CommunityProjectVoting({
                 type="button"
                 aria-label="Dát projektu kladný hlas"
                 aria-pressed={voteByParticipant === 'up'}
-                disabled={isVoting}
+                disabled={isVoting || !isVotingOffered}
                 onClick={() => void onVote('up')}
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 font-bold transition disabled:cursor-wait disabled:opacity-50 ${
                     voteByParticipant === 'up'
@@ -44,7 +46,7 @@ export function CommunityProjectVoting({
                 type="button"
                 aria-label="Dát projektu záporný hlas"
                 aria-pressed={voteByParticipant === 'down'}
-                disabled={isVoting}
+                disabled={isVoting || !isVotingOffered}
                 onClick={() => void onVote('down')}
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 font-bold transition disabled:cursor-wait disabled:opacity-50 ${
                     voteByParticipant === 'down'

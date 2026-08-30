@@ -11,6 +11,7 @@ import {
 } from '@/lib/community-projects/communityProjectRequest';
 import { scrapeCommunityProjectPreview } from '@/lib/community-projects/communityProjectPreview';
 import { normalizeCommunityProjectUrl } from '@/lib/community-projects/communityProjectUrl';
+import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { communityProjectCreateSchema } from '@/lib/community-projects/communityProjectSchemas';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     const { projects, errorMessage } = await loadCommunityProjects(
         authenticatedRequest.supabase,
-        authenticatedRequest.participant.id,
+        authenticatedRequest.participant,
         limit,
     );
     if (projects === null) {
@@ -47,7 +48,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Community projects could not be loaded' }, { status: 500 });
     }
 
-    return NextResponse.json({ projects }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(
+        {
+            projects,
+            isModerationOffered: isWorkshopParticipantModerating(authenticatedRequest.participant),
+        },
+        { headers: { 'Cache-Control': 'no-store' } },
+    );
 }
 
 export async function POST(request: NextRequest) {
@@ -99,7 +106,7 @@ export async function POST(request: NextRequest) {
     const loadedProject = await loadCommunityProjectById(
         authenticatedRequest.supabase,
         createdProject.projectId,
-        authenticatedRequest.participant.id,
+        authenticatedRequest.participant,
     );
     if (loadedProject.project === null) {
         console.error('Failed to load created community project:', loadedProject.errorMessage);

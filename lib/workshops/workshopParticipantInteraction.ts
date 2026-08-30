@@ -1,13 +1,15 @@
 import type { WorkshopRow } from '@/lib/workshops/workshopDatabase';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
-import type { WorkshopCommentStatus, WorkshopParticipant } from '@/lib/workshops/workshopTypes';
+import type { WorkshopParticipant, WorkshopSubmissionStatus } from '@/lib/workshops/workshopTypes';
 import { NextResponse } from 'next/server';
 
 /**
- * Note: A moderator writes into the room they moderate, so their own message never waits for the moderation they would
- *       do themselves.
+ * Note: A moderator submits into the room they moderate, so their own contribution never waits for the moderation
+ *       they would do themselves. Projects use this exact policy as well as chat messages.
  */
-export function getWorkshopCommentStatusForParticipant(participant: WorkshopParticipant): WorkshopCommentStatus {
+export function getWorkshopParticipantSubmissionStatus(
+    participant: Pick<WorkshopParticipant, 'isInteractionBanned' | 'isTrusted' | 'isModerator'>,
+): WorkshopSubmissionStatus {
     if (participant.isInteractionBanned) {
         return 'rejected';
     }

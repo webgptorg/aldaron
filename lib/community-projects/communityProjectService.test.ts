@@ -12,6 +12,38 @@ type DatabaseQueryCall = {
     readonly values: readonly unknown[];
 };
 
+const COMMUNITY_PARTICIPANT_QUERY_FRAGMENT = 'FROM public.workshop_participants AS community_participant';
+
+type CommunityParticipantTestValues = {
+    readonly fullname?: string;
+    readonly email?: string;
+    readonly isInteractionBanned?: boolean;
+    readonly isTrusted?: boolean;
+    readonly isModerator?: boolean;
+};
+
+function createCommunityParticipantRow(
+    communityParticipantId: string,
+    values: CommunityParticipantTestValues = {},
+): Record<string, unknown> {
+    const {
+        fullname = 'Ada Lovelace',
+        email = 'ada@example.com',
+        isInteractionBanned = false,
+        isTrusted = false,
+        isModerator = false,
+    } = values;
+
+    return {
+        id: communityParticipantId,
+        fullname,
+        email,
+        is_interaction_banned: isInteractionBanned,
+        is_trusted: isTrusted,
+        is_moderator: isModerator,
+    };
+}
+
 function createFakeTransaction(
     getRows: (queryText: string, values: readonly unknown[]) => readonly Record<string, unknown>[],
 ): { readonly transaction: DatabaseTransaction; readonly queryCalls: DatabaseQueryCall[] } {
@@ -27,6 +59,10 @@ function createFakeTransaction(
     return { transaction, queryCalls };
 }
 
+function isCommunityParticipantQuery(queryText: string): boolean {
+    return queryText.includes(COMMUNITY_PARTICIPANT_QUERY_FRAGMENT);
+}
+
 function findQueryCall(queryCalls: readonly DatabaseQueryCall[], queryFragment: string): DatabaseQueryCall {
     const queryCall = queryCalls.find(({ queryText }) => queryText.includes(queryFragment));
     if (queryCall === undefined) {
@@ -40,8 +76,8 @@ describe('community project backend service', () => {
     it('creates every project row with backend-generated identities and an author moderator', async () => {
         const communityParticipantId = '11111111-1111-4111-8111-111111111111';
         const { transaction, queryCalls } = createFakeTransaction((queryText) =>
-            queryText.includes('SELECT community_participant.id')
-                ? [{ id: communityParticipantId, fullname: 'Ada Lovelace', email: 'ada@example.com' }]
+            isCommunityParticipantQuery(queryText)
+                ? [createCommunityParticipantRow(communityParticipantId)]
                 : [],
         );
 
@@ -71,6 +107,7 @@ describe('community project backend service', () => {
             'A community project.',
             'https://example.com/preview.png',
         ]);
+        expect(projectInsert.values[7]).toBe('pending');
 
         const participantInsert = findQueryCall(queryCalls, 'INSERT INTO public.workshop_participants');
         expect(participantInsert.values[2]).toBe('Ada Lovelace');
@@ -86,6 +123,29 @@ describe('community project backend service', () => {
         expect(discussionMappingInsert.values[1]).toBe(communityParticipantId);
         expect(discussionMappingInsert.values[2]).toBe(participantInsert.values[0]);
         expect(queryCalls.some(({ queryText }) => queryText.includes('gen_random'))).toBe(false);
+    });
+
+    it.each([
+        { label: 'trusted member', isTrusted: true, isModerator: false },
+        { label: 'moderator', isTrusted: false, isModerator: true },
+    ])('automatically approves a project from a $label', async ({ isTrusted, isModerator }) => {
+        const communityParticipantId = '11111111-1111-4111-8111-111111111111';
+        const { transaction, queryCalls } = createFakeTransaction((queryText) =>
+            isCommunityParticipantQuery(queryText)
+                ? [createCommunityParticipantRow(communityParticipantId, { isTrusted, isModerator })]
+                : [],
+        );
+
+        await createCommunityProjectInTransaction(transaction, {
+            communityParticipantId,
+            url: 'https://example.com/project',
+            title: 'Analytical engine',
+            description: 'A community project.',
+            previewImageUrl: null,
+        });
+
+        const projectInsert = findQueryCall(queryCalls, 'INSERT INTO public.community_projects');
+        expect(projectInsert.values[7]).toBe('approved');
     });
 
     it('refuses to create a project for a participant outside the permanent community', async () => {
@@ -109,8 +169,8 @@ describe('community project backend service', () => {
         const discussionWorkshopId = '33333333-3333-4333-8333-333333333333';
         const discussionParticipantId = '44444444-4444-4444-8444-444444444444';
         const { transaction, queryCalls } = createFakeTransaction((queryText) => {
-            if (queryText.includes('SELECT community_participant.id')) {
-                return [{ id: communityParticipantId, fullname: 'Ada Lovelace', email: 'ada@example.com' }];
+            if (isCommunityParticipantQuery(queryText)) {
+                return [createCommunityParticipantRow(communityParticipantId)];
             }
             if (queryText.includes('community_project.discussion_workshop_id')) {
                 return [
@@ -158,8 +218,13 @@ describe('community project backend service', () => {
         const projectId = '22222222-2222-4222-8222-222222222222';
         const discussionWorkshopId = '33333333-3333-4333-8333-333333333333';
         const { transaction, queryCalls } = createFakeTransaction((queryText) => {
-            if (queryText.includes('SELECT community_participant.id')) {
-                return [{ id: communityParticipantId, fullname: 'Grace Hopper', email: 'grace@example.com' }];
+            if (isCommunityParticipantQuery(queryText)) {
+                return [
+                    createCommunityParticipantRow(communityParticipantId, {
+                        fullname: 'Grace Hopper',
+                        email: 'grace@example.com',
+                    }),
+                ];
             }
             if (queryText.includes('community_project.discussion_workshop_id')) {
                 return [
@@ -198,11 +263,11 @@ describe('community project backend service', () => {
         const communityParticipantId = '11111111-1111-4111-8111-111111111111';
         const projectId = '22222222-2222-4222-8222-222222222222';
         const { transaction, queryCalls } = createFakeTransaction((queryText) => {
-            if (queryText.includes('SELECT community_participant.id')) {
-                return [{ id: communityParticipantId, fullname: 'Ada Lovelace', email: 'ada@example.com' }];
+            if (isCommunityParticipantQuery(queryText)) {
+                return [createCommunityParticipantRow(communityParticipantId)];
             }
-            if (queryText.includes('SELECT upvote_count, downvote_count')) {
-                return [{ upvote_count: 7, downvote_count: 3 }];
+            if (queryText.includes('SELECT status, upvote_count, downvote_count')) {
+                return [{ status: 'approved', upvote_count: 7, downvote_count: 3 }];
             }
             if (queryText.includes('SELECT vote')) {
                 return [{ vote: 1 }];
@@ -233,11 +298,11 @@ describe('community project backend service', () => {
         const communityParticipantId = '11111111-1111-4111-8111-111111111111';
         const projectId = '22222222-2222-4222-8222-222222222222';
         const { transaction, queryCalls } = createFakeTransaction((queryText) => {
-            if (queryText.includes('SELECT community_participant.id')) {
-                return [{ id: communityParticipantId, fullname: 'Ada Lovelace', email: 'ada@example.com' }];
+            if (isCommunityParticipantQuery(queryText)) {
+                return [createCommunityParticipantRow(communityParticipantId)];
             }
-            if (queryText.includes('SELECT upvote_count, downvote_count')) {
-                return [{ upvote_count: 7, downvote_count: 3 }];
+            if (queryText.includes('SELECT status, upvote_count, downvote_count')) {
+                return [{ status: 'approved', upvote_count: 7, downvote_count: 3 }];
             }
 
             return [];
@@ -262,8 +327,8 @@ describe('community project backend service', () => {
         const upvotedProjectId = '22222222-2222-4222-8222-222222222222';
         const downvotedProjectId = '33333333-3333-4333-8333-333333333333';
         const { transaction, queryCalls } = createFakeTransaction((queryText) => {
-            if (queryText.includes('SELECT community_participant.id')) {
-                return [{ id: communityParticipantId, fullname: 'Ada Lovelace', email: 'ada@example.com' }];
+            if (isCommunityParticipantQuery(queryText)) {
+                return [createCommunityParticipantRow(communityParticipantId)];
             }
             if (queryText.includes('community_project_vote.project_id')) {
                 return [
@@ -298,5 +363,27 @@ describe('community project backend service', () => {
         expect(findQueryCall(queryCalls, 'DELETE FROM public.workshop_participants').values).toEqual([
             communityParticipantId,
         ]);
+    });
+
+    it('refuses votes for a project which is still waiting for moderation', async () => {
+        const communityParticipantId = '11111111-1111-4111-8111-111111111111';
+        const projectId = '22222222-2222-4222-8222-222222222222';
+        const { transaction, queryCalls } = createFakeTransaction((queryText) => {
+            if (isCommunityParticipantQuery(queryText)) {
+                return [createCommunityParticipantRow(communityParticipantId)];
+            }
+            if (queryText.includes('SELECT status, upvote_count, downvote_count')) {
+                return [{ status: 'pending', upvote_count: 0, downvote_count: 0 }];
+            }
+
+            return [];
+        });
+
+        await expect(
+            setCommunityProjectVoteInTransaction(transaction, projectId, communityParticipantId, 'up'),
+        ).rejects.toThrow('COMMUNITY_PROJECT_NOT_FOUND');
+        expect(queryCalls.some(({ queryText }) => queryText.includes('INSERT INTO public.community_project_votes'))).toBe(
+            false,
+        );
     });
 });

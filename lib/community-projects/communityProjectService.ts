@@ -10,7 +10,9 @@ import {
 } from '@/lib/community-projects/communityProjectTypes';
 import { runDatabaseTransaction, type DatabaseTransaction } from '@/lib/database/runDatabaseTransaction';
 import { WORKSHOP_PARTICIPANT_TABLE_NAME, WORKSHOP_TABLE_NAME } from '@/lib/workshops/workshopConstants';
+import { getWorkshopParticipantSubmissionStatus } from '@/lib/workshops/workshopParticipantInteraction';
 import { createWorkshopSessionToken, hashWorkshopSessionToken } from '@/lib/workshops/workshopSession';
+import type { WorkshopSubmissionStatus } from '@/lib/workshops/workshopTypes';
 import { randomUUID } from 'node:crypto';
 
 const COMMUNITY_PROJECT_OPERATION_NAME = 'change community projects';
@@ -27,6 +29,9 @@ type CommunityParticipantRow = {
     readonly id: string;
     readonly fullname: string;
     readonly email: string;
+    readonly is_interaction_banned: boolean;
+    readonly is_trusted: boolean;
+    readonly is_moderator: boolean;
 };
 
 type CommunityProjectDiscussionRow = {
@@ -36,6 +41,7 @@ type CommunityProjectDiscussionRow = {
 };
 
 type CommunityProjectVoteCountsRow = {
+    readonly status: WorkshopSubmissionStatus;
     readonly upvote_count: number;
     readonly downvote_count: number;
 };
@@ -147,7 +153,13 @@ async function loadCommunityParticipant(
 ): Promise<CommunityParticipantRow | null> {
     const { rows } = await transaction.query<CommunityParticipantRow>(
         `
-            SELECT community_participant.id, community_participant.fullname, community_participant.email
+            SELECT
+                community_participant.id,
+                community_participant.fullname,
+                community_participant.email,
+                community_participant.is_interaction_banned,
+                community_participant.is_trusted,
+                community_participant.is_moderator
             FROM ${WORKSHOP_PARTICIPANT_TABLE_REFERENCE} AS community_participant
             INNER JOIN ${WORKSHOP_TABLE_REFERENCE} AS community_room
                 ON community_room.id = community_participant.workshop_id
@@ -190,9 +202,10 @@ async function loadProjectDiscussionForUpdate(
             WHERE community_project.id = $1
               AND discussion_workshop.room_kind = $2
               AND discussion_workshop.is_published
+              AND community_project.status = $3
             FOR UPDATE OF community_project;
         `,
-        [projectId, PROJECT_ROOM_KIND],
+        [projectId, PROJECT_ROOM_KIND, 'approved'],
     );
 
     return rows[0] ?? null;
@@ -216,7 +229,7 @@ async function loadProjectVoteCountsForUpdate(
 ): Promise<CommunityProjectVoteCountsRow | null> {
     const { rows } = await transaction.query<CommunityProjectVoteCountsRow>(
         `
-            SELECT upvote_count, downvote_count
+            SELECT status, upvote_count, downvote_count
             FROM ${COMMUNITY_PROJECT_TABLE_REFERENCE}
             WHERE id = $1
             FOR UPDATE;
@@ -232,7 +245,7 @@ async function requireProjectVoteCountsForUpdate(
     projectId: string,
 ): Promise<CommunityProjectVoteCountsRow> {
     const projectVoteCounts = await loadProjectVoteCountsForUpdate(transaction, projectId);
-    if (projectVoteCounts === null) {
+    if (projectVoteCounts === null || projectVoteCounts.status !== 'approved') {
         throw new CommunityProjectMutationError('not-found', 'COMMUNITY_PROJECT_NOT_FOUND');
     }
 
@@ -412,6 +425,11 @@ export async function createCommunityProjectInTransaction(
     const discussionWorkshopId = randomUUID();
     const discussionWorkshopSlug = createCommunityProjectDiscussionSlug(discussionWorkshopId);
     const discussionParticipantId = randomUUID();
+    const status = getWorkshopParticipantSubmissionStatus({
+        isInteractionBanned: communityParticipant.is_interaction_banned,
+        isTrusted: communityParticipant.is_trusted,
+        isModerator: communityParticipant.is_moderator,
+    });
     const timestamp = createCurrentTimestamp();
 
     await transaction.query(
@@ -443,12 +461,13 @@ export async function createCommunityProjectInTransaction(
                 title,
                 description,
                 preview_image_url,
+                status,
                 upvote_count,
                 downvote_count,
                 created_at,
                 updated_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 0, $8, $8);
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, 0, $9, $9);
         `,
         [
             projectId,
@@ -458,6 +477,7 @@ export async function createCommunityProjectInTransaction(
             values.title,
             values.description,
             values.previewImageUrl,
+            status,
             timestamp,
         ],
     );

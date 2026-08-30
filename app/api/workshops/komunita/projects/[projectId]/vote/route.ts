@@ -6,6 +6,7 @@ import {
 } from '@/lib/community-projects/communityProjectRequest';
 import { communityProjectIdSchema, communityProjectVoteSchema } from '@/lib/community-projects/communityProjectSchemas';
 import { setCommunityProjectVote } from '@/lib/community-projects/communityProjectService';
+import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
 import { NextRequest, NextResponse } from 'next/server';
 
 type CommunityProjectVoteRouteContext = {
@@ -21,6 +22,11 @@ export async function POST(request: NextRequest, context: CommunityProjectVoteRo
     const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
     if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
         return authenticatedRequest;
+    }
+
+    const interactionBanResponse = getWorkshopInteractionBanResponseOrNull(authenticatedRequest.participant);
+    if (interactionBanResponse) {
+        return interactionBanResponse;
     }
 
     const { projectId } = await context.params;

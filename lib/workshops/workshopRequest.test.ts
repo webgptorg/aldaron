@@ -1,5 +1,5 @@
 import {
-    getWorkshopCommentStatusForParticipant,
+    getWorkshopParticipantSubmissionStatus,
     getWorkshopInteractionBanResponseOrNull,
 } from '@/lib/workshops/workshopParticipantInteraction';
 import type { WorkshopParticipant } from '@/lib/workshops/workshopTypes';
@@ -28,13 +28,13 @@ describe('workshop participant interaction bans', () => {
     });
 
     it('uses trust for automatic approval while interaction bans always reject comments', () => {
-        expect(getWorkshopCommentStatusForParticipant(createParticipant(false))).toBe('pending');
-        expect(getWorkshopCommentStatusForParticipant(createParticipant(false, true))).toBe('approved');
-        expect(getWorkshopCommentStatusForParticipant(createParticipant(true, true))).toBe('rejected');
+        expect(getWorkshopParticipantSubmissionStatus(createParticipant(false))).toBe('pending');
+        expect(getWorkshopParticipantSubmissionStatus(createParticipant(false, true))).toBe('approved');
+        expect(getWorkshopParticipantSubmissionStatus(createParticipant(true, true))).toBe('rejected');
     });
 
     it('never lets a moderator wait for the moderation they would do themselves', () => {
-        expect(getWorkshopCommentStatusForParticipant(createParticipant(false, false, true))).toBe('approved');
-        expect(getWorkshopCommentStatusForParticipant(createParticipant(true, false, true))).toBe('rejected');
+        expect(getWorkshopParticipantSubmissionStatus(createParticipant(false, false, true))).toBe('approved');
+        expect(getWorkshopParticipantSubmissionStatus(createParticipant(true, false, true))).toBe('rejected');
     });
 });
