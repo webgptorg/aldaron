@@ -14,28 +14,18 @@ export type AiTaKrajtaEpisode = Omit<PodcastEpisode, 'descriptionText'> & {
 };
 
 /**
- * Rounded impact estimates which are calculated from the archive and the documented cross-platform audience model
- */
-export type AiTaKrajtaStatistics = {
-    /**
-     * Conservative aggregate of listeners and subscribers across the distribution platforms
-     */
-    readonly estimatedAudienceCount: number;
-
-    /**
-     * Conservative aggregate listening time in hours, `null` when no episode carries its duration
-     */
-    readonly estimatedListeningHours: number | null;
-};
-
-/**
  * Everything the page needs to know about the show and its episodes
  */
 export type AiTaKrajtaArchive = {
     readonly episodes: readonly AiTaKrajtaEpisode[];
 
     /**
-     * The public impact figures drawn from the current archive and the cross-platform audience estimate
+     * When the show published its first episode, as an ISO 8601 string, `null` when there is no episode
      */
-    readonly statistics: AiTaKrajtaStatistics;
+    readonly firstPublishedAt: string | null;
+
+    /**
+     * How long an episode usually takes, rounded to whole minutes, `null` when no episode states its length
+     */
+    readonly medianDurationInMinutes: number | null;
 };

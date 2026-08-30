@@ -112,41 +112,6 @@ export const AI_TA_KRAJTA_SUMMARY_STOP_PHRASES: readonly string[] = [
     'Témata v tomto díle',
 ];
 
-export type AiTaKrajtaAudienceEstimateSource = {
-    /**
-     * The distribution channel included in this estimate. Podcast apps are grouped because the RSS feed reaches many
-     * small players whose individual numbers are not public.
-     */
-    readonly source: 'youtube' | 'spotify' | 'applePodcastsAndOtherApps';
-
-    /**
-     * Rounded lower-bound of listeners and subscribers on this channel.
-     *
-     * It deliberately describes a cross-platform audience rather than unique people. A person can follow the show in
-     * more than one app, and the platforms do not publish one shared deduplicated count.
-     */
-    readonly minimumListenerAndSubscriberCount: number;
-};
-
-/**
- * Conservative audience estimate across every place where the show is distributed.
- *
- * Keep the source values rounded and review them from the publishers' analytics when preparing sponsor materials.
- * Keeping the parts here makes the public total auditable and prevents the hero from becoming a YouTube-only claim.
- */
-export const AI_TA_KRAJTA_AUDIENCE_ESTIMATE_SOURCES: readonly AiTaKrajtaAudienceEstimateSource[] = [
-    { source: 'youtube', minimumListenerAndSubscriberCount: 3_000 },
-    { source: 'spotify', minimumListenerAndSubscriberCount: 1_000 },
-    { source: 'applePodcastsAndOtherApps', minimumListenerAndSubscriberCount: 500 },
-];
-
-/**
- * Conservative number of full-episode equivalents the show reaches on all platforms for each published episode.
- *
- * This lets the listen-time estimate grow with the real archive while still avoiding a misleadingly precise view count.
- */
-export const AI_TA_KRAJTA_FULL_EPISODE_EQUIVALENT_LISTENS = 200;
-
 export type AiTaKrajtaPlatformId = 'youtube' | 'spotify' | 'applePodcasts' | 'linkedin';
 
 export type AiTaKrajtaPlatform = {
