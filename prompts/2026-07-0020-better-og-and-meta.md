@@ -21,3 +21,17 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a proper analysis of the current functionality before you start implementing.
 
+---
+
+[ ]
+
+[✨🛁] Enhance the preview OG Images of pages
+
+- Now the images are generated and are unique but does not look visually appealing
+- They contain too much text and lack visual appeal
+- This is relevant for all the pages except the `/admin/*`
+- Also for dynamic pages like komunita and workshops
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a proper analysis of the current functionality before you start implementing.
+
+![alt text](prompts/screenshots/2026-07-0020-better-og-and-meta.png)
