@@ -129,8 +129,6 @@ export function WorkshopActivityGraph({
                   zoomToMilliseconds: null,
               }));
 
-    const zoomToEverything = () => changeZoom(fullRange);
-
     const isAudienceEverMeasured =
         analytics !== null && analytics.timeline.some((point) => point.watchingParticipantCount > 0);
     const workshopRange = analytics === null || !isRoomScheduled ? null : getWorkshopOverviewWorkshopRange(analytics);
@@ -183,10 +181,11 @@ export function WorkshopActivityGraph({
                         seriesTotals={seriesTotals}
                         reactionCounts={analytics.reactionCounts}
                         range={range}
+                        fullRange={fullRange}
                         onToggleSeries={toggleSeries}
                         onChangeReactionEmoji={changeReactionEmoji}
+                        onZoomChange={changeZoom}
                         onZoomToSchedule={zoomToSchedule}
-                        onZoomToEverything={zoomToEverything}
                     />
 
                     <WorkshopOverviewChart

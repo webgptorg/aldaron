@@ -5,6 +5,10 @@ import {
     formatWorkshopOverviewPointTime,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
 import { WorkshopOverviewSeriesSwatch } from '@/businesses/workshop-admin/WorkshopOverviewSeriesSwatch';
+import {
+    clampWorkshopOverviewRange,
+    getZoomedWorkshopOverviewRange,
+} from '@/lib/workshops/workshopOverviewRangeNavigation';
 import type { WorkshopOverviewSeriesDescriptor } from '@/lib/workshops/workshopOverviewSeries';
 import type {
     WorkshopOverviewSeriesPoint,
@@ -34,16 +38,6 @@ const CHART_DAY_BOUNDARY_COLOR = '#94a3b8';
 const CHART_WORKSHOP_RANGE_COLOR = '#06b6d4';
 
 const CHART_HEIGHT_PIXELS = 340;
-
-/**
- * How much of the shown span one turn of the wheel takes away, or gives back
- */
-const WHEEL_ZOOM_FACTOR = 0.2;
-
-/**
- * The shortest span the graph can be zoomed into, so that a wheel under an impatient hand never reaches one moment
- */
-const MINIMAL_ZOOM_RANGE_MILLISECONDS = 60_000;
 
 type WorkshopOverviewChartProps = {
     readonly points: readonly WorkshopOverviewSeriesPoint[];
@@ -135,18 +129,6 @@ function getVisibleRange(
     return fromMilliseconds < toMilliseconds ? { fromMilliseconds, toMilliseconds } : null;
 }
 
-function clampRangeToFullRange(
-    range: WorkshopOverviewSeriesRange,
-    fullRange: WorkshopOverviewSeriesRange,
-): WorkshopOverviewSeriesRange {
-    const fromMilliseconds = Math.max(fullRange.fromMilliseconds, Math.round(range.fromMilliseconds));
-    const toMilliseconds = Math.min(fullRange.toMilliseconds, Math.round(range.toMilliseconds));
-
-    return toMilliseconds - fromMilliseconds < MINIMAL_ZOOM_RANGE_MILLISECONDS
-        ? { fromMilliseconds, toMilliseconds: fromMilliseconds + MINIMAL_ZOOM_RANGE_MILLISECONDS }
-        : { fromMilliseconds, toMilliseconds };
-}
-
 /**
  * One readout of every line at the moment the pointer found, where the number leads and the name of the line follows
  */
@@ -214,20 +196,12 @@ export function WorkshopOverviewChart({
                 containerBounds.width === 0
                     ? 0.5
                     : Math.min(1, Math.max(0, (wheelEvent.clientX - containerBounds.left) / containerBounds.width));
-            const rangeMilliseconds = range.toMilliseconds - range.fromMilliseconds;
-            const zoomedRangeMilliseconds =
-                wheelEvent.deltaY > 0
-                    ? rangeMilliseconds * (1 + WHEEL_ZOOM_FACTOR)
-                    : rangeMilliseconds * (1 - WHEEL_ZOOM_FACTOR);
-            const pointerMilliseconds = range.fromMilliseconds + rangeMilliseconds * pointerFraction;
-
             onZoomChange(
-                clampRangeToFullRange(
-                    {
-                        fromMilliseconds: pointerMilliseconds - zoomedRangeMilliseconds * pointerFraction,
-                        toMilliseconds: pointerMilliseconds + zoomedRangeMilliseconds * (1 - pointerFraction),
-                    },
+                getZoomedWorkshopOverviewRange(
+                    range,
                     fullRange,
+                    wheelEvent.deltaY > 0 ? 'out' : 'in',
+                    pointerFraction,
                 ),
             );
         };
@@ -243,7 +217,7 @@ export function WorkshopOverviewChart({
             selectionFromMilliseconds !== selectionToMilliseconds
         ) {
             onZoomChange(
-                clampRangeToFullRange(
+                clampWorkshopOverviewRange(
                     {
                         fromMilliseconds: Math.min(selectionFromMilliseconds, selectionToMilliseconds),
                         toMilliseconds: Math.max(selectionFromMilliseconds, selectionToMilliseconds),

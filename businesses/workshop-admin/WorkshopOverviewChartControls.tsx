@@ -1,8 +1,8 @@
 'use client';
 
 import { formatWorkshopOverviewPointTime } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import { WorkshopOverviewChartRangeControls } from '@/businesses/workshop-admin/WorkshopOverviewChartRangeControls';
 import { WorkshopOverviewSeriesSwatch } from '@/businesses/workshop-admin/WorkshopOverviewSeriesSwatch';
-import { Button } from '@/components/ui/button';
 import type { WorkshopOverviewGraphState } from '@/lib/workshops/workshopOverviewGraphState';
 import {
     WORKSHOP_OVERVIEW_SERIES_DEFINITIONS,
@@ -11,7 +11,6 @@ import {
 } from '@/lib/workshops/workshopOverviewSeries';
 import type { WorkshopOverviewSeriesRange } from '@/lib/workshops/workshopOverviewSeriesPoints';
 import type { WorkshopReactionCount } from '@/lib/workshops/workshopTypes';
-import { Maximize2, Target } from 'lucide-react';
 
 type WorkshopOverviewChartControlsProps = {
     readonly graphState: WorkshopOverviewGraphState;
@@ -28,15 +27,16 @@ type WorkshopOverviewChartControlsProps = {
 
     readonly reactionCounts: readonly WorkshopReactionCount[];
     readonly range: WorkshopOverviewSeriesRange;
+    readonly fullRange: WorkshopOverviewSeriesRange;
     readonly onToggleSeries: (seriesKey: WorkshopOverviewSeriesKey) => void;
     readonly onChangeReactionEmoji: (reactionEmoji: string | null) => void;
+    readonly onZoomChange: (range: WorkshopOverviewSeriesRange) => void;
 
     /**
      * Returns to the time the room is held at, or `null` in a room which is not held at one and therefore has no span
      * of its own to return to
      */
     readonly onZoomToSchedule: (() => void) | null;
-    readonly onZoomToEverything: () => void;
 };
 
 const ALL_REACTIONS_VALUE = 'all';
@@ -54,10 +54,11 @@ export function WorkshopOverviewChartControls({
     seriesTotals,
     reactionCounts,
     range,
+    fullRange,
     onToggleSeries,
     onChangeReactionEmoji,
+    onZoomChange,
     onZoomToSchedule,
-    onZoomToEverything,
 }: WorkshopOverviewChartControlsProps) {
     const standardSeriesKeys = WORKSHOP_OVERVIEW_SERIES_DEFINITIONS.map((seriesDefinition) => seriesDefinition.key);
 
@@ -79,7 +80,7 @@ export function WorkshopOverviewChartControls({
                                 onClick={() =>
                                     isStandardSeries && onToggleSeries(descriptor.id as WorkshopOverviewSeriesKey)
                                 }
-                                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-left transition-colors ${
+                                className={`flex min-h-11 items-center gap-2 rounded-lg border px-3 py-1.5 text-left transition-colors ${
                                     isVisible
                                         ? 'border-slate-300 bg-white'
                                         : 'border-slate-200 bg-slate-50 text-slate-400'
@@ -110,7 +111,7 @@ export function WorkshopOverviewChartControls({
                                 changeEvent.target.value === ALL_REACTIONS_VALUE ? null : changeEvent.target.value,
                             )
                         }
-                        className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900"
+                        className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900"
                     >
                         <option value={ALL_REACTIONS_VALUE}>Všechny reakce</option>
                         {reactionCounts.map((reactionCount) => (
@@ -121,22 +122,19 @@ export function WorkshopOverviewChartControls({
                     </select>
                 </label>
 
-                <div className="flex items-center gap-2">
-                    {onZoomToSchedule !== null && (
-                        <Button type="button" variant="outline" size="sm" onClick={onZoomToSchedule}>
-                            <Target className="mr-1.5 h-4 w-4" /> Čas workshopu
-                        </Button>
-                    )}
-                    <Button type="button" variant="outline" size="sm" onClick={onZoomToEverything}>
-                        <Maximize2 className="mr-1.5 h-4 w-4" /> Vše
-                    </Button>
-                </div>
-
-                <p className="text-xs text-slate-500">
-                    {formatWorkshopOverviewPointTime(range.fromMilliseconds)} –{' '}
-                    {formatWorkshopOverviewPointTime(range.toMilliseconds)} · tažením myši přiblížíte, kolečkem oddálíte
-                </p>
+                <WorkshopOverviewChartRangeControls
+                    range={range}
+                    fullRange={fullRange}
+                    onZoomChange={onZoomChange}
+                    onZoomToSchedule={onZoomToSchedule}
+                />
             </div>
+
+            <p className="text-xs text-slate-500">
+                {formatWorkshopOverviewPointTime(range.fromMilliseconds)} –{' '}
+                {formatWorkshopOverviewPointTime(range.toMilliseconds)} · tažením myši přiblížíte, kolečkem změníte
+                měřítko; tlačítky graf ovládáte i na dotykové obrazovce
+            </p>
         </div>
     );
 }

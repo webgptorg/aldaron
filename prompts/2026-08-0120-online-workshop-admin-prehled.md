@@ -43,7 +43,7 @@
 
 ---
 
-[ ]
+[x] (2 attempts) by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3459 12 minutes; Testing 26 minutes; Fixing ~$0.4413 19 minutes; Testing 7 minutes
 
 [✨🎽] Enhance the `/admin/workshops` "Přehled"
 
@@ -52,3 +52,4 @@
 - You are working with `/admin/workshops`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
+
