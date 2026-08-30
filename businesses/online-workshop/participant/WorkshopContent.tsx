@@ -74,21 +74,19 @@ function WorkshopMaterialQrCodes({ materialLinks }: { readonly materialLinks: re
                     aria-label={`QR kód materiálu: ${materialLink.label}`}
                     className="w-44"
                 >
-                    <div className="rounded-xl bg-white p-3 shadow-lg shadow-cyan-300/10">
-                        <PromptbookQrCode
-                            value={materialLink.href}
-                            size={MATERIAL_QR_CODE_SIZE}
-                            className="h-36 w-36"
-                        />
-                    </div>
-                    <figcaption className="mt-2 text-center text-xs font-semibold leading-5 text-cyan-100">
-                        Otevřít v telefonu
-                        {materialLinks.length > 1 && (
-                            <span className="mt-0.5 block truncate text-slate-400" title={materialLink.label}>
-                                {materialLink.label}
-                            </span>
-                        )}
-                    </figcaption>
+                    <PromptbookQrCode
+                        value={materialLink.href}
+                        size={MATERIAL_QR_CODE_SIZE}
+                        className="mx-auto overflow-hidden rounded-xl bg-white shadow-lg shadow-cyan-300/10"
+                    />
+                    {materialLinks.length > 1 && (
+                        <figcaption
+                            className="mt-2 truncate text-center text-xs font-semibold leading-5 text-slate-400"
+                            title={materialLink.label}
+                        >
+                            {materialLink.label}
+                        </figcaption>
+                    )}
                 </figure>
             ))}
         </aside>

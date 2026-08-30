@@ -1,5 +1,10 @@
 # Current preversion
 
+- Made the material QR codes in the workshop and community rooms compact and square. Their shared renderer now owns
+  the exact canvas dimensions and removes browser baseline space, while each material uses only the code's built-in
+  scannable white quiet zone rather than a second padded white card. The redundant `Otevřít v telefonu` caption is
+  gone; when one material has several links, the short label below each code remains to distinguish them.
+
 - Made every wide table in the administration usable without travelling to its last row first: a shared table viewport
   now mirrors horizontal scrolling into a clearly visible bar fixed to the bottom of the screen while that table is in
   view, yet keeps the native scrollbar as a fallback. The participant, contact, discount-code and short-link tables

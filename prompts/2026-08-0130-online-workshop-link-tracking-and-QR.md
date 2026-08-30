@@ -29,7 +29,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.2824 10 minutes; Testing 6 minutes
 
 [✨🐪] Alongside all the materials, there is the QR code
 
@@ -44,3 +44,4 @@
 ![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR.png)
 ![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR-1.png)
 ![alt text](prompts/screenshots/2026-08-0130-online-workshop-link-tracking-and-QR-2.png)
+

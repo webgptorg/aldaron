@@ -89,6 +89,18 @@ describe('workshop materials', () => {
         );
     });
 
+    it('uses the QR renderer quiet zone without an extra frame or redundant phone prompt', async () => {
+        renderWorkshopContent([CONTENT_BLOCK]);
+
+        const qrCode = await screen.findByTestId('workshop-material-qr-code');
+        const qrCodeFigure = screen.getByLabelText('QR kód materiálu: Zjistit více');
+
+        expect(qrCode.parentElement).toBe(qrCodeFigure);
+        expect(qrCode.className).toContain('mx-auto');
+        expect(qrCode.className).not.toMatch(/(?:^|\s)p-\S+/);
+        expect(screen.queryByText('Otevřít v telefonu')).toBeNull();
+    });
+
     it('keeps multiple material links as light underlined links without a call to action', async () => {
         const contentBlockWithMultipleLinks: WorkshopContentBlock = {
             ...CONTENT_BLOCK,
