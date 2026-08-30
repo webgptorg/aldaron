@@ -41,3 +41,14 @@
 
 ![alt text](prompts/screenshots/2026-08-0120-online-workshop-admin-prehled-1.png)
 
+---
+
+[ ]
+
+[✨🎽] Enhance the `/admin/workshops` "Přehled"
+
+- Graph controls should contain zoom in and zoom out buttons and also move right and left buttons.
+- It should be easily controllable both on the desktop and mobile phone.
+- You are working with `/admin/workshops`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
