@@ -82,4 +82,16 @@ describe('createPodcastEpisodesFromYoutubeVideos', () => {
     it('says where the episode is watched', () => {
         expect(episodes[0].videoUrl).toBe('https://www.youtube.com/watch?v=bbbbbbbbbbb');
     });
+
+    it('lets a show read a host roster from the original video description', () => {
+        const episodesWithHostNames = createPodcastEpisodesFromYoutubeVideos(
+            parseYoutubeChannelFeed(EXAMPLE_CHANNEL_FEED),
+            {
+                readEpisodeHostNames: (descriptionHtml) =>
+                    descriptionHtml.includes('Další díl!') ? ['Pavol Hejný'] : [],
+            },
+        );
+
+        expect(episodesWithHostNames[0].hosts).toEqual(['Pavol Hejný']);
+    });
 });

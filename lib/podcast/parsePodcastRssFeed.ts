@@ -11,7 +11,15 @@ import { createPodcastEpisodeSummary, type PodcastShowConventions } from '@/lib/
 import { readRssChannelHeader } from '@/lib/podcast/rssXml';
 import { readXmlElements, readXmlTagAttribute, readXmlTagText } from '@/lib/xml/xmlTags';
 
-export type ParsePodcastRssFeedOptions = PodcastShowConventions;
+export type ParsePodcastRssFeedOptions = PodcastShowConventions & {
+    /**
+     * Reads names which this particular show writes in the original description
+     *
+     * Note: The generic parser deliberately knows no show's roster. The raw description is provided before links and
+     *       HTML are removed, because a publisher can place `Hosté:` directly after a URL without a separating space.
+     */
+    readonly readEpisodeHostNames?: (descriptionHtml: string) => readonly string[];
+};
 
 /**
  * Reads the number of an episode, which a feed either writes into the title as `#64` or states in its own tag
@@ -34,10 +42,8 @@ function readEpisodeNumber(itemXml: string, title: string): number | null {
 /**
  * Reads the whole description of an episode as plain text
  */
-function readDescriptionText(itemXml: string): string {
-    const description = readXmlTagText(itemXml, 'description') ?? readXmlTagText(itemXml, 'itunes:summary') ?? '';
-
-    return convertHtmlDescriptionToPlainText(description);
+function readDescriptionHtml(itemXml: string): string {
+    return readXmlTagText(itemXml, 'description') ?? readXmlTagText(itemXml, 'itunes:summary') ?? '';
 }
 
 /**
@@ -61,7 +67,8 @@ function parsePodcastEpisode(itemXml: string, options: ParsePodcastRssFeedOption
     }
 
     const number = readEpisodeNumber(itemXml, title);
-    const descriptionText = readDescriptionText(itemXml);
+    const descriptionHtml = readDescriptionHtml(itemXml);
+    const descriptionText = convertHtmlDescriptionToPlainText(descriptionHtml);
 
     return {
         id: readXmlTagText(itemXml, 'guid') ?? audioUrl,
@@ -71,6 +78,7 @@ function parsePodcastEpisode(itemXml: string, options: ParsePodcastRssFeedOption
         shortTitle: createPodcastEpisodeShortTitle(title, options.showTitle),
         summary: createPodcastEpisodeSummary(descriptionText, options.summaryStopPhrases),
         descriptionText,
+        hosts: options.readEpisodeHostNames?.(descriptionHtml) ?? [],
         audioUrl,
         videoUrl: null,
         pageUrl: readXmlTagText(itemXml, 'link'),

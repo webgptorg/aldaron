@@ -16,6 +16,7 @@ const EPISODE: AiTaKrajtaEpisode = {
     title: 'AI ta Krajta #1 | Testovací díl',
     shortTitle: 'Testovací díl',
     summary: 'Popis testovacího dílu.',
+    hosts: [],
     audioUrl: 'https://audio.example.com/episode-1.mp3',
     videoUrl: YOUTUBE_VIDEO_URL,
     pageUrl: 'https://podcaster.example.com/episode-1',

@@ -15,6 +15,7 @@ const FEED_EPISODES: readonly PartialPodcastEpisode[] = [
         shortTitle: 'Agenti & kontext',
         summary: 'Povídáme si o agentech.',
         descriptionText: 'Povídáme si o agentech. Děkujeme sponzorům.',
+        hosts: ['Pavol Hejný', 'Jiří Jahn'],
         audioUrl: 'https://example.com/12.mp3',
         pageUrl: 'https://podcasters.example.com/12',
         publishedAt: '2026-08-27T08:25:22.000Z',
@@ -38,6 +39,7 @@ const YOUTUBE_EPISODES: readonly PartialPodcastEpisode[] = [
         id: 'youtube:bbbbbbbbbbb',
         number: 12,
         title: 'AI ta Krajta #12 | Agenti a kontext',
+        hosts: ['Jiri Jahn', 'Petr Glaser'],
         videoUrl: 'https://www.youtube.com/watch?v=bbbbbbbbbbb',
         publishedAt: '2026-08-27T06:00:00.000Z',
     },
@@ -89,6 +91,10 @@ describe('mergePodcastEpisodes', () => {
             title: 'AI ta Krajta #12 | Agenti & kontext',
             summary: 'Povídáme si o agentech.',
         });
+    });
+
+    it('joins host names from every source without repeating a name spelled without diacritics', () => {
+        expect(episodes[1].hosts).toEqual(['Pavol Hejný', 'Jiří Jahn', 'Petr Glaser']);
     });
 
     it('keeps an episode which is only published as a video, with nothing to play', () => {

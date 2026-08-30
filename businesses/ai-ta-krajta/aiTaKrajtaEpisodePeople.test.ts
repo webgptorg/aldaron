@@ -17,6 +17,7 @@ function createFeedEpisode(values: Partial<PodcastEpisode>): PodcastEpisode {
         shortTitle: 'Testovací díl',
         summary: '',
         descriptionText: '',
+        hosts: [],
         audioUrl: 'https://example.com/1.mp3',
         videoUrl: null,
         pageUrl: null,
@@ -58,6 +59,12 @@ describe('resolveAiTaKrajtaEpisodePersonIds', () => {
         const episode = createFeedEpisode({ descriptionText: 'Řešíme PixelRAG a lokální modely.' });
 
         expect(resolveAiTaKrajtaEpisodePersonIds(episode)).toEqual([]);
+    });
+
+    it('uses a host name from the merged source list when the description names nobody', () => {
+        const episode = createFeedEpisode({ hosts: ['Pavol Hejný', 'Jiří Jahn'] });
+
+        expect(resolveAiTaKrajtaEpisodePersonIds(episode)).toEqual(['pavol-hejny', 'jiri-jahn']);
     });
 
     it('tells two people with the same first name apart', () => {

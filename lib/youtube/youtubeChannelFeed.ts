@@ -14,6 +14,11 @@ export type YoutubeChannelVideo = {
     readonly description: string;
 
     /**
+     * Description as the channel feed wrote it, retained on the server for show-specific facts such as its host list
+     */
+    readonly descriptionHtml: string;
+
+    /**
      * Moment the video was published, as an ISO 8601 string
      */
     readonly publishedAt: string;
@@ -54,12 +59,14 @@ function parseYoutubeChannelVideo(entryXml: string): YoutubeChannelVideo | null 
         return null;
     }
 
+    const descriptionHtml = readXmlTagText(entryXml, 'media:description') ?? '';
     const publishedAt = new Date(readXmlTagText(entryXml, 'published') ?? '');
 
     return {
         videoId,
         title,
-        description: convertHtmlDescriptionToPlainText(readXmlTagText(entryXml, 'media:description') ?? ''),
+        description: convertHtmlDescriptionToPlainText(descriptionHtml),
+        descriptionHtml,
         publishedAt: (Number.isNaN(publishedAt.getTime()) ? new Date(0) : publishedAt).toISOString(),
         thumbnailUrl: readXmlTagAttribute(entryXml, 'media:thumbnail', 'url'),
         isShort: (readXmlTagAttribute(entryXml, 'link', 'href') ?? '').includes('/shorts/'),

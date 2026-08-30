@@ -33,20 +33,70 @@ function isValueMissing(value: unknown): boolean {
 }
 
 /**
+ * Writes a host name the way it is compared across publishers
+ *
+ * Note: The names remain as their first source spells them. This key exists only to keep `Jiří Jahn` and `Jiri Jahn`
+ *       from rendering as two people when two publishers disagree about diacritics.
+ */
+function normalizePodcastEpisodeHostName(hostName: string): string {
+    return hostName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
+/**
+ * Joins the named people of every source without losing anyone a source explicitly listed
+ */
+function mergePodcastEpisodeHostNames(
+    ...hostNameLists: readonly (readonly string[] | undefined)[]
+): readonly string[] {
+    const hostNamesByNormalizedName = new Map<string, string>();
+
+    for (const hostNames of hostNameLists) {
+        for (const hostName of hostNames ?? []) {
+            const trimmedHostName = hostName.trim();
+
+            if (trimmedHostName === '') {
+                continue;
+            }
+
+            const normalizedHostName = normalizePodcastEpisodeHostName(trimmedHostName);
+
+            if (!hostNamesByNormalizedName.has(normalizedHostName)) {
+                hostNamesByNormalizedName.set(normalizedHostName, trimmedHostName);
+            }
+        }
+    }
+
+    return Array.from(hostNamesByNormalizedName.values());
+}
+
+/**
  * Adds to an episode everything a less preferred source knows about it and the preferred one does not
  */
 function fillMissingValues(
     preferredEpisode: PartialPodcastEpisode,
     fallbackEpisode: PartialPodcastEpisode,
 ): PartialPodcastEpisode {
-    const filledValues = Object.entries(fallbackEpisode).filter(
+    const { hosts: fallbackHosts, ...fallbackEpisodeWithoutHosts } = fallbackEpisode;
+    const filledValues = Object.entries(fallbackEpisodeWithoutHosts).filter(
         ([valueName, value]) =>
             !isValueMissing(value) && isValueMissing(preferredEpisode[valueName as keyof PartialPodcastEpisode]),
     );
+    const hosts = mergePodcastEpisodeHostNames(preferredEpisode.hosts, fallbackHosts);
+    const filledFallbackValues = Object.fromEntries(filledValues) as Partial<PodcastEpisode>;
 
-    // Note: The values are filled by their name rather than one by one, so that another thing worth knowing about an
-    //       episode is added to `PodcastEpisode` alone and merges without this function being touched.
-    return { ...preferredEpisode, ...(Object.fromEntries(filledValues) as PartialPodcastEpisode) };
+    // Note: Scalar values are filled by their name rather than one by one, so that another thing worth knowing about
+    //       an episode is added to `PodcastEpisode` alone and merges without this function being touched. Host names
+    //       are deliberately different: every source may know a different person, so their union is the useful value.
+    return {
+        ...preferredEpisode,
+        ...filledFallbackValues,
+        ...(hosts.length === 0 ? {} : { hosts }),
+    };
 }
 
 /**
@@ -67,6 +117,7 @@ function completePodcastEpisode(
         shortTitle: episode.shortTitle ?? createPodcastEpisodeShortTitle(episode.title, options.showTitle),
         summary: episode.summary ?? createPodcastEpisodeSummary(descriptionText, options.summaryStopPhrases),
         descriptionText,
+        hosts: mergePodcastEpisodeHostNames(episode.hosts),
         audioUrl: episode.audioUrl ?? null,
         videoUrl: episode.videoUrl ?? null,
         pageUrl: episode.pageUrl ?? null,
@@ -94,8 +145,9 @@ function readEpisodeSlug(episode: PartialPodcastEpisode): string {
  * Brings together what several sources say about the episodes of one show
  *
  * Note: Two sources describing one episode make one episode carrying the most either of them knows, rather than two
- *       entries or one impoverished entry. A source which is listed earlier is the more trusted one: a later source
- *       only ever fills in what no earlier source said, and never overwrites it.
+ *       entries or one impoverished entry. A source which is listed earlier is the more trusted one for scalar values:
+ *       a later source only fills in what no earlier source said, and never overwrites it. The one exception is
+ *       `hosts`, whose values are joined by name because each source can list a different person.
  *
  * @param sources episodes of each source, in the order the sources are trusted
  * @param options habits of the one show, such as how its titles are written

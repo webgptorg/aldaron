@@ -45,6 +45,14 @@ export type PodcastEpisode = {
     readonly descriptionText: string;
 
     /**
+     * Names of everyone the publisher explicitly lists as being at the microphone
+     *
+     * Note: A feed, a video channel and an application's own archive can each name a different part of the group.
+     *       `mergePodcastEpisodes` keeps the union, so one incomplete source cannot make a person disappear.
+     */
+    readonly hosts: readonly string[];
+
+    /**
      * Address of the audio file, which is what the player of the page plays
      *
      * Note: `null` for an episode which is only published as a video, which can be watched but not played here. Only

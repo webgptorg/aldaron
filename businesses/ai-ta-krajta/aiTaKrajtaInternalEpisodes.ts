@@ -30,6 +30,14 @@ export type AiTaKrajtaInternalEpisode = {
      * Video of the episode on YouTube, `null` for an episode which was never published there
      */
     readonly youtubeVideoId: string | null;
+
+    /**
+     * People known to have been at the microphone, written by their published names
+     *
+     * Note: This closes gaps in descriptions which do not list the people at all. It remains a source rather than an
+     *       override: `mergePodcastEpisodes` joins it with the names found in the live RSS and YouTube feeds.
+     */
+    readonly hosts: readonly string[];
 };
 
 /**
@@ -55,6 +63,7 @@ export function createAiTaKrajtaInternalEpisodes(): readonly PartialPodcastEpiso
         title: episode.title,
         publishedAt: episode.publishedAt,
         durationInSeconds: episode.durationInSeconds,
+        hosts: episode.hosts,
         videoUrl: episode.youtubeVideoId === null ? null : createYoutubeWatchUrl(episode.youtubeVideoId),
     }));
 }

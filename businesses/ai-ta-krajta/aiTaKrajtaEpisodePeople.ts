@@ -24,6 +24,22 @@ function isPersonInEpisode(person: AiTaKrajtaPerson, episode: PodcastEpisode, ep
 }
 
 /**
+ * Does a merged source explicitly list this person by name?
+ */
+function isPersonListedAsHost(person: AiTaKrajtaPerson, hostNames: readonly string[]): boolean {
+    const normalizedPersonName = normalizeForMatching(person.name);
+
+    return hostNames.some((hostName) => {
+        const normalizedHostName = normalizeForMatching(hostName);
+
+        return (
+            normalizedHostName === normalizedPersonName ||
+            person.mentionPatterns.some((pattern) => normalizedHostName.includes(normalizeForMatching(pattern)))
+        );
+    });
+}
+
+/**
  * Works out who took part in one episode
  *
  * Note: The show names its participants in the episode description, usually in the list of guests at its end, so this
@@ -33,9 +49,9 @@ function isPersonInEpisode(person: AiTaKrajtaPerson, episode: PodcastEpisode, ep
 export function resolveAiTaKrajtaEpisodePersonIds(episode: PodcastEpisode): readonly string[] {
     const episodeText = normalizeForMatching(`${episode.title} ${episode.descriptionText}`);
 
-    return AI_TA_KRAJTA_PEOPLE.filter((person) => isPersonInEpisode(person, episode, episodeText)).map(
-        (person) => person.id,
-    );
+    return AI_TA_KRAJTA_PEOPLE.filter(
+        (person) => isPersonListedAsHost(person, episode.hosts) || isPersonInEpisode(person, episode, episodeText),
+    ).map((person) => person.id);
 }
 
 /**

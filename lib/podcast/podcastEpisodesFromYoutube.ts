@@ -3,6 +3,13 @@ import { readPodcastEpisodeNumberFromTitle } from '@/lib/podcast/podcastEpisodeI
 import { createYoutubeWatchUrl } from '@/lib/youtube/youtubeEmbed';
 import type { YoutubeChannelVideo } from '@/lib/youtube/youtubeChannelFeed';
 
+export type CreatePodcastEpisodesFromYoutubeVideosOptions = {
+    /**
+     * Reads names which the particular show lists in a video's original description
+     */
+    readonly readEpisodeHostNames?: (descriptionHtml: string) => readonly string[];
+};
+
 /**
  * Whether a video of the channel is an episode of the show rather than something else published on the same channel
  *
@@ -27,12 +34,14 @@ function isEpisodeVideo(video: YoutubeChannelVideo): boolean {
  */
 export function createPodcastEpisodesFromYoutubeVideos(
     videos: readonly YoutubeChannelVideo[],
+    options: CreatePodcastEpisodesFromYoutubeVideosOptions = {},
 ): readonly PartialPodcastEpisode[] {
     return videos.filter(isEpisodeVideo).map((video) => ({
         id: `youtube:${video.videoId}`,
         number: readPodcastEpisodeNumberFromTitle(video.title),
         title: video.title,
         descriptionText: video.description,
+        hosts: options.readEpisodeHostNames?.(video.descriptionHtml) ?? [],
         videoUrl: createYoutubeWatchUrl(video.videoId),
         publishedAt: video.publishedAt,
         imageUrl: video.thumbnailUrl,

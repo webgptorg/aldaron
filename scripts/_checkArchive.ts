@@ -4,6 +4,7 @@
  * Note: The archive of the page is memoized with `cache` of React, which only exists inside a server component, so
  *       this repeats the few lines around it rather than calling it.
  */
+import { readAiTaKrajtaEpisodeHostNames } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodeHosts';
 import { resolveAiTaKrajtaEpisodePersonIds } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
 import { createAiTaKrajtaInternalEpisodes } from '@/businesses/ai-ta-krajta/aiTaKrajtaInternalEpisodes';
 import {
@@ -22,13 +23,22 @@ const SHOW_CONVENTIONS = {
     summaryStopPhrases: AI_TA_KRAJTA_SUMMARY_STOP_PHRASES,
 };
 
+const RSS_FEED_OPTIONS = {
+    ...SHOW_CONVENTIONS,
+    readEpisodeHostNames: readAiTaKrajtaEpisodeHostNames,
+};
+
+const YOUTUBE_EPISODE_OPTIONS = {
+    readEpisodeHostNames: readAiTaKrajtaEpisodeHostNames,
+};
+
 async function main(): Promise<void> {
     const [feed, youtubeVideos] = await Promise.all([
-        fetchPodcastFeed({ feedUrl: AI_TA_KRAJTA_RSS_FEED_URL, revalidateSeconds: 3600, ...SHOW_CONVENTIONS }),
+        fetchPodcastFeed({ feedUrl: AI_TA_KRAJTA_RSS_FEED_URL, revalidateSeconds: 3600, ...RSS_FEED_OPTIONS }),
         fetchYoutubeChannelVideos({ channelId: AI_TA_KRAJTA_YOUTUBE_CHANNEL_ID, revalidateSeconds: 3600 }),
     ]);
 
-    const youtubeEpisodes = createPodcastEpisodesFromYoutubeVideos(youtubeVideos);
+    const youtubeEpisodes = createPodcastEpisodesFromYoutubeVideos(youtubeVideos, YOUTUBE_EPISODE_OPTIONS);
     const internalEpisodes = createAiTaKrajtaInternalEpisodes();
 
     console.info(`feed: ${feed.episodes.length}, youtube: ${youtubeEpisodes.length} of ${youtubeVideos.length} videos, internal: ${internalEpisodes.length}`);

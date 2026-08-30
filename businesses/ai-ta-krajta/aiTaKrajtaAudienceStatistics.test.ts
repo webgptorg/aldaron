@@ -23,6 +23,7 @@ function createEpisode(id: string, durationInSeconds: number | null): AiTaKrajta
         title: `AI ta Krajta ${id}`,
         shortTitle: id,
         summary: '',
+        hosts: [],
         audioUrl: null,
         videoUrl: 'https://www.youtube.com/watch?v=aaaaaaaaaaa',
         pageUrl: null,

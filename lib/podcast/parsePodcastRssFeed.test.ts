@@ -81,6 +81,16 @@ describe('parsePodcastRssFeed', () => {
         });
     });
 
+    it('lets a particular show read its explicit host roster before its description is shortened', () => {
+        const feedWithHostNames = parsePodcastRssFeed(EXAMPLE_FEED, {
+            showTitle: 'AI ta Krajta',
+            readEpisodeHostNames: (descriptionHtml) =>
+                descriptionHtml.includes('Povídáme si o agentech.') ? ['Pavol Hejný'] : [],
+        });
+
+        expect(feedWithHostNames.episodes.find((episode) => episode.number === 12)?.hosts).toEqual(['Pavol Hejný']);
+    });
+
     it('reads a feed which could not be fetched as a show without episodes', () => {
         expect(parsePodcastRssFeed('').episodes).toEqual([]);
     });

@@ -1,5 +1,6 @@
 import type { AiTaKrajtaArchive, AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { createAiTaKrajtaAudienceStatistics } from '@/businesses/ai-ta-krajta/aiTaKrajtaAudienceStatistics';
+import { readAiTaKrajtaEpisodeHostNames } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodeHosts';
 import { resolveAiTaKrajtaEpisodePersonIds } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
 import { createAiTaKrajtaInternalEpisodes } from '@/businesses/ai-ta-krajta/aiTaKrajtaInternalEpisodes';
 import { fetchAiTaKrajtaPublicPlatformStatistics } from '@/businesses/ai-ta-krajta/aiTaKrajtaPublicPlatformStatistics';
@@ -25,6 +26,21 @@ const SECONDS_PER_MINUTE = 60;
 const AI_TA_KRAJTA_SHOW_CONVENTIONS: PodcastShowConventions = {
     showTitle: AI_TA_KRAJTA_NAME,
     summaryStopPhrases: AI_TA_KRAJTA_SUMMARY_STOP_PHRASES,
+};
+
+/**
+ * What the RSS feed itself knows in addition to the fields common to every source
+ */
+const AI_TA_KRAJTA_RSS_FEED_OPTIONS = {
+    ...AI_TA_KRAJTA_SHOW_CONVENTIONS,
+    readEpisodeHostNames: readAiTaKrajtaEpisodeHostNames,
+};
+
+/**
+ * What the YouTube channel itself knows in addition to the fields common to every source
+ */
+const AI_TA_KRAJTA_YOUTUBE_EPISODE_OPTIONS = {
+    readEpisodeHostNames: readAiTaKrajtaEpisodeHostNames,
 };
 
 /**
@@ -69,12 +85,16 @@ async function fetchAiTaKrajtaEpisodeSources(
         fetchPodcastFeed({
             feedUrl: AI_TA_KRAJTA_RSS_FEED_URL,
             revalidateSeconds,
-            ...AI_TA_KRAJTA_SHOW_CONVENTIONS,
+            ...AI_TA_KRAJTA_RSS_FEED_OPTIONS,
         }),
         fetchYoutubeChannelVideos({ channelId: AI_TA_KRAJTA_YOUTUBE_CHANNEL_ID, revalidateSeconds }),
     ]);
 
-    return [feed.episodes, createPodcastEpisodesFromYoutubeVideos(youtubeVideos), createAiTaKrajtaInternalEpisodes()];
+    return [
+        feed.episodes,
+        createPodcastEpisodesFromYoutubeVideos(youtubeVideos, AI_TA_KRAJTA_YOUTUBE_EPISODE_OPTIONS),
+        createAiTaKrajtaInternalEpisodes(),
+    ];
 }
 
 /**

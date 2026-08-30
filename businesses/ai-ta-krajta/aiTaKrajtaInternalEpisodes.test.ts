@@ -26,6 +26,7 @@ function createPageEpisode(values: Partial<AiTaKrajtaEpisode>): AiTaKrajtaEpisod
         publishedAt: '2026-08-01T00:00:00.000Z',
         durationInSeconds: 1800,
         imageUrl: null,
+        hosts: [],
         personIds: [],
         ...values,
     };
@@ -56,6 +57,20 @@ describe('AI_TA_KRAJTA_INTERNAL_EPISODES', () => {
         );
 
         expect(brokenMoments).toEqual([]);
+    });
+
+    it('keeps the verified roster of an episode whose live description omits it', () => {
+        const episode = AI_TA_KRAJTA_INTERNAL_EPISODES.find((candidate) => candidate.number === 62);
+
+        expect(episode?.hosts).toEqual(['Pavol Hejný', 'Jiří Jahn', 'Katka Fajmanová']);
+    });
+
+    it('writes each roster as a list of non-empty names', () => {
+        const emptyHostNames = AI_TA_KRAJTA_INTERNAL_EPISODES.flatMap((episode) =>
+            episode.hosts.filter((hostName) => hostName.trim() === ''),
+        );
+
+        expect(emptyHostNames).toEqual([]);
     });
 });
 
