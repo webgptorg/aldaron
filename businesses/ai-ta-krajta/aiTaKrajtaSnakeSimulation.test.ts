@@ -1,6 +1,7 @@
 import {
     advanceSnakeState,
     createSnakeState,
+    FIELD_MARGIN_IN_PIXELS,
     getSnakeSegments,
     type SnakeBounds,
     type SnakeState,
@@ -103,6 +104,37 @@ describe('aiTaKrajtaSnakeSimulation', () => {
         expect(state.headPosition.x).toBeLessThanOrEqual(BOUNDS.width);
         expect(state.headPosition.y).toBeGreaterThanOrEqual(0);
         expect(state.headPosition.y).toBeLessThanOrEqual(BOUNDS.height);
+    });
+
+    it('returns inward from both walls after a diagonal corner bounce', () => {
+        const stateAtCorner = {
+            ...createSnakeState(BOUNDS, createPredictableRandomNumber()),
+            headPosition: {
+                x: BOUNDS.width - FIELD_MARGIN_IN_PIXELS - 1,
+                y: FIELD_MARGIN_IN_PIXELS + 1,
+            },
+            headAngleInRadians: -Math.PI / 4,
+        };
+        const targetPosition = { x: BOUNDS.width, y: 0 };
+        const stateAfterCornerBounce = advanceSnakeState(stateAtCorner, {
+            bounds: BOUNDS,
+            targetPosition,
+            stepInSeconds: 1 / 20,
+            createRandomNumber: createPredictableRandomNumber(),
+        });
+        const stateAfterFollowingFrame = advanceSnakeState(stateAfterCornerBounce, {
+            bounds: BOUNDS,
+            targetPosition,
+            stepInSeconds: 1 / 20,
+            createRandomNumber: createPredictableRandomNumber(),
+        });
+
+        expect(Math.cos(stateAfterCornerBounce.headAngleInRadians)).toBeLessThan(0);
+        expect(Math.sin(stateAfterCornerBounce.headAngleInRadians)).toBeGreaterThan(0);
+        expect(stateAfterCornerBounce.headPosition.x).toBeLessThan(stateAtCorner.headPosition.x);
+        expect(stateAfterCornerBounce.headPosition.y).toBeGreaterThan(stateAtCorner.headPosition.y);
+        expect(stateAfterFollowingFrame.headPosition.x).toBeLessThan(stateAfterCornerBounce.headPosition.x);
+        expect(stateAfterFollowingFrame.headPosition.y).toBeGreaterThan(stateAfterCornerBounce.headPosition.y);
     });
 
     it('grows and scores when the head reaches a token', () => {

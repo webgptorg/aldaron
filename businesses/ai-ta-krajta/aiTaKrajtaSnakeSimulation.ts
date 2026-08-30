@@ -116,7 +116,7 @@ const EATING_DISTANCE_IN_PIXELS = 18;
 /**
  * How far from the walls a token is placed and how close the head may come to a wall, in pixels
  */
-const FIELD_MARGIN_IN_PIXELS = 26;
+export const FIELD_MARGIN_IN_PIXELS = 26;
 
 /**
  * How far from the head a new token appears, so that it is never eaten the moment it is placed
@@ -136,6 +136,18 @@ const MAXIMUM_STEP_IN_SECONDS = 1 / 20;
  */
 export type CreateRandomNumber = () => number;
 
+type PlayableFieldBounds = {
+    readonly minimumX: number;
+    readonly maximumX: number;
+    readonly minimumY: number;
+    readonly maximumY: number;
+};
+
+type ReflectedCoordinate = {
+    readonly coordinate: number;
+    readonly isDirectionReversed: boolean;
+};
+
 function getDistance(firstPoint: SnakePoint, secondPoint: SnakePoint): number {
     return Math.hypot(firstPoint.x - secondPoint.x, firstPoint.y - secondPoint.y);
 }
@@ -149,6 +161,57 @@ function normalizeAngle(angleInRadians: number): number {
 
 function clamp(value: number, minimum: number, maximum: number): number {
     return Math.min(maximum, Math.max(minimum, value));
+}
+
+/**
+ * The part of the canvas where the head and tokens can safely move
+ */
+function getPlayableFieldBounds(bounds: SnakeBounds): PlayableFieldBounds {
+    const minimumX = FIELD_MARGIN_IN_PIXELS;
+    const minimumY = FIELD_MARGIN_IN_PIXELS;
+
+    return {
+        minimumX,
+        maximumX: Math.max(minimumX, bounds.width - FIELD_MARGIN_IN_PIXELS),
+        minimumY,
+        maximumY: Math.max(minimumY, bounds.height - FIELD_MARGIN_IN_PIXELS),
+    };
+}
+
+/**
+ * Folds a moving coordinate back into the field, keeping the distance it travelled after every wall it crossed
+ */
+function reflectCoordinate(
+    previousCoordinate: number,
+    nextCoordinate: number,
+    minimumCoordinate: number,
+    maximumCoordinate: number,
+): ReflectedCoordinate {
+    const playableLength = maximumCoordinate - minimumCoordinate;
+
+    if (playableLength === 0) {
+        return { coordinate: minimumCoordinate, isDirectionReversed: false };
+    }
+
+    const startingCoordinate = clamp(previousCoordinate, minimumCoordinate, maximumCoordinate);
+    const movementDistance = nextCoordinate - previousCoordinate;
+    const unreflectedCoordinate = startingCoordinate + movementDistance;
+    const distanceFromMinimum = unreflectedCoordinate - minimumCoordinate;
+    const fullTraversalLength = playableLength * 2;
+    const distanceWithinFullTraversal =
+        ((distanceFromMinimum % fullTraversalLength) + fullTraversalLength) % fullTraversalLength;
+    const isOutsideBounds = unreflectedCoordinate < minimumCoordinate || unreflectedCoordinate > maximumCoordinate;
+    const wallCrossingCount = isOutsideBounds
+        ? Math.abs(Math.floor(distanceFromMinimum / playableLength))
+        : 0;
+
+    return {
+        coordinate:
+            distanceWithinFullTraversal <= playableLength
+                ? minimumCoordinate + distanceWithinFullTraversal
+                : maximumCoordinate - (distanceWithinFullTraversal - playableLength),
+        isDirectionReversed: wallCrossingCount % 2 === 1,
+    };
 }
 
 /**
@@ -183,15 +246,16 @@ function createFood(
     headPosition: SnakePoint,
     createRandomNumber: CreateRandomNumber,
 ): SnakeFood {
-    const usableWidth = Math.max(1, bounds.width - 2 * FIELD_MARGIN_IN_PIXELS);
-    const usableHeight = Math.max(1, bounds.height - 2 * FIELD_MARGIN_IN_PIXELS);
+    const { minimumX, maximumX, minimumY, maximumY } = getPlayableFieldBounds(bounds);
+    const usableWidth = maximumX - minimumX;
+    const usableHeight = maximumY - minimumY;
 
     // Note: A field can be smaller than the distance asked for, so the search gives up after a few tries instead of
     //       spinning forever.
     for (let attempt = 0; attempt < 12; attempt++) {
         const position = {
-            x: FIELD_MARGIN_IN_PIXELS + createRandomNumber() * usableWidth,
-            y: FIELD_MARGIN_IN_PIXELS + createRandomNumber() * usableHeight,
+            x: minimumX + createRandomNumber() * usableWidth,
+            y: minimumY + createRandomNumber() * usableHeight,
         };
 
         if (getDistance(position, headPosition) >= MINIMUM_FOOD_DISTANCE_IN_PIXELS || attempt === 11) {
@@ -243,27 +307,25 @@ function getDesiredAngleInRadians(
  * Keeps the head on the field by turning it away from the wall it is about to leave through
  */
 function reflectOffWalls(
-    headPosition: SnakePoint,
+    previousHeadPosition: SnakePoint,
+    nextHeadPosition: SnakePoint,
     headAngleInRadians: number,
     bounds: SnakeBounds,
 ): { readonly headPosition: SnakePoint; readonly headAngleInRadians: number } {
-    const minimumX = FIELD_MARGIN_IN_PIXELS;
-    const maximumX = Math.max(minimumX, bounds.width - FIELD_MARGIN_IN_PIXELS);
-    const minimumY = FIELD_MARGIN_IN_PIXELS;
-    const maximumY = Math.max(minimumY, bounds.height - FIELD_MARGIN_IN_PIXELS);
-    const isOutsideHorizontally = headPosition.x < minimumX || headPosition.x > maximumX;
-    const isOutsideVertically = headPosition.y < minimumY || headPosition.y > maximumY;
-
-    const reflectedAngle = isOutsideHorizontally
+    const { minimumX, maximumX, minimumY, maximumY } = getPlayableFieldBounds(bounds);
+    const horizontalReflection = reflectCoordinate(previousHeadPosition.x, nextHeadPosition.x, minimumX, maximumX);
+    const verticalReflection = reflectCoordinate(previousHeadPosition.y, nextHeadPosition.y, minimumY, maximumY);
+    const angleAfterHorizontalReflection = horizontalReflection.isDirectionReversed
         ? Math.PI - headAngleInRadians
-        : isOutsideVertically
-          ? -headAngleInRadians
-          : headAngleInRadians;
+        : headAngleInRadians;
+    const reflectedAngle = verticalReflection.isDirectionReversed
+        ? -angleAfterHorizontalReflection
+        : angleAfterHorizontalReflection;
 
     return {
         headPosition: {
-            x: clamp(headPosition.x, minimumX, maximumX),
-            y: clamp(headPosition.y, minimumY, maximumY),
+            x: horizontalReflection.coordinate,
+            y: verticalReflection.coordinate,
         },
         headAngleInRadians: normalizeAngle(reflectedAngle),
     };
@@ -309,11 +371,13 @@ export function advanceSnakeState(state: SnakeState, options: AdvanceSnakeStateO
     const angleAfterTurn = normalizeAngle(state.headAngleInRadians + turn);
     const distance = SPEED_IN_PIXELS_PER_SECOND * stepInSeconds;
 
+    const nextHeadPosition = {
+        x: state.headPosition.x + Math.cos(angleAfterTurn) * distance,
+        y: state.headPosition.y + Math.sin(angleAfterTurn) * distance,
+    };
     const { headPosition, headAngleInRadians } = reflectOffWalls(
-        {
-            x: state.headPosition.x + Math.cos(angleAfterTurn) * distance,
-            y: state.headPosition.y + Math.sin(angleAfterTurn) * distance,
-        },
+        state.headPosition,
+        nextHeadPosition,
         angleAfterTurn,
         options.bounds,
     );
