@@ -11,6 +11,24 @@ export const AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE = 128;
 export type AiTaKrajtaMarkPaint = { readonly kind: 'solid'; readonly color: string } | { readonly kind: 'gradient' };
 
 /**
+ * One point in the square coordinate system used by the artwork
+ */
+export type AiTaKrajtaMarkPoint = {
+    readonly x: number;
+    readonly y: number;
+};
+
+/**
+ * Where the square artwork is placed in another coordinate system
+ */
+export type AiTaKrajtaMarkFrame = {
+    readonly left: number;
+    readonly top: number;
+    readonly width: number;
+    readonly height: number;
+};
+
+/**
  * One drawn part of the snake
  *
  * Note: It is described as data rather than as markup, so that the same animal can be turned into React elements for
@@ -95,6 +113,37 @@ export const AI_TA_KRAJTA_MARK_SHAPES: readonly AiTaKrajtaMarkShape[] = [
 ];
 
 /**
+ * The path a living version of the mark follows from its head to its tail
+ *
+ * Note: The cover mark is built from overlapping filled shapes rather than one stroke. These points describe its
+ *       centre line so the game can release the same animal instead of replacing it with a different, straight one.
+ */
+export const AI_TA_KRAJTA_MARK_SPINE_POINTS: readonly AiTaKrajtaMarkPoint[] = [
+    { x: 71, y: 29 },
+    { x: 70, y: 36 },
+    { x: 67, y: 46 },
+    { x: 65, y: 57 },
+    { x: 65, y: 68 },
+    { x: 66, y: 79 },
+    { x: 67, y: 89 },
+    { x: 63, y: 94 },
+    { x: 54, y: 98 },
+    { x: 43, y: 98 },
+    { x: 33, y: 95 },
+    { x: 27, y: 90 },
+    { x: 28, y: 84 },
+    { x: 34, y: 79 },
+    { x: 43, y: 76 },
+    { x: 53, y: 76 },
+    { x: 63, y: 80 },
+    { x: 71, y: 86 },
+    { x: 79, y: 91 },
+    { x: 89, y: 94 },
+    { x: 99, y: 96 },
+    { x: 108, y: 97 },
+];
+
+/**
  * Where the drawn animal really sits inside its view box, measured off the shapes above including the width of the
  * stroke of the neck
  *
@@ -108,6 +157,19 @@ export const AI_TA_KRAJTA_MARK_BOUNDS = {
     right: 108,
     bottom: 103,
 } as const;
+
+/**
+ * Places a point of the vector artwork into a rendered frame
+ */
+export function placeAiTaKrajtaMarkPointInFrame(
+    point: AiTaKrajtaMarkPoint,
+    frame: AiTaKrajtaMarkFrame,
+): AiTaKrajtaMarkPoint {
+    return {
+        x: frame.left + (point.x / AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE) * frame.width,
+        y: frame.top + (point.y / AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE) * frame.height,
+    };
+}
 
 /**
  * The `fill` or `stroke` a shape is drawn with

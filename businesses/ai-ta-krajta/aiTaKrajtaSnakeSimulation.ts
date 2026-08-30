@@ -59,6 +59,11 @@ export type SnakeState = {
 };
 
 /**
+ * The part of a game state which decides how the snake first appears
+ */
+export type SnakeInitialPose = Pick<SnakeState, 'headPosition' | 'headAngleInRadians' | 'trail' | 'segmentCount'>;
+
+/**
  * How fast the snake glides, in pixels per second
  */
 const SPEED_IN_PIXELS_PER_SECOND = 175;
@@ -76,7 +81,7 @@ const IDLE_TURN_IN_RADIANS_PER_SECOND = 0.9;
 /**
  * Distance between two remembered points of the trail, in pixels
  */
-const TRAIL_POINT_DISTANCE_IN_PIXELS = 4;
+export const TRAIL_POINT_DISTANCE_IN_PIXELS = 4;
 
 /**
  * Distance between two drawn segments of the body, in pixels
@@ -238,6 +243,20 @@ function createInitialTrail(headPosition: SnakePoint): SnakePoint[] {
 }
 
 /**
+ * The ordinary centred pose used by simulations which do not begin from the logo
+ */
+function createDefaultSnakeInitialPose(bounds: SnakeBounds): SnakeInitialPose {
+    const headPosition = { x: bounds.width / 2, y: bounds.height / 2 };
+
+    return {
+        headPosition,
+        headAngleInRadians: INITIAL_HEAD_ANGLE_IN_RADIANS,
+        trail: createInitialTrail(headPosition),
+        segmentCount: INITIAL_SEGMENT_COUNT,
+    };
+}
+
+/**
  * Places one token somewhere on the field, out of reach of the head
  */
 function createFood(
@@ -267,21 +286,21 @@ function createFood(
 }
 
 /**
- * Sets the field up with the snake in the middle and the first tokens around it
+ * Sets the field up with a supplied starting pose and the first tokens around it
  */
-export function createSnakeState(bounds: SnakeBounds, createRandomNumber: CreateRandomNumber): SnakeState {
-    const headPosition = { x: bounds.width / 2, y: bounds.height / 2 };
+export function createSnakeState(
+    bounds: SnakeBounds,
+    createRandomNumber: CreateRandomNumber,
+    initialPose: SnakeInitialPose = createDefaultSnakeInitialPose(bounds),
+): SnakeState {
     const food: SnakeFood[] = [];
 
     for (let foodIndex = 0; foodIndex < FOOD_COUNT; foodIndex++) {
-        food.push(createFood(foodIndex, bounds, headPosition, createRandomNumber));
+        food.push(createFood(foodIndex, bounds, initialPose.headPosition, createRandomNumber));
     }
 
     return {
-        headPosition,
-        headAngleInRadians: INITIAL_HEAD_ANGLE_IN_RADIANS,
-        trail: createInitialTrail(headPosition),
-        segmentCount: INITIAL_SEGMENT_COUNT,
+        ...initialPose,
         food,
         score: 0,
         nextFoodId: FOOD_COUNT,

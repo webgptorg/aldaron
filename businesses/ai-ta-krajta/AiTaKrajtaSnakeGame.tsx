@@ -8,6 +8,9 @@ import {
     type SnakePoint,
     type SnakeState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeSimulation';
+import { drawAiTaKrajtaMarkOnCanvas } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkCanvas';
+import type { AiTaKrajtaMarkFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import { createAiTaKrajtaSnakeLogoPose } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeLogoPose';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 
@@ -22,6 +25,32 @@ const TAIL_RADIUS_IN_PIXELS = 4;
  */
 const FOOD_RADIUS_IN_PIXELS = 6;
 const FOOD_GLOW_RADIUS_IN_PIXELS = 14;
+
+/**
+ * How long the exact logo stays intact before its living version starts to emerge
+ */
+const LOGO_HOLD_DURATION_IN_MILLISECONDS = 100;
+
+/**
+ * How long the logo and playable body cross-fade while the snake uncoils
+ */
+const LOGO_RELEASE_DURATION_IN_MILLISECONDS = 500;
+
+/**
+ * Restricts an animation progress to its meaningful range
+ */
+function clampProgress(value: number): number {
+    return Math.min(1, Math.max(0, value));
+}
+
+/**
+ * How far the game has released the logo into its playable body
+ */
+function getLogoReleaseProgress(elapsedInMilliseconds: number): number {
+    return clampProgress(
+        (elapsedInMilliseconds - LOGO_HOLD_DURATION_IN_MILLISECONDS) / LOGO_RELEASE_DURATION_IN_MILLISECONDS,
+    );
+}
 
 /**
  * Radius of the body at one point along its center line
@@ -139,21 +168,29 @@ function createSnakeGradient(
 /**
  * Draws the tokens lying on the field
  */
-function drawFood(context: CanvasRenderingContext2D, state: SnakeState): void {
+function drawFood(context: CanvasRenderingContext2D, state: SnakeState, opacity: number): void {
+    if (opacity <= 0) {
+        return;
+    }
+
+    context.save();
+
     for (const food of state.food) {
         const color = food.isWarm ? AI_TA_KRAJTA_COLORS.CORAL : AI_TA_KRAJTA_COLORS.INDIGO;
 
-        context.globalAlpha = 0.22;
+        context.globalAlpha = opacity * 0.22;
         context.fillStyle = color;
         context.beginPath();
         context.arc(food.position.x, food.position.y, FOOD_GLOW_RADIUS_IN_PIXELS, 0, Math.PI * 2);
         context.fill();
 
-        context.globalAlpha = 1;
+        context.globalAlpha = opacity;
         context.beginPath();
         context.arc(food.position.x, food.position.y, FOOD_RADIUS_IN_PIXELS, 0, Math.PI * 2);
         context.fill();
     }
+
+    context.restore();
 }
 
 /**
@@ -195,7 +232,11 @@ function drawEyes(context: CanvasRenderingContext2D, state: SnakeState): void {
 /**
  * Draws the continuous, tapered body and puts a round head over its leading edge
  */
-function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
+function drawSnake(context: CanvasRenderingContext2D, state: SnakeState, opacity: number): void {
+    if (opacity <= 0) {
+        return;
+    }
+
     const segments = getSnakeSegments(state);
     const headPosition = segments[0];
     const tailPosition = segments[segments.length - 1];
@@ -204,6 +245,8 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
         return;
     }
 
+    context.save();
+    context.globalAlpha = opacity;
     drawRoundedContour(context, getSnakeBodyOutline(segments, state.headAngleInRadians));
     context.fillStyle = createSnakeGradient(context, tailPosition, headPosition);
     context.fill();
@@ -214,6 +257,7 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
     context.fill();
 
     drawEyes(context, state);
+    context.restore();
 }
 
 /**
@@ -224,7 +268,13 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState): void {
  *       into it.
  *
  */
-export function AiTaKrajtaSnakeGame() {
+export function AiTaKrajtaSnakeGame({
+    initialMarkFrame,
+    onInitialMarkFrameDrawn,
+}: {
+    readonly initialMarkFrame: AiTaKrajtaMarkFrame;
+    readonly onInitialMarkFrameDrawn: () => void;
+}) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const targetPositionRef = useRef<SnakePoint | null>(null);
     const [score, setScore] = useState(0);
@@ -238,9 +288,10 @@ export function AiTaKrajtaSnakeGame() {
         }
 
         let bounds: SnakeBounds = { width: canvas.clientWidth, height: canvas.clientHeight };
-        let state = createSnakeState(bounds, Math.random);
         let lastFrameTimestamp: number | null = null;
+        let gameStartTimestamp: number | null = null;
         let animationFrameId = 0;
+        let isInitialMarkFrameDrawn = false;
 
         const resizeCanvas = () => {
             const devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
@@ -251,9 +302,14 @@ export function AiTaKrajtaSnakeGame() {
             context.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
         };
 
+        resizeCanvas();
+        let state = createSnakeState(bounds, Math.random, createAiTaKrajtaSnakeLogoPose(initialMarkFrame));
+
         const renderFrame = (frameTimestamp: number) => {
             const stepInSeconds = lastFrameTimestamp === null ? 0 : (frameTimestamp - lastFrameTimestamp) / 1000;
             lastFrameTimestamp = frameTimestamp;
+            gameStartTimestamp ??= frameTimestamp;
+            const logoReleaseProgress = getLogoReleaseProgress(frameTimestamp - gameStartTimestamp);
 
             const previousScore = state.score;
             state = advanceSnakeState(state, {
@@ -268,13 +324,18 @@ export function AiTaKrajtaSnakeGame() {
             }
 
             context.clearRect(0, 0, bounds.width, bounds.height);
-            drawFood(context, state);
-            drawSnake(context, state);
+            drawFood(context, state, logoReleaseProgress);
+            drawSnake(context, state, logoReleaseProgress);
+            drawAiTaKrajtaMarkOnCanvas(context, initialMarkFrame, 1 - logoReleaseProgress);
+
+            if (!isInitialMarkFrameDrawn) {
+                isInitialMarkFrameDrawn = true;
+                onInitialMarkFrameDrawn();
+            }
 
             animationFrameId = window.requestAnimationFrame(renderFrame);
         };
 
-        resizeCanvas();
         animationFrameId = window.requestAnimationFrame(renderFrame);
 
         const resizeObserver = new ResizeObserver(resizeCanvas);
@@ -284,7 +345,7 @@ export function AiTaKrajtaSnakeGame() {
             window.cancelAnimationFrame(animationFrameId);
             resizeObserver.disconnect();
         };
-    }, []);
+    }, [initialMarkFrame, onInitialMarkFrameDrawn]);
 
     const handlePointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
         const canvasBounds = event.currentTarget.getBoundingClientRect();
