@@ -6,6 +6,10 @@ import {
     AI_TA_KRAJTA_MANIFEST_PATH,
     AI_TA_KRAJTA_PATH,
 } from '@/businesses/ai-ta-krajta/config';
+import {
+    PROMPTBOOK_CODER_BADGE_LABEL,
+    PROMPTBOOK_CODER_URL,
+} from '@/components/promptbook-coder/promptbookCoderConfig';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 
 /**
@@ -129,13 +133,13 @@ for (const path of PUBLIC_PAGE_PATHS) {
     });
 }
 
-test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ page }) => {
+test('AI ta Krajta owns its metadata, icon and installable manifest and credits Promptbook coder', async ({ page }) => {
     await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('footer')).toBeVisible();
     await expect(page).toHaveTitle(`${AI_TA_KRAJTA_BRAND_NAME} | Český podcast o umělé inteligenci`);
 
     const metadataIdentity = await page.evaluate(
-        ({ scalableIconPath, rasterIconPath, manifestPath }) => {
+        ({ scalableIconPath, rasterIconPath, manifestPath, coderUrl, coderBadgeLabel }) => {
             const identityTags = Array.from(document.head.querySelectorAll('meta, link'));
             const structuredDataNodes = Array.from(document.head.querySelectorAll('script[type*=ld]'));
             const footerText = document.querySelector('footer')?.textContent ?? '';
@@ -158,7 +162,13 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
             const isPodcastManifestUsed = identityTags.some(
                 (element) => element.getAttribute('rel') === 'manifest' && element.getAttribute('href') === manifestPath,
             );
-            const isFooterPromptbookAbsent = !footerText.includes('Promptbook');
+            const coderBadgeLink = document.querySelector(`footer a[href^="${coderUrl}"]`);
+            const isCoderBadgePresent = (coderBadgeLink?.textContent ?? '').includes(coderBadgeLabel);
+
+            // Note: The badge which credits the tool the page was written with is the one place the footer may name
+            //       Promptbook. Everything the footer says about the show itself is read without it, so a second
+            //       mention still fails this.
+            const isFooterPromptbookAbsent = !footerText.split(coderBadgeLabel).join('').includes('Promptbook');
             const isLegalCompanyPresent = footerText.includes('AI Web s.r.o.');
 
             return {
@@ -167,6 +177,7 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
                 isPodcastIconUsed,
                 isPodcastTouchIconUsed,
                 isPodcastManifestUsed,
+                isCoderBadgePresent,
                 isFooterPromptbookAbsent,
                 isLegalCompanyPresent,
             };
@@ -175,6 +186,8 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
             scalableIconPath: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path,
             rasterIconPath: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
             manifestPath: AI_TA_KRAJTA_MANIFEST_PATH,
+            coderUrl: PROMPTBOOK_CODER_URL,
+            coderBadgeLabel: PROMPTBOOK_CODER_BADGE_LABEL,
         },
     );
 
@@ -184,6 +197,7 @@ test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ p
         isPodcastIconUsed: true,
         isPodcastTouchIconUsed: true,
         isPodcastManifestUsed: true,
+        isCoderBadgePresent: true,
         isFooterPromptbookAbsent: true,
         isLegalCompanyPresent: true,
     });
