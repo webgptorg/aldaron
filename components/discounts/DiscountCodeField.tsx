@@ -1,25 +1,29 @@
 'use client';
 
+import { FORM_SURFACE_CLASS_NAMES, type FormSurfaceAppearance } from '@/components/forms/formSurfaceAppearance';
 import { Input } from '@/components/ui/input';
 import { MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH } from '@/lib/discounts/discountCodeConstants';
 import { getDiscountCodeMessage } from '@/lib/discounts/discountCodeMessages';
 import type { DiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValidation';
+import { cn } from '@/lib/utils';
 import { BadgePercent } from 'lucide-react';
 
 type DiscountCodeFieldProps = {
     readonly inputId: string;
     readonly validation: DiscountCodeValidation;
+    readonly appearance?: FormSurfaceAppearance;
 };
 
 /**
- * The one discount-code field shared by every paid registration form.
+ * The one discount-code field shared by every paid registration form, on a light page and inside a dark room alike.
  */
-export function DiscountCodeField({ inputId, validation }: DiscountCodeFieldProps) {
+export function DiscountCodeField({ inputId, validation, appearance = 'light' }: DiscountCodeFieldProps) {
     const { discountCode, setDiscountCode, activeDiscount, isValidationPending, validationError } = validation;
+    const surfaceClassNames = FORM_SURFACE_CLASS_NAMES[appearance];
 
     return (
         <div>
-            <label htmlFor={inputId} className="text-sm font-semibold text-slate-700">
+            <label htmlFor={inputId} className={cn('text-sm font-semibold', surfaceClassNames.label)}>
                 Slevový kód
             </label>
             <div className="relative mt-2">
@@ -30,13 +34,13 @@ export function DiscountCodeField({ inputId, validation }: DiscountCodeFieldProp
                     value={discountCode}
                     onChange={(event) => setDiscountCode(event.target.value)}
                     maxLength={MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH}
-                    className="h-11 pl-10 uppercase"
+                    className={cn('h-11 pl-10 uppercase', surfaceClassNames.input)}
                     autoCapitalize="characters"
                     autoCorrect="off"
                     spellCheck={false}
                 />
             </div>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className={cn('mt-1 text-xs', surfaceClassNames.hint)}>
                 {getDiscountCodeMessage({ discountCode, activeDiscount, isValidationPending, validationError })}
             </p>
         </div>

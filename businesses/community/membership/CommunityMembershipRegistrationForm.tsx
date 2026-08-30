@@ -5,8 +5,10 @@ import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentN
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { normalizeDiscountCode } from '@/lib/discounts/discountCode';
-import type { DiscountCodeValidation } from '@/lib/discounts/useDiscountCodeValidation';
+import {
+    isDiscountCodeReadyForSubmission,
+    type DiscountCodeValidation,
+} from '@/lib/discounts/useDiscountCodeValidation';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { getLegalLink } from '@/lib/legal/legalLinks';
 import { cn } from '@/lib/utils';
@@ -53,13 +55,7 @@ export function CommunityMembershipRegistrationForm({
             ? null
             : 'Zadejte platný e-mail.'
         : 'Vyplňte e-mail.';
-    const hasEnteredDiscountCode = discountCodeValidation.discountCode.trim() !== '';
-    const normalizedDiscountCode = normalizeDiscountCode(discountCodeValidation.discountCode);
-    const isDiscountCodeReady =
-        !hasEnteredDiscountCode ||
-        (normalizedDiscountCode !== '' &&
-            !discountCodeValidation.isValidationPending &&
-            discountCodeValidation.activeDiscount !== null);
+    const isDiscountCodeReady = isDiscountCodeReadyForSubmission(discountCodeValidation);
     const canSubmit =
         fullnameError === null &&
         emailError === null &&

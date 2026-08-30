@@ -37,6 +37,11 @@ export type CommunityMembershipFeature = {
     readonly shortLabel: string;
 };
 
+/**
+ * How the one membership of this community is named wherever it is bought, recorded, or charged for
+ */
+export const COMMUNITY_MEMBERSHIP_NAME = 'Komunita Promptbooku';
+
 export const COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT = 7;
 export const COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT = 12;
 export const COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT = 2;

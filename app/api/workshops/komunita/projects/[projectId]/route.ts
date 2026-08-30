@@ -2,9 +2,9 @@ import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import { moderateCommunityProject } from '@/lib/community-projects/communityProjectModeration';
 import {
-    isAuthenticatedCommunityProjectRequest,
-    getAuthenticatedCommunityProjectRequest,
-} from '@/lib/community-projects/communityProjectRequest';
+    isAuthenticatedCommunityRequest,
+    getAuthenticatedCommunityRequest,
+} from '@/lib/community/communityRequest';
 import {
     communityProjectIdSchema,
     communityProjectModerationSchema,
@@ -26,8 +26,8 @@ export async function PATCH(request: NextRequest, context: CommunityProjectModer
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
     if (!isWorkshopParticipantModerating(authenticatedRequest.participant)) {

@@ -3,6 +3,22 @@ type JsonErrorBody = {
 };
 
 /**
+ * A refused request, carrying both what the endpoint said about it and the status it answered with
+ *
+ * Note: Every caller still reads `message`, exactly as before there was a class for this. The status is what lets a
+ *       caller tell a refusal it can act on, such as an expired session, from one it can only report.
+ */
+export class JsonRequestError extends Error {
+    public constructor(
+        message: string,
+        public readonly status: number,
+    ) {
+        super(message);
+        this.name = 'JsonRequestError';
+    }
+}
+
+/**
  * Ask an endpoint and parse its JSON answer with one consistent error contract.
  *
  * Note: A refused request is turned into an `Error` carrying what the endpoint said about it, so that every caller can
@@ -20,10 +36,11 @@ export async function requestJson<ResponseBody>(
     const responseBody = (await response.json().catch(() => ({}))) as JsonErrorBody & ResponseBody;
 
     if (!response.ok) {
-        throw new Error(
+        throw new JsonRequestError(
             typeof responseBody.error === 'string'
                 ? responseBody.error
                 : `${failureMessage} with status ${response.status}`,
+            response.status,
         );
     }
 

@@ -1,5 +1,19 @@
 # Current preversion
 
+- Let a member buy the paid community membership inside `/cs/komunita` itself, through the Stripe payment gate, without
+  ever leaving for the public membership page. The room already knows who is reading it, so it asks for nothing but a
+  discount code and the agreement to its terms, then opens the gate for the monthly price this application decides -
+  including the discount, which stays part of the recurring price while the membership continues. The membership of a
+  member is the same membership however often they reconnect, because it belongs to the address they connect with. A
+  member who comes back from the gate has their payment confirmed against it immediately, while the webhook of the gate
+  keeps following the subscription afterwards, so a cancelled membership, a failed payment and a payment which finished
+  after the browser was closed all reach the room. The badge in the room header now says which membership its member
+  has and leads a free member to that offer instead of to the landing page, a paying member is never sold the same
+  membership again, and a member whose payment failed keeps their membership while the gate is still trying. A server
+  which was given no Stripe key offers nothing at all rather than a button which cannot work, and a server on test keys
+  says so beside the payment and names the test card, so a rehearsal is never mistaken for a real payment. How to
+  configure the gate is written in `AGENT_MESSAGE.md`.
+
 - Put community projects through the same moderation lifecycle as chat messages. A regular member's newly shared
   project waits for a community moderator or an administrator, while a trusted member or moderator has their project
   approved immediately by the same shared submission policy. Pending cards stay visible only to their author and the

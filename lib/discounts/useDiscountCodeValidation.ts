@@ -21,6 +21,26 @@ export type DiscountCodeValidation = {
     readonly validationError: string | null;
 };
 
+/**
+ * Whether a paid form may be submitted as far as its discount code is concerned, which every such form asks.
+ *
+ * Note: An empty field is ready, because a discount code is never required. A field which was typed into is only ready
+ *       once the server has answered that the code really is active here, so nothing is submitted at a price the
+ *       server is about to refuse.
+ */
+export function isDiscountCodeReadyForSubmission(validation: DiscountCodeValidation): boolean {
+    if (validation.discountCode.trim() === '') {
+        return true;
+    }
+
+    return (
+        normalizeDiscountCode(validation.discountCode) !== '' &&
+        !validation.isValidationPending &&
+        validation.validationError === null &&
+        validation.activeDiscount !== null
+    );
+}
+
 type ValidatedDiscount = {
     readonly discountCode: string;
     readonly discountPlaceId: string;

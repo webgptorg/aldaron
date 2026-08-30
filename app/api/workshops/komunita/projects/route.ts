@@ -6,9 +6,9 @@ import {
 } from '@/lib/community-projects/communityProjectDatabase';
 import { createCommunityProject } from '@/lib/community-projects/communityProjectService';
 import {
-    isAuthenticatedCommunityProjectRequest,
-    getAuthenticatedCommunityProjectRequest,
-} from '@/lib/community-projects/communityProjectRequest';
+    isAuthenticatedCommunityRequest,
+    getAuthenticatedCommunityRequest,
+} from '@/lib/community/communityRequest';
 import { scrapeCommunityProjectPreview } from '@/lib/community-projects/communityProjectPreview';
 import { normalizeCommunityProjectUrl } from '@/lib/community-projects/communityProjectUrl';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
@@ -27,8 +27,8 @@ function readProjectLimit(value: string | null): number | null {
 }
 
 export async function GET(request: NextRequest) {
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 

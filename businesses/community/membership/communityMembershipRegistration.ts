@@ -1,5 +1,6 @@
 import type { ActiveDiscount } from '@/lib/discounts/discountCode';
 import {
+    COMMUNITY_MEMBERSHIP_NAME,
     COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
     COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT,
     getCommunityMembershipPlan,
@@ -20,7 +21,7 @@ export type CommunityMembershipRegistrationRequest = {
 
 export type StoredCommunityMembershipRegistration = {
     readonly registrationType: typeof COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE;
-    readonly membership: 'Komunita Promptbooku';
+    readonly membership: typeof COMMUNITY_MEMBERSHIP_NAME;
     readonly status: 'payment-requested' | 'trial-requested';
     readonly planId: PaidCommunityMembershipPlanId;
     readonly planName: string;
@@ -70,7 +71,7 @@ export function createStoredCommunityMembershipRegistration(
 
     return {
         registrationType: COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
-        membership: 'Komunita Promptbooku',
+        membership: COMMUNITY_MEMBERSHIP_NAME,
         status: trialDayCount === null ? 'payment-requested' : 'trial-requested',
         planId: registrationRequest.planId,
         planName: plan.name,

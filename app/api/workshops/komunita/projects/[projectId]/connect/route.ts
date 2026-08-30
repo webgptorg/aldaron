@@ -1,9 +1,9 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { connectCommunityProjectDiscussion } from '@/lib/community-projects/communityProjectService';
 import {
-    isAuthenticatedCommunityProjectRequest,
-    getAuthenticatedCommunityProjectRequest,
-} from '@/lib/community-projects/communityProjectRequest';
+    isAuthenticatedCommunityRequest,
+    getAuthenticatedCommunityRequest,
+} from '@/lib/community/communityRequest';
 import { communityProjectIdSchema } from '@/lib/community-projects/communityProjectSchemas';
 import {
     WORKSHOP_PARTICIPANT_TABLE_NAME,
@@ -28,8 +28,8 @@ export async function POST(request: NextRequest, context: CommunityProjectDiscus
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 

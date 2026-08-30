@@ -1,9 +1,9 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import {
-    isAuthenticatedCommunityProjectRequest,
-    getAuthenticatedCommunityProjectRequest,
-} from '@/lib/community-projects/communityProjectRequest';
+    isAuthenticatedCommunityRequest,
+    getAuthenticatedCommunityRequest,
+} from '@/lib/community/communityRequest';
 import { scrapeCommunityProjectPreview } from '@/lib/community-projects/communityProjectPreview';
 import { communityProjectPreviewSchema } from '@/lib/community-projects/communityProjectSchemas';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 

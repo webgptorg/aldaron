@@ -6,15 +6,15 @@ import {
 } from '@/lib/workshops/workshopRequest';
 import { NextRequest, NextResponse } from 'next/server';
 
-export type AuthenticatedCommunityProjectRequest = AuthenticatedWorkshopRequest;
+export type AuthenticatedCommunityRequest = AuthenticatedWorkshopRequest;
 
 /**
- * Every project action is attached to the one authenticated community member. Keeping this check in one place makes
- * creating, voting, scraping, and opening a discussion follow exactly the same membership boundary.
+ * Every community action is attached to the one authenticated community member. Keeping this check in one place makes
+ * sharing a project, voting, opening a discussion and buying a membership follow exactly the same membership boundary.
  */
-export async function getAuthenticatedCommunityProjectRequest(
+export async function getAuthenticatedCommunityRequest(
     request: NextRequest,
-): Promise<AuthenticatedCommunityProjectRequest | NextResponse> {
+): Promise<AuthenticatedCommunityRequest | NextResponse> {
     const authenticatedRequest = await getAuthenticatedWorkshopRequest(request, COMMUNITY_WORKSHOP_SLUG);
     if (!isAuthenticatedWorkshopRequest(authenticatedRequest)) {
         return authenticatedRequest;
@@ -25,8 +25,8 @@ export async function getAuthenticatedCommunityProjectRequest(
         : NextResponse.json({ error: 'Community room not found' }, { status: 404 });
 }
 
-export function isAuthenticatedCommunityProjectRequest(
-    value: AuthenticatedCommunityProjectRequest | NextResponse,
-): value is AuthenticatedCommunityProjectRequest {
+export function isAuthenticatedCommunityRequest(
+    value: AuthenticatedCommunityRequest | NextResponse,
+): value is AuthenticatedCommunityRequest {
     return !(value instanceof NextResponse);
 }

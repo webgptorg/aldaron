@@ -1,3 +1,4 @@
+import { FORM_SURFACE_CLASS_NAMES, type FormSurfaceAppearance } from '@/components/forms/formSurfaceAppearance';
 import type { ActiveDiscount } from '@/lib/discounts/discountCode';
 import { cn } from '@/lib/utils';
 import {
@@ -12,7 +13,7 @@ type CommunityMembershipPriceDisplayProps = {
     readonly billingPeriod: CommunityMembershipBillingPeriod;
     readonly activeDiscount: ActiveDiscount | null;
     readonly className?: string;
-    readonly mutedClassName?: string;
+    readonly appearance?: FormSurfaceAppearance;
 };
 
 /** Price is always led by its monthly equivalent, including when the visitor pays once a year. */
@@ -21,26 +22,27 @@ export function CommunityMembershipPriceDisplay({
     billingPeriod,
     activeDiscount,
     className,
-    mutedClassName,
+    appearance = 'light',
 }: CommunityMembershipPriceDisplayProps) {
     const plan = getCommunityMembershipPlan(planId);
     const price = createCommunityMembershipPrice(planId, billingPeriod, activeDiscount);
     const isOriginalMonthlyPriceShown = billingPeriod === 'yearly' || activeDiscount !== null;
+    const surfaceClassNames = FORM_SURFACE_CLASS_NAMES[appearance];
 
     return (
         <div className={className}>
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 {isOriginalMonthlyPriceShown && (
-                    <span className="text-base font-medium text-slate-400 line-through decoration-slate-400/80">
+                    <span className={cn('text-base font-medium line-through', surfaceClassNames.strikethroughText)}>
                         {formatCommunityMembershipPrice(plan.monthlyPriceCzk)}
                     </span>
                 )}
-                <span className="text-4xl font-bold tracking-tight text-slate-950">
+                <span className={cn('text-4xl font-bold tracking-tight', surfaceClassNames.heading)}>
                     {formatCommunityMembershipPrice(price.finalMonthlyEquivalentCzk)}
                 </span>
-                <span className={cn('text-sm text-slate-500', mutedClassName)}>/ měsíc</span>
+                <span className={cn('text-sm', surfaceClassNames.mutedText)}>/ měsíc</span>
             </div>
-            <p className={cn('mt-2 text-xs leading-relaxed text-slate-500', mutedClassName)}>
+            <p className={cn('mt-2 text-xs leading-relaxed', surfaceClassNames.mutedText)}>
                 {billingPeriod === 'yearly'
                     ? `Platba ${formatCommunityMembershipPrice(price.finalBillingPriceCzk)} jednou ročně.`
                     : 'Platba každý měsíc.'}{' '}

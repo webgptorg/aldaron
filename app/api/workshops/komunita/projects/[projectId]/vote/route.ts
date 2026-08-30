@@ -1,9 +1,9 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
 import {
-    isAuthenticatedCommunityProjectRequest,
-    getAuthenticatedCommunityProjectRequest,
-} from '@/lib/community-projects/communityProjectRequest';
+    isAuthenticatedCommunityRequest,
+    getAuthenticatedCommunityRequest,
+} from '@/lib/community/communityRequest';
 import { communityProjectIdSchema, communityProjectVoteSchema } from '@/lib/community-projects/communityProjectSchemas';
 import { setCommunityProjectVote } from '@/lib/community-projects/communityProjectService';
 import { getWorkshopInteractionBanResponseOrNull } from '@/lib/workshops/workshopParticipantInteraction';
@@ -19,8 +19,8 @@ export async function POST(request: NextRequest, context: CommunityProjectVoteRo
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityProjectRequest(request);
-    if (!isAuthenticatedCommunityProjectRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
+    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 
