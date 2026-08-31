@@ -59,7 +59,12 @@ describe('community membership registration endpoint', () => {
         insertContactMock.mockResolvedValue({ contact: { id: 42 }, errorMessage: null });
         consumeDiscountCodeMock.mockResolvedValue({
             status: 'applied',
-            activeDiscount: { code: 'COMMUNITY_10', percent: 10, remainingUseCount: 3 },
+            activeDiscount: {
+                code: 'COMMUNITY_10',
+                percent: 10,
+                remainingUseCount: 3,
+                subscriptionDiscountDurationMonths: null,
+            },
             errorMessage: null,
         });
     });

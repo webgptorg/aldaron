@@ -55,6 +55,7 @@ describe('community membership catalogue and prices', () => {
             code: 'COMMUNITY_10',
             percent: 10,
             remainingUseCount: 4,
+            subscriptionDiscountDurationMonths: null,
         });
 
         expect(price).toEqual({
@@ -90,6 +91,7 @@ describe('community membership catalogue and prices', () => {
                 code: 'COMMUNITY_10',
                 percent: 10,
                 remainingUseCount: null,
+                subscriptionDiscountDurationMonths: null,
             }),
         ).toMatchObject({
             baseBillingPriceCzk: 199,
@@ -108,6 +110,7 @@ describe('community membership catalogue and prices', () => {
                 code: 'COMMUNITY_10',
                 percent: 10,
                 remainingUseCount: null,
+                subscriptionDiscountDurationMonths: null,
             }),
         ).toMatchObject({
             registrationType: 'COMMUNITY_MEMBERSHIP_REGISTRATION',
@@ -119,11 +122,25 @@ describe('community membership catalogue and prices', () => {
             discountAmountCzk: 900,
             agreedBillingPriceCzk: 8_100,
             agreedMonthlyEquivalentCzk: 675,
-            priceHeldWhileMembershipContinues: true,
+            isPriceHeldWhileMembershipContinues: true,
         });
 
         expect(createStoredCommunityMembershipRegistration(PREMIUM_YEARLY_REGISTRATION, null)).toMatchObject({
             agreedBillingPriceCzk: 9_000,
+        });
+    });
+
+    it('records when a subscription discount is only held for its first selected months', () => {
+        expect(
+            createStoredCommunityMembershipRegistration(PREMIUM_YEARLY_REGISTRATION, {
+                code: 'COMMUNITY_10',
+                percent: 10,
+                remainingUseCount: null,
+                subscriptionDiscountDurationMonths: 3,
+            }),
+        ).toMatchObject({
+            subscriptionDiscountDurationMonths: 3,
+            isPriceHeldWhileMembershipContinues: false,
         });
     });
 

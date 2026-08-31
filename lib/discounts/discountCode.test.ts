@@ -6,6 +6,7 @@ import {
     isDiscountCodeValidForAllPlaces,
     isDiscountCodeValidInPlace,
     isDiscountCodeUsableInPlace,
+    formatSubscriptionDiscountDurationMonthCount,
     normalizeDiscountCode,
     type DiscountCode,
 } from './discountCode';
@@ -23,6 +24,7 @@ function createDiscountCode(overrides: Partial<DiscountCode> = {}): DiscountCode
         isEnabled: true,
         placeIds: [],
         maximumUseCount: null,
+        subscriptionDiscountDurationMonths: null,
         useCount: 0,
         createdAt: '2026-08-19T00:00:00.000Z',
         updatedAt: '2026-08-19T00:00:00.000Z',
@@ -54,24 +56,32 @@ describe('shared discount-code rules', () => {
         expect(isDiscountCodeExhausted(limitedDiscountCode)).toBe(false);
         expect(isDiscountCodeExhausted(exhaustedDiscountCode)).toBe(true);
         expect(isDiscountCodeUsableInPlace(limitedDiscountCode, 'ai-supervize-mini-onsite', CURRENT_DATE)).toBe(true);
-        expect(isDiscountCodeUsableInPlace(exhaustedDiscountCode, 'ai-supervize-mini-onsite', CURRENT_DATE)).toBe(false);
+        expect(isDiscountCodeUsableInPlace(exhaustedDiscountCode, 'ai-supervize-mini-onsite', CURRENT_DATE)).toBe(
+            false,
+        );
         expect(createActiveDiscount(limitedDiscountCode)).toMatchObject({
             code: 'WEBINAR_2026',
             percent: 25,
             remainingUseCount: 2,
+            subscriptionDiscountDurationMonths: null,
         });
+    });
+
+    it('keeps a permanent subscription discount distinct from a temporary monthly duration', () => {
+        const temporarySubscriptionDiscount = createDiscountCode({ subscriptionDiscountDurationMonths: 3 });
+
+        expect(createActiveDiscount(createDiscountCode()).subscriptionDiscountDurationMonths).toBeNull();
+        expect(createActiveDiscount(temporarySubscriptionDiscount).subscriptionDiscountDurationMonths).toBe(3);
+        expect(formatSubscriptionDiscountDurationMonthCount(1)).toBe('1 měsíc');
+        expect(formatSubscriptionDiscountDurationMonthCount(3)).toBe('3 měsíce');
+        expect(formatSubscriptionDiscountDurationMonthCount(12)).toBe('12 měsíců');
     });
 
     it('requires the code to be enabled and inside its validity window', () => {
         expect(isDiscountCodeActive(createDiscountCode(), CURRENT_DATE)).toBe(true);
-        expect(
-            isDiscountCodeActive(createDiscountCode({ isEnabled: false }), CURRENT_DATE),
-        ).toBe(false);
-        expect(
-            isDiscountCodeActive(
-                createDiscountCode({ startsAt: '2026-08-21T00:00:00.000Z' }),
-                CURRENT_DATE,
-            ),
-        ).toBe(false);
+        expect(isDiscountCodeActive(createDiscountCode({ isEnabled: false }), CURRENT_DATE)).toBe(false);
+        expect(isDiscountCodeActive(createDiscountCode({ startsAt: '2026-08-21T00:00:00.000Z' }), CURRENT_DATE)).toBe(
+            false,
+        );
     });
 });

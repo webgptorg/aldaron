@@ -9,6 +9,7 @@ const VALID_DISCOUNT_CODE = {
     isEnabled: true,
     placeIds: ['ai-supervize-mini-online'],
     maximumUseCount: 10,
+    subscriptionDiscountDurationMonths: null,
 };
 
 describe('discount-code write schema', () => {
@@ -17,22 +18,34 @@ describe('discount-code write schema', () => {
             code: 'WEBINAR_2026',
             placeIds: ['ai-supervize-mini-online'],
             maximumUseCount: 10,
+            subscriptionDiscountDurationMonths: null,
         });
     });
 
     it('uses an empty place list for the all-places choice', () => {
-        expect(discountCodeValuesSchema.parse({ ...VALID_DISCOUNT_CODE, placeIds: [], maximumUseCount: null })).toMatchObject({
+        expect(
+            discountCodeValuesSchema.parse({ ...VALID_DISCOUNT_CODE, placeIds: [], maximumUseCount: null }),
+        ).toMatchObject({
             placeIds: [],
             maximumUseCount: null,
         });
     });
 
+    it('makes an older write without a subscription duration permanently discounted', () => {
+        const { subscriptionDiscountDurationMonths: ignoredDuration, ...olderDiscountCode } = VALID_DISCOUNT_CODE;
+
+        expect(discountCodeValuesSchema.parse(olderDiscountCode).subscriptionDiscountDurationMonths).toBeNull();
+        expect(ignoredDuration).toBeNull();
+    });
+
     it('rejects unknown places and an invalid maximum use count', () => {
+        expect(discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, placeIds: ['not-a-place'] }).success).toBe(
+            false,
+        );
+        expect(discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, maximumUseCount: 0 }).success).toBe(false);
         expect(
-            discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, placeIds: ['not-a-place'] }).success,
-        ).toBe(false);
-        expect(
-            discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, maximumUseCount: 0 }).success,
+            discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, subscriptionDiscountDurationMonths: 0 })
+                .success,
         ).toBe(false);
     });
 });

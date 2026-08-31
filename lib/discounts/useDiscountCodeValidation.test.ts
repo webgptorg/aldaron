@@ -36,7 +36,12 @@ describe('discount code readiness', () => {
             isDiscountCodeReadyForSubmission(
                 createValidation({
                     discountCode: 'SLEVA',
-                    activeDiscount: { code: 'SLEVA', percent: 20, remainingUseCount: null },
+                    activeDiscount: {
+                        code: 'SLEVA',
+                        percent: 20,
+                        remainingUseCount: null,
+                        subscriptionDiscountDurationMonths: null,
+                    },
                     validationError: 'Slevový kód se nepodařilo ověřit.',
                 }),
             ),
@@ -48,7 +53,12 @@ describe('discount code readiness', () => {
             isDiscountCodeReadyForSubmission(
                 createValidation({
                     discountCode: 'sleva',
-                    activeDiscount: { code: 'SLEVA', percent: 20, remainingUseCount: 3 },
+                    activeDiscount: {
+                        code: 'SLEVA',
+                        percent: 20,
+                        remainingUseCount: 3,
+                        subscriptionDiscountDurationMonths: null,
+                    },
                 }),
             ),
         ).toBe(true);

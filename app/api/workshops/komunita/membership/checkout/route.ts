@@ -1,15 +1,10 @@
 import { COMMUNITY_PATH } from '@/businesses/community/config';
-import {
-    CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
-} from '@/businesses/community/membership/communityMembershipConfig';
+import { CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID } from '@/businesses/community/membership/communityMembershipConfig';
 import { createCommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
 import { createRequestSiteUrl } from '@/lib/api/createRequestSiteUrl';
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import {
-    getAuthenticatedCommunityRequest,
-    isAuthenticatedCommunityRequest,
-} from '@/lib/community/communityRequest';
+import { getAuthenticatedCommunityRequest, isAuthenticatedCommunityRequest } from '@/lib/community/communityRequest';
 import {
     createCommunityMembershipCheckoutSession,
     createCommunityMembershipCheckoutUrls,
@@ -110,7 +105,7 @@ export async function POST(request: NextRequest) {
             gateway,
             { participantId: participant.id, fullname: participant.fullname, email: participant.email },
             price,
-            activeDiscount?.code ?? null,
+            activeDiscount,
             createCommunityMembershipCheckoutUrls(createRequestSiteUrl(request, COMMUNITY_PATH)),
         );
     } catch (error) {
@@ -142,8 +137,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: COMMUNITY_MEMBERSHIP_MESSAGES.paymentNotOpened }, { status: 500 });
     }
 
-    return NextResponse.json(
-        { checkoutUrl: checkoutSession.url },
-        { headers: { 'Cache-Control': 'no-store' } },
-    );
+    return NextResponse.json({ checkoutUrl: checkoutSession.url }, { headers: { 'Cache-Control': 'no-store' } });
 }

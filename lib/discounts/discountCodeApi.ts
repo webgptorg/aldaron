@@ -16,7 +16,9 @@ function isActiveDiscount(value: unknown): value is ActiveDiscount {
     return (
         typeof activeDiscount.code === 'string' &&
         typeof activeDiscount.percent === 'number' &&
-        (activeDiscount.remainingUseCount === null || typeof activeDiscount.remainingUseCount === 'number')
+        (activeDiscount.remainingUseCount === null || typeof activeDiscount.remainingUseCount === 'number') &&
+        (activeDiscount.subscriptionDiscountDurationMonths === null ||
+            typeof activeDiscount.subscriptionDiscountDurationMonths === 'number')
     );
 }
 
@@ -27,11 +29,10 @@ export async function validateDiscountCode(
     discountCode: string,
     discountPlaceId: string,
 ): Promise<ActiveDiscount | null> {
-    const responseBody = await sendJson<DiscountCodeValidationResponse>(
-        DISCOUNT_CODE_VALIDATION_API_PATH,
-        'POST',
-        { discountCode, discountPlaceId },
-    );
+    const responseBody = await sendJson<DiscountCodeValidationResponse>(DISCOUNT_CODE_VALIDATION_API_PATH, 'POST', {
+        discountCode,
+        discountPlaceId,
+    });
 
     return isActiveDiscount(responseBody.activeDiscount) ? responseBody.activeDiscount : null;
 }

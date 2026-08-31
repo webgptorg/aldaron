@@ -118,7 +118,12 @@ describe('AI Supervize Mini registration endpoint', () => {
         insertContactMock.mockResolvedValue({ contact: { id: 1 }, errorMessage: null });
         consumeDiscountCodeMock.mockResolvedValue({
             status: 'applied',
-            activeDiscount: { code: 'WEBINAR_2026_08_20', percent: 25, remainingUseCount: null },
+            activeDiscount: {
+                code: 'WEBINAR_2026_08_20',
+                percent: 25,
+                remainingUseCount: null,
+                subscriptionDiscountDurationMonths: null,
+            },
             errorMessage: null,
         });
     });
@@ -198,10 +203,7 @@ describe('AI Supervize Mini registration endpoint', () => {
         };
 
         expect(response.status).toBe(200);
-        expect(insertContactMock).toHaveBeenCalledWith(
-            CONTACTS_TABLE,
-            expect.objectContaining({ isWaitlisted: true }),
-        );
+        expect(insertContactMock).toHaveBeenCalledWith(CONTACTS_TABLE, expect.objectContaining({ isWaitlisted: true }));
         expect(responseBody.isWaitlisted).toBe(true);
         expect(responseBody.workshopAvailabilities).toContainEqual({
             eventSlug: ONSITE_EVENT_SLUG,

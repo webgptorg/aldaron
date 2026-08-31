@@ -35,8 +35,9 @@
 - Let a member buy the paid community membership inside `/cs/komunita` itself, through the Stripe payment gate, without
   ever leaving for the public membership page. The room already knows who is reading it, so it asks for nothing but a
   discount code and the agreement to its terms, then opens the gate for the monthly price this application decides -
-  including the discount, which stays part of the recurring price while the membership continues. The membership of a
-  member is the same membership however often they reconnect, because it belongs to the address they connect with. A
+  including a code's permanent discount or the temporary discount it grants for its configured first monthly renewals.
+  The membership of a member is the same membership however often they reconnect, because it belongs to the address
+  they connect with. A
   member who comes back from the gate has their payment confirmed against it immediately, while the webhook of the gate
   keeps following the subscription afterwards, so a cancelled membership, a failed payment and a payment which finished
   after the browser was closed all reach the room. The badge in the room header now says which membership its member

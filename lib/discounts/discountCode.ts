@@ -1,9 +1,18 @@
 import { MAXIMAL_DISCOUNT_CODE_LENGTH } from '@/lib/discounts/discountCodeConstants';
 
 /**
+ * How long a discount survives after it has opened a subscription. `null` deliberately means the
+ * discount is permanent, which preserves the behaviour of discount codes created before this
+ * setting existed.
+ */
+export type SubscriptionDiscountDuration = {
+    readonly subscriptionDiscountDurationMonths: number | null;
+};
+
+/**
  * What a visitor may see about a code which is active in the place they are viewing.
  */
-export type ActiveDiscount = {
+export type ActiveDiscount = SubscriptionDiscountDuration & {
     readonly code: string;
     readonly percent: number;
     readonly remainingUseCount: number | null;
@@ -11,7 +20,7 @@ export type ActiveDiscount = {
 
 export type ActiveDiscountByPlaceId = Readonly<Record<string, ActiveDiscount | null>>;
 
-export type DiscountCodeValues = {
+export type DiscountCodeValues = SubscriptionDiscountDuration & {
     readonly code: string;
     readonly percent: number;
     readonly startsAt: string;
@@ -86,10 +95,26 @@ export function getRemainingDiscountCodeUseCount(
         : Math.max(discountCode.maximumUseCount - discountCode.useCount, 0);
 }
 
-export function isDiscountCodeExhausted(
-    discountCode: Pick<DiscountCode, 'maximumUseCount' | 'useCount'>,
-): boolean {
+export function isDiscountCodeExhausted(discountCode: Pick<DiscountCode, 'maximumUseCount' | 'useCount'>): boolean {
     return getRemainingDiscountCodeUseCount(discountCode) === 0;
+}
+
+export function isSubscriptionDiscountPermanent(discount: SubscriptionDiscountDuration): boolean {
+    return discount.subscriptionDiscountDurationMonths === null;
+}
+
+/**
+ * Uses the Czech forms of "month" so the same duration reads naturally in the administrator and
+ * in a member's price summary.
+ */
+export function formatSubscriptionDiscountDurationMonthCount(monthCount: number): string {
+    const finalTwoDigits = monthCount % 100;
+    const finalDigit = monthCount % 10;
+    const isSingular = finalDigit === 1 && finalTwoDigits !== 11;
+    const isFew = finalDigit >= 2 && finalDigit <= 4 && (finalTwoDigits < 12 || finalTwoDigits > 14);
+    const monthLabel = isSingular ? 'měsíc' : isFew ? 'měsíce' : 'měsíců';
+
+    return `${monthCount} ${monthLabel}`;
 }
 
 /**
@@ -112,5 +137,6 @@ export function createActiveDiscount(discountCode: DiscountCode): ActiveDiscount
         code: discountCode.code,
         percent: discountCode.percent,
         remainingUseCount: getRemainingDiscountCodeUseCount(discountCode),
+        subscriptionDiscountDurationMonths: discountCode.subscriptionDiscountDurationMonths,
     };
 }

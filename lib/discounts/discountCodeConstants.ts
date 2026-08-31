@@ -32,3 +32,9 @@ export const MAXIMAL_DISCOUNT_CODE_LENGTH = 100;
 export const MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH = 200;
 export const MAXIMAL_DISCOUNT_PERCENT = 100;
 export const MAXIMAL_DISCOUNT_CODE_USE_COUNT = 1_000_000;
+
+/**
+ * Stripe applies a repeating coupon for this many monthly renewals at most. A longer promotion
+ * belongs to the permanent choice, which also remains the default for existing discount codes.
+ */
+export const MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT = 36;

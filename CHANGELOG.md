@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Let administrators choose whether a community-membership discount code remains permanent or applies only to a
+  selected number of monthly renewals. Stripe now receives the matching coupon, so a temporary reduction ends at the
+  full subscription price without an application-side timer; existing codes remain permanent.
+
 - Stopped the end-to-end suite from intermittently failing with `TypeError: Cannot read properties of undefined
   (reading 'call')`. Its Next.js development server used to dispose a compiled route after a minute without a request,
   and rebuilding it re-emitted the shared server chunks underneath whichever request arrived next; a page such as

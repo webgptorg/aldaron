@@ -8,10 +8,7 @@ import {
     type DiscountCode,
     type DiscountCodeValues,
 } from '@/lib/discounts/discountCode';
-import {
-    CONSUME_DISCOUNT_CODE_FUNCTION_NAME,
-    DISCOUNT_CODE_TABLE_NAME,
-} from '@/lib/discounts/discountCodeConstants';
+import { CONSUME_DISCOUNT_CODE_FUNCTION_NAME, DISCOUNT_CODE_TABLE_NAME } from '@/lib/discounts/discountCodeConstants';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
@@ -29,6 +26,7 @@ export type DiscountCodeRow = {
     readonly is_enabled: boolean;
     readonly place_ids: readonly string[] | null;
     readonly maximum_use_count: number | null;
+    readonly subscription_discount_duration_months: number | null;
     readonly use_count: number;
     readonly created_at: string;
     readonly updated_at: string;
@@ -39,6 +37,7 @@ type DiscountCodeConsumptionRow = {
     readonly code: string;
     readonly percent: number | null;
     readonly remaining_use_count: number | null;
+    readonly subscription_discount_duration_months: number | null;
 };
 
 export type ActiveDiscountLoadResult = {
@@ -101,6 +100,7 @@ export function mapDiscountCodeRow(discountCodeRow: DiscountCodeRow): DiscountCo
         isEnabled: discountCodeRow.is_enabled,
         placeIds: discountCodeRow.place_ids ?? [],
         maximumUseCount: discountCodeRow.maximum_use_count,
+        subscriptionDiscountDurationMonths: discountCodeRow.subscription_discount_duration_months,
         useCount: discountCodeRow.use_count,
         createdAt: discountCodeRow.created_at,
         updatedAt: discountCodeRow.updated_at,
@@ -118,6 +118,7 @@ export function createDiscountCodeDatabaseValues(
         is_enabled: discountCode.isEnabled,
         place_ids: discountCode.placeIds,
         maximum_use_count: discountCode.maximumUseCount,
+        subscription_discount_duration_months: discountCode.subscriptionDiscountDurationMonths,
     };
 }
 
@@ -233,6 +234,7 @@ function createDiscountCodeConsumptionResult(
                       code: consumptionRow.code,
                       percent: consumptionRow.percent,
                       remainingUseCount: consumptionRow.remaining_use_count,
+                      subscriptionDiscountDurationMonths: consumptionRow.subscription_discount_duration_months,
                   }
                 : null,
         errorMessage: null,

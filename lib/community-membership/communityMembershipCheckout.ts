@@ -10,6 +10,7 @@ import {
 } from '@/businesses/community/membership/communityMembershipConfig';
 import type { CommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
 import { normalizeCommunityMemberEmail } from '@/lib/community-membership/communityMembershipTypes';
+import type { ActiveDiscount } from '@/lib/discounts/discountCode';
 import { createStripeAmountFromCzk, STRIPE_CZK_CURRENCY } from '@/lib/payments/stripeAmount';
 import type { StripeGateway } from '@/lib/payments/stripeGateway';
 import type Stripe from 'stripe';
@@ -94,20 +95,56 @@ function createCommunityMembershipMetadata(
 }
 
 /**
+ * Creates the Stripe-native discount which controls the subscription after Checkout has finished.
+ * Keeping the normal price in the line item means a temporary coupon can expire back to that price
+ * without an application timer or a later subscription rewrite.
+ */
+function createCommunityMembershipSubscriptionCouponParameters(
+    activeDiscount: ActiveDiscount,
+): Stripe.CouponCreateParams {
+    const sharedParameters = {
+        percent_off: activeDiscount.percent,
+        name: `Sleva ${activeDiscount.percent} %`,
+        metadata: { discountCode: activeDiscount.code },
+    };
+
+    const subscriptionDiscountDurationMonths = activeDiscount.subscriptionDiscountDurationMonths;
+    if (subscriptionDiscountDurationMonths === null) {
+        return { ...sharedParameters, duration: 'forever' };
+    }
+
+    return {
+        ...sharedParameters,
+        duration: 'repeating',
+        duration_in_months: subscriptionDiscountDurationMonths,
+    };
+}
+
+async function createCommunityMembershipSubscriptionCoupon(
+    gateway: StripeGateway,
+    activeDiscount: ActiveDiscount | null,
+): Promise<Stripe.Coupon | null> {
+    return activeDiscount === null
+        ? null
+        : gateway.stripe.coupons.create(createCommunityMembershipSubscriptionCouponParameters(activeDiscount));
+}
+
+/**
  * Opens the checkout of the payment gate for one member of the community.
  *
- * Note: The recurring price is described in the request itself instead of pointing at a price prepared in the gate.
- *       The monthly price of the membership, and the discount a member is entitled to, therefore stay decided by this
- *       application alone, and configuring the gate is nothing but giving this server its keys.
+ * Note: The recurring base price and the discount duration are described in the request itself instead of pointing at
+ *       a price prepared in the gate. The monthly price and discount a member is entitled to therefore stay decided by
+ *       this application alone, while Stripe's coupon makes the selected duration survive every later renewal.
  */
 export async function createCommunityMembershipCheckoutSession(
     gateway: StripeGateway,
     member: CommunityMembershipCheckoutMember,
     price: CommunityMembershipPrice,
-    discountCode: string | null,
+    activeDiscount: ActiveDiscount | null,
     urls: CommunityMembershipCheckoutUrls,
 ): Promise<Stripe.Checkout.Session> {
-    const metadata = createCommunityMembershipMetadata(member, discountCode);
+    const metadata = createCommunityMembershipMetadata(member, activeDiscount?.code ?? null);
+    const subscriptionCoupon = await createCommunityMembershipSubscriptionCoupon(gateway, activeDiscount);
 
     return gateway.stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -121,7 +158,7 @@ export async function createCommunityMembershipCheckoutSession(
                 quantity: 1,
                 price_data: {
                     currency: STRIPE_CZK_CURRENCY,
-                    unit_amount: createStripeAmountFromCzk(price.finalMonthlyEquivalentCzk),
+                    unit_amount: createStripeAmountFromCzk(price.baseMonthlyEquivalentCzk),
                     recurring: { interval: 'month' },
                     product_data: {
                         name: `${COMMUNITY_MEMBERSHIP_NAME} – ${CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN.name}`,
@@ -130,6 +167,7 @@ export async function createCommunityMembershipCheckoutSession(
                 },
             },
         ],
+        ...(subscriptionCoupon === null ? {} : { discounts: [{ coupon: subscriptionCoupon.id }] }),
         metadata,
         subscription_data: { metadata },
     });

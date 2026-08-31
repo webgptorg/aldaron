@@ -8,14 +8,19 @@ import {
     type DiscountCode,
     type DiscountCodeValues,
 } from '@/lib/discounts/discountCode';
-import { MAXIMAL_DISCOUNT_CODE_USE_COUNT, MAXIMAL_DISCOUNT_PERCENT } from '@/lib/discounts/discountCodeConstants';
-import { DISCOUNT_PLACES } from '@/lib/discounts/discountPlaces';
+import {
+    MAXIMAL_DISCOUNT_CODE_USE_COUNT,
+    MAXIMAL_DISCOUNT_PERCENT,
+    MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT,
+} from '@/lib/discounts/discountCodeConstants';
+import { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID, DISCOUNT_PLACES } from '@/lib/discounts/discountPlaces';
 import { Save, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 const DEFAULT_DISCOUNT_PERCENT = 10;
 const DEFAULT_DISCOUNT_VALIDITY_MILLISECONDS = 24 * 60 * 60 * 1000;
 const DEFAULT_MAXIMAL_USE_COUNT = 10;
+const DEFAULT_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT = 3;
 
 type DiscountCodeFormProps = {
     readonly discountCode: DiscountCode | null;
@@ -35,6 +40,7 @@ function createNewDiscountCodeValues(): DiscountCodeValues {
         isEnabled: true,
         placeIds: [],
         maximumUseCount: null,
+        subscriptionDiscountDurationMonths: null,
     };
 }
 
@@ -51,6 +57,7 @@ function createDiscountCodeValues(discountCode: DiscountCode | null): DiscountCo
         isEnabled: discountCode.isEnabled,
         placeIds: discountCode.placeIds,
         maximumUseCount: discountCode.maximumUseCount,
+        subscriptionDiscountDurationMonths: discountCode.subscriptionDiscountDurationMonths,
     };
 }
 
@@ -86,11 +93,11 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
 
     const isEditing = discountCode !== null;
     const isUseCountLimited = values.maximumUseCount !== null;
+    const isSubscriptionDiscountDurationLimited = values.subscriptionDiscountDurationMonths !== null;
+    const isCommunityMembershipSelected =
+        isValidForAllPlaces || values.placeIds.includes(COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID);
 
-    const updateValue = <TField extends keyof DiscountCodeValues>(
-        field: TField,
-        value: DiscountCodeValues[TField],
-    ) => {
+    const updateValue = <TField extends keyof DiscountCodeValues>(field: TField, value: DiscountCodeValues[TField]) => {
         setValues((currentValues) => ({ ...currentValues, [field]: value }));
     };
 
@@ -109,6 +116,17 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
         }
         if (!isValidForAllPlaces && values.placeIds.length === 0) {
             setValidationError('Vyberte alespoň jedno místo, kde kód platí, nebo zvolte všechna místa.');
+            return;
+        }
+        if (
+            values.subscriptionDiscountDurationMonths !== null &&
+            (!Number.isInteger(values.subscriptionDiscountDurationMonths) ||
+                values.subscriptionDiscountDurationMonths < 1 ||
+                values.subscriptionDiscountDurationMonths > MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT)
+        ) {
+            setValidationError(
+                `Dočasná sleva předplatného musí trvat 1 až ${MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT} měsíců.`,
+            );
             return;
         }
 
@@ -137,8 +155,8 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
                         {isEditing ? 'Upravit slevový kód' : 'Nový slevový kód'}
                     </h2>
                     <p className="mt-1 max-w-2xl text-sm text-slate-500">
-                        Kód se při uložení sjednotí na velká písmena a podtržítka. Platnost je včetně okamžiku začátku
-                        i konce.
+                        Kód se při uložení sjednotí na velká písmena a podtržítka. Platnost je včetně okamžiku začátku i
+                        konce.
                     </p>
                 </div>
                 {isEditing && (
@@ -278,6 +296,74 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
                 )}
             </fieldset>
 
+            {isCommunityMembershipSelected && (
+                <fieldset className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
+                    <legend className="px-1 text-sm font-semibold text-slate-950">Sleva v předplatném</legend>
+                    <p className="mb-4 leading-5 text-slate-600">
+                        Toto nastavení se použije pouze pro placené členství komunity. Platnost kódu určuje, dokdy lze
+                        slevu získat; zde určujete, jak dlouho pak sleva zůstane v již založeném předplatném.
+                    </p>
+
+                    <label className="flex items-start gap-3">
+                        <input
+                            type="radio"
+                            name="subscription-discount-duration"
+                            checked={!isSubscriptionDiscountDurationLimited}
+                            onChange={() => updateValue('subscriptionDiscountDurationMonths', null)}
+                            className="mt-0.5 h-4 w-4"
+                        />
+                        <span>
+                            <strong className="block text-slate-950">Trvalá sleva</strong>
+                            Sleva zůstane součástí všech dalších měsíčních plateb tohoto předplatného.
+                        </span>
+                    </label>
+
+                    <label className="mt-4 flex items-start gap-3 border-t border-slate-200 pt-4">
+                        <input
+                            type="radio"
+                            name="subscription-discount-duration"
+                            checked={isSubscriptionDiscountDurationLimited}
+                            onChange={() =>
+                                updateValue(
+                                    'subscriptionDiscountDurationMonths',
+                                    discountCode?.subscriptionDiscountDurationMonths ??
+                                        DEFAULT_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT,
+                                )
+                            }
+                            className="mt-0.5 h-4 w-4"
+                        />
+                        <span>
+                            <strong className="block text-slate-950">Dočasná sleva</strong>
+                            Sleva skončí po vybraném počtu měsíčních plateb a předplatné pak bude pokračovat za běžnou
+                            cenu.
+                        </span>
+                    </label>
+
+                    {isSubscriptionDiscountDurationLimited && (
+                        <label className="mt-4 block border-t border-slate-200 pt-4 text-sm font-medium text-slate-700">
+                            Počet zlevněných měsíců
+                            <Input
+                                type="number"
+                                min={1}
+                                max={MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT}
+                                value={
+                                    values.subscriptionDiscountDurationMonths ??
+                                    DEFAULT_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT
+                                }
+                                onChange={(event) =>
+                                    updateValue('subscriptionDiscountDurationMonths', Number(event.target.value))
+                                }
+                                className="mt-2 max-w-xs"
+                                required
+                            />
+                            <span className="mt-2 block text-xs font-normal text-slate-500">
+                                Nejvýše {MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT} měsíců.
+                            </span>
+                        </label>
+                    )}
+                </fieldset>
+            )}
+
             <fieldset className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-700">
                 <legend className="px-1 text-sm font-semibold text-slate-950">Počet použití</legend>
                 <label className="flex items-start gap-3">
@@ -288,7 +374,7 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
                             updateValue(
                                 'maximumUseCount',
                                 event.target.checked
-                                    ? discountCode?.maximumUseCount ?? DEFAULT_MAXIMAL_USE_COUNT
+                                    ? (discountCode?.maximumUseCount ?? DEFAULT_MAXIMAL_USE_COUNT)
                                     : null,
                             )
                         }

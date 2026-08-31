@@ -95,6 +95,7 @@ describe('AI Supervize Mini registration form', () => {
                         code: 'WEBINAR_2026_08_20',
                         percent: 25,
                         remainingUseCount: 3,
+                        subscriptionDiscountDurationMonths: null,
                     },
                     'ai-supervize-mini-online': null,
                 }}

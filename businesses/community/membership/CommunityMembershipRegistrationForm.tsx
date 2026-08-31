@@ -23,6 +23,7 @@ import {
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
 } from './communityMembershipConfig';
+import { formatSubscriptionDiscountDurationMonthCount } from '@/lib/discounts/discountCode';
 import { CommunityMembershipPriceDisplay } from './CommunityMembershipPriceDisplay';
 import { submitCommunityMembershipRegistration } from './communityMembershipRegistrationApi';
 import type { CommunityMembershipRegistrationResult } from './communityMembershipRegistration';
@@ -107,9 +108,7 @@ export function CommunityMembershipRegistrationForm({
                     <CheckCircle2 className="h-6 w-6" />
                 </div>
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Žádost máme</p>
-                <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {fullname}, ozveme se e-mailem.
-                </h3>
+                <h3 className="mt-2 text-2xl font-bold text-slate-950">{fullname}, ozveme se e-mailem.</h3>
                 <p className="mt-3 leading-relaxed text-slate-600">
                     Na <strong>{email}</strong> pošleme potvrzení a platební údaje. V e-mailu najdete i další krok k
                     aktivaci.
@@ -120,6 +119,18 @@ export function CommunityMembershipRegistrationForm({
                         {formatCommunityMembershipPrice(registrationResult.price.finalMonthlyEquivalentCzk)} / měsíc
                     </p>
                     <p className="mt-1 text-sm text-slate-500">Platíte po měsících, ne celý rok dopředu.</p>
+                    {registrationResult.activeDiscount !== null &&
+                        registrationResult.activeDiscount.subscriptionDiscountDurationMonths !== null && (
+                            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                                Sleva platí první{' '}
+                                {formatSubscriptionDiscountDurationMonthCount(
+                                    registrationResult.activeDiscount.subscriptionDiscountDurationMonths,
+                                )}
+                                . Poté bude cena{' '}
+                                {formatCommunityMembershipPrice(registrationResult.price.baseMonthlyEquivalentCzk)}{' '}
+                                měsíčně.
+                            </p>
+                        )}
                 </div>
             </div>
         );
@@ -140,9 +151,7 @@ export function CommunityMembershipRegistrationForm({
                     <h3 className="mt-1 text-2xl font-bold text-slate-950">
                         {formatCommunityMembershipPrice(CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK)} za měsíc
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                        Živé webináře jsou zdarma.
-                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-500">Živé webináře jsou zdarma.</p>
                 </div>
             </div>
 

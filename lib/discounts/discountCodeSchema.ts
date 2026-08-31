@@ -1,13 +1,10 @@
-import {
-    isDiscountCodeNormalized,
-    normalizeDiscountCode,
-    type DiscountCodeValues,
-} from '@/lib/discounts/discountCode';
+import { isDiscountCodeNormalized, normalizeDiscountCode } from '@/lib/discounts/discountCode';
 import {
     MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH,
     MAXIMAL_DISCOUNT_CODE_LENGTH,
     MAXIMAL_DISCOUNT_CODE_USE_COUNT,
     MAXIMAL_DISCOUNT_PERCENT,
+    MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT,
 } from '@/lib/discounts/discountCodeConstants';
 import { isKnownDiscountPlaceId } from '@/lib/discounts/discountPlaces';
 import { z } from 'zod';
@@ -36,10 +33,21 @@ const maximumUseCountSchema = z
     )
     .nullable();
 
+const subscriptionDiscountDurationMonthsSchema = z
+    .number()
+    .int('Délka slevy předplatného musí být celé číslo měsíců.')
+    .min(1, 'Dočasná sleva předplatného musí trvat alespoň 1 měsíc.')
+    .max(
+        MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT,
+        `Dočasná sleva předplatného může trvat nejvýše ${MAXIMAL_SUBSCRIPTION_DISCOUNT_DURATION_MONTH_COUNT} měsíců.`,
+    )
+    .nullable()
+    .default(null);
+
 /**
  * One complete discount-code write. Creation and editing deliberately use the same shape.
  */
-export const discountCodeValuesSchema: z.ZodType<DiscountCodeValues> = z
+export const discountCodeValuesSchema = z
     .object({
         code: discountCodeSchema,
         percent: z
@@ -52,6 +60,7 @@ export const discountCodeValuesSchema: z.ZodType<DiscountCodeValues> = z
         isEnabled: z.boolean(),
         placeIds: discountPlaceIdsSchema,
         maximumUseCount: maximumUseCountSchema,
+        subscriptionDiscountDurationMonths: subscriptionDiscountDurationMonthsSchema,
     })
     .refine((discountCode) => Date.parse(discountCode.endsAt) >= Date.parse(discountCode.startsAt), {
         message: 'Konec platnosti musí být po začátku platnosti.',

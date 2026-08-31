@@ -4,6 +4,7 @@ import { DiscountCodeForm } from '@/components/admin/DiscountCodeForm';
 import { Button } from '@/components/ui/button';
 import { TableScrollArea } from '@/components/ui/table-scroll-area';
 import {
+    formatSubscriptionDiscountDurationMonthCount,
     getRemainingDiscountCodeUseCount,
     isDiscountCodeActive,
     isDiscountCodeExhausted,
@@ -17,7 +18,12 @@ import {
     fetchAdminDiscountCodes,
     updateAdminDiscountCode,
 } from '@/lib/discounts/discountCodeAdminApiClient';
-import { createDiscountCodeUrl, getDiscountCodePlaces, getDiscountPlaceLabel } from '@/lib/discounts/discountPlaces';
+import {
+    COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID,
+    createDiscountCodeUrl,
+    getDiscountCodePlaces,
+    getDiscountPlaceLabel,
+} from '@/lib/discounts/discountPlaces';
 import { Loader2, Pencil, TicketPercent, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -54,6 +60,22 @@ function getDiscountCodeUseSummary(discountCode: DiscountCode): string {
     return remainingUseCount === null
         ? `${discountCode.useCount}× · bez omezení`
         : `${discountCode.useCount} z ${discountCode.maximumUseCount} · zbývá ${remainingUseCount}`;
+}
+
+function getSubscriptionDiscountSummary(discountCode: DiscountCode): string {
+    const isValidForCommunityMembership =
+        isDiscountCodeValidForAllPlaces(discountCode) ||
+        discountCode.placeIds.includes(COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID);
+
+    if (!isValidForCommunityMembership) {
+        return '—';
+    }
+
+    const subscriptionDiscountDurationMonths = discountCode.subscriptionDiscountDurationMonths;
+
+    return subscriptionDiscountDurationMonths === null
+        ? 'Trvale'
+        : `Prvních ${formatSubscriptionDiscountDurationMonthCount(subscriptionDiscountDurationMonths)}`;
 }
 
 /**
@@ -133,8 +155,8 @@ export function DiscountCodeAdmin() {
                         <h2 className="text-xl font-bold text-slate-950">Slevové kódy</h2>
                         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
                             Každý kód se ověřuje na serveru z této databáze. Kód platí buď všude, nebo jen ve vybraných
-                            místech, a odkaz s <code>?code=</code> ho rovnou předvyplní do registračního formuláře daného
-                            místa.
+                            místech, a odkaz s <code>?code=</code> ho rovnou předvyplní do registračního formuláře
+                            daného místa.
                         </p>
                     </div>
                 </div>
@@ -150,14 +172,24 @@ export function DiscountCodeAdmin() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
                     <div>
                         <h2 className="text-xl font-bold text-slate-950">Uložené slevové kódy</h2>
-                        <p className="mt-1 text-sm text-slate-500">Historické kódy můžete ponechat pro přehled nebo vypnout.</p>
+                        <p className="mt-1 text-sm text-slate-500">
+                            Historické kódy můžete ponechat pro přehled nebo vypnout.
+                        </p>
                     </div>
-                    <Button type="button" variant="outline" size="sm" onClick={() => void loadDiscountCodes()} disabled={isLoading}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void loadDiscountCodes()}
+                        disabled={isLoading}
+                    >
                         Obnovit
                     </Button>
                 </div>
 
-                {errorMessage !== null && <p className="m-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>}
+                {errorMessage !== null && (
+                    <p className="m-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
+                )}
 
                 {isLoading ? (
                     <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-slate-500">
@@ -167,13 +199,14 @@ export function DiscountCodeAdmin() {
                     <p className="px-6 py-16 text-center text-sm text-slate-500">Zatím nemáte žádný slevový kód.</p>
                 ) : (
                     <TableScrollArea horizontalScrollLabel="Posunout tabulku slevových kódů vodorovně">
-                        <table className="w-full min-w-[980px] text-left text-sm">
+                        <table className="w-full min-w-[1080px] text-left text-sm">
                             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                                 <tr>
                                     <th data-table-pinned-column="true" className="px-6 py-3 font-semibold">
                                         Kód
                                     </th>
                                     <th className="px-6 py-3 font-semibold">Sleva</th>
+                                    <th className="px-6 py-3 font-semibold">Předplatné</th>
                                     <th className="px-6 py-3 font-semibold">Platnost</th>
                                     <th className="px-6 py-3 font-semibold">Stav</th>
                                     <th className="px-6 py-3 font-semibold">Místa</th>
@@ -190,12 +223,17 @@ export function DiscountCodeAdmin() {
                                     return (
                                         <tr key={discountCode.id} className="align-top">
                                             <td data-table-pinned-column="true" className="px-6 py-4">
-                                                <span className="block font-mono font-semibold text-slate-950">{discountCode.code}</span>
+                                                <span className="block font-mono font-semibold text-slate-950">
+                                                    {discountCode.code}
+                                                </span>
                                                 <span className="mt-1 block space-y-0.5">
                                                     {discountCodePlaces.map((discountPlace) => (
                                                         <a
                                                             key={discountPlace.id}
-                                                            href={createDiscountCodeUrl(discountPlace, discountCode.code)}
+                                                            href={createDiscountCodeUrl(
+                                                                discountPlace,
+                                                                discountCode.code,
+                                                            )}
                                                             className="block font-mono text-xs text-cyan-700 underline-offset-2 hover:underline"
                                                         >
                                                             {createDiscountCodeUrl(discountPlace, discountCode.code)}
@@ -203,13 +241,24 @@ export function DiscountCodeAdmin() {
                                                     ))}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 font-semibold text-slate-900">{discountCode.percent} %</td>
+                                            <td className="px-6 py-4 font-semibold text-slate-900">
+                                                {discountCode.percent} %
+                                            </td>
                                             <td className="px-6 py-4 text-slate-600">
-                                                <span className="block">{formatDiscountCodeDateTime(discountCode.startsAt)}</span>
-                                                <span className="block">až {formatDiscountCodeDateTime(discountCode.endsAt)}</span>
+                                                {getSubscriptionDiscountSummary(discountCode)}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600">
+                                                <span className="block">
+                                                    {formatDiscountCodeDateTime(discountCode.startsAt)}
+                                                </span>
+                                                <span className="block">
+                                                    až {formatDiscountCodeDateTime(discountCode.endsAt)}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${discountCodeStatus.className}`}>
+                                                <span
+                                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${discountCodeStatus.className}`}
+                                                >
                                                     {discountCodeStatus.label}
                                                 </span>
                                             </td>
@@ -219,18 +268,34 @@ export function DiscountCodeAdmin() {
                                                 ) : (
                                                     <ul className="space-y-0.5">
                                                         {discountCode.placeIds.map((discountPlaceId) => (
-                                                            <li key={discountPlaceId}>{getDiscountPlaceLabel(discountPlaceId)}</li>
+                                                            <li key={discountPlaceId}>
+                                                                {getDiscountPlaceLabel(discountPlaceId)}
+                                                            </li>
                                                         ))}
                                                     </ul>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 text-slate-600">{getDiscountCodeUseSummary(discountCode)}</td>
+                                            <td className="px-6 py-4 text-slate-600">
+                                                {getDiscountCodeUseSummary(discountCode)}
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-end gap-2">
-                                                    <Button type="button" variant="outline" size="sm" disabled={isDeleting} onClick={() => setEditingDiscountCode(discountCode)}>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        disabled={isDeleting}
+                                                        onClick={() => setEditingDiscountCode(discountCode)}
+                                                    >
                                                         <Pencil className="mr-1.5 h-4 w-4" /> Upravit
                                                     </Button>
-                                                    <Button type="button" variant="destructive" size="sm" disabled={isDeleting} onClick={() => void handleDelete(discountCode)}>
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        disabled={isDeleting}
+                                                        onClick={() => void handleDelete(discountCode)}
+                                                    >
                                                         <Trash2 className="mr-1.5 h-4 w-4" />
                                                         {isDeleting ? 'Mažu…' : 'Smazat'}
                                                     </Button>

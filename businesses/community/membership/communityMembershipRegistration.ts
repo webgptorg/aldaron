@@ -1,4 +1,4 @@
-import type { ActiveDiscount } from '@/lib/discounts/discountCode';
+import { isSubscriptionDiscountPermanent, type ActiveDiscount } from '@/lib/discounts/discountCode';
 import {
     COMMUNITY_MEMBERSHIP_NAME,
     COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
@@ -31,11 +31,13 @@ export type StoredCommunityMembershipRegistration = {
     readonly discountCodeEntered: string | null;
     readonly discountCodeUsed: string | null;
     readonly discountPercentApplied: number;
+    /** `null` means either no discount or a permanent subscription discount. */
+    readonly subscriptionDiscountDurationMonths: number | null;
     readonly baseBillingPriceCzk: number;
     readonly discountAmountCzk: number;
     readonly agreedBillingPriceCzk: number;
     readonly agreedMonthlyEquivalentCzk: number;
-    readonly priceHeldWhileMembershipContinues: true;
+    readonly isPriceHeldWhileMembershipContinues: boolean;
     readonly termsAccepted: true;
 };
 
@@ -68,6 +70,8 @@ export function createStoredCommunityMembershipRegistration(
         registrationRequest.billingPeriod,
         activeDiscount,
     );
+    const isPriceHeldWhileMembershipContinues =
+        activeDiscount === null || isSubscriptionDiscountPermanent(activeDiscount);
 
     return {
         registrationType: COMMUNITY_MEMBERSHIP_REGISTRATION_TYPE,
@@ -80,11 +84,12 @@ export function createStoredCommunityMembershipRegistration(
         discountCodeEntered: registrationRequest.discountCode.trim() || null,
         discountCodeUsed: activeDiscount?.code ?? null,
         discountPercentApplied: activeDiscount?.percent ?? 0,
+        subscriptionDiscountDurationMonths: activeDiscount?.subscriptionDiscountDurationMonths ?? null,
         baseBillingPriceCzk: price.baseBillingPriceCzk,
         discountAmountCzk: price.discountAmountCzk,
         agreedBillingPriceCzk: price.finalBillingPriceCzk,
         agreedMonthlyEquivalentCzk: price.finalMonthlyEquivalentCzk,
-        priceHeldWhileMembershipContinues: true,
+        isPriceHeldWhileMembershipContinues,
         termsAccepted: true,
     };
 }

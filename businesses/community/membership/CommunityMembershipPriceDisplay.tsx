@@ -1,5 +1,5 @@
 import { FORM_SURFACE_CLASS_NAMES, type FormSurfaceAppearance } from '@/components/forms/formSurfaceAppearance';
-import type { ActiveDiscount } from '@/lib/discounts/discountCode';
+import { formatSubscriptionDiscountDurationMonthCount, type ActiveDiscount } from '@/lib/discounts/discountCode';
 import { cn } from '@/lib/utils';
 import {
     getCommunityMembershipPlan,
@@ -27,6 +27,8 @@ export function CommunityMembershipPriceDisplay({
     const plan = getCommunityMembershipPlan(planId);
     const price = createCommunityMembershipPrice(planId, billingPeriod, activeDiscount);
     const isOriginalMonthlyPriceShown = billingPeriod === 'yearly' || activeDiscount !== null;
+    const subscriptionDiscountDurationMonths = activeDiscount?.subscriptionDiscountDurationMonths ?? null;
+    const isSubscriptionDiscountTemporary = activeDiscount !== null && subscriptionDiscountDurationMonths !== null;
     const surfaceClassNames = FORM_SURFACE_CLASS_NAMES[appearance];
 
     return (
@@ -46,7 +48,12 @@ export function CommunityMembershipPriceDisplay({
                 {billingPeriod === 'yearly'
                     ? `Platba ${formatCommunityMembershipPrice(price.finalBillingPriceCzk)} jednou ročně.`
                     : 'Platba každý měsíc.'}{' '}
-                {activeDiscount !== null && `Slevový kód přidává dalších ${activeDiscount.percent} %.`}
+                {activeDiscount !== null &&
+                    (isSubscriptionDiscountTemporary && subscriptionDiscountDurationMonths !== null
+                        ? `Slevový kód přidává dalších ${activeDiscount.percent} % na první ${formatSubscriptionDiscountDurationMonthCount(
+                              subscriptionDiscountDurationMonths,
+                          )}. Poté bude cena ${formatCommunityMembershipPrice(price.baseMonthlyEquivalentCzk)} měsíčně.`
+                        : `Slevový kód přidává dalších ${activeDiscount.percent} % trvale po dobu členství.`)}
             </p>
         </div>
     );
