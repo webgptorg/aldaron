@@ -1,6 +1,5 @@
-import { COMMUNITY_ADMIN_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
-import { CommunityProjectModeration } from '@/businesses/community/projects/CommunityProjectModeration';
-import { WorkshopAdminDashboard } from '@/businesses/workshop-admin/WorkshopAdminDashboard';
+import { COMMUNITY_ADMIN_PATH } from '@/businesses/community/config';
+import { CommunityAdminDashboard } from '@/businesses/community/admin/CommunityAdminDashboard';
 import { requireAdminSignedIn } from '@/lib/admin/requireAdminSignedIn';
 import { Suspense } from 'react';
 
@@ -15,15 +14,7 @@ export default async function AdminCommunityPage() {
     return (
         <main className="min-h-screen bg-slate-50">
             <Suspense>
-                <WorkshopAdminDashboard
-                    initialWorkshopSlug={COMMUNITY_WORKSHOP_SLUG}
-                    workshopKind="community"
-                    subjectLabel="komunity"
-                    emptyStateMessage="Komunita zatím není vytvořená. Spusťte databázovou migraci pro komunitu."
-                />
-                <div className="mx-auto max-w-7xl px-6 pb-8">
-                    <CommunityProjectModeration />
-                </div>
+                <CommunityAdminDashboard />
             </Suspense>
         </main>
     );

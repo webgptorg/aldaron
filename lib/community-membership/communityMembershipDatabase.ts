@@ -1,8 +1,10 @@
 import {
     COMMUNITY_MEMBERSHIP_TABLE_NAME,
     normalizeCommunityMemberEmail,
+    type CommunityMembershipStatus,
     type StoredCommunityMembershipStatus,
 } from '@/lib/community-membership/communityMembershipTypes';
+import type { CommunityMembershipAdminQuery } from '@/lib/community-membership/communityMembershipAdminQuery';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import { reportSupabaseError } from '@/lib/supabase/reportSupabaseError';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -11,7 +13,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * Note: This stays one literal, because the database client reads the requested columns out of the text itself.
  */
 const COMMUNITY_MEMBERSHIP_COLUMNS =
-    'id, email, fullname, plan_id, status, monthly_price_czk, discount_code, discount_percent, stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id, is_test_payment, current_period_ends_at, activated_at, canceled_at';
+    'id, email, fullname, plan_id, status, monthly_price_czk, discount_code, discount_percent, stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id, is_test_payment, current_period_ends_at, activated_at, canceled_at, created_at, updated_at';
+
+const COMMUNITY_MEMBERSHIP_ADMIN_PAGE_FUNCTION_NAME = 'get_community_membership_admin_page';
 
 type CommunityMembershipRow = {
     readonly id: string;
@@ -29,6 +33,12 @@ type CommunityMembershipRow = {
     readonly current_period_ends_at: string | null;
     readonly activated_at: string | null;
     readonly canceled_at: string | null;
+    readonly created_at: string;
+    readonly updated_at: string;
+};
+
+type CommunityMembershipAdminPageRow = CommunityMembershipRow & {
+    readonly total_count: number | string;
 };
 
 /**
@@ -50,11 +60,22 @@ export type CommunityMembershipRecord = {
     readonly currentPeriodEndsAt: string | null;
     readonly activatedAt: string | null;
     readonly canceledAt: string | null;
+    readonly createdAt: string;
+    readonly updatedAt: string;
 };
 
 export type CommunityMembershipLoadResult = {
     readonly membership: CommunityMembershipRecord | null;
     readonly errorMessage: string | null;
+};
+
+/**
+ * A server-paged slice of payment records. It deliberately represents only people who opened a paid checkout; a
+ * member with the free membership has no payment record to manage.
+ */
+export type CommunityMembershipAdminPage = {
+    readonly memberships: readonly CommunityMembershipRecord[];
+    readonly totalCount: number;
 };
 
 /**
@@ -106,7 +127,14 @@ function mapCommunityMembershipRow(row: CommunityMembershipRow): CommunityMember
         currentPeriodEndsAt: row.current_period_ends_at,
         activatedAt: row.activated_at,
         canceledAt: row.canceled_at,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
     };
+}
+
+function getNonNegativeWholeNumber(value: number | string | undefined): number {
+    const numberValue = Number(value);
+    return Number.isSafeInteger(numberValue) && numberValue >= 0 ? numberValue : 0;
 }
 
 async function loadCommunityMembershipBy(
@@ -153,6 +181,92 @@ export function loadCommunityMembershipByCheckoutSession(
         stripeCheckoutSessionId,
         'the membership of a checkout session',
     );
+}
+
+/**
+ * Loads all paid-membership states needed by one page of community participants in one query. The membership is keyed
+ * by normalized e-mail because a person can open more than one community-room session.
+ */
+export async function loadCommunityMembershipStatusesByEmails(
+    supabase: SupabaseClient,
+    emails: readonly string[],
+): Promise<{
+    readonly statusesByEmail: ReadonlyMap<string, StoredCommunityMembershipStatus>;
+    readonly errorMessage: string | null;
+}> {
+    const normalizedEmails = Array.from(
+        new Set(emails.map(normalizeCommunityMemberEmail).filter((email) => email !== '')),
+    );
+    if (normalizedEmails.length === 0) {
+        return { statusesByEmail: new Map(), errorMessage: null };
+    }
+
+    const { data, error } = await supabase
+        .from(COMMUNITY_MEMBERSHIP_TABLE_NAME)
+        .select('email, status')
+        .in('email', normalizedEmails);
+    if (error) {
+        return {
+            statusesByEmail: new Map(),
+            errorMessage: reportSupabaseError('the membership statuses of community participants', error),
+        };
+    }
+
+    const statusesByEmail = new Map<string, StoredCommunityMembershipStatus>();
+    for (const row of (data ?? []) as readonly { readonly email: string; readonly status: string }[]) {
+        statusesByEmail.set(normalizeCommunityMemberEmail(row.email), row.status as StoredCommunityMembershipStatus);
+    }
+
+    return { statusesByEmail, errorMessage: null };
+}
+
+/**
+ * Answers the shared status badge for an e-mail, including the free state which has no row in the payment table.
+ */
+export function getCommunityMembershipStatusByEmail(
+    statusesByEmail: ReadonlyMap<string, StoredCommunityMembershipStatus>,
+    email: string,
+): CommunityMembershipStatus {
+    return statusesByEmail.get(normalizeCommunityMemberEmail(email)) ?? 'none';
+}
+
+/**
+ * Loads one filtered, sorted page of paid memberships. The database does filtering and paging before private payment
+ * data leaves it, which keeps the administration responsive as the community grows.
+ */
+export async function loadCommunityMembershipAdminPage(
+    supabase: SupabaseClient,
+    query: CommunityMembershipAdminQuery,
+): Promise<{ readonly page: CommunityMembershipAdminPage | null; readonly errorMessage: string | null }> {
+    const pageParameters = {
+        target_search_query: query.searchQuery,
+        target_status: query.status,
+        target_is_test_payment: query.isTestPayment,
+        target_sort_by: query.sortBy,
+        target_sort_direction: query.sortDirection,
+        target_limit: query.pageSize,
+        target_offset: (query.page - 1) * query.pageSize,
+    };
+    const { data, error } = await supabase.rpc(COMMUNITY_MEMBERSHIP_ADMIN_PAGE_FUNCTION_NAME, pageParameters);
+    if (error) {
+        return {
+            page: null,
+            errorMessage: reportSupabaseError(
+                `\`${COMMUNITY_MEMBERSHIP_ADMIN_PAGE_FUNCTION_NAME}\``,
+                error,
+                pageParameters,
+            ),
+        };
+    }
+
+    const membershipRows = (data ?? []) as CommunityMembershipAdminPageRow[];
+    return {
+        page: {
+            memberships: membershipRows.map(mapCommunityMembershipRow),
+            totalCount: getNonNegativeWholeNumber(membershipRows[0]?.total_count),
+        },
+        errorMessage: null,
+    };
 }
 
 /**

@@ -8,17 +8,24 @@ type WorkshopParticipantPaginationProps = {
     readonly totalCount: number;
     readonly page: number;
     readonly pageSize: number;
+    /**
+     * The reusable controls name their listed records rather than assuming every paged table contains participants.
+     */
+    readonly itemLabel?: string;
+    readonly emptyMessage?: string;
     readonly onChangePage: (page: number) => void;
     readonly onChangePageSize: (pageSize: number) => void;
 };
 
 /**
- * Keeps pagination presentation separate from the query and network work of the participant list.
+ * Keeps pagination presentation separate from the query and network work of a paged admin list.
  */
 export function WorkshopParticipantPagination({
     totalCount,
     page,
     pageSize,
+    itemLabel = 'účastníků',
+    emptyMessage = 'Žádný účastník neodpovídá filtru.',
     onChangePage,
     onChangePageSize,
 }: WorkshopParticipantPaginationProps) {
@@ -48,8 +55,8 @@ export function WorkshopParticipantPagination({
                 </label>
                 <span>
                     {isEmpty
-                        ? 'Žádný účastník neodpovídá filtru.'
-                        : `Zobrazeno ${firstParticipantNumber}–${lastParticipantNumber} z ${totalCount} účastníků`}
+                        ? emptyMessage
+                        : `Zobrazeno ${firstParticipantNumber}–${lastParticipantNumber} z ${totalCount} ${itemLabel}`}
                 </span>
             </div>
             <div className="flex items-center gap-2">

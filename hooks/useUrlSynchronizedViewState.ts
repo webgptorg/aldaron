@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * How long the changes of a view are collected before the address bar is written, so that typing into a filter does
@@ -31,38 +31,87 @@ function buildUrlWithSearchParams(searchParams: URLSearchParams): string {
 /**
  * A view kept in the URL, so that the link to exactly the same view can be shared
  *
- * Note: The link is read when the page opens and written on every change, never the other way around, so that typing
- *       into a filter stays as smooth as with a plain state
+ * Note: The link is read when the page opens and whenever the browser navigates to another view. A local change keeps
+ *       control during its brief write debounce, so typing into a filter remains as smooth as with plain state.
  */
 export function useUrlSynchronizedViewState<TViewState>({
     parseViewState,
     serializeViewState,
 }: UseUrlSynchronizedViewStateOptions<TViewState>): UseUrlSynchronizedViewStateResult<TViewState> {
     const searchParams = useSearchParams();
+    const searchParametersText = searchParams.toString();
 
     const [viewState, setViewState] = useState<TViewState>(() =>
-        parseViewState(new URLSearchParams(searchParams.toString())),
+        parseViewState(new URLSearchParams(searchParametersText)),
     );
+    const viewStateReference = useRef(viewState);
+    const lastObservedSearchParametersTextReference = useRef(searchParametersText);
+    const isLocalViewStateChangePendingReference = useRef(false);
+
+    useEffect(() => {
+        viewStateReference.current = viewState;
+    }, [viewState]);
+
+    useEffect(() => {
+        const isSearchParametersChanged =
+            searchParametersText !== lastObservedSearchParametersTextReference.current;
+        lastObservedSearchParametersTextReference.current = searchParametersText;
+
+        // A local form change waits briefly before it writes the URL. Do not let the still-old URL overwrite that
+        // change, but do follow an actual navigation such as a link from a participant to their membership.
+        if (isLocalViewStateChangePendingReference.current && !isSearchParametersChanged) {
+            return;
+        }
+
+        const currentSearchParameters = new URLSearchParams(searchParametersText);
+        const currentViewStateSearchParameters = serializeViewState(
+            viewStateReference.current,
+            new URLSearchParams(searchParametersText),
+        );
+        if (currentViewStateSearchParameters.toString() === currentSearchParameters.toString()) {
+            return;
+        }
+
+        isLocalViewStateChangePendingReference.current = false;
+        setViewState(parseViewState(currentSearchParameters));
+    }, [parseViewState, searchParametersText, serializeViewState]);
 
     useEffect(() => {
         const urlUpdateTimeout = setTimeout(() => {
             const currentSearchParams = new URLSearchParams(window.location.search);
+            const currentSearchParametersText = currentSearchParams.toString();
+
+            // If a navigation won the race with the debounce, follow it instead of replacing it with a stale local
+            // filter value.
+            if (currentSearchParametersText !== lastObservedSearchParametersTextReference.current) {
+                lastObservedSearchParametersTextReference.current = currentSearchParametersText;
+                isLocalViewStateChangePendingReference.current = false;
+                setViewState(parseViewState(currentSearchParams));
+                return;
+            }
+
             const newSearchParams = serializeViewState(viewState, currentSearchParams);
 
             if (newSearchParams.toString() === currentSearchParams.toString()) {
+                isLocalViewStateChangePendingReference.current = false;
                 return;
             }
 
             // Note: The entry in the history is replaced and not pushed, so that the back button leaves the dashboard
             //       instead of walking back through every single change of the view
             window.history.replaceState(null, '', buildUrlWithSearchParams(newSearchParams));
+            lastObservedSearchParametersTextReference.current = newSearchParams.toString();
+            isLocalViewStateChangePendingReference.current = false;
         }, URL_VIEW_STATE_DEBOUNCE_MILLISECONDS);
 
         return () => clearTimeout(urlUpdateTimeout);
-    }, [serializeViewState, viewState]);
+    }, [parseViewState, serializeViewState, viewState]);
 
     const changeViewState = useCallback(
-        (getNewViewState: (previousViewState: TViewState) => TViewState) => setViewState(getNewViewState),
+        (getNewViewState: (previousViewState: TViewState) => TViewState) => {
+            isLocalViewStateChangePendingReference.current = true;
+            setViewState(getNewViewState);
+        },
         [],
     );
 

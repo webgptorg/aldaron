@@ -66,15 +66,21 @@ import type {
     WorkshopKind,
 } from '@/lib/workshops/workshopTypes';
 import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Star, Users } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
 
-const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly {
+type WorkshopAdminSectionDefinition = {
     readonly value: WorkshopAdminSection;
     readonly label: string;
     readonly icon: typeof BarChart3;
-}[] = [
+};
+
+export type WorkshopAdminAdditionalSection = WorkshopAdminSectionDefinition & {
+    readonly content: ReactNode;
+};
+
+const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly WorkshopAdminSectionDefinition[] = [
     { value: 'overview', label: 'Přehled', icon: BarChart3 },
     { value: 'participants', label: 'Účastníci', icon: Users },
     { value: 'comments', label: 'Komentáře', icon: MessageCircle },
@@ -96,6 +102,12 @@ type WorkshopAdminDashboardProps = {
      * Where the polls asked about this room are administered, which is the room owning them.
      */
     readonly attachedPollAdministrationPath?: string;
+
+    /**
+     * A singleton room can add a concern of its own without making the reusable workshop dashboard import or know that
+     * business. The community uses this for durable memberships, which are not a capability of an event occurrence.
+     */
+    readonly additionalSections?: readonly WorkshopAdminAdditionalSection[];
 };
 
 export function WorkshopAdminDashboard({
@@ -105,6 +117,7 @@ export function WorkshopAdminDashboard({
     subjectLabel = 'workshopu',
     emptyStateMessage = 'Vytvořte první workshop.',
     attachedPollAdministrationPath,
+    additionalSections = [],
 }: WorkshopAdminDashboardProps) {
     // Note: There is only ever one room of a singleton kind, so nothing offers a choice between rooms of that kind or
     //       the creation of a second one.
@@ -135,16 +148,18 @@ export function WorkshopAdminDashboard({
     //       them are read in the very same section, so an administrator looks for a poll in one place.
     const isAttachedPollSectionOffered = !isPollsOffered && (snapshot?.attachedPolls.length ?? 0) > 0;
     const isPollSectionOffered = isPollsOffered || isAttachedPollSectionOffered;
-    const selectedSection =
-        (viewState.section === 'feedback' && workshopKind !== 'workshop') ||
-        (viewState.section === 'polls' && !isPollSectionOffered)
-            ? 'overview'
-            : viewState.section;
-    const sectionDefinitions = WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(
-        ({ value }) =>
-            (value !== 'feedback' || workshopKind === 'workshop') &&
-            (value !== 'polls' || isPollSectionOffered),
-    );
+    const sectionDefinitions = [
+        ...WORKSHOP_ADMIN_SECTION_DEFINITIONS.filter(
+            ({ value }) =>
+                (value !== 'feedback' || workshopKind === 'workshop') &&
+                (value !== 'polls' || isPollSectionOffered) &&
+                value !== 'memberships',
+        ),
+        ...additionalSections.map(({ content: _content, ...sectionDefinition }) => sectionDefinition),
+    ];
+    const selectedSection = sectionDefinitions.some(({ value }) => value === viewState.section)
+        ? viewState.section
+        : 'overview';
 
     // Note: Which room is open is decided by the link alone, so opening a shared address and picking a room from the
     //       list are one and the same thing. A link which names no room, or a room which is not there any more, opens
@@ -469,7 +484,7 @@ export function WorkshopAdminDashboard({
                     </div>
                 ) : (
                     <Tabs value={selectedSection} onValueChange={handleSectionChange}>
-                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-7">
+                        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-xl p-1 sm:grid-cols-3 xl:grid-cols-8">
                             {sectionDefinitions.map((sectionDefinition) => {
                                 const SectionIcon = sectionDefinition.icon;
                                 return (
@@ -518,6 +533,7 @@ export function WorkshopAdminDashboard({
                                 workshopStartsAt={scheduleStartsAt}
                                 workshopEndsAt={snapshot.workshop.endsAt}
                                 refreshVersion={snapshotRefreshVersion}
+                                isCommunityMembershipStatusShown={workshopKind === 'community'}
                                 onChangeInteractionBan={handleChangeParticipantInteractionBan}
                                 onChangeTrusted={handleChangeParticipantTrusted}
                                 onChangeModerator={handleChangeParticipantModerator}
@@ -633,6 +649,12 @@ export function WorkshopAdminDashboard({
                                 subjectLabel={subjectLabel}
                             />
                         </TabsContent>
+
+                        {additionalSections.map((section) => (
+                            <TabsContent key={section.value} value={section.value} className="space-y-4">
+                                {section.content}
+                            </TabsContent>
+                        ))}
                     </Tabs>
                 )}
             </div>

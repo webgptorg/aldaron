@@ -27,6 +27,15 @@ describe('workshopAdminViewState', () => {
         expect(serializeViewState(viewState)).toBe('workshop=srpnovy-workshop&tab=comments');
     });
 
+    it('keeps the community paid-membership section in a shareable dashboard link', () => {
+        const viewState = parseWorkshopAdminViewState(new URLSearchParams('tab=memberships&member=jana%40example.com'));
+
+        expect(viewState.section).toBe('memberships');
+        expect(serializeWorkshopAdminViewState(viewState, new URLSearchParams('member=jana%40example.com')).toString()).toBe(
+            'member=jana%40example.com&tab=memberships',
+        );
+    });
+
     it('opens the overview when the link names a section which is not there', () => {
         expect(parseWorkshopAdminViewState(new URLSearchParams('tab=nonsense')).section).toBe('overview');
     });

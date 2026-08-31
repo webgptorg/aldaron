@@ -33,6 +33,8 @@ function createMembership(status: StoredCommunityMembershipStatus): CommunityMem
         currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
         activatedAt: '2026-08-30T10:00:00.000Z',
         canceledAt: null,
+        createdAt: '2026-08-29T10:00:00.000Z',
+        updatedAt: '2026-08-30T10:00:00.000Z',
     };
 }
 

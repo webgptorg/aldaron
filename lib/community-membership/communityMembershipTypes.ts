@@ -9,14 +9,19 @@ export const COMMUNITY_MEMBERSHIP_TABLE_NAME = 'community_memberships';
  * Note: `none` is not stored anywhere. It is what a member who never opened a checkout is answered with, so the room
  *       asks one question about every member instead of two.
  */
-export const COMMUNITY_MEMBERSHIP_STATUS_VALUES = ['none', 'pending', 'active', 'past-due', 'canceled'] as const;
+export const STORED_COMMUNITY_MEMBERSHIP_STATUS_VALUES = ['pending', 'active', 'past-due', 'canceled'] as const;
+
+export const COMMUNITY_MEMBERSHIP_STATUS_VALUES = [
+    'none',
+    ...STORED_COMMUNITY_MEMBERSHIP_STATUS_VALUES,
+] as const;
 
 export type CommunityMembershipStatus = (typeof COMMUNITY_MEMBERSHIP_STATUS_VALUES)[number];
 
 /**
  * The statuses a stored membership can carry, which is every status except the absence of one
  */
-export type StoredCommunityMembershipStatus = Exclude<CommunityMembershipStatus, 'none'>;
+export type StoredCommunityMembershipStatus = (typeof STORED_COMMUNITY_MEMBERSHIP_STATUS_VALUES)[number];
 
 /**
  * What the community room is told about the membership of the member reading it

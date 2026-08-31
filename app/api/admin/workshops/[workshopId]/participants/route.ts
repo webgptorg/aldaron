@@ -1,6 +1,11 @@
 import { getUnauthorizedResponseOrNull } from '@/lib/admin/adminApiGuard';
 import { joinAdminContactGroup } from '@/lib/admin/adminContactJoin';
 import { loadAdminContactGroups } from '@/lib/admin/adminContactDatabase';
+import {
+    getCommunityMembershipStatusByEmail,
+    loadCommunityMembershipStatusesByEmails,
+} from '@/lib/community-membership/communityMembershipDatabase';
+import type { StoredCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import { getAdminWorkshopDataOrResponse } from '@/lib/workshops/workshopAdminRequest';
 import { loadWorkshopAdminParticipantPage } from '@/lib/workshops/workshopDatabase';
 import { parseWorkshopAdminParticipantQuery } from '@/lib/workshops/workshopAdminParticipantQuery';
@@ -44,12 +49,33 @@ export async function GET(request: NextRequest, context: AdminWorkshopParticipan
         );
     }
 
+    const isCommunityRoom = workshopData.workshopRow.room_kind === 'community';
+    const membershipStatusesResult = isCommunityRoom
+        ? await loadCommunityMembershipStatusesByEmails(
+              workshopData.supabase,
+              page.participants.map((participant) => participant.email),
+          )
+        : { statusesByEmail: new Map<string, StoredCommunityMembershipStatus>(), errorMessage: null };
+    if (membershipStatusesResult.errorMessage !== null) {
+        return NextResponse.json({ error: membershipStatusesResult.errorMessage }, { status: 500 });
+    }
+
     return NextResponse.json(
         {
             ...page,
-            participants: page.participants.map((participant) =>
-                joinAdminContactGroup(participant, contactGroupsResult.groups ?? []),
-            ),
+            participants: page.participants.map((participant) => {
+                const participantWithContactGroup = joinAdminContactGroup(participant, contactGroupsResult.groups ?? []);
+
+                return isCommunityRoom
+                    ? {
+                          ...participantWithContactGroup,
+                          communityMembershipStatus: getCommunityMembershipStatusByEmail(
+                              membershipStatusesResult.statusesByEmail,
+                              participant.email,
+                          ),
+                      }
+                    : participantWithContactGroup;
+            }),
         },
         { headers: { 'Cache-Control': 'no-store' } },
     );

@@ -1,4 +1,5 @@
 import type { AdminContactJoin } from '@/lib/admin/adminContactJoin';
+import type { CommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import type { EventDetails } from '@/lib/events/event';
 import type { WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 
@@ -115,6 +116,13 @@ export type WorkshopAdminParticipant = WorkshopParticipant &
     readonly commentCount: number;
     readonly reactionCount: number;
     readonly upvoteCount: number;
+
+    /**
+     * Present when the participant is listed inside the community administration. A community membership belongs to
+     * their e-mail address rather than to this particular room session, so ordinary workshop participant data does
+     * not fetch or expose it.
+     */
+    readonly communityMembershipStatus?: CommunityMembershipStatus;
 };
 
 /**

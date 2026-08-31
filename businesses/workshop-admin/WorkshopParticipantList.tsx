@@ -4,6 +4,7 @@ import {
     fetchAdminWorkshopParticipantPage,
     fetchAdminWorkshopParticipantTimeline,
 } from '@/businesses/workshop-admin/workshopAdminApiClient';
+import { CommunityMembershipStatusBadge } from '@/businesses/community/membership/CommunityMembershipStatusBadge';
 import {
     formatWorkshopPresenceDuration,
     formatWorkshopAdminDateTime,
@@ -15,6 +16,10 @@ import { WorkshopParticipantTimeline } from '@/businesses/workshop-admin/Worksho
 import { AdminContactDetails } from '@/components/admin/AdminContactDetails';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    createCommunityMembershipAdminPath,
+    readCommunityMembershipAdminMemberEmail,
+} from '@/lib/community-membership/communityMembershipAdminLinks';
 import {
     DEFAULT_WORKSHOP_ADMIN_PARTICIPANT_QUERY,
     type WorkshopAdminParticipantQuery,
@@ -28,6 +33,7 @@ import {
     Ban,
     Check,
     Clock3,
+    Crown,
     Eye,
     Mail,
     MessageCircle,
@@ -39,6 +45,8 @@ import {
     Trash2,
     Users,
 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 type WorkshopParticipantListProps = {
@@ -50,6 +58,12 @@ type WorkshopParticipantListProps = {
     readonly workshopStartsAt: string | null;
     readonly workshopEndsAt: string | null;
     readonly refreshVersion: number;
+
+    /**
+     * The permanent community is the only room whose participants can be joined to a paid membership. Workshop
+     * occurrences keep their established, payment-free participant table.
+     */
+    readonly isCommunityMembershipStatusShown?: boolean;
     readonly onChangeInteractionBan: (participantId: string, isInteractionBanned: boolean) => Promise<void>;
     readonly onChangeTrusted: (participantId: string, isTrusted: boolean) => Promise<void>;
 
@@ -72,13 +86,25 @@ export function WorkshopParticipantList({
     workshopStartsAt,
     workshopEndsAt,
     refreshVersion,
+    isCommunityMembershipStatusShown = false,
     onChangeInteractionBan,
     onChangeTrusted,
     onChangeModerator,
     onDelete,
 }: WorkshopParticipantListProps) {
+    const searchParams = useSearchParams();
+    const selectedCommunityMemberEmail = useMemo(
+        () => readCommunityMembershipAdminMemberEmail(new URLSearchParams(searchParams.toString())),
+        [searchParams],
+    );
     const [participantQuery, setParticipantQuery] = useState<WorkshopAdminParticipantQuery>(
-        DEFAULT_WORKSHOP_ADMIN_PARTICIPANT_QUERY,
+        () => ({
+            ...DEFAULT_WORKSHOP_ADMIN_PARTICIPANT_QUERY,
+            searchQuery:
+                isCommunityMembershipStatusShown && selectedCommunityMemberEmail !== null
+                    ? selectedCommunityMemberEmail
+                    : '',
+        }),
     );
     const [participantPage, setParticipantPage] = useState<WorkshopAdminParticipantPage | null>(null);
     const [isParticipantsLoading, setIsParticipantsLoading] = useState(true);
@@ -90,6 +116,7 @@ export function WorkshopParticipantList({
     const [participantTimelineErrorMessage, setParticipantTimelineErrorMessage] = useState<string | null>(null);
     const participantPageLoadSequenceReference = useRef(0);
     const participantTimelineLoadSequenceReference = useRef(0);
+    const handledCommunityMemberEmailReference = useRef<string | null>(selectedCommunityMemberEmail);
     const deferredSearchQuery = useDeferredValue(participantQuery.searchQuery);
 
     const requestedParticipantQuery = useMemo<WorkshopAdminParticipantQuery>(
@@ -158,6 +185,23 @@ export function WorkshopParticipantList({
     useEffect(() => {
         void loadParticipantPage();
     }, [loadParticipantPage, refreshVersion]);
+
+    useEffect(() => {
+        if (
+            !isCommunityMembershipStatusShown ||
+            selectedCommunityMemberEmail === null ||
+            selectedCommunityMemberEmail === handledCommunityMemberEmailReference.current
+        ) {
+            return;
+        }
+
+        handledCommunityMemberEmailReference.current = selectedCommunityMemberEmail;
+        setParticipantQuery((currentQuery) => ({
+            ...currentQuery,
+            searchQuery: selectedCommunityMemberEmail,
+            page: 1,
+        }));
+    }, [isCommunityMembershipStatusShown, selectedCommunityMemberEmail]);
 
     const changeParticipantQuery = (changes: Partial<WorkshopAdminParticipantQuery>) => {
         setParticipantQuery((currentQuery) => ({
@@ -248,6 +292,13 @@ export function WorkshopParticipantList({
                         <span className="rounded-full bg-cyan-50 px-3 py-1 text-sm font-semibold text-cyan-800">
                             {participantCount}
                         </span>
+                        {isCommunityMembershipStatusShown && (
+                            <Button asChild type="button" variant="outline" size="sm">
+                                <Link href={createCommunityMembershipAdminPath('memberships')}>
+                                    <Crown className="mr-1.5 h-4 w-4" /> Placená členství
+                                </Link>
+                            </Button>
+                        )}
                         <WorkshopExportButton
                             workshopId={workshopId}
                             exportKind="participants"
@@ -282,12 +333,13 @@ export function WorkshopParticipantList({
                 ) : (
                     <div className="mt-4 rounded-xl border border-slate-200">
                         <Table
-                            className="min-w-[1260px]"
+                            className={isCommunityMembershipStatusShown ? 'min-w-[1410px]' : 'min-w-[1260px]'}
                             horizontalScrollLabel="Posunout tabulku účastníků vodorovně"
                         >
                             <TableHeader>
                                 <TableRow>
                                     <TableHead isPinned>Účastník</TableHead>
+                                    {isCommunityMembershipStatusShown && <TableHead>Členství</TableHead>}
                                     <TableHead>Kontaktní údaje</TableHead>
                                     <TableHead>Čas v místnosti</TableHead>
                                     <TableHead>V místnosti</TableHead>
@@ -309,6 +361,22 @@ export function WorkshopParticipantList({
                                                     <Mail className="h-3.5 w-3.5 shrink-0" /> {participant.email}
                                                 </p>
                                             </TableCell>
+                                            {isCommunityMembershipStatusShown && (
+                                                <TableCell className="min-w-44 align-top">
+                                                    <Link
+                                                        href={createCommunityMembershipAdminPath(
+                                                            'memberships',
+                                                            participant.email,
+                                                        )}
+                                                        className="inline-flex rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 focus-visible:ring-offset-2"
+                                                        aria-label={`Otevřít placené členství uživatele ${participant.fullname}`}
+                                                    >
+                                                        <CommunityMembershipStatusBadge
+                                                            status={participant.communityMembershipStatus ?? 'none'}
+                                                        />
+                                                    </Link>
+                                                </TableCell>
+                                            )}
                                             <TableCell className="min-w-64 align-top">
                                                 <AdminContactDetails
                                                     contactGroup={participant.contactGroup}

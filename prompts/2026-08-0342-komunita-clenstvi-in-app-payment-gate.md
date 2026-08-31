@@ -12,7 +12,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~.62 36 minutes; Testing 6 minutes
 
 [✨🏕] The payed memberships should have its admin section
 
@@ -59,3 +59,4 @@
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
 ![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate.png)
+

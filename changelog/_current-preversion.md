@@ -1,5 +1,14 @@
 # Current preversion
 
+- Added the paid-membership administration to `/admin/community`: its new `Placená členství` tab pages, filters and
+  sorts the durable payment records by name, e-mail, lifecycle status and Stripe environment, shows the price,
+  discount, payment identifiers and important lifecycle dates, and opens the exact checkout or subscription in Stripe
+  for the payment changes which Stripe remains authoritative for. The existing `Účastníci` table now gives every
+  community session the same shared membership-status badge, including the explicit free state, from one batched
+  e-mail lookup. Each badge opens that member's payment record and each payment record opens their community
+  participant history, so the two administration views stay directly connected without pretending one room session is
+  the durable paid membership.
+
 - Show every visible community poll attached to an occurrence inside that occurrence's participant room, including its
   current aggregate and the same attached-workshop labels the community and administration use. The workshop room reads
   the poll without copying it or inventing a second voting system: polls remain owned, edited, and voted on in the

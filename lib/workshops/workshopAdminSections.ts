@@ -7,6 +7,7 @@
 export const WORKSHOP_ADMIN_SECTION_VALUES = [
     'overview',
     'participants',
+    'memberships',
     'comments',
     'reactions',
     'content',
