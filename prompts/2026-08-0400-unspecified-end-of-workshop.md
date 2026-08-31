@@ -17,6 +17,7 @@
 
 - When there is undefined end in admin, there is a button to end the workshop, which will set ending as now.
 - Add similar button to make the workshop end undefined when it currently has a defined ending.
+- When the workshop has undefined ending, show the button to end the workshop, and also show the 2 buttons to set the ending of the workshop as hour after start and 2 hours after start.
 - You are working with page `/cs/online-workshop/participant`
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
