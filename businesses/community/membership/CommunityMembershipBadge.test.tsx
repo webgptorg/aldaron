@@ -31,6 +31,7 @@ const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomStat
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: () => fetchCommunityMembership(),
     confirmCommunityMembershipCheckout: vi.fn(),
+    openCommunityMembershipSubscriptionPortal: vi.fn(),
     scheduleCommunityMembershipCancellation: vi.fn(),
     reactivateCommunityMembership: vi.fn(),
     startCommunityMembershipCheckout: vi.fn(),

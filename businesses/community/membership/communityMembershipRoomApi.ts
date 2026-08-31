@@ -3,6 +3,7 @@ import {
     COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH,
     COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH,
     COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH,
+    COMMUNITY_MEMBERSHIP_PORTAL_API_PATH,
 } from '@/businesses/community/config';
 import { requestJson, sendJson } from '@/lib/api/requestJson';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
@@ -51,4 +52,11 @@ export function scheduleCommunityMembershipCancellation(): Promise<CommunityMemb
  */
 export function reactivateCommunityMembership(): Promise<CommunityMembershipRoomState> {
     return sendJson<CommunityMembershipRoomState>(COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH, 'DELETE', {});
+}
+
+/**
+ * Opens Stripe's short-lived customer portal for the membership of the connected community member.
+ */
+export function openCommunityMembershipSubscriptionPortal(): Promise<{ readonly portalUrl: string }> {
+    return sendJson<{ readonly portalUrl: string }>(COMMUNITY_MEMBERSHIP_PORTAL_API_PATH, 'POST', {});
 }

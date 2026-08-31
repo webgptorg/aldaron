@@ -10,6 +10,7 @@ export const COMMUNITY_MEMBERSHIP_MESSAGES = {
     paymentNotConfirmed: 'Platbu se nepodařilo ověřit. Zkuste to prosím za chvíli znovu.',
     membershipAlreadyPaid: 'Placené členství už máte aktivní.',
     membershipCannotBeManaged: 'Toto placené členství se teď nepodařilo spravovat. Zkuste to prosím později.',
+    membershipPortalNotOpened: 'Správu plateb ve Stripe se teď nepodařilo otevřít. Zkuste to prosím znovu.',
     membershipCancellationNotChanged: 'Zrušení placeného členství se teď nepodařilo uložit. Zkuste to prosím znovu.',
     membershipReactivationNotChanged: 'Obnovení placeného členství se teď nepodařilo uložit. Zkuste to prosím znovu.',
     discountCodeNotLoaded: 'Slevový kód se nepodařilo ověřit. Zkuste to prosím znovu.',

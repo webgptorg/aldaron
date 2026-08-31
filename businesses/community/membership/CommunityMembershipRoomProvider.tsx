@@ -9,6 +9,7 @@ import {
 import {
     confirmCommunityMembershipCheckout,
     fetchCommunityMembership,
+    openCommunityMembershipSubscriptionPortal,
     reactivateCommunityMembership,
     scheduleCommunityMembershipCancellation,
     startCommunityMembershipCheckout,
@@ -27,6 +28,7 @@ type CommunityMembershipRoomController = {
     readonly isMembershipLoading: boolean;
     readonly isCheckoutStarting: boolean;
     readonly isMembershipCancellationChanging: boolean;
+    readonly isMembershipPortalOpening: boolean;
     readonly errorMessage: string | null;
 
     /**
@@ -46,6 +48,7 @@ type CommunityMembershipRoomController = {
     readonly startCheckout: (discountCode: string) => Promise<void>;
     readonly scheduleCancellation: () => Promise<boolean>;
     readonly reactivateMembership: () => Promise<boolean>;
+    readonly openMembershipPortal: () => Promise<void>;
     readonly dismissCheckoutResult: () => void;
     readonly openMembershipModal: () => void;
     readonly setIsMembershipModalOpen: (isMembershipModalOpen: boolean) => void;
@@ -91,6 +94,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
     const [isMembershipLoading, setIsMembershipLoading] = useState(false);
     const [isCheckoutStarting, setIsCheckoutStarting] = useState(false);
     const [isMembershipCancellationChanging, setIsMembershipCancellationChanging] = useState(false);
+    const [isMembershipPortalOpening, setIsMembershipPortalOpening] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [checkoutResult, setCheckoutResult] = useState<CommunityMembershipCheckoutResult | null>(
         checkoutReturn.result,
@@ -209,6 +213,23 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
     const scheduleCancellation = useCallback(() => changeMembershipCancellation(true), [changeMembershipCancellation]);
     const reactivateMembership = useCallback(() => changeMembershipCancellation(false), [changeMembershipCancellation]);
 
+    const openMembershipPortal = useCallback(async () => {
+        setIsMembershipPortalOpening(true);
+        setErrorMessage(null);
+
+        try {
+            const { portalUrl } = await openCommunityMembershipSubscriptionPortal();
+            window.location.assign(portalUrl);
+        } catch (error) {
+            setErrorMessage(
+                isConnectionRequiredError(error)
+                    ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
+                    : getMembershipErrorMessage(error, COMMUNITY_MEMBERSHIP_MESSAGES.membershipPortalNotOpened),
+            );
+            setIsMembershipPortalOpening(false);
+        }
+    }, []);
+
     const dismissCheckoutResult = useCallback(() => setCheckoutResult(null), []);
     const openMembershipModal = useCallback(() => setIsMembershipModalOpen(true), []);
 
@@ -219,6 +240,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
                 isMembershipLoading,
                 isCheckoutStarting,
                 isMembershipCancellationChanging,
+                isMembershipPortalOpening,
                 errorMessage,
                 checkoutResult,
                 isMembershipModalOpen,
@@ -226,6 +248,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
                 startCheckout,
                 scheduleCancellation,
                 reactivateMembership,
+                openMembershipPortal,
                 dismissCheckoutResult,
                 openMembershipModal,
                 setIsMembershipModalOpen,

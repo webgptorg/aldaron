@@ -7,7 +7,7 @@ import { applyCommunityMembershipSubscriptionChange } from '@/lib/community-memb
 import { loadCommunityMembershipByEmail } from '@/lib/community-membership/communityMembershipDatabase';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
 import { createCommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipRoomState';
-import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
+import { isCommunityMembershipSubscriptionManageable } from '@/lib/community-membership/communityMembershipTypes';
 import { getStripeGatewayOrNull } from '@/lib/payments/stripeGateway';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -59,11 +59,7 @@ async function changeCommunityMembershipCancellation(
     }
 
     const membership = membershipResult.membership;
-    if (
-        membership === null ||
-        membership.stripeSubscriptionId === null ||
-        !isPaidCommunityMembershipStatus(membership.status)
-    ) {
+    if (!isCommunityMembershipSubscriptionManageable(membership)) {
         return NextResponse.json({ error: COMMUNITY_MEMBERSHIP_MESSAGES.membershipCannotBeManaged }, { status: 409 });
     }
 

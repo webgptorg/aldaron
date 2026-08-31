@@ -62,7 +62,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3711 12 minutes; Testing 6 minutes
 
 [✨🏕] Allow to open Stripe subscription management page directly from the community app membership popup modal but keep the option to cancel the membership directly from the community app membership popup modal
 
@@ -75,3 +75,4 @@
 [✨🏕] The page with table with perks of paid membership should look more premium
 
 ![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-6.png)
+

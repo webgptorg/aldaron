@@ -2,9 +2,9 @@ Following information is from file `AGENTS.md`, if you need to update it, do it:
 
 ## Context
 
-- Community members manage an already-paid subscription from the membership popup of `/cs/komunita`: cancellation is
-  confirmed, stops only its next Stripe renewal, keeps access through the paid period, is shown in the badge, and can
-  be reactivated there until that period ends.
+- Community members manage an already-paid subscription from the membership popup of `/cs/komunita`: they can open
+  their Stripe Customer Portal there, while cancellation is confirmed in the app, stops only its next Stripe renewal,
+  keeps access through the paid period, is shown in the badge, and can be reactivated there until that period ends.
 
 This is the landing page for the Promtpbook, there are multiple landing pages for different businesses, use cases, and audiences.
 

@@ -31,12 +31,14 @@ const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomStat
 const confirmCommunityMembershipCheckout = vi.fn<(checkoutSessionId: string) => Promise<CommunityMembershipRoomState>>();
 const scheduleCommunityMembershipCancellation = vi.fn<() => Promise<CommunityMembershipRoomState>>();
 const reactivateCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
+const openCommunityMembershipSubscriptionPortal = vi.fn<() => Promise<{ readonly portalUrl: string }>>();
 const startCommunityMembershipCheckout = vi.fn();
 
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: () => fetchCommunityMembership(),
     confirmCommunityMembershipCheckout: (checkoutSessionId: string) =>
         confirmCommunityMembershipCheckout(checkoutSessionId),
+    openCommunityMembershipSubscriptionPortal: () => openCommunityMembershipSubscriptionPortal(),
     scheduleCommunityMembershipCancellation: () => scheduleCommunityMembershipCancellation(),
     reactivateCommunityMembership: () => reactivateCommunityMembership(),
     startCommunityMembershipCheckout: (values: unknown) => startCommunityMembershipCheckout(values),
@@ -96,6 +98,9 @@ beforeEach(() => {
     confirmCommunityMembershipCheckout.mockResolvedValue(OFFERED_MEMBERSHIP);
     scheduleCommunityMembershipCancellation.mockResolvedValue(CANCELLATION_SCHEDULED_MEMBERSHIP);
     reactivateCommunityMembership.mockResolvedValue(OFFERED_MEMBERSHIP);
+    openCommunityMembershipSubscriptionPortal.mockResolvedValue({
+        portalUrl: 'https://billing.stripe.com/p/session/test_Example',
+    });
 });
 
 afterEach(() => {
@@ -168,6 +173,16 @@ describe('community membership modal', () => {
         expect(await screen.findByText('Ukončení je naplánované')).toBeDefined();
         expect(screen.getByText(/Placené výhody vám zůstanou do 30\. 9\. 2026/)).toBeDefined();
         expect(screen.getByRole('button', { name: 'Obnovit placené členství' })).toBeDefined();
+    });
+
+    it('offers Stripe payment management without replacing the in-room cancellation action', async () => {
+        fetchCommunityMembership.mockResolvedValue(ACTIVE_MANAGEABLE_MEMBERSHIP);
+        renderMembershipModal();
+
+        await openPaidMembershipModal();
+
+        expect(screen.getByRole('button', { name: 'Spravovat platbu ve Stripe' })).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Zrušit placené členství' })).toBeDefined();
     });
 
     it('restores automatic renewal directly from the scheduled-cancellation state', async () => {

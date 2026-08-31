@@ -1,5 +1,11 @@
 # Current preversion
 
+- Let a paid community member open their Stripe Customer Portal from the membership popup of `/cs/komunita`, through
+  a new short-lived, authenticated link which belongs only to that member and returns them to the community. The
+  portal is now available alongside, rather than instead of, the confirmed in-app cancellation and reactivation of
+  the next renewal, so card and invoice management stays with Stripe while the simple cancellation remains where the
+  member already sees their membership.
+
 - Let a paid member manage renewal directly in the membership popup of `/cs/komunita`: after an explicit confirmation,
   they can stop the next Stripe payment without losing the days they have already paid for. The modal and its header
   badge say that the membership is ending and name the last paid day, then offer one-click reactivation until that day.

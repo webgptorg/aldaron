@@ -14,15 +14,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import { formatCzechWorkshopDay } from '@/lib/workshops/workshopDate';
-import { CalendarClock, Loader2, RotateCcw } from 'lucide-react';
+import { CalendarClock, ExternalLink, Loader2, RotateCcw } from 'lucide-react';
 import { useState, type MouseEvent } from 'react';
 
 type CommunityMembershipSubscriptionManagementProps = {
     readonly membership: CommunityMembershipRoomState;
     readonly isMembershipCancellationChanging: boolean;
+    readonly isMembershipPortalOpening: boolean;
     readonly errorMessage: string | null;
     readonly onScheduleCancellation: () => Promise<boolean>;
     readonly onReactivate: () => Promise<boolean>;
+    readonly onOpenMembershipPortal: () => Promise<void>;
 };
 
 function createPaidAccessEndDescription(currentPeriodEndsAt: string | null): string {
@@ -31,19 +33,51 @@ function createPaidAccessEndDescription(currentPeriodEndsAt: string | null): str
         : `do ${formatCzechWorkshopDay(currentPeriodEndsAt)}`;
 }
 
+type StripeSubscriptionPortalButtonProps = {
+    readonly isMembershipCancellationChanging: boolean;
+    readonly isMembershipPortalOpening: boolean;
+    readonly onOpenMembershipPortal: () => Promise<void>;
+};
+
+function StripeSubscriptionPortalButton({
+    isMembershipCancellationChanging,
+    isMembershipPortalOpening,
+    onOpenMembershipPortal,
+}: StripeSubscriptionPortalButtonProps) {
+    return (
+        <Button
+            type="button"
+            variant="outline"
+            disabled={isMembershipCancellationChanging || isMembershipPortalOpening}
+            onClick={() => void onOpenMembershipPortal()}
+            className="rounded-full border-cyan-300/35 bg-transparent text-cyan-100 hover:bg-cyan-300/10 hover:text-cyan-50"
+        >
+            {isMembershipPortalOpening ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+                <ExternalLink className="mr-2 h-4 w-4" aria-hidden="true" />
+            )}
+            Spravovat platbu ve Stripe
+        </Button>
+    );
+}
+
 /**
- * Lets a paying member stop or restore automatic renewal without turning the already-paid part of their membership
- * into a second, confusing lifecycle.
+ * Keeps direct renewal cancellation and reactivation in the room while offering Stripe's customer portal for the
+ * payment details Stripe owns.
  */
 export function CommunityMembershipSubscriptionManagement({
     membership,
     isMembershipCancellationChanging,
+    isMembershipPortalOpening,
     errorMessage,
     onScheduleCancellation,
     onReactivate,
+    onOpenMembershipPortal,
 }: CommunityMembershipSubscriptionManagementProps) {
     const [isCancellationConfirmationOpen, setIsCancellationConfirmationOpen] = useState(false);
     const paidAccessEndDescription = createPaidAccessEndDescription(membership.currentPeriodEndsAt);
+    const isMembershipManagementChanging = isMembershipCancellationChanging || isMembershipPortalOpening;
 
     const handleCancellationConfirmation = async (event: MouseEvent<HTMLButtonElement>) => {
         // Wait for the server before closing the confirmation so a second click cannot create another cancellation
@@ -80,19 +114,26 @@ export function CommunityMembershipSubscriptionManagement({
                     </p>
                 )}
 
-                <Button
-                    type="button"
-                    disabled={isMembershipCancellationChanging}
-                    onClick={() => void onReactivate()}
-                    className="mt-4 rounded-full bg-amber-200 font-bold text-slate-950 hover:bg-amber-100"
-                >
-                    {isMembershipCancellationChanging ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                    ) : (
-                        <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
-                    )}
-                    Obnovit placené členství
-                </Button>
+                <div className="mt-4 flex flex-wrap gap-3">
+                    <Button
+                        type="button"
+                        disabled={isMembershipManagementChanging}
+                        onClick={() => void onReactivate()}
+                        className="rounded-full bg-amber-200 font-bold text-slate-950 hover:bg-amber-100"
+                    >
+                        {isMembershipCancellationChanging ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                        ) : (
+                            <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
+                        )}
+                        Obnovit placené členství
+                    </Button>
+                    <StripeSubscriptionPortalButton
+                        isMembershipCancellationChanging={isMembershipCancellationChanging}
+                        isMembershipPortalOpening={isMembershipPortalOpening}
+                        onOpenMembershipPortal={onOpenMembershipPortal}
+                    />
+                </div>
             </section>
         );
     }
@@ -114,13 +155,21 @@ export function CommunityMembershipSubscriptionManagement({
                 </p>
             )}
 
+            <div className="mt-4">
+                <StripeSubscriptionPortalButton
+                    isMembershipCancellationChanging={isMembershipCancellationChanging}
+                    isMembershipPortalOpening={isMembershipPortalOpening}
+                    onOpenMembershipPortal={onOpenMembershipPortal}
+                />
+            </div>
+
             <AlertDialog open={isCancellationConfirmationOpen} onOpenChange={setIsCancellationConfirmationOpen}>
                 <AlertDialogTrigger asChild>
                     <Button
                         type="button"
                         variant="outline"
-                        disabled={isMembershipCancellationChanging}
-                        className="mt-4 rounded-full border-rose-300/35 bg-transparent text-rose-100 hover:bg-rose-300/10 hover:text-rose-50"
+                        disabled={isMembershipManagementChanging}
+                        className="mt-3 rounded-full border-rose-300/35 bg-transparent text-rose-100 hover:bg-rose-300/10 hover:text-rose-50"
                     >
                         Zrušit placené členství
                     </Button>
@@ -134,13 +183,13 @@ export function CommunityMembershipSubscriptionManagement({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel
-                            disabled={isMembershipCancellationChanging}
+                            disabled={isMembershipManagementChanging}
                             className="border-white/20 bg-transparent text-slate-200 hover:bg-white/10 hover:text-white"
                         >
                             Nechat aktivní
                         </AlertDialogCancel>
                         <AlertDialogAction
-                            disabled={isMembershipCancellationChanging}
+                            disabled={isMembershipManagementChanging}
                             onClick={(event) => void handleCancellationConfirmation(event)}
                             className="bg-rose-500 text-white hover:bg-rose-400"
                         >

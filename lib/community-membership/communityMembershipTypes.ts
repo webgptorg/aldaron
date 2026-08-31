@@ -78,6 +78,24 @@ export function isPaidCommunityMembershipStatus(status: CommunityMembershipStatu
     return status === 'active' || status === 'past-due';
 }
 
+type CommunityMembershipSubscriptionManagementCandidate = {
+    readonly status: CommunityMembershipStatus;
+    readonly stripeSubscriptionId: string | null;
+};
+
+/**
+ * Whether a stored membership still has a paid Stripe subscription whose renewal the member can change.
+ */
+export function isCommunityMembershipSubscriptionManageable(
+    membership: CommunityMembershipSubscriptionManagementCandidate | null,
+): membership is CommunityMembershipSubscriptionManagementCandidate & { readonly stripeSubscriptionId: string } {
+    return (
+        membership !== null &&
+        membership.stripeSubscriptionId !== null &&
+        isPaidCommunityMembershipStatus(membership.status)
+    );
+}
+
 /**
  * The one form of a contact address a membership is stored and looked up under, so that the same person is the same
  * member however they typed their address into the room.

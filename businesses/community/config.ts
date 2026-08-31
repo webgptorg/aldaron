@@ -43,6 +43,7 @@ export const COMMUNITY_MEMBERSHIP_API_PATH = `/api/workshops/${COMMUNITY_WORKSHO
 export const COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/checkout`;
 export const COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH = `${COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH}/confirmation`;
 export const COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/cancellation`;
+export const COMMUNITY_MEMBERSHIP_PORTAL_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/portal`;
 
 /**
  * How the payment gate returns a member to the room, which the room reads to celebrate or to say nothing happened.

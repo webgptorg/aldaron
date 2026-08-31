@@ -57,6 +57,7 @@ export function CommunityMembershipModal() {
         isMembershipLoading,
         isCheckoutStarting,
         isMembershipCancellationChanging,
+        isMembershipPortalOpening,
         errorMessage,
         checkoutResult,
     } = membershipRoom;
@@ -139,9 +140,11 @@ export function CommunityMembershipModal() {
                         <CommunityMembershipSubscriptionManagement
                             membership={membership}
                             isMembershipCancellationChanging={isMembershipCancellationChanging}
+                            isMembershipPortalOpening={isMembershipPortalOpening}
                             errorMessage={errorMessage}
                             onScheduleCancellation={membershipRoom.scheduleCancellation}
                             onReactivate={membershipRoom.reactivateMembership}
+                            onOpenMembershipPortal={membershipRoom.openMembershipPortal}
                         />
                     )}
 
