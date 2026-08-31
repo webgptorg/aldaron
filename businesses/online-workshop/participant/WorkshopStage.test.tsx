@@ -224,6 +224,34 @@ describe('workshop stage', () => {
         expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
     });
 
+    it('puts the stream back on stage when the administration clears a recorded end', () => {
+        const reactionSource = createReactionSource();
+        const { container, rerender } = render(
+            <WorkshopStage
+                workshop={{ ...OPEN_ENDED_WORKSHOP_WITH_VIDEO, endsAt: '2026-08-20T21:12:00+02:00' }}
+                serverTime="2026-08-20T21:13:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+
+        rerender(
+            <WorkshopStage
+                workshop={OPEN_ENDED_WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T21:13:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).not.toBeNull();
+        expect(screen.queryByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).toBeNull();
+    });
+
     it('replaces the video with the wrap-up while reactions keep their stage stream', () => {
         const reactionSource = createReactionSource();
         const { container } = render(

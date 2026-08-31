@@ -46,6 +46,7 @@ const OPEN_ENDED_WORKSHOP: WorkshopDetails = {
 
 const SCHEDULE_LABELS = ['Začátek', 'Konec'];
 const END_WORKSHOP_LABEL = 'Ukončit workshop';
+const CLEAR_WORKSHOP_END_LABEL = 'Zrušit konec workshopu';
 const STAGE_LABEL = 'YouTube URL nebo video ID';
 const REACTION_LABEL = 'Reakce oddělené mezerou';
 
@@ -114,9 +115,20 @@ describe('workshop settings form', () => {
         expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).not.toBeNull();
     });
 
-    it('leaves a workshop which already has an end and a workshop which has not started without that button', () => {
+    it('offers to clear the recorded end of a workshop', () => {
         renderWorkshopSettingsForm(WORKSHOP);
+
         expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).toBeNull();
+        expect(screen.queryByRole('button', { name: CLEAR_WORKSHOP_END_LABEL })).not.toBeNull();
+
+        cleanup();
+
+        renderWorkshopSettingsForm({
+            ...WORKSHOP,
+            startsAt: '2099-01-01T10:00:00+01:00',
+            endsAt: '2099-01-01T11:30:00+01:00',
+        });
+        expect(screen.queryByRole('button', { name: CLEAR_WORKSHOP_END_LABEL })).not.toBeNull();
 
         cleanup();
 
@@ -143,6 +155,26 @@ describe('workshop settings form', () => {
         const { onSave } = renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
 
         fireEvent.click(screen.getByRole('button', { name: END_WORKSHOP_LABEL }));
+
+        expect(onSave).not.toHaveBeenCalled();
+        confirmSpy.mockRestore();
+    });
+
+    it('clears the recorded workshop end after confirmation', async () => {
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+        const { onSave } = renderWorkshopSettingsForm(WORKSHOP);
+
+        fireEvent.click(screen.getByRole('button', { name: CLEAR_WORKSHOP_END_LABEL }));
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ endsAt: null })));
+        confirmSpy.mockRestore();
+    });
+
+    it('keeps the recorded workshop end when clearing it is not confirmed', () => {
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+        const { onSave } = renderWorkshopSettingsForm(WORKSHOP);
+
+        fireEvent.click(screen.getByRole('button', { name: CLEAR_WORKSHOP_END_LABEL }));
 
         expect(onSave).not.toHaveBeenCalled();
         confirmSpy.mockRestore();

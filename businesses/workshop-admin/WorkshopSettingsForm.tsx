@@ -16,21 +16,48 @@ import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabil
 import { isWorkshopPanelOfferedByKind } from '@/lib/workshops/workshopPanels';
 import { getWorkshopPhase, isWorkshopEndOpen } from '@/lib/workshops/workshopPhase';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
-import { Save, Square } from 'lucide-react';
+import { RotateCcw, Save, Square } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 /**
- * Which of the two ways of saving the room is running, so each button says what it is doing
+ * The two deliberate changes an administrator can make to the recorded end of a workshop
  */
-type WorkshopSettingsSave = 'settings' | 'end';
+type WorkshopEndAction = 'end' | 'clear';
+
+/**
+ * Which save of the room is running, so each button says what it is doing
+ */
+type WorkshopSettingsSave = 'settings' | WorkshopEndAction;
 
 const END_WORKSHOP_CONFIRMATION =
     'Opravdu workshop ukončit? Účastníkům se místo streamu okamžitě zobrazí závěrečné shrnutí.';
+const CLEAR_WORKSHOP_END_CONFIRMATION =
+    'Opravdu zrušit konec workshopu? Workshop pak poběží dál, dokud ho znovu neukončíte.';
 
 /**
  * What an empty end means, said where an administrator decides it
  */
 const OPEN_WORKSHOP_END_HINT = 'Bez konce workshop běží dál a stream zůstává na scéně, dokud ho neukončíte.';
+
+function getWorkshopEndActionOrNull(workshop: WorkshopDetails, isScheduled: boolean): WorkshopEndAction | null {
+    if (!isScheduled) {
+        return null;
+    }
+
+    if (!isWorkshopEndOpen(workshop)) {
+        return 'clear';
+    }
+
+    return getWorkshopPhase(workshop) === 'ongoing' ? 'end' : null;
+}
+
+function getWorkshopEndValue(action: WorkshopEndAction): string | null {
+    return action === 'end' ? new Date().toISOString() : null;
+}
+
+function getWorkshopEndActionConfirmation(action: WorkshopEndAction): string {
+    return action === 'end' ? END_WORKSHOP_CONFIRMATION : CLEAR_WORKSHOP_END_CONFIRMATION;
+}
 
 type WorkshopSettingsFormProps = {
     readonly workshop: WorkshopDetails;
@@ -71,9 +98,9 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     const isSaving = runningSave !== null;
 
     // Note: A workshop is ended by writing the end it does not have yet, which only a workshop already running can be
-    //       asked for - ending one which has not started would place its end before its start.
-    const isWorkshopEndable =
-        roomCapabilities.isScheduled && isWorkshopEndOpen(workshop) && getWorkshopPhase(workshop) === 'ongoing';
+    //       asked for - ending one which has not started would place its end before its start. A recorded end, on the
+    //       other hand, can be cleared at any time, including when an intended end was written in advance.
+    const workshopEndAction = getWorkshopEndActionOrNull(workshop, roomCapabilities.isScheduled);
 
     useEffect(() => {
         setSlug(workshop.slug);
@@ -120,12 +147,12 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
         void saveWorkshop('settings', fromDateTimeLocalValue(endsAt));
     };
 
-    const handleEndWorkshopNow = () => {
-        if (!window.confirm(END_WORKSHOP_CONFIRMATION)) {
+    const handleWorkshopEndAction = (action: WorkshopEndAction) => {
+        if (!window.confirm(getWorkshopEndActionConfirmation(action))) {
             return;
         }
 
-        void saveWorkshop('end', new Date().toISOString());
+        void saveWorkshop(action, getWorkshopEndValue(action));
     };
 
     return (
@@ -203,17 +230,27 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
                             {endsAt === '' && (
                                 <p className="mt-1 text-xs font-normal text-slate-400">{OPEN_WORKSHOP_END_HINT}</p>
                             )}
-                            {isWorkshopEndable && (
+                            {workshopEndAction !== null && (
                                 <Button
                                     type="button"
                                     variant="secondary"
                                     size="sm"
                                     className="mt-2"
                                     disabled={isSaving}
-                                    onClick={handleEndWorkshopNow}
+                                    onClick={() => handleWorkshopEndAction(workshopEndAction)}
                                 >
-                                    <Square className="mr-2 h-4 w-4" />
-                                    {runningSave === 'end' ? 'Ukončuji…' : 'Ukončit workshop'}
+                                    {workshopEndAction === 'end' ? (
+                                        <Square className="mr-2 h-4 w-4" />
+                                    ) : (
+                                        <RotateCcw className="mr-2 h-4 w-4" />
+                                    )}
+                                    {workshopEndAction === 'end'
+                                        ? runningSave === 'end'
+                                            ? 'Ukončuji…'
+                                            : 'Ukončit workshop'
+                                        : runningSave === 'clear'
+                                          ? 'Ruším konec…'
+                                          : 'Zrušit konec workshopu'}
                                 </Button>
                             )}
                         </div>
