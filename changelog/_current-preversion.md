@@ -1,5 +1,10 @@
 # Current preversion
 
+- Show every visible community poll attached to an occurrence inside that occurrence's participant room, including its
+  current aggregate and the same attached-workshop labels the community and administration use. The workshop room reads
+  the poll without copying it or inventing a second voting system: polls remain owned, edited, and voted on in the
+  community, so the attached view is explicitly read-only while its result stays current.
+
 - Let a member buy the paid community membership inside `/cs/komunita` itself, through the Stripe payment gate, without
   ever leaving for the public membership page. The room already knows who is reading it, so it asks for nothing but a
   discount code and the agreement to its terms, then opens the gate for the monthly price this application decides -

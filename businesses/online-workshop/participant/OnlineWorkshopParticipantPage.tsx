@@ -16,7 +16,7 @@ import { WorkshopWatchingBadge } from '@/businesses/online-workshop/participant/
 import { useWorkshopParticipantOfflineSupport } from '@/businesses/online-workshop/participant/useWorkshopParticipantOfflineSupport';
 import { useWorkshopParticipant } from '@/businesses/online-workshop/participant/useWorkshopParticipant';
 import { WorkshopLinksPanel } from '@/components/workshops/WorkshopLinksPanel';
-import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { getWorkshopKindCapabilities, isWorkshopPollVisibleInRoom } from '@/lib/workshops/workshopKindCapabilities';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { isWorkshopPanelOffered, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { WORKSHOP_SEARCH_PARAMETER_NAME } from '@/lib/workshops/workshopParticipantLink';
@@ -188,6 +188,7 @@ export function OnlineWorkshopParticipantPage({
 
     const { state } = controller;
     const roomCapabilities = getWorkshopKindCapabilities(state.workshop.kind);
+    const isWorkshopPollVisible = isWorkshopPollVisibleInRoom(state.workshop.kind);
     const isModerating = isWorkshopParticipantModerating(state.participant);
     const followUpContentBlock = state.contentBlocks.find((contentBlock) => contentBlock.isFollowUp) ?? null;
 
@@ -270,14 +271,14 @@ export function OnlineWorkshopParticipantPage({
                             participantIdentity={state.participant}
                         />
                     )}
-                    {roomCapabilities.isPollsOffered && (
+                    {isWorkshopPollVisible && (
                         <WorkshopPolls
                             polls={state.polls}
                             isInteractionBanned={state.participant.isInteractionBanned}
                             linkedParticipantIdentity={
                                 workshopNavigation === undefined ? undefined : state.participant
                             }
-                            onVote={controller.voteOnPoll}
+                            onVote={roomCapabilities.isPollsOffered ? controller.voteOnPoll : undefined}
                         />
                     )}
                     {workshopNavigation !== undefined && (

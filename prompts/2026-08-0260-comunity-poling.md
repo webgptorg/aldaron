@@ -37,7 +37,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.4494 12 minutes; Testing 6 minutes
 
 [✨🛬] Polls should be able to be attached to workshop(s)
 
@@ -60,3 +60,4 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+

@@ -7,7 +7,7 @@ import {
     type WorkshopNavigationDetails,
 } from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
-import type { WorkshopDetails, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
+import type { WorkshopDetails, WorkshopPoll, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -50,6 +50,20 @@ const COMMUNITY: WorkshopDetails = {
     title: 'Komunita Promptbooku',
 };
 
+const ATTACHED_COMMUNITY_POLL: WorkshopPoll = {
+    id: 'poll-id',
+    question: 'Co si z workshopu odnášíte?',
+    isClosed: false,
+    isVisible: true,
+    createdAt: '2026-08-21T19:00:00+02:00',
+    updatedAt: '2026-08-21T19:00:00+02:00',
+    options: [
+        { id: 'option-1', label: 'Praktické tipy', sortOrder: 0, voteCount: 7, isVotedByParticipant: false },
+        { id: 'option-2', label: 'Nové nápady', sortOrder: 1, voteCount: 4, isVotedByParticipant: false },
+    ],
+    attachedWorkshops: [],
+};
+
 /**
  * The workshops a permanent room such as the community leads to
  */
@@ -79,6 +93,7 @@ function renderParticipantRoom(
     workshopNavigation?: WorkshopNavigationDetails,
     isUsingCachedState = false,
     participantHeaderSupplement?: ReactNode,
+    polls: readonly WorkshopPoll[] = [],
 ) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
@@ -100,7 +115,7 @@ function renderParticipantRoom(
         stageComment: null,
         recentReactions: [],
         reactionCounts: [],
-        polls: [],
+        polls,
     };
 
     participantMocks.controller = {
@@ -165,6 +180,14 @@ describe('online workshop participant room', () => {
         expect(container.querySelector('iframe')).toBeNull();
         expect(screen.queryByRole('button', { name: /Reagovat/ })).toBeNull();
         expect(screen.queryByText('Sledují 3 lidé')).toBeNull();
+    });
+
+    it('shows a visible community poll attached to a workshop as its shared read-only result', () => {
+        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [ATTACHED_COMMUNITY_POLL]);
+
+        expect(screen.getByText('Co si z workshopu odnášíte?')).not.toBeNull();
+        expect(screen.getByText('7 · 64 %')).not.toBeNull();
+        expect(screen.getByRole('button', { name: /Praktické tipy/ }).hasAttribute('disabled')).toBe(true);
     });
 
     it('leads from a permanent room to a workshop with the identity the room already verified', () => {

@@ -21,7 +21,11 @@ type WorkshopPollsProps = {
      *       workshop leads to its landing page while a poll about an online workshop leads into its room.
      */
     readonly linkedParticipantIdentity?: WorkshopParticipantIdentity;
-    readonly onVote: (pollId: string, optionId: string) => Promise<boolean>;
+    /**
+     * Only the community where a poll is owned accepts votes. A workshop occurrence which merely displays an attached
+     * poll leaves this out and therefore shows the shared result without pretending it can record another vote.
+     */
+    readonly onVote?: (pollId: string, optionId: string) => Promise<boolean>;
 };
 
 /**
@@ -41,6 +45,10 @@ export function WorkshopPolls({
     }
 
     const handleVote = async (pollId: string, optionId: string) => {
+        if (onVote === undefined) {
+            return;
+        }
+
         setVotingPollId(pollId);
         try {
             await onVote(pollId, optionId);
@@ -54,7 +62,8 @@ export function WorkshopPolls({
             {polls.map((poll) => {
                 const totalVoteCount = getWorkshopPollVoteCount(poll);
                 const isVoting = votingPollId === poll.id;
-                const isVoteAvailable = !poll.isClosed && !isInteractionBanned;
+                const isVotingInCurrentRoomEnabled = onVote !== undefined;
+                const isVoteAvailable = isVotingInCurrentRoomEnabled && !poll.isClosed && !isInteractionBanned;
 
                 return (
                     <article
@@ -133,7 +142,9 @@ export function WorkshopPolls({
 
                         {!poll.isClosed && (
                             <p className="px-5 pb-4 text-xs leading-5 text-slate-400">
-                                {isInteractionBanned
+                                {!isVotingInCurrentRoomEnabled
+                                    ? 'Tato anketa patří komunitě; zde se zobrazuje její průběžný výsledek.'
+                                    : isInteractionBanned
                                     ? 'Pro tento účet nejsou interakce dostupné.'
                                     : 'Vyberte jednu možnost. Svůj hlas můžete kdykoli změnit.'}
                             </p>

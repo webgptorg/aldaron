@@ -25,7 +25,7 @@ import {
 } from '@/lib/workshops/workshopConstants';
 import { getDisplayedWorkshopCommentUpvoteCount, sortWorkshopComments } from '@/lib/workshops/workshopCommentValues';
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
-import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { getWorkshopKindCapabilities, isWorkshopPollVisibleInRoom } from '@/lib/workshops/workshopKindCapabilities';
 import { materializeWorkshopMaterialShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { materializeWorkshopCommentShortLinks } from '@/lib/workshops/workshopMaterialLinks';
 import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentLinks';
@@ -1196,7 +1196,7 @@ async function loadWorkshopPollRows(
             .in('poll_id', pollIds)
             .order('sort_order', { ascending: true }),
         supabase.rpc('get_workshop_poll_option_vote_counts', { target_poll_ids: pollIds }),
-        participantId === null
+        participantId === null || scope.isAttachedToRoom
             ? Promise.resolve({ data: [] as readonly WorkshopParticipantPollVoteRow[], error: null })
             : supabase
                   .from(WORKSHOP_POLL_VOTE_TABLE_NAME)
@@ -1262,22 +1262,25 @@ function mapLoadedWorkshopPolls<Option extends WorkshopPollOption>(
 }
 
 /**
- * Loads the compact, anonymous result of visible community polls. The count aggregation stays in PostgreSQL and the
+ * Loads the compact, anonymous result of visible community polls. A community reads the polls it owns, while a
+ * workshop reads the community polls attached to that occurrence. The count aggregation stays in PostgreSQL and the
  * participant-specific lookup contains only that participant's own selection, so no room response can infer who
- * anybody else voted for.
+ * anybody else voted for. Attached polls deliberately have no selection because their votes remain in their owner.
  */
 export async function loadWorkshopPolls(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
     participantId: string | null,
 ): Promise<LoadedWorkshopPolls> {
-    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isPollsOffered) {
+    if (!isWorkshopPollVisibleInRoom(workshopRow.room_kind)) {
         return { polls: [], errorMessage: null };
     }
 
+    const isAttachedToRoom = getWorkshopKindCapabilities(workshopRow.room_kind).isAttachedCommunityPollsShown;
+
     const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, participantId, {
         isMemberVisibleOnly: true,
-        isAttachedToRoom: false,
+        isAttachedToRoom,
         maximalPollCount: MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
     });
     if (loadedPollRows === null) {
@@ -1327,7 +1330,7 @@ export async function loadWorkshopAttachedAdminPolls(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
 ): Promise<LoadedWorkshopPolls<WorkshopAdminPoll>> {
-    if (workshopRow.room_kind !== 'workshop') {
+    if (!getWorkshopKindCapabilities(workshopRow.room_kind).isAttachedCommunityPollsShown) {
         return { polls: [], errorMessage: null };
     }
 

@@ -1,6 +1,7 @@
 import {
     getUnsupportedWorkshopKindFieldNames,
     getWorkshopKindCapabilities,
+    isWorkshopPollVisibleInRoom,
 } from '@/lib/workshops/workshopKindCapabilities';
 import { WORKSHOP_KIND_VALUES } from '@/lib/workshops/workshopTypes';
 import { describe, expect, it } from 'vitest';
@@ -20,6 +21,7 @@ describe('workshop kind capabilities', () => {
             isEvent: true,
             isStageOffered: true,
             isPollsOffered: false,
+            isAttachedCommunityPollsShown: true,
             isRealtime: true,
         });
     });
@@ -32,6 +34,7 @@ describe('workshop kind capabilities', () => {
             isEvent: false,
             isStageOffered: false,
             isPollsOffered: true,
+            isAttachedCommunityPollsShown: false,
             isRealtime: false,
         });
     });
@@ -44,8 +47,15 @@ describe('workshop kind capabilities', () => {
             isEvent: false,
             isStageOffered: false,
             isPollsOffered: false,
+            isAttachedCommunityPollsShown: false,
             isRealtime: false,
         });
+    });
+
+    it('shows a community poll in its owner and in workshop occurrences it can be attached to', () => {
+        expect(isWorkshopPollVisibleInRoom('community')).toBe(true);
+        expect(isWorkshopPollVisibleInRoom('workshop')).toBe(true);
+        expect(isWorkshopPollVisibleInRoom('project')).toBe(false);
     });
 
     it('refuses a schedule, a stage, and an address written into a room which has none of them', () => {

@@ -38,6 +38,12 @@ export type WorkshopKindCapabilities = {
     readonly isPollsOffered: boolean;
 
     /**
+     * Whether this room can show a community poll which is attached to it. A workshop occurrence is the subject of
+     * such a poll rather than its owner, so it shows the common aggregate without accepting a second vote there.
+     */
+    readonly isAttachedCommunityPollsShown: boolean;
+
+    /**
      * Whether a room updates itself while it is open, which its broadcast, its reactions, and its watching count need
      */
     readonly isRealtime: boolean;
@@ -59,6 +65,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isEvent: true,
         isStageOffered: true,
         isPollsOffered: false,
+        isAttachedCommunityPollsShown: true,
         isRealtime: true,
     },
     community: {
@@ -68,6 +75,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isEvent: false,
         isStageOffered: false,
         isPollsOffered: true,
+        isAttachedCommunityPollsShown: false,
         isRealtime: false,
     },
     project: {
@@ -77,12 +85,22 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isEvent: false,
         isStageOffered: false,
         isPollsOffered: false,
+        isAttachedCommunityPollsShown: false,
         isRealtime: false,
     },
 };
 
 export function getWorkshopKindCapabilities(workshopKind: WorkshopKind): WorkshopKindCapabilities {
     return WORKSHOP_KIND_CAPABILITY_DEFINITIONS[workshopKind];
+}
+
+/**
+ * Whether a member room can show visible community poll results. Community owns polls and accepts the votes; a
+ * workshop occurrence may only show the visible polls which the community attached to it.
+ */
+export function isWorkshopPollVisibleInRoom(workshopKind: WorkshopKind): boolean {
+    const { isPollsOffered, isAttachedCommunityPollsShown } = getWorkshopKindCapabilities(workshopKind);
+    return isPollsOffered || isAttachedCommunityPollsShown;
 }
 
 /**
