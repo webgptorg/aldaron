@@ -2,7 +2,13 @@ import { spawn } from 'node:child_process';
 
 export type PostgresClientTool = 'pg_dump' | 'pg_restore';
 
-export type PostgresCommandRunner = (command: string, argumentsList: readonly string[]) => Promise<void>;
+export type PostgresCommandStandardOutputHandler = (standardOutputChunk: Buffer) => void;
+
+export type PostgresCommandRunner = (
+    command: string,
+    argumentsList: readonly string[],
+    handleStandardOutput?: PostgresCommandStandardOutputHandler,
+) => Promise<void>;
 
 export type CreatePostgresCommandRunnerOptions = {
     readonly operation: string;
@@ -62,20 +68,25 @@ function createPostgresClientNotFoundError(options: CreatePostgresCommandRunnerO
 /**
  * Run one PostgreSQL archive utility while consistently reporting a missing client and a failed command.
  *
- * Archive listings can be very large, so successful standard output is deliberately discarded. Diagnostics stay on
- * stderr, where PostgreSQL writes them.
+ * Successful standard output is discarded unless a caller streams it through a handler. This lets archive inspection
+ * process large output without retaining it all in memory. Diagnostics stay on stderr, where PostgreSQL writes them.
  */
 export function createPostgresCommandRunner(
     options: CreatePostgresCommandRunnerOptions,
 ): PostgresCommandRunner {
-    return (command, argumentsList) =>
+    return (command, argumentsList, handleStandardOutput) =>
         new Promise((resolve, reject) => {
-            const childProcess = spawn(command, argumentsList, { stdio: ['ignore', 'ignore', 'inherit'] });
-            let settled = false;
+            const standardOutput = handleStandardOutput === undefined ? 'ignore' : 'pipe';
+            const childProcess = spawn(command, argumentsList, { stdio: ['ignore', standardOutput, 'inherit'] });
+            let isSettled = false;
+
+            if (handleStandardOutput !== undefined && childProcess.stdout !== null) {
+                childProcess.stdout.on('data', handleStandardOutput);
+            }
 
             childProcess.once('error', (error: NodeJS.ErrnoException) => {
-                if (settled) return;
-                settled = true;
+                if (isSettled) return;
+                isSettled = true;
 
                 if (error.code === 'ENOENT') {
                     reject(createPostgresClientNotFoundError(options));
@@ -86,8 +97,8 @@ export function createPostgresCommandRunner(
             });
 
             childProcess.once('close', (exitCode, signal) => {
-                if (settled) return;
-                settled = true;
+                if (isSettled) return;
+                isSettled = true;
 
                 if (exitCode === 0) {
                     resolve();

@@ -11,6 +11,7 @@ import {
 } from '@/lib/database/backupDatabase';
 import {
     createPgRestoreArguments,
+    createPgRestoreDataArguments,
     verifyDatabaseBackup,
     type PgRestoreRunner,
 } from '@/lib/database/verifyDatabaseBackup';
@@ -132,7 +133,7 @@ describe('createPgDumpInstallationInstructions', () => {
 });
 
 describe('verifyDatabaseBackup', () => {
-    it('verifies the newest completed archive and ignores temporary files', async () => {
+    it('verifies the newest completed archive, counts its rows, and ignores temporary files', async () => {
         const backupDirectory = await createTemporaryDirectory();
         const olderBackupPath = path.join(backupDirectory, 'database-older.dump');
         const newestBackupPath = path.join(backupDirectory, 'database-newest.dump');
@@ -141,7 +142,14 @@ describe('verifyDatabaseBackup', () => {
         await writeFile(path.join(backupDirectory, 'database-newest.dump.tmp-interrupted'), 'partial archive');
         await utimes(olderBackupPath, new Date('2026-08-20T12:00:00Z'), new Date('2026-08-20T12:00:00Z'));
         await utimes(newestBackupPath, new Date('2026-08-21T12:00:00Z'), new Date('2026-08-21T12:00:00Z'));
-        const runner: PgRestoreRunner = vi.fn(async () => undefined);
+        const runner: PgRestoreRunner = vi.fn(async (_command, argumentsList, handleStandardOutput) => {
+            if (!argumentsList.includes('--data-only')) {
+                return;
+            }
+
+            handleStandardOutput?.(Buffer.from('COPY public."Contact" (id, fullname) F'));
+            handleStandardOutput?.(Buffer.from('ROM stdin;\nfirst\nsecond\n\\.\nCOPY public.workshops (id) FROM stdin;\n\\.\n'));
+        });
 
         const result = await verifyDatabaseBackup({
             backupDirectory,
@@ -149,8 +157,21 @@ describe('verifyDatabaseBackup', () => {
             runPgRestore: runner,
         });
 
-        expect(result).toEqual({ fileName: 'database-newest.dump', filePath: newestBackupPath });
-        expect(runner).toHaveBeenCalledWith('pg_restore-test', ['--list', newestBackupPath]);
+        expect(result).toEqual({
+            fileName: 'database-newest.dump',
+            filePath: newestBackupPath,
+            tables: [
+                { tableName: 'public."Contact"', rowCount: 2 },
+                { tableName: 'public.workshops', rowCount: 0 },
+            ],
+        });
+        expect(runner).toHaveBeenNthCalledWith(1, 'pg_restore-test', ['--list', newestBackupPath]);
+        expect(runner).toHaveBeenNthCalledWith(
+            2,
+            'pg_restore-test',
+            ['--data-only', '--file=-', newestBackupPath],
+            expect.any(Function),
+        );
     });
 
     it('refuses to verify when no completed archive exists', async () => {
@@ -180,5 +201,13 @@ describe('verifyDatabaseBackup', () => {
 describe('createPgRestoreArguments', () => {
     it('lists the archive contents without restoring into a database', () => {
         expect(createPgRestoreArguments('/tmp/database.dump')).toEqual(['--list', '/tmp/database.dump']);
+    });
+
+    it('writes the complete data section to standard output for row counting', () => {
+        expect(createPgRestoreDataArguments('/tmp/database.dump')).toEqual([
+            '--data-only',
+            '--file=-',
+            '/tmp/database.dump',
+        ]);
     });
 });
