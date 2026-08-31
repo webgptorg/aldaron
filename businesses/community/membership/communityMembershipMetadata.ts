@@ -37,14 +37,7 @@ export const COMMUNITY_MEMBERSHIP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOp
     COMMUNITY_MEMBERSHIP_PAGE_DEFINITION,
     {
         eyebrow: 'Komunita Promptbooku',
-        audienceLabel: 'Pro lidi, kteří chtějí AI používat v práci',
-        bullets: ['Živé webináře zdarma', 'Záznamy a archiv', 'Materiály a dotazy předem'],
-        stats: [
-            { label: 'Živě', value: 'zdarma' },
-            { label: 'Členství', value: `${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} za měsíc` },
-            { label: 'Ukončení', value: 'e-mailem' },
-        ],
-        callToActionLabel: 'Chci záznamy a materiály',
+        artwork: 'community',
         paletteSeed: {
             backgroundStart: '#061923',
             backgroundEnd: '#12384a',

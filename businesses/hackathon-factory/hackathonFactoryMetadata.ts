@@ -22,14 +22,7 @@ export const HACKATHON_FACTORY_METADATA: Metadata = createPageMetadata(HACKATHON
 
 export const HACKATHON_FACTORY_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(HACKATHON_FACTORY_PAGE_DEFINITION, {
     eyebrow: 'Reálné problémy, funkční výstupy',
-    audienceLabel: 'Pro CTO a startupy',
-    bullets: ['Krátké sprinty', 'Funkční prototyp', 'Použitelné hned'],
-    stats: [
-        { label: 'Zadání', value: 'Skutečný problém' },
-        { label: 'Sprint', value: 'Pár dní, ne měsíce' },
-        { label: 'Výstup', value: 'Prototyp nebo rozhodnutí' },
-    ],
-    callToActionLabel: 'Přihlásit problém',
+    artwork: 'launch',
     paletteSeed: {
         backgroundStart: '#1c0a12',
         backgroundEnd: '#4d1f33',

@@ -1,13 +1,6 @@
 import type { SocialPreviewPalette } from '@/lib/metadata/social-preview-palette';
+import { SocialPreviewArtwork, type SocialPreviewArtworkKind } from '@/lib/metadata/social-preview-artwork';
 import { ImageResponse } from 'next/og';
-
-/**
- * Single fact highlighted in the side panel of a social preview image
- */
-export type SocialPreviewStat = {
-    readonly label: string;
-    readonly value: string;
-};
 
 /**
  * Everything a social preview image needs to be rendered
@@ -34,34 +27,9 @@ export type SocialPreviewImageOptions = {
     readonly title: string;
 
     /**
-     * Supporting sentence below the headline
+     * Non-textual visual metaphor which makes the page identifiable in a feed
      */
-    readonly description: string;
-
-    /**
-     * Short selling points rendered as chips
-     */
-    readonly bullets: readonly string[];
-
-    /**
-     * Human readable url of the page
-     */
-    readonly urlLabel: string;
-
-    /**
-     * Audience the page is written for, shown above the stats
-     */
-    readonly audienceLabel: string;
-
-    /**
-     * Facts highlighted in the side panel
-     */
-    readonly stats: readonly SocialPreviewStat[];
-
-    /**
-     * Main call to action of the page, highlighted next to the url
-     */
-    readonly callToActionLabel: string;
+    readonly artwork: SocialPreviewArtworkKind;
 
     /**
      * Colors of the card
@@ -83,7 +51,7 @@ export const SOCIAL_PREVIEW_IMAGE_SIZE = {
 export const SOCIAL_PREVIEW_IMAGE_CONTENT_TYPE = 'image/png' as const;
 
 /**
- * Renders the two blurred orbs behind the card
+ * Renders the large color shapes behind the composition
  */
 function SocialPreviewBackdrop({ palette }: { palette: SocialPreviewPalette }) {
     return (
@@ -91,10 +59,10 @@ function SocialPreviewBackdrop({ palette }: { palette: SocialPreviewPalette }) {
             <div
                 style={{
                     position: 'absolute',
-                    top: -120,
-                    left: -120,
-                    width: 360,
-                    height: 360,
+                    top: -160,
+                    left: -130,
+                    width: 460,
+                    height: 460,
                     display: 'flex',
                     borderRadius: 9999,
                     background: palette.orbPrimary,
@@ -103,10 +71,10 @@ function SocialPreviewBackdrop({ palette }: { palette: SocialPreviewPalette }) {
             <div
                 style={{
                     position: 'absolute',
-                    right: -70,
-                    bottom: -90,
-                    width: 320,
-                    height: 320,
+                    right: -110,
+                    bottom: -150,
+                    width: 460,
+                    height: 460,
                     display: 'flex',
                     borderRadius: 9999,
                     background: palette.orbSecondary,
@@ -117,47 +85,60 @@ function SocialPreviewBackdrop({ palette }: { palette: SocialPreviewPalette }) {
 }
 
 /**
- * Renders the brand mark in the top left corner of the card
+ * Renders the brand mark in the top left corner of the image
  */
 function SocialPreviewBrand({ brandLabel, palette }: { brandLabel: string; palette: SocialPreviewPalette }) {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div
                 style={{
-                    width: 20,
-                    height: 20,
+                    width: 30,
+                    height: 30,
                     display: 'flex',
-                    borderRadius: 9999,
+                    borderRadius: 9,
                     background: `linear-gradient(135deg, ${palette.accent} 0%, ${palette.accentSoft} 100%)`,
+                    transform: 'rotate(12deg)',
                 }}
             />
-            <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, letterSpacing: -0.5 }}>{brandLabel}</div>
+            <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, letterSpacing: -0.6 }}>{brandLabel}</div>
         </div>
     );
 }
 
 /**
- * Renders the eyebrow, headline and description of the card
+ * Selects a title size which stays generous while letting longer localized headlines breathe.
  */
-function SocialPreviewHeadline({
-    eyebrow,
-    title,
-    description,
-    palette,
-}: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    palette: SocialPreviewPalette;
-}) {
+function selectSocialPreviewTitleFontSize(title: string): number {
+    if (title.length > 58) {
+        return 46;
+    }
+
+    if (title.length > 42) {
+        return 52;
+    }
+
+    return 60;
+}
+
+/**
+ * Renders the small context label and the one message a visitor should notice.
+ */
+function SocialPreviewHeadline({ eyebrow, title, palette }: { eyebrow: string; title: string; palette: SocialPreviewPalette }) {
+    const titleFontSize = selectSocialPreviewTitleFontSize(title);
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
             <div
                 style={{
                     display: 'flex',
-                    fontSize: 18,
+                    alignSelf: 'flex-start',
+                    borderRadius: 999,
+                    border: `1px solid ${palette.chipBorder}`,
+                    background: `${palette.accent}16`,
+                    padding: '10px 16px',
+                    fontSize: 16,
                     fontWeight: 700,
-                    letterSpacing: 3,
+                    letterSpacing: 2.2,
                     textTransform: 'uppercase',
                     color: palette.accent,
                 }}
@@ -167,171 +148,45 @@ function SocialPreviewHeadline({
             <div
                 style={{
                     display: 'flex',
-                    maxWidth: 690,
-                    fontSize: 56,
+                    maxWidth: 620,
+                    fontSize: titleFontSize,
                     fontWeight: 800,
-                    lineHeight: 1.05,
-                    letterSpacing: -1.6,
+                    lineHeight: 1.04,
+                    letterSpacing: -1.8,
                 }}
             >
                 {title}
             </div>
-            <div style={{ display: 'flex', maxWidth: 690, fontSize: 22, lineHeight: 1.35, color: palette.mutedText }}>
-                {description}
-            </div>
         </div>
     );
 }
 
 /**
- * Renders the selling points of the page as chips
+ * Renders a small source line without asking a social card to repeat the page's entire sales copy.
  */
-function SocialPreviewBullets({ bullets, palette }: { bullets: readonly string[]; palette: SocialPreviewPalette }) {
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
-            {bullets.map((bullet) => (
-                <div
-                    key={bullet}
-                    style={{
-                        display: 'flex',
-                        borderRadius: 9999,
-                        border: `1px solid ${palette.chipBorder}`,
-                        background: palette.chipBackground,
-                        padding: '10px 16px',
-                        fontSize: 18,
-                        fontWeight: 600,
-                    }}
-                >
-                    {bullet}
-                </div>
-            ))}
-        </div>
-    );
-}
-
-/**
- * Renders the call to action next to the url of the page
- */
-function SocialPreviewFooter({
-    urlLabel,
-    callToActionLabel,
-    palette,
-}: {
-    urlLabel: string;
-    callToActionLabel: string;
-    palette: SocialPreviewPalette;
-}) {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div
-                style={{
-                    display: 'flex',
-                    borderRadius: 9999,
-                    background: `linear-gradient(135deg, ${palette.accent} 0%, ${palette.accentSoft} 100%)`,
-                    padding: '12px 22px',
-                    fontSize: 20,
-                    fontWeight: 700,
-                    color: palette.backgroundStart,
-                }}
-            >
-                {callToActionLabel}
-            </div>
-            <div
-                style={{
-                    display: 'flex',
-                    borderRadius: 9999,
-                    border: `1px solid ${palette.frame}`,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    padding: '11px 18px',
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: 'rgba(255, 255, 255, 0.86)',
-                }}
-            >
-                {urlLabel}
-            </div>
-        </div>
-    );
-}
-
-/**
- * Renders a single highlighted fact of the side panel
- */
-function SocialPreviewStatCard({ stat, palette }: { stat: SocialPreviewStat; palette: SocialPreviewPalette }) {
+function SocialPreviewSourceLine({ palette }: { palette: SocialPreviewPalette }) {
     return (
         <div
             style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
-                borderRadius: 18,
-                border: `1px solid ${palette.statBorder}`,
-                background: palette.statBackground,
-                padding: 16,
+                alignItems: 'center',
+                gap: 10,
+                color: palette.mutedText,
+                fontSize: 18,
+                fontWeight: 600,
+                letterSpacing: 0.2,
             }}
         >
             <div
                 style={{
+                    width: 8,
+                    height: 8,
                     display: 'flex',
-                    fontSize: 14,
-                    fontWeight: 600,
-                    letterSpacing: 1.2,
-                    textTransform: 'uppercase',
-                    color: palette.sideLabel,
+                    borderRadius: 999,
+                    background: palette.accent,
                 }}
-            >
-                {stat.label}
-            </div>
-            <div style={{ display: 'flex', fontSize: 24, fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
-        </div>
-    );
-}
-
-/**
- * Renders the audience of the page together with the facts highlighted for it
- */
-function SocialPreviewSidePanel({
-    audienceLabel,
-    stats,
-    palette,
-}: {
-    audienceLabel: string;
-    stats: readonly SocialPreviewStat[];
-    palette: SocialPreviewPalette;
-}) {
-    return (
-        <div style={{ width: '32%', height: '100%', display: 'flex' }}>
-            <div
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 28,
-                    border: `1px solid ${palette.sidePanelBorder}`,
-                    background: palette.sidePanelBackground,
-                    padding: 28,
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        fontSize: 16,
-                        fontWeight: 700,
-                        letterSpacing: 2.2,
-                        textTransform: 'uppercase',
-                        color: palette.sideLabel,
-                    }}
-                >
-                    {audienceLabel}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
-                    {stats.map((stat) => (
-                        <SocialPreviewStatCard key={stat.label} stat={stat} palette={palette} />
-                    ))}
-                </div>
-            </div>
+            />
+            ptbk.io
         </div>
     );
 }
@@ -344,16 +199,11 @@ function SocialPreviewSidePanel({
  */
 export function createSocialPreviewImage(options: SocialPreviewImageOptions) {
     const {
-        audienceLabel,
+        artwork,
         brandLabel,
-        bullets,
-        callToActionLabel,
-        description,
         eyebrow,
         palette,
-        stats,
         title,
-        urlLabel,
     } = options;
 
     return new ImageResponse(
@@ -370,45 +220,55 @@ export function createSocialPreviewImage(options: SocialPreviewImageOptions) {
             }}
         >
             <SocialPreviewBackdrop palette={palette} />
-
-            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', padding: 28 }}>
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    display: 'flex',
+                    opacity: 0.16,
+                    backgroundImage:
+                        'linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)',
+                    backgroundSize: '48px 48px',
+                }}
+            />
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    overflow: 'hidden',
+                    border: `1px solid ${palette.frame}`,
+                }}
+            >
                 <div
                     style={{
-                        width: '100%',
+                        width: '57%',
                         height: '100%',
                         display: 'flex',
-                        borderRadius: 34,
-                        border: `1px solid ${palette.frame}`,
-                        background: palette.cardBackground,
-                        padding: 36,
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        padding: '58px 0 52px 68px',
                     }}
                 >
-                    <div
-                        style={{
-                            width: '68%',
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            paddingRight: 24,
-                        }}
-                    >
-                        <SocialPreviewBrand brandLabel={brandLabel} palette={palette} />
-                        <SocialPreviewHeadline
-                            eyebrow={eyebrow}
-                            title={title}
-                            description={description}
-                            palette={palette}
-                        />
-                        <SocialPreviewBullets bullets={bullets} palette={palette} />
-                        <SocialPreviewFooter
-                            urlLabel={urlLabel}
-                            callToActionLabel={callToActionLabel}
-                            palette={palette}
-                        />
-                    </div>
-
-                    <SocialPreviewSidePanel audienceLabel={audienceLabel} stats={stats} palette={palette} />
+                    <SocialPreviewBrand brandLabel={brandLabel} palette={palette} />
+                    <SocialPreviewHeadline eyebrow={eyebrow} title={title} palette={palette} />
+                    <SocialPreviewSourceLine palette={palette} />
+                </div>
+                <div
+                    style={{
+                        position: 'absolute',
+                        right: -12,
+                        bottom: 14,
+                        width: 552,
+                        height: 454,
+                        display: 'flex',
+                    }}
+                >
+                    <SocialPreviewArtwork kind={artwork} palette={palette} />
                 </div>
             </div>
         </div>,

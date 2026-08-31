@@ -67,26 +67,12 @@ export const HOMEPAGE_METADATA: Readonly<Record<SupportedHomepageLanguage, Metad
 export const HOMEPAGE_SOCIAL_PREVIEW_OPTIONS: Readonly<Record<SupportedHomepageLanguage, SocialPreviewImageOptions>> = {
     cs: createSocialPreviewOptions(HOMEPAGE_PAGE_DEFINITIONS.cs, {
         eyebrow: 'Česká AI platforma pro firemní data',
-        audienceLabel: 'Pro české firmy',
-        bullets: ['Bez promptů', 'Bez halucinací', '100% GDPR'],
-        stats: [
-            { label: 'Dokumenty', value: 'Až milion normostran' },
-            { label: 'Odpovědi', value: 'Normální češtinou' },
-            { label: 'Data', value: 'Pod Vaší kontrolou' },
-        ],
-        callToActionLabel: 'Hovor zdarma',
+        artwork: 'knowledge',
         paletteSeed: HOMEPAGE_PALETTE_SEED,
     }),
     en: createSocialPreviewOptions(HOMEPAGE_PAGE_DEFINITIONS.en, {
         eyebrow: 'Czech AI platform for company data',
-        audienceLabel: 'For growing companies',
-        bullets: ['No prompting', 'No hallucinations', '100% GDPR'],
-        stats: [
-            { label: 'Documents', value: 'Up to a million pages' },
-            { label: 'Answers', value: 'In plain language' },
-            { label: 'Data', value: 'Stays under your control' },
-        ],
-        callToActionLabel: 'Book a free call',
+        artwork: 'knowledge',
         paletteSeed: HOMEPAGE_PALETTE_SEED,
     }),
 };

@@ -22,14 +22,7 @@ export const CITIES_CS_METADATA: Metadata = createPageMetadata(CITIES_CS_PAGE_DE
 
 export const CITIES_CS_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(CITIES_CS_PAGE_DEFINITION, {
     eyebrow: 'AI transformace pro města a obce',
-    audienceLabel: 'Pro samosprávy',
-    bullets: ['Interní pravidla', 'Open-source řešení', 'Vaše data, Vaše kontrola'],
-    stats: [
-        { label: 'Úřad', value: 'AI pro agendy a směrnice' },
-        { label: 'Občané', value: 'Přesnější odpovědi' },
-        { label: 'Provoz', value: 'Méně administrativy' },
-    ],
-    callToActionLabel: 'Domluvte si ukázku',
+    artwork: 'city',
     paletteSeed: {
         backgroundStart: '#06111d',
         backgroundEnd: '#183752',

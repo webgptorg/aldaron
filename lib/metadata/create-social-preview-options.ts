@@ -1,13 +1,16 @@
 import type { PageMetadataDefinition } from '@/lib/metadata/page-metadata-definition';
-import { SITE_NAME, SITE_URL } from '@/lib/metadata/site-config';
-import type { SocialPreviewImageOptions, SocialPreviewStat } from '@/lib/metadata/social-preview-image';
+import { SITE_NAME } from '@/lib/metadata/site-config';
+import type { SocialPreviewArtworkKind } from '@/lib/metadata/social-preview-artwork';
+import type { SocialPreviewImageOptions } from '@/lib/metadata/social-preview-image';
 import { createSocialPreviewPalette, type SocialPreviewPaletteSeed } from '@/lib/metadata/social-preview-palette';
 
 /**
  * Page specific part of a sharing preview image
  *
- * Note: The headline, the description and the url are intentionally missing here - they are taken from the page
- *       definition so that a sharing preview can never drift away from what the page actually claims.
+ * Note: The headline is intentionally missing here - it is taken from the
+ *       page definition so that a sharing preview can never drift away from
+ *       what the page actually claims. The remaining configuration is visual,
+ *       not a second set of marketing copy.
  */
 export type SocialPreviewContent = {
     /**
@@ -16,24 +19,9 @@ export type SocialPreviewContent = {
     readonly eyebrow: string;
 
     /**
-     * Audience the page is written for
+     * Non-textual visual metaphor matched to what the page is about
      */
-    readonly audienceLabel: string;
-
-    /**
-     * Short selling points rendered as chips
-     */
-    readonly bullets: readonly string[];
-
-    /**
-     * Facts highlighted in the side panel
-     */
-    readonly stats: readonly SocialPreviewStat[];
-
-    /**
-     * Main call to action of the page
-     */
-    readonly callToActionLabel: string;
+    readonly artwork: SocialPreviewArtworkKind;
 
     /**
      * Colors specific to the page
@@ -45,15 +33,6 @@ export type SocialPreviewContent = {
      */
     readonly brandLabel?: string;
 };
-
-/**
- * Turns an absolute site url into the short label shown on a sharing preview, for example `ptbk.io/pro-mesta`
- */
-function createUrlLabel(path: string): string {
-    const host = SITE_URL.replace(/^https?:\/\//, '');
-
-    return `${host}${path === '/' ? '' : path}`;
-}
 
 /**
  * Combines a page definition with its page specific artwork into complete sharing preview image options
@@ -72,12 +51,7 @@ export function createSocialPreviewOptions(
         brandLabel: content.brandLabel ?? SITE_NAME,
         eyebrow: content.eyebrow,
         title: socialTitle,
-        description: definition.socialDescription ?? definition.description,
-        bullets: content.bullets,
-        urlLabel: createUrlLabel(definition.path),
-        audienceLabel: content.audienceLabel,
-        stats: content.stats,
-        callToActionLabel: content.callToActionLabel,
+        artwork: content.artwork,
         palette: createSocialPreviewPalette(content.paletteSeed),
     };
 }

@@ -98,27 +98,13 @@ export const PAVOL_SOCIAL_PREVIEW_OPTIONS: Readonly<Record<SupportedHomepageLang
     cs: createSocialPreviewOptions(PAVOL_PAGE_DEFINITIONS.cs, {
         brandLabel: PAVOL_NAME,
         eyebrow: 'AI konzultace, workshopy a vývoj',
-        audienceLabel: 'Pro firmy a týmy',
-        bullets: ['AI consulting', 'Workshopy a talks', '15+ let vývoje'],
-        stats: [
-            { label: 'Konzultace', value: 'AI se skutečným dopadem' },
-            { label: 'Workshopy', value: 'Prakticky, ne teoreticky' },
-            { label: 'Projekty', value: 'Vývoj, produkt, vzdělávání' },
-        ],
-        callToActionLabel: 'Napište mi',
+        artwork: 'person',
         paletteSeed: PAVOL_PALETTE_SEED,
     }),
     en: createSocialPreviewOptions(PAVOL_PAGE_DEFINITIONS.en, {
         brandLabel: PAVOL_NAME,
         eyebrow: 'AI consulting, workshops, and development',
-        audienceLabel: 'For companies and teams',
-        bullets: ['AI consulting', 'Workshops and talks', '15+ years of development'],
-        stats: [
-            { label: 'Consulting', value: 'AI with real impact' },
-            { label: 'Workshops', value: 'Hands-on, not theory' },
-            { label: 'Projects', value: 'Development, product, education' },
-        ],
-        callToActionLabel: 'Get in touch',
+        artwork: 'person',
         paletteSeed: PAVOL_PALETTE_SEED,
     }),
 };

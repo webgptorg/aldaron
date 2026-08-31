@@ -159,14 +159,7 @@ export const AI_TA_KRAJTA_SOCIAL_PREVIEW_OPTIONS: SocialPreviewImageOptions = cr
     {
         brandLabel: AI_TA_KRAJTA_BRAND_NAME,
         eyebrow: 'Podcast',
-        audienceLabel: 'Pro lidi, kteří AI staví i používají',
-        bullets: ['Česky', 'Video i audio', 'Bez PR balastu'],
-        stats: [
-            { label: 'Kde', value: 'YouTube, Spotify, Apple Podcasts' },
-            { label: 'Nový díl', value: 'Každý týden' },
-            { label: 'Délka', value: '40 až 50 minut' },
-        ],
-        callToActionLabel: 'Pustit poslední díl',
+        artwork: 'podcast',
         paletteSeed: {
             backgroundStart: AI_TA_KRAJTA_COLORS.MOSS_DEEP,
             backgroundEnd: AI_TA_KRAJTA_COLORS.MOSS,

@@ -7,15 +7,8 @@ export type SocialPreviewPalette = {
     readonly accent: string;
     readonly accentSoft: string;
     readonly frame: string;
-    readonly cardBackground: string;
     readonly mutedText: string;
-    readonly chipBackground: string;
     readonly chipBorder: string;
-    readonly sidePanelBackground: string;
-    readonly sidePanelBorder: string;
-    readonly sideLabel: string;
-    readonly statBackground: string;
-    readonly statBorder: string;
     readonly orbPrimary: string;
     readonly orbSecondary: string;
 };
@@ -81,18 +74,8 @@ export function createSocialPreviewPalette(seed: SocialPreviewPaletteSeed): Soci
     return {
         ...seed,
         frame: 'rgba(255, 255, 255, 0.12)',
-        cardBackground: createTranslucentColor(seed.backgroundStart, 0.82),
         mutedText: 'rgba(255, 255, 255, 0.78)',
-        chipBackground: 'rgba(255, 255, 255, 0.08)',
         chipBorder: createTranslucentColor(seed.accent, 0.28),
-        sidePanelBackground: `linear-gradient(180deg, ${createTranslucentColor(
-            seed.accent,
-            0.18,
-        )} 0%, rgba(255, 255, 255, 0.06) 100%)`,
-        sidePanelBorder: createTranslucentColor(seed.accent, 0.24),
-        sideLabel: 'rgba(255, 255, 255, 0.72)',
-        statBackground: 'rgba(255, 255, 255, 0.06)',
-        statBorder: 'rgba(255, 255, 255, 0.08)',
         orbPrimary: createTranslucentColor(seed.accent, 0.18),
         orbSecondary: createTranslucentColor(seed.accentSoft, 0.14),
     };

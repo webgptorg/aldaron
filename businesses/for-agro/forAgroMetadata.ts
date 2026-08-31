@@ -22,14 +22,7 @@ export const FOR_AGRO_METADATA: Metadata = createPageMetadata(FOR_AGRO_PAGE_DEFI
 
 export const FOR_AGRO_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(FOR_AGRO_PAGE_DEFINITION, {
     eyebrow: 'AI transformace pro zemědělství',
-    audienceLabel: 'Pro agro provozy',
-    bullets: ['Agronomické know-how', 'Compliance', 'Napříč regiony'],
-    stats: [
-        { label: 'Know-how', value: 'Znalosti agronomů na dosah' },
-        { label: 'Compliance', value: 'Postupy vždy podle pravidel' },
-        { label: 'Provoz', value: 'Jednotně napříč regiony' },
-    ],
-    callToActionLabel: 'Domluvit konzultaci',
+    artwork: 'agriculture',
     paletteSeed: {
         backgroundStart: '#061a10',
         backgroundEnd: '#17452c',

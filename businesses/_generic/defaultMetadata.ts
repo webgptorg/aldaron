@@ -25,14 +25,7 @@ export const DEFAULT_PAGE_DEFINITION: PageMetadataDefinition = {
  */
 export const DEFAULT_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(DEFAULT_PAGE_DEFINITION, {
     eyebrow: 'AI transformation for business',
-    audienceLabel: 'For growing teams',
-    bullets: ['Business context', 'Simple Books', 'Your data, your control'],
-    stats: [
-        { label: 'Knowledge', value: 'Capture company context' },
-        { label: 'Agents', value: 'Build aligned AI workflows' },
-        { label: 'Control', value: 'Open-source and private' },
-    ],
-    callToActionLabel: 'Start with Promptbook',
+    artwork: 'knowledge',
     paletteSeed: {
         backgroundStart: '#04131c',
         backgroundEnd: '#123847',

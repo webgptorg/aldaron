@@ -23,14 +23,7 @@ export const AI_SUPERVIZE_MINI_METADATA: Metadata = createPageMetadata(AI_SUPERV
 
 export const AI_SUPERVIZE_MINI_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(AI_SUPERVIZE_MINI_PAGE_DEFINITION, {
     eyebrow: 'Praktický workshop',
-    audienceLabel: 'Pro vývojáře a produkťáky',
-    bullets: ['4. 9. Praha / 9. 9. online', '10 prezenčně / 50 online', 'TypeScript / JavaScript'],
-    stats: [
-        { label: 'Formát', value: 'Praha i online' },
-        { label: 'Obsah', value: 'Od zadání po merge' },
-        { label: 'Kapacita', value: '10 / 50 lidí' },
-    ],
-    callToActionLabel: 'Rezervovat místo',
+    artwork: 'workshop',
     paletteSeed: {
         backgroundStart: '#0a0a1f',
         backgroundEnd: '#2a1f4d',

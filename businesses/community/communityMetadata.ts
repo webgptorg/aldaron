@@ -33,14 +33,7 @@ export const COMMUNITY_METADATA: Metadata = {
  */
 export const COMMUNITY_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(COMMUNITY_PAGE_DEFINITION, {
     eyebrow: 'Komunita Promptbooku',
-    audienceLabel: 'Pro účastníky workshopů',
-    bullets: ['Navazující workshopy', 'Materiály na jednom místě', 'Diskuze s komunitou'],
-    stats: [
-        { label: 'Obsah', value: 'Materiály a záznamy' },
-        { label: 'Setkání', value: 'Workshopy a Q&A' },
-        { label: 'Prostor', value: 'Pro členy komunity' },
-    ],
-    callToActionLabel: 'Otevřít komunitu',
+    artwork: 'community',
     paletteSeed: {
         backgroundStart: '#071a2a',
         backgroundEnd: '#0b4053',

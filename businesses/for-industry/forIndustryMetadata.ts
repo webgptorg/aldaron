@@ -22,14 +22,7 @@ export const FOR_INDUSTRY_METADATA: Metadata = createPageMetadata(FOR_INDUSTRY_P
 
 export const FOR_INDUSTRY_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(FOR_INDUSTRY_PAGE_DEFINITION, {
     eyebrow: 'AI transformation for industry',
-    audienceLabel: 'For industrial operations',
-    bullets: ['Technical manuals', 'Less downtime', 'Your data, your control'],
-    stats: [
-        { label: 'Knowledge', value: 'Manuals and SOPs on hand' },
-        { label: 'Uptime', value: 'Faster troubleshooting' },
-        { label: 'Support', value: 'Consistent answers' },
-    ],
-    callToActionLabel: 'Get started',
+    artwork: 'industry',
     paletteSeed: {
         backgroundStart: '#12100a',
         backgroundEnd: '#3d3218',

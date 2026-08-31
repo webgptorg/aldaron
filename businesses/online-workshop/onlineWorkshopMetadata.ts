@@ -71,14 +71,7 @@ export const ONLINE_WORKSHOP_PARTICIPANT_METADATA: Metadata = {
 
 export const ONLINE_WORKSHOP_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(ONLINE_WORKSHOP_PAGE_DEFINITION, {
     eyebrow: 'Online workshop naživo',
-    audienceLabel: 'Pro tech leady a CTO',
-    bullets: ['Zdarma', '60 minut + Q&A', 'Naživo online'],
-    stats: [
-        { label: 'Téma', value: 'Produkční kód s AI agenty' },
-        { label: 'Formát', value: '60 minut naživo' },
-        { label: 'Cena', value: 'Zdarma' },
-    ],
-    callToActionLabel: 'Zaregistrovat se',
+    artwork: 'workshop',
     paletteSeed: {
         backgroundStart: '#04131c',
         backgroundEnd: '#123847',
@@ -96,14 +89,7 @@ export const ONLINE_WORKSHOP_PARTICIPANT_SOCIAL_PREVIEW_OPTIONS = createSocialPr
     ONLINE_WORKSHOP_PARTICIPANT_PAGE_DEFINITION,
     {
         eyebrow: 'Online workshop naživo',
-        audienceLabel: 'Pro registrované účastníky',
-        bullets: ['Živé vysílání', 'Chat a reakce', 'Materiály k workshopu'],
-        stats: [
-            { label: 'Místnost', value: 'Jen pro účastníky' },
-            { label: 'Obsah', value: 'Produkční kód s AI agenty' },
-            { label: 'Připojení', value: 'Odkaz v e-mailu' },
-        ],
-        callToActionLabel: 'Připojit se',
+        artwork: 'workshop',
         paletteSeed: {
             backgroundStart: '#04131c',
             backgroundEnd: '#123847',

@@ -22,14 +22,7 @@ export const AI_SUPERVIZE_METADATA: Metadata = createPageMetadata(AI_SUPERVIZE_P
 
 export const AI_SUPERVIZE_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(AI_SUPERVIZE_PAGE_DEFINITION, {
     eyebrow: 'AI pod kontrolou ve vývoji',
-    audienceLabel: 'Pro CTO a tech leady',
-    bullets: ['Workflow a pravidla', 'Playbook pro tým', 'Měřitelné výsledky'],
-    stats: [
-        { label: 'Workflow', value: 'Od zadání po merge' },
-        { label: 'Kvalita', value: 'Review, testy, limity' },
-        { label: 'Metriky', value: 'Kratší time-to-merge' },
-    ],
-    callToActionLabel: 'Chci AI supervizi',
+    artwork: 'workshop',
     paletteSeed: {
         backgroundStart: '#050b18',
         backgroundEnd: '#1b2b52',

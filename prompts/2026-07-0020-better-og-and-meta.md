@@ -23,7 +23,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3464 12 minutes; Testing 9 minutes
 
 [✨🛁] Enhance the preview OG Images of pages
 
@@ -35,3 +35,4 @@
 - Do a proper analysis of the current functionality before you start implementing.
 
 ![alt text](prompts/screenshots/2026-07-0020-better-og-and-meta.png)
+
