@@ -2,10 +2,9 @@
  * @vitest-environment jsdom
  */
 
-import { COMMUNITY_MEMBERSHIP_SECTION_ID } from '@/businesses/community/config';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -83,11 +82,15 @@ afterEach(() => {
 });
 
 describe('community participant page', () => {
-    it('leads a free member from the header badge to the membership offered in the same room', async () => {
+    it('opens the membership modal from the free member header badge without placing it among room content', async () => {
         renderCommunityRoom();
 
-        const membershipBadge = await screen.findByRole('link', { name: 'Free členství. Přejít na placené členství' });
-        expect(membershipBadge.getAttribute('href')).toBe(`#${COMMUNITY_MEMBERSHIP_SECTION_ID}`);
+        const membershipBadge = await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
+        expect(screen.queryByRole('dialog')).toBeNull();
+
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
         expect(screen.getByRole('button', { name: 'Zaplatit 199 Kč / měsíc' })).toBeDefined();
     });
 
@@ -101,14 +104,17 @@ describe('community participant page', () => {
         });
         renderCommunityRoom();
 
-        expect(await screen.findByText('Placené členství')).toBeDefined();
-        expect(screen.queryByRole('link', { name: /Free členství/ })).toBeNull();
+        const membershipBadge = await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' });
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství je aktivní' })).toBeDefined();
+        expect(screen.queryByRole('button', { name: /Free členství/ })).toBeNull();
     });
 
     it('asks for the membership of the member once, however many surfaces of the room show it', async () => {
         renderCommunityRoom();
 
-        await screen.findByRole('link', { name: 'Free členství. Přejít na placené členství' });
+        await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
         expect(fetchCommunityMembership).toHaveBeenCalledTimes(1);
     });
 });

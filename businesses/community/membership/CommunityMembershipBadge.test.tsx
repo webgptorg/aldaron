@@ -2,10 +2,29 @@
  * @vitest-environment jsdom
  */
 
-import { COMMUNITY_MEMBERSHIP_SECTION_ID } from '@/businesses/community/config';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import type { InputHTMLAttributes } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// The checkbox of the design system measures itself, which the test document cannot do.
+vi.mock('@/components/ui/checkbox', () => ({
+    Checkbox: ({
+        checked,
+        onCheckedChange,
+        ...props
+    }: InputHTMLAttributes<HTMLInputElement> & {
+        checked?: boolean;
+        onCheckedChange?: (isChecked: boolean) => void;
+    }) => (
+        <input
+            {...props}
+            type="checkbox"
+            checked={checked}
+            onChange={(event) => onCheckedChange?.(event.currentTarget.checked)}
+        />
+    ),
+}));
 
 const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
 
@@ -16,6 +35,7 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
 }));
 
 import { CommunityMembershipBadge } from './CommunityMembershipBadge';
+import { CommunityMembershipModal } from './CommunityMembershipModal';
 import { CommunityMembershipRoomProvider } from './CommunityMembershipRoomProvider';
 
 const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
@@ -30,6 +50,7 @@ function renderMembershipBadge() {
     render(
         <CommunityMembershipRoomProvider>
             <CommunityMembershipBadge />
+            <CommunityMembershipModal />
         </CommunityMembershipRoomProvider>,
     );
 }
@@ -45,14 +66,18 @@ afterEach(() => {
 });
 
 describe('community membership badge', () => {
-    it('identifies the free tier and leads to the offer in the very same room', async () => {
+    it('identifies the free tier and opens the offer in a modal in the very same room', async () => {
         renderMembershipBadge();
 
-        const membershipBadge = await screen.findByRole('link', { name: 'Free členství. Přejít na placené členství' });
-        expect(membershipBadge.getAttribute('href')).toBe(`#${COMMUNITY_MEMBERSHIP_SECTION_ID}`);
+        const membershipBadge = await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
+        expect(screen.queryByRole('dialog')).toBeNull();
+
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
     });
 
-    it('identifies a paying member without offering them anything', async () => {
+    it('opens the paid membership state for a paying member', async () => {
         fetchCommunityMembership.mockResolvedValue({
             status: 'active',
             monthlyPriceCzk: 199,
@@ -62,8 +87,11 @@ describe('community membership badge', () => {
         });
         renderMembershipBadge();
 
-        expect(await screen.findByText('Placené členství')).toBeDefined();
-        expect(screen.queryByRole('link')).toBeNull();
+        const membershipBadge = await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' });
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství je aktivní' })).toBeDefined();
+        expect(screen.queryByRole('button', { name: /Zaplatit/ })).toBeNull();
     });
 
     it('claims no membership at all while it is unknown or cannot be bought', async () => {

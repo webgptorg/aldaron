@@ -4,7 +4,7 @@
 
 import { COMMUNITY_PATH } from '@/businesses/community/config';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { InputHTMLAttributes } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -39,7 +39,8 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
 }));
 
 import { CommunityMembershipRoomProvider } from './CommunityMembershipRoomProvider';
-import { CommunityMembershipSection } from './CommunityMembershipSection';
+import { CommunityMembershipBadge } from './CommunityMembershipBadge';
+import { CommunityMembershipModal } from './CommunityMembershipModal';
 
 const OFFERED_MEMBERSHIP: CommunityMembershipRoomState = {
     status: 'none',
@@ -49,12 +50,23 @@ const OFFERED_MEMBERSHIP: CommunityMembershipRoomState = {
     isPaymentInTestMode: false,
 };
 
-function renderMembershipSection() {
+function renderMembershipModal() {
     render(
         <CommunityMembershipRoomProvider>
-            <CommunityMembershipSection />
+            <CommunityMembershipBadge />
+            <CommunityMembershipModal />
         </CommunityMembershipRoomProvider>,
     );
+}
+
+async function openFreeMembershipModal() {
+    fireEvent.click(await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' }));
+    return screen.findByRole('dialog');
+}
+
+async function openPaidMembershipModal() {
+    fireEvent.click(await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' }));
+    return screen.findByRole('dialog');
 }
 
 beforeEach(() => {
@@ -68,16 +80,20 @@ afterEach(() => {
     vi.clearAllMocks();
 });
 
-describe('community membership section', () => {
-    it('offers the membership for its monthly price inside the room itself', async () => {
-        renderMembershipSection();
+describe('community membership modal', () => {
+    it('opens the in-room offer for its monthly price from the free membership badge', async () => {
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
 
         expect(await screen.findByRole('button', { name: 'Zaplatit 199 Kč / měsíc' })).toBeDefined();
         expect(screen.getByText('Záznamy a archiv webinářů')).toBeDefined();
     });
 
     it('says nothing about a test card while the gate charges real money', async () => {
-        renderMembershipSection();
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
 
         await screen.findByRole('button', { name: 'Zaplatit 199 Kč / měsíc' });
         expect(screen.queryByText(/Testovací režim/)).toBeNull();
@@ -85,7 +101,9 @@ describe('community membership section', () => {
 
     it('names the test card while the gate is the test one', async () => {
         fetchCommunityMembership.mockResolvedValue({ ...OFFERED_MEMBERSHIP, isPaymentInTestMode: true });
-        renderMembershipSection();
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
 
         expect(await screen.findByText(/Testovací režim platební brány/)).toBeDefined();
         expect(screen.getByText('4242 4242 4242 4242')).toBeDefined();
@@ -99,7 +117,9 @@ describe('community membership section', () => {
             isPurchaseOffered: false,
             isPaymentInTestMode: false,
         });
-        renderMembershipSection();
+        renderMembershipModal();
+
+        await openPaidMembershipModal();
 
         expect(await screen.findByText('Placené členství je aktivní')).toBeDefined();
         expect(screen.getByText(/Platíte 149 Kč měsíčně\. Zaplaceno do 30\. 9\. 2026\./)).toBeDefined();
@@ -114,14 +134,16 @@ describe('community membership section', () => {
             isPurchaseOffered: false,
             isPaymentInTestMode: false,
         });
-        renderMembershipSection();
+        renderMembershipModal();
+
+        await openPaidMembershipModal();
 
         expect(await screen.findByText(/Poslední platba neprošla/)).toBeDefined();
     });
 
     it('says nothing at all where the server has no payment gate', async () => {
         fetchCommunityMembership.mockResolvedValue({ ...OFFERED_MEMBERSHIP, isPurchaseOffered: false });
-        renderMembershipSection();
+        renderMembershipModal();
 
         await vi.waitFor(() => expect(screen.queryByText('Placené členství komunity')).toBeNull());
         expect(fetchCommunityMembership).toHaveBeenCalled();
@@ -136,8 +158,9 @@ describe('community membership section', () => {
             isPurchaseOffered: false,
             isPaymentInTestMode: false,
         });
-        renderMembershipSection();
+        renderMembershipModal();
 
+        expect(await screen.findByRole('dialog')).toBeDefined();
         expect(await screen.findByText('Platba proběhla. Placené členství je vaše, díky!')).toBeDefined();
         expect(confirmCommunityMembershipCheckout).toHaveBeenCalledWith('cs_test_Example');
         expect(fetchCommunityMembership).not.toHaveBeenCalled();
@@ -147,8 +170,9 @@ describe('community membership section', () => {
 
     it('says that a member who came back without paying can buy the membership later', async () => {
         window.history.replaceState({}, '', `${COMMUNITY_PATH}?membership=cancelled`);
-        renderMembershipSection();
+        renderMembershipModal();
 
+        expect(await screen.findByRole('dialog')).toBeDefined();
         expect(
             await screen.findByText('Platba nebyla dokončena. Členství si můžete pořídit kdykoli později.'),
         ).toBeDefined();

@@ -1,5 +1,11 @@
 # Current preversion
 
+- Moved the community membership surface out of the `/cs/komunita` content column into the room’s shared popup
+  modal. Both the `Free členství` and `Placené členství` header badges now open it, so a member can see their current
+  status or the paid plan, agree to the terms, apply a discount, and enter the same Stripe checkout without leaving
+  the community or scrolling past its materials. A return from Stripe opens that modal as well, preserving the clear
+  paid or cancelled result the in-page surface previously showed.
+
 - Added the paid-membership administration to `/admin/community`: its new `Placená členství` tab pages, filters and
   sorts the durable payment records by name, e-mail, lifecycle status and Stripe environment, shows the price,
   discount, payment identifiers and important lifecycle dates, and opens the exact checkout or subscription in Stripe

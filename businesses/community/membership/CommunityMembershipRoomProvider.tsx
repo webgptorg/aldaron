@@ -32,11 +32,18 @@ type CommunityMembershipRoomController = {
     readonly checkoutResult: CommunityMembershipCheckoutResult | null;
 
     /**
+     * Whether the member has opened the membership details from their room badge.
+     */
+    readonly isMembershipModalOpen: boolean;
+
+    /**
      * Asks for the membership once, however many surfaces of the room want to know it
      */
     readonly ensureMembershipLoaded: () => void;
     readonly startCheckout: (discountCode: string) => Promise<void>;
     readonly dismissCheckoutResult: () => void;
+    readonly openMembershipModal: () => void;
+    readonly setIsMembershipModalOpen: (isMembershipModalOpen: boolean) => void;
 };
 
 const CommunityMembershipRoomContext = createContext<CommunityMembershipRoomController | null>(null);
@@ -64,7 +71,7 @@ function getMembershipErrorMessage(error: unknown, fallbackMessage: string): str
 /**
  * Holds the membership of the connected member for the whole community room.
  *
- * Note: The badge in the header and the offer in the page are two views of one membership, so they read one state and
+ * Note: The badge in the header and the membership modal are two views of one membership, so they read one state and
  *       cause one request between them.
  */
 export function CommunityMembershipRoomProvider({ children }: { readonly children: ReactNode }) {
@@ -82,6 +89,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
     const [checkoutResult, setCheckoutResult] = useState<CommunityMembershipCheckoutResult | null>(
         checkoutReturn.result,
     );
+    const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
     const isMembershipRequestedRef = useRef(false);
     const checkoutSessionIdRef = useRef<string | null>(checkoutReturn.checkoutSessionId);
 
@@ -98,6 +106,14 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
             createUrlWithoutCommunityMembershipCheckoutReturn(window.location.href),
         );
     }, [checkoutReturn.result]);
+
+    // The result used to be visible in the in-page membership section. Opening the modal for a returning member keeps
+    // that confirmation or cancellation visible after moving the surface out of the room layout.
+    useEffect(() => {
+        if (checkoutResult !== null) {
+            setIsMembershipModalOpen(true);
+        }
+    }, [checkoutResult]);
 
     const ensureMembershipLoaded = useCallback(() => {
         if (isMembershipRequestedRef.current) {
@@ -160,6 +176,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
     }, []);
 
     const dismissCheckoutResult = useCallback(() => setCheckoutResult(null), []);
+    const openMembershipModal = useCallback(() => setIsMembershipModalOpen(true), []);
 
     return (
         <CommunityMembershipRoomContext.Provider
@@ -169,9 +186,12 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
                 isCheckoutStarting,
                 errorMessage,
                 checkoutResult,
+                isMembershipModalOpen,
                 ensureMembershipLoaded,
                 startCheckout,
                 dismissCheckoutResult,
+                openMembershipModal,
+                setIsMembershipModalOpen,
             }}
         >
             {children}

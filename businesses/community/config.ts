@@ -49,11 +49,6 @@ export const COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH = `${COMMUNITY_
  * Note: A returning browser carries the id of the finished checkout, which is what lets the room confirm a payment
  *       against the gate itself rather than believing an address which anybody could type.
  */
-/**
- * Where the membership is offered inside the room, which is what the badge of the header leads to.
- */
-export const COMMUNITY_MEMBERSHIP_SECTION_ID = 'community-membership';
-
 export const COMMUNITY_MEMBERSHIP_RESULT_PARAMETER_NAME = 'membership';
 export const COMMUNITY_MEMBERSHIP_CHECKOUT_SESSION_PARAMETER_NAME = 'checkoutSession';
 export const COMMUNITY_MEMBERSHIP_PAID_RESULT = 'paid';
