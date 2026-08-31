@@ -60,3 +60,18 @@
 
 ![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate.png)
 
+---
+
+[ ]
+
+[✨🏕] Allow to open Stripe subscription management page directly from the community app membership popup modal but keep the option to cancel the membership directly from the community app membership popup modal
+
+![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-5.png)
+
+---
+
+[ ]
+
+[✨🏕] The page with table with perks of paid membership should look more premium
+
+![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-6.png)
