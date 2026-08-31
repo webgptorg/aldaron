@@ -1,5 +1,5 @@
 # Current preversion
-
+- Let `/admin/workshops` reopen a workshop by clearing its recorded end, and give an open-ended workshop quick choices to end now, one hour after its start, or two hours after its start; each choice uses the existing live update, so `/cs/online-workshop/participant` immediately keeps or replaces the stream accordingly.
 - Let a paid community member open their Stripe Customer Portal from the membership popup of `/cs/komunita`, through
   a new short-lived, authenticated link which belongs only to that member and returns them to the community. The
   portal is now available alongside, rather than instead of, the confirmed in-app cancellation and reactivation of

@@ -46,6 +46,9 @@ const OPEN_ENDED_WORKSHOP: WorkshopDetails = {
 
 const SCHEDULE_LABELS = ['Začátek', 'Konec'];
 const END_WORKSHOP_LABEL = 'Ukončit workshop';
+const OPEN_WORKSHOP_END_LABEL = 'Nechat workshop bez konce';
+const END_ONE_HOUR_AFTER_START_LABEL = 'Nastavit konec 1 hodinu po začátku';
+const END_TWO_HOURS_AFTER_START_LABEL = 'Nastavit konec 2 hodiny po začátku';
 const STAGE_LABEL = 'YouTube URL nebo video ID';
 const REACTION_LABEL = 'Reakce oddělené mezerou';
 
@@ -108,20 +111,25 @@ describe('workshop settings form', () => {
         );
     });
 
-    it('offers to end a running workshop whose end is still open', () => {
+    it('offers every quick end choice for a running workshop whose end is still open', () => {
         renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
 
         expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).not.toBeNull();
+        expect(screen.queryByRole('button', { name: END_ONE_HOUR_AFTER_START_LABEL })).not.toBeNull();
+        expect(screen.queryByRole('button', { name: END_TWO_HOURS_AFTER_START_LABEL })).not.toBeNull();
     });
 
-    it('leaves a workshop which already has an end and a workshop which has not started without that button', () => {
+    it('offers to reopen a workshop with a defined end and does not end an upcoming workshop right now', () => {
         renderWorkshopSettingsForm(WORKSHOP);
         expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).toBeNull();
+        expect(screen.queryByRole('button', { name: OPEN_WORKSHOP_END_LABEL })).not.toBeNull();
 
         cleanup();
 
         renderWorkshopSettingsForm({ ...OPEN_ENDED_WORKSHOP, startsAt: '2099-01-01T10:00:00+01:00' });
         expect(screen.queryByRole('button', { name: END_WORKSHOP_LABEL })).toBeNull();
+        expect(screen.queryByRole('button', { name: END_ONE_HOUR_AFTER_START_LABEL })).not.toBeNull();
+        expect(screen.queryByRole('button', { name: END_TWO_HOURS_AFTER_START_LABEL })).not.toBeNull();
     });
 
     it('ends a workshop by saving the current moment as its end', async () => {
@@ -145,6 +153,35 @@ describe('workshop settings form', () => {
         fireEvent.click(screen.getByRole('button', { name: END_WORKSHOP_LABEL }));
 
         expect(onSave).not.toHaveBeenCalled();
+        confirmSpy.mockRestore();
+    });
+
+    it('sets an open workshop end to either usual duration after its start', async () => {
+        const { onSave } = renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP);
+        const startsAtMilliseconds = Date.parse(OPEN_ENDED_WORKSHOP.startsAt);
+
+        fireEvent.click(screen.getByRole('button', { name: END_ONE_HOUR_AFTER_START_LABEL }));
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+        expect(Date.parse(onSave.mock.calls[0][0].endsAt) - startsAtMilliseconds).toBe(60 * 60 * 1_000);
+
+        cleanup();
+        onSave.mockClear();
+        renderWorkshopSettingsForm(OPEN_ENDED_WORKSHOP, onSave);
+
+        fireEvent.click(screen.getByRole('button', { name: END_TWO_HOURS_AFTER_START_LABEL }));
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+        expect(Date.parse(onSave.mock.calls[0][0].endsAt) - startsAtMilliseconds).toBe(2 * 60 * 60 * 1_000);
+    });
+
+    it('makes a workshop with a defined end open-ended again after confirmation', async () => {
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+        const { onSave } = renderWorkshopSettingsForm(WORKSHOP);
+
+        fireEvent.click(screen.getByRole('button', { name: OPEN_WORKSHOP_END_LABEL }));
+
+        await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ endsAt: null })));
         confirmSpy.mockRestore();
     });
 
