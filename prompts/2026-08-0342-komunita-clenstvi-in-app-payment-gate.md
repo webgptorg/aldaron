@@ -70,9 +70,10 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.2993 10 minutes; Testing 7 minutes
 
 [✨🏕] The page with table with perks of paid membership should look more premium
 
 ![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-6.png)
+
 
