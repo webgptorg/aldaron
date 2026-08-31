@@ -445,20 +445,22 @@ export function WorkshopAdminDashboard({
         >
             {isRoomSelectionOffered && (
                 <aside className="space-y-4">
-                    <WorkshopSelectorCardList
-                        label={selectorLabel}
-                        workshops={workshops}
-                        selectedWorkshopId={selectedWorkshopId}
-                        isLoading={isLoading}
-                        emptyMessage={emptyStateMessage}
-                        onSelect={(workshopId) => {
-                            const workshop = workshops.find(({ id }) => id === workshopId);
-                            if (workshop !== undefined) {
-                                selectWorkshopBySlug(workshop.slug);
-                            }
-                        }}
-                    />
-                    <WorkshopAdminRefreshButton className="w-full" onRefresh={handleRefresh} />
+                    <div className="space-y-4 lg:sticky lg:top-6">
+                        <WorkshopSelectorCardList
+                            label={selectorLabel}
+                            workshops={workshops}
+                            selectedWorkshopId={selectedWorkshopId}
+                            isLoading={isLoading}
+                            emptyMessage={emptyStateMessage}
+                            onSelect={(workshopId) => {
+                                const workshop = workshops.find(({ id }) => id === workshopId);
+                                if (workshop !== undefined) {
+                                    selectWorkshopBySlug(workshop.slug);
+                                }
+                            }}
+                        />
+                        <WorkshopAdminRefreshButton className="w-full" onRefresh={handleRefresh} />
+                    </div>
                     <CreateWorkshopForm
                         onCreate={handleCreateWorkshop}
                         workshopToDuplicate={snapshot?.workshop ?? null}

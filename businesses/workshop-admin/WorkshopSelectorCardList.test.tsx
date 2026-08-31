@@ -111,6 +111,29 @@ describe('workshop selector card list', () => {
         expect(handleSelect).toHaveBeenCalledWith(PAST_WORKSHOP.id);
     });
 
+    it('finds a workshop by its title without requiring the administrator to scroll through the list', () => {
+        renderWorkshopSelectorCardList([ONGOING_WORKSHOP, UPCOMING_WORKSHOP, PAST_WORKSHOP]);
+
+        fireEvent.change(screen.getByRole('searchbox', { name: 'Hledat workshop' }), {
+            target: { value: 'zari' },
+        });
+
+        expect(screen.getAllByRole('button')).toHaveLength(1);
+        expect(screen.getByRole('button').textContent).toContain(UPCOMING_WORKSHOP.title);
+        expect(screen.queryByText(ONGOING_WORKSHOP.title)).toBeNull();
+    });
+
+    it('explains when a search does not match an administered workshop', () => {
+        renderWorkshopSelectorCardList([ONGOING_WORKSHOP]);
+
+        fireEvent.change(screen.getByRole('searchbox', { name: 'Hledat workshop' }), {
+            target: { value: 'neexistující workshop' },
+        });
+
+        expect(screen.getByText('Žádný workshop neodpovídá hledání.')).not.toBeNull();
+        expect(screen.queryAllByRole('button')).toEqual([]);
+    });
+
     it('explains an empty administration instead of listing nothing at all', () => {
         renderWorkshopSelectorCardList([]);
 

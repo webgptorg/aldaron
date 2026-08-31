@@ -1,4 +1,4 @@
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3484 12 minutes; Testing 6 minutes
 
 [✨🦒] Allow admin to show lot of workshops in the picker
 
@@ -9,3 +9,4 @@
 - Do a analysis of the current functionality before you start implementing.
 
 ![alt text](prompts/screenshots/2026-08-0380-lot-of-workshops.png)
+
