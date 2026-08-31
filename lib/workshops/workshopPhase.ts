@@ -137,3 +137,26 @@ export function sortWorkshopsByPhase<TWorkshop extends WorkshopOccurrenceTiming>
         )
         .map(({ workshop }) => workshop);
 }
+
+/**
+ * Splits occurrences into the same ordered phases which administration and public listings use.
+ *
+ * Keeping the ordering and the grouping together means a picker can progressively disclose an archive without
+ * teaching a second place which workshop belongs before, during, or after the current moment.
+ */
+export function groupWorkshopsByPhase<TWorkshop extends WorkshopOccurrenceTiming>(
+    workshops: readonly TWorkshop[],
+    currentTimeMilliseconds = Date.now(),
+): Readonly<Record<WorkshopPhase, readonly TWorkshop[]>> {
+    const workshopsByPhase: Record<WorkshopPhase, TWorkshop[]> = {
+        ongoing: [],
+        upcoming: [],
+        past: [],
+    };
+
+    for (const workshop of sortWorkshopsByPhase(workshops, currentTimeMilliseconds)) {
+        workshopsByPhase[getWorkshopPhase(workshop, currentTimeMilliseconds)].push(workshop);
+    }
+
+    return workshopsByPhase;
+}

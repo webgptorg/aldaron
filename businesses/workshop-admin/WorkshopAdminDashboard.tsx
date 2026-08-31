@@ -441,7 +441,7 @@ export function WorkshopAdminDashboard({
 
     return (
         <div
-            className={`mx-auto grid max-w-7xl gap-6 px-6 py-8 ${isRoomSelectionOffered ? 'lg:grid-cols-[320px_minmax(0,1fr)]' : ''}`}
+            className={`mx-auto grid max-w-7xl gap-6 px-6 py-8 ${isRoomSelectionOffered ? 'lg:grid-cols-[22rem_minmax(0,1fr)] xl:grid-cols-[28rem_minmax(0,1fr)]' : ''}`}
         >
             {isRoomSelectionOffered && (
                 <aside className="space-y-4">

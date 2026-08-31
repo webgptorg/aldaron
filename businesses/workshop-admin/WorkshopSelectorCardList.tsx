@@ -2,9 +2,9 @@
 
 import { WorkshopSelectorCard } from '@/businesses/workshop-admin/WorkshopSelectorCard';
 import { Input } from '@/components/ui/input';
-import { sortWorkshopsByPhase } from '@/lib/workshops/workshopPhase';
+import { getWorkshopPhase, groupWorkshopsByPhase } from '@/lib/workshops/workshopPhase';
 import type { WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
-import { RefreshCw, Search } from 'lucide-react';
+import { ChevronDown, RefreshCw, Search } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
 
 type WorkshopSelectorCardListProps = {
@@ -17,6 +17,9 @@ type WorkshopSelectorCardListProps = {
 };
 
 const CZECH_LOCALE = 'cs-CZ';
+const WORKSHOP_CARD_GRID_CLASS_NAME = 'grid grid-cols-1 gap-1.5 xl:grid-cols-2';
+const WORKSHOP_LIST_CLASS_NAME =
+    'mt-3 space-y-3 lg:max-h-[min(34rem,calc(100dvh-31rem))] lg:overflow-y-auto lg:pr-1';
 
 function normalizeWorkshopSearchQuery(searchQuery: string): string {
     return searchQuery
@@ -34,6 +37,38 @@ function isWorkshopMatchingSearchQuery(workshop: WorkshopAdminSummary, normalize
     return normalizeWorkshopSearchQuery(`${workshop.title} ${workshop.slug}`).includes(normalizedSearchQuery);
 }
 
+type WorkshopSelectorCardGridProps = {
+    readonly accessibleLabel: string;
+    readonly workshops: readonly WorkshopAdminSummary[];
+    readonly selectedWorkshopId: string | null;
+    readonly onSelect: (workshopId: string) => void;
+};
+
+/**
+ * Renders each selectable workshop in one place, so the current terms and the progressively disclosed archive stay
+ * equally informative and behave identically.
+ */
+function WorkshopSelectorCardGrid({
+    accessibleLabel,
+    workshops,
+    selectedWorkshopId,
+    onSelect,
+}: WorkshopSelectorCardGridProps) {
+    return (
+        <ul aria-label={accessibleLabel} className={WORKSHOP_CARD_GRID_CLASS_NAME}>
+            {workshops.map((workshop) => (
+                <li key={workshop.id} className="min-w-0">
+                    <WorkshopSelectorCard
+                        workshop={workshop}
+                        isSelected={workshop.id === selectedWorkshopId}
+                        onSelect={onSelect}
+                    />
+                </li>
+            ))}
+        </ul>
+    );
+}
+
 /**
  * Offers every occurrence as a card, ordered so that a running room leads the list, the prepared terms follow it, and
  * the history closes it.
@@ -47,12 +82,22 @@ export function WorkshopSelectorCardList({
     onSelect,
 }: WorkshopSelectorCardListProps) {
     const searchInputId = useId();
+    const pastWorkshopsListId = useId();
     const [searchQuery, setSearchQuery] = useState('');
-    const sortedWorkshops = useMemo(() => sortWorkshopsByPhase(workshops), [workshops]);
+    const [isPastWorkshopsExpanded, setIsPastWorkshopsExpanded] = useState(false);
+    const normalizedSearchQuery = useMemo(() => normalizeWorkshopSearchQuery(searchQuery), [searchQuery]);
     const matchingWorkshops = useMemo(() => {
-        const normalizedSearchQuery = normalizeWorkshopSearchQuery(searchQuery);
-        return sortedWorkshops.filter((workshop) => isWorkshopMatchingSearchQuery(workshop, normalizedSearchQuery));
-    }, [searchQuery, sortedWorkshops]);
+        return workshops.filter((workshop) => isWorkshopMatchingSearchQuery(workshop, normalizedSearchQuery));
+    }, [normalizedSearchQuery, workshops]);
+    const matchingWorkshopsByPhase = useMemo(() => groupWorkshopsByPhase(matchingWorkshops), [matchingWorkshops]);
+    const currentAndUpcomingWorkshops = [
+        ...matchingWorkshopsByPhase.ongoing,
+        ...matchingWorkshopsByPhase.upcoming,
+    ];
+    const selectedWorkshop = workshops.find((workshop) => workshop.id === selectedWorkshopId);
+    const isSelectedWorkshopPast = selectedWorkshop !== undefined && getWorkshopPhase(selectedWorkshop) === 'past';
+    const isSearchQueryPresent = normalizedSearchQuery.length > 0;
+    const isPastWorkshopsVisible = isPastWorkshopsExpanded || isSelectedWorkshopPast || isSearchQueryPresent;
 
     return (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -61,7 +106,7 @@ export function WorkshopSelectorCardList({
                 <div className="flex justify-center py-6">
                     <RefreshCw className="h-4 w-4 animate-spin text-cyan-600" aria-label="Načítání" />
                 </div>
-            ) : sortedWorkshops.length === 0 ? (
+            ) : workshops.length === 0 ? (
                 <p className="mt-3 rounded-xl border border-dashed border-slate-300 px-3 py-4 text-sm text-slate-500">
                     {emptyMessage}
                 </p>
@@ -89,20 +134,54 @@ export function WorkshopSelectorCardList({
                             Žádný workshop neodpovídá hledání.
                         </p>
                     ) : (
-                        <ul
-                            aria-label="Seznam workshopů"
-                            className="mt-3 space-y-1.5 lg:max-h-[min(34rem,calc(100dvh-31rem))] lg:overflow-y-auto lg:pr-1"
-                        >
-                            {matchingWorkshops.map((workshop) => (
-                                <li key={workshop.id}>
-                                    <WorkshopSelectorCard
-                                        workshop={workshop}
-                                        isSelected={workshop.id === selectedWorkshopId}
-                                        onSelect={onSelect}
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                        <div className={WORKSHOP_LIST_CLASS_NAME}>
+                            {currentAndUpcomingWorkshops.length > 0 && (
+                                <section aria-labelledby={`${pastWorkshopsListId}-current`}>
+                                    <h3
+                                        id={`${pastWorkshopsListId}-current`}
+                                        className="px-1 text-xs font-semibold uppercase tracking-wider text-slate-500"
+                                    >
+                                        Aktuální a nadcházející ({currentAndUpcomingWorkshops.length})
+                                    </h3>
+                                    <div className="mt-1.5">
+                                        <WorkshopSelectorCardGrid
+                                            accessibleLabel="Seznam workshopů"
+                                            workshops={currentAndUpcomingWorkshops}
+                                            selectedWorkshopId={selectedWorkshopId}
+                                            onSelect={onSelect}
+                                        />
+                                    </div>
+                                </section>
+                            )}
+
+                            {matchingWorkshopsByPhase.past.length > 0 && (
+                                <section>
+                                    <button
+                                        type="button"
+                                        aria-controls={pastWorkshopsListId}
+                                        aria-expanded={isPastWorkshopsVisible}
+                                        onClick={() => setIsPastWorkshopsExpanded((isExpanded) => !isExpanded)}
+                                        className="flex w-full items-center justify-between rounded-lg px-1 py-1 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 transition-colors hover:text-slate-800"
+                                    >
+                                        Historie ({matchingWorkshopsByPhase.past.length})
+                                        <ChevronDown
+                                            className={`h-4 w-4 shrink-0 transition-transform ${isPastWorkshopsVisible ? 'rotate-180' : ''}`}
+                                            aria-hidden="true"
+                                        />
+                                    </button>
+                                    {isPastWorkshopsVisible && (
+                                        <div className="mt-1.5" id={pastWorkshopsListId}>
+                                            <WorkshopSelectorCardGrid
+                                                accessibleLabel="Historie workshopů"
+                                                workshops={matchingWorkshopsByPhase.past}
+                                                selectedWorkshopId={selectedWorkshopId}
+                                                onSelect={onSelect}
+                                            />
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+                        </div>
                     )}
                 </>
             )}

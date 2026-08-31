@@ -49,17 +49,22 @@ const PAST_WORKSHOP: WorkshopAdminSummary = {
 function renderWorkshopSelectorCardList(
     workshops: readonly WorkshopAdminSummary[],
     onSelect: (workshopId: string) => void = vi.fn(),
+    selectedWorkshopId: string | null = ONGOING_WORKSHOP.id,
 ) {
     render(
         <WorkshopSelectorCardList
             label="Workshop"
             workshops={workshops}
-            selectedWorkshopId={ONGOING_WORKSHOP.id}
+            selectedWorkshopId={selectedWorkshopId}
             isLoading={false}
             emptyMessage="Vytvořte první workshop."
             onSelect={onSelect}
         />,
     );
+}
+
+function getWorkshopCards() {
+    return screen.queryAllByRole('button').filter((button) => button.hasAttribute('aria-pressed'));
 }
 
 beforeEach(() => {
@@ -73,10 +78,20 @@ afterEach(() => {
 });
 
 describe('workshop selector card list', () => {
-    it('leads with the running workshop, then the prepared terms, and closes with the history', () => {
+    it('leads with the running workshop and prepared terms, while keeping the archive available on demand', () => {
         renderWorkshopSelectorCardList([PAST_WORKSHOP, UPCOMING_WORKSHOP, ONGOING_WORKSHOP]);
 
-        expect(screen.getAllByRole('button').map((workshopCard) => workshopCard.textContent)).toEqual([
+        expect(getWorkshopCards().map((workshopCard) => workshopCard.textContent)).toEqual([
+            expect.stringContaining(ONGOING_WORKSHOP.title),
+            expect.stringContaining(UPCOMING_WORKSHOP.title),
+        ]);
+
+        const historyToggle = screen.getByRole('button', { name: 'Historie (1)' });
+        expect(historyToggle.getAttribute('aria-expanded')).toBe('false');
+
+        fireEvent.click(historyToggle);
+
+        expect(getWorkshopCards().map((workshopCard) => workshopCard.textContent)).toEqual([
             expect.stringContaining(ONGOING_WORKSHOP.title),
             expect.stringContaining(UPCOMING_WORKSHOP.title),
             expect.stringContaining(PAST_WORKSHOP.title),
@@ -86,7 +101,9 @@ describe('workshop selector card list', () => {
     it('says of every workshop when it happens, where it stands, and how large its audience is', () => {
         renderWorkshopSelectorCardList([ONGOING_WORKSHOP, UPCOMING_WORKSHOP, PAST_WORKSHOP]);
 
-        const [ongoingCard, upcomingCard, pastCard] = screen.getAllByRole('button');
+        fireEvent.click(screen.getByRole('button', { name: 'Historie (1)' }));
+
+        const [ongoingCard, upcomingCard, pastCard] = getWorkshopCards();
 
         expect(ongoingCard.textContent).toContain('Probíhá');
         expect(ongoingCard.textContent).toContain('42 účastníků');
@@ -101,7 +118,9 @@ describe('workshop selector card list', () => {
         const handleSelect = vi.fn();
         renderWorkshopSelectorCardList([ONGOING_WORKSHOP, PAST_WORKSHOP], handleSelect);
 
-        const [ongoingCard, pastCard] = screen.getAllByRole('button');
+        fireEvent.click(screen.getByRole('button', { name: 'Historie (1)' }));
+
+        const [ongoingCard, pastCard] = getWorkshopCards();
 
         expect(ongoingCard.getAttribute('aria-pressed')).toBe('true');
         expect(pastCard.getAttribute('aria-pressed')).toBe('false');
@@ -118,8 +137,8 @@ describe('workshop selector card list', () => {
             target: { value: 'zari' },
         });
 
-        expect(screen.getAllByRole('button')).toHaveLength(1);
-        expect(screen.getByRole('button').textContent).toContain(UPCOMING_WORKSHOP.title);
+        expect(getWorkshopCards()).toHaveLength(1);
+        expect(getWorkshopCards()[0].textContent).toContain(UPCOMING_WORKSHOP.title);
         expect(screen.queryByText(ONGOING_WORKSHOP.title)).toBeNull();
     });
 
@@ -131,13 +150,29 @@ describe('workshop selector card list', () => {
         });
 
         expect(screen.getByText('Žádný workshop neodpovídá hledání.')).not.toBeNull();
-        expect(screen.queryAllByRole('button')).toEqual([]);
+        expect(getWorkshopCards()).toEqual([]);
+    });
+
+    it('reveals a selected historical workshop without making the administrator open the archive first', () => {
+        renderWorkshopSelectorCardList([ONGOING_WORKSHOP, PAST_WORKSHOP], vi.fn(), PAST_WORKSHOP.id);
+
+        expect(screen.getByRole('button', { name: 'Historie (1)' }).getAttribute('aria-expanded')).toBe('true');
+        expect(getWorkshopCards().map((workshopCard) => workshopCard.textContent)).toEqual([
+            expect.stringContaining(ONGOING_WORKSHOP.title),
+            expect.stringContaining(PAST_WORKSHOP.title),
+        ]);
+    });
+
+    it('uses the wider administration picker for a compact two-column workshop grid', () => {
+        renderWorkshopSelectorCardList([ONGOING_WORKSHOP, UPCOMING_WORKSHOP]);
+
+        expect(screen.getByLabelText('Seznam workshopů').className).toContain('xl:grid-cols-2');
     });
 
     it('explains an empty administration instead of listing nothing at all', () => {
         renderWorkshopSelectorCardList([]);
 
         expect(screen.getByText('Vytvořte první workshop.')).not.toBeNull();
-        expect(screen.queryAllByRole('button')).toEqual([]);
+        expect(getWorkshopCards()).toEqual([]);
     });
 });

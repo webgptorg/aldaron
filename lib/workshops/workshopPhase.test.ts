@@ -1,4 +1,5 @@
 import {
+    groupWorkshopsByPhase,
     getMostProminentWorkshopPhase,
     getWorkshopExpectedEndsAtMilliseconds,
     getWorkshopPhase,
@@ -100,6 +101,19 @@ describe('workshop phase ordering', () => {
         sortWorkshopsByPhase(workshops, CURRENT_TIME_MILLISECONDS);
 
         expect(workshops).toEqual([UPCOMING_WORKSHOP, ONGOING_WORKSHOP]);
+    });
+
+    it('groups every phase in the same priority and date order as the workshop list', () => {
+        const workshopsByPhase = groupWorkshopsByPhase(
+            [OLDER_PAST_WORKSHOP, LATER_UPCOMING_WORKSHOP, PAST_WORKSHOP, UPCOMING_WORKSHOP, ONGOING_WORKSHOP],
+            CURRENT_TIME_MILLISECONDS,
+        );
+
+        expect(workshopsByPhase).toEqual({
+            ongoing: [ONGOING_WORKSHOP],
+            upcoming: [UPCOMING_WORKSHOP, LATER_UPCOMING_WORKSHOP],
+            past: [PAST_WORKSHOP, OLDER_PAST_WORKSHOP],
+        });
     });
 
     it('lets the most pressing phase speak for a group of occurrences', () => {
