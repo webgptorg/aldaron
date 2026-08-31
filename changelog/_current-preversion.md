@@ -1,10 +1,5 @@
 # Current preversion
 
-- Let `/admin/workshops` take a recorded workshop end back with one confirmed `Zrušit konec workshopu` action. It
-  writes the same open end as an empty end field through the existing settings save and state-change broadcast, so a
-  workshop which was closed by mistake immediately puts its stream back on `/cs/online-workshop/participant` and
-  stays open until the administration ends it again.
-
 - Let a paid member manage renewal directly in the membership popup of `/cs/komunita`: after an explicit confirmation,
   they can stop the next Stripe payment without losing the days they have already paid for. The modal and its header
   badge say that the membership is ending and name the last paid day, then offer one-click reactivation until that day.

@@ -39,10 +39,6 @@ describe('workshop admin values', () => {
         });
     });
 
-    it('clears a recorded workshop end without changing another setting', () => {
-        expect(createWorkshopUpdateDatabaseValues({ endsAt: null })).toEqual({ ends_at: null });
-    });
-
     it('writes a follow-up flag as part of one ordinary material and only the feedback fields that changed', () => {
         expect(
             createWorkshopContentDatabaseValues({
