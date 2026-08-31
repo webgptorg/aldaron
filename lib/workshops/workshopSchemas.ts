@@ -12,6 +12,7 @@ import {
     MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH,
     MAXIMAL_WORKSHOP_PRESENCE_REPORT_SECONDS,
     MAXIMAL_WORKSHOP_REACTION_LENGTH,
+    MAXIMAL_WORKSHOP_SLUG_LENGTH,
     MINIMAL_WORKSHOP_POLL_OPTION_COUNT,
 } from '@/lib/workshops/workshopConstants';
 import {
@@ -32,7 +33,7 @@ import { z } from 'zod';
 const WORKSHOP_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const nullableTimestampSchema = z.string().datetime({ offset: true }).nullable();
-const WORKSHOP_SLUG_SCHEMA = z.string().trim().min(1).max(100).regex(WORKSHOP_SLUG_PATTERN);
+const WORKSHOP_SLUG_SCHEMA = z.string().trim().min(1).max(MAXIMAL_WORKSHOP_SLUG_LENGTH).regex(WORKSHOP_SLUG_PATTERN);
 const workshopParticipantFullnameSchema = z
     .string()
     .transform(normalizeWorkshopParticipantFullname)

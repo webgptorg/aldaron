@@ -459,7 +459,11 @@ export function WorkshopAdminDashboard({
                         }}
                     />
                     <WorkshopAdminRefreshButton className="w-full" onRefresh={handleRefresh} />
-                    <CreateWorkshopForm onCreate={handleCreateWorkshop} />
+                    <CreateWorkshopForm
+                        onCreate={handleCreateWorkshop}
+                        workshopToDuplicate={snapshot?.workshop ?? null}
+                        existingWorkshopSlugs={workshops.map((workshop) => workshop.slug)}
+                    />
                 </aside>
             )}
 

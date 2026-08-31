@@ -1,93 +1,125 @@
 'use client';
 
+import type { WorkshopCreateValues } from '@/businesses/workshop-admin/workshopAdminApiClient';
 import {
-    createWorkshopEventWriteValues,
-    type WorkshopCreateValues,
-} from '@/businesses/workshop-admin/workshopAdminApiClient';
+    createNewWorkshopDraft,
+    createWorkshopCreateValues,
+    createWorkshopDuplicateDraft,
+} from '@/businesses/workshop-admin/workshopCreateDraft';
 import { WorkshopEventFields } from '@/businesses/workshop-admin/WorkshopEventFields';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/lib/dateTimeLocal';
-import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
-import { DEFAULT_WORKSHOP_REACTIONS } from '@/lib/workshops/workshopConstants';
-import { Plus, X } from 'lucide-react';
+import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
+import { Copy, Plus, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 
 type CreateWorkshopFormProps = {
     readonly onCreate: (values: WorkshopCreateValues) => Promise<boolean>;
+    readonly workshopToDuplicate?: WorkshopDetails | null;
+    readonly existingWorkshopSlugs?: readonly string[];
 };
 
-const DEFAULT_WORKSHOP_DURATION_MILLISECONDS = 90 * 60 * 1000;
-
-export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
-    const defaultStart = Date.now() + 24 * 60 * 60 * 1000;
+export function CreateWorkshopForm({
+    onCreate,
+    workshopToDuplicate = null,
+    existingWorkshopSlugs = [],
+}: CreateWorkshopFormProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [slug, setSlug] = useState('');
-    const [title, setTitle] = useState('');
-    const [startsAt, setStartsAt] = useState(() => toDateTimeLocalValue(new Date(defaultStart).toISOString()));
-    const [endsAt, setEndsAt] = useState(() =>
-        toDateTimeLocalValue(new Date(defaultStart + DEFAULT_WORKSHOP_DURATION_MILLISECONDS).toISOString()),
-    );
-    const [eventDetails, setEventDetails] = useState(DEFAULT_EVENT_DETAILS);
+    const [draft, setDraft] = useState(createNewWorkshopDraft);
+    const [isDuplicating, setIsDuplicating] = useState(false);
+    const duplicateDraft =
+        workshopToDuplicate === null ? null : createWorkshopDuplicateDraft(workshopToDuplicate, existingWorkshopSlugs);
+
+    const resetDraft = () => {
+        setDraft(createNewWorkshopDraft());
+        setIsDuplicating(false);
+    };
+
+    const openNewWorkshop = () => {
+        resetDraft();
+        setIsOpen(true);
+    };
+
+    const openWorkshopDuplicate = () => {
+        if (duplicateDraft === null) {
+            return;
+        }
+
+        setDraft(duplicateDraft);
+        setIsDuplicating(true);
+        setIsOpen(true);
+    };
+
+    const closeForm = () => {
+        setIsOpen(false);
+        resetDraft();
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const startsAtIso = fromDateTimeLocalValue(startsAt);
-        const endsAtIso = fromDateTimeLocalValue(endsAt);
-        if (!startsAtIso || !title.trim() || !slug.trim()) {
+        const values = createWorkshopCreateValues(draft);
+        if (values === null) {
             return;
         }
 
         setIsSaving(true);
-        const isCreated = await onCreate({
-            slug,
-            title,
-            description: '',
-            startsAt: startsAtIso,
-            endsAt: endsAtIso,
-            ...createWorkshopEventWriteValues(eventDetails),
-            youtubeVideoId: null,
-            isPublished: false,
-            allowedReactions: [...DEFAULT_WORKSHOP_REACTIONS],
-
-            // A new workshop offers every panel of the room, the administration switches them off one by one.
-            disabledPanels: [],
-        });
-        setIsSaving(false);
-        if (isCreated) {
-            setSlug('');
-            setTitle('');
-            setEventDetails(DEFAULT_EVENT_DETAILS);
-            setIsOpen(false);
+        try {
+            const isCreated = await onCreate(values);
+            if (isCreated) {
+                closeForm();
+            }
+        } finally {
+            setIsSaving(false);
         }
     };
 
     if (!isOpen) {
         return (
-            <Button type="button" variant="outline" className="w-full" onClick={() => setIsOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" /> Nový workshop
-            </Button>
+            <div className="space-y-2">
+                <Button type="button" variant="outline" className="w-full" onClick={openNewWorkshop}>
+                    <Plus className="mr-2 h-4 w-4" /> Nový workshop
+                </Button>
+                {duplicateDraft !== null && (
+                    <Button type="button" variant="outline" className="w-full" onClick={openWorkshopDuplicate}>
+                        <Copy className="mr-2 h-4 w-4" /> Duplikovat workshop
+                    </Button>
+                )}
+            </div>
         );
     }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-cyan-200 bg-cyan-50/50 p-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900">Nový workshop</h3>
+                <div>
+                    <h3 className="text-sm font-bold text-slate-900">
+                        {isDuplicating ? 'Kopie workshopu' : 'Nový workshop'}
+                    </h3>
+                    {isDuplicating && (
+                        <p className="mt-1 text-xs text-slate-500">
+                            Zkontrolujte termín a URL. Kopie začíná neveřejná; účastníci ani historie se nepřenášejí.
+                        </p>
+                    )}
+                </div>
                 <button
                     type="button"
-                    onClick={() => setIsOpen(false)}
+                    onClick={closeForm}
                     className="text-slate-400 hover:text-slate-900"
                     aria-label="Zavřít"
                 >
                     <X className="h-4 w-4" />
                 </button>
             </div>
-            <Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Název" required />
             <Input
-                value={slug}
-                onChange={(event) => setSlug(event.target.value)}
+                value={draft.title}
+                onChange={(event) => setDraft((currentDraft) => ({ ...currentDraft, title: event.target.value }))}
+                placeholder="Název"
+                required
+            />
+            <Input
+                value={draft.slug}
+                onChange={(event) => setDraft((currentDraft) => ({ ...currentDraft, slug: event.target.value }))}
                 placeholder="slug-workshopu"
                 pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
                 required
@@ -96,8 +128,10 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
                 Začátek
                 <Input
                     type="datetime-local"
-                    value={startsAt}
-                    onChange={(event) => setStartsAt(event.target.value)}
+                    value={draft.startsAt}
+                    onChange={(event) =>
+                        setDraft((currentDraft) => ({ ...currentDraft, startsAt: event.target.value }))
+                    }
                     className="mt-1"
                     required
                 />
@@ -106,14 +140,19 @@ export function CreateWorkshopForm({ onCreate }: CreateWorkshopFormProps) {
                 Konec
                 <Input
                     type="datetime-local"
-                    value={endsAt}
-                    onChange={(changeEvent) => setEndsAt(changeEvent.target.value)}
+                    value={draft.endsAt}
+                    onChange={(changeEvent) =>
+                        setDraft((currentDraft) => ({ ...currentDraft, endsAt: changeEvent.target.value }))
+                    }
                     className="mt-1"
                 />
             </label>
-            <WorkshopEventFields event={eventDetails} onChange={setEventDetails} />
+            <WorkshopEventFields
+                event={draft.event}
+                onChange={(event) => setDraft((currentDraft) => ({ ...currentDraft, event }))}
+            />
             <Button type="submit" size="sm" className="w-full" disabled={isSaving}>
-                {isSaving ? 'Vytvářím…' : 'Vytvořit'}
+                {isSaving ? 'Vytvářím…' : isDuplicating ? 'Vytvořit kopii' : 'Vytvořit'}
             </Button>
         </form>
     );
