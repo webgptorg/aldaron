@@ -13,6 +13,8 @@ const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomStat
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: () => fetchCommunityMembership(),
     confirmCommunityMembershipCheckout: vi.fn(),
+    scheduleCommunityMembershipCancellation: vi.fn(),
+    reactivateCommunityMembership: vi.fn(),
     startCommunityMembershipCheckout: vi.fn(),
 }));
 
@@ -63,7 +65,9 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     status: 'none',
     monthlyPriceCzk: null,
     currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
     isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
     isPaymentInTestMode: false,
 };
 
@@ -99,7 +103,9 @@ describe('community participant page', () => {
             status: 'active',
             monthlyPriceCzk: 199,
             currentPeriodEndsAt: null,
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
         renderCommunityRoom();

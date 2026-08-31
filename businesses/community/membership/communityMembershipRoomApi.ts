@@ -1,5 +1,6 @@
 import {
     COMMUNITY_MEMBERSHIP_API_PATH,
+    COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH,
     COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH,
     COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH,
 } from '@/businesses/community/config';
@@ -36,4 +37,18 @@ export function confirmCommunityMembershipCheckout(checkoutSessionId: string): P
     return sendJson<CommunityMembershipRoomState>(COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH, 'POST', {
         checkoutSessionId,
     });
+}
+
+/**
+ * Stops the next recurring payment while keeping access through the period the member already paid for.
+ */
+export function scheduleCommunityMembershipCancellation(): Promise<CommunityMembershipRoomState> {
+    return sendJson<CommunityMembershipRoomState>(COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH, 'POST', {});
+}
+
+/**
+ * Restores automatic renewal before the already-paid period ends.
+ */
+export function reactivateCommunityMembership(): Promise<CommunityMembershipRoomState> {
+    return sendJson<CommunityMembershipRoomState>(COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH, 'DELETE', {});
 }

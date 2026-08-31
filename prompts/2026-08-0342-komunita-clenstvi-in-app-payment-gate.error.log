@@ -1,0 +1,93 @@
+Timestamp: 2026-08-31T05:16:34.592Z
+Prompt: prompts/2026-08-0342-komunita-clenstvi-in-app-payment-gate.md#46
+Prompt file: C:\Users\me\work\promptbook-experiments-and-landing-pages\aldaron\prompts\2026-08-0342-komunita-clenstvi-in-app-payment-gate.md
+Prompt section: 4
+Prompt summary: Allow to cancel community membership directly from the community app membership popup modal
+Runner: OpenAI Codex (gpt-5.6-terra)
+
+CLI output and error:
+Error: Command "bash /c/Users/me/work/promptbook-experiments-and-landing-pages/aldaron/.promptbook/coder-prompts/2026-08-0342-komunita-clenstvi-in-app-payment-gate-4.sh" exited with code 1
+
+ptbk-codex-login-method: chatgpt
+Reading prompt from stdin...
+OpenAI Codex v0.149.1
+--------
+workdir: C:\Users\me\work\promptbook-experiments-and-landing-pages\aldaron
+model: gpt-5.6-terra
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: max
+reasoning summaries: none
+session id: 01a0563f-68dc-7002-a955-820999b551ec
+--------
+user
+
+## Your Task
+
+Allow to cancel community membership directly from the community app membership popup modal
+
+- Allow users to cancel their community membership directly from the membership popup modal.
+- Be aware that membership can last some days even after cancellation.
+- Show this cancellation status in the "Free Membership" / "Paid Membership" badge
+- Allow to re-activate their membership after cancellation easily.
+- Ask before cancelling the membership to confirm the action
+- Do it directly on `/cs/komunita` avoid `/cs/komunita/clenstvi`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate.png)
+
+## Your Behavior
+
+You are Developer
+
+### Rules
+
+-   Keep in mind the DRY _(don't repeat yourself)_ principle.
+-   Keep in mind the SOLID principles.
+-   Do a proper analysis of the current functionality before you start implementing.
+-   Keep small responsibilities of functions and classes, avoid creating big functions or classes that do many things.
+-   Constants should always be `UPPER_SNAKE_CASE`.
+-   Boolean variables should always be prefixed with `is`, for example `isUserChatJobLeaseExpired` or `IS_DEBUG_MODE`.
+-   Do not use abbreviations, for example use `isExpired` instead of `isExp`, `translateMessage` instead of `t`, etc.
+It is fine to use well-known abbreviations, for example `id`, `url`, `html`, etc.
+
+### Prompt suffix
+-   Keep in mind the DRY _(don't repeat yourself)_ principle.
+-   Keep in mind the SOLID principles.
+-   Do a proper analysis of the current functionality before you start implementing.
+-   Keep small responsibilities of functions and classes, avoid creating big functions or classes that do many things.
+-   Constants should always be `UPPER_SNAKE_CASE`.
+-   Boolean variables should always be prefixed with `is`, for example `isUserChatJobLeaseExpired` or `IS_DEBUG_MODE`.
+-   Do not use abbreviations, for example use `isExpired` instead of `isExp`, `translateMessage` instead of `t`, etc.
+It is fine to use well-known abbreviations, for example `id`, `url`, `html`, etc.
+
+## Context
+
+Following information is from file `AGENTS.md`, if you need to update it, do it:
+
+### Context
+
+This is the landing page for the Promtpbook, there are multiple landing pages for different businesses, use cases, and audiences.
+
+- `/` - Redirects to `/cs` or `/en` based on the browser `Accept-Language` header.
+- `/cs` - The Czech generic homepage and source of truth for homepage structure/copy.
+- `/en` - The English localized variant of the generic homepage.
+- `/pro-mesta` - The landing page for Czech cities and municipalities to use AI in their internal processes.
+- `/pro-firmy` - The landing page for Czech companies - a sales-style page with pain points, solution overview, comparison with ChatGPT, FAQ, and a strategic call CTA.
+- `/for-agro` - The landing page for agronomy and agricultural companies to use AI for expert knowledge, compliance, and operations.
+- `/ai-supervize` - The landing page for the AI for IT development companies
+- `/ai-supervize-mini` - The Czech one-day AI Supervize workshop page for individual developers and product people. No term of it is written into the application: its header, hero, dates, places, prices, capacities, FAQ answers, registration form and participant information page all read the terms which `/admin/workshops` published for this kind of event, so a term added, moved, withdrawn or repriced changes the page without a deploy. While no term is published, the page offers a notice instead of a registration form.
+- `/ai-ta-krajta` - The Czech page of the AI ta Krajta podcast. Its episodes come from the podcast RSS feed of the show rather than from this repository, so a new díl appears without a deploy; the server reads the RSS and YouTube feeds hourly, combines their explicit host rosters with the names in `businesses/ai-ta-krajta/aiTaKrajtaEpisodes.json`, and hands the browser episodes which already know their people. A source disagreement joins both rosters by name rather than letting one erase the other. Its episode total stays exact, while its cross-platform subscriptions and listening hours are deliberately broad estimates: cached public profile counts and YouTube views are combined with the verified Spotify/Apple publication and the duration of that merged archive; the public pages do not expose private audio analytics, so the site says that plainly rather than inventing a precise total. An episode plays in a mini player fixed to the bottom of the page, the `Poslouchat` button of the header plays the newest one, and its shareable state lives in English query parameters: the person the archive is filtered by, the search, the chosen episode and whether it plays, the whole-archive switch and the chosen kind of collaboration. The section reached is kept in the hash, while the snake game is local state. What a visitor already listened to is deliberately not in any of those, because a link is shared with somebody else while what was heard belongs to the browser which heard it: that browser remembers on its own which díly it played to the end and where exactly it left the others, so the archive marks a played díl as such, says how much is left of a half-played one, and resuming continues five seconds before the sentence it was interrupted in. A díl heard into its last half minute counts as heard, a díl only opened for a moment counts as untouched, and playing a finished one again starts it from its beginning. Clicking a person, either on their profile card or on the small circle next to an episode, filters the archive to their episodes. The collaboration form writes into the shared contacts inbox of `/admin/contacts` like every other public form of the site. Its footer carries the one badge which credits the tool the page was written with, and that badge is the single place the podcast is allowed to name Promptbook: the show keeps its own name, icon and sharing metadata everywhere else, which an end-to-end test proves by reading the footer with the badge taken out of it. Its icon is no image checked into the repository but the very snake the page itself draws, served from `/ai-ta-krajta/logo.svg` and `/ai-ta-krajta/logo.png`, so redrawing the logo redraws the browser tab with it. Each of the two is shaped for what shows it: the scalable one rounds its own corners and leaves them transparent for a browser tab, while the raster one fills its whole square because a home screen and a launcher cut their own rounding out of an icon and draw a transparent pixel of one black.
+- `/skoleni` - Redirects to `/ai-supervize-mini`.
+- `/cs/online-workshop` - The Czech landing page of the free 60minute online workshops about writing production code with AI agents. Every published term is a workshop about a subject of its own, so its picker names each term and says what that workshop is about beside the date it is held on, and one shared registration form serves whichever term is chosen. A term is picked with the same card as on `/ai-supervize-mini`, which keeps naming its terms by when and where they are held because its terms are the same workshop in another form.
+- `/cs/online-workshop/dekujeme` - The confirmation page of the online workshop registration, reached by a full page load so that the Meta Pixel can measure the conversion.
+- `/cs/online-workshop/participant` - The live room of one workshop occurrence: a countdown, a YouTube stage, r
+
+...[truncated]
+    at ChildProcess.handleExit (C:\Users\me\work\promptbook-experiments-and-landing-pages\aldaron\node_modules\@promptbook\cli\umd\index.umd.js:26512:23)
+    at ChildProcess.emit (node:events:518:28)
+    at maybeClose (node:internal/child_process:1104:16)
+    at ChildProcess._handle.onexit (node:internal/child_process:304:5)

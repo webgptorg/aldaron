@@ -16,7 +16,10 @@ const LIVE_GATE: StripeConfiguration = {
     isTestMode: false,
 };
 
-function createMembership(status: StoredCommunityMembershipStatus): CommunityMembershipRecord {
+function createMembership(
+    status: StoredCommunityMembershipStatus,
+    isCancellationScheduled: boolean = false,
+): CommunityMembershipRecord {
     return {
         id: '5f2b0a2e-2c1f-4f0e-9a4a-70c4b0e2c111',
         email: 'jana@example.com',
@@ -30,6 +33,7 @@ function createMembership(status: StoredCommunityMembershipStatus): CommunityMem
         stripeSubscriptionId: 'sub_Example',
         stripeCheckoutSessionId: 'cs_test_Example',
         isTestPayment: true,
+        isCancellationScheduled,
         currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
         activatedAt: '2026-08-30T10:00:00.000Z',
         canceledAt: null,
@@ -44,7 +48,9 @@ describe('community membership room state', () => {
             status: 'none',
             monthlyPriceCzk: null,
             currentPeriodEndsAt: null,
+            isCancellationScheduled: false,
             isPurchaseOffered: true,
+            isSubscriptionManagementOffered: false,
             isPaymentInTestMode: false,
         });
     });
@@ -58,7 +64,9 @@ describe('community membership room state', () => {
             status: 'active',
             monthlyPriceCzk: 199,
             currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
     });
@@ -68,6 +76,15 @@ describe('community membership room state', () => {
 
         expect(roomState.status).toBe('past-due');
         expect(roomState.isPurchaseOffered).toBe(false);
+    });
+
+    it('keeps a scheduled cancellation paid and manageable through the final paid day', () => {
+        const roomState = createCommunityMembershipRoomState(createMembership('active', true), LIVE_GATE);
+
+        expect(roomState.status).toBe('active');
+        expect(roomState.isCancellationScheduled).toBe(true);
+        expect(roomState.isPurchaseOffered).toBe(false);
+        expect(roomState.isSubscriptionManagementOffered).toBe(true);
     });
 
     it('offers the membership again once it was cancelled or never finished', () => {

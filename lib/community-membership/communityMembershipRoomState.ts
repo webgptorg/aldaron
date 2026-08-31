@@ -21,7 +21,12 @@ export function createCommunityMembershipRoomState(
         status,
         monthlyPriceCzk: membership?.monthlyPriceCzk ?? null,
         currentPeriodEndsAt: membership?.currentPeriodEndsAt ?? null,
+        isCancellationScheduled: membership?.isCancellationScheduled === true && isPaidCommunityMembershipStatus(status),
         isPurchaseOffered: stripeConfiguration !== null && !isPaidCommunityMembershipStatus(status),
+        isSubscriptionManagementOffered:
+            stripeConfiguration !== null &&
+            membership?.stripeSubscriptionId !== null &&
+            isPaidCommunityMembershipStatus(status),
         isPaymentInTestMode: stripeConfiguration?.isTestMode ?? false,
     };
 }

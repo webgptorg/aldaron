@@ -1,4 +1,20 @@
+import { createCommunityMembershipStatusFromSubscription } from '@/lib/community-membership/communityMembershipStatus';
+import {
+    isPaidCommunityMembershipStatus,
+    type StoredCommunityMembershipStatus,
+} from '@/lib/community-membership/communityMembershipTypes';
 import type Stripe from 'stripe';
+
+export type CommunityMembershipSubscriptionState = {
+    readonly status: StoredCommunityMembershipStatus;
+    readonly currentPeriodEndsAt: string | null;
+
+    /**
+     * Stripe keeps a subscription active while it waits for the last paid period to end. This flag preserves that
+     * intent separately from the lifecycle status, so the room can offer an immediate restoration.
+     */
+    readonly isCancellationScheduled: boolean;
+};
 
 const MILLISECONDS_IN_SECOND = 1_000;
 
@@ -18,6 +34,21 @@ export function readSubscriptionPeriodEnd(subscription: Stripe.Subscription): st
     );
 
     return periodEndSeconds === null ? null : new Date(periodEndSeconds * MILLISECONDS_IN_SECOND).toISOString();
+}
+
+/**
+ * Reads the small part of a Stripe subscription which the community mirrors for its member-facing state.
+ */
+export function readCommunityMembershipSubscriptionState(
+    subscription: Stripe.Subscription,
+): CommunityMembershipSubscriptionState {
+    const status = createCommunityMembershipStatusFromSubscription(subscription.status);
+
+    return {
+        status,
+        currentPeriodEndsAt: readSubscriptionPeriodEnd(subscription),
+        isCancellationScheduled: subscription.cancel_at_period_end === true && isPaidCommunityMembershipStatus(status),
+    };
 }
 
 /**

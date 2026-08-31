@@ -9,6 +9,8 @@ import {
 import {
     confirmCommunityMembershipCheckout,
     fetchCommunityMembership,
+    reactivateCommunityMembership,
+    scheduleCommunityMembershipCancellation,
     startCommunityMembershipCheckout,
 } from '@/businesses/community/membership/communityMembershipRoomApi';
 import { JsonRequestError } from '@/lib/api/requestJson';
@@ -24,6 +26,7 @@ type CommunityMembershipRoomController = {
     readonly membership: CommunityMembershipRoomState | null;
     readonly isMembershipLoading: boolean;
     readonly isCheckoutStarting: boolean;
+    readonly isMembershipCancellationChanging: boolean;
     readonly errorMessage: string | null;
 
     /**
@@ -41,6 +44,8 @@ type CommunityMembershipRoomController = {
      */
     readonly ensureMembershipLoaded: () => void;
     readonly startCheckout: (discountCode: string) => Promise<void>;
+    readonly scheduleCancellation: () => Promise<boolean>;
+    readonly reactivateMembership: () => Promise<boolean>;
     readonly dismissCheckoutResult: () => void;
     readonly openMembershipModal: () => void;
     readonly setIsMembershipModalOpen: (isMembershipModalOpen: boolean) => void;
@@ -85,6 +90,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
     const [membership, setMembership] = useState<CommunityMembershipRoomState | null>(null);
     const [isMembershipLoading, setIsMembershipLoading] = useState(false);
     const [isCheckoutStarting, setIsCheckoutStarting] = useState(false);
+    const [isMembershipCancellationChanging, setIsMembershipCancellationChanging] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [checkoutResult, setCheckoutResult] = useState<CommunityMembershipCheckoutResult | null>(
         checkoutReturn.result,
@@ -175,6 +181,34 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
         }
     }, []);
 
+    const changeMembershipCancellation = useCallback(async (isCancellationScheduled: boolean): Promise<boolean> => {
+        setIsMembershipCancellationChanging(true);
+        setErrorMessage(null);
+
+        try {
+            const updatedMembership = isCancellationScheduled
+                ? await scheduleCommunityMembershipCancellation()
+                : await reactivateCommunityMembership();
+            setMembership(updatedMembership);
+            return true;
+        } catch (error) {
+            const fallbackMessage = isCancellationScheduled
+                ? COMMUNITY_MEMBERSHIP_MESSAGES.membershipCancellationNotChanged
+                : COMMUNITY_MEMBERSHIP_MESSAGES.membershipReactivationNotChanged;
+            setErrorMessage(
+                isConnectionRequiredError(error)
+                    ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
+                    : getMembershipErrorMessage(error, fallbackMessage),
+            );
+            return false;
+        } finally {
+            setIsMembershipCancellationChanging(false);
+        }
+    }, []);
+
+    const scheduleCancellation = useCallback(() => changeMembershipCancellation(true), [changeMembershipCancellation]);
+    const reactivateMembership = useCallback(() => changeMembershipCancellation(false), [changeMembershipCancellation]);
+
     const dismissCheckoutResult = useCallback(() => setCheckoutResult(null), []);
     const openMembershipModal = useCallback(() => setIsMembershipModalOpen(true), []);
 
@@ -184,11 +218,14 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
                 membership,
                 isMembershipLoading,
                 isCheckoutStarting,
+                isMembershipCancellationChanging,
                 errorMessage,
                 checkoutResult,
                 isMembershipModalOpen,
                 ensureMembershipLoaded,
                 startCheckout,
+                scheduleCancellation,
+                reactivateMembership,
                 dismissCheckoutResult,
                 openMembershipModal,
                 setIsMembershipModalOpen,

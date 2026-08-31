@@ -1,4 +1,4 @@
-import type { CommunityMembershipRecord } from '@/lib/community-membership/communityMembershipDatabase';
+import type { CommunityMembershipAdminRecord } from '@/lib/community-membership/communityMembershipDatabase';
 import { NextRequest, NextResponse } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,7 +22,7 @@ vi.mock('@/lib/community-membership/communityMembershipDatabase', () => ({
 
 import { GET } from './route';
 
-const MEMBERSHIP: CommunityMembershipRecord = {
+const MEMBERSHIP: CommunityMembershipAdminRecord = {
     id: 'membership-1',
     email: 'jana@example.com',
     fullname: 'Jana Nováková',

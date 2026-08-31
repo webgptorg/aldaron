@@ -40,10 +40,22 @@ export type CommunityMembershipRoomState = {
     readonly currentPeriodEndsAt: string | null;
 
     /**
+     * Whether the member stopped the next renewal but keeps every paid benefit through the period they already paid
+     * for. It is deliberately separate from `status`: Stripe keeps such a subscription active until that period ends.
+     */
+    readonly isCancellationScheduled: boolean;
+
+    /**
      * Whether this member can buy the membership right now, which needs both a configured gate and a membership they
      * are not already paying for
      */
     readonly isPurchaseOffered: boolean;
+
+    /**
+     * Whether this room can change the existing Stripe subscription. A membership without a subscription, such as a
+     * checkout which never finished, has nothing to cancel or restore.
+     */
+    readonly isSubscriptionManagementOffered: boolean;
 
     /**
      * Whether the configured gate is the test one, which the room says out loud so that a rehearsal is never mistaken

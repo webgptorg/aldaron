@@ -6,10 +6,9 @@ import {
     saveCommunityMembershipSubscriptionState,
     type CommunityMembershipRecord,
 } from '@/lib/community-membership/communityMembershipDatabase';
-import { createCommunityMembershipStatusFromSubscription } from '@/lib/community-membership/communityMembershipStatus';
 import {
+    readCommunityMembershipSubscriptionState,
     readSubscriptionOrNull,
-    readSubscriptionPeriodEnd,
 } from '@/lib/community-membership/communityMembershipSubscription';
 import { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID } from '@/lib/discounts/discountPlaces';
 import { consumeDiscountCode } from '@/lib/discounts/discountCodeDatabase';
@@ -92,11 +91,13 @@ export async function activateCommunityMembershipFromCheckoutSession(
     }
 
     const subscription = await readSubscriptionOrNull(checkoutSession.subscription, gateway.stripe);
+    const subscriptionState = subscription === null ? null : readCommunityMembershipSubscriptionState(subscription);
     const paidResult = await markCommunityMembershipPaid(supabase, membership.id, {
-        status: subscription === null ? 'active' : createCommunityMembershipStatusFromSubscription(subscription.status),
+        status: subscriptionState?.status ?? 'active',
         stripeCustomerId: typeof checkoutSession.customer === 'string' ? checkoutSession.customer : null,
         stripeSubscriptionId: subscription?.id ?? null,
-        currentPeriodEndsAt: subscription === null ? null : readSubscriptionPeriodEnd(subscription),
+        isCancellationScheduled: subscriptionState?.isCancellationScheduled ?? false,
+        currentPeriodEndsAt: subscriptionState?.currentPeriodEndsAt ?? null,
     });
     if (paidResult.errorMessage !== null) {
         return { membership, errorMessage: paidResult.errorMessage };
@@ -117,12 +118,12 @@ export async function applyCommunityMembershipSubscriptionChange(
     supabase: SupabaseClient,
     subscription: Stripe.Subscription,
 ): Promise<{ readonly errorMessage: string | null }> {
+    const subscriptionState = readCommunityMembershipSubscriptionState(subscription);
     const { isMembershipFound, errorMessage } = await saveCommunityMembershipSubscriptionState(
         supabase,
         subscription.id,
         {
-            status: createCommunityMembershipStatusFromSubscription(subscription.status),
-            currentPeriodEndsAt: readSubscriptionPeriodEnd(subscription),
+            ...subscriptionState,
         },
     );
 

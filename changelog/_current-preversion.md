@@ -1,5 +1,11 @@
 # Current preversion
 
+- Let a paid member manage renewal directly in the membership popup of `/cs/komunita`: after an explicit confirmation,
+  they can stop the next Stripe payment without losing the days they have already paid for. The modal and its header
+  badge say that the membership is ending and name the last paid day, then offer one-click reactivation until that day.
+  The room saves and reads this intent through the same subscription-state mapping as the Stripe webhook, so a refresh,
+  a later payment event and the member-facing state cannot disagree.
+
 - Moved the community membership surface out of the `/cs/komunita` content column into the room’s shared popup
   modal. Both the `Free členství` and `Placené členství` header badges now open it, so a member can see their current
   status or the paid plan, agree to the terms, apply a discount, and enter the same Stripe checkout without leaving

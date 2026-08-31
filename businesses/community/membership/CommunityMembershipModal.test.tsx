@@ -29,12 +29,16 @@ vi.mock('@/components/ui/checkbox', () => ({
 
 const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
 const confirmCommunityMembershipCheckout = vi.fn<(checkoutSessionId: string) => Promise<CommunityMembershipRoomState>>();
+const scheduleCommunityMembershipCancellation = vi.fn<() => Promise<CommunityMembershipRoomState>>();
+const reactivateCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
 const startCommunityMembershipCheckout = vi.fn();
 
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: () => fetchCommunityMembership(),
     confirmCommunityMembershipCheckout: (checkoutSessionId: string) =>
         confirmCommunityMembershipCheckout(checkoutSessionId),
+    scheduleCommunityMembershipCancellation: () => scheduleCommunityMembershipCancellation(),
+    reactivateCommunityMembership: () => reactivateCommunityMembership(),
     startCommunityMembershipCheckout: (values: unknown) => startCommunityMembershipCheckout(values),
 }));
 
@@ -46,8 +50,25 @@ const OFFERED_MEMBERSHIP: CommunityMembershipRoomState = {
     status: 'none',
     monthlyPriceCzk: null,
     currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
     isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
     isPaymentInTestMode: false,
+};
+
+const CANCELLATION_SCHEDULED_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'active',
+    monthlyPriceCzk: 199,
+    currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+    isCancellationScheduled: true,
+    isPurchaseOffered: false,
+    isSubscriptionManagementOffered: true,
+    isPaymentInTestMode: false,
+};
+
+const ACTIVE_MANAGEABLE_MEMBERSHIP: CommunityMembershipRoomState = {
+    ...CANCELLATION_SCHEDULED_MEMBERSHIP,
+    isCancellationScheduled: false,
 };
 
 function renderMembershipModal() {
@@ -73,6 +94,8 @@ beforeEach(() => {
     window.history.replaceState({}, '', COMMUNITY_PATH);
     fetchCommunityMembership.mockResolvedValue(OFFERED_MEMBERSHIP);
     confirmCommunityMembershipCheckout.mockResolvedValue(OFFERED_MEMBERSHIP);
+    scheduleCommunityMembershipCancellation.mockResolvedValue(CANCELLATION_SCHEDULED_MEMBERSHIP);
+    reactivateCommunityMembership.mockResolvedValue(OFFERED_MEMBERSHIP);
 });
 
 afterEach(() => {
@@ -114,7 +137,9 @@ describe('community membership modal', () => {
             status: 'active',
             monthlyPriceCzk: 149,
             currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();
@@ -126,12 +151,50 @@ describe('community membership modal', () => {
         expect(screen.queryByRole('button', { name: /Zaplatit/ })).toBeNull();
     });
 
+    it('asks before stopping renewal, keeps the paid benefits through the current period, and exposes reactivation', async () => {
+        fetchCommunityMembership.mockResolvedValue(ACTIVE_MANAGEABLE_MEMBERSHIP);
+        scheduleCommunityMembershipCancellation.mockResolvedValue(CANCELLATION_SCHEDULED_MEMBERSHIP);
+        renderMembershipModal();
+
+        await openPaidMembershipModal();
+        fireEvent.click(screen.getByRole('button', { name: 'Zrušit placené členství' }));
+
+        expect(scheduleCommunityMembershipCancellation).not.toHaveBeenCalled();
+        expect(await screen.findByText('Opravdu chcete zrušit placené členství?')).toBeDefined();
+
+        fireEvent.click(screen.getByRole('button', { name: 'Ano, zrušit obnovu' }));
+
+        await vi.waitFor(() => expect(scheduleCommunityMembershipCancellation).toHaveBeenCalledOnce());
+        expect(await screen.findByText('Ukončení je naplánované')).toBeDefined();
+        expect(screen.getByText(/Placené výhody vám zůstanou do 30\. 9\. 2026/)).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Obnovit placené členství' })).toBeDefined();
+    });
+
+    it('restores automatic renewal directly from the scheduled-cancellation state', async () => {
+        fetchCommunityMembership.mockResolvedValue(CANCELLATION_SCHEDULED_MEMBERSHIP);
+        reactivateCommunityMembership.mockResolvedValue(ACTIVE_MANAGEABLE_MEMBERSHIP);
+        renderMembershipModal();
+
+        fireEvent.click(
+            await screen.findByRole('button', {
+                name: 'Placené členství končí 30. 9. 2026. Otevřít stav členství',
+            }),
+        );
+        fireEvent.click(await screen.findByRole('button', { name: 'Obnovit placené členství' }));
+
+        await vi.waitFor(() => expect(reactivateCommunityMembership).toHaveBeenCalledOnce());
+        expect(await screen.findByText('Správa členství')).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Zrušit placené členství' })).toBeDefined();
+    });
+
     it('says that a failed payment keeps the membership for now', async () => {
         fetchCommunityMembership.mockResolvedValue({
             status: 'past-due',
             monthlyPriceCzk: 199,
             currentPeriodEndsAt: null,
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();
@@ -155,7 +218,9 @@ describe('community membership modal', () => {
             status: 'active',
             monthlyPriceCzk: 199,
             currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();

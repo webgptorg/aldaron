@@ -31,6 +31,8 @@ const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomStat
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: () => fetchCommunityMembership(),
     confirmCommunityMembershipCheckout: vi.fn(),
+    scheduleCommunityMembershipCancellation: vi.fn(),
+    reactivateCommunityMembership: vi.fn(),
     startCommunityMembershipCheckout: vi.fn(),
 }));
 
@@ -42,7 +44,9 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     status: 'none',
     monthlyPriceCzk: null,
     currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
     isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
     isPaymentInTestMode: false,
 };
 
@@ -82,7 +86,9 @@ describe('community membership badge', () => {
             status: 'active',
             monthlyPriceCzk: 199,
             currentPeriodEndsAt: null,
+            isCancellationScheduled: false,
             isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
         renderMembershipBadge();
@@ -92,6 +98,27 @@ describe('community membership badge', () => {
 
         expect(await screen.findByRole('dialog', { name: 'Placené členství je aktivní' })).toBeDefined();
         expect(screen.queryByRole('button', { name: /Zaplatit/ })).toBeNull();
+    });
+
+    it('shows a paid membership that is due to end instead of presenting it as normally renewing', async () => {
+        fetchCommunityMembership.mockResolvedValue({
+            status: 'active',
+            monthlyPriceCzk: 199,
+            currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: true,
+            isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
+            isPaymentInTestMode: false,
+        });
+        renderMembershipBadge();
+
+        const membershipBadge = await screen.findByRole('button', {
+            name: 'Placené členství končí 30. 9. 2026. Otevřít stav členství',
+        });
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství končí' })).toBeDefined();
+        expect(screen.getByText('Ukončení je naplánované')).toBeDefined();
     });
 
     it('claims no membership at all while it is unknown or cannot be bought', async () => {

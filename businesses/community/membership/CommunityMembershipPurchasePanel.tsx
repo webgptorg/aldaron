@@ -157,7 +157,8 @@ export function CommunityMembershipPurchasePanel({
                         : `Zaplatit ${formatCommunityMembershipPrice(price.finalMonthlyEquivalentCzk)} / měsíc`}
                 </Button>
                 <p className="mt-3 text-xs leading-5 text-slate-500">
-                    Platíte přes zabezpečenou bránu Stripe, kartu nikdy nevidíme. Zrušit můžete kdykoli e-mailem.
+                    Platíte přes zabezpečenou bránu Stripe, kartu nikdy nevidíme. Zrušit můžete kdykoli přímo v
+                    komunitě.
                 </p>
 
                 <CommunityMembershipTestModeNote isPaymentInTestMode={isPaymentInTestMode} />

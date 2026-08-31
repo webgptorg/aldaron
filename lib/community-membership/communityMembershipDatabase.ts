@@ -13,7 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * Note: This stays one literal, because the database client reads the requested columns out of the text itself.
  */
 const COMMUNITY_MEMBERSHIP_COLUMNS =
-    'id, email, fullname, plan_id, status, monthly_price_czk, discount_code, discount_percent, stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id, is_test_payment, current_period_ends_at, activated_at, canceled_at, created_at, updated_at';
+    'id, email, fullname, plan_id, status, monthly_price_czk, discount_code, discount_percent, stripe_customer_id, stripe_subscription_id, stripe_checkout_session_id, is_test_payment, is_cancellation_scheduled, current_period_ends_at, activated_at, canceled_at, created_at, updated_at';
 
 const COMMUNITY_MEMBERSHIP_ADMIN_PAGE_FUNCTION_NAME = 'get_community_membership_admin_page';
 
@@ -30,6 +30,7 @@ type CommunityMembershipRow = {
     readonly stripe_subscription_id: string | null;
     readonly stripe_checkout_session_id: string | null;
     readonly is_test_payment: boolean;
+    readonly is_cancellation_scheduled: boolean;
     readonly current_period_ends_at: string | null;
     readonly activated_at: string | null;
     readonly canceled_at: string | null;
@@ -37,7 +38,7 @@ type CommunityMembershipRow = {
     readonly updated_at: string;
 };
 
-type CommunityMembershipAdminPageRow = CommunityMembershipRow & {
+type CommunityMembershipAdminPageRow = Omit<CommunityMembershipRow, 'is_cancellation_scheduled'> & {
     readonly total_count: number | string;
 };
 
@@ -57,12 +58,19 @@ export type CommunityMembershipRecord = {
     readonly stripeSubscriptionId: string | null;
     readonly stripeCheckoutSessionId: string | null;
     readonly isTestPayment: boolean;
+    readonly isCancellationScheduled: boolean;
     readonly currentPeriodEndsAt: string | null;
     readonly activatedAt: string | null;
     readonly canceledAt: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
 };
+
+/**
+ * The payment-record projection the administrator needs. Subscription-management state is intentionally private to
+ * the member-facing room, while Stripe remains the administration's source of truth for those changes.
+ */
+export type CommunityMembershipAdminRecord = Omit<CommunityMembershipRecord, 'isCancellationScheduled'>;
 
 export type CommunityMembershipLoadResult = {
     readonly membership: CommunityMembershipRecord | null;
@@ -74,7 +82,7 @@ export type CommunityMembershipLoadResult = {
  * member with the free membership has no payment record to manage.
  */
 export type CommunityMembershipAdminPage = {
-    readonly memberships: readonly CommunityMembershipRecord[];
+    readonly memberships: readonly CommunityMembershipAdminRecord[];
     readonly totalCount: number;
 };
 
@@ -100,6 +108,7 @@ export type PaidCommunityMembershipValues = {
     readonly status: StoredCommunityMembershipStatus;
     readonly stripeCustomerId: string | null;
     readonly stripeSubscriptionId: string | null;
+    readonly isCancellationScheduled: boolean;
     readonly currentPeriodEndsAt: string | null;
 };
 
@@ -110,7 +119,9 @@ export function getCommunityMembershipDatabaseOrNull(): SupabaseClient | null {
     return createSupabaseServiceRoleClient();
 }
 
-function mapCommunityMembershipRow(row: CommunityMembershipRow): CommunityMembershipRecord {
+function mapCommunityMembershipValues(
+    row: CommunityMembershipRow | CommunityMembershipAdminPageRow,
+): CommunityMembershipAdminRecord {
     return {
         id: row.id,
         email: row.email,
@@ -129,6 +140,13 @@ function mapCommunityMembershipRow(row: CommunityMembershipRow): CommunityMember
         canceledAt: row.canceled_at,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
+    };
+}
+
+function mapCommunityMembershipRow(row: CommunityMembershipRow): CommunityMembershipRecord {
+    return {
+        ...mapCommunityMembershipValues(row),
+        isCancellationScheduled: row.is_cancellation_scheduled,
     };
 }
 
@@ -262,7 +280,7 @@ export async function loadCommunityMembershipAdminPage(
     const membershipRows = (data ?? []) as CommunityMembershipAdminPageRow[];
     return {
         page: {
-            memberships: membershipRows.map(mapCommunityMembershipRow),
+            memberships: membershipRows.map(mapCommunityMembershipValues),
             totalCount: getNonNegativeWholeNumber(membershipRows[0]?.total_count),
         },
         errorMessage: null,
@@ -290,6 +308,7 @@ export async function saveRequestedCommunityMembership(
         discount_percent: values.discountPercent,
         stripe_checkout_session_id: values.stripeCheckoutSessionId,
         is_test_payment: values.isTestPayment,
+        is_cancellation_scheduled: false,
         requested_by_participant_id: values.requestedByParticipantId,
         // A membership which is being bought again describes that attempt alone, so nothing the gate decides about the
         // subscription somebody left behind can be mistaken for a decision about the new one.
@@ -330,6 +349,7 @@ export async function markCommunityMembershipPaid(
             status: values.status,
             stripe_customer_id: values.stripeCustomerId,
             stripe_subscription_id: values.stripeSubscriptionId,
+            is_cancellation_scheduled: values.isCancellationScheduled,
             current_period_ends_at: values.currentPeriodEndsAt,
             activated_at: new Date().toISOString(),
         })
@@ -352,6 +372,7 @@ export async function saveCommunityMembershipSubscriptionState(
     stripeSubscriptionId: string,
     values: {
         readonly status: StoredCommunityMembershipStatus;
+        readonly isCancellationScheduled: boolean;
         readonly currentPeriodEndsAt: string | null;
     },
 ): Promise<{ readonly isMembershipFound: boolean; readonly errorMessage: string | null }> {
@@ -359,6 +380,7 @@ export async function saveCommunityMembershipSubscriptionState(
         .from(COMMUNITY_MEMBERSHIP_TABLE_NAME)
         .update({
             status: values.status,
+            is_cancellation_scheduled: values.isCancellationScheduled,
             current_period_ends_at: values.currentPeriodEndsAt,
             canceled_at: values.status === 'canceled' ? new Date().toISOString() : null,
         })

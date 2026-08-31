@@ -3,6 +3,7 @@
 import { formatCommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
 import { CommunityMembershipPurchasePanel } from '@/businesses/community/membership/CommunityMembershipPurchasePanel';
 import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
+import { CommunityMembershipSubscriptionManagement } from '@/businesses/community/membership/CommunityMembershipSubscriptionManagement';
 import {
     Dialog,
     DialogContent,
@@ -23,16 +24,14 @@ function createPaidMembershipDescription(membership: CommunityMembershipRoomStat
         membership.monthlyPriceCzk === null
             ? 'Členství je aktivní.'
             : `Platíte ${formatCommunityMembershipPrice(membership.monthlyPriceCzk)} měsíčně.`;
-    const periodDescription =
-        membership.currentPeriodEndsAt === null
-            ? ''
-            : ` Zaplaceno do ${formatCzechWorkshopDay(membership.currentPeriodEndsAt)}.`;
+    const periodDescription = membership.currentPeriodEndsAt === null ? '' : ` Zaplaceno do ${formatCzechWorkshopDay(membership.currentPeriodEndsAt)}.`;
+    const cancellationDescription = membership.isCancellationScheduled ? ' Další platbu jste zrušili.' : '';
     const overdueDescription =
         membership.status === 'past-due'
             ? ' Poslední platba neprošla – zkontrolujte prosím kartu, přístup vám zatím zůstává.'
             : '';
 
-    return `${priceDescription}${periodDescription}${overdueDescription}`;
+    return `${priceDescription}${periodDescription}${cancellationDescription}${overdueDescription}`;
 }
 
 /**
@@ -53,8 +52,16 @@ export function CommunityMembershipModal() {
         return null;
     }
 
-    const { membership, isMembershipLoading, isCheckoutStarting, errorMessage, checkoutResult } = membershipRoom;
+    const {
+        membership,
+        isMembershipLoading,
+        isCheckoutStarting,
+        isMembershipCancellationChanging,
+        errorMessage,
+        checkoutResult,
+    } = membershipRoom;
     const isPaid = membership !== null && isPaidCommunityMembershipStatus(membership.status);
+    const isCancellationScheduled = isPaid && membership?.isCancellationScheduled === true;
     const isPurchasePanelShown = membership !== null && !isPaid && membership.isPurchaseOffered;
     const isMembershipDetailsShown = isPaid || isPurchasePanelShown;
 
@@ -66,7 +73,11 @@ export function CommunityMembershipModal() {
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Členství</p>
                         <DialogTitle className="flex items-center gap-2 text-xl text-white">
                             {isPaid && <Crown className="h-5 w-5 text-amber-300" aria-hidden="true" />}
-                            {isPaid ? 'Placené členství je aktivní' : 'Placené členství komunity'}
+                            {isPaid
+                                ? isCancellationScheduled
+                                    ? 'Placené členství končí'
+                                    : 'Placené členství je aktivní'
+                                : 'Placené členství komunity'}
                         </DialogTitle>
                         <DialogDescription className="max-w-2xl leading-6 text-slate-400">
                             {isPaid && membership !== null
@@ -121,6 +132,16 @@ export function CommunityMembershipModal() {
                             isCheckoutStarting={isCheckoutStarting}
                             errorMessage={errorMessage}
                             onPay={(discountCode) => void membershipRoom.startCheckout(discountCode)}
+                        />
+                    )}
+
+                    {isPaid && membership !== null && (
+                        <CommunityMembershipSubscriptionManagement
+                            membership={membership}
+                            isMembershipCancellationChanging={isMembershipCancellationChanging}
+                            errorMessage={errorMessage}
+                            onScheduleCancellation={membershipRoom.scheduleCancellation}
+                            onReactivate={membershipRoom.reactivateMembership}
                         />
                     )}
 
