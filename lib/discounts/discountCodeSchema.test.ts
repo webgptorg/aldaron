@@ -22,6 +22,13 @@ describe('discount-code write schema', () => {
         });
     });
 
+    it('accepts a terminal wildcard as a prefix discount code', () => {
+        expect(discountCodeValuesSchema.parse({ ...VALID_DISCOUNT_CODE, code: 'summer*' }).code).toBe('SUMMER*');
+        expect(discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, code: 'summer*2026' }).success).toBe(
+            false,
+        );
+    });
+
     it('uses an empty place list for the all-places choice', () => {
         expect(
             discountCodeValuesSchema.parse({ ...VALID_DISCOUNT_CODE, placeIds: [], maximumUseCount: null }),

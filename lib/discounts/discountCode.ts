@@ -13,6 +13,7 @@ export type SubscriptionDiscountDuration = {
  * What a visitor may see about a code which is active in the place they are viewing.
  */
 export type ActiveDiscount = SubscriptionDiscountDuration & {
+    /** The exact code or wildcard rule which granted this discount. */
     readonly code: string;
     readonly percent: number;
     readonly remainingUseCount: number | null;
@@ -21,6 +22,7 @@ export type ActiveDiscount = SubscriptionDiscountDuration & {
 export type ActiveDiscountByPlaceId = Readonly<Record<string, ActiveDiscount | null>>;
 
 export type DiscountCodeValues = SubscriptionDiscountDuration & {
+    /** An exact code, or a prefix rule ending in `*`. */
     readonly code: string;
     readonly percent: number;
     readonly startsAt: string;
@@ -41,14 +43,14 @@ export type DiscountCode = DiscountCodeValues & {
     readonly updatedAt: string;
 };
 
-const NORMALIZED_DISCOUNT_CODE_PATTERN = /^[A-Z0-9]+(?:_[A-Z0-9]+)*$/;
+const NORMALIZED_DISCOUNT_CODE_PATTERN = /^[A-Z0-9]+(?:_[A-Z0-9]+)*(?:_?[*])?$/;
 
 export function normalizeDiscountCode(value: string): string {
     return value
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toUpperCase()
-        .replace(/[^A-Z0-9]+/g, '_')
+        .replace(/[^A-Z0-9*]+/g, '_')
         .replace(/^_+|_+$/g, '')
         .replace(/_+/g, '_');
 }

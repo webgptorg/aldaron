@@ -3,6 +3,7 @@ import {
     getRemainingDiscountCodeUseCount,
     isDiscountCodeActive,
     isDiscountCodeExhausted,
+    isDiscountCodeNormalized,
     isDiscountCodeValidForAllPlaces,
     isDiscountCodeValidInPlace,
     isDiscountCodeUsableInPlace,
@@ -35,6 +36,15 @@ function createDiscountCode(overrides: Partial<DiscountCode> = {}): DiscountCode
 describe('shared discount-code rules', () => {
     it('normalizes user-entered codes to the database representation', () => {
         expect(normalizeDiscountCode('  webinar-2026/08  ')).toBe('WEBINAR_2026_08');
+    });
+
+    it('keeps a terminal wildcard for a prefix discount while rejecting wildcard positions which are ambiguous', () => {
+        expect(normalizeDiscountCode(' summer* ')).toBe('SUMMER*');
+        expect(normalizeDiscountCode('summer-*')).toBe('SUMMER_*');
+        expect(isDiscountCodeNormalized('SUMMER*')).toBe(true);
+        expect(isDiscountCodeNormalized('SUMMER_*')).toBe(true);
+        expect(isDiscountCodeNormalized('*SUMMER')).toBe(false);
+        expect(isDiscountCodeNormalized('SUMMER*2026')).toBe(false);
     });
 
     it('treats an empty place list as every place and a non-empty list as specific places', () => {

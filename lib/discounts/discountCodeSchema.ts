@@ -16,7 +16,7 @@ const discountCodeSchema = z
     .max(MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH, 'Slevový kód je příliš dlouhý.')
     .transform(normalizeDiscountCode)
     .refine(isDiscountCodeNormalized, {
-        message: `Slevový kód musí po normalizaci obsahovat nejvýše ${MAXIMAL_DISCOUNT_CODE_LENGTH} písmen nebo číslic.`,
+        message: `Slevový kód musí po normalizaci obsahovat nejvýše ${MAXIMAL_DISCOUNT_CODE_LENGTH} písmen nebo číslic; hvězdička smí být pouze na jeho konci.`,
     });
 
 const discountPlaceIdsSchema = z

@@ -1,4 +1,9 @@
 # Current preversion
+- Let an administrator make a prefix discount code by ending it in `*`: `SUMMER*` now gives its configured discount
+  to every submitted code starting with `SUMMER`. The same database resolver supplies form previews and the atomic
+  registration consumption, so one path cannot accept a code which the other would reject; an exact code takes
+  precedence over a pattern, then the more specific prefix wins.
+
 - Let `/admin/workshops` reopen a workshop by clearing its recorded end, and give an open-ended workshop quick choices to end now, one hour after its start, or two hours after its start; each choice uses the existing live update, so `/cs/online-workshop/participant` immediately keeps or replaces the stream accordingly.
 - Let a paid community member open their Stripe Customer Portal from the membership popup of `/cs/komunita`, through
   a new short-lived, authenticated link which belongs only to that member and returns them to the community. The

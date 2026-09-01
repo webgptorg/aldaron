@@ -155,8 +155,9 @@ export function DiscountCodeForm({ discountCode, onSave, onCancelEditing }: Disc
                         {isEditing ? 'Upravit slevový kód' : 'Nový slevový kód'}
                     </h2>
                     <p className="mt-1 max-w-2xl text-sm text-slate-500">
-                        Kód se při uložení sjednotí na velká písmena a podtržítka. Platnost je včetně okamžiku začátku i
-                        konce.
+                        Kód se při uložení sjednotí na velká písmena a podtržítka. Hvězdička pouze na konci, například
+                        {' '}<code>SUMMER*</code>, zpřístupní slevu pro všechny kódy začínající stejnou částí. Platnost
+                        {' '}je včetně okamžiku začátku i konce.
                     </p>
                 </div>
                 {isEditing && (

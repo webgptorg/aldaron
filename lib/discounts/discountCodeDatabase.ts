@@ -8,7 +8,11 @@ import {
     type DiscountCode,
     type DiscountCodeValues,
 } from '@/lib/discounts/discountCode';
-import { CONSUME_DISCOUNT_CODE_FUNCTION_NAME, DISCOUNT_CODE_TABLE_NAME } from '@/lib/discounts/discountCodeConstants';
+import {
+    CONSUME_DISCOUNT_CODE_FUNCTION_NAME,
+    DISCOUNT_CODE_TABLE_NAME,
+    RESOLVE_DISCOUNT_CODE_FUNCTION_NAME,
+} from '@/lib/discounts/discountCodeConstants';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
@@ -145,8 +149,9 @@ type SubmittedDiscountCodeLoadResult = {
 };
 
 /**
- * Reads exactly one submitted code without consuming it. Public callers never receive the list of
- * codes or a private row; they receive only the active discount for their requested place.
+ * Reads exactly one submitted code without consuming it. The database resolves wildcard rules with
+ * the same precedence that its atomic consumption function uses. Public callers never receive the
+ * list of codes or a private row; they receive only the active discount for their requested place.
  */
 async function loadSubmittedDiscountCode(discountCodeValue: string): Promise<SubmittedDiscountCodeLoadResult> {
     const normalizedDiscountCode = normalizeDiscountCode(discountCodeValue);
@@ -159,17 +164,17 @@ async function loadSubmittedDiscountCode(discountCodeValue: string): Promise<Sub
         return { discountCode: null, errorMessage: DISCOUNT_CODE_DATABASE_UNAVAILABLE_ERROR_MESSAGE };
     }
 
-    const { data, error } = await supabase
-        .from(DISCOUNT_CODE_TABLE_NAME)
-        .select('*')
-        .eq('code', normalizedDiscountCode)
-        .maybeSingle();
+    const { data, error } = await supabase.rpc(RESOLVE_DISCOUNT_CODE_FUNCTION_NAME, {
+        submitted_discount_code: normalizedDiscountCode,
+    });
     if (error !== null) {
         return { discountCode: null, errorMessage: error.message };
     }
 
+    const discountCodeRow = ((data ?? []) as DiscountCodeRow[])[0] ?? null;
+
     return {
-        discountCode: data === null ? null : mapDiscountCodeRow(data as DiscountCodeRow),
+        discountCode: discountCodeRow === null ? null : mapDiscountCodeRow(discountCodeRow),
         errorMessage: null,
     };
 }
