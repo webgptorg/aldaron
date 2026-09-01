@@ -52,6 +52,23 @@
 
 ---
 
+[ ]
+
+[✨🛬] When showing a poll in the workshop you should be able to vote.
+
+- When the user voted, his vote should be shown and counted as the same user both in the community page and all attached workshop pages.
+- Same user means same email.
+- See this in both comunity admin and also in workshop admin where if the poll is attached to a workshop
+- But now the poll is not visible on the workshop page, for example `https://www.ptbk.io/cs/online-workshop/participant?workshop=online-workshop-git-ai-2026-09-07`
+    - ![alt text](prompts/screenshots/2026-08-0260-comunity-poling.png)
+    - ![alt text](prompts/screenshots/2026-08-0260-comunity-poling-1.png)
+- You are working with `/cs/komunita` and `/admin/community?tab=polls`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do an analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+---
+
 [-]
 
 [✨🛬]
@@ -60,4 +77,3 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do an analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
-
