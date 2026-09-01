@@ -78,7 +78,7 @@
 
 ---
 
-[ ]
+[x] by OpenAI Codex `gpt-5.6-terra` thinking `max` (ChatGPT account) - Implementation ~$0.3403 11 minutes; Testing 6 minutes
 
 [✨🏕] The modal "Placené členství komunity" with table with perks of paid membership should look more premium
 

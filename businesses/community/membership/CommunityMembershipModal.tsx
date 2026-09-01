@@ -16,7 +16,7 @@ import {
     type CommunityMembershipRoomState,
 } from '@/lib/community-membership/communityMembershipTypes';
 import { formatCzechWorkshopDay } from '@/lib/workshops/workshopDate';
-import { CheckCircle2, Crown, Info, LoaderCircle, X } from 'lucide-react';
+import { CheckCircle2, Crown, Info, LoaderCircle, Sparkles, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 function createPaidMembershipDescription(membership: CommunityMembershipRoomState): string {
@@ -68,12 +68,23 @@ export function CommunityMembershipModal() {
 
     return (
         <Dialog open={membershipRoom.isMembershipModalOpen} onOpenChange={membershipRoom.setIsMembershipModalOpen}>
-            <DialogContent className="max-h-[calc(100vh-2rem)] max-w-3xl gap-0 overflow-y-auto border-white/10 bg-[#0a1d27] p-0 text-slate-100 [&>button]:right-5 [&>button]:top-5 [&>button]:text-slate-300 [&>button]:hover:bg-white/10 [&>button]:hover:text-white">
-                <div className="border-b border-white/10 px-5 py-5 pr-12 sm:px-6">
-                    <DialogHeader>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-300">Členství</p>
-                        <DialogTitle className="flex items-center gap-2 text-xl text-white">
-                            {isPaid && <Crown className="h-5 w-5 text-amber-300" aria-hidden="true" />}
+            <DialogContent className="max-h-[calc(100vh-2rem)] max-w-4xl gap-0 overflow-y-auto rounded-[2rem] border-cyan-100/15 bg-[#061923] p-0 text-slate-100 shadow-[0_32px_100px_rgba(2,16,24,0.7)] [&>button]:right-5 [&>button]:top-5 [&>button]:z-20 [&>button]:rounded-full [&>button]:text-slate-300 [&>button]:hover:bg-white/10 [&>button]:hover:text-white">
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute -left-28 -top-36 h-80 w-80 rounded-full bg-cyan-300/[0.08] blur-3xl" />
+                    <div className="absolute -right-24 top-32 h-72 w-72 rounded-full bg-sky-300/[0.06] blur-3xl" />
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(180,245,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(180,245,255,0.025)_1px,transparent_1px)] bg-[size:32px_32px]" />
+                </div>
+
+                <div className="relative border-b border-white/10 bg-white/[0.015] px-5 py-5 pr-12 sm:px-7 sm:py-6">
+                    <DialogHeader className="gap-2">
+                        <div className="flex items-center gap-2.5">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-cyan-100/15 bg-cyan-200/10 text-cyan-100 shadow-inner shadow-cyan-100/10">
+                                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-200">Členství</p>
+                        </div>
+                        <DialogTitle className="flex items-center gap-2 text-2xl tracking-tight text-white">
+                            <Crown className="h-5 w-5 text-amber-200" aria-hidden="true" />
                             {isPaid
                                 ? isCancellationScheduled
                                     ? 'Placené členství končí'
@@ -91,7 +102,7 @@ export function CommunityMembershipModal() {
                 {checkoutResult !== null && (
                     <div
                         role="status"
-                        className={`mx-5 mt-5 flex flex-wrap items-start justify-between gap-3 rounded-xl border px-4 py-3 text-sm sm:mx-6 ${
+                        className={`relative mx-5 mt-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-sm shadow-lg shadow-slate-950/10 sm:mx-7 ${
                             checkoutResult === 'paid'
                                 ? 'border-emerald-300/25 bg-emerald-300/[0.09] text-emerald-100'
                                 : 'border-amber-300/25 bg-amber-300/[0.08] text-amber-100'
@@ -120,7 +131,7 @@ export function CommunityMembershipModal() {
                     </div>
                 )}
 
-                <div className="px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
+                <div className="relative px-5 pb-5 pt-5 sm:px-7 sm:pb-7">
                     {isMembershipLoading && membership === null && (
                         <div className="flex min-h-24 items-center justify-center text-sm text-slate-400">
                             <LoaderCircle className="mr-2 h-5 w-5 animate-spin text-cyan-300" /> Načítám členství…
