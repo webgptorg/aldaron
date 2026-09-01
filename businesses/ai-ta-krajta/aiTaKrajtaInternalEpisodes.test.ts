@@ -72,6 +72,14 @@ describe('AI_TA_KRAJTA_INTERNAL_EPISODES', () => {
 
         expect(emptyHostNames).toEqual([]);
     });
+
+    it('keeps a complete searchable transcript for every episode', () => {
+        const incompletelyTranscribedEpisodes = AI_TA_KRAJTA_INTERNAL_EPISODES.filter(
+            (episode) => episode.transcript.trim().length < 1_000,
+        );
+
+        expect(incompletelyTranscribedEpisodes).toEqual([]);
+    });
 });
 
 describe('createAiTaKrajtaInternalEpisodes', () => {
@@ -93,6 +101,14 @@ describe('createAiTaKrajtaInternalEpisodes', () => {
 
     it('drops the repeated show name and number from the title of an episode', () => {
         expect(episodes.every((episode) => !episode.shortTitle.startsWith(AI_TA_KRAJTA_NAME))).toBe(true);
+    });
+
+    it('does not pass complete transcripts into the fallback archive', () => {
+        const serializedEpisodes = JSON.stringify(createAiTaKrajtaInternalEpisodes());
+        const firstTranscriptExcerpt = AI_TA_KRAJTA_INTERNAL_EPISODES[0]!.transcript.slice(0, 80);
+
+        expect(serializedEpisodes).not.toContain('"transcript"');
+        expect(serializedEpisodes).not.toContain(firstTranscriptExcerpt);
     });
 });
 

@@ -6,6 +6,7 @@ import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPage
 import { getAiTaKrajtaPersonById } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import {
     AI_TA_KRAJTA_INITIAL_EPISODE_COUNT,
+    MAXIMAL_AI_TA_KRAJTA_EPISODE_SEARCH_QUERY_LENGTH,
     AI_TA_KRAJTA_PLATFORMS,
     AI_TA_KRAJTA_SECTION_IDS,
 } from '@/businesses/ai-ta-krajta/config';
@@ -51,6 +52,7 @@ export function AiTaKrajtaEpisodeList() {
     const {
         archive,
         filteredEpisodes,
+        isTranscriptSearchPending,
         playingEpisode,
         playbackProgressByEpisodeSlug,
         viewState,
@@ -85,7 +87,8 @@ export function AiTaKrajtaEpisodeList() {
                             type="search"
                             value={viewState.searchQuery}
                             onChange={(event) => setSearchQuery(event.target.value)}
-                            placeholder="Hledat téma, model, jméno"
+                            placeholder="Hledat téma, model, jméno nebo slovo z dílu"
+                            maxLength={MAXIMAL_AI_TA_KRAJTA_EPISODE_SEARCH_QUERY_LENGTH}
                             className="h-11 w-full rounded-full border border-white/10 bg-white/[0.04] pl-11 pr-4 text-sm text-white placeholder:text-white/35 outline-none transition-colors focus:border-white/40"
                         />
                     </label>
@@ -118,6 +121,12 @@ export function AiTaKrajtaEpisodeList() {
                             {viewState.searchQuery}
                             <X className="h-3.5 w-3.5" />
                         </button>
+                    )}
+
+                    {isTranscriptSearchPending && (
+                        <span aria-live="polite" className="text-white/50">
+                            Hledám v přepisech…
+                        </span>
                     )}
                 </div>
 

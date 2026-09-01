@@ -3,6 +3,7 @@ import { AI_SUPERVIZE_MINI_PATH, createDiscountCodePrefillPath } from '@/lib/dis
 import {
     AI_TA_KRAJTA_APP_ICONS,
     AI_TA_KRAJTA_BRAND_NAME,
+    AI_TA_KRAJTA_EPISODE_SEARCH_API_PATH,
     AI_TA_KRAJTA_MANIFEST_PATH,
     AI_TA_KRAJTA_PATH,
 } from '@/businesses/ai-ta-krajta/config';
@@ -221,6 +222,23 @@ test('AI ta Krajta owns its metadata, icon and installable manifest and credits 
         expect(iconResponse.ok(), `Expected ${appIcon.path} to be served`).toBeTruthy();
         expect(iconResponse.headers()['content-type']).toContain(appIcon.type);
     }
+});
+
+test('AI ta Krajta searches complete transcripts on the server without sending them to the browser', async ({ page, request }) => {
+    const transcriptSearchResponse = await request.get(
+        `${AI_TA_KRAJTA_EPISODE_SEARCH_API_PATH}?${new URLSearchParams({ search: 'zahradníkem' }).toString()}`,
+    );
+    const transcriptSearchResponseText = await transcriptSearchResponse.text();
+
+    expect(transcriptSearchResponse.ok()).toBeTruthy();
+    expect(JSON.parse(transcriptSearchResponseText)).toMatchObject({ episodeSlugs: expect.arrayContaining(['65']) });
+    expect(transcriptSearchResponseText).not.toContain('Kozel za hradníkem');
+
+    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('searchbox', { name: 'Hledat v dílech' }).fill('zahradníkem');
+
+    await expect(page.getByRole('heading', { name: /AI zrychlí vývoj 10x/ })).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('Kozel za hradníkem');
 });
 
 for (const publicRedirect of PUBLIC_REDIRECTS) {

@@ -92,34 +92,80 @@ describe('filterAiTaKrajtaEpisodes', () => {
     ];
 
     it('keeps the whole archive when nothing is asked for', () => {
-        expect(filterAiTaKrajtaEpisodes(episodes, { personId: null, searchQuery: '' })).toHaveLength(3);
+        expect(
+            filterAiTaKrajtaEpisodes(episodes, {
+                personId: null,
+                searchQuery: '',
+                transcriptMatchingEpisodeSlugs: [],
+            }),
+        ).toHaveLength(3);
     });
 
     it('keeps only the episodes of one person', () => {
-        const filtered = filterAiTaKrajtaEpisodes(episodes, { personId: 'jiri-jahn', searchQuery: '' });
+        const filtered = filterAiTaKrajtaEpisodes(episodes, {
+            personId: 'jiri-jahn',
+            searchQuery: '',
+            transcriptMatchingEpisodeSlugs: [],
+        });
 
         expect(filtered.map((episode) => episode.id)).toEqual(['b']);
     });
 
     it('searches the title and the summary without regard to diacritics', () => {
-        const filtered = filterAiTaKrajtaEpisodes(episodes, { personId: null, searchQuery: 'lokalni' });
+        const filtered = filterAiTaKrajtaEpisodes(episodes, {
+            personId: null,
+            searchQuery: 'lokalni',
+            transcriptMatchingEpisodeSlugs: [],
+        });
 
         expect(filtered.map((episode) => episode.id)).toEqual(['b']);
     });
 
     it('asks for every typed word at once', () => {
-        expect(filterAiTaKrajtaEpisodes(episodes, { personId: null, searchQuery: 'agenti cloud' })).toHaveLength(1);
-        expect(filterAiTaKrajtaEpisodes(episodes, { personId: null, searchQuery: 'agenti kimi' })).toHaveLength(0);
+        expect(
+            filterAiTaKrajtaEpisodes(episodes, {
+                personId: null,
+                searchQuery: 'agenti cloud',
+                transcriptMatchingEpisodeSlugs: [],
+            }),
+        ).toHaveLength(1);
+        expect(
+            filterAiTaKrajtaEpisodes(episodes, {
+                personId: null,
+                searchQuery: 'agenti kimi',
+                transcriptMatchingEpisodeSlugs: [],
+            }),
+        ).toHaveLength(0);
     });
 
     it('does not let the name of the show match every episode', () => {
-        expect(filterAiTaKrajtaEpisodes(episodes, { personId: null, searchQuery: 'krajta' })).toHaveLength(0);
+        expect(
+            filterAiTaKrajtaEpisodes(episodes, {
+                personId: null,
+                searchQuery: 'krajta',
+                transcriptMatchingEpisodeSlugs: [],
+            }),
+        ).toHaveLength(0);
     });
 
     it('combines the person with the search', () => {
         expect(
-            filterAiTaKrajtaEpisodes(episodes, { personId: 'pavol-hejny', searchQuery: 'lokální' }),
+            filterAiTaKrajtaEpisodes(episodes, {
+                personId: 'pavol-hejny',
+                searchQuery: 'lokální',
+                transcriptMatchingEpisodeSlugs: [],
+            }),
         ).toHaveLength(0);
+    });
+
+    it('adds a server-side transcript match without handing its text to the client', () => {
+        const filtered = filterAiTaKrajtaEpisodes(episodes, {
+            personId: null,
+            searchQuery: 'neviditelne slovo',
+            transcriptMatchingEpisodeSlugs: ['2'],
+        });
+
+        expect(filtered.map((episode) => episode.id)).toEqual(['b']);
     });
 });
 

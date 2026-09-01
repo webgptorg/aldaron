@@ -1,16 +1,11 @@
 import type { AiTaKrajtaEpisode } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { AI_TA_KRAJTA_PEOPLE, getAiTaKrajtaPersonById, type AiTaKrajtaPerson } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
+import {
+    createAiTaKrajtaSearchWords,
+    isAiTaKrajtaTextMatchingSearchWords,
+    normalizeAiTaKrajtaSearchText,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaTextSearch';
 import type { PodcastEpisode } from '@/lib/podcast/PodcastFeed';
-
-/**
- * Writes text the way it is compared, so that `Koblížkem` and `koblizkem` are the same word
- */
-function normalizeForMatching(text: string): string {
-    return text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
-}
 
 /**
  * Does the episode name this person, either in its own words or in the roster?
@@ -20,21 +15,21 @@ function isPersonInEpisode(person: AiTaKrajtaPerson, episode: PodcastEpisode, ep
         return true;
     }
 
-    return person.mentionPatterns.some((pattern) => episodeText.includes(normalizeForMatching(pattern)));
+    return person.mentionPatterns.some((pattern) => episodeText.includes(normalizeAiTaKrajtaSearchText(pattern)));
 }
 
 /**
  * Does a merged source explicitly list this person by name?
  */
 function isPersonListedAsHost(person: AiTaKrajtaPerson, hostNames: readonly string[]): boolean {
-    const normalizedPersonName = normalizeForMatching(person.name);
+    const normalizedPersonName = normalizeAiTaKrajtaSearchText(person.name);
 
     return hostNames.some((hostName) => {
-        const normalizedHostName = normalizeForMatching(hostName);
+        const normalizedHostName = normalizeAiTaKrajtaSearchText(hostName);
 
         return (
             normalizedHostName === normalizedPersonName ||
-            person.mentionPatterns.some((pattern) => normalizedHostName.includes(normalizeForMatching(pattern)))
+            person.mentionPatterns.some((pattern) => normalizedHostName.includes(normalizeAiTaKrajtaSearchText(pattern)))
         );
     });
 }
@@ -47,7 +42,7 @@ function isPersonListedAsHost(person: AiTaKrajtaPerson, hostNames: readonly stri
  *       episode which names nobody gets nobody, because guessing a face onto an episode is worse than showing none.
  */
 export function resolveAiTaKrajtaEpisodePersonIds(episode: PodcastEpisode): readonly string[] {
-    const episodeText = normalizeForMatching(`${episode.title} ${episode.descriptionText}`);
+    const episodeText = normalizeAiTaKrajtaSearchText(`${episode.title} ${episode.descriptionText}`);
 
     return AI_TA_KRAJTA_PEOPLE.filter(
         (person) => isPersonListedAsHost(person, episode.hosts) || isPersonInEpisode(person, episode, episodeText),
@@ -90,6 +85,11 @@ export type AiTaKrajtaEpisodeFilter = {
      * Words which have to appear in the title or in the summary of the episode
      */
     readonly searchQuery: string;
+
+    /**
+     * Safe episode identifiers returned by the server-only transcript search
+     */
+    readonly transcriptMatchingEpisodeSlugs: readonly string[];
 };
 
 /**
@@ -102,7 +102,8 @@ export function filterAiTaKrajtaEpisodes(
     episodes: readonly AiTaKrajtaEpisode[],
     filter: AiTaKrajtaEpisodeFilter,
 ): readonly AiTaKrajtaEpisode[] {
-    const searchWords = normalizeForMatching(filter.searchQuery).split(/\s+/).filter(Boolean);
+    const searchWords = createAiTaKrajtaSearchWords(filter.searchQuery);
+    const transcriptMatchingEpisodeSlugSet = new Set(filter.transcriptMatchingEpisodeSlugs);
 
     return episodes.filter((episode) => {
         if (filter.personId !== null && !episode.personIds.includes(filter.personId)) {
@@ -111,10 +112,11 @@ export function filterAiTaKrajtaEpisodes(
 
         // Note: The search reads what the card shows plus the number of the episode. The full title would drag the
         //       name of the show into every episode, so typing `krajta` would find all of them and nothing else.
-        const episodeText = normalizeForMatching(
-            `${episode.number ?? ''} ${episode.shortTitle} ${episode.summary}`,
-        );
+        const episodeText = `${episode.number ?? ''} ${episode.shortTitle} ${episode.summary}`;
 
-        return searchWords.every((searchWord) => episodeText.includes(searchWord));
+        return (
+            isAiTaKrajtaTextMatchingSearchWords(episodeText, searchWords) ||
+            transcriptMatchingEpisodeSlugSet.has(episode.slug)
+        );
     });
 }

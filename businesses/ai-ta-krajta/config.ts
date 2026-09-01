@@ -231,6 +231,21 @@ export const AI_TA_KRAJTA_NAVIGATION_ITEMS: readonly AiTaKrajtaNavigationItem[] 
 export const AI_TA_KRAJTA_INITIAL_EPISODE_COUNT = 12;
 
 /**
+ * Public endpoint which looks through the server-only episode transcripts
+ */
+export const AI_TA_KRAJTA_EPISODE_SEARCH_API_PATH = '/api/ai-ta-krajta/episodes/search';
+
+/**
+ * Query parameter accepted by the transcript search endpoint
+ */
+export const AI_TA_KRAJTA_EPISODE_SEARCH_QUERY_PARAMETER_NAME = 'search';
+
+/**
+ * Long enough for a meaningful phrase and short enough to keep a public full-text query inexpensive
+ */
+export const MAXIMAL_AI_TA_KRAJTA_EPISODE_SEARCH_QUERY_LENGTH = 200;
+
+/**
  * Key under which a browser remembers which episodes of this show it played and where it left them
  *
  * Note: The version is part of the key, so that a change of what is remembered about an episode is answered by an

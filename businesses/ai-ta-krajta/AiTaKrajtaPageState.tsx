@@ -7,6 +7,7 @@ import {
     type PlayableAiTaKrajtaEpisode,
 } from '@/businesses/ai-ta-krajta/AiTaKrajtaEpisode';
 import { filterAiTaKrajtaEpisodes } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
+import { useAiTaKrajtaEpisodeTranscriptSearch } from '@/businesses/ai-ta-krajta/useAiTaKrajtaEpisodeTranscriptSearch';
 import {
     parseAiTaKrajtaViewState,
     serializeAiTaKrajtaViewState,
@@ -32,6 +33,11 @@ type AiTaKrajtaPageStateValue = {
      * Episodes left after the filter of the visitor, newest first
      */
     readonly filteredEpisodes: readonly AiTaKrajtaEpisode[];
+
+    /**
+     * Whether the current search still waits for the server-only transcript matches
+     */
+    readonly isTranscriptSearchPending: boolean;
 
     /**
      * Episode loaded in the mini player, `null` when the player is closed
@@ -122,13 +128,18 @@ export function AiTaKrajtaPageStateProvider({
         recordEpisodePlaybackProgress,
     } = usePodcastPlaybackProgress(AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY);
 
+    const { transcriptMatchingEpisodeSlugs, isTranscriptSearchPending } = useAiTaKrajtaEpisodeTranscriptSearch(
+        viewState.searchQuery,
+    );
+
     const filteredEpisodes = useMemo(
         () =>
             filterAiTaKrajtaEpisodes(archive.episodes, {
                 personId: viewState.personId,
                 searchQuery: viewState.searchQuery,
+                transcriptMatchingEpisodeSlugs,
             }),
-        [archive.episodes, viewState.personId, viewState.searchQuery],
+        [archive.episodes, transcriptMatchingEpisodeSlugs, viewState.personId, viewState.searchQuery],
     );
 
     const playableEpisodes = useMemo(
@@ -199,6 +210,7 @@ export function AiTaKrajtaPageStateProvider({
         () => ({
             archive,
             filteredEpisodes,
+            isTranscriptSearchPending,
             playingEpisode,
             newestPlayableEpisode,
             viewState,
@@ -217,6 +229,7 @@ export function AiTaKrajtaPageStateProvider({
         [
             archive,
             filteredEpisodes,
+            isTranscriptSearchPending,
             playingEpisode,
             newestPlayableEpisode,
             viewState,

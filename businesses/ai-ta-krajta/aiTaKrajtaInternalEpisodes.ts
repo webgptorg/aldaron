@@ -38,6 +38,14 @@ export type AiTaKrajtaInternalEpisode = {
      *       override: `mergePodcastEpisodes` joins it with the names found in the live RSS and YouTube feeds.
      */
     readonly hosts: readonly string[];
+
+    /**
+     * Complete Czech transcript of the recording, retained only for server-side archive search
+     *
+     * Note: `createAiTaKrajtaInternalEpisodes` deliberately does not pass this into a podcast episode, which keeps
+     *       the transcript out of the object a page serializes to a browser.
+     */
+    readonly transcript: string;
 };
 
 /**
