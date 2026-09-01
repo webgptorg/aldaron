@@ -6,6 +6,21 @@ import type { SupportedHomepageLanguage } from '@/lib/homepage-language';
 export const AI_TA_KRAJTA_PATH = '/ai-ta-krajta';
 
 /**
+ * Public page which explains the podcast and every way of working with it
+ */
+export const AI_TA_KRAJTA_MEDIA_KIT_PATH = AI_TA_KRAJTA_PATH + '/media-kit';
+
+/**
+ * Section of the media kit which contains the one shared contact form
+ */
+export const AI_TA_KRAJTA_MEDIA_KIT_CONTACT_SECTION_ID = 'kontakt';
+
+/**
+ * English query parameter used by media-kit links to select a kind of inquiry in the contact form
+ */
+export const AI_TA_KRAJTA_COLLABORATION_QUERY_PARAMETER_NAME = 'collaboration';
+
+/**
  * Name of the podcast, written the way the show writes it itself
  */
 export const AI_TA_KRAJTA_NAME = 'AI ta Krajta';
@@ -298,7 +313,7 @@ export const AI_TA_KRAJTA_COLLABORATION_OPTIONS: readonly AiTaKrajtaCollaboratio
         label: 'Zajímá mě partnerství',
         title: 'Partnerství pro firmy',
         description:
-            'Posluchači jsou vývojáři, produkťáci a lidé, kteří o AI ve firmě rozhodují. Když má váš produkt smysl právě pro ně, ozvěte se. Rozsah a cenu pošleme v první odpovědi, žádné dohadování přes tři schůzky.',
+            'Chcete oslovit české a slovenské publikum, které AI aktivně sleduje a řeší? Ukážeme vám veřejné formáty, ceny i redakční pravidla dřív, než nám napíšete.',
     },
     {
         id: 'jine',
@@ -309,61 +324,43 @@ export const AI_TA_KRAJTA_COLLABORATION_OPTIONS: readonly AiTaKrajtaCollaboratio
     },
 ];
 
-export type AiTaKrajtaSponsorshipPackage = {
-    readonly id: string;
-    readonly title: string;
-
-    /**
-     * What the partner gets, written so that it can be checked off after the recording
-     */
-    readonly deliverables: readonly string[];
-
-    /**
-     * Price in Czech crowns without VAT
-     *
-     * Note: `null` means that the price is not published yet and the page offers to send it instead of inventing a
-     *       number. Fill it in and the exact price appears on the page, which is the whole point of this section.
-     */
-    readonly priceInCzechCrowns: number | null;
-};
+/**
+ * The choice offered whenever a media-kit link carries no valid kind of inquiry
+ */
+export const DEFAULT_AI_TA_KRAJTA_COLLABORATION_KIND = AI_TA_KRAJTA_COLLABORATION_OPTIONS[0].id;
 
 /**
- * What a company can buy, listed so that a partner knows what they get before they write the first e-mail
+ * Decides whether a value from a hand-written link is one the contact form can really offer
  */
-export const AI_TA_KRAJTA_SPONSORSHIP_PACKAGES: readonly AiTaKrajtaSponsorshipPackage[] = [
-    {
-        id: 'zminka',
-        title: 'Zmínka v dílu',
-        deliverables: [
-            'Přečtená zmínka na začátku a na konci dílu',
-            'Odkaz v popisu na YouTube, Spotify i Apple Podcasts',
-            'Logo v závěrečné grafice',
-        ],
-        priceInCzechCrowns: null,
-    },
-    {
-        id: 'partner-dilu',
-        title: 'Partner dílu',
-        deliverables: [
-            'Vše ze zmínky v dílu',
-            'Dvouminutový blok o produktu na začátku',
-            'Samostatný příspěvek na LinkedInu k vydání dílu',
-            'Sestřih z dílu k vlastnímu použití',
-        ],
-        priceInCzechCrowns: null,
-    },
-    {
-        id: 'sezona',
-        title: 'Partner sezóny',
-        deliverables: [
-            'Partner dílu u série dílů po sobě',
-            'Logo v úvodní znělce po celou dobu',
-            'Jeden díl na téma, kterému vaši lidé rozumí',
-            'Přehled poslechovosti po skončení sezóny',
-        ],
-        priceInCzechCrowns: null,
-    },
-];
+export function isAiTaKrajtaCollaborationKind(value: string | null): value is AiTaKrajtaCollaborationKind {
+    return value !== null && AI_TA_KRAJTA_COLLABORATION_OPTIONS.some((option) => option.id === value);
+}
+
+/**
+ * Reads the requested kind of inquiry from a media-kit link, falling back to the first offered choice
+ */
+export function readAiTaKrajtaCollaborationKind(value: string | null): AiTaKrajtaCollaborationKind {
+    return isAiTaKrajtaCollaborationKind(value) ? value : DEFAULT_AI_TA_KRAJTA_COLLABORATION_KIND;
+}
+
+/**
+ * Builds a media-kit deep link which opens the form on one kind of inquiry
+ */
+export function createAiTaKrajtaMediaKitCollaborationPath(
+    collaborationKind: AiTaKrajtaCollaborationKind,
+): string {
+    const searchParams = new URLSearchParams({
+        [AI_TA_KRAJTA_COLLABORATION_QUERY_PARAMETER_NAME]: collaborationKind,
+    });
+
+    return (
+        AI_TA_KRAJTA_MEDIA_KIT_PATH +
+        '?' +
+        searchParams.toString() +
+        '#' +
+        AI_TA_KRAJTA_MEDIA_KIT_CONTACT_SECTION_ID
+    );
+}
 
 /**
  * Name under which requests from this page arrive in the shared contacts inbox at `/admin/contacts`

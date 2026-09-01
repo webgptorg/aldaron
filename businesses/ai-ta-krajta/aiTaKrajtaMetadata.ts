@@ -6,6 +6,7 @@ import {
     AI_TA_KRAJTA_COLORS,
     AI_TA_KRAJTA_COVER_IMAGE_PATH,
     AI_TA_KRAJTA_MANIFEST_PATH,
+    AI_TA_KRAJTA_MEDIA_KIT_PATH,
     AI_TA_KRAJTA_PATH,
     AI_TA_KRAJTA_SOCIAL_URLS,
     AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE,
@@ -69,6 +70,34 @@ export const AI_TA_KRAJTA_PAGE_DEFINITION: PageMetadataDefinition = {
 };
 
 /**
+ * Search and sharing metadata of the media kit, which keeps the podcast identity instead of inheriting the product
+ * identity of the rest of the site
+ */
+export const AI_TA_KRAJTA_MEDIA_KIT_PAGE_DEFINITION: PageMetadataDefinition = {
+    path: AI_TA_KRAJTA_MEDIA_KIT_PATH,
+    language: 'cs',
+    brand: {
+        name: AI_TA_KRAJTA_BRAND_NAME,
+        socialHandle: AI_TA_KRAJTA_X_HANDLE,
+    },
+    title: AI_TA_KRAJTA_BRAND_NAME + ' | Media kit a spolupráce',
+    socialTitle: 'Media kit | ' + AI_TA_KRAJTA_BRAND_NAME,
+    description:
+        'Media kit AI ta Krajta: informace o podcastu, hostech, tématech, sponzoringu a redakčně nezávislých spolupracích.',
+    socialPreviewImageAlt: AI_TA_KRAJTA_BRAND_NAME + ', media kit a spolupráce',
+    socialPreviewImagePath: AI_TA_KRAJTA_COVER_IMAGE_PATH,
+    keywords: [
+        'AI ta Krajta media kit',
+        'AI ta Krajta partnerství',
+        'AI podcast sponzoring',
+        'AI podcast host',
+        'český podcast o AI',
+    ],
+    sitemapPriority: 0.6,
+    sitemapChangeFrequency: 'monthly',
+};
+
+/**
  * Route-level metadata which must use the podcast identity instead of the site's default one
  */
 export const AI_TA_KRAJTA_METADATA: Metadata = {
@@ -106,6 +135,15 @@ export const AI_TA_KRAJTA_METADATA: Metadata = {
     other: {
         'msapplication-TileColor': AI_TA_KRAJTA_THEME_COLOR,
     },
+};
+
+/**
+ * Route-level metadata of the media kit. Reusing the podcast metadata preserves its icons and manifest while this
+ * page gets its own canonical URL, title and sharing copy.
+ */
+export const AI_TA_KRAJTA_MEDIA_KIT_METADATA: Metadata = {
+    ...AI_TA_KRAJTA_METADATA,
+    ...createPageMetadata(AI_TA_KRAJTA_MEDIA_KIT_PAGE_DEFINITION),
 };
 
 /**

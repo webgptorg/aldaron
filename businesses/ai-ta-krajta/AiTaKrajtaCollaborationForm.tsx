@@ -1,20 +1,22 @@
 'use client';
 
-import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import {
     AI_TA_KRAJTA_COLLABORATION_OPTIONS,
     AI_TA_KRAJTA_COLLABORATION_PLACE_NAME,
+    AI_TA_KRAJTA_COLLABORATION_QUERY_PARAMETER_NAME,
     AI_TA_KRAJTA_NAME,
+    readAiTaKrajtaCollaborationKind,
     type AiTaKrajtaCollaborationKind,
 } from '@/businesses/ai-ta-krajta/config';
 import { PersonalDataConsentNote } from '@/components/legal/PersonalDataConsentNote';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
 import { CheckCircle2, Send } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, type FormEvent } from 'react';
 
 /**
- * Identifier of the message field, so that the cards above the form can put the cursor into it
+ * Identifier of the message field, kept stable for deep links and end-to-end coverage
  */
 export const AI_TA_KRAJTA_MESSAGE_FIELD_ID = 'ai-ta-krajta-zprava';
 
@@ -40,7 +42,7 @@ const LABEL_CLASS_NAME = 'text-sm font-medium text-white/70';
 /**
  * Checks what the shared contacts inbox needs to be able to answer
  *
- * @returns what to tell the visitor, `null` when the form can be sent
+ * @returns what to tell the visitor, null when the form can be sent
  */
 function getValidationMessage(formValues: CollaborationFormValues): string | null {
     if (formValues.fullname.trim() === '') {
@@ -59,7 +61,7 @@ function getValidationMessage(formValues: CollaborationFormValues): string | nul
 }
 
 /**
- * Writes down what the visitor chose, so that the inbox shows it next to the message
+ * Writes down the selected path so the shared contacts inbox tells apart a guest, topic and business inquiry
  */
 function createContactNote(
     collaborationKind: AiTaKrajtaCollaborationKind,
@@ -68,26 +70,36 @@ function createContactNote(
     const chosenOption = AI_TA_KRAJTA_COLLABORATION_OPTIONS.find((option) => option.id === collaborationKind);
 
     return [
-        `Podcast: ${AI_TA_KRAJTA_NAME}`,
-        `Zájem: ${chosenOption?.label ?? collaborationKind}`,
-        `Firma nebo projekt: ${formValues.company.trim() || 'neuvedeno'}`,
+        'Podcast: ' + AI_TA_KRAJTA_NAME,
+        'Zájem: ' + (chosenOption?.label ?? collaborationKind),
+        'Firma nebo projekt: ' + (formValues.company.trim() || 'neuvedeno'),
         '',
         formValues.message.trim(),
     ].join('\n');
 }
 
 /**
- * The one form of the page, which lands in the shared contacts inbox of the administration
+ * The one collaboration form shared by the media kit and the shared contacts inbox
  *
- * Note: It writes through `/api/waitlist` like every other public form of the site, so a topic, a guest and a
- *       partnership all arrive in `/admin/contacts` and are told apart by their place name and their note.
+ * Note: The media-kit deep links choose its kind through an English query parameter. The current URL and referrer,
+ * including UTM parameters, are already preserved by subscribeToWaitlist.
  */
 export function AiTaKrajtaCollaborationForm() {
-    const { viewState, setCollaborationKind } = useAiTaKrajtaPageState();
+    const searchParams = useSearchParams();
+    const collaborationKindFromSearchParameters = readAiTaKrajtaCollaborationKind(
+        searchParams.get(AI_TA_KRAJTA_COLLABORATION_QUERY_PARAMETER_NAME),
+    );
+    const [collaborationKind, setCollaborationKind] = useState<AiTaKrajtaCollaborationKind>(
+        collaborationKindFromSearchParameters,
+    );
     const [formValues, setFormValues] = useState<CollaborationFormValues>(EMPTY_FORM_VALUES);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        setCollaborationKind(collaborationKindFromSearchParameters);
+    }, [collaborationKindFromSearchParameters]);
 
     const changeFormValue = (change: Partial<CollaborationFormValues>) =>
         setFormValues((previousFormValues) => ({ ...previousFormValues, ...change }));
@@ -110,7 +122,7 @@ export function AiTaKrajtaCollaborationForm() {
                 fullname: formValues.fullname.trim(),
                 email: formValues.email.trim(),
                 placeName: AI_TA_KRAJTA_COLLABORATION_PLACE_NAME,
-                note: createContactNote(viewState.collaborationKind, formValues),
+                note: createContactNote(collaborationKind, formValues),
             });
             setIsSubmitted(true);
             setFormValues(EMPTY_FORM_VALUES);
@@ -131,7 +143,7 @@ export function AiTaKrajtaCollaborationForm() {
                 <CheckCircle2 className="mx-auto h-10 w-10 text-[#9db1ff]" />
                 <h3 className="mt-4 text-xl font-semibold text-white">Máme to.</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/60">
-                    Čteme všechno. Ozveme se, jakmile budeme vědět, do kterého dílu to sedne.
+                    Díky. Ozveme se s návrhem vhodného dalšího kroku.
                 </p>
             </div>
         );
@@ -189,11 +201,11 @@ export function AiTaKrajtaCollaborationForm() {
                     </label>
                     <select
                         id="ai-ta-krajta-zajem"
-                        value={viewState.collaborationKind}
+                        value={collaborationKind}
                         onChange={(event) =>
-                            setCollaborationKind(event.target.value as AiTaKrajtaCollaborationKind)
+                            setCollaborationKind(readAiTaKrajtaCollaborationKind(event.target.value))
                         }
-                        className={`${FIELD_CLASS_NAME} appearance-none bg-[#232a25]`}
+                        className={FIELD_CLASS_NAME + ' appearance-none bg-[#232a25]'}
                     >
                         {AI_TA_KRAJTA_COLLABORATION_OPTIONS.map((option) => (
                             <option key={option.id} value={option.id}>
@@ -213,7 +225,7 @@ export function AiTaKrajtaCollaborationForm() {
                     value={formValues.message}
                     onChange={(event) => changeFormValue({ message: event.target.value })}
                     rows={5}
-                    className={`${FIELD_CLASS_NAME} h-auto py-3 leading-relaxed`}
+                    className={FIELD_CLASS_NAME + ' h-auto py-3 leading-relaxed'}
                     placeholder="Na čem děláte, co by nemělo zapadnout, nebo co chcete s Krajtou vymyslet."
                 />
             </div>

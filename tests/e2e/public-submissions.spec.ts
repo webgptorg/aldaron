@@ -1,4 +1,7 @@
-import { AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY } from '@/businesses/ai-ta-krajta/config';
+import {
+    AI_TA_KRAJTA_MEDIA_KIT_PATH,
+    AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY,
+} from '@/businesses/ai-ta-krajta/config';
 import { createE2eTestEmail } from '@/lib/e2e/testData';
 import { expect, test } from '@playwright/test';
 import { submitAndExpectApiSuccess } from './support/submissions';
@@ -185,7 +188,7 @@ test('submits the AI Supervize Mini future-term interest form', async ({ page })
 });
 
 test('submits the AI ta Krajta collaboration form', async ({ page }) => {
-    await page.goto('/ai-ta-krajta?collaboration=partnerstvi');
+    await page.goto(AI_TA_KRAJTA_MEDIA_KIT_PATH + '?collaboration=partnerstvi');
 
     await page.locator('#ai-ta-krajta-jmeno').fill('E2E Krajta');
     await page.locator('#ai-ta-krajta-email').fill(createE2eTestEmail('ai-ta-krajta-collaboration'));

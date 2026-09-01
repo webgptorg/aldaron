@@ -5,6 +5,7 @@ import {
     AI_TA_KRAJTA_BRAND_NAME,
     AI_TA_KRAJTA_EPISODE_SEARCH_API_PATH,
     AI_TA_KRAJTA_MANIFEST_PATH,
+    AI_TA_KRAJTA_MEDIA_KIT_PATH,
     AI_TA_KRAJTA_PATH,
 } from '@/businesses/ai-ta-krajta/config';
 import {
@@ -26,6 +27,7 @@ const PUBLIC_PAGE_PATHS = [
     AI_SUPERVIZE_MINI_PATH,
     // '/ai-supervize-mini',
     '/ai-ta-krajta',
+    AI_TA_KRAJTA_MEDIA_KIT_PATH,
     '/hackathon-factory',
     '/cs/online-workshop',
     '/cs/komunita/clenstvi',
@@ -133,6 +135,17 @@ for (const path of PUBLIC_PAGE_PATHS) {
         await expectPublicPageToLoad(page, path);
     });
 }
+
+test('AI ta Krajta collaboration section deep-links to its media kit', async ({ page }) => {
+    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
+
+    const mediaKitLink = page.getByRole('link', { name: 'Otevřít media kit' });
+    await expect(mediaKitLink).toHaveAttribute('href', AI_TA_KRAJTA_MEDIA_KIT_PATH);
+    await mediaKitLink.click();
+
+    await expect(page).toHaveURL(AI_TA_KRAJTA_MEDIA_KIT_PATH);
+    await expect(page.getByRole('heading', { name: /Oslovte české a slovenské publikum/i })).toBeVisible();
+});
 
 test('AI ta Krajta owns its metadata, icon and installable manifest and credits Promptbook coder', async ({ page }) => {
     await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });

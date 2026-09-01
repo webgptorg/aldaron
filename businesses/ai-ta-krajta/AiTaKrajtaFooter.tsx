@@ -3,6 +3,7 @@
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
 import {
     AI_TA_KRAJTA_NAME,
+    AI_TA_KRAJTA_MEDIA_KIT_PATH,
     AI_TA_KRAJTA_PATH,
     AI_TA_KRAJTA_PLATFORMS,
     AI_TA_KRAJTA_SECTION_IDS,
@@ -74,14 +75,17 @@ export function AiTaKrajtaFooter() {
                         <h2 className="text-xs uppercase tracking-[0.16em] text-white/35">Dál</h2>
                         <ul className="mt-4 grid gap-3">
                             <li>
-                                <a href={`#${AI_TA_KRAJTA_SECTION_IDS.COLLABORATION}`} className={FOOTER_LINK_CLASS_NAME}>
-                                    Spolupráce a partnerství
-                                </a>
+                                <Link href={AI_TA_KRAJTA_MEDIA_KIT_PATH} className={FOOTER_LINK_CLASS_NAME}>
+                                    Media kit a spolupráce
+                                </Link>
                             </li>
                             <li>
-                                <a href={`#${AI_TA_KRAJTA_SECTION_IDS.PEOPLE}`} className={FOOTER_LINK_CLASS_NAME}>
+                                <Link
+                                    href={AI_TA_KRAJTA_PATH + '#' + AI_TA_KRAJTA_SECTION_IDS.PEOPLE}
+                                    className={FOOTER_LINK_CLASS_NAME}
+                                >
                                     Kdo v tom jede
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </nav>

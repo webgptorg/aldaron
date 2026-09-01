@@ -28,7 +28,6 @@ describe('aiTaKrajtaViewState', () => {
             playingEpisodeSlug: '64',
             isPlaying: true,
             isWholeArchiveShown: true,
-            collaborationKind: 'partnerstvi',
         };
         const searchParams = new URLSearchParams(serializeToSearch(viewState));
 
@@ -38,7 +37,6 @@ describe('aiTaKrajtaViewState', () => {
             [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.EPISODE]: '64',
             [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PLAYING]: '1',
             [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.ARCHIVE]: '1',
-            [AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION]: 'partnerstvi',
         });
         expect(parseAiTaKrajtaViewState(searchParams)).toEqual(viewState);
     });
@@ -49,14 +47,6 @@ describe('aiTaKrajtaViewState', () => {
                 new URLSearchParams(`${AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.PERSON}=nekdo-jiny`),
             ).personId,
         ).toBeNull();
-    });
-
-    it('ignores a kind of collaboration which the form does not offer', () => {
-        expect(
-            parseAiTaKrajtaViewState(
-                new URLSearchParams(`${AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION}=cokoliv`),
-            ).collaborationKind,
-        ).toBe(DEFAULT_AI_TA_KRAJTA_VIEW_STATE.collaborationKind);
     });
 
     it('does not read former Czech query parameters as page state', () => {

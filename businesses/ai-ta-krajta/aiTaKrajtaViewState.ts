@@ -1,11 +1,6 @@
 import { getAiTaKrajtaPersonById } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
+import { AI_TA_KRAJTA_PATH } from '@/businesses/ai-ta-krajta/config';
 import {
-    AI_TA_KRAJTA_COLLABORATION_OPTIONS,
-    AI_TA_KRAJTA_PATH,
-    type AiTaKrajtaCollaborationKind,
-} from '@/businesses/ai-ta-krajta/config';
-import {
-    createEnumeratedValueCodec,
     defineUrlViewParameter,
     FLAG_VALUE_CODEC,
     parseUrlViewState,
@@ -44,11 +39,6 @@ export type AiTaKrajtaViewState = {
      * Whether the archive lists every episode instead of the newest ones
      */
     readonly isWholeArchiveShown: boolean;
-
-    /**
-     * Which kind of collaboration the form at the bottom is filled in for
-     */
-    readonly collaborationKind: AiTaKrajtaCollaborationKind;
 };
 
 /**
@@ -60,7 +50,6 @@ export const DEFAULT_AI_TA_KRAJTA_VIEW_STATE: AiTaKrajtaViewState = {
     playingEpisodeSlug: null,
     isPlaying: false,
     isWholeArchiveShown: false,
-    collaborationKind: AI_TA_KRAJTA_COLLABORATION_OPTIONS[0].id,
 };
 
 /**
@@ -72,16 +61,7 @@ export const AI_TA_KRAJTA_VIEW_PARAMETER_NAMES = {
     EPISODE: 'episode',
     PLAYING: 'playing',
     ARCHIVE: 'archive',
-    COLLABORATION: 'collaboration',
 } as const;
-
-/**
- * Kind of collaboration which is one of the offered ones, so that a hand written link cannot ask for something the
- * form does not offer
- */
-const COLLABORATION_KIND_VALUE_CODEC = createEnumeratedValueCodec(
-    AI_TA_KRAJTA_COLLABORATION_OPTIONS.map((option) => option.id),
-);
 
 /**
  * Identifier of somebody who is really in the roster, so that a mistyped link shows the whole archive instead of
@@ -139,12 +119,6 @@ const AI_TA_KRAJTA_VIEW_PARAMETERS: readonly UrlViewParameter<AiTaKrajtaViewStat
         ...FLAG_VALUE_CODEC,
         readValue: (viewState) => viewState.isWholeArchiveShown,
         writeValue: (viewState, isWholeArchiveShown) => ({ ...viewState, isWholeArchiveShown }),
-    }),
-    defineAiTaKrajtaViewParameter<AiTaKrajtaCollaborationKind>({
-        parameterName: AI_TA_KRAJTA_VIEW_PARAMETER_NAMES.COLLABORATION,
-        ...COLLABORATION_KIND_VALUE_CODEC,
-        readValue: (viewState) => viewState.collaborationKind,
-        writeValue: (viewState, collaborationKind) => ({ ...viewState, collaborationKind }),
     }),
 ];
 

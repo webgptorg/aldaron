@@ -15,7 +15,6 @@ import {
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaViewState';
 import {
     AI_TA_KRAJTA_PLAYBACK_PROGRESS_STORAGE_KEY,
-    type AiTaKrajtaCollaborationKind,
 } from '@/businesses/ai-ta-krajta/config';
 import { usePodcastPlaybackProgress } from '@/hooks/usePodcastPlaybackProgress';
 import { useUrlSynchronizedViewState } from '@/hooks/useUrlSynchronizedViewState';
@@ -96,7 +95,6 @@ type AiTaKrajtaPageStateValue = {
 
     readonly setSearchQuery: (searchQuery: string) => void;
     readonly showWholeArchive: () => void;
-    readonly setCollaborationKind: (collaborationKind: AiTaKrajtaCollaborationKind) => void;
 };
 
 const AiTaKrajtaPageStateContext = createContext<AiTaKrajtaPageStateValue | null>(null);
@@ -104,8 +102,8 @@ const AiTaKrajtaPageStateContext = createContext<AiTaKrajtaPageStateValue | null
 /**
  * Holds the one state of the page and keeps it in the address bar
  *
- * Note: The filter, chosen episode and collaboration choice live in the query parameters. The game is deliberately
- *       local to its terrarium, because a copied link should not start an interactive animation unexpectedly.
+ * Note: The filter and chosen episode live in the query parameters. The game is deliberately local to its terrarium,
+ *       because a copied link should not start an interactive animation unexpectedly.
  */
 export function AiTaKrajtaPageStateProvider({
     archive,
@@ -200,12 +198,6 @@ export function AiTaKrajtaPageStateProvider({
         [changeViewState],
     );
 
-    const setCollaborationKind = useCallback(
-        (collaborationKind: AiTaKrajtaCollaborationKind) =>
-            changeViewState((previousViewState) => ({ ...previousViewState, collaborationKind })),
-        [changeViewState],
-    );
-
     const pageState = useMemo<AiTaKrajtaPageStateValue>(
         () => ({
             archive,
@@ -224,7 +216,6 @@ export function AiTaKrajtaPageStateProvider({
             togglePersonFilter,
             setSearchQuery,
             showWholeArchive,
-            setCollaborationKind,
         }),
         [
             archive,
@@ -243,7 +234,6 @@ export function AiTaKrajtaPageStateProvider({
             togglePersonFilter,
             setSearchQuery,
             showWholeArchive,
-            setCollaborationKind,
         ],
     );
 
