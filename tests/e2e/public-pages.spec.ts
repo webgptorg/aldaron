@@ -89,6 +89,10 @@ const E2E_DISCOUNT_CODE = 'E2E SLEVA';
 
 const PUBLIC_PAGE_TEST_TIMEOUT_MS = 180_000;
 
+const COOKIE_CONSENT_SELECTOR = '[data-cookie-consent]';
+const COOKIE_CONSENT_PANEL_SELECTOR = '.cookie-consent__panel';
+const BOOKING_NOTIFICATION_DELAY_IN_MILLISECONDS = 6_100;
+
 async function expectPublicPageToLoad(page: Page, path: PublicPagePath): Promise<void> {
     const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
 
@@ -135,6 +139,53 @@ for (const path of PUBLIC_PAGE_PATHS) {
         await expectPublicPageToLoad(page, path);
     });
 }
+
+test('cookie consent adapts its shared tray to the viewport and persistent podcast player', async ({ page }) => {
+    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
+
+    const cookieConsent = page.locator(COOKIE_CONSENT_SELECTOR);
+    await expect(cookieConsent).toBeVisible();
+    await expect(cookieConsent).toHaveAttribute('data-cookie-consent-appearance', 'podcast');
+
+    await page.getByRole('button', { name: 'Poslouchat' }).click();
+    await expect(page.locator('[data-ai-ta-krajta-mini-player]')).toBeVisible();
+
+    const cookiePanelBox = await page.locator(COOKIE_CONSENT_PANEL_SELECTOR).boundingBox();
+    const playerBox = await page.locator('[data-ai-ta-krajta-mini-player]').boundingBox();
+
+    expect(cookiePanelBox).not.toBeNull();
+    expect(playerBox).not.toBeNull();
+    expect(cookiePanelBox!.y + cookiePanelBox!.height).toBeLessThanOrEqual(playerBox!.y);
+
+    await page.goto('/ai-supervize', { waitUntil: 'domcontentloaded' });
+
+    const desktopCopyBox = await page.locator('.cookie-consent__copy').boundingBox();
+    const desktopActionsBox = await page.locator('.cookie-consent__actions').boundingBox();
+
+    expect(desktopCopyBox).not.toBeNull();
+    expect(desktopActionsBox).not.toBeNull();
+    expect(desktopActionsBox!.x).toBeGreaterThan(desktopCopyBox!.x);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/cs', { waitUntil: 'domcontentloaded' });
+
+    const mobileCopyBox = await page.locator('.cookie-consent__copy').boundingBox();
+    const mobileActionsBox = await page.locator('.cookie-consent__actions').boundingBox();
+
+    expect(mobileCopyBox).not.toBeNull();
+    expect(mobileActionsBox).not.toBeNull();
+    expect(mobileActionsBox!.y).toBeGreaterThan(mobileCopyBox!.y + mobileCopyBox!.height);
+
+    await page.waitForTimeout(BOOKING_NOTIFICATION_DELAY_IN_MILLISECONDS);
+    await expect(page.locator('[data-booking-notification]')).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Nastavit' }).click();
+    const settingsDialog = page.getByRole('dialog');
+
+    await expect(settingsDialog.getByRole('heading', { name: 'Nastavení cookies' })).toBeVisible();
+    await settingsDialog.getByRole('button', { name: 'Uložit nastavení' }).click();
+    await expect(cookieConsent).toHaveCount(0);
+});
 
 test('AI ta Krajta collaboration section deep-links to its media kit', async ({ page }) => {
     await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });

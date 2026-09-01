@@ -1,4 +1,13 @@
 # Current preversion
+- Rebuilt the site-wide cookie notice from a small, central floating card into one responsive consent tray: it now
+  keeps the primary page content clear by reading as a compact horizontal bar on larger screens and a shorter,
+  two-action sheet on phones. The same shared component keeps every page on one layout, carries the cookie icon,
+  contrast and focus treatment once, and lets the independent AI ta Krajta pages use their own moss-and-coral
+  language without copying the consent flow. It also steps above the podcast mini player and any fixed admin table
+  scrollbar, while the optional booking notice waits until the visitor has answered cookies instead of competing with
+  the required action on a small screen. Accepting, opening settings and saving a tailored choice continue to use the
+  same stored preferences as before.
+
 - Let an administrator make a prefix discount code by ending it in `*`: `SUMMER*` now gives its configured discount
   to every submitted code starting with `SUMMER`. The same database resolver supplies form previews and the atomic
   registration consumption, so one path cannot accept a code which the other would reject; an exact code takes
