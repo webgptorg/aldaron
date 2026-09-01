@@ -39,7 +39,7 @@ export type WorkshopKindCapabilities = {
 
     /**
      * Whether this room can show a community poll which is attached to it. A workshop occurrence is the subject of
-     * such a poll rather than its owner, so it shows the common aggregate without accepting a second vote there.
+     * such a poll rather than its owner, so it shows and changes the one common e-mail-owned vote there.
      */
     readonly isAttachedCommunityPollsShown: boolean;
 
@@ -95,8 +95,8 @@ export function getWorkshopKindCapabilities(workshopKind: WorkshopKind): Worksho
 }
 
 /**
- * Whether a member room can show visible community poll results. Community owns polls and accepts the votes; a
- * workshop occurrence may only show the visible polls which the community attached to it.
+ * Whether a member room can show and vote on visible community polls. Community owns and administers them, while a
+ * workshop occurrence can use the same vote only for polls the community attached to it.
  */
 export function isWorkshopPollVisibleInRoom(workshopKind: WorkshopKind): boolean {
     const { isPollsOffered, isAttachedCommunityPollsShown } = getWorkshopKindCapabilities(workshopKind);

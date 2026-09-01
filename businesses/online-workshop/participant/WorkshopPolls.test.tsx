@@ -51,11 +51,20 @@ describe('community polls', () => {
         expect(screen.getByText('Pro tento účet nejsou interakce dostupné.')).not.toBeNull();
     });
 
-    it('shows an attached poll as a read-only community result', () => {
-        render(<WorkshopPolls polls={[POLL]} isInteractionBanned={false} />);
+    it('lets an attached workshop cast the same shared community vote', async () => {
+        const onVote = vi.fn().mockResolvedValue(true);
+        render(<WorkshopPolls polls={[POLL]} isInteractionBanned={false} onVote={onVote} />);
 
         expect(screen.getByText('Kterému tématu se máme věnovat?')).not.toBeNull();
-        expect(screen.getByRole('button', { name: /Testování/ }).hasAttribute('disabled')).toBe(true);
-        expect(screen.getByText('Tato anketa patří komunitě; zde se zobrazuje její průběžný výsledek.')).not.toBeNull();
+        expect(screen.getByRole('button', { name: /Testování/ }).hasAttribute('disabled')).toBe(false);
+        expect(
+            screen.getByText(
+                'Vyberte jednu možnost. Stejný hlas uvidíte v komunitě i v připojených workshopech a můžete jej kdykoli změnit.',
+            ),
+        ).not.toBeNull();
+
+        fireEvent.click(screen.getByRole('button', { name: /Nasazování/ }));
+
+        await waitFor(() => expect(onVote).toHaveBeenCalledWith('poll-1', 'option-2'));
     });
 });

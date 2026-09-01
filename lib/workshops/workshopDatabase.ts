@@ -31,6 +31,7 @@ import { materializeWorkshopCommentShortLinks } from '@/lib/workshops/workshopMa
 import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentLinks';
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
+import { normalizeWorkshopParticipantEmail } from '@/lib/workshops/workshopParticipantEmail';
 import type {
     WorkshopAdminComment,
     WorkshopAdminFeedback,
@@ -738,6 +739,54 @@ function mapWorkshopPollRow<Option extends WorkshopPollOption>(
     };
 }
 
+type WorkshopPollVoteErrorKind = 'not-found' | 'closed' | 'invalid-participant' | 'database';
+
+export type WorkshopPollVoteSaveResult =
+    | { readonly isSuccessful: true }
+    | { readonly isSuccessful: false; readonly errorKind: WorkshopPollVoteErrorKind; readonly errorMessage: string };
+
+const WORKSHOP_POLL_VOTE_ERROR_KIND_BY_DATABASE_MESSAGE: Readonly<
+    Record<string, Exclude<WorkshopPollVoteErrorKind, 'database'>>
+> = {
+    WORKSHOP_POLL_NOT_VISIBLE: 'not-found',
+    WORKSHOP_POLL_NOT_ATTACHED: 'not-found',
+    WORKSHOP_POLL_OPTION_NOT_FOUND: 'not-found',
+    WORKSHOP_POLL_CLOSED: 'closed',
+    WORKSHOP_POLL_PARTICIPANT_INVALID: 'invalid-participant',
+    WORKSHOP_POLL_VOTER_EMAIL_INVALID: 'invalid-participant',
+};
+
+/**
+ * Persists one shared community-poll choice from the room a member currently entered.
+ *
+ * Note: The database owns the cross-room authorization and locks the poll with the write, so an attached workshop
+ *       cannot create a second poll vote and an administrator cannot close a poll halfway through a choice.
+ */
+export async function saveWorkshopPollVote(
+    supabase: SupabaseClient,
+    workshopRow: Pick<WorkshopRow, 'id'>,
+    participant: Pick<WorkshopParticipant, 'id' | 'email'>,
+    pollId: string,
+    optionId: string,
+): Promise<WorkshopPollVoteSaveResult> {
+    const { error } = await supabase.rpc('set_community_workshop_poll_vote', {
+        target_room_id: workshopRow.id,
+        target_poll_id: pollId,
+        target_option_id: optionId,
+        target_participant_id: participant.id,
+        target_voter_email: normalizeWorkshopParticipantEmail(participant.email),
+    });
+    if (error === null) {
+        return { isSuccessful: true };
+    }
+
+    return {
+        isSuccessful: false,
+        errorKind: WORKSHOP_POLL_VOTE_ERROR_KIND_BY_DATABASE_MESSAGE[error.message] ?? 'database',
+        errorMessage: error.message,
+    };
+}
+
 /**
  * Stores one reaction and returns the total for its exact text as one atomic database operation
  *
@@ -1154,7 +1203,7 @@ async function loadWorkshopAttachedPollIds(
 async function loadWorkshopPollRows(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
-    participantId: string | null,
+    voterEmail: string | null,
     scope: WorkshopPollLoadScope,
 ): Promise<{ readonly loadedPollRows: LoadedWorkshopPollRows | null; readonly errorMessage: string | null }> {
     let pollQuery = supabase.from(WORKSHOP_POLL_TABLE_NAME).select(WORKSHOP_POLL_COLUMNS);
@@ -1196,13 +1245,12 @@ async function loadWorkshopPollRows(
             .in('poll_id', pollIds)
             .order('sort_order', { ascending: true }),
         supabase.rpc('get_workshop_poll_option_vote_counts', { target_poll_ids: pollIds }),
-        participantId === null || scope.isAttachedToRoom
+        voterEmail === null
             ? Promise.resolve({ data: [] as readonly WorkshopParticipantPollVoteRow[], error: null })
             : supabase
                   .from(WORKSHOP_POLL_VOTE_TABLE_NAME)
                   .select('option_id')
-                  .eq('workshop_id', workshopRow.id)
-                  .eq('participant_id', participantId)
+                  .eq('voter_email', voterEmail)
                   .in('poll_id', pollIds),
         loadWorkshopPollAttachedWorkshops(supabase, pollIds, scope.isMemberVisibleOnly),
     ]);
@@ -1265,20 +1313,22 @@ function mapLoadedWorkshopPolls<Option extends WorkshopPollOption>(
  * Loads the compact, anonymous result of visible community polls. A community reads the polls it owns, while a
  * workshop reads the community polls attached to that occurrence. The count aggregation stays in PostgreSQL and the
  * participant-specific lookup contains only that participant's own selection, so no room response can infer who
- * anybody else voted for. Attached polls deliberately have no selection because their votes remain in their owner.
+ * anybody else voted for. One normalized e-mail identity has the same selection in the community and in every
+ * attached workshop, while the poll itself remains owned and administered by the community.
  */
 export async function loadWorkshopPolls(
     supabase: SupabaseClient,
     workshopRow: WorkshopRow,
-    participantId: string | null,
+    voterEmail: string | null,
 ): Promise<LoadedWorkshopPolls> {
     if (!isWorkshopPollVisibleInRoom(workshopRow.room_kind)) {
         return { polls: [], errorMessage: null };
     }
 
     const isAttachedToRoom = getWorkshopKindCapabilities(workshopRow.room_kind).isAttachedCommunityPollsShown;
+    const normalizedVoterEmail = voterEmail === null ? null : normalizeWorkshopParticipantEmail(voterEmail);
 
-    const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, participantId, {
+    const { loadedPollRows, errorMessage } = await loadWorkshopPollRows(supabase, workshopRow, normalizedVoterEmail, {
         isMemberVisibleOnly: true,
         isAttachedToRoom,
         maximalPollCount: MAXIMAL_VISIBLE_WORKSHOP_POLL_COUNT,
@@ -2088,7 +2138,7 @@ export async function loadWorkshopPublicState(
         isStageOffered && workshopRow.stage_comment_id !== null
             ? loadWorkshopCommentReference(supabase, workshopRow.id, workshopRow.stage_comment_id)
             : Promise.resolve({ comment: null, errorMessage: null }),
-        loadWorkshopPolls(supabase, workshopRow, participant.id),
+        loadWorkshopPolls(supabase, workshopRow, participant.email),
     ]);
 
     const stateQueryError =

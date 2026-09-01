@@ -22,8 +22,9 @@ type WorkshopAttachedPollListProps = {
 /**
  * The community polls asked about this workshop, read from its own administration.
  *
- * Note: This deliberately only reads. A poll belongs to the community which owns its votes, so its question, its
- *       choices, its visibility and its lifecycle stay editable in exactly one place.
+ * Note: This deliberately only reads. A poll belongs to the community, so its question, its choices, its visibility
+ *       and its lifecycle stay editable in exactly one place while its aggregate includes the e-mail-shared votes
+ *       cast in this occurrence too.
  */
 export function WorkshopAttachedPollList({ polls, pollAdministrationPath }: WorkshopAttachedPollListProps) {
     return (
@@ -35,7 +36,7 @@ export function WorkshopAttachedPollList({ polls, pollAdministrationPath }: Work
                     </h2>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
                         Tyto ankety patří komunitě, která je také spravuje. Zde jsou jen ke čtení, včetně jejich
-                        průběžných výsledků.
+                        průběžných výsledků společných pro komunitu a připojené workshopy.
                     </p>
                 </div>
                 {pollAdministrationPath !== undefined && (

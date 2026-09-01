@@ -136,6 +136,7 @@ function renderParticipantRoom(
         changeCommentSort: () => undefined,
         submitComment: async () => true,
         upvoteComment: async () => undefined,
+        voteOnPoll: async () => true,
         moderateComment: async () => true,
         moderateAuthor: async () => true,
         react: async () => undefined,
@@ -182,12 +183,12 @@ describe('online workshop participant room', () => {
         expect(screen.queryByText('Sledují 3 lidé')).toBeNull();
     });
 
-    it('shows a visible community poll attached to a workshop as its shared read-only result', () => {
+    it('lets a member vote on a visible community poll attached to a workshop', () => {
         renderParticipantRoom(WORKSHOP, undefined, false, undefined, [ATTACHED_COMMUNITY_POLL]);
 
         expect(screen.getByText('Co si z workshopu odnášíte?')).not.toBeNull();
         expect(screen.getByText('7 · 64 %')).not.toBeNull();
-        expect(screen.getByRole('button', { name: /Praktické tipy/ }).hasAttribute('disabled')).toBe(true);
+        expect(screen.getByRole('button', { name: /Praktické tipy/ }).hasAttribute('disabled')).toBe(false);
     });
 
     it('leads from a permanent room to a workshop with the identity the room already verified', () => {

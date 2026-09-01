@@ -81,6 +81,14 @@ const COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-2900-community-poll-workshops.sql',
 );
 const COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL = readFileSync(COMMUNITY_POLL_WORKSHOP_MIGRATION_PATH, 'utf8');
+const COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-09-0120-community-poll-shared-email-votes.sql',
+);
+const COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL = readFileSync(
+    COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_PATH,
+    'utf8',
+);
 const COMMUNITY_PROJECT_MIGRATION_PATH = path.resolve(process.cwd(), 'migrations/2026-08-2800-community-projects.sql');
 const COMMUNITY_PROJECT_MIGRATION_SQL = readFileSync(COMMUNITY_PROJECT_MIGRATION_PATH, 'utf8');
 const COMMUNITY_PROJECT_BACKEND_MIGRATION_PATH = path.resolve(
@@ -474,6 +482,29 @@ describe('workshop database migration', () => {
         );
         expect(COMMUNITY_POLL_WORKSHOP_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_poll_workshops FROM PUBLIC, anon, authenticated',
+        );
+    });
+
+    it('shares a community-poll vote by normalized e-mail across its attached workshops', () => {
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS voter_email text',
+        );
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'PARTITION BY poll_id, voter_email',
+        );
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'CONSTRAINT workshop_poll_votes_one_per_voter_email UNIQUE (poll_id, voter_email)',
+        );
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'REFERENCES public.workshop_participants(id) ON DELETE SET NULL',
+        );
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'CREATE OR REPLACE FUNCTION public.set_community_workshop_poll_vote',
+        );
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain('WORKSHOP_POLL_NOT_ATTACHED');
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain('ON CONFLICT (poll_id, voter_email) DO UPDATE');
+        expect(COMMUNITY_POLL_SHARED_EMAIL_VOTE_MIGRATION_SQL).toContain(
+            'GRANT EXECUTE ON FUNCTION public.set_community_workshop_poll_vote',
         );
     });
 

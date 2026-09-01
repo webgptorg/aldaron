@@ -278,7 +278,7 @@ export function OnlineWorkshopParticipantPage({
                             linkedParticipantIdentity={
                                 workshopNavigation === undefined ? undefined : state.participant
                             }
-                            onVote={roomCapabilities.isPollsOffered ? controller.voteOnPoll : undefined}
+                            onVote={controller.voteOnPoll}
                         />
                     )}
                     {workshopNavigation !== undefined && (

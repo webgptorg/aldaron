@@ -2,6 +2,12 @@ Following information is from file `AGENTS.md`, if you need to update it, do it:
 
 ## Context
 
+- Community poll voting clarification: a visible community poll attached to a workshop can be voted on in the
+  community or in any attached workshop. A normalized e-mail address identifies the one voter, so their selected
+  option and the aggregate are shared everywhere those rooms and their administrations show the poll. The community
+  still owns administration; a workshop administration only reads that shared result. This takes precedence over the
+  earlier attached-poll read-only wording below.
+
 - Community members manage an already-paid subscription from the membership popup of `/cs/komunita`: they can open
   their Stripe Customer Portal there, while cancellation is confirmed in the app, stops only its next Stripe renewal,
   keeps access through the paid period, is shown in the badge, and can be reactivated there until that period ends.

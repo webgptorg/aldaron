@@ -1,4 +1,10 @@
 # Current preversion
+- Made each community poll attached to a workshop voteable from that workshop as well as from `/cs/komunita`. A
+  normalized e-mail is now the one voter identity, so selecting or changing an answer in either place updates the
+  same choice and the same aggregate in the community, every attached workshop, `/admin/community?tab=polls`, and
+  the attached-poll view of `/admin/workshops`. The poll still has one owner and one administration in the community;
+  workshop administration reads its shared result rather than maintaining a copy.
+
 - Rebuilt the site-wide cookie notice from a small, central floating card into one responsive consent tray: it now
   keeps the primary page content clear by reading as a compact horizontal bar on larger screens and a shorter,
   two-action sheet on phones. The same shared component keeps every page on one layout, carries the cookie icon,
@@ -45,8 +51,8 @@
 
 - Show every visible community poll attached to an occurrence inside that occurrence's participant room, including its
   current aggregate and the same attached-workshop labels the community and administration use. The workshop room reads
-  the poll without copying it or inventing a second voting system: polls remain owned, edited, and voted on in the
-  community, so the attached view is explicitly read-only while its result stays current.
+  the poll without copying it or inventing a second voting system: polls remain owned and edited in the community,
+  while one e-mail-owned vote is shown and counted consistently wherever that attached poll is visible.
 
 - Let a member buy the paid community membership inside `/cs/komunita` itself, through the Stripe payment gate, without
   ever leaving for the public membership page. The room already knows who is reading it, so it asks for nothing but a

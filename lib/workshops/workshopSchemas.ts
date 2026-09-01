@@ -26,6 +26,7 @@ import {
     isWorkshopParticipantFullnameValid,
     normalizeWorkshopParticipantFullname,
 } from '@/lib/workshops/workshopParticipantFullname';
+import { normalizeWorkshopParticipantEmail } from '@/lib/workshops/workshopParticipantEmail';
 import { isWorkshopPanelKey, WORKSHOP_PANEL_DEFINITIONS, type WorkshopPanelKey } from '@/lib/workshops/workshopPanels';
 import { extractYoutubeVideoId } from '@/lib/youtube/youtubeEmbed';
 import { z } from 'zod';
@@ -86,7 +87,7 @@ export const workshopConnectionSchema = z.object({
         .trim()
         .email()
         .max(MAXIMAL_WORKSHOP_PARTICIPANT_EMAIL_LENGTH)
-        .transform((value) => value.toLowerCase()),
+        .transform(normalizeWorkshopParticipantEmail),
 });
 
 export const workshopCommentSchema = z.object({

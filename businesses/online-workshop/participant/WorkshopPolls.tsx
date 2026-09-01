@@ -22,15 +22,15 @@ type WorkshopPollsProps = {
      */
     readonly linkedParticipantIdentity?: WorkshopParticipantIdentity;
     /**
-     * Only the community where a poll is owned accepts votes. A workshop occurrence which merely displays an attached
-     * poll leaves this out and therefore shows the shared result without pretending it can record another vote.
+     * Records the one e-mail-owned vote shared by the community and every workshop occurrence the poll is attached to.
      */
     readonly onVote?: (pollId: string, optionId: string) => Promise<boolean>;
 };
 
 /**
  * The member-facing side of a room poll. It accepts only the aggregated poll state, therefore it cannot accidentally
- * reveal who voted for an option; a member knows solely whether the highlighted choice is their own.
+ * reveal who voted for an option; a member knows solely whether the highlighted choice is their own, whichever room
+ * they used to make it.
  */
 export function WorkshopPolls({
     polls,
@@ -143,10 +143,10 @@ export function WorkshopPolls({
                         {!poll.isClosed && (
                             <p className="px-5 pb-4 text-xs leading-5 text-slate-400">
                                 {!isVotingInCurrentRoomEnabled
-                                    ? 'Tato anketa patří komunitě; zde se zobrazuje její průběžný výsledek.'
+                                    ? 'Hlasování v této místnosti není dostupné.'
                                     : isInteractionBanned
                                     ? 'Pro tento účet nejsou interakce dostupné.'
-                                    : 'Vyberte jednu možnost. Svůj hlas můžete kdykoli změnit.'}
+                                    : 'Vyberte jednu možnost. Stejný hlas uvidíte v komunitě i v připojených workshopech a můžete jej kdykoli změnit.'}
                             </p>
                         )}
                     </article>
