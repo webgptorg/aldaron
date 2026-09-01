@@ -9,8 +9,8 @@ export const DISCOUNT_CODE_TABLE_NAME = 'discount_codes';
 export const CONSUME_DISCOUNT_CODE_FUNCTION_NAME = 'consume_discount_code';
 
 /**
- * The database function which resolves an exact code or a terminal-wildcard prefix before a
- * preview decides whether it is active.
+ * The database function which resolves an exact code or a wildcard rule before a preview decides
+ * whether it is active.
  */
 export const RESOLVE_DISCOUNT_CODE_FUNCTION_NAME = 'resolve_discount_code';
 

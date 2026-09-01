@@ -12,6 +12,15 @@ const VALID_DISCOUNT_CODE = {
     subscriptionDiscountDurationMonths: null,
 };
 
+const WILDCARD_DISCOUNT_CODE_CASES = [
+    { enteredCode: '*', normalizedCode: '*' },
+    { enteredCode: 'summer*', normalizedCode: 'SUMMER*' },
+    { enteredCode: '*summer', normalizedCode: '*SUMMER' },
+    { enteredCode: '*summer*', normalizedCode: '*SUMMER*' },
+    { enteredCode: '*summer*2026', normalizedCode: '*SUMMER*2026' },
+    { enteredCode: 'summer***2026', normalizedCode: 'SUMMER***2026' },
+] as const;
+
 describe('discount-code write schema', () => {
     it('normalizes codes and keeps a selected place and limit', () => {
         expect(discountCodeValuesSchema.parse(VALID_DISCOUNT_CODE)).toMatchObject({
@@ -22,11 +31,15 @@ describe('discount-code write schema', () => {
         });
     });
 
-    it('accepts a terminal wildcard as a prefix discount code', () => {
-        expect(discountCodeValuesSchema.parse({ ...VALID_DISCOUNT_CODE, code: 'summer*' }).code).toBe('SUMMER*');
-        expect(discountCodeValuesSchema.safeParse({ ...VALID_DISCOUNT_CODE, code: 'summer*2026' }).success).toBe(
-            false,
-        );
+    it('accepts wildcard rules anywhere in a discount code', () => {
+        for (const wildcardDiscountCodeCase of WILDCARD_DISCOUNT_CODE_CASES) {
+            const parsedDiscountCode = discountCodeValuesSchema.parse({
+                ...VALID_DISCOUNT_CODE,
+                code: wildcardDiscountCodeCase.enteredCode,
+            });
+
+            expect(parsedDiscountCode.code).toBe(wildcardDiscountCodeCase.normalizedCode);
+        }
     });
 
     it('uses an empty place list for the all-places choice', () => {

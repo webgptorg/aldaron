@@ -8,10 +8,12 @@
   the required action on a small screen. Accepting, opening settings and saving a tailored choice continue to use the
   same stored preferences as before.
 
-- Let an administrator make a prefix discount code by ending it in `*`: `SUMMER*` now gives its configured discount
-  to every submitted code starting with `SUMMER`. The same database resolver supplies form previews and the atomic
-  registration consumption, so one path cannot accept a code which the other would reject; an exact code takes
-  precedence over a pattern, then the more specific prefix wins.
+- Let an administrator place any number of `*` wildcards anywhere in a discount code: `SUMMER*` applies to codes
+  starting with `SUMMER`, `*SUMMER` to codes ending with it, `*SUMMER*` to codes containing it, and
+  `*SUMMER*2026` to codes which contain `SUMMER` and end with `2026`. Each wildcard stands for zero or more normalized
+  code characters. The same database resolver supplies form previews and atomic registration consumption, so one path
+  cannot accept a code which the other would reject; an exact code takes precedence, then the matching pattern with
+  more literal characters, with a deterministic fallback for equally specific patterns.
 
 - Let `/admin/workshops` reopen a workshop by clearing its recorded end, and give an open-ended workshop quick choices to end now, one hour after its start, or two hours after its start; each choice uses the existing live update, so `/cs/online-workshop/participant` immediately keeps or replaces the stream accordingly.
 - Let a paid community member open their Stripe Customer Portal from the membership popup of `/cs/komunita`, through

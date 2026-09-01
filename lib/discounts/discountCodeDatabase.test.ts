@@ -13,7 +13,7 @@ import { loadActiveDiscount } from './discountCodeDatabase';
 
 const WILDCARD_DISCOUNT_CODE_ROW = {
     id: '00000000-0000-0000-0000-000000000001',
-    code: 'SUMMER*',
+    code: '*SUMMER*2026',
     percent: 20,
     starts_at: '2026-08-20T00:00:00.000Z',
     ends_at: '2026-08-21T00:00:00.000Z',
@@ -31,7 +31,7 @@ describe('submitted discount-code loading', () => {
         createSupabaseServiceRoleClientMock.mockReset();
     });
 
-    it('uses the shared database resolver for a wildcard preview', async () => {
+    it('uses the shared database resolver for a wildcard rule preview', async () => {
         const resolveDiscountCode = vi.fn().mockResolvedValue({
             data: [WILDCARD_DISCOUNT_CODE_ROW],
             error: null,
@@ -39,17 +39,17 @@ describe('submitted discount-code loading', () => {
         createSupabaseServiceRoleClientMock.mockReturnValue({ rpc: resolveDiscountCode });
 
         const result = await loadActiveDiscount(
-            'summer-vip',
+            'summer-vip-2026',
             'ai-supervize-mini-onsite',
             new Date('2026-08-20T12:00:00.000Z'),
         );
 
         expect(resolveDiscountCode).toHaveBeenCalledWith(RESOLVE_DISCOUNT_CODE_FUNCTION_NAME, {
-            submitted_discount_code: 'SUMMER_VIP',
+            submitted_discount_code: 'SUMMER_VIP_2026',
         });
         expect(result).toEqual({
             activeDiscount: {
-                code: 'SUMMER*',
+                code: '*SUMMER*2026',
                 percent: 20,
                 remainingUseCount: null,
                 subscriptionDiscountDurationMonths: null,

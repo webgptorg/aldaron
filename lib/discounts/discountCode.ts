@@ -22,7 +22,7 @@ export type ActiveDiscount = SubscriptionDiscountDuration & {
 export type ActiveDiscountByPlaceId = Readonly<Record<string, ActiveDiscount | null>>;
 
 export type DiscountCodeValues = SubscriptionDiscountDuration & {
-    /** An exact code, or a prefix rule ending in `*`. */
+    /** An exact code, or a glob rule in which each `*` matches zero or more code characters. */
     readonly code: string;
     readonly percent: number;
     readonly startsAt: string;
@@ -43,7 +43,7 @@ export type DiscountCode = DiscountCodeValues & {
     readonly updatedAt: string;
 };
 
-const NORMALIZED_DISCOUNT_CODE_PATTERN = /^[A-Z0-9]+(?:_[A-Z0-9]+)*(?:_?[*])?$/;
+const NORMALIZED_DISCOUNT_CODE_PATTERN = /^[A-Z0-9*]+(?:_[A-Z0-9*]+)*$/;
 
 export function normalizeDiscountCode(value: string): string {
     return value
