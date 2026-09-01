@@ -76,4 +76,12 @@
 
 ![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-6.png)
 
+---
 
+[ ]
+
+[✨🏕] The modal "Placené členství komunity" with table with perks of paid membership should look more premium
+
+
+![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-7.png)
+![alt text](prompts/screenshots/2026-08-0342-komunita-clenstvi-in-app-payment-gate-8.png)
