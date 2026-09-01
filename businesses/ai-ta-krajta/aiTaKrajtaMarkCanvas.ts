@@ -5,6 +5,7 @@ import {
     AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE,
     type AiTaKrajtaMarkFrame,
     type AiTaKrajtaMarkPaint,
+    type AiTaKrajtaMarkShapeId,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 
 /**
@@ -39,12 +40,13 @@ function getAiTaKrajtaMarkCanvasPaint(
  * Draws the canonical vector mark into a canvas at its original proportions
  *
  * Note: This is a renderer for the same artwork data used by the React SVG and favicon SVG. Keeping the data shared
- *       lets the canvas hold the logo for a frame before the simulation releases it.
+ *       lets the canvas keep the logo visible while its simulated version uncoils.
  */
 export function drawAiTaKrajtaMarkOnCanvas(
     context: CanvasRenderingContext2D,
     frame: AiTaKrajtaMarkFrame,
     opacity: number,
+    shapeIds?: readonly AiTaKrajtaMarkShapeId[],
 ): void {
     if (opacity <= 0) {
         return;
@@ -61,6 +63,12 @@ export function drawAiTaKrajtaMarkOnCanvas(
     const gradient = createAiTaKrajtaMarkCanvasGradient(context);
 
     for (const shape of AI_TA_KRAJTA_MARK_SHAPES) {
+        const isShapeIncluded = shapeIds === undefined || shapeIds.includes(shape.id);
+
+        if (!isShapeIncluded) {
+            continue;
+        }
+
         context.fillStyle = getAiTaKrajtaMarkCanvasPaint(shape.paint, gradient);
 
         if (shape.kind === 'filledPath') {

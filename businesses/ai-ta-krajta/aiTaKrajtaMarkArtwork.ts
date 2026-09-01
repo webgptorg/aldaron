@@ -29,13 +29,18 @@ export type AiTaKrajtaMarkFrame = {
 };
 
 /**
+ * Identifiers of the separately layered parts of the canonical snake artwork
+ */
+export type AiTaKrajtaMarkShapeId = 'tail' | 'coil' | 'neck' | 'head';
+
+/**
  * One drawn part of the snake
  *
  * Note: It is described as data rather than as markup, so that the same animal can be turned into React elements for
  *       the page and into a standalone SVG document for the icon of the browser tab.
  */
 export type AiTaKrajtaMarkShape = {
-    readonly id: string;
+    readonly id: AiTaKrajtaMarkShapeId;
     readonly paint: AiTaKrajtaMarkPaint;
 } & (
     | { readonly kind: 'filledPath'; readonly pathData: string }
@@ -111,6 +116,16 @@ export const AI_TA_KRAJTA_MARK_SHAPES: readonly AiTaKrajtaMarkShape[] = [
         paint: CORAL_PAINT,
     },
 ];
+
+/**
+ * The lower, coiled part of the logo which stays put while the head first uncoils
+ */
+export const AI_TA_KRAJTA_MARK_BODY_SHAPE_IDS: readonly AiTaKrajtaMarkShapeId[] = ['tail', 'coil'];
+
+/**
+ * The parts which leave the logo first when its snake starts moving
+ */
+export const AI_TA_KRAJTA_MARK_HEAD_AND_NECK_SHAPE_IDS: readonly AiTaKrajtaMarkShapeId[] = ['neck', 'head'];
 
 /**
  * The path a living version of the mark follows from its head to its tail

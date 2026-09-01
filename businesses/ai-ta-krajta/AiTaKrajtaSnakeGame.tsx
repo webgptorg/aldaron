@@ -9,8 +9,13 @@ import {
     type SnakeState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeSimulation';
 import { drawAiTaKrajtaMarkOnCanvas } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkCanvas';
-import type { AiTaKrajtaMarkFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import {
+    AI_TA_KRAJTA_MARK_BODY_SHAPE_IDS,
+    AI_TA_KRAJTA_MARK_HEAD_AND_NECK_SHAPE_IDS,
+    type AiTaKrajtaMarkFrame,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 import { createAiTaKrajtaSnakeLogoPose } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeLogoPose';
+import { getAiTaKrajtaSnakeReleaseFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeRelease';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 
@@ -25,32 +30,6 @@ const TAIL_RADIUS_IN_PIXELS = 4;
  */
 const FOOD_RADIUS_IN_PIXELS = 6;
 const FOOD_GLOW_RADIUS_IN_PIXELS = 14;
-
-/**
- * How long the exact logo stays intact before its living version starts to emerge
- */
-const LOGO_HOLD_DURATION_IN_MILLISECONDS = 100;
-
-/**
- * How long the logo and playable body cross-fade while the snake uncoils
- */
-const LOGO_RELEASE_DURATION_IN_MILLISECONDS = 500;
-
-/**
- * Restricts an animation progress to its meaningful range
- */
-function clampProgress(value: number): number {
-    return Math.min(1, Math.max(0, value));
-}
-
-/**
- * How far the game has released the logo into its playable body
- */
-function getLogoReleaseProgress(elapsedInMilliseconds: number): number {
-    return clampProgress(
-        (elapsedInMilliseconds - LOGO_HOLD_DURATION_IN_MILLISECONDS) / LOGO_RELEASE_DURATION_IN_MILLISECONDS,
-    );
-}
 
 /**
  * Radius of the body at one point along its center line
@@ -270,14 +249,16 @@ function drawSnake(context: CanvasRenderingContext2D, state: SnakeState, opacity
  */
 export function AiTaKrajtaSnakeGame({
     initialMarkFrame,
-    onInitialMarkFrameDrawn,
+    onLogoReleaseStarted,
 }: {
     readonly initialMarkFrame: AiTaKrajtaMarkFrame;
-    readonly onInitialMarkFrameDrawn: () => void;
+    readonly onLogoReleaseStarted: () => void;
 }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const targetPositionRef = useRef<SnakePoint | null>(null);
+    const isScoreVisibleRef = useRef(false);
     const [score, setScore] = useState(0);
+    const [isScoreVisible, setIsScoreVisible] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -291,7 +272,7 @@ export function AiTaKrajtaSnakeGame({
         let lastFrameTimestamp: number | null = null;
         let gameStartTimestamp: number | null = null;
         let animationFrameId = 0;
-        let isInitialMarkFrameDrawn = false;
+        let isLogoReleaseStarted = false;
 
         const resizeCanvas = () => {
             const devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
@@ -309,29 +290,47 @@ export function AiTaKrajtaSnakeGame({
             const stepInSeconds = lastFrameTimestamp === null ? 0 : (frameTimestamp - lastFrameTimestamp) / 1000;
             lastFrameTimestamp = frameTimestamp;
             gameStartTimestamp ??= frameTimestamp;
-            const logoReleaseProgress = getLogoReleaseProgress(frameTimestamp - gameStartTimestamp);
+            const snakeReleaseFrame = getAiTaKrajtaSnakeReleaseFrame(frameTimestamp - gameStartTimestamp);
 
-            const previousScore = state.score;
-            state = advanceSnakeState(state, {
-                bounds,
-                targetPosition: targetPositionRef.current,
-                stepInSeconds,
-                createRandomNumber: Math.random,
-            });
+            if (snakeReleaseFrame.isSimulationRunning) {
+                if (!isLogoReleaseStarted) {
+                    isLogoReleaseStarted = true;
+                    onLogoReleaseStarted();
+                }
 
-            if (state.score !== previousScore) {
-                setScore(state.score);
+                if (snakeReleaseFrame.isGameInterfaceVisible && !isScoreVisibleRef.current) {
+                    isScoreVisibleRef.current = true;
+                    setIsScoreVisible(true);
+                }
+
+                const previousScore = state.score;
+                state = advanceSnakeState(state, {
+                    bounds,
+                    targetPosition: targetPositionRef.current,
+                    stepInSeconds,
+                    createRandomNumber: Math.random,
+                });
+
+                if (state.score !== previousScore) {
+                    setScore(state.score);
+                }
             }
 
             context.clearRect(0, 0, bounds.width, bounds.height);
-            drawFood(context, state, logoReleaseProgress);
-            drawSnake(context, state, logoReleaseProgress);
-            drawAiTaKrajtaMarkOnCanvas(context, initialMarkFrame, 1 - logoReleaseProgress);
-
-            if (!isInitialMarkFrameDrawn) {
-                isInitialMarkFrameDrawn = true;
-                onInitialMarkFrameDrawn();
-            }
+            drawFood(context, state, snakeReleaseFrame.foodOpacity);
+            drawSnake(context, state, snakeReleaseFrame.snakeOpacity);
+            drawAiTaKrajtaMarkOnCanvas(
+                context,
+                initialMarkFrame,
+                snakeReleaseFrame.logoBodyOpacity,
+                AI_TA_KRAJTA_MARK_BODY_SHAPE_IDS,
+            );
+            drawAiTaKrajtaMarkOnCanvas(
+                context,
+                initialMarkFrame,
+                snakeReleaseFrame.logoHeadAndNeckOpacity,
+                AI_TA_KRAJTA_MARK_HEAD_AND_NECK_SHAPE_IDS,
+            );
 
             animationFrameId = window.requestAnimationFrame(renderFrame);
         };
@@ -345,7 +344,7 @@ export function AiTaKrajtaSnakeGame({
             window.cancelAnimationFrame(animationFrameId);
             resizeObserver.disconnect();
         };
-    }, [initialMarkFrame, onInitialMarkFrameDrawn]);
+    }, [initialMarkFrame, onLogoReleaseStarted]);
 
     const handlePointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
         const canvasBounds = event.currentTarget.getBoundingClientRect();
@@ -374,7 +373,9 @@ export function AiTaKrajtaSnakeGame({
             />
             <output
                 aria-live="polite"
-                className="pointer-events-none absolute right-4 top-4 rounded-full border border-white/20 bg-[#101916]/80 px-3 py-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-sm"
+                className={`pointer-events-none absolute right-4 top-4 rounded-full border border-white/20 bg-[#101916]/80 px-3 py-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-sm transition-opacity duration-150 ${
+                    isScoreVisible ? 'opacity-100' : 'opacity-0'
+                }`}
             >
                 Skóre: {score}
             </output>
