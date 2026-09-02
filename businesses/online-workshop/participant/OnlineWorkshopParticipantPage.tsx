@@ -1,5 +1,8 @@
 'use client';
 
+import { CommunityMembershipBadge } from '@/businesses/community/membership/CommunityMembershipBadge';
+import { CommunityMembershipModal } from '@/businesses/community/membership/CommunityMembershipModal';
+import { CommunityMembershipRoomProvider } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
 import { WorkshopCalendarInvitation } from '@/businesses/online-workshop/participant/WorkshopCalendarInvitation';
 import { WorkshopChat } from '@/businesses/online-workshop/participant/WorkshopChat';
 import {
@@ -76,6 +79,9 @@ type OnlineWorkshopParticipantPageProps = {
     /**
      * Optional room-specific member information shown next to the connected participant. This keeps the shared room
      * layout unaware of the business surface that supplied the information.
+     *
+     * Note: The membership of the member is deliberately not supplied this way. It belongs to every room which offers
+     *       it rather than to one business surface, so the room draws it itself just above this supplement.
      */
     readonly participantHeaderSupplement?: ReactNode;
 
@@ -225,6 +231,18 @@ export function OnlineWorkshopParticipantPage({
                             isRefreshing={controller.isRefreshing}
                             onChangeFullname={controller.changeFullname}
                         />
+                        {/*
+                          * Note: The membership of a member is one membership wherever they read it from, so every
+                          *       room which offers it says which one they have and lets them buy or manage it with
+                          *       the very same badge and modal instead of a surface of its own.
+                          */}
+                        <CommunityMembershipRoomProvider
+                            workshopSlug={workshopSlug}
+                            isMembershipOffered={roomCapabilities.isMembershipOffered}
+                        >
+                            <CommunityMembershipBadge />
+                            <CommunityMembershipModal />
+                        </CommunityMembershipRoomProvider>
                         {participantHeaderSupplement}
                         <WorkshopServerConnectionStatus
                             isUsingCachedState={controller.isUsingCachedState}

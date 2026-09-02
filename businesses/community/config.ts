@@ -36,16 +36,6 @@ export const COMMUNITY_WORKSHOP_SLUG = 'komunita';
 export const COMMUNITY_PROJECTS_API_PATH = `/api/workshops/${COMMUNITY_WORKSHOP_SLUG}/projects`;
 
 /**
- * The membership of the connected member, bought and read inside the community room itself and therefore under the
- * very same narrowly scoped community session as everything else the room asks about.
- */
-export const COMMUNITY_MEMBERSHIP_API_PATH = `/api/workshops/${COMMUNITY_WORKSHOP_SLUG}/membership`;
-export const COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/checkout`;
-export const COMMUNITY_MEMBERSHIP_CHECKOUT_CONFIRMATION_API_PATH = `${COMMUNITY_MEMBERSHIP_CHECKOUT_API_PATH}/confirmation`;
-export const COMMUNITY_MEMBERSHIP_CANCELLATION_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/cancellation`;
-export const COMMUNITY_MEMBERSHIP_PORTAL_API_PATH = `${COMMUNITY_MEMBERSHIP_API_PATH}/portal`;
-
-/**
  * How the payment gate returns a member to the room, which the room reads to celebrate or to say nothing happened.
  *
  * Note: A returning browser carries the id of the finished checkout, which is what lets the room confirm a payment

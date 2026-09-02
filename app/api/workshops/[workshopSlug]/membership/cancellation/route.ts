@@ -1,15 +1,19 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
-import {
-    getAuthenticatedCommunityRequest,
-    isAuthenticatedCommunityRequest,
-} from '@/lib/community/communityRequest';
 import { applyCommunityMembershipSubscriptionChange } from '@/lib/community-membership/communityMembershipActivation';
 import { loadCommunityMembershipByEmail } from '@/lib/community-membership/communityMembershipDatabase';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
+import {
+    getAuthenticatedMembershipRoomRequest,
+    isAuthenticatedMembershipRoomRequest,
+} from '@/lib/community-membership/communityMembershipRoomRequest';
 import { createCommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipRoomState';
 import { isCommunityMembershipSubscriptionManageable } from '@/lib/community-membership/communityMembershipTypes';
 import { getStripeGatewayOrNull } from '@/lib/payments/stripeGateway';
 import { NextRequest, NextResponse } from 'next/server';
+
+type CommunityMembershipCancellationRouteContext = {
+    readonly params: Promise<{ readonly workshopSlug: string }>;
+};
 
 type CommunityMembershipCancellationChange = {
     readonly isCancellationScheduled: boolean;
@@ -35,6 +39,7 @@ const REACTIVATE_MEMBERSHIP_CHANGE: CommunityMembershipCancellationChange = {
  */
 async function changeCommunityMembershipCancellation(
     request: NextRequest,
+    workshopSlug: string,
     cancellationChange: CommunityMembershipCancellationChange,
 ): Promise<NextResponse> {
     const crossSiteResponse = getCrossSiteResponseOrNull(request);
@@ -42,8 +47,8 @@ async function changeCommunityMembershipCancellation(
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
-    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
+    const authenticatedRequest = await getAuthenticatedMembershipRoomRequest(request, workshopSlug);
+    if (!isAuthenticatedMembershipRoomRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 
@@ -92,13 +97,21 @@ async function changeCommunityMembershipCancellation(
 /**
  * Stops automatic renewal while keeping access through the paid period.
  */
-export function POST(request: NextRequest): Promise<NextResponse> {
-    return changeCommunityMembershipCancellation(request, SCHEDULE_CANCELLATION_CHANGE);
+export async function POST(
+    request: NextRequest,
+    context: CommunityMembershipCancellationRouteContext,
+): Promise<NextResponse> {
+    const { workshopSlug } = await context.params;
+    return changeCommunityMembershipCancellation(request, workshopSlug, SCHEDULE_CANCELLATION_CHANGE);
 }
 
 /**
  * Restores automatic renewal before the paid period ends.
  */
-export function DELETE(request: NextRequest): Promise<NextResponse> {
-    return changeCommunityMembershipCancellation(request, REACTIVATE_MEMBERSHIP_CHANGE);
+export async function DELETE(
+    request: NextRequest,
+    context: CommunityMembershipCancellationRouteContext,
+): Promise<NextResponse> {
+    const { workshopSlug } = await context.params;
+    return changeCommunityMembershipCancellation(request, workshopSlug, REACTIVATE_MEMBERSHIP_CHANGE);
 }

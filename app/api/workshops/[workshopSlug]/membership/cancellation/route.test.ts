@@ -6,19 +6,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const {
     applyCommunityMembershipSubscriptionChangeMock,
     createCommunityMembershipRoomStateMock,
-    getAuthenticatedCommunityRequestMock,
+    getAuthenticatedMembershipRoomRequestMock,
     getCrossSiteResponseOrNullMock,
     getStripeGatewayOrNullMock,
-    isAuthenticatedCommunityRequestMock,
+    isAuthenticatedMembershipRoomRequestMock,
     loadCommunityMembershipByEmailMock,
     updateStripeSubscriptionMock,
 } = vi.hoisted(() => ({
     applyCommunityMembershipSubscriptionChangeMock: vi.fn(),
     createCommunityMembershipRoomStateMock: vi.fn(),
-    getAuthenticatedCommunityRequestMock: vi.fn(),
+    getAuthenticatedMembershipRoomRequestMock: vi.fn(),
     getCrossSiteResponseOrNullMock: vi.fn(),
     getStripeGatewayOrNullMock: vi.fn(),
-    isAuthenticatedCommunityRequestMock: vi.fn(),
+    isAuthenticatedMembershipRoomRequestMock: vi.fn(),
     loadCommunityMembershipByEmailMock: vi.fn(),
     updateStripeSubscriptionMock: vi.fn(),
 }));
@@ -26,9 +26,9 @@ const {
 vi.mock('@/lib/api/getCrossSiteResponseOrNull', () => ({
     getCrossSiteResponseOrNull: getCrossSiteResponseOrNullMock,
 }));
-vi.mock('@/lib/community/communityRequest', () => ({
-    getAuthenticatedCommunityRequest: getAuthenticatedCommunityRequestMock,
-    isAuthenticatedCommunityRequest: isAuthenticatedCommunityRequestMock,
+vi.mock('@/lib/community-membership/communityMembershipRoomRequest', () => ({
+    getAuthenticatedMembershipRoomRequest: getAuthenticatedMembershipRoomRequestMock,
+    isAuthenticatedMembershipRoomRequest: isAuthenticatedMembershipRoomRequestMock,
 }));
 vi.mock('@/lib/community-membership/communityMembershipActivation', () => ({
     applyCommunityMembershipSubscriptionChange: applyCommunityMembershipSubscriptionChangeMock,
@@ -85,27 +85,33 @@ const GATEWAY = {
     configuration: { isTestMode: false },
 };
 
-function createRequest(method: 'POST' | 'DELETE'): NextRequest {
-    return new NextRequest('https://promptbook.studio/api/workshops/komunita/membership/cancellation', {
+const WORKSHOP_ROOM_SLUG = 'produkcni-kod-s-ai-agenty';
+
+function createRequest(method: 'POST' | 'DELETE', workshopSlug: string): NextRequest {
+    return new NextRequest(`https://promptbook.studio/api/workshops/${workshopSlug}/membership/cancellation`, {
         method,
         headers: { 'sec-fetch-site': 'same-origin' },
     });
+}
+
+function createRouteContext(workshopSlug: string) {
+    return { params: Promise.resolve({ workshopSlug }) };
 }
 
 describe('community membership cancellation endpoint', () => {
     beforeEach(() => {
         applyCommunityMembershipSubscriptionChangeMock.mockReset();
         createCommunityMembershipRoomStateMock.mockReset();
-        getAuthenticatedCommunityRequestMock.mockReset();
+        getAuthenticatedMembershipRoomRequestMock.mockReset();
         getCrossSiteResponseOrNullMock.mockReset();
         getStripeGatewayOrNullMock.mockReset();
-        isAuthenticatedCommunityRequestMock.mockReset();
+        isAuthenticatedMembershipRoomRequestMock.mockReset();
         loadCommunityMembershipByEmailMock.mockReset();
         updateStripeSubscriptionMock.mockReset();
 
         getCrossSiteResponseOrNullMock.mockReturnValue(null);
-        getAuthenticatedCommunityRequestMock.mockResolvedValue(AUTHENTICATED_REQUEST);
-        isAuthenticatedCommunityRequestMock.mockReturnValue(true);
+        getAuthenticatedMembershipRoomRequestMock.mockResolvedValue(AUTHENTICATED_REQUEST);
+        isAuthenticatedMembershipRoomRequestMock.mockReturnValue(true);
         getStripeGatewayOrNullMock.mockReturnValue(GATEWAY);
         loadCommunityMembershipByEmailMock.mockResolvedValue({ membership: MEMBERSHIP, errorMessage: null });
         updateStripeSubscriptionMock.mockResolvedValue(UPDATED_SUBSCRIPTION);
@@ -114,7 +120,7 @@ describe('community membership cancellation endpoint', () => {
     });
 
     it('schedules the next renewal for cancellation and mirrors the returned Stripe state', async () => {
-        const response = await POST(createRequest('POST'));
+        const response = await POST(createRequest('POST', 'komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(200);
         expect(updateStripeSubscriptionMock).toHaveBeenCalledWith('sub_Example', { cancel_at_period_end: true });
@@ -123,8 +129,17 @@ describe('community membership cancellation endpoint', () => {
         expect(await response.json()).toEqual(ROOM_STATE);
     });
 
+    it('cancels the very same membership from the room of a workshop occurrence', async () => {
+        const response = await POST(createRequest('POST', WORKSHOP_ROOM_SLUG), createRouteContext(WORKSHOP_ROOM_SLUG));
+
+        expect(response.status).toBe(200);
+        expect(getAuthenticatedMembershipRoomRequestMock).toHaveBeenCalledWith(expect.anything(), WORKSHOP_ROOM_SLUG);
+        expect(loadCommunityMembershipByEmailMock).toHaveBeenCalledWith(SUPABASE, 'jana@example.com');
+        expect(updateStripeSubscriptionMock).toHaveBeenCalledWith('sub_Example', { cancel_at_period_end: true });
+    });
+
     it('removes the scheduled cancellation to reactivate automatic renewal', async () => {
-        await DELETE(createRequest('DELETE'));
+        await DELETE(createRequest('DELETE', 'komunita'), createRouteContext('komunita'));
 
         expect(updateStripeSubscriptionMock).toHaveBeenCalledWith('sub_Example', { cancel_at_period_end: false });
     });
@@ -134,10 +149,22 @@ describe('community membership cancellation endpoint', () => {
             NextResponse.json({ error: 'Cross-site request refused' }, { status: 403 }),
         );
 
-        const response = await POST(createRequest('POST'));
+        const response = await POST(createRequest('POST', 'komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(403);
-        expect(getAuthenticatedCommunityRequestMock).not.toHaveBeenCalled();
+        expect(getAuthenticatedMembershipRoomRequestMock).not.toHaveBeenCalled();
+        expect(updateStripeSubscriptionMock).not.toHaveBeenCalled();
+    });
+
+    it('leaves a room which does not offer the membership answering for itself', async () => {
+        getAuthenticatedMembershipRoomRequestMock.mockResolvedValue(
+            NextResponse.json({ error: 'Membership not offered' }, { status: 404 }),
+        );
+        isAuthenticatedMembershipRoomRequestMock.mockReturnValue(false);
+
+        const response = await POST(createRequest('POST', 'projekt-1'), createRouteContext('projekt-1'));
+
+        expect(response.status).toBe(404);
         expect(updateStripeSubscriptionMock).not.toHaveBeenCalled();
     });
 
@@ -147,7 +174,7 @@ describe('community membership cancellation endpoint', () => {
             errorMessage: null,
         });
 
-        const response = await POST(createRequest('POST'));
+        const response = await POST(createRequest('POST', 'komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(409);
         expect(updateStripeSubscriptionMock).not.toHaveBeenCalled();

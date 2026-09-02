@@ -2,15 +2,12 @@
  * @vitest-environment jsdom
  */
 
-import {
-    OnlineWorkshopParticipantPage,
-    type WorkshopNavigationDetails,
-} from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
+import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { WorkshopDetails, WorkshopPoll, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
-import { cleanup, render, screen } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * The room as far as this page is concerned: a loaded state and the actions it offers
@@ -20,6 +17,41 @@ const participantMocks = vi.hoisted(() => ({ controller: null as unknown }));
 vi.mock('@/businesses/online-workshop/participant/useWorkshopParticipant', () => ({
     useWorkshopParticipant: () => participantMocks.controller,
 }));
+
+const fetchCommunityMembership = vi.fn<(workshopSlug: string) => Promise<CommunityMembershipRoomState>>();
+
+vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
+    fetchCommunityMembership: (workshopSlug: string) => fetchCommunityMembership(workshopSlug),
+    confirmCommunityMembershipCheckout: vi.fn(),
+    openCommunityMembershipSubscriptionPortal: vi.fn(),
+    scheduleCommunityMembershipCancellation: vi.fn(),
+    reactivateCommunityMembership: vi.fn(),
+    startCommunityMembershipCheckout: vi.fn(),
+}));
+
+// The checkbox of the design system measures itself, which the test document cannot do.
+vi.mock('@/components/ui/checkbox', () => ({
+    Checkbox: ({
+        checked,
+        onCheckedChange,
+        ...props
+    }: InputHTMLAttributes<HTMLInputElement> & {
+        checked?: boolean;
+        onCheckedChange?: (isChecked: boolean) => void;
+    }) => (
+        <input
+            {...props}
+            type="checkbox"
+            checked={checked}
+            onChange={(event) => onCheckedChange?.(event.currentTarget.checked)}
+        />
+    ),
+}));
+
+import {
+    OnlineWorkshopParticipantPage,
+    type WorkshopNavigationDetails,
+} from '@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage';
 
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
@@ -48,6 +80,28 @@ const COMMUNITY: WorkshopDetails = {
     kind: 'community',
     slug: 'komunita',
     title: 'Komunita Promptbooku',
+};
+
+/**
+ * A project discussion is the one room which is nobody's membership surface, because it is opened from the community
+ * which already showed it.
+ */
+const PROJECT_DISCUSSION: WorkshopDetails = {
+    ...WORKSHOP,
+    id: '9b4c1f7e-24a8-4de6-9a1f-0f3f9c5a71d2',
+    kind: 'project',
+    slug: 'projekt-diskuze',
+    title: 'Projekt komunity',
+};
+
+const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'none',
+    monthlyPriceCzk: null,
+    currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
+    isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
+    isPaymentInTestMode: false,
 };
 
 const ATTACHED_COMMUNITY_POLL: WorkshopPoll = {
@@ -163,7 +217,15 @@ function renderParticipantRoom(
     );
 }
 
-afterEach(cleanup);
+beforeEach(() => {
+    window.history.replaceState({}, '', '/cs/online-workshop/participant');
+    fetchCommunityMembership.mockResolvedValue(FREE_MEMBERSHIP);
+});
+
+afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+});
 
 describe('online workshop participant room', () => {
     it('gathers a workshop occurrence around its stage, its reactions, and its watching count', () => {
@@ -210,6 +272,52 @@ describe('online workshop participant room', () => {
         renderParticipantRoom(COMMUNITY, undefined, false, <span>Free členství</span>);
 
         expect(screen.getByText('Free členství')).toBeTruthy();
+    });
+
+    it('says in a workshop occurrence which membership its member has and offers the paid one there', async () => {
+        renderParticipantRoom(WORKSHOP);
+
+        const membershipBadge = await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
+        expect(fetchCommunityMembership).toHaveBeenCalledWith(WORKSHOP.slug);
+        expect(screen.queryByRole('dialog')).toBeNull();
+
+        fireEvent.click(membershipBadge);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Zaplatit 199 Kč / měsíc' })).toBeDefined();
+    });
+
+    it('lets a paying member manage the very same membership from a workshop occurrence', async () => {
+        fetchCommunityMembership.mockResolvedValue({
+            status: 'active',
+            monthlyPriceCzk: 199,
+            currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: false,
+            isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
+            isPaymentInTestMode: false,
+        });
+        renderParticipantRoom(WORKSHOP);
+
+        fireEvent.click(await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' }));
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství je aktivní' })).toBeDefined();
+        expect(screen.getByRole('button', { name: 'Zrušit placené členství' })).toBeDefined();
+    });
+
+    it('shows the one membership of the member in the permanent community room as well', async () => {
+        renderParticipantRoom(COMMUNITY);
+
+        expect(await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' })).toBeDefined();
+        expect(fetchCommunityMembership).toHaveBeenCalledWith(COMMUNITY.slug);
+        expect(fetchCommunityMembership).toHaveBeenCalledTimes(1);
+    });
+
+    it('asks about no membership in a project discussion, which is opened from the community itself', async () => {
+        renderParticipantRoom(PROJECT_DISCUSSION);
+
+        await vi.waitFor(() => expect(screen.queryByText(/členství/i)).toBeNull());
+        expect(fetchCommunityMembership).not.toHaveBeenCalled();
     });
 
     it('keeps a cached room calm with a compact header status instead of an in-content outage warning', () => {

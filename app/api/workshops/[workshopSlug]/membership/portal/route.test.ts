@@ -1,29 +1,30 @@
 import type { CommunityMembershipRecord } from '@/lib/community-membership/communityMembershipDatabase';
+import type { WorkshopRow } from '@/lib/workshops/workshopDatabase';
 import { NextRequest, NextResponse } from 'next/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const {
     createPortalSessionMock,
-    getAuthenticatedCommunityRequestMock,
+    getAuthenticatedMembershipRoomRequestMock,
     getCrossSiteResponseOrNullMock,
     getStripeGatewayOrNullMock,
-    isAuthenticatedCommunityRequestMock,
+    isAuthenticatedMembershipRoomRequestMock,
     loadCommunityMembershipByEmailMock,
 } = vi.hoisted(() => ({
     createPortalSessionMock: vi.fn(),
-    getAuthenticatedCommunityRequestMock: vi.fn(),
+    getAuthenticatedMembershipRoomRequestMock: vi.fn(),
     getCrossSiteResponseOrNullMock: vi.fn(),
     getStripeGatewayOrNullMock: vi.fn(),
-    isAuthenticatedCommunityRequestMock: vi.fn(),
+    isAuthenticatedMembershipRoomRequestMock: vi.fn(),
     loadCommunityMembershipByEmailMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api/getCrossSiteResponseOrNull', () => ({
     getCrossSiteResponseOrNull: getCrossSiteResponseOrNullMock,
 }));
-vi.mock('@/lib/community/communityRequest', () => ({
-    getAuthenticatedCommunityRequest: getAuthenticatedCommunityRequestMock,
-    isAuthenticatedCommunityRequest: isAuthenticatedCommunityRequestMock,
+vi.mock('@/lib/community-membership/communityMembershipRoomRequest', () => ({
+    getAuthenticatedMembershipRoomRequest: getAuthenticatedMembershipRoomRequestMock,
+    isAuthenticatedMembershipRoomRequest: isAuthenticatedMembershipRoomRequestMock,
 }));
 vi.mock('@/lib/community-membership/communityMembershipDatabase', () => ({
     loadCommunityMembershipByEmail: loadCommunityMembershipByEmailMock,
@@ -35,10 +36,36 @@ vi.mock('@/lib/payments/stripeGateway', () => ({
 import { POST } from './route';
 
 const SUPABASE = {};
-const AUTHENTICATED_REQUEST = {
-    participant: { email: 'jana@example.com' },
-    supabase: SUPABASE,
-};
+const COMMUNITY_WORKSHOP_ROW = {
+    id: 'workshop-community',
+    room_kind: 'community',
+    slug: 'komunita',
+    title: 'Komunita',
+    description: '',
+    starts_at: '2026-08-01T10:00:00.000Z',
+    ends_at: null,
+    is_published: true,
+    event_type: null,
+    location_kind: null,
+    location_label: '',
+    price_czk: null,
+    maximum_participant_count: null,
+} as unknown as WorkshopRow;
+const ONLINE_WORKSHOP_ROW = {
+    ...COMMUNITY_WORKSHOP_ROW,
+    id: 'workshop-1',
+    room_kind: 'workshop',
+    slug: 'produkcni-kod-s-ai-agenty',
+    title: 'Produkční kód s AI agenty',
+    event_type: 'online-workshop',
+    location_kind: 'online',
+    price_czk: 0,
+} as unknown as WorkshopRow;
+
+function createAuthenticatedRequest(workshopRow: WorkshopRow) {
+    return { participant: { email: 'jana@example.com' }, supabase: SUPABASE, workshopRow };
+}
+
 const MEMBERSHIP: CommunityMembershipRecord = {
     id: 'membership-1',
     email: 'jana@example.com',
@@ -64,25 +91,29 @@ const GATEWAY = {
     stripe: { billingPortal: { sessions: { create: createPortalSessionMock } } },
 };
 
-function createRequest(): NextRequest {
-    return new NextRequest('https://promptbook.studio/api/workshops/komunita/membership/portal', {
+function createRequest(workshopSlug: string): NextRequest {
+    return new NextRequest(`https://promptbook.studio/api/workshops/${workshopSlug}/membership/portal`, {
         method: 'POST',
         headers: { 'sec-fetch-site': 'same-origin' },
     });
 }
 
+function createRouteContext(workshopSlug: string) {
+    return { params: Promise.resolve({ workshopSlug }) };
+}
+
 describe('community membership Stripe portal endpoint', () => {
     beforeEach(() => {
         createPortalSessionMock.mockReset();
-        getAuthenticatedCommunityRequestMock.mockReset();
+        getAuthenticatedMembershipRoomRequestMock.mockReset();
         getCrossSiteResponseOrNullMock.mockReset();
         getStripeGatewayOrNullMock.mockReset();
-        isAuthenticatedCommunityRequestMock.mockReset();
+        isAuthenticatedMembershipRoomRequestMock.mockReset();
         loadCommunityMembershipByEmailMock.mockReset();
 
         getCrossSiteResponseOrNullMock.mockReturnValue(null);
-        getAuthenticatedCommunityRequestMock.mockResolvedValue(AUTHENTICATED_REQUEST);
-        isAuthenticatedCommunityRequestMock.mockReturnValue(true);
+        getAuthenticatedMembershipRoomRequestMock.mockResolvedValue(createAuthenticatedRequest(COMMUNITY_WORKSHOP_ROW));
+        isAuthenticatedMembershipRoomRequestMock.mockReturnValue(true);
         getStripeGatewayOrNullMock.mockReturnValue(GATEWAY);
         loadCommunityMembershipByEmailMock.mockResolvedValue({ membership: MEMBERSHIP, errorMessage: null });
         createPortalSessionMock.mockResolvedValue(PORTAL_SESSION);
@@ -93,7 +124,7 @@ describe('community membership Stripe portal endpoint', () => {
     });
 
     it('opens a short-lived portal for the signed-in member and returns to their community room', async () => {
-        const response = await POST(createRequest());
+        const response = await POST(createRequest('komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(200);
         expect(createPortalSessionMock).toHaveBeenCalledWith({
@@ -104,15 +135,42 @@ describe('community membership Stripe portal endpoint', () => {
         expect(response.headers.get('Cache-Control')).toBe('no-store');
     });
 
+    it('returns a member who opened the portal from a workshop room into that very workshop', async () => {
+        getAuthenticatedMembershipRoomRequestMock.mockResolvedValue(createAuthenticatedRequest(ONLINE_WORKSHOP_ROW));
+
+        const response = await POST(
+            createRequest(ONLINE_WORKSHOP_ROW.slug),
+            createRouteContext(ONLINE_WORKSHOP_ROW.slug),
+        );
+
+        expect(response.status).toBe(200);
+        expect(createPortalSessionMock).toHaveBeenCalledWith({
+            customer: 'cus_Example',
+            return_url: 'https://promptbook.studio/cs/online-workshop/participant?workshop=produkcni-kod-s-ai-agenty',
+        });
+    });
+
     it('refuses a cross-site request before it can reach a member or Stripe', async () => {
         getCrossSiteResponseOrNullMock.mockReturnValue(
             NextResponse.json({ error: 'Cross-site request refused' }, { status: 403 }),
         );
 
-        const response = await POST(createRequest());
+        const response = await POST(createRequest('komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(403);
-        expect(getAuthenticatedCommunityRequestMock).not.toHaveBeenCalled();
+        expect(getAuthenticatedMembershipRoomRequestMock).not.toHaveBeenCalled();
+        expect(createPortalSessionMock).not.toHaveBeenCalled();
+    });
+
+    it('leaves a room which does not offer the membership answering for itself', async () => {
+        getAuthenticatedMembershipRoomRequestMock.mockResolvedValue(
+            NextResponse.json({ error: 'Membership not offered' }, { status: 404 }),
+        );
+        isAuthenticatedMembershipRoomRequestMock.mockReturnValue(false);
+
+        const response = await POST(createRequest('projekt-1'), createRouteContext('projekt-1'));
+
+        expect(response.status).toBe(404);
         expect(createPortalSessionMock).not.toHaveBeenCalled();
     });
 
@@ -122,7 +180,7 @@ describe('community membership Stripe portal endpoint', () => {
             errorMessage: null,
         });
 
-        const response = await POST(createRequest());
+        const response = await POST(createRequest('komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(409);
         expect(createPortalSessionMock).not.toHaveBeenCalled();
@@ -132,7 +190,7 @@ describe('community membership Stripe portal endpoint', () => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         createPortalSessionMock.mockRejectedValue(new Error('Customer portal is not configured'));
 
-        const response = await POST(createRequest());
+        const response = await POST(createRequest('komunita'), createRouteContext('komunita'));
 
         expect(response.status).toBe(502);
         expect(await response.json()).toEqual({

@@ -1,4 +1,4 @@
-[ ] !
+[x] by Claude Code `claude-opus-5` thinking `xhigh` - Implementation $4.95 12 minutes; Testing 6 minutes; commited manually
 
 [✨🙍] You should be able to see your membership status in the workshop page.
 
@@ -14,3 +14,4 @@
 ![alt text](prompts/screenshots/2026-08-0651-members-in-workshop.png)
 ![alt text](prompts/screenshots/2026-08-0651-members-in-workshop-1.png)
 ![alt text](prompts/screenshots/2026-08-0651-members-in-workshop-2.png)
+

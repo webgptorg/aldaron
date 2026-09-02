@@ -22,6 +22,7 @@ describe('workshop kind capabilities', () => {
             isStageOffered: true,
             isPollsOffered: false,
             isAttachedCommunityPollsShown: true,
+            isMembershipOffered: true,
             isRealtime: true,
         });
     });
@@ -35,6 +36,7 @@ describe('workshop kind capabilities', () => {
             isStageOffered: false,
             isPollsOffered: true,
             isAttachedCommunityPollsShown: false,
+            isMembershipOffered: true,
             isRealtime: false,
         });
     });
@@ -48,6 +50,7 @@ describe('workshop kind capabilities', () => {
             isStageOffered: false,
             isPollsOffered: false,
             isAttachedCommunityPollsShown: false,
+            isMembershipOffered: false,
             isRealtime: false,
         });
     });
@@ -56,6 +59,12 @@ describe('workshop kind capabilities', () => {
         expect(isWorkshopPollVisibleInRoom('community')).toBe(true);
         expect(isWorkshopPollVisibleInRoom('workshop')).toBe(true);
         expect(isWorkshopPollVisibleInRoom('project')).toBe(false);
+    });
+
+    it('offers the membership of the community wherever a member is connected under their own address', () => {
+        expect(getWorkshopKindCapabilities('community').isMembershipOffered).toBe(true);
+        expect(getWorkshopKindCapabilities('workshop').isMembershipOffered).toBe(true);
+        expect(getWorkshopKindCapabilities('project').isMembershipOffered).toBe(false);
     });
 
     it('refuses a schedule, a stage, and an address written into a room which has none of them', () => {

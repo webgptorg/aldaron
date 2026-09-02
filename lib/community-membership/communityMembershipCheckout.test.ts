@@ -2,7 +2,11 @@ import type { CommunityMembershipPrice } from '@/businesses/community/membership
 import type { ActiveDiscount } from '@/lib/discounts/discountCode';
 import type { StripeGateway } from '@/lib/payments/stripeGateway';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createCommunityMembershipCheckoutSession } from './communityMembershipCheckout';
+import {
+    createCommunityMembershipCheckoutSession,
+    createCommunityMembershipCheckoutUrls,
+    STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER,
+} from './communityMembershipCheckout';
 
 const createCoupon = vi.fn();
 const createCheckoutSession = vi.fn();
@@ -117,5 +121,40 @@ describe('community membership checkout', () => {
             }),
         );
         expect(createCheckoutSession.mock.calls[0]?.[0]).not.toHaveProperty('discounts');
+    });
+});
+
+const COMMUNITY_ROOM_URL = 'https://ptbk.io/cs/komunita';
+const WORKSHOP_ROOM_URL = 'https://ptbk.io/cs/online-workshop/participant?workshop=produkcni-kod-s-ai-agenty';
+
+describe('where the payment gate returns a member', () => {
+    it('adds the result to the address of the community room', () => {
+        expect(createCommunityMembershipCheckoutUrls(COMMUNITY_ROOM_URL)).toEqual({
+            successUrl: `${COMMUNITY_ROOM_URL}?membership=paid&checkoutSession=${STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER}`,
+            cancelUrl: `${COMMUNITY_ROOM_URL}?membership=cancelled`,
+        });
+    });
+
+    it('keeps the occurrence a workshop room is addressed by instead of starting a second question mark', () => {
+        const { successUrl, cancelUrl } = createCommunityMembershipCheckoutUrls(WORKSHOP_ROOM_URL);
+
+        expect(successUrl).toBe(
+            'https://ptbk.io/cs/online-workshop/participant?workshop=produkcni-kod-s-ai-agenty' +
+                `&membership=paid&checkoutSession=${STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER}`,
+        );
+        expect(cancelUrl).toBe(
+            'https://ptbk.io/cs/online-workshop/participant?workshop=produkcni-kod-s-ai-agenty&membership=cancelled',
+        );
+
+        // The occurrence must still be readable, which a second `?` would have hidden inside the value before it.
+        expect(new URL(successUrl).searchParams.get('workshop')).toBe('produkcni-kod-s-ai-agenty');
+        expect(new URL(successUrl).searchParams.get('membership')).toBe('paid');
+    });
+
+    it('leaves the placeholder of the finished checkout unescaped, which is the only form the gate replaces', () => {
+        const { successUrl } = createCommunityMembershipCheckoutUrls(WORKSHOP_ROOM_URL);
+
+        expect(successUrl).toContain(`checkoutSession=${STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER}`);
+        expect(successUrl).not.toContain('%7BCHECKOUT_SESSION_ID%7D');
     });
 });

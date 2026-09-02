@@ -2,45 +2,30 @@
  * @vitest-environment jsdom
  */
 
-import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
+import { COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
 import type { WorkshopDetails } from '@/lib/workshops/workshopTypes';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
+type ParticipantRoomProps = {
+    readonly workshopSlug?: string;
+    readonly isWorkshopSelectionInUrl?: boolean;
+    readonly participantHeaderSupplement?: ReactNode;
+    readonly mainContentAfterWorkshopNavigation?: ReactNode;
+};
 
-vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
-    fetchCommunityMembership: () => fetchCommunityMembership(),
-    confirmCommunityMembershipCheckout: vi.fn(),
-    openCommunityMembershipSubscriptionPortal: vi.fn(),
-    scheduleCommunityMembershipCancellation: vi.fn(),
-    reactivateCommunityMembership: vi.fn(),
-    startCommunityMembershipCheckout: vi.fn(),
-}));
+const participantRoomMocks = vi.hoisted(() => ({ props: {} as ParticipantRoomProps }));
 
 vi.mock('@/businesses/community/projects/CommunityProjectsSection', () => ({
-    CommunityProjectsSection: () => null,
-}));
-
-// The checkbox of the design system measures itself, which the test document cannot do.
-vi.mock('@/components/ui/checkbox', () => ({
-    Checkbox: (props: Record<string, unknown>) => <input type="checkbox" aria-label={String(props['aria-label'])} />,
+    CommunityProjectsSection: () => <p>Projekty komunity</p>,
 }));
 
 vi.mock('@/businesses/online-workshop/participant/OnlineWorkshopParticipantPage', () => ({
-    OnlineWorkshopParticipantPage: ({
-        participantHeaderSupplement,
-        mainContentAfterWorkshopNavigation,
-    }: {
-        readonly participantHeaderSupplement?: ReactNode;
-        readonly mainContentAfterWorkshopNavigation?: ReactNode;
-    }) => (
-        <main>
-            {participantHeaderSupplement}
-            {mainContentAfterWorkshopNavigation}
-        </main>
-    ),
+    OnlineWorkshopParticipantPage: (props: ParticipantRoomProps) => {
+        participantRoomMocks.props = props;
+        return <main>{props.mainContentAfterWorkshopNavigation}</main>;
+    },
 }));
 
 import { CommunityParticipantPage } from './CommunityParticipantPage';
@@ -49,7 +34,7 @@ const COMMUNITY: WorkshopDetails = {
     id: '0d6b0f1c-9b0a-4b7e-9c02-6f2f7a3f5f31',
     kind: 'community',
     event: null,
-    slug: 'komunita',
+    slug: COMMUNITY_WORKSHOP_SLUG,
     title: 'Komunita Promptbooku',
     description: 'Prostor pro členy komunity.',
     startsAt: '2026-08-21T19:00:00+02:00',
@@ -62,23 +47,12 @@ const COMMUNITY: WorkshopDetails = {
     updatedAt: '2026-08-01T10:00:00+02:00',
 };
 
-const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
-    status: 'none',
-    monthlyPriceCzk: null,
-    currentPeriodEndsAt: null,
-    isCancellationScheduled: false,
-    isPurchaseOffered: true,
-    isSubscriptionManagementOffered: false,
-    isPaymentInTestMode: false,
-};
-
 function renderCommunityRoom() {
     render(<CommunityParticipantPage community={COMMUNITY} workshops={[]} initialEmail="" initialFullname="" />);
 }
 
 beforeEach(() => {
     window.history.replaceState({}, '', '/cs/komunita');
-    fetchCommunityMembership.mockResolvedValue(FREE_MEMBERSHIP);
 });
 
 afterEach(() => {
@@ -87,41 +61,23 @@ afterEach(() => {
 });
 
 describe('community participant page', () => {
-    it('opens the membership modal from the free member header badge without placing it among room content', async () => {
+    it('opens the shared participant room on the permanent community room itself', () => {
         renderCommunityRoom();
 
-        const membershipBadge = await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
-        expect(screen.queryByRole('dialog')).toBeNull();
-
-        fireEvent.click(membershipBadge);
-
-        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
-        expect(screen.getByRole('button', { name: 'Zaplatit 199 Kč / měsíc' })).toBeDefined();
+        expect(participantRoomMocks.props.workshopSlug).toBe(COMMUNITY_WORKSHOP_SLUG);
+        // The one community keeps its address, so no occurrence is ever selected in it.
+        expect(participantRoomMocks.props.isWorkshopSelectionInUrl).toBe(false);
     });
 
-    it('says in the header that a paying member already has the paid membership', async () => {
-        fetchCommunityMembership.mockResolvedValue({
-            status: 'active',
-            monthlyPriceCzk: 199,
-            currentPeriodEndsAt: null,
-            isCancellationScheduled: false,
-            isPurchaseOffered: false,
-            isSubscriptionManagementOffered: true,
-            isPaymentInTestMode: false,
-        });
+    it('places the project gallery of the community into the shared room', () => {
         renderCommunityRoom();
 
-        const membershipBadge = await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' });
-        fireEvent.click(membershipBadge);
-
-        expect(await screen.findByRole('dialog', { name: 'Placené členství je aktivní' })).toBeDefined();
-        expect(screen.queryByRole('button', { name: /Free členství/ })).toBeNull();
+        expect(screen.getByText('Projekty komunity')).toBeDefined();
     });
 
-    it('asks for the membership of the member once, however many surfaces of the room show it', async () => {
+    it('adds no membership surface of its own, because the shared room shows the one membership', () => {
         renderCommunityRoom();
 
-        await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
-        expect(fetchCommunityMembership).toHaveBeenCalledTimes(1);
+        expect(participantRoomMocks.props.participantHeaderSupplement).toBeUndefined();
     });
 });

@@ -4,7 +4,8 @@
  */
 export const COMMUNITY_MEMBERSHIP_MESSAGES = {
     membershipNotLoaded: 'Členství se teď nepodařilo načíst. Zkuste stránku obnovit.',
-    connectionExpired: 'Připojení do komunity vypršelo. Obnovte prosím stránku a připojte se znovu.',
+    membershipNotOfferedInRoom: 'Členství se v této místnosti nespravuje.',
+    connectionExpired: 'Připojení do místnosti vypršelo. Obnovte prosím stránku a připojte se znovu.',
     paymentGateUnavailable: 'Platební brána teď není nastavená. Zkuste to prosím později.',
     paymentNotOpened: 'Platbu se nepodařilo otevřít. Zkuste to prosím znovu.',
     paymentNotConfirmed: 'Platbu se nepodařilo ověřit. Zkuste to prosím za chvíli znovu.',

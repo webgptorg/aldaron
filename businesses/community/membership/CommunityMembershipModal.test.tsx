@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 
-import { COMMUNITY_PATH } from '@/businesses/community/config';
+import { COMMUNITY_PATH, COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { InputHTMLAttributes } from 'react';
@@ -27,21 +27,26 @@ vi.mock('@/components/ui/checkbox', () => ({
     ),
 }));
 
-const fetchCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
-const confirmCommunityMembershipCheckout = vi.fn<(checkoutSessionId: string) => Promise<CommunityMembershipRoomState>>();
-const scheduleCommunityMembershipCancellation = vi.fn<() => Promise<CommunityMembershipRoomState>>();
-const reactivateCommunityMembership = vi.fn<() => Promise<CommunityMembershipRoomState>>();
-const openCommunityMembershipSubscriptionPortal = vi.fn<() => Promise<{ readonly portalUrl: string }>>();
+const fetchCommunityMembership = vi.fn<(workshopSlug: string) => Promise<CommunityMembershipRoomState>>();
+const confirmCommunityMembershipCheckout =
+    vi.fn<(workshopSlug: string, checkoutSessionId: string) => Promise<CommunityMembershipRoomState>>();
+const scheduleCommunityMembershipCancellation = vi.fn<(workshopSlug: string) => Promise<CommunityMembershipRoomState>>();
+const reactivateCommunityMembership = vi.fn<(workshopSlug: string) => Promise<CommunityMembershipRoomState>>();
+const openCommunityMembershipSubscriptionPortal =
+    vi.fn<(workshopSlug: string) => Promise<{ readonly portalUrl: string }>>();
 const startCommunityMembershipCheckout = vi.fn();
 
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
-    fetchCommunityMembership: () => fetchCommunityMembership(),
-    confirmCommunityMembershipCheckout: (checkoutSessionId: string) =>
-        confirmCommunityMembershipCheckout(checkoutSessionId),
-    openCommunityMembershipSubscriptionPortal: () => openCommunityMembershipSubscriptionPortal(),
-    scheduleCommunityMembershipCancellation: () => scheduleCommunityMembershipCancellation(),
-    reactivateCommunityMembership: () => reactivateCommunityMembership(),
-    startCommunityMembershipCheckout: (values: unknown) => startCommunityMembershipCheckout(values),
+    fetchCommunityMembership: (workshopSlug: string) => fetchCommunityMembership(workshopSlug),
+    confirmCommunityMembershipCheckout: (workshopSlug: string, checkoutSessionId: string) =>
+        confirmCommunityMembershipCheckout(workshopSlug, checkoutSessionId),
+    openCommunityMembershipSubscriptionPortal: (workshopSlug: string) =>
+        openCommunityMembershipSubscriptionPortal(workshopSlug),
+    scheduleCommunityMembershipCancellation: (workshopSlug: string) =>
+        scheduleCommunityMembershipCancellation(workshopSlug),
+    reactivateCommunityMembership: (workshopSlug: string) => reactivateCommunityMembership(workshopSlug),
+    startCommunityMembershipCheckout: (workshopSlug: string, values: unknown) =>
+        startCommunityMembershipCheckout(workshopSlug, values),
 }));
 
 import { CommunityMembershipRoomProvider } from './CommunityMembershipRoomProvider';
@@ -75,7 +80,7 @@ const ACTIVE_MANAGEABLE_MEMBERSHIP: CommunityMembershipRoomState = {
 
 function renderMembershipModal() {
     render(
-        <CommunityMembershipRoomProvider>
+        <CommunityMembershipRoomProvider workshopSlug={COMMUNITY_WORKSHOP_SLUG} isMembershipOffered>
             <CommunityMembershipBadge />
             <CommunityMembershipModal />
         </CommunityMembershipRoomProvider>,
@@ -242,7 +247,7 @@ describe('community membership modal', () => {
 
         expect(await screen.findByRole('dialog')).toBeDefined();
         expect(await screen.findByText('Platba proběhla. Placené členství je vaše, díky!')).toBeDefined();
-        expect(confirmCommunityMembershipCheckout).toHaveBeenCalledWith('cs_test_Example');
+        expect(confirmCommunityMembershipCheckout).toHaveBeenCalledWith(COMMUNITY_WORKSHOP_SLUG, 'cs_test_Example');
         expect(fetchCommunityMembership).not.toHaveBeenCalled();
         // The address stops confirming that payment, so reloading the room does not celebrate it a second time.
         expect(window.location.search).toBe('');

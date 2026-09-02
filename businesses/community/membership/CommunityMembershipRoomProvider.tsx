@@ -76,17 +76,39 @@ function getMembershipErrorMessage(error: unknown, fallbackMessage: string): str
     return error instanceof Error ? error.message : fallbackMessage;
 }
 
+type CommunityMembershipRoomProviderProps = {
+    /**
+     * The room the member is connected to, which is what its membership is asked of
+     */
+    readonly workshopSlug: string;
+
+    /**
+     * Whether this kind of room offers the membership at all, see `workshopKindCapabilities`
+     *
+     * Note: A room which does not offer it holds no membership either, so its badge and its modal show nothing and
+     *       nothing is ever asked about a member who was not offered anything.
+     */
+    readonly isMembershipOffered: boolean;
+    readonly children: ReactNode;
+};
+
 /**
- * Holds the membership of the connected member for the whole community room.
+ * Holds the membership of the connected member for the whole room they are reading.
  *
  * Note: The badge in the header and the membership modal are two views of one membership, so they read one state and
  *       cause one request between them.
+ * Note: The membership belongs to the address the member connected with, so the community and a workshop occurrence
+ *       show, buy and manage one and the same membership through this one controller.
  */
-export function CommunityMembershipRoomProvider({ children }: { readonly children: ReactNode }) {
+export function CommunityMembershipRoomProvider({
+    workshopSlug,
+    isMembershipOffered,
+    children,
+}: CommunityMembershipRoomProviderProps) {
     // The address the gate returned with is read while the room is still being built, because the surfaces inside it
     // ask for the membership as soon as they appear and that request is what confirms the payment.
     const [checkoutReturn] = useState<CommunityMembershipCheckoutReturn>(() =>
-        typeof window === 'undefined'
+        typeof window === 'undefined' || !isMembershipOffered
             ? EMPTY_CHECKOUT_RETURN
             : readCommunityMembershipCheckoutReturn(window.location.search),
     );
@@ -139,14 +161,14 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
         // membership, so a paid membership is theirs immediately instead of when the webhook happens to arrive.
         const loadedMembership =
             checkoutSessionId === null
-                ? fetchCommunityMembership()
-                : confirmCommunityMembershipCheckout(checkoutSessionId).catch((error: unknown) => {
+                ? fetchCommunityMembership(workshopSlug)
+                : confirmCommunityMembershipCheckout(workshopSlug, checkoutSessionId).catch((error: unknown) => {
                       if (isConnectionRequiredError(error)) {
                           throw error;
                       }
 
                       console.error('Failed to confirm the community membership payment:', error);
-                      return fetchCommunityMembership();
+                      return fetchCommunityMembership(workshopSlug);
                   });
 
         void loadedMembership
@@ -161,54 +183,63 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
                 setErrorMessage(getMembershipErrorMessage(error, COMMUNITY_MEMBERSHIP_MESSAGES.membershipNotLoaded));
             })
             .finally(() => setIsMembershipLoading(false));
-    }, []);
+    }, [workshopSlug]);
 
-    const startCheckout = useCallback(async (discountCode: string) => {
-        setIsCheckoutStarting(true);
-        setErrorMessage(null);
+    const startCheckout = useCallback(
+        async (discountCode: string) => {
+            setIsCheckoutStarting(true);
+            setErrorMessage(null);
 
-        try {
-            const { checkoutUrl } = await startCommunityMembershipCheckout({ discountCode, termsAccepted: true });
-            trackGoogleAnalyticsEvent('community_membership_checkout_started', {
-                has_discount_code: discountCode.trim() !== '',
-            });
-            window.location.assign(checkoutUrl);
-        } catch (error) {
-            // A member who pressed the button is always answered, including when it was their room session which
-            // expired, because a button which silently does nothing is the one thing they cannot act on.
-            setErrorMessage(
-                isConnectionRequiredError(error)
-                    ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
-                    : getMembershipErrorMessage(error, COMMUNITY_MEMBERSHIP_MESSAGES.paymentNotOpened),
-            );
-            setIsCheckoutStarting(false);
-        }
-    }, []);
+            try {
+                const { checkoutUrl } = await startCommunityMembershipCheckout(workshopSlug, {
+                    discountCode,
+                    termsAccepted: true,
+                });
+                trackGoogleAnalyticsEvent('community_membership_checkout_started', {
+                    has_discount_code: discountCode.trim() !== '',
+                });
+                window.location.assign(checkoutUrl);
+            } catch (error) {
+                // A member who pressed the button is always answered, including when it was their room session which
+                // expired, because a button which silently does nothing is the one thing they cannot act on.
+                setErrorMessage(
+                    isConnectionRequiredError(error)
+                        ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
+                        : getMembershipErrorMessage(error, COMMUNITY_MEMBERSHIP_MESSAGES.paymentNotOpened),
+                );
+                setIsCheckoutStarting(false);
+            }
+        },
+        [workshopSlug],
+    );
 
-    const changeMembershipCancellation = useCallback(async (isCancellationScheduled: boolean): Promise<boolean> => {
-        setIsMembershipCancellationChanging(true);
-        setErrorMessage(null);
+    const changeMembershipCancellation = useCallback(
+        async (isCancellationScheduled: boolean): Promise<boolean> => {
+            setIsMembershipCancellationChanging(true);
+            setErrorMessage(null);
 
-        try {
-            const updatedMembership = isCancellationScheduled
-                ? await scheduleCommunityMembershipCancellation()
-                : await reactivateCommunityMembership();
-            setMembership(updatedMembership);
-            return true;
-        } catch (error) {
-            const fallbackMessage = isCancellationScheduled
-                ? COMMUNITY_MEMBERSHIP_MESSAGES.membershipCancellationNotChanged
-                : COMMUNITY_MEMBERSHIP_MESSAGES.membershipReactivationNotChanged;
-            setErrorMessage(
-                isConnectionRequiredError(error)
-                    ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
-                    : getMembershipErrorMessage(error, fallbackMessage),
-            );
-            return false;
-        } finally {
-            setIsMembershipCancellationChanging(false);
-        }
-    }, []);
+            try {
+                const updatedMembership = isCancellationScheduled
+                    ? await scheduleCommunityMembershipCancellation(workshopSlug)
+                    : await reactivateCommunityMembership(workshopSlug);
+                setMembership(updatedMembership);
+                return true;
+            } catch (error) {
+                const fallbackMessage = isCancellationScheduled
+                    ? COMMUNITY_MEMBERSHIP_MESSAGES.membershipCancellationNotChanged
+                    : COMMUNITY_MEMBERSHIP_MESSAGES.membershipReactivationNotChanged;
+                setErrorMessage(
+                    isConnectionRequiredError(error)
+                        ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
+                        : getMembershipErrorMessage(error, fallbackMessage),
+                );
+                return false;
+            } finally {
+                setIsMembershipCancellationChanging(false);
+            }
+        },
+        [workshopSlug],
+    );
 
     const scheduleCancellation = useCallback(() => changeMembershipCancellation(true), [changeMembershipCancellation]);
     const reactivateMembership = useCallback(() => changeMembershipCancellation(false), [changeMembershipCancellation]);
@@ -218,7 +249,7 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
         setErrorMessage(null);
 
         try {
-            const { portalUrl } = await openCommunityMembershipSubscriptionPortal();
+            const { portalUrl } = await openCommunityMembershipSubscriptionPortal(workshopSlug);
             window.location.assign(portalUrl);
         } catch (error) {
             setErrorMessage(
@@ -228,39 +259,43 @@ export function CommunityMembershipRoomProvider({ children }: { readonly childre
             );
             setIsMembershipPortalOpening(false);
         }
-    }, []);
+    }, [workshopSlug]);
 
     const dismissCheckoutResult = useCallback(() => setCheckoutResult(null), []);
     const openMembershipModal = useCallback(() => setIsMembershipModalOpen(true), []);
 
+    // A room which does not offer the membership holds none, so its surfaces are given nothing to show rather than an
+    // empty membership they would have to tell apart from one which is merely still loading.
+    const membershipRoom: CommunityMembershipRoomController | null = !isMembershipOffered
+        ? null
+        : {
+              membership,
+              isMembershipLoading,
+              isCheckoutStarting,
+              isMembershipCancellationChanging,
+              isMembershipPortalOpening,
+              errorMessage,
+              checkoutResult,
+              isMembershipModalOpen,
+              ensureMembershipLoaded,
+              startCheckout,
+              scheduleCancellation,
+              reactivateMembership,
+              openMembershipPortal,
+              dismissCheckoutResult,
+              openMembershipModal,
+              setIsMembershipModalOpen,
+          };
+
     return (
-        <CommunityMembershipRoomContext.Provider
-            value={{
-                membership,
-                isMembershipLoading,
-                isCheckoutStarting,
-                isMembershipCancellationChanging,
-                isMembershipPortalOpening,
-                errorMessage,
-                checkoutResult,
-                isMembershipModalOpen,
-                ensureMembershipLoaded,
-                startCheckout,
-                scheduleCancellation,
-                reactivateMembership,
-                openMembershipPortal,
-                dismissCheckoutResult,
-                openMembershipModal,
-                setIsMembershipModalOpen,
-            }}
-        >
+        <CommunityMembershipRoomContext.Provider value={membershipRoom}>
             {children}
         </CommunityMembershipRoomContext.Provider>
     );
 }
 
 /**
- * The membership of the connected member, or `null` outside the community room
+ * The membership of the connected member, or `null` in a room which does not offer the membership at all
  */
 export function useCommunityMembershipRoom(): CommunityMembershipRoomController | null {
     return useContext(CommunityMembershipRoomContext);

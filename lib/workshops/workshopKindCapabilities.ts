@@ -44,6 +44,15 @@ export type WorkshopKindCapabilities = {
     readonly isAttachedCommunityPollsShown: boolean;
 
     /**
+     * Whether a room says which membership of the community the connected member has, and lets them buy and manage it
+     * without leaving the room
+     *
+     * Note: The membership belongs to the address a member connects with rather than to one room, so every room which
+     *       offers it reads and changes the very same membership.
+     */
+    readonly isMembershipOffered: boolean;
+
+    /**
      * Whether a room updates itself while it is open, which its broadcast, its reactions, and its watching count need
      */
     readonly isRealtime: boolean;
@@ -66,6 +75,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isStageOffered: true,
         isPollsOffered: false,
         isAttachedCommunityPollsShown: true,
+        isMembershipOffered: true,
         isRealtime: true,
     },
     community: {
@@ -76,6 +86,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isStageOffered: false,
         isPollsOffered: true,
         isAttachedCommunityPollsShown: false,
+        isMembershipOffered: true,
         isRealtime: false,
     },
     project: {
@@ -86,6 +97,7 @@ const WORKSHOP_KIND_CAPABILITY_DEFINITIONS: Readonly<Record<WorkshopKind, Worksh
         isStageOffered: false,
         isPollsOffered: false,
         isAttachedCommunityPollsShown: false,
+        isMembershipOffered: false,
         isRealtime: false,
     },
 };

@@ -1,10 +1,7 @@
-import { COMMUNITY_PATH } from '@/businesses/community/config';
 import { CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID } from '@/businesses/community/membership/communityMembershipConfig';
 import { createCommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
-import { createRequestSiteUrl } from '@/lib/api/createRequestSiteUrl';
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import { getAuthenticatedCommunityRequest, isAuthenticatedCommunityRequest } from '@/lib/community/communityRequest';
 import {
     createCommunityMembershipCheckoutSession,
     createCommunityMembershipCheckoutUrls,
@@ -14,6 +11,11 @@ import {
     saveRequestedCommunityMembership,
 } from '@/lib/community-membership/communityMembershipDatabase';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
+import { createCommunityMembershipRoomUrl } from '@/lib/community-membership/communityMembershipRoomPath';
+import {
+    getAuthenticatedMembershipRoomRequest,
+    isAuthenticatedMembershipRoomRequest,
+} from '@/lib/community-membership/communityMembershipRoomRequest';
 import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import { normalizeDiscountCode } from '@/lib/discounts/discountCode';
 import { MAXIMAL_DISCOUNT_CODE_INPUT_LENGTH } from '@/lib/discounts/discountCodeConstants';
@@ -23,6 +25,10 @@ import { getStripeGatewayOrNull } from '@/lib/payments/stripeGateway';
 import { NextRequest, NextResponse } from 'next/server';
 
 const MONTHLY_BILLING_PERIOD = 'monthly' as const;
+
+type CommunityMembershipCheckoutRouteContext = {
+    readonly params: Promise<{ readonly workshopSlug: string }>;
+};
 
 type CommunityMembershipCheckoutRequest = {
     readonly discountCode: string;
@@ -46,17 +52,20 @@ function readCheckoutRequest(body: Readonly<Record<string, unknown>>): Community
  * Opens the payment gate for the connected member and remembers the offer they accepted.
  *
  * Note: Neither the price nor the identity of the member is read from the request. The membership is charged for what
- *       this application says it costs, to the address the community session was opened with, so nothing a browser
- *       sends can buy a membership cheaper or for somebody else.
+ *       this application says it costs, to the address the room session was opened with, so nothing a browser sends
+ *       can buy a membership cheaper or for somebody else.
+ * Note: Where the gate returns a member to is decided by the room they are buying from rather than by their browser,
+ *       so a payment can never be turned into a way out of this site.
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, context: CommunityMembershipCheckoutRouteContext) {
     const crossSiteResponse = getCrossSiteResponseOrNull(request);
     if (crossSiteResponse) {
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
-    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
+    const { workshopSlug } = await context.params;
+    const authenticatedRequest = await getAuthenticatedMembershipRoomRequest(request, workshopSlug);
+    if (!isAuthenticatedMembershipRoomRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 
@@ -72,7 +81,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: COMMUNITY_MEMBERSHIP_MESSAGES.paymentGateUnavailable }, { status: 503 });
     }
 
-    const { participant, supabase } = authenticatedRequest;
+    const { participant, supabase, workshopRow } = authenticatedRequest;
     const currentMembership = await loadCommunityMembershipByEmail(supabase, participant.email);
     if (currentMembership.errorMessage !== null) {
         return NextResponse.json({ error: COMMUNITY_MEMBERSHIP_MESSAGES.membershipNotLoaded }, { status: 500 });
@@ -106,7 +115,7 @@ export async function POST(request: NextRequest) {
             { participantId: participant.id, fullname: participant.fullname, email: participant.email },
             price,
             activeDiscount,
-            createCommunityMembershipCheckoutUrls(createRequestSiteUrl(request, COMMUNITY_PATH)),
+            createCommunityMembershipCheckoutUrls(createCommunityMembershipRoomUrl(request, workshopRow)),
         );
     } catch (error) {
         console.error('Failed to open the community membership checkout:', error);

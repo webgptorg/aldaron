@@ -67,17 +67,30 @@ export type CommunityMembershipCheckoutUrls = {
 };
 
 /**
+ * The address of the room a member returns into, together with what the gate says happened to their payment.
+ *
+ * Note: The result is written as a search parameter of that address rather than after a question mark of its own,
+ *       because a room such as a workshop occurrence is already addressed by which occurrence it is.
+ */
+function createCommunityMembershipReturnUrl(roomUrl: string, checkoutResult: string): string {
+    const returnUrl = new URL(roomUrl);
+    returnUrl.searchParams.set(COMMUNITY_MEMBERSHIP_RESULT_PARAMETER_NAME, checkoutResult);
+
+    return returnUrl.toString();
+}
+
+/**
  * Where the gate sends a member back to, both when they paid and when they changed their mind.
  *
  * Note: The placeholder of the finished checkout is written into the address by hand, because the gate replaces it
- *       only where it stands unescaped.
+ *       only where it stands unescaped, which is not what a search parameter makes of a brace.
  */
-export function createCommunityMembershipCheckoutUrls(communityRoomUrl: string): CommunityMembershipCheckoutUrls {
+export function createCommunityMembershipCheckoutUrls(roomUrl: string): CommunityMembershipCheckoutUrls {
     return {
         successUrl:
-            `${communityRoomUrl}?${COMMUNITY_MEMBERSHIP_RESULT_PARAMETER_NAME}=${COMMUNITY_MEMBERSHIP_PAID_RESULT}` +
+            `${createCommunityMembershipReturnUrl(roomUrl, COMMUNITY_MEMBERSHIP_PAID_RESULT)}` +
             `&${COMMUNITY_MEMBERSHIP_CHECKOUT_SESSION_PARAMETER_NAME}=${STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER}`,
-        cancelUrl: `${communityRoomUrl}?${COMMUNITY_MEMBERSHIP_RESULT_PARAMETER_NAME}=${COMMUNITY_MEMBERSHIP_CANCELLED_RESULT}`,
+        cancelUrl: createCommunityMembershipReturnUrl(roomUrl, COMMUNITY_MEMBERSHIP_CANCELLED_RESULT),
     };
 }
 

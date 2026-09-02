@@ -1,19 +1,23 @@
 import { getCrossSiteResponseOrNull } from '@/lib/api/getCrossSiteResponseOrNull';
 import { readJsonObjectOrNull } from '@/lib/api/readJsonObjectOrNull';
-import {
-    getAuthenticatedCommunityRequest,
-    isAuthenticatedCommunityRequest,
-} from '@/lib/community/communityRequest';
 import { activateCommunityMembershipFromCheckoutSession } from '@/lib/community-membership/communityMembershipActivation';
 import {
     COMMUNITY_MEMBERSHIP_METADATA_KEYS,
     isStripeCheckoutSessionId,
 } from '@/lib/community-membership/communityMembershipCheckout';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
+import {
+    getAuthenticatedMembershipRoomRequest,
+    isAuthenticatedMembershipRoomRequest,
+} from '@/lib/community-membership/communityMembershipRoomRequest';
 import { createCommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipRoomState';
 import { normalizeCommunityMemberEmail } from '@/lib/community-membership/communityMembershipTypes';
 import { getStripeGatewayOrNull } from '@/lib/payments/stripeGateway';
 import { NextRequest, NextResponse } from 'next/server';
+
+type CommunityMembershipCheckoutConfirmationRouteContext = {
+    readonly params: Promise<{ readonly workshopSlug: string }>;
+};
 
 /**
  * Confirms the checkout a member is returning from, so a paid membership is theirs the moment their browser comes
@@ -22,14 +26,15 @@ import { NextRequest, NextResponse } from 'next/server';
  * Note: Nothing here trusts the address the browser returned with. The gate is asked what really happened to that
  *       checkout, and a checkout belonging to somebody else is refused however it was reached.
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, context: CommunityMembershipCheckoutConfirmationRouteContext) {
     const crossSiteResponse = getCrossSiteResponseOrNull(request);
     if (crossSiteResponse) {
         return crossSiteResponse;
     }
 
-    const authenticatedRequest = await getAuthenticatedCommunityRequest(request);
-    if (!isAuthenticatedCommunityRequest(authenticatedRequest)) {
+    const { workshopSlug } = await context.params;
+    const authenticatedRequest = await getAuthenticatedMembershipRoomRequest(request, workshopSlug);
+    if (!isAuthenticatedMembershipRoomRequest(authenticatedRequest)) {
         return authenticatedRequest;
     }
 

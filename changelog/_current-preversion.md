@@ -1,4 +1,14 @@
 # Current preversion
+- Made the membership of the community readable and buyable in the live room of a workshop occurrence
+  (`/cs/online-workshop/participant`) as well as in `/cs/komunita`. The header of the room now says whether its
+  attendee is a free or a paid member, and the same popup opens the paid offer for a free member and the management,
+  cancellation, reactivation and Stripe Customer Portal of an already-paid one. The membership belongs to the address
+  the member connected with, so both rooms show and change one and the same membership, and the payment gate returns
+  the member into the very room they paid or managed it from instead of into the community. The badge, the popup, the
+  one loading of the membership and the endpoints behind them are the shared participant room's own, so neither page
+  carries a copy of any of it; which kinds of room offer the membership is answered once by the room-kind
+  capabilities, where a project discussion deliberately does not.
+
 - Made each community poll attached to a workshop voteable from that workshop as well as from `/cs/komunita`. A
   normalized e-mail is now the one voter identity, so selecting or changing an answer in either place updates the
   same choice and the same aggregate in the community, every attached workshop, `/admin/community?tab=polls`, and

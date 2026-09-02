@@ -37,6 +37,7 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     startCommunityMembershipCheckout: vi.fn(),
 }));
 
+import { COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
 import { CommunityMembershipBadge } from './CommunityMembershipBadge';
 import { CommunityMembershipModal } from './CommunityMembershipModal';
 import { CommunityMembershipRoomProvider } from './CommunityMembershipRoomProvider';
@@ -51,9 +52,12 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     isPaymentInTestMode: false,
 };
 
-function renderMembershipBadge() {
+function renderMembershipBadge(isMembershipOffered = true) {
     render(
-        <CommunityMembershipRoomProvider>
+        <CommunityMembershipRoomProvider
+            workshopSlug={COMMUNITY_WORKSHOP_SLUG}
+            isMembershipOffered={isMembershipOffered}
+        >
             <CommunityMembershipBadge />
             <CommunityMembershipModal />
         </CommunityMembershipRoomProvider>,
@@ -128,5 +132,12 @@ describe('community membership badge', () => {
 
         await vi.waitFor(() => expect(fetchCommunityMembership).toHaveBeenCalled());
         expect(screen.queryByText(/členství/i)).toBeNull();
+    });
+
+    it('asks nothing and shows nothing in a room which does not offer the membership', async () => {
+        renderMembershipBadge(false);
+
+        await vi.waitFor(() => expect(screen.queryByText(/členství/i)).toBeNull());
+        expect(fetchCommunityMembership).not.toHaveBeenCalled();
     });
 });
