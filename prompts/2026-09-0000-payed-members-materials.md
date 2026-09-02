@@ -13,7 +13,7 @@
 
 ---
 
-[ ]
+[ ] !
 
 [✨📛] Materials for paid members only - show preview
 
@@ -26,7 +26,7 @@
 
 ---
 
-[ ]
+[ ] !
 
 [✨📛] Video for paid members only
 
