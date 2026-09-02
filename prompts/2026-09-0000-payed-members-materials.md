@@ -1,4 +1,4 @@
-[ ]
+[ ] !
 
 [✨📛] Allow to mark materials as only for paid members.
 

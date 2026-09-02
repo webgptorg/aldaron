@@ -1,4 +1,4 @@
-[ ]
+[ ] !
 
 [✨🙍] You should be able to see your membership status in the workshop page.
 

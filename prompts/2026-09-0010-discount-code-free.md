@@ -1,4 +1,4 @@
-[ ]
+[ ] !
 
 [✨🥝] When there is a discount code with 100% of discount, which is valid forever (not for a limited time), do not even ask for a card.
 

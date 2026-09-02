@@ -1,4 +1,4 @@
-[ ]
+[ ] !
 
 [✨🤕] Paying members of the community should have some small badge indicating that they are paying members.
 
