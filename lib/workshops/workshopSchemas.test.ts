@@ -95,6 +95,21 @@ describe('workshop request validation', () => {
         expect(workshop.youtubeVideoId).toBe('dQw4w9WgXcQ');
     });
 
+    it('reads the teaser of the recording exactly as the recording itself, and leaves an unwritten one empty', () => {
+        expect(
+            workshopCreateSchema.parse({
+                ...VALID_WORKSHOP,
+                previewYoutubeVideoId: 'https://youtu.be/M7lc1UVf-VE',
+            }).previewYoutubeVideoId,
+        ).toBe('M7lc1UVf-VE');
+        expect(workshopCreateSchema.parse(VALID_WORKSHOP).previewYoutubeVideoId).toBeNull();
+        expect(workshopUpdateSchema.parse({ previewYoutubeVideoId: '' }).previewYoutubeVideoId).toBeNull();
+        expect(
+            workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, previewYoutubeVideoId: 'https://vimeo.com/76979871' })
+                .success,
+        ).toBe(false);
+    });
+
     it('rejects duplicate reactions and an end before the start', () => {
         expect(workshopCreateSchema.safeParse({ ...VALID_WORKSHOP, allowedReactions: ['👏', '👏'] }).success).toBe(
             false,

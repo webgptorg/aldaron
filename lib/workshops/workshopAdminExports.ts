@@ -69,7 +69,13 @@ function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
                 : []),
             { header: 'Publikováno', getValue: (item) => formatBoolean(item.isPublished) },
             ...(roomCapabilities.isStageOffered
-                ? [{ header: 'YouTube video ID', getValue: (item: WorkshopDetails) => item.youtubeVideoId }]
+                ? [
+                      { header: 'YouTube video ID', getValue: (item: WorkshopDetails) => item.youtubeVideoId },
+                      {
+                          header: 'YouTube video ID ukázky',
+                          getValue: (item: WorkshopDetails) => item.previewYoutubeVideoId,
+                      },
+                  ]
                 : []),
             ...(roomCapabilities.isRealtime
                 ? [

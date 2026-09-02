@@ -40,6 +40,18 @@ describe('workshop admin values', () => {
         });
     });
 
+    it('writes the two videos of a room apart, and only the one which changed', () => {
+        expect(createWorkshopUpdateDatabaseValues({ previewYoutubeVideoId: 'M7lc1UVf-VE' })).toEqual({
+            preview_youtube_video_id: 'M7lc1UVf-VE',
+        });
+        expect(createWorkshopUpdateDatabaseValues({ previewYoutubeVideoId: null })).toEqual({
+            preview_youtube_video_id: null,
+        });
+        expect(createWorkshopUpdateDatabaseValues({ youtubeVideoId: 'dQw4w9WgXcQ' })).toEqual({
+            youtube_video_id: 'dQw4w9WgXcQ',
+        });
+    });
+
     it('writes a follow-up flag as part of one ordinary material and only the feedback fields that changed', () => {
         expect(
             createWorkshopContentDatabaseValues({

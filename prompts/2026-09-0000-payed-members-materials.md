@@ -26,7 +26,7 @@
 
 ---
 
-[ ] !
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation $21.66 2 hours; Testing 6 minutes
 
 [✨📛] Video for paid members only
 
@@ -39,4 +39,5 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+
 

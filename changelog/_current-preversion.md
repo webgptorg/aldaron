@@ -1,4 +1,20 @@
 # Current preversion
+- Kept the recording of an ended workshop for the members who pay for it, and put a teaser of it in front of everybody
+  else. `/admin/workshops` now asks every term for a second video beside its stream, `YouTube URL nebo video ID
+  ukázky`, which is the public snippet of its recording. While a workshop runs, nothing changes: everybody watches the
+  same stream, because the membership pays for watching a workshop again rather than for being at it. Once it is over,
+  the room decides the video on the server exactly as it already decides the materials: a paid member receives the
+  stream and plays it again from the wrap-up as before, while everybody else receives no video at all — the recording
+  is not merely hidden from them, it never reaches their browser. In its place the closing wrap-up carries the same
+  amber card the paid materials are offered with: it says that the whole recording is for paid members, plays the
+  published teaser under a `Ukázka ze záznamu` heading, and opens the very same membership popup the badge in the
+  header opens. A term whose teaser was left empty says the same thing without one, a term which carries no stream at
+  all offers nothing, so nobody is sold a recording which does not exist, and a paid member is never shown the teaser
+  beside the recording it teases. Because the decision and the card are each written once, the materials and the
+  recording of a workshop are offered by one card and one membership question rather than by two which could drift
+  apart; a saved room snapshot from before this change is dropped rather than replayed, so a browser cannot keep
+  playing a recording which is now behind the membership.
+
 - Named the paid materials to the members who may not read them yet. The amber card of
   `/cs/online-workshop/participant` and `/cs/komunita` which says where the materials for paid members are now lists
   the titles of the very materials which are waiting behind the membership under a `Co odemknete` heading, so a free

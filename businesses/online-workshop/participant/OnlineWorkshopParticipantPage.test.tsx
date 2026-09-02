@@ -7,6 +7,7 @@ import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type {
     WorkshopContentPreview,
     WorkshopDetails,
+    WorkshopPaidMembersVideo,
     WorkshopPoll,
     WorkshopPublicState,
 } from '@/lib/workshops/workshopTypes';
@@ -68,6 +69,7 @@ const WORKSHOP: WorkshopDetails = {
     startsAt: '2026-08-21T19:00:00+02:00',
     endsAt: '2026-08-21T20:30:00+02:00',
     youtubeVideoId: 'dQw4w9WgXcQ',
+    previewYoutubeVideoId: null,
     isPublished: true,
     allowedReactions: ['👍'],
     disabledPanels: [],
@@ -116,6 +118,18 @@ const PAID_MEMBERS_ONLY_CONTENT_PREVIEWS: readonly WorkshopContentPreview[] = [
     { id: 'paid-material-1', title: 'Bonusové podklady' },
 ];
 
+/**
+ * An occurrence which is already over by the moment the room is rendered at, so its stage is the closing wrap-up
+ *
+ * Note: Its stream is deliberately absent, exactly as the server hands the room to a member whose membership does not
+ *       unlock the recording of it.
+ */
+const ENDED_WORKSHOP_WITHOUT_ITS_RECORDING: WorkshopDetails = {
+    ...WORKSHOP,
+    endsAt: '2026-08-21T19:10:00+02:00',
+    youtubeVideoId: null,
+};
+
 const ATTACHED_COMMUNITY_POLL: WorkshopPoll = {
     id: 'poll-id',
     question: 'Co si z workshopu odnášíte?',
@@ -161,6 +175,7 @@ function renderParticipantRoom(
     participantHeaderSupplement?: ReactNode,
     polls: readonly WorkshopPoll[] = [],
     paidMembersOnlyContentPreviews: readonly WorkshopContentPreview[] = [],
+    paidMembersOnlyVideo: WorkshopPaidMembersVideo | null = null,
 ) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
@@ -178,6 +193,7 @@ function renderParticipantRoom(
         contentBlocks: [],
         nextContentUnlockAt: null,
         paidMembersOnlyContentPreviews,
+        paidMembersOnlyVideo,
         feedback: null,
         comments: [],
         stageComment: null,
@@ -351,6 +367,45 @@ describe('online workshop participant room', () => {
         fireEvent.click(unlockButton);
 
         expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
+    });
+
+    it('teases the withheld recording of an ended workshop and opens the membership which unlocks it', async () => {
+        const { container } = renderParticipantRoom(
+            ENDED_WORKSHOP_WITHOUT_ITS_RECORDING,
+            undefined,
+            false,
+            undefined,
+            [],
+            [],
+            { previewYoutubeVideoId: 'dQw4w9WgXcQ' },
+        );
+
+        const unlockButton = await screen.findByRole('button', { name: /Koupit placené členství/ });
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).toBeDefined();
+        expect(screen.getByText('Záznam workshopu je pro placené členy')).toBeDefined();
+        expect(container.querySelector('iframe')?.getAttribute('src')).toContain(
+            'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
+        );
+
+        fireEvent.click(unlockButton);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
+    });
+
+    it('says the recording is for paid members even when no teaser of it was published', async () => {
+        const { container } = renderParticipantRoom(
+            ENDED_WORKSHOP_WITHOUT_ITS_RECORDING,
+            undefined,
+            false,
+            undefined,
+            [],
+            [],
+            { previewYoutubeVideoId: null },
+        );
+
+        await screen.findByRole('button', { name: /Koupit placené členství/ });
+        expect(screen.getByText('Záznam workshopu je pro placené členy')).toBeDefined();
+        expect(container.querySelector('iframe')).toBeNull();
     });
 
     it('shows no paid-materials notice to a member whose membership already unlocked them, nor in a room with none', async () => {

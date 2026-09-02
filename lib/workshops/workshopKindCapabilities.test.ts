@@ -74,8 +74,9 @@ describe('workshop kind capabilities', () => {
                 startsAt: '2026-08-21T19:00:00+02:00',
                 endsAt: null,
                 youtubeVideoId: 'dQw4w9WgXcQ',
+                previewYoutubeVideoId: 'M7lc1UVf-VE',
             }),
-        ).toEqual(['startsAt', 'endsAt', 'youtubeVideoId', 'slug']);
+        ).toEqual(['startsAt', 'endsAt', 'youtubeVideoId', 'previewYoutubeVideoId', 'slug']);
     });
 
     it('refuses the fields of an event written into a room which is no event at all', () => {
@@ -102,6 +103,7 @@ describe('workshop kind capabilities', () => {
                 startsAt: '2026-08-21T19:00:00+02:00',
                 endsAt: '2026-08-21T20:30:00+02:00',
                 youtubeVideoId: 'dQw4w9WgXcQ',
+                previewYoutubeVideoId: 'M7lc1UVf-VE',
             }),
         ).toEqual([]);
     });

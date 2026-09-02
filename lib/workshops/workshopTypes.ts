@@ -69,6 +69,15 @@ export type WorkshopAdminSummary = WorkshopSummary & {
 
 export type WorkshopDetails = WorkshopSummary & {
     readonly youtubeVideoId: string | null;
+
+    /**
+     * The teaser of that stream which stands in for it once the workshop is over, or `null` while none was published
+     *
+     * Note: The recording of an ended workshop is unlocked by the paid membership, and this is the snippet of it which
+     *       an administrator lets everybody else watch instead. It is deliberately a second video rather than a part
+     *       of the first one, so nothing of the recording itself has to reach a member who has not unlocked it.
+     */
+    readonly previewYoutubeVideoId: string | null;
     readonly allowedReactions: readonly string[];
 
     /**
@@ -273,6 +282,17 @@ export type WorkshopContentPreview = {
 };
 
 /**
+ * As much of a withheld recording as the member who may not play it is given
+ *
+ * Note: The recording itself never leaves the server for such a member. Only the teaser an administrator published for
+ *       it does, which is what the room shows on the closing stage instead, and which is `null` while none was
+ *       published at all.
+ */
+export type WorkshopPaidMembersVideo = {
+    readonly previewYoutubeVideoId: string | null;
+};
+
+/**
  * A participant's progressively saved reflection after one workshop.
  *
  * The score creates the record; every written answer is optional and can then arrive independently, so somebody who
@@ -444,6 +464,17 @@ export type WorkshopPublicState = {
      *       and in a room which offers no membership at all.
      */
     readonly paidMembersOnlyContentPreviews: readonly WorkshopContentPreview[];
+
+    /**
+     * The recording which the paid membership would unlock for this member, or `null` while nothing of the video is
+     * being withheld from them
+     *
+     * Note: The stream of the occurrence stays out of `workshop` while this is set, so the room cannot play a recording
+     *       it also offers to sell. It is `null` for everybody who may watch it — during the workshop itself, for a
+     *       member who paid, and in a room which offers no membership — and for an occurrence which carries no video
+     *       at all, because there would be nothing for a purchase to unlock.
+     */
+    readonly paidMembersOnlyVideo: WorkshopPaidMembersVideo | null;
     readonly feedback: WorkshopFeedback | null;
     readonly comments: readonly WorkshopComment[];
 

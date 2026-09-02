@@ -57,6 +57,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     const [endsAt, setEndsAt] = useState(() => toDateTimeLocalValue(workshop.endsAt));
     const [eventDetails, setEventDetails] = useState(() => workshop.event ?? DEFAULT_EVENT_DETAILS);
     const [youtubeVideoId, setYoutubeVideoId] = useState(workshop.youtubeVideoId ?? '');
+    const [previewYoutubeVideoId, setPreviewYoutubeVideoId] = useState(workshop.previewYoutubeVideoId ?? '');
     const [reactionText, setReactionText] = useState(workshop.allowedReactions.join(' '));
     const [disabledPanels, setDisabledPanels] = useState(workshop.disabledPanels);
     const [isPublished, setIsPublished] = useState(workshop.isPublished);
@@ -85,6 +86,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
         setEndsAt(toDateTimeLocalValue(workshop.endsAt));
         setEventDetails(workshop.event ?? DEFAULT_EVENT_DETAILS);
         setYoutubeVideoId(workshop.youtubeVideoId ?? '');
+        setPreviewYoutubeVideoId(workshop.previewYoutubeVideoId ?? '');
         setReactionText(workshop.allowedReactions.join(' '));
         setDisabledPanels(workshop.disabledPanels);
         setIsPublished(workshop.isPublished);
@@ -111,7 +113,12 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
             ...(isSlugOffered ? { slug } : {}),
             ...(roomCapabilities.isScheduled && startsAtIso ? { startsAt: startsAtIso, endsAt: endsAtIso } : {}),
             ...(roomCapabilities.isEvent ? createWorkshopEventWriteValues(eventDetails) : {}),
-            ...(roomCapabilities.isStageOffered ? { youtubeVideoId: youtubeVideoId.trim() || null } : {}),
+            ...(roomCapabilities.isStageOffered
+                ? {
+                      youtubeVideoId: youtubeVideoId.trim() || null,
+                      previewYoutubeVideoId: previewYoutubeVideoId.trim() || null,
+                  }
+                : {}),
             ...(isReactionSettingOffered ? { allowedReactions: parseWorkshopReactions(reactionText) } : {}),
         });
         setRunningSave(null);
@@ -209,15 +216,30 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
                 )}
                 {roomCapabilities.isEvent && <WorkshopEventFields event={eventDetails} onChange={setEventDetails} />}
                 {roomCapabilities.isStageOffered && (
-                    <label className="text-sm font-medium text-slate-700">
-                        YouTube URL nebo video ID
-                        <Input
-                            value={youtubeVideoId}
-                            onChange={(event) => setYoutubeVideoId(event.target.value)}
-                            className="mt-2 font-mono"
-                            placeholder="https://youtube.com/live/…"
-                        />
-                    </label>
+                    <>
+                        <label className="text-sm font-medium text-slate-700">
+                            YouTube URL nebo video ID
+                            <Input
+                                value={youtubeVideoId}
+                                onChange={(event) => setYoutubeVideoId(event.target.value)}
+                                className="mt-2 font-mono"
+                                placeholder="https://youtube.com/live/…"
+                            />
+                        </label>
+                        <label className="text-sm font-medium text-slate-700">
+                            YouTube URL nebo video ID ukázky
+                            <Input
+                                value={previewYoutubeVideoId}
+                                onChange={(event) => setPreviewYoutubeVideoId(event.target.value)}
+                                className="mt-2 font-mono"
+                                placeholder="https://youtube.com/watch?v=…"
+                            />
+                            <span className="mt-1 block text-xs font-normal text-slate-400">
+                                Po skončení workshopu ji uvidí místo záznamu členové bez placeného členství. Když ji
+                                nevyplníte, uvidí jen nabídku členství, které záznam odemyká.
+                            </span>
+                        </label>
+                    </>
                 )}
                 {isReactionSettingOffered && (
                     <>

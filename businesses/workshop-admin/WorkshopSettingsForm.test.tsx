@@ -18,6 +18,7 @@ const WORKSHOP: WorkshopDetails = {
     startsAt: '2026-08-21T19:00:00+02:00',
     endsAt: '2026-08-21T20:30:00+02:00',
     youtubeVideoId: 'dQw4w9WgXcQ',
+    previewYoutubeVideoId: 'M7lc1UVf-VE',
     isPublished: true,
     allowedReactions: ['👍', '❤️'],
     disabledPanels: [],
@@ -33,6 +34,7 @@ const COMMUNITY: WorkshopDetails = {
     title: 'Komunita Promptbooku',
     description: 'Společný prostor pro účastníky workshopů Promptbooku.',
     youtubeVideoId: null,
+    previewYoutubeVideoId: null,
 };
 
 /**
@@ -50,6 +52,7 @@ const OPEN_WORKSHOP_END_LABEL = 'Nechat workshop bez konce';
 const END_ONE_HOUR_AFTER_START_LABEL = 'Nastavit konec 1 hodinu po začátku';
 const END_TWO_HOURS_AFTER_START_LABEL = 'Nastavit konec 2 hodiny po začátku';
 const STAGE_LABEL = 'YouTube URL nebo video ID';
+const STAGE_PREVIEW_LABEL = 'YouTube URL nebo video ID ukázky';
 const REACTION_LABEL = 'Reakce oddělené mezerou';
 
 function renderWorkshopSettingsForm(workshop: WorkshopDetails, onSave = vi.fn().mockResolvedValue(true)) {
@@ -69,6 +72,7 @@ describe('workshop settings form', () => {
 
         SCHEDULE_LABELS.forEach((scheduleLabel) => expect(screen.queryByText(scheduleLabel)).not.toBeNull());
         expect(screen.queryByText(STAGE_LABEL)).not.toBeNull();
+        expect(screen.queryByText(STAGE_PREVIEW_LABEL)).not.toBeNull();
         expect(screen.queryByText(REACTION_LABEL)).not.toBeNull();
         expect(screen.queryByText('Počet sledujících')).not.toBeNull();
     });
@@ -78,6 +82,7 @@ describe('workshop settings form', () => {
 
         SCHEDULE_LABELS.forEach((scheduleLabel) => expect(screen.queryByText(scheduleLabel)).toBeNull());
         expect(screen.queryByText(STAGE_LABEL)).toBeNull();
+        expect(screen.queryByText(STAGE_PREVIEW_LABEL)).toBeNull();
         expect(screen.queryByText(REACTION_LABEL)).toBeNull();
         expect(screen.queryByText('Reakce účastníků')).toBeNull();
         expect(screen.queryByText('Počet sledujících')).toBeNull();
@@ -204,6 +209,7 @@ describe('workshop settings form', () => {
                     startsAt: expect.any(String),
                     endsAt: expect.any(String),
                     youtubeVideoId: WORKSHOP.youtubeVideoId,
+                    previewYoutubeVideoId: WORKSHOP.previewYoutubeVideoId,
                     allowedReactions: WORKSHOP.allowedReactions,
                 }),
             ),

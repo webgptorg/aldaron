@@ -18,6 +18,7 @@ const WORKSHOP_ROW: WorkshopRow = {
     starts_at: '2026-09-07T13:00:00.000Z',
     ends_at: '2026-09-07T14:00:00.000Z',
     youtube_video_id: null,
+    preview_youtube_video_id: null,
     is_published: true,
     allowed_reactions: [],
     event_type: 'online-workshop',

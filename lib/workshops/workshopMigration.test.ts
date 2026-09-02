@@ -119,6 +119,11 @@ const PAID_MEMBERS_ONLY_CONTENT_MIGRATION_PATH = path.resolve(
     'migrations/2026-09-0200-workshop-content-paid-members-only.sql',
 );
 const PAID_MEMBERS_ONLY_CONTENT_MIGRATION_SQL = readFileSync(PAID_MEMBERS_ONLY_CONTENT_MIGRATION_PATH, 'utf8');
+const PAID_MEMBERS_ONLY_VIDEO_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-09-0300-workshop-paid-members-video-preview.sql',
+);
+const PAID_MEMBERS_ONLY_VIDEO_MIGRATION_SQL = readFileSync(PAID_MEMBERS_ONLY_VIDEO_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -588,6 +593,14 @@ describe('workshop database migration', () => {
         expect(PAID_MEMBERS_ONLY_CONTENT_MIGRATION_SQL).toContain(
             'ALTER TABLE public.workshop_content_blocks',
         );
+    });
+
+    it('keeps the teaser of a recording beside the recording itself, without a second video record', () => {
+        expect(PAID_MEMBERS_ONLY_VIDEO_MIGRATION_SQL).toContain('ALTER TABLE public.workshops');
+        expect(PAID_MEMBERS_ONLY_VIDEO_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS preview_youtube_video_id text',
+        );
+        expect(PAID_MEMBERS_ONLY_VIDEO_MIGRATION_SQL).not.toContain('CREATE TABLE');
     });
 
     it('routes material analytics through persisted ad hoc short links rather than a participant browser event', () => {

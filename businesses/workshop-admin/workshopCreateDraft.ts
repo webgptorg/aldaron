@@ -26,6 +26,7 @@ export type WorkshopCreateDraft = {
     readonly endsAt: string;
     readonly event: EventDetails;
     readonly youtubeVideoId: string | null;
+    readonly previewYoutubeVideoId: string | null;
     readonly isPublished: boolean;
     readonly allowedReactions: readonly string[];
     readonly disabledPanels: readonly WorkshopPanelKey[];
@@ -71,6 +72,7 @@ export function createNewWorkshopDraft(currentTimestamp = Date.now()): WorkshopC
         endsAt: toDateTimeLocalValue(new Date(startsAt + DEFAULT_WORKSHOP_DURATION_MILLISECONDS).toISOString()),
         event: copyEventDetails(DEFAULT_EVENT_DETAILS),
         youtubeVideoId: null,
+        previewYoutubeVideoId: null,
         isPublished: false,
         allowedReactions: [...DEFAULT_WORKSHOP_REACTIONS],
         disabledPanels: [],
@@ -99,6 +101,7 @@ export function createWorkshopDuplicateDraft(
         endsAt: toDateTimeLocalValue(workshop.endsAt),
         event: copyEventDetails(workshop.event),
         youtubeVideoId: workshop.youtubeVideoId,
+        previewYoutubeVideoId: workshop.previewYoutubeVideoId,
         isPublished: false,
         allowedReactions: [...workshop.allowedReactions],
         disabledPanels: [...workshop.disabledPanels],
@@ -122,6 +125,7 @@ export function createWorkshopCreateValues(draft: WorkshopCreateDraft): Workshop
         endsAt: fromDateTimeLocalValue(draft.endsAt),
         ...createWorkshopEventWriteValues(draft.event),
         youtubeVideoId: draft.youtubeVideoId,
+        previewYoutubeVideoId: draft.previewYoutubeVideoId,
         isPublished: draft.isPublished,
         allowedReactions: draft.allowedReactions,
         disabledPanels: draft.disabledPanels,

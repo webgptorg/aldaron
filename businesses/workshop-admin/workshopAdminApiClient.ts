@@ -42,6 +42,11 @@ export type WorkshopWriteValues = {
     readonly priceCzk?: number;
     readonly maximumParticipantCount?: number | null;
     readonly youtubeVideoId?: string | null;
+
+    /**
+     * The teaser of the recording which everybody who has not unlocked it watches once the term is over
+     */
+    readonly previewYoutubeVideoId?: string | null;
     readonly allowedReactions?: readonly string[];
 };
 

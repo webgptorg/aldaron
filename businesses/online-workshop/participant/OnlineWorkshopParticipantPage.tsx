@@ -271,6 +271,7 @@ export function OnlineWorkshopParticipantPage({
                             feedback={state.feedback}
                             followUpContentBlock={followUpContentBlock}
                             stageComment={state.stageComment}
+                            paidMembersOnlyVideo={state.paidMembersOnlyVideo}
                             onSaveFeedback={controller.saveFeedback}
                         />
                     )}

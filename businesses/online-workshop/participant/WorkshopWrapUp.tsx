@@ -1,14 +1,27 @@
 'use client';
 
 import { WorkshopFeedback } from '@/businesses/online-workshop/participant/WorkshopFeedback';
+import { WorkshopPaidMembersVideoNotice } from '@/businesses/online-workshop/participant/WorkshopPaidMembersVideoNotice';
 import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
-import type { WorkshopContentBlock, WorkshopFeedback as WorkshopFeedbackValue } from '@/lib/workshops/workshopTypes';
+import type {
+    WorkshopContentBlock,
+    WorkshopFeedback as WorkshopFeedbackValue,
+    WorkshopPaidMembersVideo,
+} from '@/lib/workshops/workshopTypes';
 import { ArrowDown, BookOpenText, PartyPopper, Play } from 'lucide-react';
 
 type WorkshopWrapUpProps = {
     readonly feedback: WorkshopFeedbackValue | null;
     readonly followUpContentBlock: WorkshopContentBlock | null;
     readonly onSaveFeedback: (values: WorkshopFeedbackValues) => Promise<boolean>;
+
+    /**
+     * The recording which the membership of this member has not unlocked, or `null` while nothing of it is withheld
+     *
+     * Note: Exactly one of these two is ever given: a member who may play the recording is offered the button which
+     *       plays it, and a member who may not is offered the teaser of it and the membership which unlocks it.
+     */
+    readonly paidMembersOnlyVideo?: WorkshopPaidMembersVideo | null;
 
     /**
      * Offered only to the members whose membership unlocks the video of the ended workshop, so the wrap-up stays the
@@ -21,7 +34,13 @@ type WorkshopWrapUpProps = {
  * The third stage of a workshop. The follow-up is still rendered by the shared material list below; this screen links
  * directly to that same record so the stage does not invent a second material model or a second tracking path.
  */
-export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback, onRewatchVideo }: WorkshopWrapUpProps) {
+export function WorkshopWrapUp({
+    feedback,
+    followUpContentBlock,
+    paidMembersOnlyVideo = null,
+    onSaveFeedback,
+    onRewatchVideo,
+}: WorkshopWrapUpProps) {
     return (
         <div className="relative px-5 py-7 sm:px-8 sm:py-10">
             <div className="mx-auto max-w-2xl">
@@ -45,6 +64,12 @@ export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback,
                     >
                         <Play className="h-4 w-4" aria-hidden="true" /> Přehrát video znovu
                     </button>
+                )}
+
+                {paidMembersOnlyVideo !== null && (
+                    <div className="mt-5">
+                        <WorkshopPaidMembersVideoNotice paidMembersOnlyVideo={paidMembersOnlyVideo} />
+                    </div>
                 )}
 
                 <div className="mt-6">

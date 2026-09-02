@@ -8,9 +8,9 @@ import type { WorkshopPublicState } from '@/lib/workshops/workshopTypes';
 
 // Version the snapshot whenever its room-state shape or security boundary changes:
 // an older cached state may still contain raw material destinations from before
-// every public link was materialized through the shortener, predate community polls, or miss the question selected
-// for the shared stage.
-const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v4.';
+// every public link was materialized through the shortener, predate community polls, miss the question selected
+// for the shared stage, or still carry the recording of an ended workshop which the paid membership now unlocks.
+const WORKSHOP_PARTICIPANT_STATE_CACHE_KEY_PREFIX = 'promptbook.workshop-participant-state.v5.';
 const WORKSHOP_PARTICIPANT_STATE_CACHE_MAX_AGE_MILLISECONDS = WORKSHOP_SESSION_MAX_AGE_SECONDS * 1_000;
 
 type WorkshopParticipantStateCacheEntry = {
@@ -20,6 +20,14 @@ type WorkshopParticipantStateCacheEntry = {
 
 function isObject(value: unknown): value is Readonly<Record<string, unknown>> {
     return typeof value === 'object' && value !== null;
+}
+
+function isWorkshopPaidMembersVideoOrNull(value: unknown): boolean {
+    return (
+        value === null ||
+        (isObject(value) &&
+            (typeof value.previewYoutubeVideoId === 'string' || value.previewYoutubeVideoId === null))
+    );
 }
 
 function isWorkshopCommentReferenceOrNull(value: unknown): boolean {
@@ -67,6 +75,7 @@ function isWorkshopPublicStateCacheEntry(
         typeof state.watchingParticipantCount === 'number' &&
         Array.isArray(state.contentBlocks) &&
         Array.isArray(state.paidMembersOnlyContentPreviews) &&
+        isWorkshopPaidMembersVideoOrNull(state.paidMembersOnlyVideo) &&
         Array.isArray(state.comments) &&
         isWorkshopCommentReferenceOrNull(state.stageComment) &&
         Array.isArray(state.recentReactions) &&

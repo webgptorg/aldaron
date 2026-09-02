@@ -1,13 +1,11 @@
 'use client';
 
-import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
 import { WorkshopWrapUp } from '@/businesses/online-workshop/participant/WorkshopWrapUp';
 import { WorkshopStageComment } from '@/businesses/online-workshop/participant/WorkshopStageComment';
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { useWorkshopReactionStream } from '@/components/workshops/useWorkshopReactionStream';
 import { WorkshopReactionStream } from '@/components/workshops/WorkshopReactionStream';
-import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import { keepYoutubeVideoSubtitlesHidden, unmuteYoutubeVideo } from '@/lib/youtube/youtubePlayerCommands';
@@ -17,6 +15,7 @@ import type {
     WorkshopContentBlock,
     WorkshopDetails,
     WorkshopFeedback,
+    WorkshopPaidMembersVideo,
 } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowDownLeft, ArrowLeft, Maximize, Play, Radio, Volume2 } from 'lucide-react';
@@ -36,12 +35,20 @@ type WorkshopStageProps = {
     readonly subscribeToReactions: SubscribeToWorkshopReactions;
 
     /**
-     * All three values are supplied by the participant room in production. Defaults keep this low-level stage usable in
-     * isolation while it is still responsible for choosing the correct temporal phase.
+     * All of these values are supplied by the participant room in production. Defaults keep this low-level stage usable
+     * in isolation while it is still responsible for choosing the correct temporal phase.
      */
     readonly feedback?: WorkshopFeedback | null;
     readonly followUpContentBlock?: WorkshopContentBlock | null;
     readonly stageComment?: WorkshopCommentReference | null;
+
+    /**
+     * The recording which this member has not unlocked, or `null` while nothing of the video is withheld from them
+     *
+     * Note: The server decides this together with the video it hands over, so the stage plays whatever video it was
+     *       given and offers the membership exactly when it was given none.
+     */
+    readonly paidMembersOnlyVideo?: WorkshopPaidMembersVideo | null;
     readonly onSaveFeedback?: (values: WorkshopFeedbackValues) => Promise<boolean>;
 };
 
@@ -73,6 +80,7 @@ export function WorkshopStage({
     feedback = null,
     followUpContentBlock = null,
     stageComment = null,
+    paidMembersOnlyVideo = null,
     onSaveFeedback = refuseStandaloneFeedbackSave,
 }: WorkshopStageProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
@@ -87,14 +95,10 @@ export function WorkshopStage({
     const isWorkshopPast = phase === 'past';
     const remainingMilliseconds = Date.parse(workshop.startsAt) - currentTime;
 
-    // Note: Once the workshop is over, its video stays unlocked for the members whose membership pays for it. The
-    //       wrap-up keeps its feedback for everybody and only gains the button which plays the video again.
-    const membershipRoom = useCommunityMembershipRoom();
-    const isPaidMembership =
-        membershipRoom !== null &&
-        membershipRoom.membership !== null &&
-        isPaidCommunityMembershipStatus(membershipRoom.membership.status);
-    const isVideoRewatchOffered = isWorkshopPast && isPaidMembership && workshop.youtubeVideoId !== null;
+    // Note: Once the workshop is over, the room only holds its video for the members whose membership pays for it, and
+    //       the server is what decides that. The wrap-up therefore keeps its feedback for everybody and gains either
+    //       the button which plays the video again or the offer of the membership which unlocks it.
+    const isVideoRewatchOffered = isWorkshopPast && workshop.youtubeVideoId !== null;
     const [isVideoRewatchShown, setIsVideoRewatchShown] = useState(false);
     useEffect(() => {
         if (!isVideoRewatchOffered) {
@@ -168,6 +172,7 @@ export function WorkshopStage({
                 <WorkshopWrapUp
                     feedback={feedback}
                     followUpContentBlock={followUpContentBlock}
+                    paidMembersOnlyVideo={paidMembersOnlyVideo}
                     onSaveFeedback={onSaveFeedback}
                     onRewatchVideo={isVideoRewatchOffered ? () => setIsVideoRewatchShown(true) : undefined}
                 />

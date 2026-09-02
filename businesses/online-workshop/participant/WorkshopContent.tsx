@@ -1,9 +1,9 @@
 'use client';
 
-import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
+import { CommunityPaidMembersNotice } from '@/businesses/community/membership/CommunityPaidMembersNotice';
+import { useCommunityMembershipPurchaseOffer } from '@/businesses/community/membership/useCommunityMembershipPurchaseOffer';
 import { MarkdownContent } from '@/components/markdown-content';
 import { PromptbookQrCode } from '@/components/promptbook-qr-code';
-import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import type { WorkshopContentBlock, WorkshopContentPreview } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Clock3, Crown, ExternalLink, Lock, Sparkles } from 'lucide-react';
@@ -179,30 +179,14 @@ function WorkshopPaidMembersContentNotice({
     const namedContentPreviews = contentPreviews.filter((contentPreview) => contentPreview.title.trim() !== '');
 
     return (
-        <div className="rounded-2xl border border-amber-300/30 bg-amber-300/[0.06] p-5 shadow-lg shadow-amber-300/10 sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex min-w-0 flex-1 items-start gap-3">
-                    <Lock className="mt-1 h-5 w-5 shrink-0 text-amber-200" aria-hidden="true" />
-                    <div className="min-w-0">
-                        <h3 className="text-lg font-bold text-white">Materiály pro placené členy</h3>
-                        <p className="mt-1 text-sm leading-6 text-slate-300">
-                            Na tomto místě jsou materiály dostupné jen pro placené členy komunity. Odemknete je měsíčním
-                            placeným členstvím.
-                        </p>
-                    </div>
-                </div>
-                <button
-                    type="button"
-                    onClick={onUnlockPaidMaterials}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-amber-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/10 transition hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
-                >
-                    <Crown className="h-4 w-4" aria-hidden="true" /> Koupit placené členství
-                </button>
-            </div>
-            {namedContentPreviews.length > 0 && (
-                <div className="mt-5 border-t border-amber-300/20 pt-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-amber-200/80">Co odemknete</p>
-                    <ul aria-label="Náhled materiálů pro placené členy" className="mt-2 space-y-2">
+        <CommunityPaidMembersNotice
+            title="Materiály pro placené členy"
+            description="Na tomto místě jsou materiály dostupné jen pro placené členy komunity. Odemknete je měsíčním placeným členstvím."
+            onUnlockPaidMembership={onUnlockPaidMaterials}
+            unlockedLabel="Co odemknete"
+            unlockedContent={
+                namedContentPreviews.length === 0 ? undefined : (
+                    <ul aria-label="Náhled materiálů pro placené členy" className="space-y-2">
                         {namedContentPreviews.map((contentPreview) => (
                             <li key={contentPreview.id} className="flex items-start gap-2">
                                 <Lock className="mt-0.5 h-4 w-4 shrink-0 text-amber-200/70" aria-hidden="true" />
@@ -212,9 +196,9 @@ function WorkshopPaidMembersContentNotice({
                             </li>
                         ))}
                     </ul>
-                </div>
-            )}
-        </div>
+                )
+            }
+        />
     );
 }
 
@@ -226,16 +210,12 @@ export function WorkshopContent({
     title = 'Materiály z workshopu',
 }: WorkshopContentProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
-    const membershipRoom = useCommunityMembershipRoom();
 
     // Note: The purchase is only offered while a gate is configured and the member has not paid yet, which is exactly
     //       when the server keeps the paid materials hidden, so the notice and the hidden materials cannot disagree.
+    const membershipPurchaseOffer = useCommunityMembershipPurchaseOffer();
     const isPaidMembersContentNoticeShown =
-        paidMembersOnlyContentPreviews.length > 0 &&
-        membershipRoom !== null &&
-        membershipRoom.membership !== null &&
-        membershipRoom.membership.isPurchaseOffered &&
-        !isPaidCommunityMembershipStatus(membershipRoom.membership.status);
+        paidMembersOnlyContentPreviews.length > 0 && membershipPurchaseOffer !== null;
 
     if (contentBlocks.length === 0 && nextContentUnlockAt === null && !isPaidMembersContentNoticeShown) {
         return null;
@@ -303,10 +283,10 @@ export function WorkshopContent({
                     </div>
                 )}
 
-                {isPaidMembersContentNoticeShown && membershipRoom !== null && (
+                {isPaidMembersContentNoticeShown && membershipPurchaseOffer !== null && (
                     <WorkshopPaidMembersContentNotice
                         contentPreviews={paidMembersOnlyContentPreviews}
-                        onUnlockPaidMaterials={membershipRoom.openMembershipModal}
+                        onUnlockPaidMaterials={membershipPurchaseOffer.openMembershipModal}
                     />
                 )}
             </div>

@@ -35,6 +35,7 @@ import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/w
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { normalizeWorkshopParticipantEmail } from '@/lib/workshops/workshopParticipantEmail';
 import { selectWorkshopContentForMember } from '@/lib/workshops/workshopPaidMembersContent';
+import { selectWorkshopVideoForMember } from '@/lib/workshops/workshopPaidMembersVideo';
 import type {
     WorkshopAdminComment,
     WorkshopAdminFeedback,
@@ -79,6 +80,12 @@ export type WorkshopRow = {
     readonly starts_at: string;
     readonly ends_at: string | null;
     readonly youtube_video_id: string | null;
+
+    /**
+     * The public teaser of the recording, shown once the workshop is over to everybody whose membership does not
+     * unlock the recording itself
+     */
+    readonly preview_youtube_video_id: string | null;
     readonly is_published: boolean;
     readonly allowed_reactions: string[];
 
@@ -411,6 +418,7 @@ export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
     return {
         ...mapWorkshopSummaryRow(row),
         youtubeVideoId: row.youtube_video_id,
+        previewYoutubeVideoId: row.preview_youtube_video_id,
         allowedReactions: row.allowed_reactions,
         disabledPanels: normalizeWorkshopDisabledPanels(row.disabled_panels),
         createdAt: row.created_at,
@@ -2050,8 +2058,8 @@ export async function loadWorkshopPublicState(
     commentSort: WorkshopCommentSort,
 ): Promise<LoadedWorkshopPublicState> {
     const contentVisibilityCutoff = new Date().toISOString();
-    const isWorkshopPast =
-        workshopRow.room_kind === 'workshop' && getWorkshopPhase(mapWorkshopRow(workshopRow)) === 'past';
+    const workshop = mapWorkshopRow(workshopRow);
+    const isWorkshopPast = workshopRow.room_kind === 'workshop' && getWorkshopPhase(workshop) === 'past';
 
     // Note: The reactions which flew over the stage recently are replayed for somebody entering the room. A room
     //       without that panel therefore does not load them, exactly as it does not count them.
@@ -2208,6 +2216,14 @@ export async function loadWorkshopPublicState(
         isPaidMember,
         isMembershipOffered: roomCapabilities.isMembershipOffered,
     });
+    // The recording of an ended workshop is decided here for the very same reason: a member who has not unlocked it
+    // receives the teaser published for it instead of the stream, rather than the room merely not playing what it
+    // still handed over.
+    const { readableVideo, paidMembersOnlyVideo } = selectWorkshopVideoForMember(workshop, {
+        isWorkshopPast,
+        isPaidMember,
+        isMembershipOffered: roomCapabilities.isMembershipOffered,
+    });
     const materializedContentResults = await Promise.all(
         readableContentBlocks.map(async (contentBlock) => ({
             contentBlock,
@@ -2301,12 +2317,13 @@ export async function loadWorkshopPublicState(
     return {
         state: {
             serverTime: new Date().toISOString(),
-            workshop: mapWorkshopRow(workshopRow),
+            workshop: { ...workshop, ...readableVideo },
             participant,
             watchingParticipantCount,
             contentBlocks: materializedContentBlocks,
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
             paidMembersOnlyContentPreviews,
+            paidMembersOnlyVideo,
             feedback:
                 feedbackResult.data === null
                     ? null

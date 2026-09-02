@@ -32,6 +32,7 @@ export function createWorkshopDatabaseValues(values: WorkshopCreateValues) {
         price_czk: values.priceCzk,
         maximum_participant_count: values.maximumParticipantCount,
         youtube_video_id: values.youtubeVideoId,
+        preview_youtube_video_id: values.previewYoutubeVideoId,
         is_published: values.isPublished,
         allowed_reactions: values.allowedReactions,
         disabled_panels: values.disabledPanels,
@@ -53,6 +54,9 @@ export function createWorkshopUpdateDatabaseValues(values: WorkshopUpdateValues)
             ? {}
             : { maximum_participant_count: values.maximumParticipantCount }),
         ...(values.youtubeVideoId === undefined ? {} : { youtube_video_id: values.youtubeVideoId }),
+        ...(values.previewYoutubeVideoId === undefined
+            ? {}
+            : { preview_youtube_video_id: values.previewYoutubeVideoId }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
         ...(values.allowedReactions === undefined ? {} : { allowed_reactions: values.allowedReactions }),
         ...(values.disabledPanels === undefined ? {} : { disabled_panels: values.disabledPanels }),

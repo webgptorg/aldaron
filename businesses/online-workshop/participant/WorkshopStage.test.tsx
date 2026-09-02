@@ -15,7 +15,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
  * The room as far as the stage is concerned: the membership it already loaded for the member watching it
  */
 const membershipRoomMock = vi.hoisted(() => ({
-    membershipRoom: null as null | { membership: CommunityMembershipRoomState | null },
+    membershipRoom: null as null | {
+        membership: CommunityMembershipRoomState | null;
+        openMembershipModal: () => void;
+    },
 }));
 
 vi.mock('@/businesses/community/membership/CommunityMembershipRoomProvider', () => ({
@@ -52,6 +55,7 @@ const WORKSHOP: WorkshopDetails = {
     startsAt: '2026-08-20T19:00:00+02:00',
     endsAt: '2026-08-20T20:30:00+02:00',
     youtubeVideoId: null,
+    previewYoutubeVideoId: null,
     isPublished: true,
     allowedReactions: ['👍'],
     disabledPanels: [],
@@ -67,6 +71,20 @@ const WORKSHOP_WITH_VIDEO: WorkshopDetails = {
 const OPEN_ENDED_WORKSHOP_WITH_VIDEO: WorkshopDetails = {
     ...WORKSHOP_WITH_VIDEO,
     endsAt: null,
+};
+
+/**
+ * The teaser an administrator published for the recording of a workshop
+ */
+const PREVIEW_YOUTUBE_VIDEO_ID = 'M7lc1UVf-VE';
+
+/**
+ * The ended workshop as the server hands it to a member whose membership does not unlock its recording: the stream is
+ * gone from the room itself and only what is offered to them comes with it.
+ */
+const WORKSHOP_WITHOUT_ITS_RECORDING: WorkshopDetails = {
+    ...WORKSHOP_WITH_VIDEO,
+    youtubeVideoId: null,
 };
 
 const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
@@ -281,15 +299,16 @@ describe('workshop stage', () => {
         expect(reactionSource.listenerCount()).toBe(1);
     });
 
-    it('keeps the wrap-up for a member who has not paid and offers them no video of the ended workshop', () => {
+    it('keeps the wrap-up for a member who has not paid and offers them the withheld video instead of playing it', () => {
         const reactionSource = createReactionSource();
-        membershipRoomMock.membershipRoom = { membership: FREE_MEMBERSHIP };
+        membershipRoomMock.membershipRoom = { membership: FREE_MEMBERSHIP, openMembershipModal: vi.fn() };
         const { container } = render(
             <WorkshopStage
-                workshop={WORKSHOP_WITH_VIDEO}
+                workshop={WORKSHOP_WITHOUT_ITS_RECORDING}
                 serverTime="2026-08-20T20:31:00+02:00"
                 subscribeToReactions={reactionSource.subscribeToReactions}
                 followUpContentBlock={FOLLOW_UP_CONTENT}
+                paidMembersOnlyVideo={{ previewYoutubeVideoId: null }}
                 onSaveFeedback={async () => true}
             />,
         );
@@ -297,11 +316,39 @@ describe('workshop stage', () => {
         expect(container.querySelector('iframe')).toBeNull();
         expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
         expect(screen.queryByRole('button', { name: /Přehrát video znovu/ })).toBeNull();
+        expect(screen.getByText('Záznam workshopu je pro placené členy')).not.toBeNull();
+    });
+
+    it('plays the published teaser of the withheld video and opens the membership which unlocks the whole of it', () => {
+        const reactionSource = createReactionSource();
+        const openMembershipModal = vi.fn();
+        membershipRoomMock.membershipRoom = { membership: FREE_MEMBERSHIP, openMembershipModal };
+        const { container } = render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITHOUT_ITS_RECORDING}
+                serverTime="2026-08-20T20:31:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                paidMembersOnlyVideo={{ previewYoutubeVideoId: PREVIEW_YOUTUBE_VIDEO_ID }}
+                onSaveFeedback={async () => true}
+            />,
+        );
+        const previewFrame = container.querySelector('iframe');
+
+        expect(previewFrame?.getAttribute('src')).toContain(
+            `https://www.youtube-nocookie.com/embed/${PREVIEW_YOUTUBE_VIDEO_ID}`,
+        );
+        expect(previewFrame?.getAttribute('src')).toContain('autoplay=0');
+        expect(screen.getByText('Ukázka ze záznamu')).not.toBeNull();
+
+        fireEvent.click(screen.getByRole('button', { name: /Koupit placené členství/ }));
+
+        expect(openMembershipModal).toHaveBeenCalledOnce();
     });
 
     it('keeps the wrap-up of a paid member and lets them play the video of the ended workshop again', () => {
         const reactionSource = createReactionSource();
-        membershipRoomMock.membershipRoom = { membership: PAID_MEMBERSHIP };
+        membershipRoomMock.membershipRoom = { membership: PAID_MEMBERSHIP, openMembershipModal: vi.fn() };
         const { container } = render(
             <WorkshopStage
                 workshop={WORKSHOP_WITH_VIDEO}

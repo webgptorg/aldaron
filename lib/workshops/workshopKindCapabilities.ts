@@ -119,7 +119,7 @@ export function isWorkshopPollVisibleInRoom(workshopKind: WorkshopKind): boolean
  * The settings of a room which its kind does not have at all
  */
 const WORKSHOP_SCHEDULE_FIELD_NAMES = ['startsAt', 'endsAt'] as const;
-const WORKSHOP_STAGE_FIELD_NAMES = ['youtubeVideoId'] as const;
+const WORKSHOP_STAGE_FIELD_NAMES = ['youtubeVideoId', 'previewYoutubeVideoId'] as const;
 const WORKSHOP_SLUG_FIELD_NAMES = ['slug'] as const;
 const WORKSHOP_EVENT_FIELD_NAMES = [
     'eventType',
