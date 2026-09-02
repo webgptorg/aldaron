@@ -4,11 +4,43 @@
 
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import { WorkshopStage } from '@/businesses/online-workshop/participant/WorkshopStage';
+import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
 import type { FlyingWorkshopReaction } from '@/lib/workshops/workshopReactionAnimations';
 import type { WorkshopCommentReference, WorkshopContentBlock, WorkshopDetails } from '@/lib/workshops/workshopTypes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+/**
+ * The room as far as the stage is concerned: the membership it already loaded for the member watching it
+ */
+const membershipRoomMock = vi.hoisted(() => ({
+    membershipRoom: null as null | { membership: CommunityMembershipRoomState | null },
+}));
+
+vi.mock('@/businesses/community/membership/CommunityMembershipRoomProvider', () => ({
+    useCommunityMembershipRoom: () => membershipRoomMock.membershipRoom,
+}));
+
+const PAID_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'active',
+    monthlyPriceCzk: 199,
+    currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+    isCancellationScheduled: false,
+    isPurchaseOffered: false,
+    isSubscriptionManagementOffered: true,
+    isPaymentInTestMode: false,
+};
+
+const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'none',
+    monthlyPriceCzk: null,
+    currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
+    isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
+    isPaymentInTestMode: false,
+};
 
 const WORKSHOP: WorkshopDetails = {
     id: '5a7eb2ad-2583-4e98-9640-50bc773b5fde',
@@ -45,6 +77,7 @@ const FOLLOW_UP_CONTENT: WorkshopContentBlock = {
     sortOrder: 0,
     isPublished: true,
     isFollowUp: true,
+    isPaidMembersOnly: false,
     createdAt: '2026-08-20T18:00:00+02:00',
     updatedAt: '2026-08-20T18:00:00+02:00',
     linkClickCount: 0,
@@ -78,7 +111,10 @@ function createReactionSource() {
     };
 }
 
-afterEach(cleanup);
+afterEach(() => {
+    cleanup();
+    membershipRoomMock.membershipRoom = null;
+});
 
 describe('workshop stage', () => {
     it('sends a reaction of the room over the stage', async () => {
@@ -243,5 +279,53 @@ describe('workshop stage', () => {
             '#workshop-material-follow-up-material',
         );
         expect(reactionSource.listenerCount()).toBe(1);
+    });
+
+    it('keeps the wrap-up for a member who has not paid and offers them no video of the ended workshop', () => {
+        const reactionSource = createReactionSource();
+        membershipRoomMock.membershipRoom = { membership: FREE_MEMBERSHIP };
+        const { container } = render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T20:31:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
+        expect(screen.queryByRole('button', { name: /Přehrát video znovu/ })).toBeNull();
+    });
+
+    it('keeps the wrap-up of a paid member and lets them play the video of the ended workshop again', () => {
+        const reactionSource = createReactionSource();
+        membershipRoomMock.membershipRoom = { membership: PAID_MEMBERSHIP };
+        const { container } = render(
+            <WorkshopStage
+                workshop={WORKSHOP_WITH_VIDEO}
+                serverTime="2026-08-20T20:31:00+02:00"
+                subscribeToReactions={reactionSource.subscribeToReactions}
+                followUpContentBlock={FOLLOW_UP_CONTENT}
+                onSaveFeedback={async () => true}
+            />,
+        );
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
+
+        fireEvent.click(screen.getByRole('button', { name: /Přehrát video znovu/ }));
+
+        const rewatchFrame = container.querySelector('iframe');
+        expect(rewatchFrame).not.toBeNull();
+        expect(rewatchFrame?.getAttribute('src')).toContain('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
+        expect(rewatchFrame?.getAttribute('src')).toContain('controls=1');
+        expect(screen.queryByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).toBeNull();
+
+        fireEvent.click(screen.getByRole('button', { name: /Zpět na závěrečné shrnutí/ }));
+
+        expect(container.querySelector('iframe')).toBeNull();
+        expect(screen.getByRole('heading', { name: 'Děkujeme, že jste byli u toho!' })).not.toBeNull();
     });
 });

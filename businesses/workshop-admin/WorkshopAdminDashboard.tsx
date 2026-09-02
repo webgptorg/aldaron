@@ -313,6 +313,7 @@ export function WorkshopAdminDashboard({
                 sortOrder: contentBlock.sortOrder,
                 isPublished: true,
                 isFollowUp: contentBlock.isFollowUp,
+                isPaidMembersOnly: contentBlock.isPaidMembersOnly,
             }),
         );
     };

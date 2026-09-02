@@ -67,6 +67,7 @@ export function createWorkshopContentDatabaseValues(values: WorkshopContentCreat
         sort_order: values.sortOrder,
         is_published: values.isPublished,
         is_follow_up: values.isFollowUp,
+        is_paid_members_only: values.isPaidMembersOnly,
     };
 }
 
@@ -78,6 +79,7 @@ export function createWorkshopContentUpdateDatabaseValues(values: WorkshopConten
         ...(values.sortOrder === undefined ? {} : { sort_order: values.sortOrder }),
         ...(values.isPublished === undefined ? {} : { is_published: values.isPublished }),
         ...(values.isFollowUp === undefined ? {} : { is_follow_up: values.isFollowUp }),
+        ...(values.isPaidMembersOnly === undefined ? {} : { is_paid_members_only: values.isPaidMembersOnly }),
     };
 }
 

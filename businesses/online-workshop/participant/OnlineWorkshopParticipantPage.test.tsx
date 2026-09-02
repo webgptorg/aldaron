@@ -148,6 +148,7 @@ function renderParticipantRoom(
     isUsingCachedState = false,
     participantHeaderSupplement?: ReactNode,
     polls: readonly WorkshopPoll[] = [],
+    hasPaidMembersOnlyContent = false,
 ) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
@@ -164,6 +165,7 @@ function renderParticipantRoom(
         watchingParticipantCount: 3,
         contentBlocks: [],
         nextContentUnlockAt: null,
+        hasPaidMembersOnlyContent,
         feedback: null,
         comments: [],
         stageComment: null,
@@ -325,5 +327,39 @@ describe('online workshop participant room', () => {
 
         expect(screen.getByRole('button', { name: /Spojení nedostupné/ })).not.toBeNull();
         expect(screen.queryByText('Spojení s workshopem je dočasně nedostupné. Zobrazuje se naposledy uložená verze.')).toBeNull();
+    });
+
+    it('says where the paid materials are and opens the membership offer for a member who has not paid', async () => {
+        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], true);
+
+        const unlockButton = await screen.findByRole('button', { name: /Koupit placené členství/ });
+        expect(screen.getByText('Materiály pro placené členy')).toBeDefined();
+
+        fireEvent.click(unlockButton);
+
+        expect(await screen.findByRole('dialog', { name: 'Placené členství komunity' })).toBeDefined();
+    });
+
+    it('shows no paid-materials notice to a member whose membership already unlocked them, nor in a room with none', async () => {
+        fetchCommunityMembership.mockResolvedValue({
+            status: 'active',
+            monthlyPriceCzk: 199,
+            currentPeriodEndsAt: '2026-09-30T10:00:00.000Z',
+            isCancellationScheduled: false,
+            isPurchaseOffered: false,
+            isSubscriptionManagementOffered: true,
+            isPaymentInTestMode: false,
+        });
+        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], true);
+
+        await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' });
+        expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
+
+        fetchCommunityMembership.mockResolvedValue(FREE_MEMBERSHIP);
+        cleanup();
+        renderParticipantRoom(WORKSHOP);
+
+        await screen.findByRole('button', { name: 'Free členství. Otevřít možnosti členství' });
+        expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
     });
 });

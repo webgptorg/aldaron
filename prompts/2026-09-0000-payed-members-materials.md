@@ -1,4 +1,4 @@
-[ ] !
+[x] by qwen code manuallly
 
 [✨📛] Allow to mark materials as only for paid members.
 

@@ -1,16 +1,24 @@
 'use client';
 
+import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
 import { MarkdownContent } from '@/components/markdown-content';
 import { PromptbookQrCode } from '@/components/promptbook-qr-code';
+import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Clock3, ExternalLink, Sparkles } from 'lucide-react';
+import { Clock3, Crown, ExternalLink, Lock, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type WorkshopContentProps = {
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly nextContentUnlockAt: string | null;
     readonly newlyUnlockedContentBlockIds: ReadonlySet<string>;
+
+    /**
+     * Whether the room hides at least one paid material from the member reading it. The materials themselves never
+     * reach this component for such a member; this is only the place where the room says so and offers the key.
+     */
+    readonly hasPaidMembersOnlyContent: boolean;
     readonly title?: string;
 };
 
@@ -153,15 +161,58 @@ function WorkshopMaterialBody({ contentBlock }: WorkshopMaterialBodyProps) {
     );
 }
 
+/**
+ * Where the paid materials are, for the members who cannot see them. The materials themselves stay on the server;
+ * this card only says that they are here and opens the very same membership popup the badge in the header opens.
+ */
+function WorkshopPaidMembersContentNotice({
+    onUnlockPaidMaterials,
+}: {
+    readonly onUnlockPaidMaterials: () => void;
+}) {
+    return (
+        <div className="flex flex-col gap-4 rounded-2xl border border-amber-300/30 bg-amber-300/[0.06] p-5 shadow-lg shadow-amber-300/10 sm:flex-row sm:items-center sm:p-6">
+            <div className="flex min-w-0 flex-1 items-start gap-3">
+                <Lock className="mt-1 h-5 w-5 shrink-0 text-amber-200" aria-hidden="true" />
+                <div className="min-w-0">
+                    <h3 className="text-lg font-bold text-white">Materiály pro placené členy</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-300">
+                        Na tomto místě jsou materiály dostupné jen pro placené členy komunity. Odemknete je měsíčním
+                        placeným členstvím.
+                    </p>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={onUnlockPaidMaterials}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-amber-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/10 transition hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07151d]"
+            >
+                <Crown className="h-4 w-4" aria-hidden="true" /> Koupit placené členství
+            </button>
+        </div>
+    );
+}
+
 export function WorkshopContent({
     contentBlocks,
     nextContentUnlockAt,
     newlyUnlockedContentBlockIds,
+    hasPaidMembersOnlyContent,
     title = 'Materiály z workshopu',
 }: WorkshopContentProps) {
     const isReducedMotionPreferred = useReducedMotion() === true;
+    const membershipRoom = useCommunityMembershipRoom();
 
-    if (contentBlocks.length === 0 && nextContentUnlockAt === null) {
+    // Note: The purchase is only offered while a gate is configured and the member has not paid yet, which is exactly
+    //       when the server keeps the paid materials hidden, so the notice and the hidden materials cannot disagree.
+    const isPaidMembersContentNoticeShown =
+        hasPaidMembersOnlyContent &&
+        membershipRoom !== null &&
+        membershipRoom.membership !== null &&
+        membershipRoom.membership.isPurchaseOffered &&
+        !isPaidCommunityMembershipStatus(membershipRoom.membership.status);
+
+    if (contentBlocks.length === 0 && nextContentUnlockAt === null && !isPaidMembersContentNoticeShown) {
         return null;
     }
 
@@ -178,6 +229,7 @@ export function WorkshopContent({
                 {contentBlocks.map((contentBlock) => {
                     const isNewlyUnlocked = newlyUnlockedContentBlockIds.has(contentBlock.id);
                     const isFollowUp = contentBlock.isFollowUp;
+                    const isPaidMembersOnly = contentBlock.isPaidMembersOnly;
                     return (
                         <motion.article
                             key={contentBlock.id}
@@ -185,17 +237,26 @@ export function WorkshopContent({
                             initial={isNewlyUnlocked && !isReducedMotionPreferred ? { opacity: 0, y: 24, scale: 0.97 } : false}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ duration: isReducedMotionPreferred ? 0 : 0.55, ease: 'easeOut' }}
-                            className={`relative scroll-mt-5 overflow-hidden rounded-2xl border bg-white/[0.045] p-5 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 pt-16 shadow-cyan-300/10 sm:pt-8' : isFollowUp ? 'border-amber-300/60 shadow-amber-300/10' : 'border-white/10'}`}
+                            className={`relative scroll-mt-5 overflow-hidden rounded-2xl border bg-white/[0.045] p-5 text-slate-200 shadow-lg transition-colors sm:p-8 ${isNewlyUnlocked ? 'border-cyan-300/60 pt-16 shadow-cyan-300/10 sm:pt-8' : isFollowUp || isPaidMembersOnly ? 'border-amber-300/60 shadow-amber-300/10' : 'border-white/10'}`}
                         >
                             {isNewlyUnlocked && (
                                 <span className="absolute right-4 top-4 rounded-full bg-cyan-300 px-3 py-1 text-xs font-bold text-slate-950 shadow-lg">
                                     Právě odemčeno
                                 </span>
                             )}
-                            {isFollowUp && (
-                                <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
-                                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Navazující materiál
-                                </span>
+                            {(isFollowUp || isPaidMembersOnly) && (
+                                <div className="mb-4 flex flex-wrap gap-2">
+                                    {isFollowUp && (
+                                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
+                                            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Navazující materiál
+                                        </span>
+                                    )}
+                                    {isPaidMembersOnly && (
+                                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200/30 bg-amber-300/10 px-3 py-1 text-xs font-bold text-amber-100">
+                                            <Crown className="h-3.5 w-3.5" aria-hidden="true" /> Pro placené členy
+                                        </span>
+                                    )}
+                                </div>
                             )}
                             {contentBlock.title && (
                                 <h3 className="mb-5 text-xl font-bold text-white">{contentBlock.title}</h3>
@@ -215,6 +276,10 @@ export function WorkshopContent({
                             {CZECH_DATE_TIME_FORMAT.format(new Date(nextContentUnlockAt))}.
                         </span>
                     </div>
+                )}
+
+                {isPaidMembersContentNoticeShown && membershipRoom !== null && (
+                    <WorkshopPaidMembersContentNotice onUnlockPaidMaterials={membershipRoom.openMembershipModal} />
                 )}
             </div>
         </section>

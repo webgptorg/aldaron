@@ -32,6 +32,7 @@ export function WorkshopContentEditor({
     const [sortOrder, setSortOrder] = useState(contentBlock?.sortOrder ?? defaultSortOrder);
     const [isPublished, setIsPublished] = useState(contentBlock?.isPublished ?? true);
     const [isFollowUp, setIsFollowUp] = useState(contentBlock?.isFollowUp ?? false);
+    const [isPaidMembersOnly, setIsPaidMembersOnly] = useState(contentBlock?.isPaidMembersOnly ?? false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isUnlocking, setIsUnlocking] = useState(false);
@@ -43,6 +44,7 @@ export function WorkshopContentEditor({
         setSortOrder(contentBlock?.sortOrder ?? defaultSortOrder);
         setIsPublished(contentBlock?.isPublished ?? true);
         setIsFollowUp(contentBlock?.isFollowUp ?? false);
+        setIsPaidMembersOnly(contentBlock?.isPaidMembersOnly ?? false);
     }, [contentBlock, defaultSortOrder, defaultUnlockAt]);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -53,7 +55,15 @@ export function WorkshopContentEditor({
         }
 
         setIsSaving(true);
-        const isSaved = await onSave({ title, bodyMarkdown, unlockAt: unlockAtIso, sortOrder, isPublished, isFollowUp });
+        const isSaved = await onSave({
+            title,
+            bodyMarkdown,
+            unlockAt: unlockAtIso,
+            sortOrder,
+            isPublished,
+            isFollowUp,
+            isPaidMembersOnly,
+        });
         setIsSaving(false);
         if (isSaved && contentBlock === null) {
             setTitle('');
@@ -101,7 +111,7 @@ export function WorkshopContentEditor({
                     </Button>
                 )}
             </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_190px_100px_auto_auto]">
+            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_190px_100px_auto_auto_auto]">
                 <label className="text-xs font-medium text-slate-600">
                     Nadpis
                     <Input
@@ -145,6 +155,14 @@ export function WorkshopContentEditor({
                         onChange={(event) => setIsFollowUp(event.target.checked)}
                     />{' '}
                     Navazující materiál
+                </label>
+                <label className="flex items-end gap-2 pb-2 text-sm font-medium text-amber-700">
+                    <input
+                        type="checkbox"
+                        checked={isPaidMembersOnly}
+                        onChange={(event) => setIsPaidMembersOnly(event.target.checked)}
+                    />{' '}
+                    Jen pro placené členy
                 </label>
             </div>
             <label className="mt-4 block text-xs font-medium text-slate-600">

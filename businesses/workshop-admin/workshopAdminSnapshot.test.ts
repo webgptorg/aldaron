@@ -30,6 +30,7 @@ function createSnapshot(workshopUpdatedAt: string, contentUpdatedAt: string): Wo
                 sortOrder: 10,
                 isPublished: true,
                 isFollowUp: false,
+                isPaidMembersOnly: false,
                 createdAt: '2026-08-01T17:00:00.000Z',
                 updatedAt: contentUpdatedAt,
                 linkClickCount: 0,

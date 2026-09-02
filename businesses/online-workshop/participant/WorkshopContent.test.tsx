@@ -3,9 +3,24 @@
  */
 
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
+import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+/**
+ * The room as far as the material list is concerned: the membership it already loaded and the modal it can open
+ */
+const membershipRoomMock = vi.hoisted(() => ({
+    membershipRoom: null as null | {
+        membership: CommunityMembershipRoomState | null;
+        openMembershipModal: () => void;
+    },
+}));
+
+vi.mock('@/businesses/community/membership/CommunityMembershipRoomProvider', () => ({
+    useCommunityMembershipRoom: () => membershipRoomMock.membershipRoom,
+}));
 
 vi.mock('@/components/markdown-content', () => ({
     MarkdownContent: ({ content, className }: { readonly content: string; readonly className?: string }) => {
@@ -37,22 +52,40 @@ const CONTENT_BLOCK: WorkshopContentBlock = {
     sortOrder: 0,
     isPublished: true,
     isFollowUp: false,
+    isPaidMembersOnly: false,
     createdAt: '2026-08-20T18:00:00.000Z',
     updatedAt: '2026-08-20T18:00:00.000Z',
     linkClickCount: 0,
 };
 
-function renderWorkshopContent(contentBlocks: readonly WorkshopContentBlock[]) {
+const FREE_PURCHASABLE_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'none',
+    monthlyPriceCzk: null,
+    currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
+    isPurchaseOffered: true,
+    isSubscriptionManagementOffered: false,
+    isPaymentInTestMode: false,
+};
+
+function renderWorkshopContent(
+    contentBlocks: readonly WorkshopContentBlock[],
+    hasPaidMembersOnlyContent = false,
+) {
     return render(
         <WorkshopContent
             contentBlocks={contentBlocks}
             nextContentUnlockAt={null}
             newlyUnlockedContentBlockIds={new Set()}
+            hasPaidMembersOnlyContent={hasPaidMembersOnlyContent}
         />,
     );
 }
 
-afterEach(cleanup);
+afterEach(() => {
+    cleanup();
+    membershipRoomMock.membershipRoom = null;
+});
 
 describe('workshop materials', () => {
     it('offers a prominent short-link call to action when a material has one link', async () => {
@@ -136,5 +169,42 @@ describe('workshop materials', () => {
 
         expect(screen.getByText('Navazující materiál')).not.toBeNull();
         expect(screen.getByRole('heading', { name: 'Další krok' })).not.toBeNull();
+    });
+
+    it('marks a material which only paid members may see while it stays in the list of a member who paid', () => {
+        renderWorkshopContent([{ ...CONTENT_BLOCK, isPaidMembersOnly: true, title: 'Bonusové podklady' }]);
+
+        expect(screen.getByText('Pro placené členy')).not.toBeNull();
+        expect(screen.getByRole('heading', { name: 'Bonusové podklady' })).not.toBeNull();
+    });
+
+    it('says where the paid materials are and offers the membership which unlocks them to a member who has not paid', () => {
+        const openMembershipModal = vi.fn();
+        membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal };
+        renderWorkshopContent([CONTENT_BLOCK], true);
+
+        expect(screen.getByText('Materiály pro placené členy')).not.toBeNull();
+        fireEvent.click(screen.getByRole('button', { name: /Koupit placené členství/ }));
+
+        expect(openMembershipModal).toHaveBeenCalledOnce();
+    });
+
+    it('keeps saying where the paid materials are even when nothing else is unlocked yet', () => {
+        membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal: vi.fn() };
+        renderWorkshopContent([], true);
+
+        expect(screen.getByText('Materiály pro placené členy')).not.toBeNull();
+    });
+
+    it('shows no paid-materials notice while the membership is still unknown or cannot be bought', () => {
+        renderWorkshopContent([CONTENT_BLOCK], true);
+        expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
+
+        membershipRoomMock.membershipRoom = {
+            membership: { ...FREE_PURCHASABLE_MEMBERSHIP, isPurchaseOffered: false },
+            openMembershipModal: vi.fn(),
+        };
+        renderWorkshopContent([CONTENT_BLOCK], true);
+        expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
     });
 });

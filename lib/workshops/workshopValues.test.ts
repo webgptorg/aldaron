@@ -1,6 +1,7 @@
 import {
     createWorkshopCommentUpdateDatabaseValues,
     createWorkshopContentDatabaseValues,
+    createWorkshopContentUpdateDatabaseValues,
     createWorkshopFeedbackUpdateDatabaseValues,
     createWorkshopUpdateDatabaseValues,
     getWorkshopCommentPinChange,
@@ -48,11 +49,19 @@ describe('workshop admin values', () => {
                 sortOrder: 20,
                 isPublished: true,
                 isFollowUp: true,
+                isPaidMembersOnly: true,
             }),
-        ).toMatchObject({ is_follow_up: true });
+        ).toMatchObject({ is_follow_up: true, is_paid_members_only: true });
         expect(createWorkshopFeedbackUpdateDatabaseValues({ rating: 4, note: null })).toEqual({
             rating: 4,
             note: null,
         });
+    });
+
+    it('writes only the fields of a material which changed, including who may see it', () => {
+        expect(createWorkshopContentUpdateDatabaseValues({ isPaidMembersOnly: true })).toEqual({
+            is_paid_members_only: true,
+        });
+        expect(createWorkshopContentUpdateDatabaseValues({ isFollowUp: false })).toEqual({ is_follow_up: false });
     });
 });

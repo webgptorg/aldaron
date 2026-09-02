@@ -1,11 +1,13 @@
 'use client';
 
+import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
 import { WorkshopWrapUp } from '@/businesses/online-workshop/participant/WorkshopWrapUp';
 import { WorkshopStageComment } from '@/businesses/online-workshop/participant/WorkshopStageComment';
 import type { SubscribeToWorkshopReactions } from '@/businesses/online-workshop/participant/useWorkshopReactionAnimations';
 import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import { useWorkshopReactionStream } from '@/components/workshops/useWorkshopReactionStream';
 import { WorkshopReactionStream } from '@/components/workshops/WorkshopReactionStream';
+import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import { trackGoogleAnalyticsEvent } from '@/lib/tracking/track-google-analytics-event';
 import { createYoutubeEmbedUrl } from '@/lib/youtube/youtubeEmbed';
 import { keepYoutubeVideoSubtitlesHidden, unmuteYoutubeVideo } from '@/lib/youtube/youtubePlayerCommands';
@@ -17,7 +19,7 @@ import type {
     WorkshopFeedback,
 } from '@/lib/workshops/workshopTypes';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowDownLeft, Maximize, Radio, Volume2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeft, Maximize, Play, Radio, Volume2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const CLOCK_TICK_MILLISECONDS = 1000;
@@ -85,6 +87,21 @@ export function WorkshopStage({
     const isWorkshopPast = phase === 'past';
     const remainingMilliseconds = Date.parse(workshop.startsAt) - currentTime;
 
+    // Note: Once the workshop is over, its video stays unlocked for the members whose membership pays for it. The
+    //       wrap-up keeps its feedback for everybody and only gains the button which plays the video again.
+    const membershipRoom = useCommunityMembershipRoom();
+    const isPaidMembership =
+        membershipRoom !== null &&
+        membershipRoom.membership !== null &&
+        isPaidCommunityMembershipStatus(membershipRoom.membership.status);
+    const isVideoRewatchOffered = isWorkshopPast && isPaidMembership && workshop.youtubeVideoId !== null;
+    const [isVideoRewatchShown, setIsVideoRewatchShown] = useState(false);
+    useEffect(() => {
+        if (!isVideoRewatchOffered) {
+            setIsVideoRewatchShown(false);
+        }
+    }, [isVideoRewatchOffered]);
+
     useEffect(() => subscribeToReactions(launchReaction), [launchReaction, subscribeToReactions]);
 
     useEffect(() => {
@@ -116,11 +133,43 @@ export function WorkshopStage({
 
     return (
         <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#081a24] shadow-2xl">
-            {isWorkshopPast ? (
+            {isWorkshopPast && isVideoRewatchShown && workshop.youtubeVideoId !== null ? (
+                <div>
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                        <span className="inline-flex items-center gap-2 text-sm font-bold text-white">
+                            <Play className="h-4 w-4 text-amber-300" aria-hidden="true" /> Video z workshopu
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => setIsVideoRewatchShown(false)}
+                            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-cyan-200/70 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Zpět na závěrečné shrnutí
+                        </button>
+                    </div>
+                    <div className="relative aspect-video">
+                        <iframe
+                            className="absolute inset-0 h-full w-full"
+                            src={createYoutubeEmbedUrl(workshop.youtubeVideoId, {
+                                isAutoplayed: true,
+                                isInlinePlayback: true,
+                                isRelatedVideoEnabled: false,
+                                isControlsVisible: true,
+                                isJavaScriptApiEnabled: false,
+                            })}
+                            title={workshop.title}
+                            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                        />
+                    </div>
+                </div>
+            ) : isWorkshopPast ? (
                 <WorkshopWrapUp
                     feedback={feedback}
                     followUpContentBlock={followUpContentBlock}
                     onSaveFeedback={onSaveFeedback}
+                    onRewatchVideo={isVideoRewatchOffered ? () => setIsVideoRewatchShown(true) : undefined}
                 />
             ) : (
                 <div

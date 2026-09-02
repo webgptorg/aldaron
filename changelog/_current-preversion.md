@@ -1,4 +1,19 @@
 # Current preversion
+- Let a material be marked as one which only paid members may see. The `Obsah` section of `/admin/workshops` now asks
+  this of every material with a `Jen pro placené členy` choice, and the room decides it on the server: a member who
+  pays for the community membership receives such a material like any other, named `Pro placené členy` by its own
+  badge, while the state of everybody else carries neither the material nor its title — only an amber card saying
+  where the paid materials are, whose button opens the very same membership popup the badge in the header opens, and
+  only while a payment gate is configured at all. The countdown to the next material never names an unlock which is
+  not for the member reading it, the wrap-up keeps linking the follow-up material only to those who may see it, and
+  the content export of the administration says of every material who may see it. The very same membership also
+  unlocks the video of the workshop once it is over: the closing wrap-up keeps its feedback and its follow-up link
+  for everybody, while a paid member additionally receives a `Přehrát video znovu` button which plays the stream the
+  occurrence carried, with its controls visible, and leads back to the closing summary again. Because
+  `/cs/online-workshop/participant` and `/cs/komunita` are the one shared participant room, the flag, the badge, the
+  notice and the unlocked video are written a single time, and the membership they all ask about is the one
+  membership the room already loads for its badge and its popup.
+
 - Made the membership of the community readable and buyable in the live room of a workshop occurrence
   (`/cs/online-workshop/participant`) as well as in `/cs/komunita`. The header of the room now says whether its
   attendee is a free or a paid member, and the same popup opens the paid offer for a free member and the management,

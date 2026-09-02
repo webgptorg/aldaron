@@ -58,6 +58,7 @@ function createState(title = 'Produkční kód s AI agenty'): WorkshopPublicStat
         watchingParticipantCount: 1,
         contentBlocks: [],
         nextContentUnlockAt: null,
+        hasPaidMembersOnlyContent: false,
         feedback: null,
         comments: [],
         stageComment: null,

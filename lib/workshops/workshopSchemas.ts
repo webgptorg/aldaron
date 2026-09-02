@@ -349,6 +349,7 @@ const workshopContentFieldsSchema = z.object({
     sortOrder: z.number().int().min(-100000).max(100000),
     isPublished: z.boolean(),
     isFollowUp: z.boolean(),
+    isPaidMembersOnly: z.boolean(),
 });
 
 export const workshopContentCreateSchema = workshopContentFieldsSchema;

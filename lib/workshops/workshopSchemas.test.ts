@@ -6,6 +6,7 @@ import {
     workshopCommentUpdateSchema,
     workshopConnectionSchema,
     workshopContentCreateSchema,
+    workshopContentUpdateSchema,
     workshopCreateSchema,
     workshopParticipantRenameSchema,
     workshopParticipantUpdateSchema,
@@ -173,8 +174,34 @@ describe('workshop request validation', () => {
                 sortOrder: 20,
                 isPublished: true,
                 isFollowUp: false,
+                isPaidMembersOnly: false,
             }).success,
         ).toBe(true);
+    });
+
+    it('writes which materials only paid members may see and refuses a content request without that answer', () => {
+        expect(
+            workshopContentCreateSchema.parse({
+                title: 'Bonusové podklady',
+                bodyMarkdown: '[Materiály](https://example.com)',
+                unlockAt: '2026-08-22T19:00:00+02:00',
+                sortOrder: 20,
+                isPublished: true,
+                isFollowUp: false,
+                isPaidMembersOnly: true,
+            }).isPaidMembersOnly,
+        ).toBe(true);
+        expect(
+            workshopContentCreateSchema.safeParse({
+                title: 'Bonusové podklady',
+                bodyMarkdown: '[Materiály](https://example.com)',
+                unlockAt: '2026-08-22T19:00:00+02:00',
+                sortOrder: 20,
+                isPublished: true,
+                isFollowUp: false,
+            }).success,
+        ).toBe(false);
+        expect(workshopContentUpdateSchema.parse({ isPaidMembersOnly: true })).toEqual({ isPaidMembersOnly: true });
     });
 
     it('keeps a selected follow-up material in the ordinary content request and normalizes optional feedback text', () => {
@@ -186,6 +213,7 @@ describe('workshop request validation', () => {
                 sortOrder: 20,
                 isPublished: true,
                 isFollowUp: true,
+                isPaidMembersOnly: false,
             }).isFollowUp,
         ).toBe(true);
         expect(

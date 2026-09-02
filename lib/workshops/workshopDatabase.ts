@@ -1,3 +1,5 @@
+import { loadCommunityMembershipByEmail } from '@/lib/community-membership/communityMembershipDatabase';
+import { isPaidCommunityMembershipStatus } from '@/lib/community-membership/communityMembershipTypes';
 import { createEventDetailsOrNull } from '@/lib/events/event';
 import type { EventType } from '@/lib/events/eventTypes';
 import { createSupabaseServiceRoleClient } from '@/lib/supabase';
@@ -138,9 +140,16 @@ type WorkshopContentRow = {
     readonly sort_order: number;
     readonly is_published: boolean;
     readonly is_follow_up: boolean;
+    readonly is_paid_members_only: boolean;
     readonly created_at: string;
     readonly updated_at: string;
 };
+
+/**
+ * Note: This stays one literal, because the database client reads the requested columns out of the text itself.
+ */
+export const WORKSHOP_CONTENT_COLUMNS =
+    'id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, is_paid_members_only, created_at, updated_at';
 
 /**
  * The one record a participant progressively fills after a workshop.
@@ -441,6 +450,7 @@ export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 
         sortOrder: row.sort_order,
         isPublished: row.is_published,
         isFollowUp: row.is_follow_up,
+        isPaidMembersOnly: row.is_paid_members_only,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         linkClickCount,
@@ -1855,7 +1865,7 @@ export async function loadWorkshopAdminContentForExport(
     const [contentResult, contentLinkClickTotalsResult] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
+            .select(WORKSHOP_CONTENT_COLUMNS)
             .eq('workshop_id', workshopId)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),
@@ -2049,7 +2059,23 @@ export async function loadWorkshopPublicState(
         workshopRow.disabled_panels,
         'reactions',
     );
-    const isStageOffered = getWorkshopKindCapabilities(workshopRow.room_kind).isStageOffered;
+    const roomCapabilities = getWorkshopKindCapabilities(workshopRow.room_kind);
+    const isStageOffered = roomCapabilities.isStageOffered;
+
+    // Note: The membership decides which materials a member sees, so the room asks about it before it assembles what
+    //       is visible. A room which does not offer the membership has nothing to unlock, and an answer which does
+    //       not arrive keeps the paid materials hidden rather than letting them escape.
+    let isPaidMember = false;
+    if (roomCapabilities.isMembershipOffered) {
+        const { membership, errorMessage: membershipErrorMessage } = await loadCommunityMembershipByEmail(
+            supabase,
+            participant.email,
+        );
+        if (membershipErrorMessage !== null) {
+            console.error('Failed to load the community membership of a workshop participant:', membershipErrorMessage);
+        }
+        isPaidMember = membership !== null && isPaidCommunityMembershipStatus(membership.status);
+    }
 
     // Note: A moderator is shown every message which waits for a decision, because making that decision is exactly
     //       what they are in the room for. Everybody else only ever sees the messages they wrote themselves.
@@ -2068,17 +2094,45 @@ export async function loadWorkshopPublicState(
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
         .limit(MAXIMAL_VISIBLE_COMMENT_COUNT);
-    const nextContentUnlockQuery = supabase
+    // Note: A member who does not pay for the membership never receives a material reserved for paid members, and is
+    //       never told that one of them unlocks next, so the room asks for the free ones alone instead of hiding the
+    //       paid ones afterwards.
+    const nextContentUnlockBaseQuery = supabase
         .from(WORKSHOP_CONTENT_TABLE_NAME)
         .select('unlock_at')
         .eq('workshop_id', workshopRow.id)
         .eq('is_published', true)
         .gt('unlock_at', contentVisibilityCutoff);
+    const nextContentUnlockQuery = isPaidMember
+        ? nextContentUnlockBaseQuery
+        : nextContentUnlockBaseQuery.eq('is_paid_members_only', false);
+    const visibleContentBaseQuery = supabase
+        .from(WORKSHOP_CONTENT_TABLE_NAME)
+        .select(WORKSHOP_CONTENT_COLUMNS)
+        .eq('workshop_id', workshopRow.id)
+        .eq('is_published', true)
+        .lte('unlock_at', contentVisibilityCutoff)
+        .order('sort_order', { ascending: true })
+        .order('unlock_at', { ascending: true });
+    const visibleContentQuery = isPaidMember
+        ? visibleContentBaseQuery
+        : visibleContentBaseQuery.eq('is_paid_members_only', false);
+    const futureFollowUpContentBaseQuery = supabase
+        .from(WORKSHOP_CONTENT_TABLE_NAME)
+        .select(WORKSHOP_CONTENT_COLUMNS)
+        .eq('workshop_id', workshopRow.id)
+        .eq('is_published', true)
+        .eq('is_follow_up', true)
+        .gt('unlock_at', contentVisibilityCutoff);
+    const futureFollowUpContentQuery = isPaidMember
+        ? futureFollowUpContentBaseQuery
+        : futureFollowUpContentBaseQuery.eq('is_paid_members_only', false);
 
     const [
         contentResult,
         nextUnlockResult,
         futureFollowUpContentResult,
+        paidMembersOnlyContentCountResult,
         feedbackResult,
         commentsResult,
         pendingCommentsResult,
@@ -2089,14 +2143,7 @@ export async function loadWorkshopPublicState(
         stageCommentResult,
         pollsResult,
     ] = await Promise.all([
-        supabase
-            .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
-            .eq('workshop_id', workshopRow.id)
-            .eq('is_published', true)
-            .lte('unlock_at', contentVisibilityCutoff)
-            .order('sort_order', { ascending: true })
-            .order('unlock_at', { ascending: true }),
+        visibleContentQuery,
         (isWorkshopPast ? nextContentUnlockQuery.eq('is_follow_up', false) : nextContentUnlockQuery)
             .order('unlock_at', { ascending: true })
             .limit(1)
@@ -2104,16 +2151,17 @@ export async function loadWorkshopPublicState(
         // A selected follow-up remains a normal material before the end, including its scheduled unlock. Once the
         // wrap-up starts it must be available for the stage link even if its ordinary unlock time is later; unrelated
         // scheduled materials keep their own timing.
-        isWorkshopPast
+        isWorkshopPast ? futureFollowUpContentQuery.maybeSingle() : Promise.resolve({ data: null, error: null }),
+        // The room only counts what it may also name: a member who already paid sees the materials themselves, and a
+        // room which offers no membership has nothing a purchase could unlock.
+        !isPaidMember && roomCapabilities.isMembershipOffered
             ? supabase
                   .from(WORKSHOP_CONTENT_TABLE_NAME)
-                  .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
+                  .select('id', { count: 'exact', head: true })
                   .eq('workshop_id', workshopRow.id)
                   .eq('is_published', true)
-                  .eq('is_follow_up', true)
-                  .gt('unlock_at', contentVisibilityCutoff)
-                  .maybeSingle()
-            : Promise.resolve({ data: null, error: null }),
+                  .eq('is_paid_members_only', true)
+            : Promise.resolve({ data: null, error: null, count: 0 }),
         workshopRow.room_kind === 'workshop'
             ? supabase
                   .from(WORKSHOP_FEEDBACK_TABLE_NAME)
@@ -2145,6 +2193,7 @@ export async function loadWorkshopPublicState(
         contentResult.error ??
         nextUnlockResult.error ??
         futureFollowUpContentResult.error ??
+        paidMembersOnlyContentCountResult.error ??
         feedbackResult.error ??
         commentsResult.error ??
         pendingCommentsResult.error ??
@@ -2266,6 +2315,7 @@ export async function loadWorkshopPublicState(
             watchingParticipantCount,
             contentBlocks: materializedContentBlocks,
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
+            hasPaidMembersOnlyContent: (paidMembersOnlyContentCountResult.count ?? 0) > 0,
             feedback:
                 feedbackResult.data === null
                     ? null
@@ -2353,7 +2403,7 @@ export async function loadWorkshopAdminSnapshot(
     ] = await Promise.all([
         supabase
             .from(WORKSHOP_CONTENT_TABLE_NAME)
-            .select('id, title, body_markdown, unlock_at, sort_order, is_published, is_follow_up, created_at, updated_at')
+            .select(WORKSHOP_CONTENT_COLUMNS)
             .eq('workshop_id', workshopRow.id)
             .order('sort_order', { ascending: true })
             .order('unlock_at', { ascending: true }),

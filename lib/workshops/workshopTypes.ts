@@ -248,6 +248,14 @@ export type WorkshopContentBlock = {
      * The one ordinary material selected to lead the post-workshop follow-up.
      */
     readonly isFollowUp: boolean;
+
+    /**
+     * Whether this material is reserved for the members who pay for the community membership
+     *
+     * Note: A room which offers the membership keeps it out of the state of everybody else and only says that it is
+     *       there, so the material itself never reaches a member who has not unlocked it.
+     */
+    readonly isPaidMembersOnly: boolean;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly linkClickCount: number;
@@ -416,6 +424,15 @@ export type WorkshopPublicState = {
     readonly watchingParticipantCount: number;
     readonly contentBlocks: readonly WorkshopContentBlock[];
     readonly nextContentUnlockAt: string | null;
+
+    /**
+     * Whether the room holds at least one published material which only paid members may see, while the member this
+     * state was loaded for is not one of them
+     *
+     * Note: The materials themselves stay hidden in `contentBlocks`. This only lets the room say where the paid
+     *       materials are and how to unlock them, and is never true for a member who already paid.
+     */
+    readonly hasPaidMembersOnlyContent: boolean;
     readonly feedback: WorkshopFeedback | null;
     readonly comments: readonly WorkshopComment[];
 

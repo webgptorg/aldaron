@@ -203,7 +203,7 @@ export function OnlineWorkshopParticipantPage({
     const isPanelOffered = (panelKey: WorkshopPanelKey) =>
         isWorkshopPanelOffered(state.workshop.kind, state.workshop.disabledPanels, panelKey);
 
-    return (
+    const roomLayout = (
         <div className="min-h-screen bg-[#06131b] text-slate-200">
             <header className="border-b border-white/[0.07] bg-[#071820]/90 backdrop-blur">
                 <div className="mx-auto flex max-w-[1500px] flex-col items-stretch gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8">
@@ -232,17 +232,11 @@ export function OnlineWorkshopParticipantPage({
                             onChangeFullname={controller.changeFullname}
                         />
                         {/*
-                          * Note: The membership of a member is one membership wherever they read it from, so every
-                          *       room which offers it says which one they have and lets them buy or manage it with
-                          *       the very same badge and modal instead of a surface of its own.
+                          * Note: Every room which offers the membership says which one its member has and lets them
+                          *       buy or manage it with the very same badge and modal instead of a surface of its own.
                           */}
-                        <CommunityMembershipRoomProvider
-                            workshopSlug={workshopSlug}
-                            isMembershipOffered={roomCapabilities.isMembershipOffered}
-                        >
-                            <CommunityMembershipBadge />
-                            <CommunityMembershipModal />
-                        </CommunityMembershipRoomProvider>
+                        <CommunityMembershipBadge />
+                        <CommunityMembershipModal />
                         {participantHeaderSupplement}
                         <WorkshopServerConnectionStatus
                             isUsingCachedState={controller.isUsingCachedState}
@@ -343,11 +337,27 @@ export function OnlineWorkshopParticipantPage({
                             contentBlocks={state.contentBlocks}
                             nextContentUnlockAt={state.nextContentUnlockAt}
                             newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
+                            hasPaidMembersOnlyContent={state.hasPaidMembersOnlyContent}
                             title={materialsTitle}
                         />
                     </div>
                 )}
             </main>
         </div>
+    );
+
+    /*
+     * Note: The membership of a member is one membership wherever they read it from, and every surface of the room
+     *       which needs to know it — the badge and the modal in the header, the paid materials and the video which a
+     *       paid member unlocks after the workshop — asks this one controller instead of loading a membership of its
+     *       own.
+     */
+    return (
+        <CommunityMembershipRoomProvider
+            workshopSlug={workshopSlug}
+            isMembershipOffered={roomCapabilities.isMembershipOffered}
+        >
+            {roomLayout}
+        </CommunityMembershipRoomProvider>
     );
 }

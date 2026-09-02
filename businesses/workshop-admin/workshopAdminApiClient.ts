@@ -78,6 +78,7 @@ export type WorkshopContentWriteValues = {
     readonly sortOrder: number;
     readonly isPublished: boolean;
     readonly isFollowUp: boolean;
+    readonly isPaidMembersOnly: boolean;
 };
 
 export type WorkshopPollCreateValues = {

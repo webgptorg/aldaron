@@ -114,6 +114,11 @@ const STAGE_COMMENT_MIGRATION_PATH = path.resolve(
     'migrations/2026-08-3300-workshop-stage-comments.sql',
 );
 const STAGE_COMMENT_MIGRATION_SQL = readFileSync(STAGE_COMMENT_MIGRATION_PATH, 'utf8');
+const PAID_MEMBERS_ONLY_CONTENT_MIGRATION_PATH = path.resolve(
+    process.cwd(),
+    'migrations/2026-09-0200-workshop-content-paid-members-only.sql',
+);
+const PAID_MEMBERS_ONLY_CONTENT_MIGRATION_SQL = readFileSync(PAID_MEMBERS_ONLY_CONTENT_MIGRATION_PATH, 'utf8');
 
 /**
  * The very same SQL on one line, so that a statement can be searched for without repeating how it happens to be wrapped.
@@ -573,6 +578,15 @@ describe('workshop database migration', () => {
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain('ALTER TABLE public.workshop_feedback FORCE ROW LEVEL SECURITY');
         expect(WRAP_UP_AND_FEEDBACK_MIGRATION_SQL).toContain(
             'REVOKE ALL ON TABLE public.workshop_feedback FROM PUBLIC, anon, authenticated',
+        );
+    });
+
+    it('marks a material as one which only paid members may see', () => {
+        expect(PAID_MEMBERS_ONLY_CONTENT_MIGRATION_SQL).toContain(
+            'ADD COLUMN IF NOT EXISTS is_paid_members_only boolean NOT NULL DEFAULT false',
+        );
+        expect(PAID_MEMBERS_ONLY_CONTENT_MIGRATION_SQL).toContain(
+            'ALTER TABLE public.workshop_content_blocks',
         );
     });
 

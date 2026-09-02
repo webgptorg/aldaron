@@ -3,19 +3,25 @@
 import { WorkshopFeedback } from '@/businesses/online-workshop/participant/WorkshopFeedback';
 import type { WorkshopFeedbackValues } from '@/businesses/online-workshop/participant/workshopParticipantApi';
 import type { WorkshopContentBlock, WorkshopFeedback as WorkshopFeedbackValue } from '@/lib/workshops/workshopTypes';
-import { ArrowDown, BookOpenText, PartyPopper } from 'lucide-react';
+import { ArrowDown, BookOpenText, PartyPopper, Play } from 'lucide-react';
 
 type WorkshopWrapUpProps = {
     readonly feedback: WorkshopFeedbackValue | null;
     readonly followUpContentBlock: WorkshopContentBlock | null;
     readonly onSaveFeedback: (values: WorkshopFeedbackValues) => Promise<boolean>;
+
+    /**
+     * Offered only to the members whose membership unlocks the video of the ended workshop, so the wrap-up stays the
+     * same screen for everybody and only gains the button which plays the video again.
+     */
+    readonly onRewatchVideo?: () => void;
 };
 
 /**
  * The third stage of a workshop. The follow-up is still rendered by the shared material list below; this screen links
  * directly to that same record so the stage does not invent a second material model or a second tracking path.
  */
-export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback }: WorkshopWrapUpProps) {
+export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback, onRewatchVideo }: WorkshopWrapUpProps) {
     return (
         <div className="relative px-5 py-7 sm:px-8 sm:py-10">
             <div className="mx-auto max-w-2xl">
@@ -30,6 +36,16 @@ export function WorkshopWrapUp({ feedback, followUpContentBlock, onSaveFeedback 
                     Budeme rádi za krátkou zpětnou vazbu. Zabere jen chvilku a pomůže nám připravit další setkání ještě
                     lépe.
                 </p>
+
+                {onRewatchVideo !== undefined && (
+                    <button
+                        type="button"
+                        onClick={onRewatchVideo}
+                        className="mt-5 inline-flex items-center gap-2 rounded-full bg-amber-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-300/10 transition hover:bg-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#081a24]"
+                    >
+                        <Play className="h-4 w-4" aria-hidden="true" /> Přehrát video znovu
+                    </button>
+                )}
 
                 <div className="mt-6">
                     <WorkshopFeedback feedback={feedback} onSave={onSaveFeedback} />
