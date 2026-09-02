@@ -79,7 +79,7 @@ export function AiTaKrajtaSnakeTerrarium() {
         setIsLogoOverlayVisible(true);
     };
 
-    const handleLogoReleaseStarted = useCallback(() => {
+    const handleInitialMarkFrameDrawn = useCallback(() => {
         setIsLogoOverlayVisible(false);
     }, []);
 
@@ -94,7 +94,7 @@ export function AiTaKrajtaSnakeTerrarium() {
                 {isGameRunning && initialMarkFrame !== null && (
                     <AiTaKrajtaSnakeGame
                         initialMarkFrame={initialMarkFrame}
-                        onLogoReleaseStarted={handleLogoReleaseStarted}
+                        onInitialMarkFrameDrawn={handleInitialMarkFrameDrawn}
                     />
                 )}
 
