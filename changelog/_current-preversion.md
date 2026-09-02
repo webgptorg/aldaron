@@ -1,4 +1,19 @@
 # Current preversion
+- Named the paid materials to the members who may not read them yet. The amber card of
+  `/cs/online-workshop/participant` and `/cs/komunita` which says where the materials for paid members are now lists
+  the titles of the very materials which are waiting behind the membership under a `Co odemknete` heading, so a free
+  member reads what a purchase would give them instead of an unnamed promise. Nothing else of such a material leaves
+  the server: its body, its links and its QR codes are never sent to a member who has not unlocked it, and its links
+  are not even prepared for them. The room now reads its materials once, as a paid member would, and decides in one
+  place which of them reach the member and which are only named to them, so the hidden materials and the card offering
+  the membership can never disagree; a material an administrator left untitled keeps the card without being named in
+  it, and a room which offers no membership still hides such a material without naming it at all. Because the card now
+  names the materials the room really read rather than counting every paid material there is, a paid material whose
+  unlock time has not come yet is no longer announced before its time: it is named exactly when a member who paid would
+  receive it, so nobody buys the membership for something they then have to wait for. The `Obsah` section of
+  `/admin/workshops` says beside the `Jen pro placené členy` choice that the title of the material becomes exactly this
+  public teaser while its content stays paid.
+
 - Let a material be marked as one which only paid members may see. The `Obsah` section of `/admin/workshops` now asks
   this of every material with a `Jen pro placené členy` choice, and the room decides it on the server: a member who
   pays for the community membership receives such a material like any other, named `Pro placené členy` by its own

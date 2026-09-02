@@ -165,6 +165,12 @@ export function WorkshopContentEditor({
                     Jen pro placené členy
                 </label>
             </div>
+            {isPaidMembersOnly && (
+                <p className="mt-2 text-xs font-medium text-amber-700">
+                    Nadpis tohoto materiálu uvidí i neplatící členové jako ukázku toho, co jim členství odemkne. Obsah
+                    zůstává jen placeným členům.
+                </p>
+            )}
             <label className="mt-4 block text-xs font-medium text-slate-600">
                 Markdown
                 <Textarea

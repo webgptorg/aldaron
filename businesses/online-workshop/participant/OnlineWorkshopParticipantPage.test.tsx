@@ -4,7 +4,12 @@
 
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
 import { DEFAULT_EVENT_DETAILS } from '@/lib/events/event';
-import type { WorkshopDetails, WorkshopPoll, WorkshopPublicState } from '@/lib/workshops/workshopTypes';
+import type {
+    WorkshopContentPreview,
+    WorkshopDetails,
+    WorkshopPoll,
+    WorkshopPublicState,
+} from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -104,6 +109,13 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     isPaymentInTestMode: false,
 };
 
+/**
+ * The paid materials of a room as far as a member who has not paid is told about them
+ */
+const PAID_MEMBERS_ONLY_CONTENT_PREVIEWS: readonly WorkshopContentPreview[] = [
+    { id: 'paid-material-1', title: 'Bonusové podklady' },
+];
+
 const ATTACHED_COMMUNITY_POLL: WorkshopPoll = {
     id: 'poll-id',
     question: 'Co si z workshopu odnášíte?',
@@ -148,7 +160,7 @@ function renderParticipantRoom(
     isUsingCachedState = false,
     participantHeaderSupplement?: ReactNode,
     polls: readonly WorkshopPoll[] = [],
-    hasPaidMembersOnlyContent = false,
+    paidMembersOnlyContentPreviews: readonly WorkshopContentPreview[] = [],
 ) {
     const state: WorkshopPublicState = {
         serverTime: '2026-08-21T19:30:00+02:00',
@@ -165,7 +177,7 @@ function renderParticipantRoom(
         watchingParticipantCount: 3,
         contentBlocks: [],
         nextContentUnlockAt: null,
-        hasPaidMembersOnlyContent,
+        paidMembersOnlyContentPreviews,
         feedback: null,
         comments: [],
         stageComment: null,
@@ -329,11 +341,12 @@ describe('online workshop participant room', () => {
         expect(screen.queryByText('Spojení s workshopem je dočasně nedostupné. Zobrazuje se naposledy uložená verze.')).toBeNull();
     });
 
-    it('says where the paid materials are and opens the membership offer for a member who has not paid', async () => {
-        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], true);
+    it('names the paid materials and opens the membership offer for a member who has not paid', async () => {
+        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
 
         const unlockButton = await screen.findByRole('button', { name: /Koupit placené členství/ });
         expect(screen.getByText('Materiály pro placené členy')).toBeDefined();
+        expect(screen.getByText('Bonusové podklady')).toBeDefined();
 
         fireEvent.click(unlockButton);
 
@@ -350,7 +363,7 @@ describe('online workshop participant room', () => {
             isSubscriptionManagementOffered: true,
             isPaymentInTestMode: false,
         });
-        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], true);
+        renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
 
         await screen.findByRole('button', { name: 'Placené členství. Otevřít stav členství' });
         expect(screen.queryByText('Materiály pro placené členy')).toBeNull();

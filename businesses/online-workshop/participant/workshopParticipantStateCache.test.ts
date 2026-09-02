@@ -44,7 +44,7 @@ function createState(workshopSlug = WORKSHOP_SLUG): WorkshopPublicState {
         watchingParticipantCount: 1,
         contentBlocks: [],
         nextContentUnlockAt: null,
-        hasPaidMembersOnlyContent: false,
+        paidMembersOnlyContentPreviews: [],
         feedback: null,
         comments: [],
         stageComment: null,

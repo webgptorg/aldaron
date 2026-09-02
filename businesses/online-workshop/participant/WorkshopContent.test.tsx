@@ -4,7 +4,7 @@
 
 import { WorkshopContent } from '@/businesses/online-workshop/participant/WorkshopContent';
 import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
-import type { WorkshopContentBlock } from '@/lib/workshops/workshopTypes';
+import type { WorkshopContentBlock, WorkshopContentPreview } from '@/lib/workshops/workshopTypes';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -68,16 +68,20 @@ const FREE_PURCHASABLE_MEMBERSHIP: CommunityMembershipRoomState = {
     isPaymentInTestMode: false,
 };
 
+const PAID_MEMBERS_ONLY_CONTENT_PREVIEWS: readonly WorkshopContentPreview[] = [
+    { id: 'paid-material-1', title: 'Bonusové podklady' },
+];
+
 function renderWorkshopContent(
     contentBlocks: readonly WorkshopContentBlock[],
-    hasPaidMembersOnlyContent = false,
+    paidMembersOnlyContentPreviews: readonly WorkshopContentPreview[] = [],
 ) {
     return render(
         <WorkshopContent
             contentBlocks={contentBlocks}
             nextContentUnlockAt={null}
             newlyUnlockedContentBlockIds={new Set()}
-            hasPaidMembersOnlyContent={hasPaidMembersOnlyContent}
+            paidMembersOnlyContentPreviews={paidMembersOnlyContentPreviews}
         />,
     );
 }
@@ -181,7 +185,7 @@ describe('workshop materials', () => {
     it('says where the paid materials are and offers the membership which unlocks them to a member who has not paid', () => {
         const openMembershipModal = vi.fn();
         membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal };
-        renderWorkshopContent([CONTENT_BLOCK], true);
+        renderWorkshopContent([CONTENT_BLOCK], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
 
         expect(screen.getByText('Materiály pro placené členy')).not.toBeNull();
         fireEvent.click(screen.getByRole('button', { name: /Koupit placené členství/ }));
@@ -189,22 +193,47 @@ describe('workshop materials', () => {
         expect(openMembershipModal).toHaveBeenCalledOnce();
     });
 
+    it('names every hidden paid material as a teaser of what the membership unlocks', () => {
+        membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal: vi.fn() };
+        renderWorkshopContent(
+            [CONTENT_BLOCK],
+            [...PAID_MEMBERS_ONLY_CONTENT_PREVIEWS, { id: 'paid-material-2', title: 'Nahrávka workshopu' }],
+        );
+
+        const contentPreviewTitles = Array.from(
+            screen.getByLabelText('Náhled materiálů pro placené členy').querySelectorAll('li'),
+        ).map((listItem) => listItem.textContent);
+
+        expect(contentPreviewTitles).toEqual(['Bonusové podklady', 'Nahrávka workshopu']);
+        expect(screen.getByText('Co odemknete')).not.toBeNull();
+    });
+
+    it('keeps saying where the paid materials are when none of them has a title to tease with', () => {
+        membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal: vi.fn() };
+        renderWorkshopContent([], [{ id: 'paid-material-1', title: '' }]);
+
+        expect(screen.getByText('Materiály pro placené členy')).not.toBeNull();
+        expect(screen.queryByLabelText('Náhled materiálů pro placené členy')).toBeNull();
+    });
+
     it('keeps saying where the paid materials are even when nothing else is unlocked yet', () => {
         membershipRoomMock.membershipRoom = { membership: FREE_PURCHASABLE_MEMBERSHIP, openMembershipModal: vi.fn() };
-        renderWorkshopContent([], true);
+        renderWorkshopContent([], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
 
         expect(screen.getByText('Materiály pro placené členy')).not.toBeNull();
     });
 
     it('shows no paid-materials notice while the membership is still unknown or cannot be bought', () => {
-        renderWorkshopContent([CONTENT_BLOCK], true);
+        renderWorkshopContent([CONTENT_BLOCK], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
         expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
+        expect(screen.queryByText('Bonusové podklady')).toBeNull();
 
         membershipRoomMock.membershipRoom = {
             membership: { ...FREE_PURCHASABLE_MEMBERSHIP, isPurchaseOffered: false },
             openMembershipModal: vi.fn(),
         };
-        renderWorkshopContent([CONTENT_BLOCK], true);
+        renderWorkshopContent([CONTENT_BLOCK], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);
         expect(screen.queryByText('Materiály pro placené členy')).toBeNull();
+        expect(screen.queryByText('Bonusové podklady')).toBeNull();
     });
 });

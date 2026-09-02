@@ -262,6 +262,17 @@ export type WorkshopContentBlock = {
 };
 
 /**
+ * As much of a withheld material as the member who may not read it is told
+ *
+ * Note: Nothing but the title of such a material ever leaves the server, so the room names what is waiting behind the
+ *       membership without handing over any of it.
+ */
+export type WorkshopContentPreview = {
+    readonly id: string;
+    readonly title: string;
+};
+
+/**
  * A participant's progressively saved reflection after one workshop.
  *
  * The score creates the record; every written answer is optional and can then arrive independently, so somebody who
@@ -426,13 +437,13 @@ export type WorkshopPublicState = {
     readonly nextContentUnlockAt: string | null;
 
     /**
-     * Whether the room holds at least one published material which only paid members may see, while the member this
-     * state was loaded for is not one of them
+     * The materials which only paid members may see, named for a member who is not one of them
      *
-     * Note: The materials themselves stay hidden in `contentBlocks`. This only lets the room say where the paid
-     *       materials are and how to unlock them, and is never true for a member who already paid.
+     * Note: The materials themselves stay out of `contentBlocks`, so this list is what lets the room say where the
+     *       paid materials are, what they are called and how to unlock them. It is empty for a member who already paid
+     *       and in a room which offers no membership at all.
      */
-    readonly hasPaidMembersOnlyContent: boolean;
+    readonly paidMembersOnlyContentPreviews: readonly WorkshopContentPreview[];
     readonly feedback: WorkshopFeedback | null;
     readonly comments: readonly WorkshopComment[];
 

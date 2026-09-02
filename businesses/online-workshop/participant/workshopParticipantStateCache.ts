@@ -66,6 +66,7 @@ function isWorkshopPublicStateCacheEntry(
         typeof participant.isModerator === 'boolean' &&
         typeof state.watchingParticipantCount === 'number' &&
         Array.isArray(state.contentBlocks) &&
+        Array.isArray(state.paidMembersOnlyContentPreviews) &&
         Array.isArray(state.comments) &&
         isWorkshopCommentReferenceOrNull(state.stageComment) &&
         Array.isArray(state.recentReactions) &&

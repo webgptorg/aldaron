@@ -34,6 +34,7 @@ import { areWorkshopCommentLinksEnabled } from '@/lib/workshops/workshopCommentL
 import { isWorkshopPanelOffered, normalizeWorkshopDisabledPanels } from '@/lib/workshops/workshopPanels';
 import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModeration';
 import { normalizeWorkshopParticipantEmail } from '@/lib/workshops/workshopParticipantEmail';
+import { selectWorkshopContentForMember } from '@/lib/workshops/workshopPaidMembersContent';
 import type {
     WorkshopAdminComment,
     WorkshopAdminFeedback,
@@ -2094,9 +2095,8 @@ export async function loadWorkshopPublicState(
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
         .limit(MAXIMAL_VISIBLE_COMMENT_COUNT);
-    // Note: A member who does not pay for the membership never receives a material reserved for paid members, and is
-    //       never told that one of them unlocks next, so the room asks for the free ones alone instead of hiding the
-    //       paid ones afterwards.
+    // Note: A member who does not pay for the membership is never told that a material of the paid ones unlocks next,
+    //       because that countdown would promise them something a purchase alone cannot open.
     const nextContentUnlockBaseQuery = supabase
         .from(WORKSHOP_CONTENT_TABLE_NAME)
         .select('unlock_at')
@@ -2106,7 +2106,10 @@ export async function loadWorkshopPublicState(
     const nextContentUnlockQuery = isPaidMember
         ? nextContentUnlockBaseQuery
         : nextContentUnlockBaseQuery.eq('is_paid_members_only', false);
-    const visibleContentBaseQuery = supabase
+    // Note: The materials are read as a paid member would read them, whoever is reading the room. Which of them reach
+    //       this member and which are only named to them is then decided once, so the room cannot hide a material it
+    //       says nothing about or name one it also hands over.
+    const visibleContentQuery = supabase
         .from(WORKSHOP_CONTENT_TABLE_NAME)
         .select(WORKSHOP_CONTENT_COLUMNS)
         .eq('workshop_id', workshopRow.id)
@@ -2114,25 +2117,18 @@ export async function loadWorkshopPublicState(
         .lte('unlock_at', contentVisibilityCutoff)
         .order('sort_order', { ascending: true })
         .order('unlock_at', { ascending: true });
-    const visibleContentQuery = isPaidMember
-        ? visibleContentBaseQuery
-        : visibleContentBaseQuery.eq('is_paid_members_only', false);
-    const futureFollowUpContentBaseQuery = supabase
+    const futureFollowUpContentQuery = supabase
         .from(WORKSHOP_CONTENT_TABLE_NAME)
         .select(WORKSHOP_CONTENT_COLUMNS)
         .eq('workshop_id', workshopRow.id)
         .eq('is_published', true)
         .eq('is_follow_up', true)
         .gt('unlock_at', contentVisibilityCutoff);
-    const futureFollowUpContentQuery = isPaidMember
-        ? futureFollowUpContentBaseQuery
-        : futureFollowUpContentBaseQuery.eq('is_paid_members_only', false);
 
     const [
         contentResult,
         nextUnlockResult,
         futureFollowUpContentResult,
-        paidMembersOnlyContentCountResult,
         feedbackResult,
         commentsResult,
         pendingCommentsResult,
@@ -2152,16 +2148,6 @@ export async function loadWorkshopPublicState(
         // wrap-up starts it must be available for the stage link even if its ordinary unlock time is later; unrelated
         // scheduled materials keep their own timing.
         isWorkshopPast ? futureFollowUpContentQuery.maybeSingle() : Promise.resolve({ data: null, error: null }),
-        // The room only counts what it may also name: a member who already paid sees the materials themselves, and a
-        // room which offers no membership has nothing a purchase could unlock.
-        !isPaidMember && roomCapabilities.isMembershipOffered
-            ? supabase
-                  .from(WORKSHOP_CONTENT_TABLE_NAME)
-                  .select('id', { count: 'exact', head: true })
-                  .eq('workshop_id', workshopRow.id)
-                  .eq('is_published', true)
-                  .eq('is_paid_members_only', true)
-            : Promise.resolve({ data: null, error: null, count: 0 }),
         workshopRow.room_kind === 'workshop'
             ? supabase
                   .from(WORKSHOP_FEEDBACK_TABLE_NAME)
@@ -2193,7 +2179,6 @@ export async function loadWorkshopPublicState(
         contentResult.error ??
         nextUnlockResult.error ??
         futureFollowUpContentResult.error ??
-        paidMembersOnlyContentCountResult.error ??
         feedbackResult.error ??
         commentsResult.error ??
         pendingCommentsResult.error ??
@@ -2217,8 +2202,14 @@ export async function loadWorkshopPublicState(
                 Date.parse(firstContentBlock.unlock_at) - Date.parse(secondContentBlock.unlock_at),
         )
         .map(mapWorkshopContentRow);
+    // Only what this member may read is prepared for them; a withheld material never has its links materialized,
+    // because nothing of it but its title is going to leave the server.
+    const { readableContentBlocks, paidMembersOnlyContentPreviews } = selectWorkshopContentForMember(rawContentBlocks, {
+        isPaidMember,
+        isMembershipOffered: roomCapabilities.isMembershipOffered,
+    });
     const materializedContentResults = await Promise.all(
-        rawContentBlocks.map(async (contentBlock) => ({
+        readableContentBlocks.map(async (contentBlock) => ({
             contentBlock,
             ...(await materializeWorkshopMaterialShortLinks(supabase, {
                 workshopSlug: workshopRow.slug,
@@ -2315,7 +2306,7 @@ export async function loadWorkshopPublicState(
             watchingParticipantCount,
             contentBlocks: materializedContentBlocks,
             nextContentUnlockAt: (nextUnlockResult.data?.unlock_at as string | undefined) ?? null,
-            hasPaidMembersOnlyContent: (paidMembersOnlyContentCountResult.count ?? 0) > 0,
+            paidMembersOnlyContentPreviews,
             feedback:
                 feedbackResult.data === null
                     ? null

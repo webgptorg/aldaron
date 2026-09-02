@@ -337,7 +337,7 @@ export function OnlineWorkshopParticipantPage({
                             contentBlocks={state.contentBlocks}
                             nextContentUnlockAt={state.nextContentUnlockAt}
                             newlyUnlockedContentBlockIds={controller.newlyUnlockedContentBlockIds}
-                            hasPaidMembersOnlyContent={state.hasPaidMembersOnlyContent}
+                            paidMembersOnlyContentPreviews={state.paidMembersOnlyContentPreviews}
                             title={materialsTitle}
                         />
                     </div>
