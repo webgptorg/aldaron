@@ -10,3 +10,32 @@
 - Keep in mind the DRY _(don't repeat yourself)_ principle.
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+---
+
+[ ]
+
+[✨📛] Materials for paid members only - show preview
+
+- Show a title of the material which is for paid members only for non-paid members to see as a preview.
+- This should serve as a teaser for non-paid members, encouraging them to purchase the membership to access the full content.
+- You are working with page `/cs/online-workshop/participant` and `/cs/komunita`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+---
+
+[ ]
+
+[✨📛] Video for paid members only
+
+- When the member is not a paid member, there should be an option to set a preview of the video, showing a teaser or snippet to encourage them to purchase the membership to access the full video.
+- There should be a clear indication that the full video is only available to paid members, along with a call-to-action to purchase the membership.
+- During the webinar (between start and end), non-paid members see the full video same as payed members
+- After the webinar is over, non-paid members should only see the preview (if there is this video set in administration), while paid members can access the full video (and doesnt see the preview).
+- If the preview is not set in the administration, non-paid members should see a message indicating that the full video is only available to paid members (similar to the teaser message for payed materials).
+- You are working with page `/cs/online-workshop/participant`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
