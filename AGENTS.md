@@ -1,57 +1,143 @@
-Following information is from file `AGENTS.md`, if you need to update it, do it, but do it only if necessary and do not make unnecessary changes and bulky texts:
-
 ## Context
 
-- Community poll voting clarification: a visible community poll attached to a workshop can be voted on in the
-  community or in any attached workshop. A normalized e-mail address identifies the one voter, so their selected
-  option and the aggregate are shared everywhere those rooms and their administrations show the poll. The community
-  still owns administration; a workshop administration only reads that shared result. This takes precedence over the
-  earlier attached-poll read-only wording below.
+This repository contains Promptbook landing pages for different businesses,
+use cases, and audiences. Keep these rules current when behavior changes.
 
-- Community members manage an already-paid subscription from the membership popup of `/cs/komunita`: they can open
-  their Stripe Customer Portal there, while cancellation is confirmed in the app, stops only its next Stripe renewal,
-  keeps access through the paid period, is shown in the badge, and can be reactivated there until that period ends.
+### Public routes
 
-- Membership clarification: that badge and that popup are the shared participant room's own, so the live room of a
-  workshop occurrence offers them exactly as the community does. The membership belongs to the address a member
-  connects with, so both rooms read, buy and manage the one same membership, and the payment gate returns the member
-  into the very room they acted from. Which kinds of room offer it is written in `lib/workshops/workshopKindCapabilities.ts`;
-  a project discussion does not. This takes precedence over any earlier wording which places the membership in
-  `/cs/komunita` alone.
+- `/` redirects to `/cs` or `/en` using `Accept-Language`.
+- `/cs` is the Czech homepage and source of truth for homepage structure and copy.
+- `/en` is its English localization.
+- `/pro-mesta`, `/pro-firmy`, `/for-agro`, `/for-industry`, `/ai-supervize`,
+  `/hackathon-factory`, and `/pavol` are specialized landing pages. `/pavol`
+  redirects to `/cs/pavol` or `/en/pavol`; the localized pages are Pavol Hejny's
+  personal pages.
+- `/ai-supervize-mini` is the Czech one-day AI Supervize page. Published terms,
+  prices, capacities, places, FAQs, registration, and participant information
+  come from `/admin/workshops`; with no published term it shows a notice.
+  `/skoleni` redirects there.
+- `/cs/online-workshop` lists free 60-minute online workshops about writing
+  production code with AI agents. Each term has its own subject and description,
+  but all use one registration form. `/cs/online-workshop/dekujeme` is the
+  full-load conversion page; `/participant` is the live room.
+- `/ai-ta-krajta` reads episodes hourly from podcast RSS and YouTube feeds and
+  merges their host rosters with `businesses/ai-ta-krajta/aiTaKrajtaEpisodes.json`.
+  It keeps exact episode counts but labels subscriptions and listening hours as
+  estimates. The fixed mini-player, newest-episode header button, person/search/
+  episode/play/archive/collaboration filters, and section hash are shareable as
+  query/hash state; the snake game is local state. Person clicks filter episodes.
+  Collaboration submissions use `/admin/contacts`. Its tab icon is the page's
+  own snake drawing in `/ai-ta-krajta/logo.svg` and `.png`; SVG corners are
+  rounded and transparent, while the raster fills its square.
+- `/cs/komunita` is the permanent Czech community room. It has chat, polls,
+  projects, materials, and published terms, but no schedule, stage, or live
+  updates. Terms show event kind, format/place, price, and status. A term with a
+  live room links there; otherwise it links to its landing page. The calendar
+  opens on the member's month, can filter by day, and uses the same terms and
+  statuses as the cards. Empty days cannot be selected; an empty month is only
+  selected when the member's month has no terms. The room offers Google Calendar
+  and `webcal:` subscriptions.
+- `/cs/komunita/projects` is the full project gallery, ordered by upvotes.
+  `/cs/komunita/projects/<project_id>` shows scraped project details and a
+  moderated discussion. Project-room sessions derive from the community session;
+  the author moderates their own discussion.
+- `/cs/komunita/clenstvi` offers free community access and the 199 Kč monthly
+  membership. Webinars remain free; paid access adds recordings, archive,
+  materials, extra content, priority questions, and Discord/community features.
+  The page is prefilled from `fullname` and `email`, supports community discount
+  codes, has no new annual plan or trial, and allows cancellation.
+- `/cs/komunita/calendar.ics` publishes the same terms by stable slug, so moved
+  or renamed terms update existing subscriptions. It contains only event terms
+  and public destinations, never subscriber identity.
+- `/admin/workshops` manages terms of every event kind, participants, comments,
+  reactions, content, attached community polls, and settings.
+- `/admin/community` manages the permanent community, including polls, project
+  moderation, participants, memberships, payments, and room analytics.
+- `/admin/shortener` manages public short links, QR/UTM output, destinations,
+  notes, search/filter/sort state, and private click history. Links are served
+  by `/[shortcode]`; `/shortener` redirects to the admin page.
+- `/admin/login` authenticates the single `admin` account with `ADMIN_PASSWORD`
+  and a signed session cookie. All `/admin/*` pages and APIs require
+  `requireAdminSignedIn`. `/admin` is the post-login dashboard.
+- Other public/legal routes include `/contact`, `/data-deletion`, `/privacy`,
+  `/terms`, `/dekujeme`, `/branding`, and the routes under `/k`, `/old`, and
+  `/test`.
 
-This is the landing page for the Promtpbook, there are multiple landing pages for different businesses, use cases, and audiences.
+### Shared community and workshop behavior
 
-- `/` - Redirects to `/cs` or `/en` based on the browser `Accept-Language` header.
-- `/cs` - The Czech generic homepage and source of truth for homepage structure/copy.
-- `/en` - The English localized variant of the generic homepage.
-- `/pro-mesta` - The landing page for Czech cities and municipalities to use AI in their internal processes.
-- `/pro-firmy` - The landing page for Czech companies - a sales-style page with pain points, solution overview, comparison with ChatGPT, FAQ, and a strategic call CTA.
-- `/for-agro` - The landing page for agronomy and agricultural companies to use AI for expert knowledge, compliance, and operations.
-- `/ai-supervize` - The landing page for the AI for IT development companies
-- `/ai-supervize-mini` - The Czech one-day AI Supervize workshop page for individual developers and product people. No term of it is written into the application: its header, hero, dates, places, prices, capacities, FAQ answers, registration form and participant information page all read the terms which `/admin/workshops` published for this kind of event, so a term added, moved, withdrawn or repriced changes the page without a deploy. While no term is published, the page offers a notice instead of a registration form.
-- `/ai-ta-krajta` - The Czech page of the AI ta Krajta podcast. Its episodes come from the podcast RSS feed of the show rather than from this repository, so a new díl appears without a deploy; the server reads the RSS and YouTube feeds hourly, combines their explicit host rosters with the names in `businesses/ai-ta-krajta/aiTaKrajtaEpisodes.json`, and hands the browser episodes which already know their people. A source disagreement joins both rosters by name rather than letting one erase the other. Its episode total stays exact, while its cross-platform subscriptions and listening hours are deliberately broad estimates: cached public profile counts and YouTube views are combined with the verified Spotify/Apple publication and the duration of that merged archive; the public pages do not expose private audio analytics, so the site says that plainly rather than inventing a precise total. An episode plays in a mini player fixed to the bottom of the page, the `Poslouchat` button of the header plays the newest one, and its shareable state lives in English query parameters: the person the archive is filtered by, the search, the chosen episode and whether it plays, the whole-archive switch and the chosen kind of collaboration. The section reached is kept in the hash, while the snake game is local state. Clicking a person, either on their profile card or on the small circle next to an episode, filters the archive to their episodes. The collaboration form writes into the shared contacts inbox of `/admin/contacts` like every other public form of the site. Its icon is no image checked into the repository but the very snake the page itself draws, served from `/ai-ta-krajta/logo.svg` and `/ai-ta-krajta/logo.png`, so redrawing the logo redraws the browser tab with it. Each of the two is shaped for what shows it: the scalable one rounds its own corners and leaves them transparent for a browser tab, while the raster one fills its whole square because a home screen and a launcher cut their own rounding out of an icon and draw a transparent pixel of one black.
-- `/skoleni` - Redirects to `/ai-supervize-mini`.
-- `/cs/online-workshop` - The Czech landing page of the free 60minute online workshops about writing production code with AI agents. Every published term is a workshop about a subject of its own, so its picker names each term and says what that workshop is about beside the date it is held on, and one shared registration form serves whichever term is chosen. A term is picked with the same card as on `/ai-supervize-mini`, which keeps naming its terms by when and where they are held because its terms are the same workshop in another form.
-- `/cs/online-workshop/dekujeme` - The confirmation page of the online workshop registration, reached by a full page load so that the Meta Pixel can measure the conversion.
-- `/cs/online-workshop/participant` - The live room of one workshop occurrence: a countdown, a YouTube stage, reactions, a watching count, moderated chat, timed materials, and the current aggregate of every visible community poll attached to that occurrence. An attached poll stays the community's poll: its answers remain read-only in the workshop room, while its votes and administration stay in the community. A term whose end is left open never ends by itself: from its start, its stage keeps the stream on for as long as it takes, and only the end recorded in `/admin/workshops` replaces it with the closing wrap-up and its feedback. The comments administration can put a non-rejected attendee question on the shared stage, replace or clear it, or create an artificial comment and put that there in the same action; the selected comment remains the source of truth and reaches live rooms through the same private realtime channel as reactions, so reconnecting and late attendees read the very same current question. The header of the room also says which membership of the community its attendee has and opens the very same membership popup as `/cs/komunita`, so a free member can buy the paid membership and a paying one can manage or cancel it without leaving the workshop they are watching; the membership belongs to the address they connected with, so it is the one membership both rooms show, and the payment gate brings them back into this room. A material can be marked in `/admin/workshops` as one which only paid members may see: the room decides this on the server, so a member who paid receives it like any other material with a badge which says so, while everybody else is told where the paid materials are, is given the titles of those very materials as a teaser of what the membership unlocks, and is offered that membership - the title is all of such a material which ever leaves the server, so an administrator who names a material names it publicly. The room reads its materials once, as a paid member would, and one decision divides them into the ones which reach the member and the ones which are only named to them, so what is hidden and what is offered cannot disagree; a material left untitled keeps the offer without being named in it, a room which offers no membership hides such a material without naming it, and a paid material whose unlock time has not come is named exactly when a member who paid would receive it rather than before. Once the occurrence is over, the very same membership unlocks its video, which a paid member plays again from the wrap-up while its feedback stays the same for everybody. The room decides that video on the server as well: while the workshop runs, everybody watches the same stream, and once it is over the recording only reaches a member whose membership unlocks it, so it is never merely hidden in a browser which was given it. Everybody else is offered it with the very same card the paid materials are offered with, which plays the teaser `/admin/workshops` published for that recording beside its stream, says the same thing without one when none was published, and offers nothing at all for a term which carries no stream to unlock. A participant marked as trusted stays invisible and only has their messages approved as they write them, while a participant marked as a moderator wears a badge and moderates the chat from inside the room: they see every message waiting for a decision, approve, reject, correct and pin messages, and trust or silence their authors. `/admin/workshops` appoints workshop and community moderators; a community-project author is appointed automatically for their own project discussion. While the room is open it also says whether anybody is at the computer or phone which has it open - whether a pointer moves, something is typed, scrolled or touched - so every measured minute of the room is either actively or passively attended and the administration can tell a watching audience from a running tab.
-- `/cs/komunita` - The Czech-only room of the one permanent community, built on the very same participant room. Being a `community` room rather than a workshop occurrence, it has no schedule, no stage, and no live updates, so it offers the chat, the community polls, the projects, the materials, and links to the published terms of every kind of event, each named with the kind of event it is, its form and place, and its price. Where one term leads is decided by the kind of event it is a term of: a term with a live room leads into that room, while a term without one leads to its landing page. A poll which is about terms names the published ones under that very same rule. Those terms are read either as a month of a Czech calendar, which is what the room opens on, or as a list of cards; both are made of the same listed terms and say with the same colours whether a term is over, running, or still ahead - a card wears that as a badge and a day of the calendar is coloured by it, most pressing term first. A day of the calendar which nothing is held on cannot be chosen, choosing one narrows the cards below the month to that day, and a month nothing is listed in is only opened on when the month of the member has no term at all. The room also offers the whole calendar of those terms to the calendar application of a member, in Google Calendar or in any application which subscribes to `webcal:`. Its project gallery is placed below the workshop links and above the materials, shows its five most-upvoted cards plus a link to the full gallery, and lets a connected member add a project through a URL-first metadata wizard. A normal project waits for a moderator or an administrator, while a trusted member or moderator is approved as it is shared; an unapproved card stays with its author and the moderators until it is approved. Each workshop link carries the `email` and `fullname` of the member reading the room, so the workshop room it leads to prefills its connection form instead of asking for either again. The paid membership is also bought here rather than on its landing page: because the room knows who is reading it, it asks a free member for nothing but a discount code and the agreement to its terms before opening the Stripe gate for the monthly price this application decides, and the badge of the header says which membership its member has and leads them to that offer. A discount code which takes the whole price for as long as the membership lasts is a voucher rather than a discount: no card is asked for it and the gate is not opened at all, because nothing will ever be charged - the offer says so, the server takes one use of that code atomically and gives the membership away on the spot, and such a membership then has no subscription to renew, to cancel or to manage in Stripe. A code which takes the whole price for a limited number of months keeps opening the gate, because the price returns to normal once those months are over and that is what the card is then charged. That badge and that offer belong to the shared participant room rather than to this page, so the live room of a workshop occurrence carries them just as well. A membership belongs to the address a member connects with, so it is the same membership however often they reconnect and whichever of those rooms they read it in, and what the gate decides about it later - a cancelled subscription, a failed payment, a payment which finished after the browser was closed - reaches the room through the webhook of `/api/stripe/webhook`. A server which was given no Stripe key says nothing about a membership at all, and a server on test keys says so beside the payment; how to configure the gate is written in `AGENT_MESSAGE.md`.
-- `/cs/komunita/calendar.ics` - The published calendar of the very same terms the community lists, which a calendar application subscribes to and asks again whenever it likes. Every term is identified by its slug, so a term which is moved or renamed is corrected in the calendar of everybody who subscribed instead of being added to it a second time, and every term leads to its public destination without the e-mail or the name of the member who subscribed. A room which is no term of an event, such as the community itself, is left out of it.
-- `/cs/komunita/projects` - The full Czech gallery of community projects, ordered by upvotes and sharing the same creation wizard and one-up-or-down vote per member as the compact community gallery.
-- `/cs/komunita/projects/<project_id>` - The individual project view: its scraped preview and description sit beside a moderated chat built from the shared participant-room infrastructure. Opening it derives a project-room session from the member's community session, and the project author is the moderator of that discussion automatically.
-- `/cs/komunita/clenstvi` - The public Czech landing and registration page for the free community and one paid membership. Live AI webinars remain free; the 199 Kč monthly paid membership adds webinar recordings and their archive, practical materials, additional content, priority questions, and paid-member Discord/community features. It personalizes its copy and pre-fills the form from `fullname` and `email`, keeps community discount codes available, has no yearly switch or free trial for new registrations, and lets members cancel anytime. New registrations record a monthly payment request under the current plan id, while legacy Standard/Premium plans, billing terms, agreed prices, and trials remain internally supported for existing members. Nothing it says about the community is written into the application: the window in its header, the list of webinars and the section about the life of the community are read out of the very same rooms the members read, so a new message, a new project, a new term or another answer in the poll changes the page without a deploy. Only what a stranger may see leaves those rooms - a total which names nobody, a message the moderation already approved, a project which was shared to be seen - and every member is named by their first name alone. The emoji reactions are the one made-up thing on it, because nobody is reacting while a landing page is being read; which of them fly is still read from the ones the rooms celebrated most recently. An unreadable community is answered by a page which simply says less about it rather than by an error.
-- `/admin/workshops` - The administration of the terms of every kind of event, divided into an overview, participants, comments, reactions, content, the community polls asked about that occurrence and settings. Creating a term and editing one ask the very same questions about the event it is a term of: which kind of event it is, whether it is held online or at a place, what one seat costs, and how many people fit into it. Every kind of event is described once in the event registry of the application (`lib/events/eventTypes.ts`), so offering another kind means adding it there rather than migrating the database or changing any page which lists terms. Those polls are read-only here, because they belong to the community which administers them. The settings of a term with a stage hold two videos: the stream itself and the public teaser of its recording, which the live room plays for everybody whose membership does not unlock that recording once the term is over. The end of a term may be left empty, which keeps the term running until the `Ukončit workshop` button of its settings writes the moment it was really ended. While it is left open, its settings can also write one or two hours after its start; a recorded end can be cleared to reopen the term. The overview draws the audience and the activity of the room across time in a zoomable graph, whose lines, chosen reaction, zoom and keyword metrics are carried by the query parameters together with the open room and section, so a whole view is one shareable link. That audience is drawn apart into the people who were really at their computer and the people who only had the room open, dashed in the colour of the audience they are a part of.
-- `/admin/community` - The administration of that one community, which is the shared workshop dashboard restricted to the `community` room kind, therefore without a picker between rooms and without the settings a permanent room does not have: no schedule, no stage, no reactions, and no address, because the one community keeps the URL it was given once and for all. Its `Ankety` section administers every poll of the community, including which workshop occurrences a poll is about. Its project moderation queue separately lists pending, approved, and rejected cards, so an administrator can decide a project and audit a decision which no longer reaches the community. Its participant list says the paid-membership status of every room session, even the explicit free state, by the e-mail address the durable membership belongs to; that badge opens the `Placená členství` section, and every payment record leads back to that member's participant history. The paid-membership section pages and filters the Stripe-mirrored lifecycle, price, discount, payment identifiers, and dates, says whether a record belongs to the test or live gate, and opens the exact checkout or subscription in Stripe where payment changes are administered. Having neither a start nor an end, nothing in it is drawn against one either, so its graph opens on everything which was ever measured in the room and the detail of a member says when they were seen instead of placing them inside a span.
-- `/admin/shortener` - The administration of the public short links: one is created together with its QR code, its UTM parameters and ready-made HTML and Markdown, every link there is is listed with what it leads to and searched for by its shortcode, its destinations or its private note, shows how many public navigations it measured, and opens its full private click history with timestamps, IP addresses, referrers, user agents, languages, and platforms. Its search, provenance filters, sorting, and selected click history live in the GET parameters so the exact view can be shared or bookmarked; any link is edited or removed. Editing decides the shortcode, the destinations, the note and the landing page of a link and nothing else, so an address which has already been handed out can be pointed elsewhere instead of being replaced by a second link; removing one takes the clicks measured on it with it. The generated links themselves stay public and are read under `/[shortcode]`, while `/shortener` redirects here.
-- `/admin/login` - The login of the whole administration, for the one hard-coded administrator `admin` whose password is the `ADMIN_PASSWORD` of the server. It opens a signed session cookie, which is what every `/admin/*` page and every administration endpoint reads; a page therefore guards itself by `requireAdminSignedIn` and no address ever carries the token.
-- `/admin` - The dashboard which links to every administration page, reached after signing in.
-- `/pavol` - Redirects to `/cs/pavol` or `/en/pavol` based on the browser `Accept-Language` header.
-- `/cs/pavol` - The Czech personal page of Pavol Hejný.
-- `/en/pavol` - The English personal page of Pavol Hejný.
-- ...
+- Community polls attached to workshops are shared. A normalized email gives a
+  member one vote across the community and all attached workshops. Workshops
+  may display and accept votes, but the community owns administration.
+- The participant room owns the membership badge and popup. Community and live
+  workshop rooms use the same membership for the connecting email, and checkout
+  returns to the room where it started. Membership is offered only by room kinds
+  listed in `lib/workshops/workshopKindCapabilities.ts`; project discussions do
+  not offer it.
+- Members can open Stripe Customer Portal from the popup. In-app cancellation
+  stops only the next renewal, preserves access through the paid period, appears
+  in the badge, and can be reversed before that period ends.
+- A full-price-for-the-whole-term discount is a voucher: atomically consume it,
+  create membership immediately, ask for no card, and create no Stripe renewal.
+  A limited-month discount still opens checkout because the regular price returns.
+  Stripe webhooks update completed, cancelled, failed, and late payments. With no
+  Stripe key, hide membership; with test keys, identify the test payment gate.
+- Community projects use a URL-first metadata wizard. Ordinary submissions await
+  moderation; trusted members and moderators are approved immediately. Pending
+  projects remain visible to their author and moderators.
+- A live workshop room has countdown, YouTube stage, reactions, watching count,
+  moderated chat, timed materials, and attached poll aggregates. An open-ended
+  term runs until its recorded end; its stage does not end automatically. Admins
+  can select, replace, clear, or create the displayed comment through the same
+  private realtime channel used by reactions.
+- Paid-only materials are decided on the server in one pass. Members receive
+  unlocked material; others receive only the published titles as an offer. An
+  untitled item is not named, items are not named before their unlock time, and a
+  room without membership hides paid-only items without naming them.
+- After a workshop ends, its recording is server-gated to members. Others receive
+  the published teaser, or a generic offer when no teaser exists; a term without
+  a recording offers nothing.
+- Trusted participants remain invisible and their messages are auto-approved.
+  Moderators see pending messages, can approve/reject/correct/pin them, and can
+  trust or silence authors. Workshop and community moderators are appointed in
+  `/admin/workshops`; project authors moderate their own discussions.
+- The room records whether each open browser is actively or passively attended
+  from pointer, typing, scroll, and touch activity. Admin analytics distinguish
+  active computer users from merely open tabs with dashed audience lines.
+- The community's compact gallery shows its five highest-upvoted approved projects
+  and links to the full gallery. Community landing content is read from the live
+  room: expose only anonymous totals, approved messages, and shared projects;
+  show member first names only. If the room cannot be read, show less content,
+  not an error. Landing-page reactions are estimates based on recent room data.
 
-- The "Done by Promptbook coder" badge lives once in `components/promptbook-coder/`, where its octopus, its wording and the address it leads to are each written a single time. The octopus is not an illustration of any octopus but a reading of the one the terminal of `ptbk coder run` draws in characters, which `promptbookCoderMarkArtwork.ts` records beside the measurements taken off it, so a change to the drawing is checked against that art rather than against taste. It is drawn in `currentColor` and takes the look of its page through `className`, so another page carries the same badge by passing its own colours rather than by drawing a second octopus.
-- If you need a change in the database migration, do it in file `migrations/*.sql`
-- The server applies pending migrations automatically at Node.js startup, and they can also be applied explicitly with `npm run migrate-database`; both paths run `_initialize.sql` first and then read the remaining `migrations/*.sql` files in filename order, record the immutable file name and checksum in `public."Migration"`, and refuse changed or missing migration files. A database which never received the newest one refuses the queries written against it, which the server console names as such - a written migration is not an applied one.
-- `npm run test-types` intentionally runs the production build before `tsc`: Next.js 15.2 has no standalone type-generation command, and the build refreshes `.next/types` so deleted routes cannot leave stale validators behind. Keep that order in verification scripts.
-- `npm run test-e2e` drives a Next.js development server, which compiles every page and every API endpoint the first time a test reaches it. The budget of one test is therefore that compilation headroom and lives once in `playwright.config.ts`; do not re-declare a timeout per test file, and do not read a timed-out first visit to a route as a broken route before the same test has been run on its own. The E2E tests are also deliberately independent of each other, so none of them may be made to depend on what an earlier one submitted.
-- Each E2E run archives one recording per test into `tests/e2e/videos/` and keeps only the most recent runs there, because a disk filled by old recordings fails the very run which is being verified.
+### Administration and data rules
+
+- Event kinds are defined once in `lib/events/eventTypes.ts`; adding one should
+  not require database migration or page-specific duplication. Terms ask for kind,
+  online/place format, price, and capacity.
+- Workshop polls are read-only in workshop administration. Stage settings contain
+  the live stream and recording teaser. An end may be empty; admins can record,
+  adjust, clear, and reopen it. Overview analytics are zoomable and share their
+  room, section, lines, reaction, zoom, and keyword metrics through query params.
+- Community administration is the workshop dashboard restricted to the
+  `community` room kind: no room picker, schedule, stage, reactions, or address.
+  Its membership view filters Stripe lifecycle, prices, discounts, identifiers,
+  dates, test/live mode, and links to the exact Stripe checkout/subscription.
+  Community analytics cover all measured time and member details show seen times.
+- Shortener search, provenance filters, sorting, and selected click history live
+  in GET parameters. Editing changes only shortcode, destinations, note, and
+  landing page; deletion also deletes recorded clicks.
+- The single "Done by Promptbook coder" badge lives in `components/promptbook-coder/`.
+  Its artwork is recorded in `promptbookCoderMarkArtwork.ts`, uses `currentColor`,
+  and is reused through `className`; do not redraw it elsewhere.
+
+### Database and verification
+
+- Put database changes in `migrations/*.sql`. Startup and
+  `npm run migrate-database` run `_initialize.sql`, then migrations in filename
+  order, recording immutable filenames and checksums in `public."Migration"`.
+  Changed or missing migrations fail, as do queries requiring an unapplied one.
+- `npm run test-types` must build before `tsc` to refresh `.next/types`.
+- `npm run test-e2e` uses the Next.js development server; first-request compile
+  headroom belongs in `playwright.config.ts`, not individual tests. E2E tests are
+  independent and each archives one recording in `tests/e2e/videos/`, retaining
+  only recent runs.
