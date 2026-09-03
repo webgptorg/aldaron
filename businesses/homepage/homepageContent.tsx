@@ -174,8 +174,8 @@ export const homepageContent = {
             ),
             description: (
                 <>
-                    Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Nový zaměstnanec.
-                    Zkušený manažer. Každý dostane stejně přesnou odpověď.
+                    Promptbook přečte až milion normostran vašich dokumentů a&nbsp;odpoví na cokoliv. Ptát se může
+                    nováček i zkušený manažer. Oba dostanou stejně přesnou odpověď.
                 </>
             ),
             cta: 'Chci strategický hovor zdarma',
@@ -260,7 +260,7 @@ export const homepageContent = {
                     description:
                         'Zaměstnanci řeší pracovní úkoly přes veřejný ChatGPT, včetně citlivých firemních dokumentů. Veřejná AI přitom vaši firmu nezná. Když odpověď nemá, domyslí si ji.',
                     consequence:
-                        'Jedno rozhodnutí na základě vymyšlené informace může stát víc než roční rozpočet na nástroje.',
+                        'Jedno rozhodnutí podle vymyšlené informace může stát víc než celý roční rozpočet na software.',
                 },
                 {
                     title: 'Odcházející know-how',
@@ -304,12 +304,12 @@ export const homepageContent = {
                     title: 'Kontextový trezor',
                     description:
                         'Data nikdy neopustí vaši infrastrukturu. Nepoužíváme je na trénování žádných modelů. Víte, co se stane, když zaměstnanec zkopíruje NDA do veřejného ChatGPT?',
-                    highlight: 'My to víme taky. Proto jsme to udělali jinak.',
+                    highlight: 'My jo. Proto jsme to udělali jinak.',
                 },
                 {
                     title: 'Nevím je lepší než halucinace',
                     description:
-                        'Veřejná AI si vymyslí pět odstavců, které zní důvěryhodně. A můžou vás stát firmu. Promptbook čerpá jen z vašich dat. A když odpověď nenajde?',
+                        'Veřejná AI si vymyslí pět odstavců, které zní důvěryhodně. Můžou vás stát firmu. Promptbook čerpá jen z vašich dat. A když odpověď nenajde?',
                     highlight: 'Řekne narovinu: "Tuto informaci ve vašich dokumentech nemám."',
                 },
             ],
@@ -395,7 +395,7 @@ export const homepageContent = {
             ),
             items: [
                 {
-                    quote: 'Promptbook nás od sebe neodstřihl. Naopak - konečně máme čas řešit opravdovou práci, za kterou jsme placeni.',
+                    quote: 'Promptbook nás od sebe neodstřihl. Naopak. Konečně máme čas řešit opravdovou práci, za kterou jsme placeni.',
                     author: 'IT oddělení',
                     company: 'Slezská univerzita v Opavě',
                 },
@@ -412,9 +412,9 @@ export const homepageContent = {
             ],
         },
         team: {
-            title: 'Seznamte se s naším týmem',
+            title: 'Kdo za tím stojí',
             description: (
-                <>Pomáháme firmám používat AI prakticky a bezpečně. Máme za sebou výzkum, vývoj i podnikání:</>
+                <>Pomáháme firmám používat AI prakticky a bezpečně. Máme za sebou výzkum, vývoj i podnikání.</>
             ),
             jiriDescription: (
                 <>
@@ -444,7 +444,7 @@ export const homepageContent = {
             capacityStrong: '7',
             capacitySuffix: 'z 10 míst',
             capacityRemaining: 'Zbývají 3',
-            capacityNote: 'Bereme max. 10 firem měsíčně, abychom se každé mohli věnovat individuálně.',
+            capacityNote: 'Bereme max. 10 firem měsíčně, abychom na každou měli čas.',
             riskReversal:
                 'I když si Promptbook nakonec nepořídíte, odnesete si konkrétní plán, jak srovnat chaos ve firemních datech.',
         },
@@ -501,14 +501,14 @@ export const homepageContent = {
                     ],
                 },
             ],
-            successTitle: (name) => `Výborně, ${name}!`,
+            successTitle: (name) => `Díky, ${name}!`,
             successDescription: (
                 <>
                     Do 24 hodin se vám telefonicky ozve <strong className="text-[#0f172a]">Jirka</strong>. Probereme
                     vaše otázky a domluvíme termín videohovoru.
                 </>
             ),
-            successEmailPrefix: 'Odkaz na videohovor vám následně zašleme na',
+            successEmailPrefix: 'Odkaz na videohovor pak pošleme na',
             close: 'Zavřít',
             stepLabel: (currentStep, totalSteps) => `Krok ${currentStep + 1} z ${totalSteps}`,
             remainingSpots: 'Zbývají 3 místa',
@@ -554,8 +554,8 @@ export const homepageContent = {
             ),
             description: (
                 <>
-                    Promptbook reads up to one million standard pages of your documents and answers anything. New hire.
-                    Experienced manager. Everyone gets the same precise answer.
+                    Promptbook reads up to one million standard pages of your documents and answers anything. A new hire
+                    can ask, and so can a seasoned manager. Both get the same precise answer.
                 </>
             ),
             cta: 'I want a free strategy call',
@@ -640,7 +640,7 @@ export const homepageContent = {
                     description:
                         'Employees solve work tasks through public ChatGPT, including sensitive company documents. Public AI does not know your company. When it does not have the answer, it makes one up.',
                     consequence:
-                        'One decision based on fabricated information can cost more than an annual tooling budget.',
+                        'One decision made on invented information can cost more than your whole annual software budget.',
                 },
                 {
                     title: 'Departing know-how',
@@ -684,7 +684,7 @@ export const homepageContent = {
                     title: 'Context vault',
                     description:
                         'Data never leaves your infrastructure. We do not use it to train any models. Do you know what happens when an employee copies an NDA into public ChatGPT?',
-                    highlight: 'We know too. That is why we built it differently.',
+                    highlight: 'We do. That is why we built it differently.',
                 },
                 {
                     title: '"I do not know" beats a hallucination',
@@ -775,7 +775,7 @@ export const homepageContent = {
             ),
             items: [
                 {
-                    quote: 'Promptbook did not cut us off from each other. The opposite - we finally have time for the real work we are paid to do.',
+                    quote: 'Promptbook did not cut us off from each other. The opposite. We finally have time for the real work we are paid to do.',
                     author: 'IT department',
                     company: 'Silesian University in Opava',
                 },
@@ -792,11 +792,11 @@ export const homepageContent = {
             ],
         },
         team: {
-            title: 'Meet our team',
+            title: "Who's behind this",
             description: (
                 <>
-                    We help companies use AI in a practical and safe way. Our backgrounds are in research, development,
-                    and business:
+                    We help companies use AI practically and safely. Our backgrounds are in research, development, and
+                    business.
                 </>
             ),
             jiriDescription: (
@@ -827,7 +827,7 @@ export const homepageContent = {
             capacityStrong: '7',
             capacitySuffix: 'of 10 spots',
             capacityRemaining: '3 left',
-            capacityNote: 'We work with a maximum of 10 companies per month so we can support each one individually.',
+            capacityNote: 'We take on 10 companies a month at most, so we have time for each one.',
             riskReversal:
                 'Even if you decide not to buy Promptbook, you will leave with a concrete plan for fixing the chaos in your company data.',
         },
@@ -878,7 +878,7 @@ export const homepageContent = {
                     ],
                 },
             ],
-            successTitle: (name) => `Excellent, ${name}!`,
+            successTitle: (name) => `Thanks, ${name}!`,
             successDescription: (
                 <>
                     <strong className="text-[#0f172a]">Jiri</strong> will call you within 24 hours. We will go through
