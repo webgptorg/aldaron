@@ -1,4 +1,4 @@
-[ ]
+[-]
 
 [✨🛸] Unslop the 404 page
 

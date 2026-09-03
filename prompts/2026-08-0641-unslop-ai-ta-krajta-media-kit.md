@@ -1,4 +1,4 @@
-[ ]
+[ ] !
 
 [✨🛸] Unslop the `/ai-ta-krajta/media-kit`
 
