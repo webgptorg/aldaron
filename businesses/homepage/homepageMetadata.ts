@@ -47,9 +47,9 @@ export const HOMEPAGE_PAGE_DEFINITIONS: Readonly<Record<SupportedHomepageLanguag
         title: 'Promptbook - Instant access to everything your company has ever written',
         socialTitle: 'Instant access to everything your company has ever written',
         description:
-            'Upload company documents, create a virtual employee, and ask questions in natural language. No prompting, no hallucinations, 100% GDPR. A Czech AI platform.',
+            'Upload your company documents, create a virtual employee, and ask in plain language. No prompting, no hallucinations, 100% GDPR. A Czech AI platform.',
         socialDescription:
-            'Upload company documents, create a virtual employee, and ask questions in natural language. No prompting, no hallucinations, 100% GDPR.',
+            'Upload your company documents, create a virtual employee, and ask in plain language. No prompting, no hallucinations, 100% GDPR.',
         socialPreviewImageAlt: 'Promptbook - instant access to everything your company has ever written',
         keywords: ['AI for business', 'company documents', 'virtual employee', 'GDPR', 'Czech AI', 'Promptbook'],
         languageAlternates: HOMEPAGE_LANGUAGE_ALTERNATES,

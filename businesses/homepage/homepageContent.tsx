@@ -573,14 +573,14 @@ export const homepageContent = {
                 {
                     id: 2,
                     type: 'bot',
-                    text: 'Welcome to the company, Anna! According to the employee handbook you get **25 vacation days per year**.',
+                    text: 'Welcome to the company, Anna! According to the employee handbook, you get **25 vacation days per year**.',
                     startDelay: 2000,
                     static: false,
                 },
                 {
                     id: 3,
                     type: 'bot',
-                    text: 'I will send it to your email too, so you have it at hand. Anything else?',
+                    text: "I'll email it to you as well, so you have it handy. Anything else?",
                     startDelay: 1200,
                     static: false,
                 },
@@ -596,29 +596,29 @@ export const homepageContent = {
         socialProof: {
             eyebrow: 'For companies that take their data seriously',
             industries: [
-                'Manufacturing companies',
+                'Manufacturing',
                 'Law firms',
-                'Construction companies',
+                'Construction',
                 'Public administration',
                 'Healthcare',
                 'Education',
                 'Logistics',
                 'Energy',
-                'IT companies',
+                'IT',
                 'Insurance',
-                'Pharmaceutical industry',
+                'Pharma',
                 'E-commerce',
                 'Accounting firms',
-                'Telecommunications',
+                'Telecom',
             ],
         },
         painPoints: {
             eyebrow: 'Why companies lose millions',
             heading: (
                 <>
-                    Knowledge exists inside the company.{' '}
+                    The knowledge is already in your company.{' '}
                     <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                        The problem is that no one can find it.
+                        Nobody can find it.
                     </span>
                 </>
             ),
@@ -626,37 +626,37 @@ export const homepageContent = {
                 {
                     title: 'Scattered company data',
                     description:
-                        "Policies on SharePoint, contracts in email, manuals on Google Drive, processes in people's heads. The information exists, it is just scattered across dozens of systems.",
+                        "Policies on SharePoint, contracts in email, manuals on Google Drive, processes in people's heads. It all exists. It's just spread across dozens of systems.",
                     consequence: 'Employees search instead of doing the work you pay them for.',
                 },
                 {
                     title: 'Key people as an internal help desk',
                     description:
-                        'Senior people answer the same questions from newcomers and colleagues over and over. Instead of strategic work, they run an information desk.',
-                    consequence: 'Your most expensive people are doing work that should be handled by a system.',
+                        'Senior people answer the same questions over and over, from newcomers and colleagues alike. Instead of strategic work, they run an information desk.',
+                    consequence: 'Your most expensive people are doing work a system should be doing.',
                 },
                 {
                     title: 'Public AI risk',
                     description:
-                        'Employees solve work tasks through public ChatGPT, including sensitive company documents. Public AI does not know your company. When it does not have the answer, it makes one up.',
+                        "People paste work into public ChatGPT, sensitive company documents included. Public AI doesn't know your company. When it doesn't have the answer, it makes one up.",
                     consequence:
-                        'One decision made on invented information can cost more than your whole annual software budget.',
+                        'One decision based on invented information can cost more than your whole annual software budget.',
                 },
                 {
                     title: 'Departing know-how',
                     description:
                         'When an experienced person leaves, they take knowledge nobody wrote down. How decisions get made, what each client has been through, why things are done this way.',
-                    consequence: 'The company loses years of experience, and that does not come back quickly.',
+                    consequence: "The company loses years of experience, and you don't get that back quickly.",
                 },
             ],
             timeAllocation: {
-                title: "Where does your team's time disappear?",
+                title: "Where does your team's time go?",
                 beforeLabel: 'Before',
-                beforePrimary: 'Low-value',
+                beforePrimary: 'Busywork',
                 beforeSecondary: '20%',
                 beforeNote: 'Emails · Meetings · Routine tasks',
                 afterLabel: 'After deploying Promptbook',
-                afterPrimary: 'High-value',
+                afterPrimary: 'What matters',
                 afterSecondary: '20%',
                 afterNote: 'Family · Creativity · Strategic work',
             },
@@ -672,25 +672,25 @@ export const homepageContent = {
                 </>
             ),
             description:
-                'Upload company documents into a secure vault. Promptbook turns them into a virtual employee: an HR specialist, a lawyer, a technician. Anyone can then ask in plain language.',
+                'Upload your company documents into a secure vault. Promptbook turns them into a virtual employee: an HR specialist, a lawyer, a technician. Then anyone can just ask, in plain language.',
             benefits: [
                 {
                     title: 'No prompting',
                     description:
-                        'No training. No "write a prompt like an IT person". Your employees are experts in their field, not in instructing robots. They simply ask, by text or voice, and get an answer.',
-                    highlight: 'The same way they are used to communicating with people.',
+                        'No training. No "write the prompt like an IT person would". Your people are experts in their field, not in casting spells on robots. They ask, by text or by voice, and they get an answer.',
+                    highlight: 'The same way they talk to a colleague.',
                 },
                 {
                     title: 'Context vault',
                     description:
-                        'Data never leaves your infrastructure. We do not use it to train any models. Do you know what happens when an employee copies an NDA into public ChatGPT?',
-                    highlight: 'We do. That is why we built it differently.',
+                        "Data never leaves your infrastructure. We don't use it to train any models. Do you know what happens when an employee pastes an NDA into public ChatGPT?",
+                    highlight: "We do. That's why we built it differently.",
                 },
                 {
-                    title: '"I do not know" beats a hallucination',
+                    title: '"I don\'t know" beats a hallucination',
                     description:
-                        'Public AI invents five paragraphs that sound convincing. They can cost you the company. Promptbook draws only from your data. And when it cannot find the answer?',
-                    highlight: 'It says plainly: "I do not have this information in your documents."',
+                        "Public AI invents five paragraphs that sound convincing. They can cost you the company. Promptbook draws only from your data. And when it can't find the answer?",
+                    highlight: 'It says it straight: "I don\'t have that information in your documents."',
                 },
             ],
         },
@@ -708,17 +708,17 @@ export const homepageContent = {
                 {
                     title: 'Upload documents',
                     description:
-                        'Policies, contracts, manuals, NDAs, meeting notes. Anything that is scattered today across SharePoint, Google Drive, or a drawer. Promptbook handles up to one million standard pages.',
+                        'Policies, contracts, manuals, NDAs, meeting notes. Anything sitting today in SharePoint, on Google Drive, or in a desk drawer. Promptbook handles up to one million standard pages.',
                 },
                 {
                     title: 'Create a virtual employee',
                     description:
-                        'An HR specialist who knows the employee handbook. A lawyer who knows every contract. A technician who knows the manuals. Each agent answers precisely from your company data.',
+                        'An HR specialist who knows the employee handbook. A lawyer who knows every contract. A technician who knows the manuals. Each agent answers strictly from your company data.',
                 },
                 {
                     title: 'People ask questions',
                     description:
-                        'In plain language. As if they were sending a message on WhatsApp. Or they send a voice note. No prompts, no training, no IT team needed.',
+                        'In plain language. Like sending a WhatsApp message. Or a voice note. No prompts, no training, no IT department.',
                 },
             ],
             cta: 'I want to see how it works',
@@ -727,7 +727,7 @@ export const homepageContent = {
             eyebrow: 'Why not public ChatGPT',
             heading: (
                 <>
-                    &quot;I&apos;ll just put it into ChatGPT&quot;{' '}
+                    &quot;I&apos;ll just paste it into ChatGPT&quot;{' '}
                     <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">
                         is corporate self-sabotage.
                     </span>
@@ -737,9 +737,9 @@ export const homepageContent = {
             promptbookLabel: 'Promptbook',
             comparisons: [
                 {
-                    feature: 'When it does not know',
-                    chatgpt: 'It confidently makes the answer up',
-                    promptbook: 'It says: "I do not know"',
+                    feature: "When it doesn't know",
+                    chatgpt: 'Confidently invents one',
+                    promptbook: 'Says: "I don\'t know"',
                 },
                 {
                     feature: 'Your company data',
@@ -754,7 +754,7 @@ export const homepageContent = {
                 {
                     feature: 'How you ask',
                     chatgpt: '"Act as senior lawyer, temperature 0.2..."',
-                    promptbook: '"Hey, where is the 2021 NDA?"',
+                    promptbook: '"Hey, where\'s that NDA from 2021?"',
                 },
                 {
                     feature: 'Company context',
@@ -764,23 +764,23 @@ export const homepageContent = {
             ],
         },
         testimonials: {
-            eyebrow: 'References',
+            eyebrow: 'Testimonials',
             heading: (
                 <>
-                    What companies that{' '}
+                    What companies say once they{' '}
                     <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                        stopped searching say.
+                        stop searching.
                     </span>
                 </>
             ),
             items: [
                 {
-                    quote: 'Promptbook did not cut us off from each other. The opposite. We finally have time for the real work we are paid to do.',
+                    quote: "Promptbook didn't cut us off from each other. The opposite. We finally have time for the real work we're paid to do.",
                     author: 'IT department',
                     company: 'Silesian University in Opava',
                 },
                 {
-                    quote: 'Newcomers no longer have to be afraid to ask. They get answers immediately and precisely according to our internal policies.',
+                    quote: "Newcomers aren't afraid to ask anymore. They get answers right away, straight from our internal policies.",
                     author: 'Municipal district',
                     company: 'Prague 13',
                 },
@@ -815,13 +815,13 @@ export const homepageContent = {
         finalCta: {
             heading: (
                 <>
-                    Stop paying for searching.
+                    Stop paying people to search.
                     <br />
-                    Start paying for work.
+                    Start paying them to work.
                 </>
             ),
             description:
-                'Book a 20-minute strategy call with our team. No aggressive sales pitch. We will go through your situation and show you Promptbook directly on your data.',
+                "Book a 20-minute strategy call with our team. No hard sell. We'll go through your situation and show you Promptbook running on your own data.",
             cta: 'Book a free strategy call',
             capacityPrefix: 'Booked',
             capacityStrong: '7',
@@ -829,7 +829,7 @@ export const homepageContent = {
             capacityRemaining: '3 left',
             capacityNote: 'We take on 10 companies a month at most, so we have time for each one.',
             riskReversal:
-                'Even if you decide not to buy Promptbook, you will leave with a concrete plan for fixing the chaos in your company data.',
+                "Even if you never buy Promptbook, you'll walk away with a concrete plan for sorting out the chaos in your company data.",
         },
         qualificationPopup: {
             dialogTitle: 'Qualification form',
@@ -849,25 +849,29 @@ export const homepageContent = {
                 },
                 {
                     id: 'pain_point',
-                    question: 'What is your biggest pain point?',
+                    question: "What's your biggest headache?",
                     type: 'single',
                     options: [
                         'People spend hours searching for documents',
                         'Senior people answer the same questions again and again',
                         'Company data in public ChatGPT worries us',
                         'When a key person leaves, know-how leaves with them',
-                        'I am just exploring what Promptbook can do',
+                        "I'm just exploring what Promptbook can do",
                     ],
                 },
                 {
                     id: 'urgency',
                     question: 'When would you like to start?',
                     type: 'single',
-                    options: ['As soon as possible, this is urgent', 'Next quarter', 'We are just exploring options'],
+                    options: [
+                        'As soon as possible, this is urgent',
+                        'Next quarter',
+                        "We're just exploring options for now",
+                    ],
                 },
                 {
                     id: 'contact',
-                    question: 'Where should we contact you?',
+                    question: 'Where should we reach you?',
                     subtitle: 'Jiri will call you within 24 hours.',
                     type: 'contact',
                     fields: [
@@ -881,24 +885,24 @@ export const homepageContent = {
             successTitle: (name) => `Thanks, ${name}!`,
             successDescription: (
                 <>
-                    <strong className="text-[#0f172a]">Jiri</strong> will call you within 24 hours. We will go through
-                    your questions and schedule a video call.
+                    <strong className="text-[#0f172a]">Jiri</strong> will call you within 24 hours. We&apos;ll go
+                    through your questions and set a time for a video call.
                 </>
             ),
-            successEmailPrefix: 'We will then send the video call link to',
+            successEmailPrefix: "We'll send the video call link to",
             close: 'Close',
             stepLabel: (currentStep, totalSteps) => `Step ${currentStep + 1} of ${totalSteps}`,
             remainingSpots: '3 spots left',
-            intro: '4 questions, 30 seconds. We will check whether Promptbook makes sense for you.',
+            intro: "4 questions, 30 seconds. We'll see whether Promptbook makes sense for you.",
             submitting: 'Submitting...',
             submit: 'Book a free call',
             back: 'Back',
         },
         bookingNotification: {
             notifications: [
-                { company: 'Company from Prague', time: '2 hours ago' },
-                { company: 'Company from Brno', time: '4 hours ago' },
-                { company: 'Company from Ostrava', time: 'yesterday' },
+                { company: 'A company in Prague', time: '2 hours ago' },
+                { company: 'A company in Brno', time: '4 hours ago' },
+                { company: 'A company in Ostrava', time: 'yesterday' },
             ],
             messageSuffix: 'booked a strategy call',
         },
