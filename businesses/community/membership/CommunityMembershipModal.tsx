@@ -1,5 +1,6 @@
 'use client';
 
+import type { CommunityMembershipPurchaseOutcome } from '@/businesses/community/membership/communityMembershipCheckoutReturn';
 import { formatCommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
 import { CommunityMembershipPurchasePanel } from '@/businesses/community/membership/CommunityMembershipPurchasePanel';
 import { useCommunityMembershipRoom } from '@/businesses/community/membership/CommunityMembershipRoomProvider';
@@ -19,11 +20,28 @@ import { formatCzechWorkshopDay } from '@/lib/workshops/workshopDate';
 import { CheckCircle2, Crown, Info, LoaderCircle, Sparkles, X } from 'lucide-react';
 import { useEffect } from 'react';
 
+/**
+ * What the member is told about the way they have just taken the membership, said once for each of the ways there are
+ */
+const PAID_MEMBERSHIP_PURCHASE_OUTCOME_MESSAGES: Readonly<Record<CommunityMembershipPurchaseOutcome, string>> = {
+    paid: 'Platba proběhla. Placené členství je vaše, díky!',
+    redeemed: 'Slevový kód uplatněn. Placené členství je vaše zdarma, díky!',
+    cancelled: 'Platba nebyla dokončena. Členství si můžete pořídit kdykoli později.',
+};
+
+function createPaidMembershipPriceDescription(membership: CommunityMembershipRoomState): string {
+    // A membership a voucher covers is never charged for anything, so it is not described by what it costs a month.
+    if (membership.isCoveredByDiscountCode) {
+        return 'Členství máte díky slevovému kódu zdarma, nic se neplatí a kartu jsme po vás nechtěli.';
+    }
+
+    return membership.monthlyPriceCzk === null
+        ? 'Členství je aktivní.'
+        : `Platíte ${formatCommunityMembershipPrice(membership.monthlyPriceCzk)} měsíčně.`;
+}
+
 function createPaidMembershipDescription(membership: CommunityMembershipRoomState): string {
-    const priceDescription =
-        membership.monthlyPriceCzk === null
-            ? 'Členství je aktivní.'
-            : `Platíte ${formatCommunityMembershipPrice(membership.monthlyPriceCzk)} měsíčně.`;
+    const priceDescription = createPaidMembershipPriceDescription(membership);
     const periodDescription = membership.currentPeriodEndsAt === null ? '' : ` Zaplaceno do ${formatCzechWorkshopDay(membership.currentPeriodEndsAt)}.`;
     const cancellationDescription = membership.isCancellationScheduled ? ' Další platbu jste zrušili.' : '';
     const overdueDescription =
@@ -55,11 +73,11 @@ export function CommunityMembershipModal() {
     const {
         membership,
         isMembershipLoading,
-        isCheckoutStarting,
+        isPurchaseStarting,
         isMembershipCancellationChanging,
         isMembershipPortalOpening,
         errorMessage,
-        checkoutResult,
+        purchaseOutcome,
     } = membershipRoom;
     const isPaid = membership !== null && isPaidCommunityMembershipStatus(membership.status);
     const isCancellationScheduled = isPaid && membership?.isCancellationScheduled === true;
@@ -99,30 +117,28 @@ export function CommunityMembershipModal() {
                     </DialogHeader>
                 </div>
 
-                {checkoutResult !== null && (
+                {purchaseOutcome !== null && (
                     <div
                         role="status"
                         className={`relative mx-5 mt-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-sm shadow-lg shadow-slate-950/10 sm:mx-7 ${
-                            checkoutResult === 'paid'
-                                ? 'border-emerald-300/25 bg-emerald-300/[0.09] text-emerald-100'
-                                : 'border-amber-300/25 bg-amber-300/[0.08] text-amber-100'
+                            purchaseOutcome === 'cancelled'
+                                ? 'border-amber-300/25 bg-amber-300/[0.08] text-amber-100'
+                                : 'border-emerald-300/25 bg-emerald-300/[0.09] text-emerald-100'
                         }`}
                     >
                         <span className="flex min-w-0 items-start gap-2">
-                            {checkoutResult === 'paid' ? (
-                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                            ) : (
+                            {purchaseOutcome === 'cancelled' ? (
                                 <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                            ) : (
+                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                             )}
                             <span className="min-w-0">
-                                {checkoutResult === 'paid'
-                                    ? 'Platba proběhla. Placené členství je vaše, díky!'
-                                    : 'Platba nebyla dokončena. Členství si můžete pořídit kdykoli později.'}
+                                {PAID_MEMBERSHIP_PURCHASE_OUTCOME_MESSAGES[purchaseOutcome]}
                             </span>
                         </span>
                         <button
                             type="button"
-                            onClick={membershipRoom.dismissCheckoutResult}
+                            onClick={membershipRoom.dismissPurchaseOutcome}
                             className="shrink-0 rounded-full p-1 transition hover:bg-white/10"
                             aria-label="Skrýt zprávu o platbě"
                         >
@@ -141,9 +157,9 @@ export function CommunityMembershipModal() {
                     {isPurchasePanelShown && membership !== null && (
                         <CommunityMembershipPurchasePanel
                             isPaymentInTestMode={membership.isPaymentInTestMode}
-                            isCheckoutStarting={isCheckoutStarting}
+                            isPurchaseStarting={isPurchaseStarting}
                             errorMessage={errorMessage}
-                            onPay={(discountCode) => void membershipRoom.startCheckout(discountCode)}
+                            onPurchase={(discountCode) => void membershipRoom.startMembershipPurchase(discountCode)}
                         />
                     )}
 

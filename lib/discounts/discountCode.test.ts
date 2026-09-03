@@ -7,6 +7,7 @@ import {
     isDiscountCodeValidForAllPlaces,
     isDiscountCodeValidInPlace,
     isDiscountCodeUsableInPlace,
+    isSubscriptionDiscountFullAndPermanent,
     formatSubscriptionDiscountDurationMonthCount,
     normalizeDiscountCode,
     type DiscountCode,
@@ -89,6 +90,18 @@ describe('shared discount-code rules', () => {
         expect(formatSubscriptionDiscountDurationMonthCount(1)).toBe('1 měsíc');
         expect(formatSubscriptionDiscountDurationMonthCount(3)).toBe('3 měsíce');
         expect(formatSubscriptionDiscountDurationMonthCount(12)).toBe('12 měsíců');
+    });
+
+    it('tells a code which covers a whole subscription apart from every other discount', () => {
+        const voucherDiscount = createActiveDiscount(createDiscountCode({ percent: 100 }));
+
+        expect(isSubscriptionDiscountFullAndPermanent(voucherDiscount)).toBe(true);
+        // The price returns to normal once those months are over, which is what a card is still needed for.
+        expect(
+            isSubscriptionDiscountFullAndPermanent({ ...voucherDiscount, subscriptionDiscountDurationMonths: 3 }),
+        ).toBe(false);
+        expect(isSubscriptionDiscountFullAndPermanent({ ...voucherDiscount, percent: 99 })).toBe(false);
+        expect(isSubscriptionDiscountFullAndPermanent(null)).toBe(false);
     });
 
     it('requires the code to be enabled and inside its validity window', () => {

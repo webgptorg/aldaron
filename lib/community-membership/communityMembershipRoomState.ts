@@ -1,5 +1,6 @@
 import type { CommunityMembershipRecord } from '@/lib/community-membership/communityMembershipDatabase';
 import {
+    isCommunityMembershipCoveredByDiscountCode,
     isCommunityMembershipSubscriptionManageable,
     isPaidCommunityMembershipStatus,
     type CommunityMembershipRoomState,
@@ -25,6 +26,7 @@ export function createCommunityMembershipRoomState(
         isCancellationScheduled: membership?.isCancellationScheduled === true && isPaidCommunityMembershipStatus(status),
         isPurchaseOffered: stripeConfiguration !== null && !isPaidCommunityMembershipStatus(status),
         isSubscriptionManagementOffered: stripeConfiguration !== null && isCommunityMembershipSubscriptionManageable(membership),
+        isCoveredByDiscountCode: isCommunityMembershipCoveredByDiscountCode(membership),
         isPaymentInTestMode: stripeConfiguration?.isTestMode ?? false,
     };
 }

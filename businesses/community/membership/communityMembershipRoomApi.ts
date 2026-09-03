@@ -1,11 +1,14 @@
 import { requestJson, sendJson } from '@/lib/api/requestJson';
 import { createCommunityMembershipApiPaths } from '@/lib/community-membership/communityMembershipApiPaths';
-import type { CommunityMembershipRoomState } from '@/lib/community-membership/communityMembershipTypes';
+import type {
+    CommunityMembershipPurchaseResult,
+    CommunityMembershipRoomState,
+} from '@/lib/community-membership/communityMembershipTypes';
 
 /**
- * What a member accepts when they open the payment gate
+ * What a member accepts when they take the paid membership
  */
-export type CommunityMembershipCheckoutValues = {
+export type CommunityMembershipPurchaseValues = {
     readonly discountCode: string;
     readonly termsAccepted: true;
 };
@@ -22,13 +25,14 @@ export function fetchCommunityMembership(workshopSlug: string): Promise<Communit
 }
 
 /**
- * Asks for the address of the payment gate, which the browser is then sent to.
+ * Takes the paid membership, which is answered either with the address of the payment gate the browser is then sent
+ * to, or with the membership a voucher has already granted.
  */
-export function startCommunityMembershipCheckout(
+export function startCommunityMembershipPurchase(
     workshopSlug: string,
-    values: CommunityMembershipCheckoutValues,
-): Promise<{ readonly checkoutUrl: string }> {
-    return sendJson<{ readonly checkoutUrl: string }>(
+    values: CommunityMembershipPurchaseValues,
+): Promise<CommunityMembershipPurchaseResult> {
+    return sendJson<CommunityMembershipPurchaseResult>(
         createCommunityMembershipApiPaths(workshopSlug).checkout,
         'POST',
         values,

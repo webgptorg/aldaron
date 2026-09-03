@@ -9,7 +9,10 @@ import {
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN,
 } from '@/businesses/community/membership/communityMembershipConfig';
 import type { CommunityMembershipPrice } from '@/businesses/community/membership/communityMembershipPrice';
-import { normalizeCommunityMemberEmail } from '@/lib/community-membership/communityMembershipTypes';
+import {
+    normalizeCommunityMemberEmail,
+    type CommunityMembershipMember,
+} from '@/lib/community-membership/communityMembershipTypes';
 import type { ActiveDiscount } from '@/lib/discounts/discountCode';
 import { createStripeAmountFromCzk, STRIPE_CZK_CURRENCY } from '@/lib/payments/stripeAmount';
 import type { StripeGateway } from '@/lib/payments/stripeGateway';
@@ -51,12 +54,6 @@ export const COMMUNITY_MEMBERSHIP_METADATA_KEYS = {
     discountCode: 'communityMembershipDiscountCode',
 } as const;
 
-export type CommunityMembershipCheckoutMember = {
-    readonly participantId: string;
-    readonly fullname: string;
-    readonly email: string;
-};
-
 export type CommunityMembershipCheckoutUrls = {
     /**
      * Where a paid member returns, which must carry {@link STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER} so the return can be
@@ -95,7 +92,7 @@ export function createCommunityMembershipCheckoutUrls(roomUrl: string): Communit
 }
 
 function createCommunityMembershipMetadata(
-    member: CommunityMembershipCheckoutMember,
+    member: CommunityMembershipMember,
     discountCode: string | null,
 ): Stripe.MetadataParam {
     return {
@@ -151,7 +148,7 @@ async function createCommunityMembershipSubscriptionCoupon(
  */
 export async function createCommunityMembershipCheckoutSession(
     gateway: StripeGateway,
-    member: CommunityMembershipCheckoutMember,
+    member: CommunityMembershipMember,
     price: CommunityMembershipPrice,
     activeDiscount: ActiveDiscount | null,
     urls: CommunityMembershipCheckoutUrls,

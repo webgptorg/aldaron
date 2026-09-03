@@ -1,4 +1,20 @@
 # Current preversion
+- Stopped asking for a card where there is never going to be anything to charge it for. A discount code which takes
+  the whole price of the community membership for as long as that membership lasts is now a voucher: in the membership
+  popup of `/cs/komunita` and of `/cs/online-workshop/participant`, entering such a code turns the `Zaplatit 199 Kč /
+  měsíc` button into `Aktivovat členství zdarma`, says that the code covers the whole membership, names no card, no
+  Stripe gate and no test card, and hands the member their paid membership on the spot without sending them anywhere.
+  A code which only takes the whole price for its first months keeps opening the payment gate exactly as before,
+  because the price returns to normal afterwards and that is precisely what the card would then be charged. The one
+  rule which tells those two apart is written a single time, so the button, the price summary, the endpoint and the
+  redemption cannot disagree about which code is a voucher, and the browser never decides it: the server resolves the
+  code again and takes one of its uses atomically before granting anything, so a voucher limited to five uses gives
+  away five memberships and no sixth, however many members redeem it at the same moment. Such a membership is recorded
+  like every other one, with its code, its zero price and the gate it was granted under, but with no checkout and no
+  subscription behind it - so it says of itself that it is free rather than that 0 Kč is paid for it monthly, offers
+  neither a cancellation nor the Stripe portal, because there is no renewal to stop, and `/admin/community` says of it
+  that a discount code covered it instead of offering a Stripe payment which was never made.
+
 - Kept the recording of an ended workshop for the members who pay for it, and put a teaser of it in front of everybody
   else. `/admin/workshops` now asks every term for a second video beside its stream, `YouTube URL nebo video ID
   ukázky`, which is the public snippet of its recording. While a workshop runs, nothing changes: everybody watches the

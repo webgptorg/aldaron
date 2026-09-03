@@ -65,6 +65,7 @@ const FREE_PURCHASABLE_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: true,
     isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 

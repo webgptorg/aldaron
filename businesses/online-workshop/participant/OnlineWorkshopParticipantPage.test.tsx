@@ -32,7 +32,7 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     openCommunityMembershipSubscriptionPortal: vi.fn(),
     scheduleCommunityMembershipCancellation: vi.fn(),
     reactivateCommunityMembership: vi.fn(),
-    startCommunityMembershipCheckout: vi.fn(),
+    startCommunityMembershipPurchase: vi.fn(),
 }));
 
 // The checkbox of the design system measures itself, which the test document cannot do.
@@ -108,6 +108,7 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: true,
     isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 
@@ -325,6 +326,7 @@ describe('online workshop participant room', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderParticipantRoom(WORKSHOP);
@@ -416,6 +418,7 @@ describe('online workshop participant room', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderParticipantRoom(WORKSHOP, undefined, false, undefined, [], PAID_MEMBERS_ONLY_CONTENT_PREVIEWS);

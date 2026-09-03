@@ -21,6 +21,7 @@ import {
     type CommunityMembershipAdminQuery,
 } from '@/lib/community-membership/communityMembershipAdminQuery';
 import { createCommunityMembershipStripeDashboardUrl } from '@/lib/community-membership/communityMembershipStripeDashboard';
+import { isCommunityMembershipCoveredByDiscountCode } from '@/lib/community-membership/communityMembershipTypes';
 import { Crown, ExternalLink, RefreshCw, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -184,6 +185,7 @@ export function CommunityMembershipAdmin() {
                             {memberships.map((membership) => {
                                 const stripeDashboardUrl = createCommunityMembershipStripeDashboardUrl(membership);
                                 const isSubscriptionAvailable = membership.stripeSubscriptionId !== null;
+                                const isCoveredByDiscountCode = isCommunityMembershipCoveredByDiscountCode(membership);
 
                                 return (
                                     <TableRow key={membership.id}>
@@ -236,7 +238,11 @@ export function CommunityMembershipAdmin() {
                                         </TableCell>
                                         <TableCell className="min-w-52 align-top">
                                             {stripeDashboardUrl === null ? (
-                                                <span className="text-xs text-slate-400">Stripe záznam zatím nevznikl.</span>
+                                                <span className="text-xs text-slate-400">
+                                                    {isCoveredByDiscountCode
+                                                        ? 'Členství pokryl slevový kód, platba ve Stripe nevznikla.'
+                                                        : 'Stripe záznam zatím nevznikl.'}
+                                                </span>
                                             ) : (
                                                 <a
                                                     href={stripeDashboardUrl}

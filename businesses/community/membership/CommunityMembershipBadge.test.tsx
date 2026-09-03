@@ -34,7 +34,7 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     openCommunityMembershipSubscriptionPortal: vi.fn(),
     scheduleCommunityMembershipCancellation: vi.fn(),
     reactivateCommunityMembership: vi.fn(),
-    startCommunityMembershipCheckout: vi.fn(),
+    startCommunityMembershipPurchase: vi.fn(),
 }));
 
 import { COMMUNITY_WORKSHOP_SLUG } from '@/businesses/community/config';
@@ -49,6 +49,7 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: true,
     isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 
@@ -94,6 +95,7 @@ describe('community membership badge', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderMembershipBadge();
@@ -113,6 +115,7 @@ describe('community membership badge', () => {
             isCancellationScheduled: true,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderMembershipBadge();

@@ -5,10 +5,14 @@ import {
     COMMUNITY_MEMBERSHIP_RESULT_PARAMETER_NAME,
 } from '@/businesses/community/config';
 
-export type CommunityMembershipCheckoutResult = 'paid' | 'cancelled';
+/**
+ * How taking the paid membership ended: paid at the gate, left unpaid, or redeemed with a voucher which needed no
+ * gate at all. Only the first two ever come back in an address, because the third never leaves the room.
+ */
+export type CommunityMembershipPurchaseOutcome = 'paid' | 'cancelled' | 'redeemed';
 
 export type CommunityMembershipCheckoutReturn = {
-    readonly result: CommunityMembershipCheckoutResult | null;
+    readonly result: CommunityMembershipPurchaseOutcome | null;
 
     /**
      * The checkout the gate says was finished, which is `null` for a member who came back without paying

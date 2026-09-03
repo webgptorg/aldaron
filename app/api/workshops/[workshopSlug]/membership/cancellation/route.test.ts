@@ -77,6 +77,7 @@ const ROOM_STATE: CommunityMembershipRoomState = {
     isCancellationScheduled: true,
     isPurchaseOffered: false,
     isSubscriptionManagementOffered: true,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 const UPDATED_SUBSCRIPTION = { id: 'sub_Example' };

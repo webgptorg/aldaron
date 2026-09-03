@@ -1,3 +1,5 @@
+import { MAXIMAL_DISCOUNT_PERCENT } from '@/lib/discounts/discountCodeConstants';
+
 /**
  * Where a bought membership is recorded
  */
@@ -53,15 +55,48 @@ export type CommunityMembershipRoomState = {
 
     /**
      * Whether this room can change the existing Stripe subscription. A membership without a subscription, such as a
-     * checkout which never finished, has nothing to cancel or restore.
+     * checkout which never finished or one a voucher gave away, has nothing to cancel or restore.
      */
     readonly isSubscriptionManagementOffered: boolean;
+
+    /**
+     * Whether a discount code covers the whole of this membership, which is what a voucher is: no card was ever asked
+     * for it and nothing will ever be charged for it, so it is neither paid for monthly nor cancelled.
+     */
+    readonly isCoveredByDiscountCode: boolean;
 
     /**
      * Whether the configured gate is the test one, which the room says out loud so that a rehearsal is never mistaken
      * for a real payment
      */
     readonly isPaymentInTestMode: boolean;
+};
+
+/**
+ * Who one membership is taken for: the address it durably belongs to, and the room session which acted for it
+ */
+export type CommunityMembershipMember = {
+    readonly participantId: string;
+    readonly fullname: string;
+    readonly email: string;
+};
+
+/**
+ * What a member is answered when they accept the offer of the paid membership.
+ *
+ * Note: One of the two is always given and the other is always `null`, because accepting that offer means one of two
+ *       things: either there is a gate to pay at, or a voucher has already made the membership theirs.
+ */
+export type CommunityMembershipPurchaseResult = {
+    /**
+     * Where the payment gate awaits the member, or `null` when nothing is to be paid at all
+     */
+    readonly checkoutUrl: string | null;
+
+    /**
+     * The membership a voucher has just granted, or `null` while it still has to be paid for
+     */
+    readonly membership: CommunityMembershipRoomState | null;
 };
 
 export function isCommunityMembershipStatus(value: unknown): value is CommunityMembershipStatus {
@@ -92,6 +127,28 @@ export function isCommunityMembershipSubscriptionManageable(
     return (
         membership !== null &&
         membership.stripeSubscriptionId !== null &&
+        isPaidCommunityMembershipStatus(membership.status)
+    );
+}
+
+type CommunityMembershipDiscountCoverageCandidate = {
+    readonly status: CommunityMembershipStatus;
+    readonly stripeSubscriptionId: string | null;
+    readonly discountPercent: number;
+};
+
+/**
+ * Whether a stored membership is one a discount code paid for in full: a membership which entitles its member to
+ * everything, whose whole price a code took, and which no subscription stands behind, because a voucher is redeemed
+ * once instead of being charged every month.
+ */
+export function isCommunityMembershipCoveredByDiscountCode(
+    membership: CommunityMembershipDiscountCoverageCandidate | null,
+): boolean {
+    return (
+        membership !== null &&
+        membership.stripeSubscriptionId === null &&
+        membership.discountPercent >= MAXIMAL_DISCOUNT_PERCENT &&
         isPaidCommunityMembershipStatus(membership.status)
     );
 }

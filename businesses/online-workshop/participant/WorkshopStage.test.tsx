@@ -32,6 +32,7 @@ const PAID_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: false,
     isSubscriptionManagementOffered: true,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 
@@ -42,6 +43,7 @@ const FREE_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: true,
     isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 

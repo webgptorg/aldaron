@@ -1,12 +1,20 @@
 import { FORM_SURFACE_CLASS_NAMES, type FormSurfaceAppearance } from '@/components/forms/formSurfaceAppearance';
-import { formatSubscriptionDiscountDurationMonthCount, type ActiveDiscount } from '@/lib/discounts/discountCode';
+import {
+    formatSubscriptionDiscountDurationMonthCount,
+    isSubscriptionDiscountFullAndPermanent,
+    type ActiveDiscount,
+} from '@/lib/discounts/discountCode';
 import { cn } from '@/lib/utils';
 import {
     getCommunityMembershipPlan,
     type CommunityMembershipBillingPeriod,
     type PaidCommunityMembershipPlanId,
 } from './communityMembershipConfig';
-import { createCommunityMembershipPrice, formatCommunityMembershipPrice } from './communityMembershipPrice';
+import {
+    createCommunityMembershipPrice,
+    formatCommunityMembershipPrice,
+    type CommunityMembershipPrice,
+} from './communityMembershipPrice';
 
 type CommunityMembershipPriceDisplayProps = {
     readonly planId: PaidCommunityMembershipPlanId;
@@ -15,6 +23,38 @@ type CommunityMembershipPriceDisplayProps = {
     readonly className?: string;
     readonly appearance?: FormSurfaceAppearance;
 };
+
+/**
+ * What the price under the amount says: how often it is paid, and what a discount code does to it.
+ *
+ * Note: A code which takes the whole price for as long as the membership lasts leaves nothing to be paid at all, so
+ *       such a membership is not described as one which is paid every month.
+ */
+function createCommunityMembershipPriceDescription(
+    price: CommunityMembershipPrice,
+    billingPeriod: CommunityMembershipBillingPeriod,
+    activeDiscount: ActiveDiscount | null,
+): string {
+    if (isSubscriptionDiscountFullAndPermanent(activeDiscount)) {
+        return 'Slevový kód pokrývá celé členství, takže neplatíte nic.';
+    }
+
+    const billingDescription =
+        billingPeriod === 'yearly'
+            ? `Platba ${formatCommunityMembershipPrice(price.finalBillingPriceCzk)} jednou ročně.`
+            : 'Platba každý měsíc.';
+    if (activeDiscount === null) {
+        return billingDescription;
+    }
+
+    const subscriptionDiscountDurationMonths = activeDiscount.subscriptionDiscountDurationMonths;
+
+    return subscriptionDiscountDurationMonths === null
+        ? `${billingDescription} Slevový kód přidává dalších ${activeDiscount.percent} % trvale po dobu členství.`
+        : `${billingDescription} Slevový kód přidává dalších ${activeDiscount.percent} % na první ` +
+              `${formatSubscriptionDiscountDurationMonthCount(subscriptionDiscountDurationMonths)}. Poté bude cena ` +
+              `${formatCommunityMembershipPrice(price.baseMonthlyEquivalentCzk)} měsíčně.`;
+}
 
 /** Price is always led by its monthly equivalent, including when the visitor pays once a year. */
 export function CommunityMembershipPriceDisplay({
@@ -27,8 +67,6 @@ export function CommunityMembershipPriceDisplay({
     const plan = getCommunityMembershipPlan(planId);
     const price = createCommunityMembershipPrice(planId, billingPeriod, activeDiscount);
     const isOriginalMonthlyPriceShown = billingPeriod === 'yearly' || activeDiscount !== null;
-    const subscriptionDiscountDurationMonths = activeDiscount?.subscriptionDiscountDurationMonths ?? null;
-    const isSubscriptionDiscountTemporary = activeDiscount !== null && subscriptionDiscountDurationMonths !== null;
     const surfaceClassNames = FORM_SURFACE_CLASS_NAMES[appearance];
 
     return (
@@ -45,15 +83,7 @@ export function CommunityMembershipPriceDisplay({
                 <span className={cn('text-sm', surfaceClassNames.mutedText)}>/ měsíc</span>
             </div>
             <p className={cn('mt-2 text-xs leading-relaxed', surfaceClassNames.mutedText)}>
-                {billingPeriod === 'yearly'
-                    ? `Platba ${formatCommunityMembershipPrice(price.finalBillingPriceCzk)} jednou ročně.`
-                    : 'Platba každý měsíc.'}{' '}
-                {activeDiscount !== null &&
-                    (isSubscriptionDiscountTemporary && subscriptionDiscountDurationMonths !== null
-                        ? `Slevový kód přidává dalších ${activeDiscount.percent} % na první ${formatSubscriptionDiscountDurationMonthCount(
-                              subscriptionDiscountDurationMonths,
-                          )}. Poté bude cena ${formatCommunityMembershipPrice(price.baseMonthlyEquivalentCzk)} měsíčně.`
-                        : `Slevový kód přidává dalších ${activeDiscount.percent} % trvale po dobu členství.`)}
+                {createCommunityMembershipPriceDescription(price, billingPeriod, activeDiscount)}
             </p>
         </div>
     );

@@ -87,18 +87,24 @@ export type CommunityMembershipAdminPage = {
 };
 
 /**
- * What one member agreed to when they opened a checkout
+ * What one member accepted, however they came by their membership
  */
-export type RequestedCommunityMembershipValues = {
+export type AcceptedCommunityMembershipValues = {
     readonly email: string;
     readonly fullname: string;
     readonly planId: string;
     readonly monthlyPriceCzk: number;
     readonly discountCode: string | null;
     readonly discountPercent: number;
-    readonly stripeCheckoutSessionId: string;
     readonly isTestPayment: boolean;
     readonly requestedByParticipantId: string;
+};
+
+/**
+ * What one member agreed to when they opened a checkout
+ */
+export type RequestedCommunityMembershipValues = AcceptedCommunityMembershipValues & {
+    readonly stripeCheckoutSessionId: string;
 };
 
 /**
@@ -288,36 +294,37 @@ export async function loadCommunityMembershipAdminPage(
 }
 
 /**
- * Records the offer a member accepted before they are sent to the payment gate.
+ * The membership of one member as it stands the moment they accepted the offer.
  *
- * Note: The membership is written before the gate is even opened, so a payment which is confirmed by a webhook long
- *       after the browser was closed still finds the member, the plan and the price it belongs to.
+ * Note: A membership which is being taken again describes that attempt alone, so nothing the gate decides about the
+ *       subscription somebody left behind can be mistaken for a decision about the new one.
  */
-export async function saveRequestedCommunityMembership(
-    supabase: SupabaseClient,
-    existingMembershipId: string | null,
-    values: RequestedCommunityMembershipValues,
-): Promise<{ readonly errorMessage: string | null }> {
-    const membershipValues = {
+function createAcceptedCommunityMembershipValues(values: AcceptedCommunityMembershipValues) {
+    return {
         email: normalizeCommunityMemberEmail(values.email),
         fullname: values.fullname,
         plan_id: values.planId,
-        status: 'pending' satisfies StoredCommunityMembershipStatus,
         monthly_price_czk: values.monthlyPriceCzk,
         discount_code: values.discountCode,
         discount_percent: values.discountPercent,
-        stripe_checkout_session_id: values.stripeCheckoutSessionId,
         is_test_payment: values.isTestPayment,
         is_cancellation_scheduled: false,
         requested_by_participant_id: values.requestedByParticipantId,
-        // A membership which is being bought again describes that attempt alone, so nothing the gate decides about the
-        // subscription somebody left behind can be mistaken for a decision about the new one.
         stripe_subscription_id: null,
         current_period_ends_at: null,
-        activated_at: null,
         canceled_at: null,
     };
+}
 
+/**
+ * Writes the one membership of a member, whether they never had one or are taking it anew.
+ */
+async function saveCommunityMembership(
+    supabase: SupabaseClient,
+    existingMembershipId: string | null,
+    membershipValues: Readonly<Record<string, unknown>>,
+    operationName: string,
+): Promise<{ readonly errorMessage: string | null }> {
     const { error } =
         existingMembershipId === null
             ? await supabase.from(COMMUNITY_MEMBERSHIP_TABLE_NAME).insert(membershipValues)
@@ -326,9 +333,56 @@ export async function saveRequestedCommunityMembership(
                   .update(membershipValues)
                   .eq('id', existingMembershipId);
 
-    return {
-        errorMessage: error ? reportSupabaseError('the requested community membership', error) : null,
-    };
+    return { errorMessage: error ? reportSupabaseError(operationName, error) : null };
+}
+
+/**
+ * Records the offer a member accepted before they are sent to the payment gate.
+ *
+ * Note: The membership is written before the gate is even opened, so a payment which is confirmed by a webhook long
+ *       after the browser was closed still finds the member, the plan and the price it belongs to.
+ */
+export function saveRequestedCommunityMembership(
+    supabase: SupabaseClient,
+    existingMembershipId: string | null,
+    values: RequestedCommunityMembershipValues,
+): Promise<{ readonly errorMessage: string | null }> {
+    return saveCommunityMembership(
+        supabase,
+        existingMembershipId,
+        {
+            ...createAcceptedCommunityMembershipValues(values),
+            status: 'pending' satisfies StoredCommunityMembershipStatus,
+            stripe_checkout_session_id: values.stripeCheckoutSessionId,
+            activated_at: null,
+        },
+        'the requested community membership',
+    );
+}
+
+/**
+ * Gives a member the membership their voucher pays for, which is theirs the moment it is written.
+ *
+ * Note: Such a membership is active without ever having been through the payment gate, so it carries neither a
+ *       checkout nor a subscription. There is nothing for the gate to decide about it later and nothing to cancel:
+ *       the discount code took its whole price for as long as it lasts.
+ */
+export function saveRedeemedCommunityMembership(
+    supabase: SupabaseClient,
+    existingMembershipId: string | null,
+    values: AcceptedCommunityMembershipValues,
+): Promise<{ readonly errorMessage: string | null }> {
+    return saveCommunityMembership(
+        supabase,
+        existingMembershipId,
+        {
+            ...createAcceptedCommunityMembershipValues(values),
+            status: 'active' satisfies StoredCommunityMembershipStatus,
+            stripe_checkout_session_id: null,
+            activated_at: new Date().toISOString(),
+        },
+        'the redeemed community membership',
+    );
 }
 
 /**

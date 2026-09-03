@@ -51,6 +51,7 @@ describe('community membership room state', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: true,
             isSubscriptionManagementOffered: false,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
     });
@@ -67,8 +68,40 @@ describe('community membership room state', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
+    });
+
+    it('says of a membership a voucher covers that nothing is paid for it and nothing is managed about it', () => {
+        const voucherMembership = createCommunityMembershipRoomState(
+            {
+                ...createMembership('active'),
+                monthlyPriceCzk: 0,
+                discountCode: 'VOUCHER_FREE',
+                discountPercent: 100,
+                stripeSubscriptionId: null,
+                stripeCheckoutSessionId: null,
+                currentPeriodEndsAt: null,
+            },
+            LIVE_GATE,
+        );
+
+        expect(voucherMembership.isCoveredByDiscountCode).toBe(true);
+        expect(voucherMembership.monthlyPriceCzk).toBe(0);
+        expect(voucherMembership.isPurchaseOffered).toBe(false);
+        expect(voucherMembership.isSubscriptionManagementOffered).toBe(false);
+    });
+
+    it('keeps a subscription which a code merely discounts a paid one', () => {
+        const discountedMembership = createCommunityMembershipRoomState(
+            { ...createMembership('active'), monthlyPriceCzk: 0, discountCode: 'FIRST_MONTHS', discountPercent: 100 },
+            LIVE_GATE,
+        );
+
+        // The whole price of its first months was taken, but its subscription still charges the card afterwards.
+        expect(discountedMembership.isCoveredByDiscountCode).toBe(false);
+        expect(discountedMembership.isSubscriptionManagementOffered).toBe(true);
     });
 
     it('keeps a membership whose last payment failed, without offering it again', () => {

@@ -3,8 +3,8 @@
 import {
     createUrlWithoutCommunityMembershipCheckoutReturn,
     readCommunityMembershipCheckoutReturn,
-    type CommunityMembershipCheckoutResult,
     type CommunityMembershipCheckoutReturn,
+    type CommunityMembershipPurchaseOutcome,
 } from '@/businesses/community/membership/communityMembershipCheckoutReturn';
 import {
     confirmCommunityMembershipCheckout,
@@ -12,7 +12,7 @@ import {
     openCommunityMembershipSubscriptionPortal,
     reactivateCommunityMembership,
     scheduleCommunityMembershipCancellation,
-    startCommunityMembershipCheckout,
+    startCommunityMembershipPurchase,
 } from '@/businesses/community/membership/communityMembershipRoomApi';
 import { JsonRequestError } from '@/lib/api/requestJson';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
@@ -26,15 +26,16 @@ type CommunityMembershipRoomController = {
      */
     readonly membership: CommunityMembershipRoomState | null;
     readonly isMembershipLoading: boolean;
-    readonly isCheckoutStarting: boolean;
+    readonly isPurchaseStarting: boolean;
     readonly isMembershipCancellationChanging: boolean;
     readonly isMembershipPortalOpening: boolean;
     readonly errorMessage: string | null;
 
     /**
-     * What the payment gate said about the member who has just come back, until they close it
+     * How taking the membership ended, either at the gate the member has just come back from or with a voucher which
+     * needed no gate, until they close it
      */
-    readonly checkoutResult: CommunityMembershipCheckoutResult | null;
+    readonly purchaseOutcome: CommunityMembershipPurchaseOutcome | null;
 
     /**
      * Whether the member has opened the membership details from their room badge.
@@ -45,11 +46,11 @@ type CommunityMembershipRoomController = {
      * Asks for the membership once, however many surfaces of the room want to know it
      */
     readonly ensureMembershipLoaded: () => void;
-    readonly startCheckout: (discountCode: string) => Promise<void>;
+    readonly startMembershipPurchase: (discountCode: string) => Promise<void>;
     readonly scheduleCancellation: () => Promise<boolean>;
     readonly reactivateMembership: () => Promise<boolean>;
     readonly openMembershipPortal: () => Promise<void>;
-    readonly dismissCheckoutResult: () => void;
+    readonly dismissPurchaseOutcome: () => void;
     readonly openMembershipModal: () => void;
     readonly setIsMembershipModalOpen: (isMembershipModalOpen: boolean) => void;
 };
@@ -114,11 +115,11 @@ export function CommunityMembershipRoomProvider({
     );
     const [membership, setMembership] = useState<CommunityMembershipRoomState | null>(null);
     const [isMembershipLoading, setIsMembershipLoading] = useState(false);
-    const [isCheckoutStarting, setIsCheckoutStarting] = useState(false);
+    const [isPurchaseStarting, setIsPurchaseStarting] = useState(false);
     const [isMembershipCancellationChanging, setIsMembershipCancellationChanging] = useState(false);
     const [isMembershipPortalOpening, setIsMembershipPortalOpening] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [checkoutResult, setCheckoutResult] = useState<CommunityMembershipCheckoutResult | null>(
+    const [purchaseOutcome, setPurchaseOutcome] = useState<CommunityMembershipPurchaseOutcome | null>(
         checkoutReturn.result,
     );
     const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
@@ -142,10 +143,10 @@ export function CommunityMembershipRoomProvider({
     // The result used to be visible in the in-page membership section. Opening the modal for a returning member keeps
     // that confirmation or cancellation visible after moving the surface out of the room layout.
     useEffect(() => {
-        if (checkoutResult !== null) {
+        if (purchaseOutcome !== null) {
             setIsMembershipModalOpen(true);
         }
-    }, [checkoutResult]);
+    }, [purchaseOutcome]);
 
     const ensureMembershipLoaded = useCallback(() => {
         if (isMembershipRequestedRef.current) {
@@ -185,20 +186,35 @@ export function CommunityMembershipRoomProvider({
             .finally(() => setIsMembershipLoading(false));
     }, [workshopSlug]);
 
-    const startCheckout = useCallback(
+    const startMembershipPurchase = useCallback(
         async (discountCode: string) => {
-            setIsCheckoutStarting(true);
+            setIsPurchaseStarting(true);
             setErrorMessage(null);
 
             try {
-                const { checkoutUrl } = await startCommunityMembershipCheckout(workshopSlug, {
-                    discountCode,
-                    termsAccepted: true,
-                });
-                trackGoogleAnalyticsEvent('community_membership_checkout_started', {
-                    has_discount_code: discountCode.trim() !== '',
-                });
-                window.location.assign(checkoutUrl);
+                const { checkoutUrl, membership: redeemedMembership } = await startCommunityMembershipPurchase(
+                    workshopSlug,
+                    { discountCode, termsAccepted: true },
+                );
+
+                if (checkoutUrl !== null) {
+                    trackGoogleAnalyticsEvent('community_membership_checkout_started', {
+                        has_discount_code: discountCode.trim() !== '',
+                    });
+                    window.location.assign(checkoutUrl);
+                    return;
+                }
+
+                // A membership which a voucher covers in full is answered with itself rather than with a gate, so the
+                // room shows it immediately instead of sending the member somewhere to pay nothing.
+                if (redeemedMembership === null) {
+                    throw new Error(COMMUNITY_MEMBERSHIP_MESSAGES.paymentNotOpened);
+                }
+
+                trackGoogleAnalyticsEvent('community_membership_voucher_redeemed');
+                setMembership(redeemedMembership);
+                setPurchaseOutcome('redeemed');
+                setIsPurchaseStarting(false);
             } catch (error) {
                 // A member who pressed the button is always answered, including when it was their room session which
                 // expired, because a button which silently does nothing is the one thing they cannot act on.
@@ -207,7 +223,7 @@ export function CommunityMembershipRoomProvider({
                         ? COMMUNITY_MEMBERSHIP_MESSAGES.connectionExpired
                         : getMembershipErrorMessage(error, COMMUNITY_MEMBERSHIP_MESSAGES.paymentNotOpened),
                 );
-                setIsCheckoutStarting(false);
+                setIsPurchaseStarting(false);
             }
         },
         [workshopSlug],
@@ -261,7 +277,7 @@ export function CommunityMembershipRoomProvider({
         }
     }, [workshopSlug]);
 
-    const dismissCheckoutResult = useCallback(() => setCheckoutResult(null), []);
+    const dismissPurchaseOutcome = useCallback(() => setPurchaseOutcome(null), []);
     const openMembershipModal = useCallback(() => setIsMembershipModalOpen(true), []);
 
     // A room which does not offer the membership holds none, so its surfaces are given nothing to show rather than an
@@ -271,18 +287,18 @@ export function CommunityMembershipRoomProvider({
         : {
               membership,
               isMembershipLoading,
-              isCheckoutStarting,
+              isPurchaseStarting,
               isMembershipCancellationChanging,
               isMembershipPortalOpening,
               errorMessage,
-              checkoutResult,
+              purchaseOutcome,
               isMembershipModalOpen,
               ensureMembershipLoaded,
-              startCheckout,
+              startMembershipPurchase,
               scheduleCancellation,
               reactivateMembership,
               openMembershipPortal,
-              dismissCheckoutResult,
+              dismissPurchaseOutcome,
               openMembershipModal,
               setIsMembershipModalOpen,
           };

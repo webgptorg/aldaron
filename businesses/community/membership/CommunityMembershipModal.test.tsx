@@ -34,7 +34,17 @@ const scheduleCommunityMembershipCancellation = vi.fn<(workshopSlug: string) => 
 const reactivateCommunityMembership = vi.fn<(workshopSlug: string) => Promise<CommunityMembershipRoomState>>();
 const openCommunityMembershipSubscriptionPortal =
     vi.fn<(workshopSlug: string) => Promise<{ readonly portalUrl: string }>>();
-const startCommunityMembershipCheckout = vi.fn();
+const startCommunityMembershipPurchase = vi.fn();
+const validateDiscountCode = vi.fn<(discountCode: string, discountPlaceId: string) => Promise<unknown>>();
+
+vi.mock('@/lib/discounts/discountCodeApi', () => ({
+    validateDiscountCode: (discountCode: string, discountPlaceId: string) =>
+        validateDiscountCode(discountCode, discountPlaceId),
+}));
+
+// Nothing is measured in a test document, and the real reporter keeps waiting for an analytics script which never
+// arrives there, which would outlive the test which caused it.
+vi.mock('@/lib/tracking/track-google-analytics-event', () => ({ trackGoogleAnalyticsEvent: () => undefined }));
 
 vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     fetchCommunityMembership: (workshopSlug: string) => fetchCommunityMembership(workshopSlug),
@@ -45,8 +55,8 @@ vi.mock('@/businesses/community/membership/communityMembershipRoomApi', () => ({
     scheduleCommunityMembershipCancellation: (workshopSlug: string) =>
         scheduleCommunityMembershipCancellation(workshopSlug),
     reactivateCommunityMembership: (workshopSlug: string) => reactivateCommunityMembership(workshopSlug),
-    startCommunityMembershipCheckout: (workshopSlug: string, values: unknown) =>
-        startCommunityMembershipCheckout(workshopSlug, values),
+    startCommunityMembershipPurchase: (workshopSlug: string, values: unknown) =>
+        startCommunityMembershipPurchase(workshopSlug, values),
 }));
 
 import { CommunityMembershipRoomProvider } from './CommunityMembershipRoomProvider';
@@ -60,6 +70,7 @@ const OFFERED_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: false,
     isPurchaseOffered: true,
     isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 
@@ -70,6 +81,7 @@ const CANCELLATION_SCHEDULED_MEMBERSHIP: CommunityMembershipRoomState = {
     isCancellationScheduled: true,
     isPurchaseOffered: false,
     isSubscriptionManagementOffered: true,
+    isCoveredByDiscountCode: false,
     isPaymentInTestMode: false,
 };
 
@@ -77,6 +89,32 @@ const ACTIVE_MANAGEABLE_MEMBERSHIP: CommunityMembershipRoomState = {
     ...CANCELLATION_SCHEDULED_MEMBERSHIP,
     isCancellationScheduled: false,
 };
+
+/**
+ * The membership as it stands once a voucher gave it away: nothing is charged for it and no subscription stands
+ * behind it, so there is nothing to cancel either.
+ */
+const VOUCHER_MEMBERSHIP: CommunityMembershipRoomState = {
+    status: 'active',
+    monthlyPriceCzk: 0,
+    currentPeriodEndsAt: null,
+    isCancellationScheduled: false,
+    isPurchaseOffered: false,
+    isSubscriptionManagementOffered: false,
+    isCoveredByDiscountCode: true,
+    isPaymentInTestMode: false,
+};
+
+const FULL_PERMANENT_DISCOUNT = {
+    code: 'VOUCHER_FREE',
+    percent: 100,
+    remainingUseCount: null,
+    subscriptionDiscountDurationMonths: null,
+};
+
+async function applyDiscountCode(discountCode: string) {
+    fireEvent.change(await screen.findByLabelText('Slevový kód'), { target: { value: discountCode } });
+}
 
 function renderMembershipModal() {
     render(
@@ -106,6 +144,7 @@ beforeEach(() => {
     openCommunityMembershipSubscriptionPortal.mockResolvedValue({
         portalUrl: 'https://billing.stripe.com/p/session/test_Example',
     });
+    validateDiscountCode.mockResolvedValue(null);
 });
 
 afterEach(() => {
@@ -150,6 +189,7 @@ describe('community membership modal', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();
@@ -215,6 +255,7 @@ describe('community membership modal', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();
@@ -241,6 +282,7 @@ describe('community membership modal', () => {
             isCancellationScheduled: false,
             isPurchaseOffered: false,
             isSubscriptionManagementOffered: true,
+            isCoveredByDiscountCode: false,
             isPaymentInTestMode: false,
         });
         renderMembershipModal();
@@ -251,6 +293,70 @@ describe('community membership modal', () => {
         expect(fetchCommunityMembership).not.toHaveBeenCalled();
         // The address stops confirming that payment, so reloading the room does not celebrate it a second time.
         expect(window.location.search).toBe('');
+    });
+
+    it('asks for no card at all when a code covers the whole membership for as long as it lasts', async () => {
+        validateDiscountCode.mockResolvedValue(FULL_PERMANENT_DISCOUNT);
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
+        await applyDiscountCode('VOUCHER_FREE');
+
+        expect(await screen.findByRole('button', { name: 'Aktivovat členství zdarma' })).toBeDefined();
+        expect(screen.getByText('Slevový kód pokrývá celé členství, takže neplatíte nic.')).toBeDefined();
+        expect(screen.queryByRole('button', { name: /Zaplatit/ })).toBeNull();
+        expect(screen.queryByText(/Platíte přes zabezpečenou bránu Stripe/)).toBeNull();
+    });
+
+    it('keeps asking for a card when a code covers the membership for its first months only', async () => {
+        validateDiscountCode.mockResolvedValue({ ...FULL_PERMANENT_DISCOUNT, subscriptionDiscountDurationMonths: 3 });
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
+        await applyDiscountCode('VOUCHER_FREE');
+
+        // The price returns to normal after those months, which is exactly what the card would then be charged.
+        expect(await screen.findByRole('button', { name: 'Zaplatit 0 Kč / měsíc' })).toBeDefined();
+        expect(screen.getByText(/Poté bude cena 199 Kč měsíčně/)).toBeDefined();
+        expect(screen.getByText(/Platíte přes zabezpečenou bránu Stripe/)).toBeDefined();
+    });
+
+    it('names no test card for a membership which never reaches the gate', async () => {
+        fetchCommunityMembership.mockResolvedValue({ ...OFFERED_MEMBERSHIP, isPaymentInTestMode: true });
+        validateDiscountCode.mockResolvedValue(FULL_PERMANENT_DISCOUNT);
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
+        await applyDiscountCode('VOUCHER_FREE');
+
+        await screen.findByRole('button', { name: 'Aktivovat členství zdarma' });
+        expect(screen.queryByText(/Testovací režim platební brány/)).toBeNull();
+    });
+
+    it('hands over the membership a voucher covers without sending the member anywhere', async () => {
+        validateDiscountCode.mockResolvedValue(FULL_PERMANENT_DISCOUNT);
+        startCommunityMembershipPurchase.mockResolvedValue({ checkoutUrl: null, membership: VOUCHER_MEMBERSHIP });
+        renderMembershipModal();
+
+        await openFreeMembershipModal();
+        await applyDiscountCode('VOUCHER_FREE');
+        fireEvent.click(await screen.findByLabelText('Souhlasím s obchodními podmínkami'));
+        fireEvent.click(await screen.findByRole('button', { name: 'Aktivovat členství zdarma' }));
+
+        await vi.waitFor(() =>
+            expect(startCommunityMembershipPurchase).toHaveBeenCalledWith(COMMUNITY_WORKSHOP_SLUG, {
+                discountCode: 'VOUCHER_FREE',
+                termsAccepted: true,
+            }),
+        );
+        expect(await screen.findByText('Slevový kód uplatněn. Placené členství je vaše zdarma, díky!')).toBeDefined();
+        expect(screen.getByText('Placené členství je aktivní')).toBeDefined();
+        expect(
+            screen.getByText(/Členství máte díky slevovému kódu zdarma, nic se neplatí a kartu jsme po vás nechtěli\./),
+        ).toBeDefined();
+        // Such a membership is charged for nothing, so there is no renewal of it to cancel or to manage in Stripe.
+        expect(screen.queryByRole('button', { name: 'Zrušit placené členství' })).toBeNull();
+        expect(screen.queryByRole('button', { name: 'Spravovat platbu ve Stripe' })).toBeNull();
     });
 
     it('says that a member who came back without paying can buy the membership later', async () => {

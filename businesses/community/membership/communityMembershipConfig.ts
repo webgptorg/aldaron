@@ -46,6 +46,11 @@ export const COMMUNITY_MEMBERSHIP_TRIAL_DAY_COUNT = 7;
 export const COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT = 12;
 export const COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT = 2;
 export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID: CurrentPaidCommunityMembershipPlanId = 'membership';
+
+/**
+ * The one billing period the current paid membership is offered with, read by everything which prices it
+ */
+export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD: CommunityMembershipBillingPeriod = 'monthly';
 export const CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK = 199;
 const COMMUNITY_MEMBERSHIP_YEARLY_CHARGED_MONTH_COUNT =
     COMMUNITY_MEMBERSHIP_YEARLY_MONTH_COUNT - COMMUNITY_MEMBERSHIP_YEARLY_FREE_MONTH_COUNT;

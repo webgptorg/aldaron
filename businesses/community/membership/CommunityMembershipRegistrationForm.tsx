@@ -20,6 +20,7 @@ import { Check, CheckCircle2, Crown, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import {
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
 } from './communityMembershipConfig';
@@ -34,8 +35,6 @@ type CommunityMembershipRegistrationFormProps = {
     readonly initialEmail: string;
     readonly discountCodeValidation: DiscountCodeValidation;
 };
-
-const MONTHLY_BILLING_PERIOD = 'monthly' as const;
 
 export function CommunityMembershipRegistrationForm({
     initialFullname,
@@ -83,7 +82,7 @@ export function CommunityMembershipRegistrationForm({
         try {
             const result = await submitCommunityMembershipRegistration({
                 planId: CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
-                billingPeriod: MONTHLY_BILLING_PERIOD,
+                billingPeriod: CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD,
                 fullname: fullname.trim(),
                 email: email.trim(),
                 discountCode: discountCodeValidation.discountCode,
@@ -158,7 +157,7 @@ export function CommunityMembershipRegistrationForm({
             <div className="mt-6 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-100">
                 <CommunityMembershipPriceDisplay
                     planId={CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID}
-                    billingPeriod={MONTHLY_BILLING_PERIOD}
+                    billingPeriod={CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD}
                     activeDiscount={discountCodeValidation.activeDiscount}
                 />
                 <div className="mt-4 flex items-start gap-2 border-t border-slate-200 pt-4 text-xs leading-relaxed text-slate-600">

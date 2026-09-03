@@ -1,4 +1,4 @@
-import { MAXIMAL_DISCOUNT_CODE_LENGTH } from '@/lib/discounts/discountCodeConstants';
+import { MAXIMAL_DISCOUNT_CODE_LENGTH, MAXIMAL_DISCOUNT_PERCENT } from '@/lib/discounts/discountCodeConstants';
 
 /**
  * How long a discount survives after it has opened a subscription. `null` deliberately means the
@@ -103,6 +103,25 @@ export function isDiscountCodeExhausted(discountCode: Pick<DiscountCode, 'maximu
 
 export function isSubscriptionDiscountPermanent(discount: SubscriptionDiscountDuration): boolean {
     return discount.subscriptionDiscountDurationMonths === null;
+}
+
+/**
+ * Whether a discount takes the whole price for as long as the subscription lasts, which is what turns a code into a
+ * voucher rather than a discount: such a subscription is never charged for anything, so no card is needed for it.
+ *
+ * Note: A code which takes the whole price for a limited number of months is deliberately not one of these. Its price
+ *       returns to normal once those months are over, which is exactly when the card would be charged.
+ * Note: No discount at all covers nothing, so the absence of one is answered rather than refused. Every offer holds
+ *       either a discount or none, and each of them asks this same question.
+ */
+export function isSubscriptionDiscountFullAndPermanent(
+    discount: (SubscriptionDiscountDuration & Pick<ActiveDiscount, 'percent'>) | null,
+): boolean {
+    return (
+        discount !== null &&
+        discount.percent >= MAXIMAL_DISCOUNT_PERCENT &&
+        isSubscriptionDiscountPermanent(discount)
+    );
 }
 
 /**

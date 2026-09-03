@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN,
     CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
     getCommunityMembershipFeature,
@@ -16,7 +17,10 @@ import { DiscountCodeField } from '@/components/discounts/DiscountCodeField';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { COMMUNITY_MEMBERSHIP_MESSAGES } from '@/lib/community-membership/communityMembershipMessages';
-import type { ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
+import {
+    isSubscriptionDiscountFullAndPermanent,
+    type ActiveDiscountByPlaceId,
+} from '@/lib/discounts/discountCode';
 import { COMMUNITY_MEMBERSHIP_DISCOUNT_PLACE_ID } from '@/lib/discounts/discountPlaces';
 import {
     isDiscountCodeReadyForSubmission,
@@ -34,13 +38,12 @@ import {
     Rss,
     ShieldCheck,
     Sparkles,
+    Ticket,
     Video,
     type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-
-const MONTHLY_BILLING_PERIOD = 'monthly' as const;
 
 /**
  * No code is prefilled inside the room, so the same empty answer is reused instead of a new object on every render.
@@ -61,13 +64,57 @@ const COMMUNITY_MEMBERSHIP_BENEFITS_TITLE_ID = 'community-membership-benefits-ti
 
 type CommunityMembershipPurchasePanelProps = {
     readonly isPaymentInTestMode: boolean;
-    readonly isCheckoutStarting: boolean;
+    readonly isPurchaseStarting: boolean;
     readonly errorMessage: string | null;
-    readonly onPay: (discountCode: string) => void;
+    readonly onPurchase: (discountCode: string) => void;
+};
+
+/**
+ * What the one button of the offer says and promises
+ */
+type CommunityMembershipPurchaseAction = {
+    readonly ActionIcon: LucideIcon;
+    readonly label: string;
+    readonly startedLabel: string;
+
+    /** The tail of the sentence which follows the link to the terms and conditions */
+    readonly termsNote: string;
+    readonly assurance: string;
 };
 
 function getPaidMembershipFeatureIcon(featureId: CommunityMembershipFeatureId): LucideIcon {
     return PAID_MEMBERSHIP_FEATURE_ICON_BY_ID[featureId] ?? FolderGit2;
+}
+
+/**
+ * How the offer reads, which is decided by whether anything is ever going to be charged for it.
+ *
+ * Note: A code which takes the whole price for as long as the membership lasts is a voucher: it is redeemed here and
+ *       now, and no card is asked for, because there will never be anything to charge one for. Every other offer,
+ *       including a code which takes the whole price for a few months only, opens the payment gate as before.
+ */
+function createCommunityMembershipPurchaseAction(
+    isCoveredByDiscountCode: boolean,
+    monthlyPriceCzk: number,
+): CommunityMembershipPurchaseAction {
+    if (isCoveredByDiscountCode) {
+        return {
+            ActionIcon: Ticket,
+            label: 'Aktivovat členství zdarma',
+            startedLabel: 'Aktivuji členství…',
+            termsNote: 'a beru na vědomí, že slevový kód pokrývá celé členství, takže se nic neplatí.',
+            assurance: 'Slevový kód pokrývá celé členství – kartu ani platbu po vás nechceme. Členství máte hned.',
+        };
+    }
+
+    return {
+        ActionIcon: CreditCard,
+        label: `Zaplatit ${formatCommunityMembershipPrice(monthlyPriceCzk)} / měsíc`,
+        startedLabel: 'Otevírám platbu…',
+        termsNote: 'a beru na vědomí, že platba se opakuje každý měsíc.',
+        assurance:
+            'Platíte přes zabezpečenou bránu Stripe, kartu nikdy nevidíme. Zrušit můžete kdykoli přímo v komunitě.',
+    };
 }
 
 function CommunityMembershipFeatureCard({ featureId }: { readonly featureId: CommunityMembershipFeatureId }) {
@@ -139,9 +186,9 @@ function CommunityMembershipFeatureGrid() {
  */
 export function CommunityMembershipPurchasePanel({
     isPaymentInTestMode,
-    isCheckoutStarting,
+    isPurchaseStarting,
     errorMessage,
-    onPay,
+    onPurchase,
 }: CommunityMembershipPurchasePanelProps) {
     const [areTermsAccepted, setAreTermsAccepted] = useState(false);
     const [isValidationShown, setIsValidationShown] = useState(false);
@@ -153,9 +200,15 @@ export function CommunityMembershipPurchasePanel({
     // The button asks for exactly what the card will be charged, discount included, rather than for the list price.
     const price = createCommunityMembershipPrice(
         CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID,
-        MONTHLY_BILLING_PERIOD,
+        CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD,
         discountCodeValidation.activeDiscount,
     );
+    const isCoveredByDiscountCode = isSubscriptionDiscountFullAndPermanent(discountCodeValidation.activeDiscount);
+    const purchaseAction = createCommunityMembershipPurchaseAction(
+        isCoveredByDiscountCode,
+        price.finalMonthlyEquivalentCzk,
+    );
+    const PurchaseActionIcon = purchaseAction.ActionIcon;
 
     const isDiscountCodeReady = isDiscountCodeReadyForSubmission(discountCodeValidation);
 
@@ -167,7 +220,7 @@ export function CommunityMembershipPurchasePanel({
         }
 
         setIsValidationShown(false);
-        onPay(discountCodeValidation.discountCode);
+        onPurchase(discountCodeValidation.discountCode);
     };
 
     return (
@@ -196,13 +249,15 @@ export function CommunityMembershipPurchasePanel({
                         <CommunityMembershipPriceDisplay
                             className="mt-5"
                             planId={CURRENT_PAID_COMMUNITY_MEMBERSHIP_PLAN_ID}
-                            billingPeriod={MONTHLY_BILLING_PERIOD}
+                            billingPeriod={CURRENT_PAID_COMMUNITY_MEMBERSHIP_BILLING_PERIOD}
                             activeDiscount={discountCodeValidation.activeDiscount}
                             appearance="dark"
                         />
                         <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-xs font-medium text-cyan-50/80">
                             <Check className="h-4 w-4 shrink-0 text-cyan-200" aria-hidden="true" />
-                            Přístup ke všem výhodám hned po platbě
+                            {isCoveredByDiscountCode
+                                ? 'Přístup ke všem výhodám hned po aktivaci'
+                                : 'Přístup ke všem výhodám hned po platbě'}
                         </div>
                     </div>
 
@@ -229,7 +284,7 @@ export function CommunityMembershipPurchasePanel({
                             >
                                 obchodními podmínkami
                             </Link>{' '}
-                            a beru na vědomí, že platba se opakuje každý měsíc.
+                            {purchaseAction.termsNote}
                         </span>
                     </label>
                     {isValidationShown && (!areTermsAccepted || !isDiscountCodeReady) && (
@@ -251,25 +306,26 @@ export function CommunityMembershipPurchasePanel({
 
                     <Button
                         type="submit"
-                        disabled={isCheckoutStarting || discountCodeValidation.isValidationPending}
+                        disabled={isPurchaseStarting || discountCodeValidation.isValidationPending}
                         className="mt-4 h-12 w-full rounded-full border border-cyan-100/35 bg-gradient-to-r from-cyan-300 via-cyan-200 to-sky-300 text-base font-bold text-slate-950 shadow-lg shadow-cyan-400/20 transition hover:-translate-y-0.5 hover:from-cyan-200 hover:via-cyan-100 hover:to-sky-200 hover:shadow-cyan-300/30"
                     >
-                        {isCheckoutStarting ? (
+                        {isPurchaseStarting ? (
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         ) : (
-                            <CreditCard className="mr-2 h-5 w-5" />
+                            <PurchaseActionIcon className="mr-2 h-5 w-5" />
                         )}
-                        {isCheckoutStarting
-                            ? 'Otevírám platbu…'
-                            : `Zaplatit ${formatCommunityMembershipPrice(price.finalMonthlyEquivalentCzk)} / měsíc`}
+                        {isPurchaseStarting ? purchaseAction.startedLabel : purchaseAction.label}
                     </Button>
                     <p className="mt-3 flex gap-2 text-xs leading-5 text-slate-400">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-200" aria-hidden="true" />
-                        Platíte přes zabezpečenou bránu Stripe, kartu nikdy nevidíme. Zrušit můžete kdykoli přímo v
-                        komunitě.
+                        {purchaseAction.assurance}
                     </p>
 
-                    <CommunityMembershipTestModeNote isPaymentInTestMode={isPaymentInTestMode} />
+                    {/* Nothing goes through the gate for a membership a voucher covers, so its rehearsal is not named
+                        beside one either. */}
+                    <CommunityMembershipTestModeNote
+                        isPaymentInTestMode={isPaymentInTestMode && !isCoveredByDiscountCode}
+                    />
                 </div>
             </div>
         </form>
