@@ -1,4 +1,4 @@
-Following information is from file `AGENTS.md`, if you need to update it, do it:
+Following information is from file `AGENTS.md`, if you need to update it, do it, but do it only if necessary and do not make unnecessary changes and bulky texts:
 
 ## Context
 
