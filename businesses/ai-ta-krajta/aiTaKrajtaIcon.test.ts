@@ -1,5 +1,5 @@
 import { createAiTaKrajtaIconSvg, type AiTaKrajtaIconTileShape } from '@/businesses/ai-ta-krajta/aiTaKrajtaIcon';
-import { AI_TA_KRAJTA_MARK_SHAPES } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import { AI_TA_KRAJTA_MARK_BODY_SLICES } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 import { AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS } from '@/businesses/ai-ta-krajta/config';
 import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
@@ -77,23 +77,19 @@ describe('AI ta Krajta icon', () => {
     it('draws the very same snake as the logo of the page', () => {
         const iconSvg = createAiTaKrajtaIconSvg('rounded');
 
-        for (const shape of AI_TA_KRAJTA_MARK_SHAPES) {
-            if (shape.kind === 'filledEllipse') {
-                expect(iconSvg).toContain(`cx="${shape.centerX}" cy="${shape.centerY}"`);
-            } else {
-                expect(iconSvg).toContain(shape.pathData);
-            }
+        expect(AI_TA_KRAJTA_MARK_BODY_SLICES.length).toBeGreaterThan(0);
+
+        for (const slice of AI_TA_KRAJTA_MARK_BODY_SLICES) {
+            expect(iconSvg).toContain(
+                `<path d="${slice.pathData}" stroke="${slice.color}" stroke-width="${slice.strokeWidth}"`,
+            );
         }
     });
 
-    it('defines the gradient every part of the snake is painted with', () => {
+    it('lays the parts of the snake over each other in the order the logo lays them', () => {
         const iconSvg = createAiTaKrajtaIconSvg('rounded');
-        const referencedGradientIds = Array.from(iconSvg.matchAll(/url\(#([^)]+)\)/g)).map((match) => match[1]);
+        const drawnPathData = Array.from(iconSvg.matchAll(/<path d="([^"]+)"/g)).map((match) => match[1]);
 
-        expect(referencedGradientIds.length).toBeGreaterThan(0);
-
-        for (const referencedGradientId of referencedGradientIds) {
-            expect(iconSvg).toContain(`<linearGradient id="${referencedGradientId}"`);
-        }
+        expect(drawnPathData).toEqual(AI_TA_KRAJTA_MARK_BODY_SLICES.map((slice) => slice.pathData));
     });
 });

@@ -2,7 +2,10 @@
 
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
 import { AiTaKrajtaSnakeGame } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeGame';
-import type { AiTaKrajtaMarkFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import {
+    AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME,
+    type AiTaKrajtaMarkFrame,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 import { useCallback, useState, type MouseEvent } from 'react';
 
 /**
@@ -36,7 +39,7 @@ function AiTaKrajtaSnakeLogo({
 }: {
     readonly onGameStart?: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
-    const mark = <AiTaKrajtaMark className="h-full w-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.45)]" />;
+    const mark = <AiTaKrajtaMark className={`h-full w-full ${AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME}`} />;
     const className = 'block w-1/2 max-w-[13rem] rounded-full bg-transparent p-0';
 
     if (onGameStart === undefined) {
@@ -60,6 +63,10 @@ function AiTaKrajtaSnakeLogo({
  *
  * Note: The snake starts as the mark of the show and uncoils when a visitor clicks it, so nobody who came to find an
  *       episode gets a moving canvas thrown at them.
+ *
+ * Note: The canvas is not faded over the logo, it is drawn in its place. Both are the same animal read out of the same
+ *       description, so the first frame of the game already is the logo and the still mark is only kept on screen
+ *       until that frame exists.
  */
 export function AiTaKrajtaSnakeTerrarium() {
     const [initialMarkFrame, setInitialMarkFrame] = useState<AiTaKrajtaMarkFrame | null>(null);
