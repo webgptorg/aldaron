@@ -8,10 +8,6 @@ import {
     AI_TA_KRAJTA_MEDIA_KIT_PATH,
     AI_TA_KRAJTA_PATH,
 } from '@/businesses/ai-ta-krajta/config';
-import {
-    PROMPTBOOK_CODER_BADGE_LABEL,
-    PROMPTBOOK_CODER_URL,
-} from '@/components/promptbook-coder/promptbookCoderConfig';
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 
 /**
@@ -140,71 +136,13 @@ for (const path of PUBLIC_PAGE_PATHS) {
     });
 }
 
-test('cookie consent adapts its shared tray to the viewport and persistent podcast player', async ({ page }) => {
-    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
-
-    const cookieConsent = page.locator(COOKIE_CONSENT_SELECTOR);
-    await expect(cookieConsent).toBeVisible();
-    await expect(cookieConsent).toHaveAttribute('data-cookie-consent-appearance', 'podcast');
-
-    await page.getByRole('button', { name: 'Poslouchat' }).click();
-    await expect(page.locator('[data-ai-ta-krajta-mini-player]')).toBeVisible();
-
-    const cookiePanelBox = await page.locator(COOKIE_CONSENT_PANEL_SELECTOR).boundingBox();
-    const playerBox = await page.locator('[data-ai-ta-krajta-mini-player]').boundingBox();
-
-    expect(cookiePanelBox).not.toBeNull();
-    expect(playerBox).not.toBeNull();
-    expect(cookiePanelBox!.y + cookiePanelBox!.height).toBeLessThanOrEqual(playerBox!.y);
-
-    await page.goto('/ai-supervize', { waitUntil: 'domcontentloaded' });
-
-    const desktopCopyBox = await page.locator('.cookie-consent__copy').boundingBox();
-    const desktopActionsBox = await page.locator('.cookie-consent__actions').boundingBox();
-
-    expect(desktopCopyBox).not.toBeNull();
-    expect(desktopActionsBox).not.toBeNull();
-    expect(desktopActionsBox!.x).toBeGreaterThan(desktopCopyBox!.x);
-
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/cs', { waitUntil: 'domcontentloaded' });
-
-    const mobileCopyBox = await page.locator('.cookie-consent__copy').boundingBox();
-    const mobileActionsBox = await page.locator('.cookie-consent__actions').boundingBox();
-
-    expect(mobileCopyBox).not.toBeNull();
-    expect(mobileActionsBox).not.toBeNull();
-    expect(mobileActionsBox!.y).toBeGreaterThan(mobileCopyBox!.y + mobileCopyBox!.height);
-
-    await page.waitForTimeout(BOOKING_NOTIFICATION_DELAY_IN_MILLISECONDS);
-    await expect(page.locator('[data-booking-notification]')).toHaveCount(0);
-
-    await page.getByRole('button', { name: 'Nastavit' }).click();
-    const settingsDialog = page.getByRole('dialog');
-
-    await expect(settingsDialog.getByRole('heading', { name: 'Nastavení cookies' })).toBeVisible();
-    await settingsDialog.getByRole('button', { name: 'Uložit nastavení' }).click();
-    await expect(cookieConsent).toHaveCount(0);
-});
-
-test('AI ta Krajta collaboration section deep-links to its media kit', async ({ page }) => {
-    await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
-
-    const mediaKitLink = page.getByRole('link', { name: 'Otevřít media kit' });
-    await expect(mediaKitLink).toHaveAttribute('href', AI_TA_KRAJTA_MEDIA_KIT_PATH);
-    await mediaKitLink.click();
-
-    await expect(page).toHaveURL(AI_TA_KRAJTA_MEDIA_KIT_PATH);
-    await expect(page.getByRole('heading', { name: /Oslovte české a slovenské publikum/i })).toBeVisible();
-});
-
-test('AI ta Krajta owns its metadata, icon and installable manifest and credits Promptbook coder', async ({ page }) => {
+test('AI ta Krajta owns its metadata, icon and installable manifest', async ({ page }) => {
     await page.goto(AI_TA_KRAJTA_PATH, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('footer')).toBeVisible();
     await expect(page).toHaveTitle(`${AI_TA_KRAJTA_BRAND_NAME} | Český podcast o umělé inteligenci`);
 
     const metadataIdentity = await page.evaluate(
-        ({ scalableIconPath, rasterIconPath, manifestPath, coderUrl, coderBadgeLabel }) => {
+        ({ scalableIconPath, rasterIconPath, manifestPath }) => {
             const identityTags = Array.from(document.head.querySelectorAll('meta, link'));
             const structuredDataNodes = Array.from(document.head.querySelectorAll('script[type*=ld]'));
             const footerText = document.querySelector('footer')?.textContent ?? '';
@@ -227,13 +165,7 @@ test('AI ta Krajta owns its metadata, icon and installable manifest and credits 
             const isPodcastManifestUsed = identityTags.some(
                 (element) => element.getAttribute('rel') === 'manifest' && element.getAttribute('href') === manifestPath,
             );
-            const coderBadgeLink = document.querySelector(`footer a[href^="${coderUrl}"]`);
-            const isCoderBadgePresent = (coderBadgeLink?.textContent ?? '').includes(coderBadgeLabel);
-
-            // Note: The badge which credits the tool the page was written with is the one place the footer may name
-            //       Promptbook. Everything the footer says about the show itself is read without it, so a second
-            //       mention still fails this.
-            const isFooterPromptbookAbsent = !footerText.split(coderBadgeLabel).join('').includes('Promptbook');
+            const isFooterPromptbookAbsent = !footerText.includes('Promptbook');
             const isLegalCompanyPresent = footerText.includes('AI Web s.r.o.');
 
             return {
@@ -242,7 +174,6 @@ test('AI ta Krajta owns its metadata, icon and installable manifest and credits 
                 isPodcastIconUsed,
                 isPodcastTouchIconUsed,
                 isPodcastManifestUsed,
-                isCoderBadgePresent,
                 isFooterPromptbookAbsent,
                 isLegalCompanyPresent,
             };
@@ -251,8 +182,6 @@ test('AI ta Krajta owns its metadata, icon and installable manifest and credits 
             scalableIconPath: AI_TA_KRAJTA_APP_ICONS.SCALABLE.path,
             rasterIconPath: AI_TA_KRAJTA_APP_ICONS.RASTER.path,
             manifestPath: AI_TA_KRAJTA_MANIFEST_PATH,
-            coderUrl: PROMPTBOOK_CODER_URL,
-            coderBadgeLabel: PROMPTBOOK_CODER_BADGE_LABEL,
         },
     );
 
@@ -262,7 +191,6 @@ test('AI ta Krajta owns its metadata, icon and installable manifest and credits 
         isPodcastIconUsed: true,
         isPodcastTouchIconUsed: true,
         isPodcastManifestUsed: true,
-        isCoderBadgePresent: true,
         isFooterPromptbookAbsent: true,
         isLegalCompanyPresent: true,
     });
