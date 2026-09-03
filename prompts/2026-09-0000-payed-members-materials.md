@@ -40,4 +40,10 @@
 - Do a analysis of the current functionality before you start implementing.
 - Add the changes into the [changelog](./changelog/_current-preversion.md)
 
+---
 
+[-]
+
+[✨📛] Video for paid members only should have graphically more pleasing lock
+
+![alt text](prompts/screenshots/2026-09-0000-payed-members-materials.png)
