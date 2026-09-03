@@ -186,35 +186,35 @@ export const homepageContent = {
                 {
                     id: 1,
                     type: 'user',
-                    text: 'Ahoj, jsem tu nová zaměstnankyně a potřebuju najít informace o dovolenkové politice firmy. Může mi někdo pomoct?',
+                    text: 'Ahoj, jsem tu nová a nikde nemůžu najít, kolik mám dní dovolené. Poradíte?',
                     startDelay: 0,
                     static: true,
                 },
                 {
                     id: 2,
                     type: 'bot',
-                    text: 'Vítejte ve firmě, Anno! Všechny informace o dovolenkové politice najdete v naší interní znalostní bázi. Máte nárok na **25 dní dovolené ročně**.',
+                    text: 'Vítejte ve firmě, Anno! Podle pracovního řádu máte nárok na **25 dní dovolené ročně**.',
                     startDelay: 2000,
                     static: false,
                 },
                 {
                     id: 3,
                     type: 'bot',
-                    text: 'Pošlu vám shrnutí přímo na e-mail, ať to máte po ruce. Potřebujete ještě s něčím pomoct?',
+                    text: 'Pošlu vám to i na e-mail, ať to máte po ruce. Ještě něco?',
                     startDelay: 1200,
                     static: false,
                 },
                 {
                     id: 4,
                     type: 'user',
-                    text: 'Super, děkuji moc! To je přesně to, co jsem potřebovala. 🙌',
+                    text: 'Super, díky! Přesně tohle jsem potřebovala. 🙌',
                     startDelay: 1000,
                     static: false,
                 },
             ],
         },
         socialProof: {
-            eyebrow: 'Navrženo pro firmy, které berou svá data vážně',
+            eyebrow: 'Pro firmy, které berou svá data vážně',
             industries: [
                 'Výrobní firmy',
                 'Advokátní kanceláře',
@@ -246,27 +246,27 @@ export const homepageContent = {
                 {
                     title: 'Roztříštěná firemní data',
                     description:
-                        'Směrnice na SharePointu, smlouvy v e-mailech, manuály na Google Disku, procesy v hlavách lidí. Informace existují - ale jsou rozházené po desítkách systémů.',
-                    consequence: 'Zaměstnanci tráví výraznou část dne hledáním místo práce, za kterou je platíte.',
+                        'Směrnice na SharePointu, smlouvy v e-mailech, manuály na Google Disku, procesy v hlavách lidí. Informace existují, jen jsou rozházené po desítkách systémů.',
+                    consequence: 'Zaměstnanci hledají místo toho, aby dělali práci, za kterou je platíte.',
                 },
                 {
                     title: 'Klíčoví lidé jako interní helpdesk',
                     description:
-                        'Seniorní zaměstnanci zodpovídají stále stejné dotazy od nováčků a kolegů. Místo strategické práce řeší rutinní informační servis.',
+                        'Seniorní lidé odpovídají pořád dokola na ty samé dotazy od nováčků i kolegů. Místo strategické práce dělají informační servis.',
                     consequence: 'Vaši nejdražší lidé dělají práci, kterou by měl dělat systém.',
                 },
                 {
                     title: 'Riziko veřejné AI',
                     description:
-                        'Zaměstnanci řeší pracovní úkoly přes veřejný ChatGPT - včetně citlivých firemních dokumentů. Veřejná AI nemá kontext vaší firmy a při neznalosti si odpověď domyslí.',
+                        'Zaměstnanci řeší pracovní úkoly přes veřejný ChatGPT, včetně citlivých firemních dokumentů. Veřejná AI přitom vaši firmu nezná. Když odpověď nemá, domyslí si ji.',
                     consequence:
                         'Jedno rozhodnutí na základě vymyšlené informace může stát víc než roční rozpočet na nástroje.',
                 },
                 {
                     title: 'Odcházející know-how',
                     description:
-                        'Když z firmy odejde zkušený člověk, odchází s ním znalosti, které nikde nejsou zdokumentované - rozhodovací procesy, kontext klientských vztahů, historické know-how.',
-                    consequence: 'Firma přichází o roky budovanou expertízu, kterou nelze jednoduše nahradit.',
+                        'Když z firmy odejde zkušený člověk, odejdou s ním znalosti, které nikde nejsou zapsané. Jak se u vás rozhoduje, co má který klient za sebou, proč se věci dělají zrovna takhle.',
+                    consequence: 'Firma přijde o roky zkušeností a nahradit se to hned tak nedá.',
                 },
             ],
             timeAllocation: {
@@ -292,25 +292,25 @@ export const homepageContent = {
                 </>
             ),
             description:
-                'Nahrajte firemní dokumenty do bezpečného trezoru. Promptbook z nich vytvoří virtuálního zaměstnance - HR-istu, právníka, technika - kterého se kdokoliv zeptá normální češtinou.',
+                'Nahrajte firemní dokumenty do bezpečného trezoru. Promptbook z nich vytvoří virtuálního zaměstnance: HR-istu, právníka nebo technika. Kdokoliv se ho pak zeptá normální češtinou.',
             benefits: [
                 {
                     title: 'Bez promptování',
                     description:
-                        'Žádné školení. Žádné napiš prompt jako ajťák. Vaši zaměstnanci jsou experti na svůj obor, ne na zaříkávání robotů. Prostě se zeptají - písemně nebo hlasovkou - a dostanou odpověď.',
+                        'Žádné školení. Žádné "napiš prompt jako ajťák". Vaši zaměstnanci jsou experti na svůj obor, ne na zaříkávání robotů. Prostě se zeptají, písemně nebo hlasovkou, a dostanou odpověď.',
                     highlight: 'Tak, jak jsou zvyklí komunikovat s lidmi.',
                 },
                 {
                     title: 'Kontextový trezor',
                     description:
                         'Data nikdy neopustí vaši infrastrukturu. Nepoužíváme je na trénování žádných modelů. Víte, co se stane, když zaměstnanec zkopíruje NDA do veřejného ChatGPT?',
-                    highlight: 'My taky. Proto jsme to udělali jinak.',
+                    highlight: 'My to víme taky. Proto jsme to udělali jinak.',
                 },
                 {
                     title: 'Nevím je lepší než halucinace',
                     description:
-                        'Veřejná AI si vymyslí pět odstavců, které zní důvěryhodně - a mohou vás stát firmu. Promptbook čerpá výhradně z vašich dat. A když odpověď nenajde?',
-                    highlight: 'Narovinu řekne: Tuto informaci ve vašich dokumentech nemám.',
+                        'Veřejná AI si vymyslí pět odstavců, které zní důvěryhodně. A můžou vás stát firmu. Promptbook čerpá jen z vašich dat. A když odpověď nenajde?',
+                    highlight: 'Řekne narovinu: "Tuto informaci ve vašich dokumentech nemám."',
                 },
             ],
         },
@@ -328,7 +328,7 @@ export const homepageContent = {
                 {
                     title: 'Nahrajete dokumenty',
                     description:
-                        'Směrnice, smlouvy, manuály, NDAčka, zápisy z porad - cokoliv, co dnes leží rozházené po SharePointu, Google Disku nebo v šuplíku. Promptbook pojme až milion normostran.',
+                        'Směrnice, smlouvy, manuály, NDAčka, zápisy z porad. Cokoliv, co dnes leží rozházené po SharePointu, Google Disku nebo v šuplíku. Promptbook pojme až milion normostran.',
                 },
                 {
                     title: 'Vytvoříte virtuálního zaměstnance',
@@ -347,7 +347,7 @@ export const homepageContent = {
             eyebrow: 'Proč ne veřejný ChatGPT',
             heading: (
                 <>
-                    Tak to hodím do ChatGPT{' '}
+                    &quot;Tak to hodím do ChatGPT&quot;{' '}
                     <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">
                         je firemní sebevražda.
                     </span>
@@ -359,7 +359,7 @@ export const homepageContent = {
                 {
                     feature: 'Když nezná odpověď',
                     chatgpt: 'Sebevědomě si ji vymyslí',
-                    promptbook: 'Řekne: Nevím',
+                    promptbook: 'Řekne: "Nevím"',
                 },
                 {
                     feature: 'Vaše firemní data',
@@ -368,13 +368,13 @@ export const homepageContent = {
                 },
                 {
                     feature: 'Trénink na vašich datech',
-                    chatgpt: 'Ano - trénuje na nich další modely',
+                    chatgpt: 'Ano, trénuje na nich další modely',
                     promptbook: 'Ne. Nikdy.',
                 },
                 {
                     feature: 'Jak se ptáte',
                     chatgpt: '"Act as senior lawyer, temperature 0.2..."',
-                    promptbook: '"Hele, kde je NDA z 2021?"',
+                    promptbook: '"Hele, kde je to NDA z roku 2021?"',
                 },
                 {
                     feature: 'Firemní kontext',
@@ -407,17 +407,14 @@ export const homepageContent = {
             ],
             metrics: [
                 { value: '1 000 000', label: 'normostran kapacity', suffix: '' },
-                { value: '100%', label: 'GDPR compliance', suffix: '' },
+                { value: '100%', label: 'v souladu s GDPR', suffix: '' },
                 { value: '0', label: 'halucinací', suffix: '' },
             ],
         },
         team: {
             title: 'Seznamte se s naším týmem',
             description: (
-                <>
-                    Jsme tým odborníků, kteří pomáhají firmám využívat AI prakticky a bezpečně. Spojujeme zkušenosti z
-                    technologií, výzkumu a podnikání:
-                </>
+                <>Pomáháme firmám používat AI prakticky a bezpečně. Máme za sebou výzkum, vývoj i podnikání:</>
             ),
             jiriDescription: (
                 <>
@@ -441,7 +438,7 @@ export const homepageContent = {
                 </>
             ),
             description:
-                'Zarezervujte si 20minutový strategický hovor s naším týmem. Žádný agresivní sales pitch - projdeme vaši konkrétní situaci a ukážeme vám Promptbook přímo na vašich firemních datech.',
+                'Zarezervujte si 20minutový strategický hovor s naším týmem. Žádný agresivní sales pitch. Projdeme vaši situaci a ukážeme vám Promptbook přímo na vašich datech.',
             cta: 'Zarezervovat strategický hovor zdarma',
             capacityPrefix: 'Obsazeno',
             capacityStrong: '7',
@@ -449,7 +446,7 @@ export const homepageContent = {
             capacityRemaining: 'Zbývají 3',
             capacityNote: 'Bereme max. 10 firem měsíčně, abychom se každé mohli věnovat individuálně.',
             riskReversal:
-                'I kdybyste se rozhodli Promptbook nepoužívat, odnesete si konkrétní strategii, jak vyřešit chaos ve firemních datech.',
+                'I když si Promptbook nakonec nepořídíte, odnesete si konkrétní plán, jak srovnat chaos ve firemních datech.',
         },
         qualificationPopup: {
             dialogTitle: 'Kvalifikační formulář',
@@ -483,7 +480,7 @@ export const homepageContent = {
                     id: 'urgency',
                     question: 'Kdy byste chtěli začít?',
                     type: 'single',
-                    options: ['Co nejdřív - řešíme to akutně', 'Příští kvartál', 'Zatím jen zkoumáme možnosti'],
+                    options: ['Co nejdřív, řešíme to akutně', 'Příští kvartál', 'Zatím jen zkoumáme možnosti'],
                 },
                 {
                     id: 'contact',
@@ -515,7 +512,7 @@ export const homepageContent = {
             close: 'Zavřít',
             stepLabel: (currentStep, totalSteps) => `Krok ${currentStep + 1} z ${totalSteps}`,
             remainingSpots: 'Zbývají 3 místa',
-            intro: '5 otázek, 30 sekund. Ověříme, jestli pro vás Promptbook dává smysl.',
+            intro: '4 otázky, 30 sekund. Ověříme, jestli pro vás Promptbook dává smysl.',
             submitting: 'Odesílám...',
             submit: 'Rezervovat hovor zdarma',
             back: 'Zpět',
@@ -569,35 +566,35 @@ export const homepageContent = {
                 {
                     id: 1,
                     type: 'user',
-                    text: "Hi, I'm a new employee and need to find information about the company's vacation policy. Can someone help me?",
+                    text: "Hi, I just started here and I can't find how many vacation days I get. Can you help?",
                     startDelay: 0,
                     static: true,
                 },
                 {
                     id: 2,
                     type: 'bot',
-                    text: 'Welcome to the company, Anna! You can find all vacation policy details in our internal knowledge base. You are entitled to **25 vacation days per year**.',
+                    text: 'Welcome to the company, Anna! According to the employee handbook you get **25 vacation days per year**.',
                     startDelay: 2000,
                     static: false,
                 },
                 {
                     id: 3,
                     type: 'bot',
-                    text: 'I will send a summary directly to your email so you have it at hand. Do you need help with anything else?',
+                    text: 'I will send it to your email too, so you have it at hand. Anything else?',
                     startDelay: 1200,
                     static: false,
                 },
                 {
                     id: 4,
                     type: 'user',
-                    text: 'Great, thank you! That is exactly what I needed. 🙌',
+                    text: 'Great, thanks! Exactly what I needed. 🙌',
                     startDelay: 1000,
                     static: false,
                 },
             ],
         },
         socialProof: {
-            eyebrow: 'Designed for companies that take their data seriously',
+            eyebrow: 'For companies that take their data seriously',
             industries: [
                 'Manufacturing companies',
                 'Law firms',
@@ -629,32 +626,31 @@ export const homepageContent = {
                 {
                     title: 'Scattered company data',
                     description:
-                        'Policies on SharePoint, contracts in email, manuals on Google Drive, processes in people’s heads. The information exists, but it is scattered across dozens of systems.',
-                    consequence:
-                        'Employees spend a significant part of the day searching instead of doing the work you pay them for.',
+                        "Policies on SharePoint, contracts in email, manuals on Google Drive, processes in people's heads. The information exists, it is just scattered across dozens of systems.",
+                    consequence: 'Employees search instead of doing the work you pay them for.',
                 },
                 {
                     title: 'Key people as an internal help desk',
                     description:
-                        'Senior employees answer the same questions from newcomers and colleagues again and again. Instead of strategic work, they handle routine information requests.',
+                        'Senior people answer the same questions from newcomers and colleagues over and over. Instead of strategic work, they run an information desk.',
                     consequence: 'Your most expensive people are doing work that should be handled by a system.',
                 },
                 {
                     title: 'Public AI risk',
                     description:
-                        'Employees solve work tasks through public ChatGPT, including sensitive company documents. Public AI has no context about your company and invents answers when it does not know.',
+                        'Employees solve work tasks through public ChatGPT, including sensitive company documents. Public AI does not know your company. When it does not have the answer, it makes one up.',
                     consequence:
                         'One decision based on fabricated information can cost more than an annual tooling budget.',
                 },
                 {
                     title: 'Departing know-how',
                     description:
-                        'When an experienced person leaves the company, they take knowledge that is not documented anywhere: decision processes, client context, historical know-how.',
-                    consequence: 'The company loses years of expertise that cannot be replaced easily.',
+                        'When an experienced person leaves, they take knowledge nobody wrote down. How decisions get made, what each client has been through, why things are done this way.',
+                    consequence: 'The company loses years of experience, and that does not come back quickly.',
                 },
             ],
             timeAllocation: {
-                title: 'Where does your team’s time disappear?',
+                title: "Where does your team's time disappear?",
                 beforeLabel: 'Before',
                 beforePrimary: 'Low-value',
                 beforeSecondary: '20%',
@@ -676,25 +672,25 @@ export const homepageContent = {
                 </>
             ),
             description:
-                'Upload company documents into a secure vault. Promptbook turns them into a virtual employee - HR specialist, lawyer, technician - whom anyone can ask in plain language.',
+                'Upload company documents into a secure vault. Promptbook turns them into a virtual employee: an HR specialist, a lawyer, a technician. Anyone can then ask in plain language.',
             benefits: [
                 {
                     title: 'No prompting',
                     description:
-                        'No training. No “write a prompt like an IT person.” Your employees are experts in their field, not in instructing robots. They simply ask, by text or voice, and get an answer.',
+                        'No training. No "write a prompt like an IT person". Your employees are experts in their field, not in instructing robots. They simply ask, by text or voice, and get an answer.',
                     highlight: 'The same way they are used to communicating with people.',
                 },
                 {
                     title: 'Context vault',
                     description:
                         'Data never leaves your infrastructure. We do not use it to train any models. Do you know what happens when an employee copies an NDA into public ChatGPT?',
-                    highlight: 'We do too. That is why we built it differently.',
+                    highlight: 'We know too. That is why we built it differently.',
                 },
                 {
-                    title: '“I don’t know” beats hallucination',
+                    title: '"I do not know" beats a hallucination',
                     description:
-                        'Public AI invents five paragraphs that sound convincing and can cost you the company. Promptbook draws only from your data. And when it cannot find the answer?',
-                    highlight: 'It says plainly: I do not have this information in your documents.',
+                        'Public AI invents five paragraphs that sound convincing. They can cost you the company. Promptbook draws only from your data. And when it cannot find the answer?',
+                    highlight: 'It says plainly: "I do not have this information in your documents."',
                 },
             ],
         },
@@ -712,7 +708,7 @@ export const homepageContent = {
                 {
                     title: 'Upload documents',
                     description:
-                        'Policies, contracts, manuals, NDAs, meeting notes - anything currently scattered across SharePoint, Google Drive, or a drawer. Promptbook handles up to one million standard pages.',
+                        'Policies, contracts, manuals, NDAs, meeting notes. Anything that is scattered today across SharePoint, Google Drive, or a drawer. Promptbook handles up to one million standard pages.',
                 },
                 {
                     title: 'Create a virtual employee',
@@ -731,7 +727,7 @@ export const homepageContent = {
             eyebrow: 'Why not public ChatGPT',
             heading: (
                 <>
-                    “I’ll just put it into ChatGPT”{' '}
+                    &quot;I&apos;ll just put it into ChatGPT&quot;{' '}
                     <span className="bg-gradient-to-r from-red-500 to-rose-500 bg-clip-text text-transparent">
                         is corporate self-sabotage.
                     </span>
@@ -743,7 +739,7 @@ export const homepageContent = {
                 {
                     feature: 'When it does not know',
                     chatgpt: 'It confidently makes the answer up',
-                    promptbook: 'It says: I don’t know',
+                    promptbook: 'It says: "I do not know"',
                 },
                 {
                     feature: 'Your company data',
@@ -752,7 +748,7 @@ export const homepageContent = {
                 },
                 {
                     feature: 'Training on your data',
-                    chatgpt: 'Yes - it trains other models on it',
+                    chatgpt: 'Yes, it trains other models on it',
                     promptbook: 'No. Never.',
                 },
                 {
@@ -791,16 +787,16 @@ export const homepageContent = {
             ],
             metrics: [
                 { value: '1,000,000', label: 'standard pages of capacity', suffix: '' },
-                { value: '100%', label: 'GDPR compliance', suffix: '' },
+                { value: '100%', label: 'GDPR compliant', suffix: '' },
                 { value: '0', label: 'hallucinations', suffix: '' },
             ],
         },
         team: {
-            title: 'Meet Our Team',
+            title: 'Meet our team',
             description: (
                 <>
-                    We are a dedicated group of professionals committed to leveraging AI to transform businesses. With
-                    diverse backgrounds in technology, research, and entrepreneurship:
+                    We help companies use AI in a practical and safe way. Our backgrounds are in research, development,
+                    and business:
                 </>
             ),
             jiriDescription: (
@@ -811,8 +807,8 @@ export const homepageContent = {
             ),
             pavolDescription: (
                 <>
-                    Top <Link href="https://www.pavolhejny.com/">open-source contributor</Link> in Czechia. Developer
-                    with 15+ years of experience.
+                    One of the top <Link href="https://www.pavolhejny.com/">open-source contributors</Link> in Czechia.
+                    Developer with 15+ years of experience.
                 </>
             ),
         },
@@ -825,7 +821,7 @@ export const homepageContent = {
                 </>
             ),
             description:
-                'Book a 20-minute strategy call with our team. No aggressive sales pitch - we will go through your specific situation and show you Promptbook directly on your company data.',
+                'Book a 20-minute strategy call with our team. No aggressive sales pitch. We will go through your situation and show you Promptbook directly on your data.',
             cta: 'Book a free strategy call',
             capacityPrefix: 'Booked',
             capacityStrong: '7',
@@ -833,7 +829,7 @@ export const homepageContent = {
             capacityRemaining: '3 left',
             capacityNote: 'We work with a maximum of 10 companies per month so we can support each one individually.',
             riskReversal:
-                'Even if you decide not to use Promptbook, you will leave with a concrete strategy for fixing chaos in company data.',
+                'Even if you decide not to buy Promptbook, you will leave with a concrete plan for fixing the chaos in your company data.',
         },
         qualificationPopup: {
             dialogTitle: 'Qualification form',
@@ -867,7 +863,7 @@ export const homepageContent = {
                     id: 'urgency',
                     question: 'When would you like to start?',
                     type: 'single',
-                    options: ['As soon as possible - this is urgent', 'Next quarter', 'We are just exploring options'],
+                    options: ['As soon as possible, this is urgent', 'Next quarter', 'We are just exploring options'],
                 },
                 {
                     id: 'contact',
@@ -893,7 +889,7 @@ export const homepageContent = {
             close: 'Close',
             stepLabel: (currentStep, totalSteps) => `Step ${currentStep + 1} of ${totalSteps}`,
             remainingSpots: '3 spots left',
-            intro: '5 questions, 30 seconds. We will check whether Promptbook makes sense for you.',
+            intro: '4 questions, 30 seconds. We will check whether Promptbook makes sense for you.',
             submitting: 'Submitting...',
             submit: 'Book a free call',
             back: 'Back',
