@@ -11,7 +11,9 @@ import {
 } from '@/businesses/ai-supervize-mini/aiSupervizeMiniContent';
 import { aiSupervizeMiniTestimonials } from '@/businesses/ai-supervize-mini/aiSupervizeMiniTestimonials';
 import {
+    formatCzechFreeSeatCount,
     getAiSupervizeMiniWorkshopAvailabilityByEventSlug,
+    isAiSupervizeMiniWorkshopFull,
     type AiSupervizeMiniWorkshopAvailability,
 } from '@/businesses/ai-supervize-mini/workshopRegistration';
 import { AiSupervizeTerminal } from '@/businesses/ai-supervize/AiSupervizeTerminal';
@@ -54,7 +56,8 @@ type AiSupervizeMiniPageProps = {
 /**
  * How many seats every published term still has, as the header of the page announces it
  *
- * Note: A term whose capacity could not be read says so rather than being announced as empty.
+ * Note: A term whose capacity could not be read says so rather than being announced as empty, and a term nobody has to
+ *       be turned away from says it has room rather than naming a number it does not have.
  */
 function getWorkshopSeatSummary(
     events: readonly EventOccurrence[],
@@ -68,11 +71,19 @@ function getWorkshopSeatSummary(
                 event.slug,
             );
 
-            if (workshopAvailability === null || workshopAvailability.remainingSeatCount === null) {
-                return `kapacitu ${eventDayLabel} ověřujeme`;
+            if (workshopAvailability === null) {
+                return `kapacita na ${eventDayLabel} se ověřuje`;
             }
 
-            return `${workshopAvailability.remainingSeatCount} míst ${eventDayLabel}`;
+            if (isAiSupervizeMiniWorkshopFull(workshopAvailability)) {
+                return `plno na ${eventDayLabel}`;
+            }
+
+            if (workshopAvailability.remainingSeatCount === null) {
+                return `volná kapacita na ${eventDayLabel}`;
+            }
+
+            return `${formatCzechFreeSeatCount(workshopAvailability.remainingSeatCount)} na ${eventDayLabel}`;
         })
         .join(' · ');
 }
@@ -111,15 +122,9 @@ export function AiSupervizeMiniPage({
                 centerContent={
                     <>
                         <span>🔥</span>
-                        {seatSummary === null ? (
-                            <span>
-                                <strong className="text-gray-900">Kapacitu ověřujeme</strong>
-                            </span>
-                        ) : (
-                            <span>
-                                Zbývá <strong className="text-gray-900">{seatSummary}</strong>
-                            </span>
-                        )}
+                        <span>
+                            <strong className="text-gray-900">{seatSummary ?? 'Kapacitu ověřujeme'}</strong>
+                        </span>
                     </>
                 }
             />
@@ -149,17 +154,16 @@ export function AiSupervizeMiniPage({
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                                    Nechte AI pracovat za Vás.{' '}
+                                    Nechte AI psát kód.{' '}
                                     <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                        Vy udáváte směr
+                                        Směr udáváte vy
                                     </span>
-                                    , AI řídí a naviguje.
+                                    , ne model.
                                 </h1>
 
                                 <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
-                                    Hands-on workshop pro vývojáře a produkťáky, kteří chtějí komplexně přemýšlet nad AI v
-                                    TypeScript / JavaScript produktu: nástroje, rizika, verzování, testování a kvalita
-                                    kódu.
+                                    Jeden den pro vývojáře a produkťáky, kteří s AI staví TypeScript nebo JavaScript
+                                    produkt. Nástroje, rizika, verzování, testování a kvalita kódu.
                                 </p>
                             </div>
 
@@ -209,7 +213,7 @@ export function AiSupervizeMiniPage({
                                 okLines={['Loading tool matrix', 'Checking risk checkpoints', 'Preparing PRD workflow']}
                                 reportTitle="WORKSHOP PLAN"
                                 reportSubtitle="AI development workflow before / after"
-                                doneText="Agenda ready. Pick a date and bring your product context."
+                                doneText="Agenda ready. Pick a date and bring a real problem."
                                 metrics={aiSupervizeMiniTerminalMetrics}
                             />
                         </motion.div>
@@ -222,10 +226,10 @@ export function AiSupervizeMiniPage({
                     <div className="mb-12 max-w-3xl">
                         <p className="text-sm font-semibold uppercase text-cyan-700">Registrace na workshop</p>
                         <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
-                            Konkrétní workflow, živě a prakticky
+                            Celý den nad vaším workflow
                         </h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                            Workshop je pro jednotlivce i firmy, které chtějí poslat své lidi.
+                            Přihlásit se může jednotlivec i firma, která chce poslat svoje lidi.
                             {priceSummary === '' ? '' : ` Cena za účastníka je ${priceSummary}.`}
                             {capacitySummary === '' ? '' : ` Kapacita termínů: ${capacitySummary}.`} Ceny jsou konečné,
                             nejsme plátci DPH.
@@ -242,7 +246,7 @@ export function AiSupervizeMiniPage({
                                     </h3>
                                     {eventSummaries.length === 0 ? (
                                         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                            Další termín právě připravujeme. Napište si o něj a ozveme se, jakmile bude
+                                            Další termín zrovna chystáme. Ozvěte se a dáme vám vědět, jakmile bude
                                             vypsaný.
                                         </p>
                                     ) : (
@@ -259,8 +263,8 @@ export function AiSupervizeMiniPage({
                                         {capacitySummary === '' ? 'Malá skupina' : capacitySummary}
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                        Prezenční skupina zůstává komorní pro dotazy, konkrétní situace a zpětnou vazbu.
-                                        Online formát umožní workshop absolvovat i většímu týmu odkudkoli.
+                                        Prezenční skupinu držíme malou, aby se dostalo na dotazy a konkrétní situace
+                                        každého. Do online termínu se vejde i větší tým, odkudkoli.
                                     </p>
                                 </div>
                             </div>
@@ -306,7 +310,7 @@ export function AiSupervizeMiniPage({
                         </span>
                     </>
                 }
-                description="Praktické informace k obsahu, průběhu a registraci."
+                description="Na co se lidé ptají nejčastěji."
             />
 
             <TestimonialsSection
@@ -320,7 +324,7 @@ export function AiSupervizeMiniPage({
                         </span>
                     </>
                 }
-                description="Pro AI Supervizi Mini teď vybíráme dvě reference z Pavolovy osobní stránky, které dobře ukazují rychlost prototypování, produktové myšlení a schopnost dovést nápad do funkčního výsledku."
+                description="Dvě reference z Pavolovy osobní stránky. Obě jsou o tom, jak rychle se z nápadu stane něco, co doopravdy funguje."
                 testimonials={aiSupervizeMiniTestimonials}
                 metrics={aiSupervizeMiniImpactMetrics}
             />
@@ -342,20 +346,19 @@ export function AiSupervizeMiniPage({
                             <p className="text-sm font-semibold uppercase text-cyan-700">Workshop vede</p>
                             <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Pavol Hejný</h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-                                Pavol je developer s více než 15 lety praxe a aktivní{' '}
+                                Pavol je vývojář s víc než 15 lety praxe a aktivní{' '}
                                 <Link
                                     href="https://www.pavolhejny.com/"
                                     className="font-semibold text-cyan-700 underline-offset-4 hover:underline"
                                 >
                                     open-source contributor
                                 </Link>
-                                . AI Supervizi staví na každodenní práci s reálným vývojem, code review, toolingem a
-                                kvalitou změn, ne na obecné prezentaci o AI.
+                                . AI Supervize stojí na tom, co dělá každý den. Píše kód, dělá code review, řeší tooling
+                                a hlídá kvalitu změn. Žádná obecná prezentace o AI.
                             </p>
                             <p className="mt-4 text-base leading-relaxed text-slate-600">
-                                Cílem workshopu je ukázat, jak o AI vývoji přemýšlet systémově: jak zadávat práci, jak
-                                si hlídat rizika, jak testovat, verzovat a jak poznat, že AI pomáhá produktu místo
-                                zvětšování technického dluhu.
+                                Na workshopu ukazuje, jak zadávat práci, kde hlídat rizika a jak testovat a verzovat. A
+                                hlavně jak poznat, že vám AI produkt posouvá, a ne jen nafukuje technický dluh.
                             </p>
                             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                                 <Button

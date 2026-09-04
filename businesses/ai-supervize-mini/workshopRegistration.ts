@@ -6,6 +6,7 @@ import {
 import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/discountCode';
 import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import { formatEventFormat } from '@/lib/events/eventLocation';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import {
     formatCzechWorkshopDay,
     formatCzechWorkshopTimeRange,
@@ -276,6 +277,15 @@ export function isAiSupervizeMiniWorkshopFull(
     workshopAvailability: AiSupervizeMiniWorkshopAvailability | null,
 ): boolean {
     return workshopAvailability?.remainingSeatCount === 0;
+}
+
+/**
+ * How many seats are free, in the case Czech counts them with, so one free seat never reads `1 volných míst`
+ *
+ * Note: A full term is announced by {@link isAiSupervizeMiniWorkshopFull} instead, so no caller counts zero seats here.
+ */
+export function formatCzechFreeSeatCount(freeSeatCount: number): string {
+    return formatCzechCountedNoun(freeSeatCount, ['volné místo', 'volná místa', 'volných míst']);
 }
 
 /**

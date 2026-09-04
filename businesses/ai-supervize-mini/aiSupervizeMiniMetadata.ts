@@ -9,9 +9,9 @@ export const AI_SUPERVIZE_MINI_PAGE_DEFINITION: PageMetadataDefinition = {
     title: 'AI Supervize Mini | Praktický workshop pro jednotlivce',
     socialTitle: 'AI Supervize Mini - praktický workshop',
     description:
-        'Hands-on workshop pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu: nástroje, rizika, verzování, testování a code quality v AI vývoji. 4. září prezenčně v Praze, 9. září online.',
+        'Jednodenní workshop pro vývojáře a produkťáky v TypeScriptu nebo JavaScriptu. Nástroje, rizika, verzování, testování a kvalita kódu při vývoji s AI. 4. září prezenčně v Praze, 9. září online.',
     socialDescription:
-        'Praktické workshopy, jak komplexně přemýšlet nad AI vývojem od zadání po merge. Praha pro 10 lidí nebo online pro 50 lidí.',
+        'Jak zadávat práci AI a dovést ji až do merge, aniž ztratíte přehled o kódu. Praha pro 10 lidí nebo online pro 50.',
     socialPreviewImageAlt: 'AI Supervize Mini - praktický workshop pro vývojáře a produkťáky',
     keywords: ['AI workshop', 'školení AI', 'vývojáři', 'TypeScript', 'JavaScript', 'Praha', 'Promptbook'],
     isSocialPreviewImageGenerated: true,
@@ -22,7 +22,7 @@ export const AI_SUPERVIZE_MINI_PAGE_DEFINITION: PageMetadataDefinition = {
 export const AI_SUPERVIZE_MINI_METADATA: Metadata = createPageMetadata(AI_SUPERVIZE_MINI_PAGE_DEFINITION);
 
 export const AI_SUPERVIZE_MINI_SOCIAL_PREVIEW_OPTIONS = createSocialPreviewOptions(AI_SUPERVIZE_MINI_PAGE_DEFINITION, {
-    eyebrow: 'Praktický workshop',
+    eyebrow: 'Jednodenní workshop',
     artwork: 'workshop',
     paletteSeed: {
         backgroundStart: '#0a0a1f',

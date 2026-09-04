@@ -29,6 +29,7 @@ import {
 import { consumeDiscountCode } from '@/lib/discounts/discountCodeDatabase';
 import { EXHAUSTED_DISCOUNT_CODE_ERROR_MESSAGE } from '@/lib/discounts/discountCodeMessages';
 import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const INVALID_REGISTRATION_ERROR_MESSAGE = 'Vyplňte prosím všechny povinné údaje správně.';
@@ -95,10 +96,15 @@ function readAiSupervizeMiniWorkshopRegistrationRequest(
     };
 }
 
+/**
+ * Why a registration did not fit into the term it was written for
+ *
+ * Note: The seats left are counted the way Czech counts them, so a term with one seat left never says `1 míst`.
+ */
 function getFullWorkshopErrorMessage(remainingSeatCount: number): string {
     return remainingSeatCount === 0
         ? 'Tento termín už je obsazený.'
-        : `V tomto termínu zbývá už jen ${remainingSeatCount} míst.`;
+        : `V tomto termínu zbývá už jen ${formatCzechCountedNoun(remainingSeatCount, ['místo', 'místa', 'míst'])}.`;
 }
 
 /**

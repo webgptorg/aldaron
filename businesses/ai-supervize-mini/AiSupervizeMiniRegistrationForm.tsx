@@ -10,6 +10,7 @@ import {
 } from '@/businesses/ai-supervize-mini/workshopRegistrationApi';
 import {
     createAiSupervizeMiniWorkshopPrice,
+    formatCzechFreeSeatCount,
     getAiSupervizeMiniEventBySlug,
     getAiSupervizeMiniWorkshopAvailabilityByEventSlug,
     getAiSupervizeMiniWorkshopRegistrationState,
@@ -237,7 +238,9 @@ function formatEventSeatCount(
         return 'Volná kapacita';
     }
 
-    return `Zbývá ${workshopAvailability.remainingSeatCount} míst z ${event.event.maximumParticipantCount}`;
+    return `${formatCzechFreeSeatCount(workshopAvailability.remainingSeatCount)} z ${
+        event.event.maximumParticipantCount
+    }`;
 }
 
 type AiSupervizeMiniRegistrationFormProps = {
@@ -261,7 +264,7 @@ function AiSupervizeMiniNoEventNotice() {
         <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xl">
             <h3 className="text-2xl font-bold text-slate-950">Připravujeme další termín</h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                Právě teď není vypsaný žádný termín workshopu. Nový termín sem přidáme, jakmile bude potvrzený.
+                Teď není vypsaný žádný termín. Nový sem přidáme, jakmile ho potvrdíme.
             </p>
         </div>
     );
@@ -488,8 +491,8 @@ function AiSupervizeMiniEventRegistrationForm({
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
                     {submissionOutcome === 'waitlisted'
-                        ? 'Termín je nyní plný. Vaši přihlášku jsme zařadili na čekací listinu a ozveme se vám, jakmile se místo uvolní.'
-                        : 'Ozveme se vám s potvrzením termínu, fakturací a praktickými informacemi k workshopu.'}
+                        ? 'Termín je plný. Máme vás na čekací listině a ozveme se, jakmile se místo uvolní.'
+                        : 'Ozveme se e-mailem. Pošleme potvrzení termínu, fakturu a praktické informace k workshopu.'}
                 </p>
             </div>
         );
@@ -546,8 +549,8 @@ function AiSupervizeMiniEventRegistrationForm({
                         <div>
                             <p className="font-semibold">Tento termín je už plně obsazený.</p>
                             <p className="mt-1 leading-relaxed text-amber-900">
-                                Přihlášku stále můžete odeslat. Zařadíme vás na čekací listinu a ozveme se, jakmile se
-                                místo uvolní.
+                                Přihlášku i tak pošlete. Dáme vás na čekací listinu a ozveme se, jakmile se místo
+                                uvolní.
                             </p>
                         </div>
                     </div>
@@ -591,7 +594,7 @@ function AiSupervizeMiniEventRegistrationForm({
                                 ? isSelectedWorkshopFull
                                     ? `Na čekací listinu můžete přihlásit až ${maximumRegistrationParticipantCount} účastníků.`
                                     : remainingSeatCount === null
-                                    ? 'Počet účastníků tohoto termínu není omezený.'
+                                    ? 'Počet účastníků u tohoto termínu neomezujeme.'
                                     : `Maximum pro tento termín: ${remainingSeatCount}`
                                 : 'Kapacitu ověřujeme.'}
                         </p>
@@ -612,7 +615,7 @@ function AiSupervizeMiniEventRegistrationForm({
                     fullnameError={fullnameError}
                     emailError={emailError}
                     companyError={companyError}
-                    notePlaceholder="Co řešíte, kolik lidí posíláte, specifické dotazy..."
+                    notePlaceholder="Co řešíte, kolik lidí posíláte, na co se chcete zeptat..."
                 />
 
                 <div>
@@ -731,8 +734,7 @@ function AiSupervizeMiniEventRegistrationForm({
                             </div>
                             <h3 className="mt-5 text-2xl font-bold text-slate-950">Děkujeme za zájem</h3>
                             <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                                Vaše odpověď máme uloženou a ozveme se, jakmile budeme mít další vhodný termín nebo
-                                formát.
+                                Máme to zapsané. Ozveme se, až vypíšeme termín nebo formát, který by vám mohl sednout.
                             </p>
                             <Button
                                 type="button"
@@ -749,16 +751,15 @@ function AiSupervizeMiniEventRegistrationForm({
                         <form onSubmit={handleInterestSubmit} className="space-y-6 p-6 sm:p-8">
                             <DialogHeader className="space-y-3 text-left">
                                 <DialogTitle className="text-2xl font-bold text-slate-950">
-                                    Nemůžete tento termín?
+                                    Tenhle termín vám nevyjde?
                                 </DialogTitle>
                                 <DialogDescription className="text-sm leading-relaxed text-slate-600">
-                                    Dejte nám vědět, co vám teď nevyhovuje. Pomůže nám to připravit další termíny nebo
-                                    jiný formát workshopu.
+                                    Napište nám, co nesedí. Podle toho vypisujeme další termíny a formáty.
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div>
-                                <p className="text-sm font-semibold text-slate-700">Co vám teď nevyhovuje</p>
+                                <p className="text-sm font-semibold text-slate-700">Co vám nesedí</p>
                                 <div className="mt-3 grid gap-3">
                                     {interestReasonOptions.map((reason) => (
                                         <label
@@ -796,7 +797,7 @@ function AiSupervizeMiniEventRegistrationForm({
                                 fullnameError={interestFieldErrors.fullnameError}
                                 emailError={interestFieldErrors.emailError}
                                 companyError={interestFieldErrors.companyError}
-                                notePlaceholder="Napište, jaký termín nebo formát by pro vás dával větší smysl."
+                                notePlaceholder="Jaký termín nebo formát by vám sedl líp?"
                             />
 
                             {interestError && (

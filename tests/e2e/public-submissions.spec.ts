@@ -148,7 +148,7 @@ test('submits an available AI Supervize Mini workshop registration', async ({ pa
         .locator('xpath=ancestor::form');
     const availableDate = registrationForm
         .locator('button[type="button"]')
-        .filter({ hasText: /Zbývá [1-9]\d* míst z/ })
+        .filter({ hasText: /[1-9][\d\s]* (?:volné místo|volná místa|volných míst) z/ })
         .first();
 
     if ((await availableDate.count()) === 0) {
