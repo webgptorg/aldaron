@@ -3,6 +3,11 @@
  */
 export type AiTaKrajtaPersonRole = 'host' | 'guest';
 
+/**
+ * Folder of `public` which every portrait this page draws is kept in, shared with the rest of the site
+ */
+const PERSON_PHOTO_DIRECTORY_PATH = '/people';
+
 export type AiTaKrajtaPerson = {
     /**
      * Identifier which the filter of the episode list carries in the address of the page
@@ -23,9 +28,11 @@ export type AiTaKrajtaPerson = {
     readonly url: string | null;
 
     /**
-     * Photograph of the person, `null` when the page draws their initials instead
+     * File of `public/people` the portrait of the person is drawn from, `null` when the page draws their initials
+     *
+     * Note: `scripts/_cutAiTaKrajtaPeoplePortraits.mjs` cuts these files and records where each of them comes from.
      */
-    readonly photoPath: string | null;
+    readonly photoFileName: string | null;
 
     /**
      * Pieces of text which name this person in an episode title or description, including Czech declensions
@@ -57,7 +64,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'AI konzultant a vývojář. Staví AI agenty a v dílech je rozebírá z praxe.',
         url: 'https://www.ptbk.io/pavol',
-        photoPath: '/people/pavol-hejny-transparent-square.png',
+        photoFileName: 'pavol-hejny-transparent-square.png',
         mentionPatterns: ['pavol', 'pavlem', 'hejn'],
         episodeNumbers: [],
     },
@@ -67,7 +74,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'Řeší, co z AI firma reálně použije. Tahá debatu k praktickým otázkám.',
         url: 'https://www.ptbk.io/jirka',
-        photoPath: '/people/jiri-jahn-transparent-square.png',
+        photoFileName: 'jiri-jahn-transparent-square.png',
         mentionPatterns: ['jirka', 'jirkou', 'jirkovi', 'jiří jahn', 'jiřím jahnem'],
         episodeNumbers: [],
     },
@@ -77,7 +84,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'Vývojář, píše bleeding.dev. Testuje nové modely dřív, než se o nich začne psát.',
         url: 'https://bleeding.dev/',
-        photoPath: null,
+        photoFileName: 'petr-glaser.jpg',
         // Note: Plain `petrem` would also catch the díl with Petrem Brzkem, so the patterns keep the comma and the
         //       conjunction which the descriptions write when they list who sat at the microphone.
         mentionPatterns: ['glaser', 'petrem,', 'petrem a '],
@@ -89,7 +96,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'Součást klasické sestavy podcastu. Drží díly pohromadě a hlídá, aby debata nesklouzla do hype.',
         url: null,
-        photoPath: null,
+        photoFileName: 'patrik-braborec.jpg',
         mentionPatterns: ['patrik', 'patrikem', 'braborec'],
         episodeNumbers: [],
     },
@@ -99,7 +106,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'Data a nástroje kolem AI. Umí veřejně přiznat, že vlastní MCP server spláchl do záchodu.',
         url: null,
-        photoPath: null,
+        photoFileName: 'jacek-soubusta.jpg',
         mentionPatterns: ['jacek', 'jackem', 'soubust'],
         episodeNumbers: [],
     },
@@ -109,7 +116,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'host',
         headline: 'Přednášel na AI Engineer o read-only AI a kognitivních výparech. Nejskeptičtější hlas u stolu.',
         url: null,
-        photoPath: null,
+        photoFileName: 'simon-podhajsky.jpg',
         mentionPatterns: ['šimon', 'šimonov', 'podhajsk'],
         episodeNumbers: [],
     },
@@ -119,7 +126,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Expert na digitální transformaci školství. Vrací se do dílů o AI ve školách.',
         url: 'https://narnia.sk/employees/roman-baranovic-2/',
-        photoPath: null,
+        photoFileName: 'roman-baranovic.jpg',
         mentionPatterns: ['baranovi'],
         episodeNumbers: [],
     },
@@ -129,7 +136,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Architektura a interpretabilita modelů. Díl o tom, co se děje uvnitř sítě.',
         url: null,
-        photoPath: null,
+        photoFileName: 'katka-fajmanova.jpg',
         mentionPatterns: ['fajman'],
         episodeNumbers: [],
     },
@@ -139,7 +146,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Analytický filozof, spoluautor knihy Dezinformace a Hate Speech.',
         url: null,
-        photoPath: null,
+        photoFileName: 'tomas-koblizek.jpg',
         mentionPatterns: ['koblíž'],
         episodeNumbers: [],
     },
@@ -149,7 +156,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Prodal Steer Code firmě Expo. Mluvil o agent engineeringu a orchestraci agentů.',
         url: null,
-        photoPath: null,
+        photoFileName: 'adam-zvada.jpg',
         mentionPatterns: ['zvad'],
         episodeNumbers: [],
     },
@@ -159,7 +166,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Zakladatel Youklidu. Ukázal, že se dá růst i tak, že AI hype ignorujete.',
         url: 'https://youklid.cz/',
-        photoPath: null,
+        photoFileName: 'lukas-caha.jpg',
         mentionPatterns: ['caha', 'cahou', 'youklid'],
         episodeNumbers: [],
     },
@@ -169,7 +176,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Staví autonomní kódovací agenty ovládané přes Telegram. Díl o AI psychóze z produktivity.',
         url: null,
-        photoPath: null,
+        photoFileName: 'richard-mladek.jpg',
         mentionPatterns: ['mládek', 'mládk'],
         episodeNumbers: [],
     },
@@ -179,7 +186,7 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Česká odnož hnutí PAUSE AI. Přišel obhájit moratorium na vývoj pokročilých modelů.',
         url: null,
-        photoPath: null,
+        photoFileName: 'dalibor-krejci.jpg',
         mentionPatterns: ['dalibor', 'krejčí', 'krejčího'],
         episodeNumbers: [],
     },
@@ -189,13 +196,22 @@ export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
         role: 'guest',
         headline: 'Macaly, český AI startup. Díl o tom, co drží second time founders nad vodou.',
         url: null,
-        photoPath: null,
+        photoFileName: 'petr-brzek.jpg',
         // Note: Only the instrumental case, because that is how a description says that the show talked with him.
         //       The nominative also appears in a díl which only mentions him as an example.
         mentionPatterns: ['brzkem'],
         episodeNumbers: [],
     },
 ];
+
+/**
+ * Address the browser loads the portrait of a person from
+ *
+ * @returns the address, `null` for a person the show has no picture of
+ */
+export function getAiTaKrajtaPersonPhotoPath(person: AiTaKrajtaPerson): string | null {
+    return person.photoFileName === null ? null : `${PERSON_PHOTO_DIRECTORY_PATH}/${person.photoFileName}`;
+}
 
 /**
  * Finds the person a link or a filter names

@@ -26,6 +26,11 @@ use cases, and audiences. Keep these rules current when behavior changes.
   estimates. The fixed mini-player, newest-episode header button, person/search/
   episode/play/archive/collaboration filters, and section hash are shareable as
   query/hash state; the snake game is local state. Person clicks filter episodes.
+  Everyone in the roster shows a portrait, cut by
+  `scripts/_cutAiTaKrajtaPeoplePortraits.mjs` out of the episode cover the show
+  itself published them on, or out of the picture they publish of themselves when
+  no cover carries them; the roster names only the file, and a person without one
+  keeps the initials on the brand gradient.
   Collaboration submissions use `/admin/contacts`. Its tab icon is the page's
   own snake drawing in `/ai-ta-krajta/logo.svg` and `.png`; SVG corners are
   rounded and transparent, while the raster fills its square. That drawing is

@@ -1,6 +1,6 @@
 'use client';
 
-import type { AiTaKrajtaPerson } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
+import { getAiTaKrajtaPersonPhotoPath, type AiTaKrajtaPerson } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -38,8 +38,8 @@ function getGradientAngleInDegrees(name: string): number {
 /**
  * Round portrait of one person, shown next to an episode and on their card
  *
- * Note: Most people of the show have no portrait, so the initials on a branded gradient are the normal case rather
- *       than a fallback which looks broken.
+ * Note: The show has a picture of everyone it has introduced by name so far. Somebody it has none of keeps the
+ *       initials on a branded gradient, which is a portrait of its own rather than a fallback which looks broken.
  */
 export function AiTaKrajtaPersonAvatar({
     person,
@@ -52,6 +52,7 @@ export function AiTaKrajtaPersonAvatar({
 }) {
     const sizeInPixels = AVATAR_SIZE_IN_PIXELS[size];
     const isLarge = size === 'large';
+    const photoPath = getAiTaKrajtaPersonPhotoPath(person);
 
     return (
         <span
@@ -66,11 +67,11 @@ export function AiTaKrajtaPersonAvatar({
                 background: `linear-gradient(${getGradientAngleInDegrees(person.name)}deg, ${AI_TA_KRAJTA_COLORS.CORAL}, ${AI_TA_KRAJTA_COLORS.INDIGO})`,
             }}
         >
-            {person.photoPath === null ? (
+            {photoPath === null ? (
                 <span className="text-white drop-shadow-sm">{getInitials(person.name)}</span>
             ) : (
                 <Image
-                    src={person.photoPath}
+                    src={photoPath}
                     alt={person.name}
                     width={sizeInPixels}
                     height={sizeInPixels}
