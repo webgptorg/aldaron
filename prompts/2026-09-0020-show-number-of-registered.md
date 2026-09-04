@@ -1,0 +1,16 @@
+[ ] !!!!!!!!
+
+[✨🧞] Show number of registered participants of each event
+
+- There are 2 different numbers:
+    1. Registered participants through the landing page
+    2. Participant who entered workshop through the participant app
+- The `/admin/workshops` displays only the (2) but it should show both (1) and (2)
+- Keep the gathering and recording of contacts same `/admin/contacts`, just show the number of registered participants on `/admin/workshops`
+- Keep in mind the DRY _(don't repeat yourself)_ principle.
+- Do a analysis of the current functionality before you start implementing.
+- Add the changes into the [changelog](./changelog/_current-preversion.md)
+
+![workshop landing page (show only as contact)](prompts/screenshots/2026-09-0020-show-number-of-registered-1.png)
+![participant app (from which the number of participants is shown in admin)](prompts/screenshots/2026-09-0020-show-number-of-registered-2.png)
+![alt text](prompts/screenshots/2026-09-0020-show-number-of-registered.png)
