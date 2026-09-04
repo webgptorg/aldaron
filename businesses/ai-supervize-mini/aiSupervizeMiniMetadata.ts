@@ -40,7 +40,7 @@ const AI_SUPERVIZE_MINI_PARTICIPANT_PAGE_DEFINITION: PageMetadataDefinition = {
     language: 'cs',
     title: 'Informace pro účastníka | AI Supervize Mini',
     description:
-        'Praktické informace, harmonogram a příprava pro registrované účastníky jednodenního workshopu AI Supervize Mini.',
+        'Čas, místo, harmonogram a příprava pro registrované účastníky jednodenního workshopu AI Supervize Mini.',
     isIndexed: false,
 };
 

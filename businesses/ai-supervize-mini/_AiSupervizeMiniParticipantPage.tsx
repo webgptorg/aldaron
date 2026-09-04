@@ -63,7 +63,7 @@ const workshopLocation = {
     city: 'Praha',
     venue: 'Scott.Weber Workspace - The Flow Building',
     address: 'Václavské náměstí 47, Praha 1',
-    note: 'Přesnou místnost a případné upřesnění recepce pošleme před kurzem e-mailem.',
+    note: 'Přesnou místnost a co říct na recepci pošleme e-mailem před kurzem.',
     mapsUrl:
         'https://www.google.com/maps/search/?api=1&query=Scott.Weber%20Workspace%20The%20Flow%20Building%2C%20V%C3%A1clavsk%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2047%2C%20Praha%201',
     venueUrl: 'https://scottweber.cz/location/the-flow-building/',
@@ -77,7 +77,7 @@ function createInfoItems(event: EventOccurrence | null): InfoItem[] {
             icon: CalendarDays,
             label: 'Termín',
             value: event === null ? UNPUBLISHED_EVENT_DAY_LABEL : formatCzechWorkshopDay(event.startsAt),
-            description: 'Celodenní praktická AI Supervize Mini pro registrované účastníky.',
+            description: 'Celý den AI Supervize Mini, jen pro registrované účastníky.',
         },
         {
             icon: Clock,
@@ -86,7 +86,7 @@ function createInfoItems(event: EventOccurrence | null): InfoItem[] {
                 event === null
                     ? UNPUBLISHED_EVENT_TIME_LABEL
                     : formatCzechWorkshopTimeRange(event.startsAt, event.endsAt),
-            description: 'Doporučujeme dorazit pár minut před začátkem, abychom mohli začít včas.',
+            description: 'Přijďte pár minut dřív, ať můžeme začít včas.',
         },
         {
             icon: MapPin,
@@ -101,60 +101,60 @@ const scheduleItems: ScheduleItem[] = [
     {
         time: '10:00 - 10:15',
         title: 'Obecné zahájení',
-        description: 'Seznámení, očekávání účastníků, rámec dne a nastavení společného pracovního tempa.',
+        description: 'Krátké seznámení, vaše očekávání a jak celý den pojedeme.',
         icon: Sparkles,
         badgeClassName: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
     },
     {
         time: '10:15 - 12:30',
         title: 'První blok',
-        description: 'Praktické workflow pro zadávání práce AI, rozpad úkolů, PRD, issue a kontrolované změny v kódu.',
+        description: 'Jak zadávat práci AI. Rozpad úkolů, PRD, issue a změny v kódu, které jdou zkontrolovat.',
         icon: NotebookTabs,
         badgeClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
     },
     {
         time: '12:30 - 13:15',
         title: 'Přestávka na oběd',
-        description: 'Volná pauza na oběd a krátký reset. V okolí Václavského náměstí je dost možností.',
+        description: 'Pauza na oběd a vydechnutí. Kolem Václavského náměstí je kam zajít.',
         icon: Coffee,
         badgeClassName: 'bg-amber-50 text-amber-700 ring-amber-200',
     },
     {
         time: '13:15 - 15:30',
         title: 'Druhý blok',
-        description: 'Testování, code review, kvalita výstupu, práce s riziky a rozhodování nad nástroji a modely.',
+        description: 'Testování, code review a kvalita výstupu. K tomu rizika a volba nástrojů a modelů.',
         icon: ShieldCheck,
         badgeClassName: 'bg-sky-50 text-sky-700 ring-sky-200',
     },
     {
         time: '15:30 - 16:00',
         title: 'Diskuse, dotazy a další',
-        description: 'Konkrétní situace účastníků, otevřené otázky, další kroky a doporučené workflow po workshopu.',
+        description: 'Vaše konkrétní situace, otevřené otázky a workflow, se kterým odejdete domů.',
         icon: MessageSquareText,
         badgeClassName: 'bg-rose-50 text-rose-700 ring-rose-200',
     },
 ];
 
 const preparationItems = [
-    'Notebook, nabíječku a funkční přístup k internetu.',
-    'IDE nebo editor, ve kterém běžně vyvíjíte, a přístup ke Gitu, pokud ho používáte.',
+    'Notebook, nabíječku a připojení k internetu, které funguje.',
+    'IDE nebo editor, ve kterém běžně děláte. A přístup ke Gitu, pokud ho používáte.',
     'Přístup k AI nástrojům, které chcete během dne řešit nebo porovnat.',
-    'Jeden konkrétní produktový, technický nebo procesní problém z vlastní praxe.',
+    'Jeden konkrétní problém z vlastní praxe. Nejlíp ten, který vás štve už měsíce.',
     'Repozitář, ukázku workflow nebo anonymizovaný příklad. Citlivý kód sdílet nemusíte.',
 ] as const;
 
 const faqItems: FaqItem[] = [
     {
         question: 'Je místo konání už finální?',
-        answer: 'Počítáme s Prahou a pravděpodobně se Scott.Weber Workspace The Flow Building na Václavském náměstí. Pokud se upřesní místnost nebo dojde ke změně, pošleme ji e-mailem a aktualizujeme tuto stránku.',
+        answer: 'Počítáme s Prahou a nejspíš se Scott.Weber Workspace The Flow Building na Václavském náměstí. Jakmile budeme znát přesnou místnost nebo se něco změní, pošleme to e-mailem a přepíšeme tuhle stránku.',
     },
     {
         question: 'Musím mít připravený vlastní projekt?',
-        answer: 'Není to povinné, ale velmi to pomůže. Stačí přinést kontext: typ produktu, způsob práce, ukázkové issue, problém v code review nebo místo, kde se dnes AI workflow zadrhává.',
+        answer: 'Nemusíte, ale hodně to pomůže. Stačí kontext. Typ produktu, jak pracujete, ukázkové issue, problém v code review nebo místo, kde se vám AI workflow zadrhává.',
     },
     {
         question: 'Bude se pracovat s citlivým kódem?',
-        answer: 'Nemusí. Workshop je stavěný tak, aby šel aplikovat i na anonymizované ukázky, veřejné repozitáře nebo popsané workflow bez sdílení interních dat.',
+        answer: 'Nemusí. Všechno jde ukázat na anonymizované ukázce, veřejném repozitáři nebo jen popsaném workflow. Interní data u sebe klidně nechte.',
     },
 ];
 
@@ -271,13 +271,12 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                         <h1 className="mt-7 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
                             AI Supervize Mini
                             <span className="mt-2 block bg-gradient-promptbook bg-clip-text text-transparent">
-                                účastnický přehled
+                                všechno k jednomu dni
                             </span>
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/82 sm:text-xl">
-                            Vše důležité k jednodennímu workshopu na jednom místě: čas, místo, harmonogram, příprava,
-                            fakturace a odpovědi na praktické otázky.
+                            Čas, místo, harmonogram, příprava, faktura i odpovědi na praktické otázky. Na jedné stránce.
                         </p>
 
                         <div className="mt-9 flex flex-col gap-3 sm:flex-row participant-print-hidden">
@@ -312,7 +311,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                                     Registrace
                                 </p>
                                 <h2 className="mt-2 text-2xl font-bold text-white print:text-slate-950">
-                                    Vaše účast je evidovaná
+                                    Máme vás zapsané
                                 </h2>
                             </div>
                             <CheckCircle2 className="mt-1 h-7 w-7 shrink-0 text-emerald-300 print:text-emerald-600" />
@@ -360,8 +359,8 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                                 Praha, pravděpodobně Flow na Václaváku
                             </h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-                                Počítáme s prémiovým prostorem Scott.Weber Workspace v The Flow Building. Místo je dobře
-                                dostupné metrem z Muzea i Můstku a je vhodné pro intenzivní celodenní workshop.
+                                Počítáme se Scott.Weber Workspace v The Flow Building. Dojdete tam pěšky z metra Muzeum
+                                i Můstek a je tam klid na celý den práce.
                             </p>
                             <div className="mt-7 flex flex-col gap-3 sm:flex-row participant-print-hidden">
                                 <Button
@@ -407,8 +406,8 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                 <div className="container mx-auto px-4">
                     <SectionHeading
                         eyebrow="Harmonogram"
-                        title="Jeden den v jasném rytmu"
-                        description="Program držíme praktický a soustředěný: krátké rámování, dva hlavní bloky, obědová pauza a prostor na konkrétní dotazy."
+                        title="Jak den proběhne"
+                        description="Krátký úvod, dva hlavní bloky, oběd a čas na vaše konkrétní dotazy. Žádné přednášky do prázdna."
                         tone="dark"
                     />
 
@@ -471,8 +470,8 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                                 Co si přinést a připravit
                             </h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-                                Největší hodnotu z workshopu získáte, když přinesete reálný kontext. Nemusí být
-                                perfektně připravený, stačí konkrétní situace, kterou chcete během dne zlepšit.
+                                Nejvíc si odnesete, když přinesete reálný kontext. Nemusí být vyladěný. Stačí konkrétní
+                                situace, kterou chcete během dne posunout.
                             </p>
                         </div>
 
@@ -498,7 +497,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                     <SectionHeading
                         eyebrow="FAQ"
                         title="Praktické otázky před kurzem"
-                        description="Krátké odpovědi k místu, přípravě, fakturaci a průběhu dne."
+                        description="Krátké odpovědi k místu, přípravě a průběhu dne."
                     />
 
                     <div className="mx-auto mt-10 grid max-w-4xl gap-4">
@@ -528,8 +527,7 @@ export function AiSupervizeMiniParticipantPage({ registrationId, event }: AiSupe
                         </p>
                         <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Těšíme se na společný den</h2>
                         <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/72 print:text-slate-600">
-                            Děkujeme za registraci na AI Supervizi Mini. Přineste svoje otázky, konkrétní situace a chuť
-                            podívat se na AI vývoj prakticky. Uděláme z toho soustředěný a užitečný den.
+                            Díky za registraci. Přineste otázky a situace, které opravdu řešíte. Zbytek už je na nás.
                         </p>
                         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row participant-print-hidden">
                             <Button asChild className="rounded-full bg-white px-6 text-slate-950 hover:bg-cyan-50">
