@@ -9,16 +9,24 @@ import {
     type SnakeState,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeSimulation';
 import { drawAiTaKrajtaMarkOnCanvas } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkCanvas';
-import type { AiTaKrajtaMarkFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import {
+    AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME,
+    getAiTaKrajtaMarkFrameScale,
+    type AiTaKrajtaMarkFrame,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import { createAiTaKrajtaSnakeBodySlices } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeBody';
 import { createAiTaKrajtaSnakeLogoPose } from '@/businesses/ai-ta-krajta/aiTaKrajtaSnakeLogoPose';
 import { AI_TA_KRAJTA_COLORS } from '@/businesses/ai-ta-krajta/config';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 
 /**
- * Radius of the head and of the tip of the tail, in pixels
+ * Where an eye sits on the head and how big it is, in units of the view box of the mark
  */
-const HEAD_RADIUS_IN_PIXELS = 13;
-const TAIL_RADIUS_IN_PIXELS = 4;
+const EYE_FORWARD_OFFSET = 3;
+const EYE_SIDEWAYS_OFFSET = 3.4;
+const EYE_HALF_WIDTH = 2.1;
+const PUPIL_FORWARD_OFFSET = 0.74;
+const PUPIL_HALF_WIDTH = 1;
 
 /**
  * Radius of one token and of the glow around it, in pixels
@@ -29,12 +37,13 @@ const FOOD_GLOW_RADIUS_IN_PIXELS = 14;
 /**
  * How long the exact logo stays intact before its living version starts to emerge
  */
-const LOGO_HOLD_DURATION_IN_MILLISECONDS = 100;
+const LOGO_HOLD_DURATION_IN_MILLISECONDS = 220;
 
 /**
- * How long the logo and playable body cross-fade while the snake uncoils
+ * How long the snake takes to leave the drawing behind: to lose the proportions and colours of the logo, to open its
+ * eyes and to come up to speed
  */
-const LOGO_RELEASE_DURATION_IN_MILLISECONDS = 500;
+const LOGO_RELEASE_DURATION_IN_MILLISECONDS = 700;
 
 /**
  * Restricts an animation progress to its meaningful range
@@ -50,119 +59,6 @@ function getLogoReleaseProgress(elapsedInMilliseconds: number): number {
     return clampProgress(
         (elapsedInMilliseconds - LOGO_HOLD_DURATION_IN_MILLISECONDS) / LOGO_RELEASE_DURATION_IN_MILLISECONDS,
     );
-}
-
-/**
- * Radius of the body at one point along its center line
- */
-function getSnakeRadius(segmentIndex: number, segmentCount: number): number {
-    const ratioFromHead = segmentIndex / Math.max(1, segmentCount - 1);
-
-    return HEAD_RADIUS_IN_PIXELS - (HEAD_RADIUS_IN_PIXELS - TAIL_RADIUS_IN_PIXELS) * ratioFromHead;
-}
-
-/**
- * A unit vector pointing in an angle used by the simulation
- */
-function getDirectionFromAngle(angleInRadians: number): SnakePoint {
-    return { x: Math.cos(angleInRadians), y: Math.sin(angleInRadians) };
-}
-
-/**
- * The heading of a point along the snake, falling back to the head direction while its trail is still being built
- */
-function getSnakeDirection(
-    segments: readonly SnakePoint[],
-    segmentIndex: number,
-    fallbackAngleInRadians: number,
-): SnakePoint {
-    const currentSegment = segments[segmentIndex];
-
-    if (currentSegment === undefined) {
-        return getDirectionFromAngle(fallbackAngleInRadians);
-    }
-
-    const previousSegment = segments[Math.max(0, segmentIndex - 1)] ?? currentSegment;
-    const nextSegment = segments[Math.min(segments.length - 1, segmentIndex + 1)] ?? currentSegment;
-    const directionX = previousSegment.x - nextSegment.x;
-    const directionY = previousSegment.y - nextSegment.y;
-    const directionLength = Math.hypot(directionX, directionY);
-
-    if (directionLength === 0) {
-        return getDirectionFromAngle(fallbackAngleInRadians);
-    }
-
-    return { x: directionX / directionLength, y: directionY / directionLength };
-}
-
-/**
- * The left and right edge of the snake, ordered into one closed contour
- */
-function getSnakeBodyOutline(segments: readonly SnakePoint[], fallbackAngleInRadians: number): readonly SnakePoint[] {
-    const leftSide: SnakePoint[] = [];
-    const rightSide: SnakePoint[] = [];
-
-    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
-        const segment = segments[segmentIndex];
-
-        if (segment === undefined) {
-            continue;
-        }
-
-        const direction = getSnakeDirection(segments, segmentIndex, fallbackAngleInRadians);
-        const radius = getSnakeRadius(segmentIndex, segments.length);
-        const normalX = -direction.y * radius;
-        const normalY = direction.x * radius;
-
-        leftSide.push({ x: segment.x + normalX, y: segment.y + normalY });
-        rightSide.push({ x: segment.x - normalX, y: segment.y - normalY });
-    }
-
-    return [...leftSide, ...rightSide.reverse()];
-}
-
-/**
- * Draws a contour with rounded transitions, avoiding visible joints between the remembered trail points
- */
-function drawRoundedContour(context: CanvasRenderingContext2D, outline: readonly SnakePoint[]): void {
-    const firstPoint = outline[0];
-    const lastPoint = outline[outline.length - 1];
-
-    if (firstPoint === undefined || lastPoint === undefined) {
-        return;
-    }
-
-    context.beginPath();
-    context.moveTo((lastPoint.x + firstPoint.x) / 2, (lastPoint.y + firstPoint.y) / 2);
-
-    for (let pointIndex = 0; pointIndex < outline.length; pointIndex++) {
-        const point = outline[pointIndex];
-        const nextPoint = outline[(pointIndex + 1) % outline.length];
-
-        if (point === undefined || nextPoint === undefined) {
-            continue;
-        }
-
-        context.quadraticCurveTo(point.x, point.y, (point.x + nextPoint.x) / 2, (point.y + nextPoint.y) / 2);
-    }
-
-    context.closePath();
-}
-
-/**
- * The color which flows from the tail to the head of the snake
- */
-function createSnakeGradient(
-    context: CanvasRenderingContext2D,
-    tailPosition: SnakePoint,
-    headPosition: SnakePoint,
-): CanvasGradient {
-    const gradient = context.createLinearGradient(tailPosition.x, tailPosition.y, headPosition.x, headPosition.y);
-
-    gradient.addColorStop(0, AI_TA_KRAJTA_COLORS.INDIGO);
-    gradient.addColorStop(1, AI_TA_KRAJTA_COLORS.CORAL);
-
-    return gradient;
 }
 
 /**
@@ -194,70 +90,82 @@ function drawFood(context: CanvasRenderingContext2D, state: SnakeState, opacity:
 }
 
 /**
- * Draws the eyes, which is what turns a row of circles into an animal
+ * Draws the eyes, which is what turns a drawn snake into an animal looking where it goes
+ *
+ * Note: The logo has none, so they open while the snake wakes up rather than the moment the game begins.
  */
-function drawEyes(context: CanvasRenderingContext2D, state: SnakeState): void {
+function drawEyes(context: CanvasRenderingContext2D, state: SnakeState, markScale: number, opacity: number): void {
+    if (opacity <= 0) {
+        return;
+    }
+
     const sidewaysAngle = state.headAngleInRadians + Math.PI / 2;
+
+    context.save();
+    context.globalAlpha = opacity;
 
     for (const side of [-1, 1]) {
         const eyePosition: SnakePoint = {
             x:
                 state.headPosition.x +
-                Math.cos(state.headAngleInRadians) * 5 +
-                Math.cos(sidewaysAngle) * 5.5 * side,
+                (Math.cos(state.headAngleInRadians) * EYE_FORWARD_OFFSET +
+                    Math.cos(sidewaysAngle) * EYE_SIDEWAYS_OFFSET * side) *
+                    markScale,
             y:
                 state.headPosition.y +
-                Math.sin(state.headAngleInRadians) * 5 +
-                Math.sin(sidewaysAngle) * 5.5 * side,
+                (Math.sin(state.headAngleInRadians) * EYE_FORWARD_OFFSET +
+                    Math.sin(sidewaysAngle) * EYE_SIDEWAYS_OFFSET * side) *
+                    markScale,
         };
 
         context.fillStyle = '#ffffff';
         context.beginPath();
-        context.arc(eyePosition.x, eyePosition.y, 3.4, 0, Math.PI * 2);
+        context.arc(eyePosition.x, eyePosition.y, EYE_HALF_WIDTH * markScale, 0, Math.PI * 2);
         context.fill();
 
         context.fillStyle = AI_TA_KRAJTA_COLORS.MOSS_DEEP;
         context.beginPath();
         context.arc(
-            eyePosition.x + Math.cos(state.headAngleInRadians) * 1.2,
-            eyePosition.y + Math.sin(state.headAngleInRadians) * 1.2,
-            1.6,
+            eyePosition.x + Math.cos(state.headAngleInRadians) * PUPIL_FORWARD_OFFSET * markScale,
+            eyePosition.y + Math.sin(state.headAngleInRadians) * PUPIL_FORWARD_OFFSET * markScale,
+            PUPIL_HALF_WIDTH * markScale,
             0,
             Math.PI * 2,
         );
         context.fill();
     }
+
+    context.restore();
 }
 
 /**
- * Draws the continuous, tapered body and puts a round head over its leading edge
+ * Draws the animal along the line its head has travelled
+ *
+ * @param markScale how many pixels one unit of the artwork is worth here
+ * @param releaseProgress how far the logo has been let go, zero while it is still the logo and one once it is loose
  */
-function drawSnake(context: CanvasRenderingContext2D, state: SnakeState, opacity: number): void {
-    if (opacity <= 0) {
-        return;
-    }
-
-    const segments = getSnakeSegments(state);
-    const headPosition = segments[0];
-    const tailPosition = segments[segments.length - 1];
-
-    if (headPosition === undefined || tailPosition === undefined) {
-        return;
-    }
+function drawSnake(
+    context: CanvasRenderingContext2D,
+    state: SnakeState,
+    markScale: number,
+    releaseProgress: number,
+): void {
+    const centerLine = [state.headPosition, ...getSnakeSegments(state)];
 
     context.save();
-    context.globalAlpha = opacity;
-    drawRoundedContour(context, getSnakeBodyOutline(segments, state.headAngleInRadians));
-    context.fillStyle = createSnakeGradient(context, tailPosition, headPosition);
-    context.fill();
+    context.lineCap = 'round';
 
-    context.fillStyle = AI_TA_KRAJTA_COLORS.CORAL;
-    context.beginPath();
-    context.arc(state.headPosition.x, state.headPosition.y, HEAD_RADIUS_IN_PIXELS, 0, Math.PI * 2);
-    context.fill();
+    for (const slice of createAiTaKrajtaSnakeBodySlices(centerLine, markScale, releaseProgress)) {
+        context.strokeStyle = slice.color;
+        context.lineWidth = slice.strokeWidth;
+        context.beginPath();
+        context.moveTo(slice.from.x, slice.from.y);
+        context.lineTo(slice.to.x, slice.to.y);
+        context.stroke();
+    }
 
-    drawEyes(context, state);
     context.restore();
+    drawEyes(context, state, markScale, releaseProgress);
 }
 
 /**
@@ -303,6 +211,7 @@ export function AiTaKrajtaSnakeGame({
         };
 
         resizeCanvas();
+        const markScale = getAiTaKrajtaMarkFrameScale(initialMarkFrame);
         let state = createSnakeState(bounds, Math.random, createAiTaKrajtaSnakeLogoPose(initialMarkFrame));
 
         const renderFrame = (frameTimestamp: number) => {
@@ -315,7 +224,8 @@ export function AiTaKrajtaSnakeGame({
             state = advanceSnakeState(state, {
                 bounds,
                 targetPosition: targetPositionRef.current,
-                stepInSeconds,
+                // Note: The animal stands as still as the logo until it is let go, and then comes up to speed
+                stepInSeconds: stepInSeconds * logoReleaseProgress,
                 createRandomNumber: Math.random,
             });
 
@@ -325,7 +235,7 @@ export function AiTaKrajtaSnakeGame({
 
             context.clearRect(0, 0, bounds.width, bounds.height);
             drawFood(context, state, logoReleaseProgress);
-            drawSnake(context, state, logoReleaseProgress);
+            drawSnake(context, state, markScale, logoReleaseProgress);
             drawAiTaKrajtaMarkOnCanvas(context, initialMarkFrame, 1 - logoReleaseProgress);
 
             if (!isInitialMarkFrameDrawn) {
@@ -368,7 +278,7 @@ export function AiTaKrajtaSnakeGame({
                 onPointerDown={handlePointerMove}
                 onPointerLeave={handlePointerLeave}
                 onPointerCancel={handlePointerLeave}
-                className="h-full w-full cursor-crosshair touch-none"
+                className={`h-full w-full cursor-crosshair touch-none ${AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME}`}
                 aria-label="Krajta, veďte ji myší nebo prstem"
                 role="img"
             />

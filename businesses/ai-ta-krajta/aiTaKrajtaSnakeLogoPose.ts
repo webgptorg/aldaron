@@ -1,5 +1,5 @@
 import {
-    AI_TA_KRAJTA_MARK_SPINE_POINTS,
+    AI_TA_KRAJTA_MARK_BODY,
     placeAiTaKrajtaMarkPointInFrame,
     type AiTaKrajtaMarkFrame,
     type AiTaKrajtaMarkPoint,
@@ -73,19 +73,22 @@ function createEvenlySpacedTrail(points: readonly AiTaKrajtaMarkPoint[]): SnakeP
  * Creates the initial simulation pose from the exact frame occupied by the static logo
  */
 export function createAiTaKrajtaSnakeLogoPose(frame: AiTaKrajtaMarkFrame): SnakeInitialPose {
-    const points = AI_TA_KRAJTA_MARK_SPINE_POINTS.map((point) => placeAiTaKrajtaMarkPointInFrame(point, frame));
+    const points = AI_TA_KRAJTA_MARK_BODY.map((point) => placeAiTaKrajtaMarkPointInFrame(point, frame));
     const trail = createEvenlySpacedTrail(points);
     const headPosition = trail[0];
     const pointBehindHead = trail[1];
 
     if (headPosition === undefined || pointBehindHead === undefined) {
-        throw new Error('The AI ta Krajta mark needs at least two spine points.');
+        throw new Error('The AI ta Krajta mark needs at least two body points.');
     }
 
     return {
         headPosition,
         headAngleInRadians: Math.atan2(headPosition.y - pointBehindHead.y, headPosition.x - pointBehindHead.x),
         trail,
-        segmentCount: Math.max(2, Math.ceil((trail.length - 1) * TRAIL_POINT_DISTANCE_IN_PIXELS / SEGMENT_DISTANCE_IN_PIXELS)),
+        segmentCount: Math.max(
+            2,
+            Math.ceil(((trail.length - 1) * TRAIL_POINT_DISTANCE_IN_PIXELS) / SEGMENT_DISTANCE_IN_PIXELS),
+        ),
     };
 }

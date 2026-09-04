@@ -2,7 +2,10 @@
 
 import { AiTaKrajtaMark } from '@/businesses/ai-ta-krajta/AiTaKrajtaMark';
 import { AiTaKrajtaSnakeGame } from '@/businesses/ai-ta-krajta/AiTaKrajtaSnakeGame';
-import type { AiTaKrajtaMarkFrame } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
+import {
+    AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME,
+    type AiTaKrajtaMarkFrame,
+} from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 import { useCallback, useState, type MouseEvent } from 'react';
 
 /**
@@ -36,7 +39,7 @@ function AiTaKrajtaSnakeLogo({
 }: {
     readonly onGameStart?: (event: MouseEvent<HTMLButtonElement>) => void;
 }) {
-    const mark = <AiTaKrajtaMark className="h-full w-full drop-shadow-[0_18px_28px_rgba(0,0,0,0.45)]" />;
+    const mark = <AiTaKrajtaMark className={`h-full w-full ${AI_TA_KRAJTA_MARK_SHADOW_CLASS_NAME}`} />;
     const className = 'block w-1/2 max-w-[13rem] rounded-full bg-transparent p-0';
 
     if (onGameStart === undefined) {

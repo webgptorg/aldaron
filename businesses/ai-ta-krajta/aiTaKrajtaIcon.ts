@@ -1,10 +1,8 @@
 import {
     AI_TA_KRAJTA_MARK_BOUNDS,
-    AI_TA_KRAJTA_MARK_GRADIENT,
     AI_TA_KRAJTA_MARK_SHAPES,
-    AI_TA_KRAJTA_MARK_STROKE_LINE_CAP,
     AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE,
-    createAiTaKrajtaMarkPaintValue,
+    createAiTaKrajtaMarkGradientId,
     type AiTaKrajtaMarkShape,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
 import {
@@ -32,11 +30,11 @@ export type AiTaKrajtaIconTileShape = 'rounded' | 'square';
 const TILE_CORNER_RADIUS_RATIO = 0.211;
 
 /**
- * Id the gradient is defined under inside a generated icon
+ * What the gradients of a generated icon are named after
  *
- * Note: An icon is a document of its own, so a single fixed id is enough and nothing has to be generated per render.
+ * Note: An icon is a document of its own, so a single fixed name is enough and nothing has to be generated per render.
  */
-const ICON_GRADIENT_ID = 'aiTaKrajtaMarkGradient';
+const ICON_DOCUMENT_ID = 'icon';
 
 /**
  * How far the mark is moved to put the animal, rather than its view box, in the middle of the tile
@@ -50,37 +48,21 @@ const MARK_VERTICAL_OFFSET =
  * One drawn part of the snake, as SVG markup
  */
 function createMarkShapeMarkup(shape: AiTaKrajtaMarkShape): string {
-    const paintValue = createAiTaKrajtaMarkPaintValue(shape.paint, ICON_GRADIENT_ID);
-
-    if (shape.kind === 'filledPath') {
-        return `<path d="${shape.pathData}" fill="${paintValue}"/>`;
-    }
-
-    if (shape.kind === 'strokedPath') {
-        return (
-            `<path d="${shape.pathData}" stroke="${paintValue}" stroke-width="${shape.strokeWidth}"` +
-            ` stroke-linecap="${AI_TA_KRAJTA_MARK_STROKE_LINE_CAP}" fill="none"/>`
-        );
-    }
-
-    return (
-        `<ellipse cx="${shape.centerX}" cy="${shape.centerY}" rx="${shape.radiusX}" ry="${shape.radiusY}"` +
-        ` transform="rotate(${shape.rotationInDegrees} ${shape.centerX} ${shape.centerY})" fill="${paintValue}"/>`
-    );
+    return `<path d="${shape.pathData}" fill="url(#${createAiTaKrajtaMarkGradientId(ICON_DOCUMENT_ID, shape.id)})"/>`;
 }
 
 /**
- * The gradient of the mark, as the `defs` of a generated icon
+ * The gradient of one drawn part, as markup for the `defs` of a generated icon
  */
-function createMarkGradientMarkup(): string {
-    const stopsMarkup = AI_TA_KRAJTA_MARK_GRADIENT.stops
+function createMarkGradientMarkup(shape: AiTaKrajtaMarkShape): string {
+    const stopsMarkup = shape.gradient.stops
         .map((stop) => `<stop offset="${stop.offset}" stop-color="${stop.color}"/>`)
         .join('');
 
     return (
-        `<defs><linearGradient id="${ICON_GRADIENT_ID}" x1="${AI_TA_KRAJTA_MARK_GRADIENT.x1}"` +
-        ` y1="${AI_TA_KRAJTA_MARK_GRADIENT.y1}" x2="${AI_TA_KRAJTA_MARK_GRADIENT.x2}"` +
-        ` y2="${AI_TA_KRAJTA_MARK_GRADIENT.y2}" gradientUnits="userSpaceOnUse">${stopsMarkup}</linearGradient></defs>`
+        `<linearGradient id="${createAiTaKrajtaMarkGradientId(ICON_DOCUMENT_ID, shape.id)}"` +
+        ` x1="${shape.gradient.x1}" y1="${shape.gradient.y1}" x2="${shape.gradient.x2}" y2="${shape.gradient.y2}"` +
+        ` gradientUnits="userSpaceOnUse">${stopsMarkup}</linearGradient>`
     );
 }
 
@@ -97,13 +79,14 @@ export function createAiTaKrajtaIconSvg(tileShape: AiTaKrajtaIconTileShape): str
     const viewBoxSize = AI_TA_KRAJTA_MARK_VIEW_BOX_SIZE;
     const cornerRadius = tileShape === 'rounded' ? viewBoxSize * TILE_CORNER_RADIUS_RATIO : 0;
     const markMarkup = AI_TA_KRAJTA_MARK_SHAPES.map(createMarkShapeMarkup).join('');
+    const gradientsMarkup = AI_TA_KRAJTA_MARK_SHAPES.map(createMarkGradientMarkup).join('');
 
     return (
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxSize} ${viewBoxSize}"` +
         ` width="${AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS}" height="${AI_TA_KRAJTA_ICON_SIZE_IN_PIXELS}"` +
         ` fill="none" role="img" aria-label="${AI_TA_KRAJTA_NAME}">` +
         `<title>${AI_TA_KRAJTA_NAME}</title>` +
-        createMarkGradientMarkup() +
+        `<defs>${gradientsMarkup}</defs>` +
         `<rect width="${viewBoxSize}" height="${viewBoxSize}" rx="${cornerRadius}" ry="${cornerRadius}"` +
         ` fill="${AI_TA_KRAJTA_COLORS.MOSS}"/>` +
         `<g transform="translate(${MARK_HORIZONTAL_OFFSET} ${MARK_VERTICAL_OFFSET})">${markMarkup}</g>` +

@@ -28,7 +28,12 @@ use cases, and audiences. Keep these rules current when behavior changes.
   query/hash state; the snake game is local state. Person clicks filter episodes.
   Collaboration submissions use `/admin/contacts`. Its tab icon is the page's
   own snake drawing in `/ai-ta-krajta/logo.svg` and `.png`; SVG corners are
-  rounded and transparent, while the raster fills its square.
+  rounded and transparent, while the raster fills its square. That drawing is
+  traced off the cover artwork of the show and recorded once in
+  `businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork.ts`, together with the
+  measurements of the animal along its own length. The snake of the minigame
+  starts in exactly that shape, in the frame the still logo occupied, and only
+  then eases into the proportions, colours and speed of a game snake.
 - `/cs/komunita` is the permanent Czech community room. It has chat, polls,
   projects, materials, and published terms, but no schedule, stage, or live
   updates. Terms show event kind, format/place, price, and status. A term with a

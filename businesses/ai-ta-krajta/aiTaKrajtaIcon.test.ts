@@ -78,11 +78,7 @@ describe('AI ta Krajta icon', () => {
         const iconSvg = createAiTaKrajtaIconSvg('rounded');
 
         for (const shape of AI_TA_KRAJTA_MARK_SHAPES) {
-            if (shape.kind === 'filledEllipse') {
-                expect(iconSvg).toContain(`cx="${shape.centerX}" cy="${shape.centerY}"`);
-            } else {
-                expect(iconSvg).toContain(shape.pathData);
-            }
+            expect(iconSvg).toContain(shape.pathData);
         }
     });
 

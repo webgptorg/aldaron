@@ -1,5 +1,5 @@
 import {
-    AI_TA_KRAJTA_MARK_SPINE_POINTS,
+    AI_TA_KRAJTA_MARK_BODY,
     placeAiTaKrajtaMarkPointInFrame,
     type AiTaKrajtaMarkFrame,
 } from '@/businesses/ai-ta-krajta/aiTaKrajtaMarkArtwork';
@@ -17,17 +17,23 @@ const MARK_FRAME: AiTaKrajtaMarkFrame = {
 const BOUNDS: SnakeBounds = { width: 448, height: 448 };
 
 describe('AI ta Krajta snake logo pose', () => {
-    it('begins at the exact displayed head of the mark and keeps its tail in the same frame', () => {
+    it('begins at the exact displayed nose of the mark and keeps its tail in the same frame', () => {
         const pose = createAiTaKrajtaSnakeLogoPose(MARK_FRAME);
-        const firstSpinePoint = AI_TA_KRAJTA_MARK_SPINE_POINTS[0];
-        const lastSpinePoint = AI_TA_KRAJTA_MARK_SPINE_POINTS[AI_TA_KRAJTA_MARK_SPINE_POINTS.length - 1];
+        const nosePoint = AI_TA_KRAJTA_MARK_BODY[0];
+        const tailPoint = AI_TA_KRAJTA_MARK_BODY[AI_TA_KRAJTA_MARK_BODY.length - 1];
 
-        expect(firstSpinePoint).toBeDefined();
-        expect(lastSpinePoint).toBeDefined();
-        expect(pose.headPosition).toEqual(placeAiTaKrajtaMarkPointInFrame(firstSpinePoint!, MARK_FRAME));
-        expect(pose.trail.at(-1)).toEqual(placeAiTaKrajtaMarkPointInFrame(lastSpinePoint!, MARK_FRAME));
-        expect(pose.headAngleInRadians).toBeLessThan(0);
+        expect(nosePoint).toBeDefined();
+        expect(tailPoint).toBeDefined();
+        expect(pose.headPosition).toEqual(placeAiTaKrajtaMarkPointInFrame(nosePoint!, MARK_FRAME));
+        expect(pose.trail.at(-1)).toEqual(placeAiTaKrajtaMarkPointInFrame(tailPoint!, MARK_FRAME));
         expect(pose.segmentCount).toBeGreaterThan(2);
+    });
+
+    it('looks the way the drawn snake looks, which is to the right and a little down', () => {
+        const pose = createAiTaKrajtaSnakeLogoPose(MARK_FRAME);
+
+        expect(Math.cos(pose.headAngleInRadians)).toBeGreaterThan(0.9);
+        expect(Math.abs(pose.headAngleInRadians)).toBeLessThan(Math.PI / 4);
     });
 
     it('lets the ordinary simulation keep the logo-shaped pose instead of replacing it at startup', () => {
