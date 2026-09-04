@@ -36,6 +36,8 @@ import { isWorkshopParticipantModerating } from '@/lib/workshops/workshopModerat
 import { normalizeWorkshopParticipantEmail } from '@/lib/workshops/workshopParticipantEmail';
 import { selectWorkshopContentForMember } from '@/lib/workshops/workshopPaidMembersContent';
 import { selectWorkshopVideoForMember } from '@/lib/workshops/workshopPaidMembersVideo';
+import { loadRegisteredParticipantCountsByTermId } from '@/lib/workshops/workshopRegistrationDatabase';
+import { getRegisteredParticipantCount } from '@/lib/workshops/workshopRegistrations';
 import type {
     WorkshopAdminComment,
     WorkshopAdminFeedback,
@@ -446,8 +448,25 @@ export function mapWorkshopSummaryRow(row: WorkshopSummaryRow): WorkshopSummary 
     };
 }
 
-function mapWorkshopAdminSummaryRow(row: WorkshopSummaryRow, participantCount: number): WorkshopAdminSummary {
-    return { ...mapWorkshopSummaryRow(row), participantCount };
+/**
+ * @param registeredParticipantCountByTermId how many people registered for each term on the landing page of its event,
+ *                                           or `null` when the listed rooms are no terms of an event at all
+ */
+function mapWorkshopAdminSummaryRow(
+    row: WorkshopSummaryRow,
+    participantCount: number,
+    registeredParticipantCountByTermId: ReadonlyMap<string, number> | null,
+): WorkshopAdminSummary {
+    const workshopSummary = mapWorkshopSummaryRow(row);
+
+    return {
+        ...workshopSummary,
+        participantCount,
+        registeredParticipantCount:
+            registeredParticipantCountByTermId === null || workshopSummary.event === null
+                ? null
+                : getRegisteredParticipantCount(registeredParticipantCountByTermId, workshopSummary),
+    };
 }
 
 export function mapWorkshopContentRow(row: WorkshopContentRow, linkClickCount = 0): WorkshopContentBlock {
@@ -999,19 +1018,26 @@ async function countWorkshopParticipantsByWorkshop(
 }
 
 /**
- * Lists every occurrence of one room kind for the administration, together with the audience each of them gathered.
+ * Lists every occurrence of one room kind for the administration, together with both audiences each of them gathered:
+ * the people who registered for it on the landing page of its event, and the people who really entered its room.
+ *
+ * Note: A room kind which is no event has no landing page registering anybody for it, so its registrations are not
+ *       asked for at all rather than being counted as none.
  */
 export async function loadWorkshopAdminSummaries(
     supabase: SupabaseClient,
     workshopKind: WorkshopKind,
 ): Promise<{ readonly workshops: readonly WorkshopAdminSummary[] | null; readonly errorMessage: string | null }> {
-    const [workshopsResult, participantCountByWorkshopId] = await Promise.all([
+    const [workshopsResult, participantCountByWorkshopId, registeredParticipantCountByTermId] = await Promise.all([
         supabase
             .from(WORKSHOP_TABLE_NAME)
             .select(WORKSHOP_SUMMARY_COLUMNS)
             .eq('room_kind', workshopKind)
             .order('starts_at', { ascending: false }),
         countWorkshopParticipantsByWorkshop(supabase, workshopKind),
+        getWorkshopKindCapabilities(workshopKind).isEvent
+            ? loadRegisteredParticipantCountsByTermId()
+            : Promise.resolve(null),
     ]);
 
     if (workshopsResult.error) {
@@ -1020,7 +1046,11 @@ export async function loadWorkshopAdminSummaries(
 
     return {
         workshops: ((workshopsResult.data ?? []) as WorkshopSummaryRow[]).map((workshopRow) =>
-            mapWorkshopAdminSummaryRow(workshopRow, participantCountByWorkshopId.get(workshopRow.id) ?? 0),
+            mapWorkshopAdminSummaryRow(
+                workshopRow,
+                participantCountByWorkshopId.get(workshopRow.id) ?? 0,
+                registeredParticipantCountByTermId,
+            ),
         ),
         errorMessage: null,
     };

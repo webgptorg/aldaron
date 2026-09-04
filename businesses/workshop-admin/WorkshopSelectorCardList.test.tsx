@@ -20,6 +20,7 @@ const ONGOING_WORKSHOP: WorkshopAdminSummary = {
     endsAt: '2026-08-21T20:30:00+02:00',
     isPublished: true,
     participantCount: 42,
+    registeredParticipantCount: 61,
 };
 const UPCOMING_WORKSHOP: WorkshopAdminSummary = {
     id: 'upcoming-workshop-id',
@@ -32,6 +33,7 @@ const UPCOMING_WORKSHOP: WorkshopAdminSummary = {
     endsAt: '2026-09-10T20:30:00+02:00',
     isPublished: true,
     participantCount: 3,
+    registeredParticipantCount: 1,
 };
 const PAST_WORKSHOP: WorkshopAdminSummary = {
     id: 'past-workshop-id',
@@ -44,6 +46,7 @@ const PAST_WORKSHOP: WorkshopAdminSummary = {
     endsAt: '2026-07-10T20:30:00+02:00',
     isPublished: true,
     participantCount: 1,
+    registeredParticipantCount: null,
 };
 
 function renderWorkshopSelectorCardList(
@@ -112,6 +115,20 @@ describe('workshop selector card list', () => {
         expect(upcomingCard.textContent).toContain('3 účastníci');
         expect(pastCard.textContent).toContain('Proběhl');
         expect(pastCard.textContent).toContain('1 účastník');
+    });
+
+    it('says how many people registered for a term beside how many of them really came', () => {
+        renderWorkshopSelectorCardList([ONGOING_WORKSHOP, UPCOMING_WORKSHOP, PAST_WORKSHOP]);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Historie (1)' }));
+
+        const [ongoingCard, upcomingCard, pastCard] = getWorkshopCards();
+
+        expect(ongoingCard.textContent).toContain('61 registrovaných');
+        expect(upcomingCard.textContent).toContain('1 registrovaný');
+
+        // A room which is no term of an event has no registration form, so it claims no registrations at all.
+        expect(pastCard.textContent).not.toContain('registrovan');
     });
 
     it('marks the selected workshop and reports the one an administrator opens', () => {

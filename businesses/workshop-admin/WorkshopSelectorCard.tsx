@@ -3,11 +3,16 @@
 import {
     formatWorkshopAdminDateTime,
     formatWorkshopParticipantCount,
+    formatWorkshopRegisteredParticipantCount,
 } from '@/businesses/workshop-admin/workshopAdminFormatting';
+import {
+    PARTICIPANT_COUNT_TITLE,
+    REGISTERED_PARTICIPANT_COUNT_TITLE,
+} from '@/businesses/workshop-admin/workshopAudienceLabels';
 import { WorkshopPhaseBadge } from '@/components/workshops/WorkshopPhaseBadge';
 import { getWorkshopPhase } from '@/lib/workshops/workshopPhase';
 import type { WorkshopAdminSummary } from '@/lib/workshops/workshopTypes';
-import { CalendarDays, Users } from 'lucide-react';
+import { CalendarDays, UserPlus, Users } from 'lucide-react';
 
 type WorkshopSelectorCardProps = {
     readonly workshop: WorkshopAdminSummary;
@@ -16,8 +21,8 @@ type WorkshopSelectorCardProps = {
 };
 
 /**
- * One selectable occurrence, which says at a glance when it happens, whether it is running, and how large its
- * audience is.
+ * One selectable occurrence, which says at a glance when it happens, whether it is running, how many people signed up
+ * for it, and how many of them really came.
  */
 export function WorkshopSelectorCard({ workshop, isSelected, onSelect }: WorkshopSelectorCardProps) {
     return (
@@ -38,7 +43,13 @@ export function WorkshopSelectorCard({ workshop, isSelected, onSelect }: Worksho
                     <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     {formatWorkshopAdminDateTime(workshop.startsAt)}
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                {workshop.registeredParticipantCount !== null && (
+                    <span className="flex items-center gap-1.5" title={REGISTERED_PARTICIPANT_COUNT_TITLE}>
+                        <UserPlus className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        {formatWorkshopRegisteredParticipantCount(workshop.registeredParticipantCount)}
+                    </span>
+                )}
+                <span className="flex items-center gap-1.5" title={PARTICIPANT_COUNT_TITLE}>
                     <Users className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     {formatWorkshopParticipantCount(workshop.participantCount)}
                 </span>

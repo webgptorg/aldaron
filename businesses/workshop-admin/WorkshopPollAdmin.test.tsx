@@ -49,6 +49,7 @@ const ATTACHABLE_WORKSHOP: WorkshopAdminSummary = {
     endsAt: null,
     isPublished: true,
     participantCount: 12,
+    registeredParticipantCount: 20,
 };
 
 function createProps() {

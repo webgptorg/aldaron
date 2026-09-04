@@ -55,7 +55,10 @@ use cases, and audiences. Keep these rules current when behavior changes.
   or renamed terms update existing subscriptions. It contains only event terms
   and public destinations, never subscriber identity.
 - `/admin/workshops` manages terms of every event kind, participants, comments,
-  reactions, content, attached community polls, and settings.
+  reactions, content, attached community polls, and settings. Every term says both
+  of its audiences: the people registered on the landing page of its event, and
+  the people who entered its room. A room which is no term of an event says
+  nothing about registrations at all.
 - `/admin/community` manages the permanent community, including polls, project
   moderation, participants, memberships, payments, and room analytics.
 - `/admin/shortener` manages public short links, QR/UTM output, destinations,
@@ -118,7 +121,14 @@ use cases, and audiences. Keep these rules current when behavior changes.
 
 - Event kinds are defined once in `lib/events/eventTypes.ts`; adding one should
   not require database migration or page-specific duplication. Terms ask for kind,
-  online/place format, price, and capacity.
+  online/place format, price, and capacity. Each kind also names where its landing
+  page records registrations, which is the `placeName` of the contacts it gathers.
+- Which term a registration belongs to is decided once, in
+  `lib/workshops/workshopRegistrations.ts`. A term is recognised by its slug, by
+  its Prague day, and by the moment it begins at, so registrations written before
+  terms had slugs keep counting. Registration forms write the term through the
+  same line prefixes that rule reads back. Contacts are still gathered, recorded
+  and shown only by `/admin/contacts`; counting reads nothing but their notes.
 - Workshop polls are read-only in workshop administration. Stage settings contain
   the live stream and recording teaser. An end may be empty; admins can record,
   adjust, clear, and reopen it. Overview analytics are zoomable and share their

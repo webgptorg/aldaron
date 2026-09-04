@@ -13,9 +13,14 @@ import { isEmailAddressValid } from '@/lib/isEmailAddressValid';
 import {
     formatCzechWorkshopDate,
     formatCzechWorkshopDuration,
+    formatCzechWorkshopMoment,
     formatCzechWorkshopTime,
 } from '@/lib/workshops/workshopDate';
 import { subscribeToWaitlist } from '@/lib/subscription/subscribeToWaitlist';
+import {
+    REGISTRATION_TERM_MOMENT_LINE_PREFIX,
+    REGISTRATION_TERM_SLUG_LINE_PREFIX,
+} from '@/lib/workshops/workshopRegistrations';
 import { createWorkshopRegistrationThankYouPath } from '@/lib/workshops/workshopRegistrationTiming';
 import { cn } from '@/lib/utils';
 import jiriJahn from '@/public/people/jiri-jahn-transparent-square.png';
@@ -35,12 +40,16 @@ function getFieldErrors({ fullname, email }: { fullname: string; email: string }
     };
 }
 
+/**
+ * Note: The term is named on the very lines the administration counts the people registered for it from, so the note a
+ *       registration is written with and the note that count is read from can never drift apart.
+ */
 function createOnlineWorkshopRegistrationNote(workshop: EventOccurrence): string {
     return [
         'Online workshop registration',
         `Workshop: ${workshop.title}`,
-        `Workshop URL slug: ${workshop.slug}`,
-        `Date: ${formatCzechWorkshopDate(workshop.startsAt)} ${formatCzechWorkshopTime(workshop.startsAt)}`,
+        `${REGISTRATION_TERM_SLUG_LINE_PREFIX} ${workshop.slug}`,
+        `${REGISTRATION_TERM_MOMENT_LINE_PREFIX} ${formatCzechWorkshopMoment(workshop.startsAt)}`,
     ].join('\n');
 }
 

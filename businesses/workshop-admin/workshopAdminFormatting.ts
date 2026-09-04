@@ -1,3 +1,5 @@
+import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
+
 const CZECH_DATE_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'short', timeStyle: 'short' });
 const CZECH_CLOCK_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', { hour: '2-digit', minute: '2-digit' });
 const CZECH_DAY_TIME_FORMAT = new Intl.DateTimeFormat('cs-CZ', {
@@ -46,16 +48,20 @@ export function formatWorkshopOverviewPointTime(timestampMilliseconds: number): 
 }
 
 /**
- * Names an audience in the Czech grammatical number which belongs to its size.
+ * Names the audience which really entered the room, in the Czech grammatical number which belongs to its size.
  */
 export function formatWorkshopParticipantCount(participantCount: number): string {
-    if (participantCount === 1) {
-        return '1 účastník';
-    }
+    return formatCzechCountedNoun(participantCount, ['účastník', 'účastníci', 'účastníků']);
+}
 
-    return participantCount >= 2 && participantCount <= 4
-        ? `${participantCount} účastníci`
-        : `${participantCount} účastníků`;
+/**
+ * Names how many people signed up for a term on the landing page of its event.
+ *
+ * Note: The noun is deliberately left out, because these are the very same people who are named `účastníci` once they
+ *       enter the room, and both numbers are read next to each other.
+ */
+export function formatWorkshopRegisteredParticipantCount(registeredParticipantCount: number): string {
+    return formatCzechCountedNoun(registeredParticipantCount, ['registrovaný', 'registrovaní', 'registrovaných']);
 }
 
 /**

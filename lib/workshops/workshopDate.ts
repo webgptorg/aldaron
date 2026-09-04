@@ -27,6 +27,16 @@ export function formatCzechWorkshopDate(startsAt: string): string {
     return CZECH_WORKSHOP_DATE_FORMAT.format(new Date(startsAt));
 }
 
+/**
+ * The exact moment one occurrence begins at, for example `čtvrtek 20. 8. 2026 19:00`
+ *
+ * Note: This is how a term is named where it has to be told apart from another term held on the very same day, which
+ *       is what identifies a term a registration was written for before the terms had addresses of their own.
+ */
+export function formatCzechWorkshopMoment(startsAt: string): string {
+    return `${formatCzechWorkshopDate(startsAt)} ${formatCzechWorkshopTime(startsAt)}`;
+}
+
 const CZECH_WORKSHOP_SHORT_DATE_FORMAT = new Intl.DateTimeFormat(CZECH_LOCALE, {
     dateStyle: 'short',
     timeZone: PRAGUE_TIME_ZONE,

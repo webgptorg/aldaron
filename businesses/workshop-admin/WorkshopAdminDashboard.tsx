@@ -49,6 +49,12 @@ import { WorkshopReactionSummary } from '@/businesses/workshop-admin/WorkshopRea
 import { WorkshopSelectorCardList } from '@/businesses/workshop-admin/WorkshopSelectorCardList';
 import { WorkshopSettingsForm } from '@/businesses/workshop-admin/WorkshopSettingsForm';
 import { mergeWorkshopAdminSnapshot } from '@/businesses/workshop-admin/workshopAdminSnapshot';
+import {
+    PARTICIPANT_COUNT_LABEL,
+    PARTICIPANT_COUNT_TITLE,
+    REGISTERED_PARTICIPANT_COUNT_LABEL,
+    REGISTERED_PARTICIPANT_COUNT_TITLE,
+} from '@/businesses/workshop-admin/workshopAudienceLabels';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUrlSynchronizedViewState } from '@/hooks/useUrlSynchronizedViewState';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
@@ -65,7 +71,17 @@ import type {
     WorkshopCommentStatus,
     WorkshopKind,
 } from '@/lib/workshops/workshopTypes';
-import { BarChart3, BookOpenText, MessageCircle, Radio, RefreshCw, Settings2, Star, Users } from 'lucide-react';
+import {
+    BarChart3,
+    BookOpenText,
+    MessageCircle,
+    Radio,
+    RefreshCw,
+    Settings2,
+    Star,
+    UserPlus,
+    Users,
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 const ADMIN_SNAPSHOT_REFRESH_INTERVAL_MILLISECONDS = 5_000;
@@ -90,6 +106,55 @@ const WORKSHOP_ADMIN_SECTION_DEFINITIONS: readonly WorkshopAdminSectionDefinitio
     { value: 'feedback', label: 'Zpětná vazba', icon: Star },
     { value: 'settings', label: 'Nastavení', icon: Settings2 },
 ];
+
+type WorkshopOverviewStatistic = {
+    readonly label: string;
+    readonly value: number;
+    readonly icon: typeof BarChart3;
+    readonly description: string;
+};
+
+/**
+ * What the overview of one room counts, beginning with its two audiences.
+ *
+ * Note: A room which is no term of an event has no landing page registering anybody for it, so it says nothing about
+ *       registrations at all rather than claiming that nobody registered for it.
+ */
+function createWorkshopOverviewStatistics(
+    snapshot: WorkshopAdminSnapshot,
+    registeredParticipantCount: number | null,
+): readonly WorkshopOverviewStatistic[] {
+    return [
+        ...(registeredParticipantCount === null
+            ? []
+            : [
+                  {
+                      label: REGISTERED_PARTICIPANT_COUNT_LABEL,
+                      value: registeredParticipantCount,
+                      icon: UserPlus,
+                      description: REGISTERED_PARTICIPANT_COUNT_TITLE,
+                  },
+              ]),
+        {
+            label: PARTICIPANT_COUNT_LABEL,
+            value: snapshot.participantCount,
+            icon: Users,
+            description: PARTICIPANT_COUNT_TITLE,
+        },
+        {
+            label: 'Komentáře',
+            value: snapshot.commentCount,
+            icon: MessageCircle,
+            description: 'Zprávy, které účastníci napsali do chatu místnosti',
+        },
+        {
+            label: 'Reakce',
+            value: snapshot.reactionCount,
+            icon: Radio,
+            description: 'Reakce, které účastníci poslali do místnosti',
+        },
+    ];
+}
 
 type WorkshopAdminDashboardProps = {
     readonly initialWorkshopSlug: string | null;
@@ -440,6 +505,13 @@ export function WorkshopAdminDashboard({
     const currentUnlockAt = useMemo(() => new Date().toISOString(), [selectedWorkshopId]);
     const scheduleStartsAt = isRoomScheduled && snapshot !== null ? snapshot.workshop.startsAt : null;
 
+    // Note: How many people registered belongs to the term rather than to its live room, so it is read from the very
+    //       list which already counts it for every card instead of being counted a second time for the opened one.
+    const overviewStatistics =
+        snapshot === null
+            ? []
+            : createWorkshopOverviewStatistics(snapshot, selectedWorkshop?.registeredParticipantCount ?? null);
+
     return (
         <div
             className={`mx-auto grid max-w-7xl gap-6 px-6 py-8 ${isRoomSelectionOffered ? 'lg:grid-cols-[22rem_minmax(0,1fr)] xl:grid-cols-[28rem_minmax(0,1fr)]' : ''}`}
@@ -507,14 +579,13 @@ export function WorkshopAdminDashboard({
                         </TabsList>
 
                         <TabsContent value="overview" className="space-y-6">
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                {[
-                                    { label: 'Účastníci', value: snapshot.participantCount, icon: Users },
-                                    { label: 'Komentáře', value: snapshot.commentCount, icon: MessageCircle },
-                                    { label: 'Reakce', value: snapshot.reactionCount, icon: Radio },
-                                ].map((statistic) => (
+                            <div
+                                className={`grid gap-4 ${overviewStatistics.length === 4 ? 'sm:grid-cols-2 xl:grid-cols-4' : 'sm:grid-cols-3'}`}
+                            >
+                                {overviewStatistics.map((statistic) => (
                                     <div
                                         key={statistic.label}
+                                        title={statistic.description}
                                         className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
                                     >
                                         <statistic.icon className="h-5 w-5 text-cyan-600" />

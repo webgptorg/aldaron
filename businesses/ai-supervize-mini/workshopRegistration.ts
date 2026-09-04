@@ -7,11 +7,14 @@ import type { ActiveDiscount, ActiveDiscountByPlaceId } from '@/lib/discounts/di
 import type { EventOccurrence } from '@/lib/events/eventOccurrence';
 import { formatEventFormat } from '@/lib/events/eventLocation';
 import { formatCzechCountedNoun } from '@/lib/language/czechNumbers';
+import { formatCzechWorkshopDay, formatCzechWorkshopTimeRange } from '@/lib/workshops/workshopDate';
 import {
-    formatCzechWorkshopDay,
-    formatCzechWorkshopTimeRange,
-    formatPragueCalendarDate,
-} from '@/lib/workshops/workshopDate';
+    countRegisteredParticipantsByTermId,
+    getRegisteredParticipantCount,
+    readWorkshopRegistrationFromPayload,
+    readWorkshopRegistrationNotePayload,
+    type WorkshopRegistration,
+} from '@/lib/workshops/workshopRegistrations';
 
 export type AiSupervizeMiniInvoiceType = 'company' | 'individual';
 
@@ -98,45 +101,14 @@ export type AiSupervizeMiniStoredWorkshopRegistration = {
     readonly isVatPayer: boolean;
 };
 
-type AiSupervizeMiniSeatReservation = {
-    readonly selectedDateId: string;
-    readonly participantCount: number;
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function parseJsonObject(value: string): Record<string, unknown> | null {
-    try {
-        const parsedValue: unknown = JSON.parse(value);
-
-        return isRecord(parsedValue) ? parsedValue : null;
-    } catch {
-        return null;
-    }
-}
-
-function getRegistrationPayloadFromContactNote(contactNote: string): Record<string, unknown> | null {
-    const trimmedContactNote = contactNote.trim();
-    const directPayload = parseJsonObject(trimmedContactNote);
-
-    if (directPayload !== null) {
-        return directPayload;
-    }
-
-    // Older registrations have a human-readable introduction before the JSON payload.
-    const lastJsonPayloadStart = contactNote.lastIndexOf('\n{');
-
-    return lastJsonPayloadStart === -1 ? null : parseJsonObject(contactNote.slice(lastJsonPayloadStart + 1));
-}
-
-function getAiSupervizeMiniSeatReservation(contactNote: string | null): AiSupervizeMiniSeatReservation | null {
-    if (contactNote === null) {
-        return null;
-    }
-
-    const registrationPayload = getRegistrationPayloadFromContactNote(contactNote);
+/**
+ * The seats one gathered contact reserved, or `null` when its note is no registration of this workshop
+ *
+ * Note: The discriminator of the payload is what tells a registration of this workshop apart from everything else the
+ *       same landing page gathers, so a lead who cannot attend never takes a seat away from somebody who can.
+ */
+function getAiSupervizeMiniSeatReservation(contactNote: string | null): WorkshopRegistration | null {
+    const registrationPayload = contactNote === null ? null : readWorkshopRegistrationNotePayload(contactNote);
 
     if (registrationPayload === null) {
         return null;
@@ -145,30 +117,8 @@ function getAiSupervizeMiniSeatReservation(contactNote: string | null): AiSuperv
     const isKnownRegistration =
         registrationPayload.registrationType === AI_SUPERVIZE_MINI_WORKSHOP_REGISTRATION_TYPE ||
         registrationPayload.workshop === AI_SUPERVIZE_MINI_WORKSHOP_CONFIG.title;
-    const selectedDateId = registrationPayload.selectedDateId;
-    const participantCount = registrationPayload.participantCount;
 
-    if (
-        !isKnownRegistration ||
-        typeof selectedDateId !== 'string' ||
-        typeof participantCount !== 'number' ||
-        !Number.isSafeInteger(participantCount) ||
-        participantCount < 1
-    ) {
-        return null;
-    }
-
-    return { selectedDateId, participantCount };
-}
-
-/**
- * Every identifier one term has ever been registered for under
- *
- * Note: Registrations written before the terms were administered from one place name their term by the day it is held
- *       on, so those seats keep being counted against that very term.
- */
-function getAiSupervizeMiniEventRegistrationIds(event: EventOccurrence): readonly string[] {
-    return [event.slug, formatPragueCalendarDate(event.startsAt)];
+    return isKnownRegistration ? readWorkshopRegistrationFromPayload(registrationPayload) : null;
 }
 
 export function getAiSupervizeMiniEventBySlug(
@@ -190,29 +140,12 @@ export function createAiSupervizeMiniWorkshopAvailability(
     events: readonly EventOccurrence[],
     contactNotes: readonly (string | null)[],
 ): readonly AiSupervizeMiniWorkshopAvailability[] {
-    const registeredParticipantCountByRegistrationId = new Map<string, number>();
-
-    for (const contactNote of contactNotes) {
-        const seatReservation = getAiSupervizeMiniSeatReservation(contactNote);
-
-        if (seatReservation === null) {
-            continue;
-        }
-
-        const registeredParticipantCount =
-            registeredParticipantCountByRegistrationId.get(seatReservation.selectedDateId) ?? 0;
-        registeredParticipantCountByRegistrationId.set(
-            seatReservation.selectedDateId,
-            registeredParticipantCount + seatReservation.participantCount,
-        );
-    }
+    const registeredParticipantCountByTermId = countRegisteredParticipantsByTermId(
+        contactNotes.map(getAiSupervizeMiniSeatReservation),
+    );
 
     return events.map((event) => {
-        const registeredParticipantCount = getAiSupervizeMiniEventRegistrationIds(event).reduce(
-            (participantCount, registrationId) =>
-                participantCount + (registeredParticipantCountByRegistrationId.get(registrationId) ?? 0),
-            0,
-        );
+        const registeredParticipantCount = getRegisteredParticipantCount(registeredParticipantCountByTermId, event);
 
         return {
             eventSlug: event.slug,

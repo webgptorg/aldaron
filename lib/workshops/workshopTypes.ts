@@ -65,6 +65,16 @@ export type WorkshopSummary = {
  */
 export type WorkshopAdminSummary = WorkshopSummary & {
     readonly participantCount: number;
+
+    /**
+     * How many people registered for this term on the landing page of its event, or `null` for a room which is no term
+     * of an event and therefore has no registration form at all
+     *
+     * Note: This is a different audience from `participantCount`, which counts the people who really entered the room.
+     *       Somebody can register and never come, and somebody can be handed a link into a room they never registered
+     *       for, so neither number can be derived from the other.
+     */
+    readonly registeredParticipantCount: number | null;
 };
 
 export type WorkshopDetails = WorkshopSummary & {

@@ -1,4 +1,26 @@
 # Current preversion
+- Said of every term in `/admin/workshops` how many people signed up for it, next to how many of them really came.
+  Until now the administration counted one audience only — the people who entered the live room through the participant
+  application — so a term which nobody had opened yet looked as though nobody wanted it, however full its registration
+  form was. Every card of the term picker and the `Přehled` of the opened term now say both numbers: `Registrovaní` are
+  the people who left their contact in the registration form on the landing page of that event, and `Účastníci` are the
+  people who really entered its room. Each number explains itself when the mouse rests on it, because neither can be
+  derived from the other — somebody registers and never comes, and somebody is handed a link into a room they never
+  registered for.
+
+  Nothing about how a contact is gathered or recorded changed: `/admin/contacts` remains the one place which gathers
+  them, shows them and says who they are, and the administration of a term reads nothing of a registration but the note
+  saying which term it was made for and for how many people. A registration signing up a whole group counts as the
+  people it signed up rather than as one line. Which term a registration belongs to is now decided in one single place
+  for the whole application, so the seats `/ai-supervize-mini` counts as taken and the registrations `/admin/workshops`
+  counts are read by the very same rule and can never disagree: a term is recognised by its address, by the day it is
+  held on, and by the exact moment it begins at, which is how the registrations written before the terms had addresses
+  of their own named them — so the whole history of a term is counted rather than only what was registered since. The
+  landing pages now write the term into their note through the very words that rule reads it back with. A permanent
+  room such as the community is no term of an event and has no registration form at all, so it says nothing about
+  registrations instead of claiming that nobody registered for it, and a server which cannot reach the contacts leaves
+  the administration standing rather than taking it down with an audience it could not count.
+
 - Stopped asking for a card where there is never going to be anything to charge it for. A discount code which takes
   the whole price of the community membership for as long as that membership lasts is now a voucher: in the membership
   popup of `/cs/komunita` and of `/cs/online-workshop/participant`, entering such a code turns the `Zaplatit 199 Kč /

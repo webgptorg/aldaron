@@ -1,4 +1,4 @@
-[ ] !!!!!!!!
+[x] by Claude Code `claude-opus-5` thinking `max` - Implementation 7.43 26 minutes; Testing 7 minutes
 
 [✨🧞] Show number of registered participants of each event
 
@@ -14,3 +14,4 @@
 ![workshop landing page (show only as contact)](prompts/screenshots/2026-09-0020-show-number-of-registered-1.png)
 ![participant app (from which the number of participants is shown in admin)](prompts/screenshots/2026-09-0020-show-number-of-registered-2.png)
 ![alt text](prompts/screenshots/2026-09-0020-show-number-of-registered.png)
+
