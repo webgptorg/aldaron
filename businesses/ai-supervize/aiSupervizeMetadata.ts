@@ -9,9 +9,9 @@ export const AI_SUPERVIZE_PAGE_DEFINITION: PageMetadataDefinition = {
     title: 'AI Supervize pro software týmy | Promptbook',
     socialTitle: 'AI Supervize pro software týmy',
     description:
-        'Pomáháme firmám nastavit workflow, pravidla, nástroje a měření tak, aby AI opravdu pomáhala při vývoji software, místo aby přidávala chaos a riziko.',
+        'Pomáháme firmám nastavit workflow, pravidla, nástroje a měření. AI pak může zrychlit vývoj software, místo aby přidávala chaos a riziko.',
     socialDescription:
-        'Workflow, pravidla, playbook a metriky, díky kterým AI zkracuje time-to-merge místo přidávání chaosu.',
+        'Workflow, pravidla, playbook a metriky pro software týmy, které chtějí zkrátit time-to-merge a omezit chaos.',
     socialPreviewImageAlt: 'AI Supervize pro software týmy - Promptbook',
     keywords: ['AI supervize', 'AI ve vývoji software', 'code review', 'vývojářské týmy', 'CTO', 'Promptbook'],
     isSocialPreviewImageGenerated: true,

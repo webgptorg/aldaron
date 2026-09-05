@@ -50,7 +50,7 @@ export function WorkshopConnectionForm({
     const connectionHeading = connectionDetails.connectionHeading ?? 'Připojit se k workshopu';
     const connectionDescription =
         connectionDetails.connectionDescription ?? 'Jméno se zobrazí u vašich komentářů. E-mail ostatní účastníci neuvidí.';
-    const submitLabel = connectionDetails.submitLabel ?? 'Vstoupit do místnosti';
+    const submitLabel = connectionDetails.submitLabel ?? 'Připojit se';
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();

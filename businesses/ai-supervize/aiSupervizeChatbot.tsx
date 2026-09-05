@@ -15,8 +15,8 @@ export function AiSupervizeChatbot() {
                 fullname: 'AI Supervize – asistent',
                 title: 'AI Supervize – asistent',
                 description:
-                    'Pomáhá firmám pochopit, co AI Supervize obnáší, jaké jsou přínosy a jak si domluvit discovery workshop.',
-                inputPlaceholder: 'Zeptejte se na průběh supervize, ceník nebo termíny workshopu...',
+                    'Vysvětlí, jak AI Supervize probíhá, co z ní tým dostane a jak domluvit discovery workshop.',
+                inputPlaceholder: 'Zeptejte se na průběh, cenu nebo termíny workshopu...',
             }}
         />
     );

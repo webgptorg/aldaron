@@ -9,32 +9,32 @@ export const aiSupervizeBenefits: Array<Benefit> = [
     },
     {
         iconName: 'Shield',
-        title: 'Bezpečný start i scale',
+        title: 'Bezpečný start i další růst',
         description:
-            'Nastavíme pravidla pro data, povolené nástroje a kontrolní body tak, aby AI nepřidávala zbytečné riziko.',
+            'Nastavíme pravidla pro data, povolené nástroje a kontrolní body. AI tak nebude přidávat zbytečné riziko.',
     },
     {
         iconName: 'Code',
         title: 'Méně reworku a regresí',
         description:
-            'AI nebude generovat kód bez mantinelů. Dostane pravidla, review guardraily a Definition of Done.',
+            'Nastavíme mantinely pro generování kódu: pravidla, review guardraily a Definition of Done.',
     },
     {
         iconName: 'FileStack',
         title: 'Čitelnější a konzistentní výstup',
         description:
-            'Sjednotíme PRD -> issue -> PR pipeline, šablony a způsob dokumentace, aby změny dávaly smysl i po týdnech.',
+            'Sjednotíme cestu od PRD přes issue k PR, šablony i dokumentaci, aby změny dávaly smysl i po týdnech.',
     },
     {
         iconName: 'Users',
         title: 'Stejný způsob práce napříč týmem',
         description:
-            'Každý nebude používat jiný nástroj a jiný prompt. Vznikne opakovatelný týmový playbook.',
+            'Sjednotíme nástroje, prompty i způsob práce a sepíšeme společný playbook.',
     },
     {
         iconName: 'Book',
         title: 'Měřitelný dopad',
         description:
-            'Zavedeme metriky jako lead time, doba review, reopen rate nebo incident rate, abyste poznali přínos od placeba.',
+            'Zavedeme metriky jako lead time, doba review, reopen rate nebo incident rate, abyste poznali, co funguje a co je jen placebo.',
     },
 ];
