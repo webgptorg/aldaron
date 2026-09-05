@@ -43,8 +43,7 @@ export type AiTaKrajtaMediaKitFrequentlyAskedQuestion = {
 /**
  * Source note shown underneath every public statistic from the partnership handoff
  */
-export const AI_TA_KRAJTA_MEDIA_KIT_STATISTICS_SOURCE =
-    'Zdroj: interní analytika AI ta Krajta, stav k 28. 8. 2026.';
+export const AI_TA_KRAJTA_MEDIA_KIT_STATISTICS_SOURCE = 'Zdroj: interní analytika AI ta Krajta, stav k 28. 8. 2026.';
 
 /**
  * Public evidence of the reach and regularity of the show
@@ -81,7 +80,7 @@ export const AI_TA_KRAJTA_MEDIA_KIT_STATISTICS: readonly AiTaKrajtaMediaKitStati
         id: 'returning-audience',
         value: '42,4 %',
         label: 'vracejících se diváků',
-        description: 'Casual + regular viewers',
+        description: 'Příležitostní a pravidelní diváci',
     },
 ];
 
@@ -90,23 +89,21 @@ export const AI_TA_KRAJTA_MEDIA_KIT_STATISTICS: readonly AiTaKrajtaMediaKitStati
  */
 export const AI_TA_KRAJTA_PARTNERSHIP_USE_CASES: readonly AiTaKrajtaPartnershipUseCase[] = [
     {
-        title: 'Hiring a employer branding',
-        description:
-            'Představte firmu, tým a otevřené role publiku, které se dlouhodobě pohybuje kolem technologií a AI.',
+        title: 'Nábor a employer branding',
+        description: 'Představte firmu, tým a otevřené role lidem, kteří dlouhodobě sledují technologie a AI.',
     },
     {
         title: 'Technická důvěryhodnost',
-        description: 'Spojte značku s kvalitní debatou nad tématem, které má pro komunitu skutečnou hodnotu.',
+        description: 'Propojte značku s debatou o tématu, které má pro komunitu skutečnou hodnotu.',
     },
     {
         title: 'Thought leadership',
-        description:
-            'Přiveďte kvalifikovaného experta do transparentně označené epizody, jejíž obsah zůstává redakčně nezávislý.',
+        description: 'Přiveďte experta do jasně označené epizody. Obsah zůstane redakčně nezávislý.',
     },
     {
         title: 'Relevantní produkt nebo event',
         description:
-            'Ukažte nástroj, službu nebo událost v kontextu, kde dává smysl — bez násilného product placementu.',
+            'Ukažte nástroj, službu nebo událost tam, kde dávají smysl. Bez tlačení produktu do dílu za každou cenu.',
     },
 ];
 
@@ -118,11 +115,11 @@ export const AI_TA_KRAJTA_PARTNERSHIP_OFFERS: readonly AiTaKrajtaPartnershipOffe
         id: 'episode-partner',
         title: 'Partner epizody',
         priceLabel: '12 000 Kč bez DPH',
-        description: 'Pro firmu, která chce otestovat spolupráci nebo podpořit konkrétní téma.',
+        description: 'Pro první spolupráci nebo podporu konkrétního tématu.',
         deliverables: [
-            '35–45sekundová nativní zmínka připravená a namluvená AI ta Krajta',
-            'Umístění po obsahovém hooku, prioritní UTM odkaz a připnutý komentář na YouTube',
-            'Logo nebo jednoduchý vizuální prvek, jasné označení spolupráce a report po 7 a 30 dnech',
+            'Nativní zmínka dlouhá 35–45 sekund, připravená a namluvená AI ta Krajta',
+            'Umístění za obsahovým hookem, prioritní UTM odkaz a připnutý komentář na YouTube',
+            'Logo nebo jednoduchý vizuál, jasné označení spolupráce a report po 7 a 30 dnech',
         ],
         callToActionLabel: 'Poptat epizodu',
         collaborationKind: 'partnerstvi',
@@ -131,7 +128,7 @@ export const AI_TA_KRAJTA_PARTNERSHIP_OFFERS: readonly AiTaKrajtaPartnershipOffe
         id: 'main-show-partner',
         title: 'Hlavní partner pořadu',
         priceLabel: 'Od 39 000 Kč měsíčně bez DPH',
-        description: 'Dlouhodobé spojení se značkou AI ta Krajta, minimálně na tři měsíce.',
+        description: 'Partnerství na nejméně tři měsíce pro značku, která chce být u AI ta Krajta pravidelně.',
         deliverables: [
             'Čtyři plnohodnotné nativní integrace během 30 dní',
             'Prioritní logo a odkaz na webu a pod novými epizodami',
@@ -144,10 +141,10 @@ export const AI_TA_KRAJTA_PARTNERSHIP_OFFERS: readonly AiTaKrajtaPartnershipOffe
         id: 'thematic-collaboration',
         title: 'Tematická spolupráce',
         priceLabel: 'Od 40 000 Kč bez DPH',
-        description: 'Hlubší epizoda nad relevantním tématem pro publikum i partnera.',
+        description: 'Epizoda pro téma, které dává smysl publiku i partnerovi.',
         deliverables: [
-            'Partnerem podpořená redakční epizoda nebo výrazně označený partnerský speciál',
-            'Partner může nominovat experta, redakce určuje otázky, názory i finální zpracování',
+            'Redakční epizoda s podporou partnera nebo výrazně označený partnerský speciál',
+            'Partner může navrhnout experta, redakce určuje otázky, názory i finální zpracování',
             'Rozsah, klipy, distribuci a práva nastavíme podle konkrétního zadání',
         ],
         callToActionLabel: 'Navrhnout téma',
@@ -176,9 +173,9 @@ export const AI_TA_KRAJTA_COLLABORATION_GUIDES: readonly AiTaKrajtaCollaboration
         description:
             'Hledáme lidi, kteří něco skutečně staví, nasazují nebo poctivě zkoumají a dokážou mluvit i o slepých uličkách.',
         steps: [
-            'Napište, čemu se věnujete a jakou zkušenost by si měl posluchač odnést.',
-            'Připojte odkazy na práci, projekt, výzkum nebo přednášku, které pomohou téma pochopit.',
-            'Hosta i téma schvaluje redakce; nominace není automatická garance účasti.',
+            'Napište, čemu se věnujete a co si má posluchač odnést.',
+            'Pošlete odkazy na práci, projekt, výzkum nebo přednášku, které pomohou téma pochopit.',
+            'Hosta i téma vybírá redakce. Samotná nominace účast nezaručuje.',
         ],
     },
     {
@@ -188,30 +185,29 @@ export const AI_TA_KRAJTA_COLLABORATION_GUIDES: readonly AiTaKrajtaCollaboration
             'Nový nástroj, paper, regulace, spor nebo průšvih v AI může být dobrý díl. Rozhodující je, proč je důležitý právě teď.',
         steps: [
             'Pošlete odkaz, zdroj nebo krátké shrnutí.',
-            'Přidejte jednu až dvě věty, co je na tématu podstatné pro lidi, kteří AI používají nebo řeší.',
-            'Když se téma do epizody nehodí hned, může se k němu redakce vrátit později.',
+            'Přidejte jednu až dvě věty o tom, proč je téma podstatné pro lidi, kteří AI používají nebo řeší.',
+            'Když se téma do epizody nehodí hned, redakce se k němu může vrátit později.',
         ],
     },
     {
         collaborationKind: 'partnerstvi',
         title: 'Chci partnerství nebo sponzoring',
-        description:
-            'Navrhneme formát podle cíle, který bude fungovat pro vás a zároveň zůstane užitečný pro posluchače.',
+        description: 'Vymyslíme formát, který pomůže vašemu cíli a bude dávat smysl posluchačům.',
         steps: [
-            'Napište, zda řešíte hiring, viditelnost, expertizu, produkt, event nebo konkrétní téma.',
-            'Řekněte nám časový horizont a orientační rozpočet; usnadní to návrh vhodného rozsahu.',
-            'Společně potvrdíme formát, redakční hranice, označení spolupráce a způsob vyhodnocení.',
+            'Napište, jestli řešíte nábor, viditelnost, expertizu, produkt, event nebo konkrétní téma.',
+            'Řekněte nám, kdy chcete spolupráci spustit a jaký máte orientační rozpočet. Pomůže nám to navrhnout rozsah.',
+            'Pak si potvrdíme formát, redakční hranice, označení spolupráce a způsob vyhodnocení.',
         ],
     },
     {
         collaborationKind: 'jine',
         title: 'Mám jiný nápad na spolupráci',
         description:
-            'Společný díl, záznam z konference nebo jiný formát, který se nevejde do běžné škatulky, si rádi přečteme.',
+            'Pošlete i nápad, který se nevejde do běžné škatulky. Společný díl nebo záznam z konference si rádi přečteme.',
         steps: [
             'Stručně popište záměr, komu má sloužit a proč dává pro AI ta Krajta smysl.',
             'Přidejte termín, místo nebo materiály, pokud už existují.',
-            'Když bude nápad redakčně i produkčně sedět, ozveme se s dalším krokem.',
+            'Když bude nápad sedět redakčně i produkčně, ozveme se s dalším krokem.',
         ],
     },
 ];
@@ -222,62 +218,61 @@ export const AI_TA_KRAJTA_COLLABORATION_GUIDES: readonly AiTaKrajtaCollaboration
 export const AI_TA_KRAJTA_PARTNERSHIP_PROCESS: readonly AiTaKrajtaPartnershipProcessStep[] = [
     {
         number: '01',
-        title: 'Řeknete nám cíl',
-        description: 'Hiring, viditelnost, expertiza, event nebo konkrétní téma.',
+        title: 'Popíšete, čeho chcete dosáhnout',
+        description: 'Nábor, viditelnost, expertiza, event nebo konkrétní téma.',
     },
     {
         number: '02',
         title: 'Navrhneme formát',
-        description: 'Zvolíme rozsah, termín, distribuci a způsob měření.',
+        description: 'Dohodneme rozsah, termín, distribuci a způsob měření.',
     },
     {
         number: '03',
-        title: 'Potvrdíme redakční hranice',
+        title: 'Ujasníme redakční hranice',
         description: 'Host, téma a komerční část musí projít schválením.',
     },
     {
         number: '04',
         title: 'Natočíme a vydáme',
-        description: 'Integraci nebo epizodu připravíme v našem stylu a jasně označíme.',
+        description: 'Integraci nebo epizodu připravíme v našem stylu a jasně ji označíme.',
     },
     {
         number: '05',
         title: 'Vyhodnotíme výsledky',
-        description: 'Po 7 a 30 dnech dodáme report a doporučení dalšího kroku.',
+        description: 'Po 7 a 30 dnech pošleme report a doporučení dalšího kroku.',
     },
 ];
 
 /**
  * Public answers to the practical partnership questions from the handoff
  */
-export const AI_TA_KRAJTA_MEDIA_KIT_FREQUENTLY_ASKED_QUESTIONS: readonly AiTaKrajtaMediaKitFrequentlyAskedQuestion[] =
-    [
-        {
-            question: 'Můžeme navrhnout hosta?',
-            answer: 'Ano. Host ale musí být relevantní pro publikum a schválit jej musí redakce AI ta Krajta. Nominace není automatická garance účasti.',
-        },
-        {
-            question: 'Můžeme schválit celou epizodu?',
-            answer: 'Ne. Můžete opravit faktické informace o své firmě, produktu nebo pracovních pozicích. Otázky, názory, titulek, thumbnail a finální střih zůstávají v rukou redakce.',
-        },
-        {
-            question: 'Garantujete počet views, leadů nebo kandidátů?',
-            answer: 'Ne. Pracujeme s historickými daty a reportujeme skutečný výkon po 7 a 30 dnech, ale negarantujeme obchodní výsledek.',
-        },
-        {
-            question: 'Můžeme použít klipy na vlastních profilech?',
-            answer: 'Oficiální klipy dodané AI ta Krajta můžete po dobu 12 měsíců organicky sdílet. Placená reklama, vlastní přestříhání nebo jiné rozšířené použití vyžadují samostatnou licenci.',
-        },
-        {
-            question: 'Můžeme dodat vlastní video spot?',
-            answer: 'Standardní nabídka je založená na nativní integraci připravené a namluvené AI ta Krajta. Externě vyrobený reklamní spot není součástí běžného formátu.',
-        },
-        {
-            question: 'Je možné získat exkluzivitu?',
-            answer: 'Ano, pouze pro úzce vymezenou kategorii, po omezenou dobu a za příplatek. Obecnou exkluzivitu pro „AI“, „IT“ nebo „software“ neposkytujeme.',
-        },
-        {
-            question: 'Jak dlouhé je hlavní partnerství?',
-            answer: 'Minimálně tři měsíce. Jednorázovou spolupráci lze realizovat jako partnerství konkrétní epizody nebo tematickou epizodu.',
-        },
-    ];
+export const AI_TA_KRAJTA_MEDIA_KIT_FREQUENTLY_ASKED_QUESTIONS: readonly AiTaKrajtaMediaKitFrequentlyAskedQuestion[] = [
+    {
+        question: 'Můžeme navrhnout hosta?',
+        answer: 'Ano. Host musí být relevantní pro publikum a schválit jej musí redakce AI ta Krajta. Nominace účast nezaručuje.',
+    },
+    {
+        question: 'Můžeme schválit celou epizodu?',
+        answer: 'Ne. Můžete opravit faktické informace o své firmě, produktu nebo pracovních pozicích. Otázky, názory, titulek, náhled a finální střih zůstávají v rukou redakce.',
+    },
+    {
+        question: 'Garantujete počet views, leadů nebo kandidátů?',
+        answer: 'Ne. Vycházíme z historických dat a po 7 a 30 dnech reportujeme skutečný výkon. Obchodní výsledek nezaručujeme.',
+    },
+    {
+        question: 'Můžeme použít klipy na vlastních profilech?',
+        answer: 'Oficiální klipy od AI ta Krajta můžete 12 měsíců sdílet bez placené podpory. Placená reklama, vlastní přestříhání nebo jiné rozšířené použití vyžadují samostatnou licenci.',
+    },
+    {
+        question: 'Můžeme dodat vlastní video spot?',
+        answer: 'Standardní nabídka stojí na nativní integraci, kterou připraví a namluví AI ta Krajta. Externě vyrobený reklamní spot do běžného formátu nepatří.',
+    },
+    {
+        question: 'Je možné získat exkluzivitu?',
+        answer: 'Ano, ale jen pro úzce vymezenou kategorii, na omezenou dobu a za příplatek. Obecnou exkluzivitu pro "AI", "IT" nebo "software" neposkytujeme.',
+    },
+    {
+        question: 'Jak dlouhé je hlavní partnerství?',
+        answer: 'Minimálně tři měsíce. Jednorázově můžeme udělat partnerství konkrétní epizody nebo tematickou epizodu.',
+    },
+];

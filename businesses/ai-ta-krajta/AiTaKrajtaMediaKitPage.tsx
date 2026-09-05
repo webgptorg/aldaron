@@ -135,15 +135,15 @@ export function AiTaKrajtaMediaKitPage() {
                     <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
                         <div className="max-w-3xl">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#b5c2ff]">
-                                Partnerství s AI ta Krajta
+                                Spolupráce s AI ta Krajta
                             </p>
                             <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
                                 Oslovte české a slovenské publikum, které AI opravdu řeší.
                             </h1>
                             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">
-                                Každý týden rozebíráme AI novinky, nástroje a dopady dřív, než se z nich stane
-                                mainstream. Firmám nabízíme nativní, transparentní a redakčně nezávislé spolupráce —
-                                od krátké integrace po hlubokou tematickou epizodu.
+                                Každý týden probíráme novinky, nástroje a dopady AI, často ještě předtím, než se
+                                dostanou do mainstreamu. Firmám nabízíme spolupráce s jasným označením a redakční
+                                nezávislostí, od krátké integrace po tematickou epizodu do hloubky.
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
@@ -157,7 +157,7 @@ export function AiTaKrajtaMediaKitPage() {
                                     href="#nabidka"
                                     className="inline-flex h-12 items-center gap-2 rounded-full border border-white/20 px-6 text-base font-medium text-white transition-colors hover:border-white/50"
                                 >
-                                    Prohlédnout možnosti
+                                    Prohlédnout nabídku
                                     <ArrowDown className="h-4 w-4" />
                                 </a>
                             </div>
@@ -169,8 +169,8 @@ export function AiTaKrajtaMediaKitPage() {
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
                             eyebrow="O podcastu"
-                            title="Pravidelný přehled toho, co se v AI právě mění."
-                            description="AI ta Krajta vychází každý týden na YouTube, Spotify a Apple Podcasts. V jednom díle dáváme prostor novinkám, nástrojům, souvislostem i poctivé debatě."
+                            title="Co se v AI mění, probíráme každý týden."
+                            description="AI ta Krajta vychází každý týden na YouTube, Spotify a Apple Podcasts. V každém díle probíráme novinky, nástroje, souvislosti a vedeme otevřenou debatu."
                         />
 
                         <dl className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -183,7 +183,9 @@ export function AiTaKrajtaMediaKitPage() {
                                     <dd className="mt-2 text-sm font-medium leading-snug text-white/85">
                                         {statistic.label}
                                     </dd>
-                                    <p className="mt-2 text-xs leading-relaxed text-white/45">{statistic.description}</p>
+                                    <p className="mt-2 text-xs leading-relaxed text-white/45">
+                                        {statistic.description}
+                                    </p>
                                 </div>
                             ))}
                         </dl>
@@ -205,7 +207,9 @@ export function AiTaKrajtaMediaKitPage() {
                                             className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2.5 text-sm text-white/75 transition-colors hover:border-white/35 hover:text-white"
                                         >
                                             <span>{platform.label}</span>
-                                            <span className="hidden text-white/45 sm:inline">— {platform.description}</span>
+                                            <span className="hidden text-white/45 sm:inline">
+                                                · {platform.description}
+                                            </span>
                                             <ExternalLink className="h-3.5 w-3.5 text-white/45" />
                                         </a>
                                     </li>
@@ -218,13 +222,16 @@ export function AiTaKrajtaMediaKitPage() {
                 <section id="pro-koho" className="py-16 sm:py-20">
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
-                            eyebrow="Pro koho partnerství funguje"
-                            title="Když má značka co přinést do skutečné debaty."
-                            description="Neprodáváme levné reklamní imprese ani nekontrolovaný product placement. Smysl dává spolupráce, která je relevantní pro značku, téma i posluchače."
+                            eyebrow="Pro koho spolupráce dává smysl"
+                            title="Když má značka k tématu co říct."
+                            description="Neprodáváme levné reklamní imprese a produkt do dílu netlačíme. Spolupráce má smysl, když sedí značce, tématu i posluchačům."
                         />
                         <ul className="mt-10 grid gap-4 sm:grid-cols-2">
                             {AI_TA_KRAJTA_PARTNERSHIP_USE_CASES.map((useCase) => (
-                                <li key={useCase.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                                <li
+                                    key={useCase.title}
+                                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+                                >
                                     <h3 className="text-lg font-semibold text-white">{useCase.title}</h3>
                                     <p className="mt-3 text-sm leading-relaxed text-white/60">{useCase.description}</p>
                                 </li>
@@ -236,9 +243,9 @@ export function AiTaKrajtaMediaKitPage() {
                 <section id="nabidka" className="border-y border-white/10 bg-[#1a201c]/45 py-16 sm:py-20">
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
-                            eyebrow="Veřejná nabídka"
-                            title="Tři formáty. Žádná šedá zóna."
-                            description="Od jednorázové integrace po dlouhodobé partnerství. Konkrétní spolupráci nastavíme podle cíle, ale hranice jsou od začátku čitelné."
+                            eyebrow="Nabídka spolupráce"
+                            title="Tři formáty, jasná pravidla."
+                            description="Můžeme začít jednou integrací nebo se domluvit na delším partnerství. Cíl a rozsah si řekneme předem, hranice zůstávají stejné."
                         />
                         <div className="mt-10 grid gap-4 lg:grid-cols-3">
                             {AI_TA_KRAJTA_PARTNERSHIP_OFFERS.map((offer) => (
@@ -251,19 +258,24 @@ export function AiTaKrajtaMediaKitPage() {
                 <section id="napady-a-hoste" className="py-16 sm:py-20">
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
-                            eyebrow="Hosté, témata a další spolupráce"
-                            title="Dobrý díl často začne jednou zprávou."
-                            description="Nejen firmy mohou něco přinést. Dejte nám vědět o člověku, tématu nebo formátu, který by měl dostat prostor."
+                            eyebrow="Hosté, témata a další nápady"
+                            title="Dobrý díl může začít jednou zprávou."
+                            description="Nemusíte být firma. Napište nám o hostovi, tématu nebo formátu, který by podle vás stál za díl."
                         />
                         <ul className="mt-10 grid gap-4 md:grid-cols-2">
                             {AI_TA_KRAJTA_COLLABORATION_GUIDES.map((guide) => (
                                 <li key={guide.collaborationKind}>
                                     <article className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-6">
                                         <h3 className="text-xl font-semibold text-white">{guide.title}</h3>
-                                        <p className="mt-3 text-sm leading-relaxed text-white/65">{guide.description}</p>
+                                        <p className="mt-3 text-sm leading-relaxed text-white/65">
+                                            {guide.description}
+                                        </p>
                                         <ol className="mt-6 grid flex-1 gap-3">
                                             {guide.steps.map((step, index) => (
-                                                <li key={step} className="flex gap-3 text-sm leading-relaxed text-white/75">
+                                                <li
+                                                    key={step}
+                                                    className="flex gap-3 text-sm leading-relaxed text-white/75"
+                                                >
                                                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6b8cff]/20 text-[11px] font-semibold text-[#c3cdff]">
                                                         {index + 1}
                                                     </span>
@@ -289,8 +301,8 @@ export function AiTaKrajtaMediaKitPage() {
                     <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
                         <AiTaKrajtaMediaKitSectionHeading
                             eyebrow="Redakční principy"
-                            title="Partnerství ano. Koupený názor ne."
-                            description="Důvěra posluchačů je pro nás důležitější než jakýkoli formát. Proto jsou pravidla jasná ještě před první domluvou."
+                            title="Partnerství ano. Názor si nekoupíte."
+                            description="Posluchači nám musí věřit. Proto jsou pravidla jasná ještě před první domluvou."
                         />
                         <ul className="grid gap-3">
                             {AI_TA_KRAJTA_EDITORIAL_PRINCIPLES.map((principle) => (
@@ -309,14 +321,19 @@ export function AiTaKrajtaMediaKitPage() {
                 <section id="jak-spoluprace-probiha" className="py-16 sm:py-20">
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
-                            eyebrow="Jak spolupráce probíhá"
-                            title="Od prvního kontaktu po poctivé vyhodnocení."
-                            description="Nejdřív hledáme správný formát. Až potom plánujeme konkrétní epizodu, integraci nebo další kroky."
+                            eyebrow="Jak to probíhá"
+                            title="Od první zprávy k výsledkům."
+                            description="Nejdřív si ujasníme cíl a formát. Potom domluvíme epizodu, integraci nebo další kroky."
                         />
                         <ol className="mt-10 grid gap-4 md:grid-cols-5">
                             {AI_TA_KRAJTA_PARTNERSHIP_PROCESS.map((step) => (
-                                <li key={step.number} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-                                    <p className="text-xs font-semibold tracking-[0.16em] text-[#ffb1a6]">{step.number}</p>
+                                <li
+                                    key={step.number}
+                                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                                >
+                                    <p className="text-xs font-semibold tracking-[0.16em] text-[#ffb1a6]">
+                                        {step.number}
+                                    </p>
                                     <h3 className="mt-4 text-base font-semibold text-white">{step.title}</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-white/60">{step.description}</p>
                                 </li>
@@ -329,8 +346,8 @@ export function AiTaKrajtaMediaKitPage() {
                     <div className="mx-auto max-w-3xl px-4 sm:px-6">
                         <AiTaKrajtaMediaKitSectionHeading
                             eyebrow="FAQ"
-                            title="Časté otázky před první spoluprací."
-                            description="Odpovědi na věci, které je dobré vědět dřív, než si domluvíme hovor."
+                            title="Nejčastější otázky před první spoluprací."
+                            description="Pár odpovědí ještě před prvním hovorem."
                             isCentered
                         />
                         <div className="mt-10 divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03] px-5 sm:px-7">
@@ -353,13 +370,15 @@ export function AiTaKrajtaMediaKitPage() {
                     <div className="mx-auto max-w-6xl px-4 sm:px-6">
                         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:items-start">
                             <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffb1a6]">Kontakt</p>
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffb1a6]">
+                                    Kontakt
+                                </p>
                                 <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
                                     Napište, čeho chcete dosáhnout.
                                 </h2>
                                 <p className="mt-4 leading-relaxed text-white/65">
-                                    Ať jde o hosta, téma, sponzoring nebo jiný nápad, odpovíme s dalším krokem. U
-                                    tematických epizod si nejdřív ověříme, zda téma a host dávají redakčně smysl.
+                                    Napište nám, jestli řešíte hosta, téma, sponzoring nebo jiný nápad. Ozveme se s
+                                    dalším krokem. U tematických epizod nejdřív ověříme, že téma i host sedí redakčně.
                                 </p>
                                 <a
                                     href={AI_TA_KRAJTA_LINKEDIN_URL}
@@ -368,7 +387,7 @@ export function AiTaKrajtaMediaKitPage() {
                                     className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-white/65 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
                                 >
                                     <MessageCircle className="h-4 w-4" />
-                                    Můžete nám napsat také na LinkedInu
+                                    Napište nám i na LinkedIn
                                     <ExternalLink className="h-3.5 w-3.5" />
                                 </a>
                             </div>

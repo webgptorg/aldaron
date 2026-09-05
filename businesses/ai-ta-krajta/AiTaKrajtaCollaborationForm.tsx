@@ -46,7 +46,7 @@ const LABEL_CLASS_NAME = 'text-sm font-medium text-white/70';
  */
 function getValidationMessage(formValues: CollaborationFormValues): string | null {
     if (formValues.fullname.trim() === '') {
-        return 'Napište nám prosím své jméno.';
+        return 'Napište své jméno.';
     }
 
     if (!isEmailAddressValid(formValues.email)) {
@@ -54,7 +54,7 @@ function getValidationMessage(formValues: CollaborationFormValues): string | nul
     }
 
     if (formValues.message.trim() === '') {
-        return 'Napište prosím aspoň pár vět, ať víme, o co jde.';
+        return 'Napište pár vět, ať víme, o co jde.';
     }
 
     return null;
@@ -142,9 +142,7 @@ export function AiTaKrajtaCollaborationForm() {
             <div className="rounded-2xl border border-[#6b8cff]/40 bg-[#6b8cff]/[0.08] p-8 text-center">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-[#9db1ff]" />
                 <h3 className="mt-4 text-xl font-semibold text-white">Máme to.</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/60">
-                    Díky. Ozveme se s návrhem vhodného dalšího kroku.
-                </p>
+                <p className="mt-2 text-sm leading-relaxed text-white/60">Díky. Ozveme se s dalším krokem.</p>
             </div>
         );
     }
@@ -202,9 +200,7 @@ export function AiTaKrajtaCollaborationForm() {
                     <select
                         id="ai-ta-krajta-zajem"
                         value={collaborationKind}
-                        onChange={(event) =>
-                            setCollaborationKind(readAiTaKrajtaCollaborationKind(event.target.value))
-                        }
+                        onChange={(event) => setCollaborationKind(readAiTaKrajtaCollaborationKind(event.target.value))}
                         className={FIELD_CLASS_NAME + ' appearance-none bg-[#232a25]'}
                     >
                         {AI_TA_KRAJTA_COLLABORATION_OPTIONS.map((option) => (

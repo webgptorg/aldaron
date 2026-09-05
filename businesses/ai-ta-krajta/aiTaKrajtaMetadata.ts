@@ -82,8 +82,7 @@ export const AI_TA_KRAJTA_MEDIA_KIT_PAGE_DEFINITION: PageMetadataDefinition = {
     },
     title: AI_TA_KRAJTA_BRAND_NAME + ' | Media kit a spolupráce',
     socialTitle: 'Media kit | ' + AI_TA_KRAJTA_BRAND_NAME,
-    description:
-        'Media kit AI ta Krajta: informace o podcastu, hostech, tématech, sponzoringu a redakčně nezávislých spolupracích.',
+    description: 'Media kit AI ta Krajta. Nabídka spolupráce, pravidla redakce a informace pro hosty i tipy na témata.',
     socialPreviewImageAlt: AI_TA_KRAJTA_BRAND_NAME + ', media kit a spolupráce',
     socialPreviewImagePath: AI_TA_KRAJTA_COVER_IMAGE_PATH,
     keywords: [
