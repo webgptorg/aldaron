@@ -54,11 +54,11 @@ export function CommunityMembershipWebinarArchive({ preview }: CommunityMembersh
                         <BookOpenCheck className="h-6 w-6" />
                     </div>
                     <h2 className="mt-5 text-3xl font-bold text-slate-950 sm:text-4xl">
-                        Některé věci se nepoberou napoprvé.
+                        Pusťte si webinář znovu
                     </h2>
                     <p className="mt-4 leading-relaxed text-slate-600">
-                        Ze záznamu si zastavíte část, kterou zrovna potřebujete. Vrátíte se k ní ve chvíli, kdy ji máte
-                        pod rukama, ne když zrovna běží vysílání.
+                        Záznam můžete zastavit u části, kterou právě potřebujete. Vraťte se k ní, až ji budete řešit, ne
+                        ve chvíli, kdy zrovna běží vysílání.
                     </p>
                 </div>
                 <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -87,7 +87,7 @@ export function CommunityMembershipWebinarArchive({ preview }: CommunityMembersh
                     </div>
                     {preview.totals.heldWebinarCount > 0 && (
                         <p className="mt-5 text-sm text-slate-600">
-                            V archivu na vás čeká i{' '}
+                            V archivu jsou také{' '}
                             {formatCzechCountedNoun(preview.totals.heldWebinarCount, [
                                 'odvysílaný webinář',
                                 'odvysílané webináře',

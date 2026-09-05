@@ -130,7 +130,7 @@ export function CommunityMembershipLivePreview({ preview }: CommunityMembershipL
     return (
         <figure
             className="relative mx-auto w-full max-w-[560px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#071b27] p-3 shadow-2xl shadow-cyan-950/30 sm:p-5"
-            aria-label="Ukázka diskuze a dění v komunitě Promptbooku"
+            aria-label="Ukázka diskuze a reakcí v komunitě Promptbooku"
         >
             <div className="relative flex min-h-[410px] flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-[#0d2a37] to-[#071923] p-4 sm:min-h-[450px] sm:p-6">
                 <WorkshopReactionStream reactions={flyingReactions} className="z-20" />

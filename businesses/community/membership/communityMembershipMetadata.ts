@@ -16,12 +16,12 @@ export const COMMUNITY_MEMBERSHIP_PAGE_DEFINITION: PageMetadataDefinition = {
     path: COMMUNITY_MEMBERSHIP_PATH,
     language: 'cs',
     title: `AI webináře a záznamy | ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně`,
-    socialTitle: `Živě zdarma. Záznamy za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL}.`,
+    socialTitle: `Živě zdarma. Záznamy za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně.`,
     description:
-        `Živě se připojíte zdarma. Placené členství za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně otevře záznamy, archiv, materiály a přednostní dotazy.`,
+        `Živě se připojíte zdarma. Členství za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně odemkne záznamy, archiv, materiály a přednostní dotazy.`,
     socialDescription:
-        `Živé AI webináře jsou zdarma. Za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně dostanete záznamy, archiv, materiály a přednostní dotazy.`,
-    socialPreviewImageAlt: `Členství Promptbooku. Záznamy a materiály za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně.`,
+        `Živé AI webináře jsou zdarma. Za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně získáte záznamy, archiv, materiály a přednostní dotazy.`,
+    socialPreviewImageAlt: `Členství Promptbooku: záznamy a materiály za ${CURRENT_PAID_MEMBERSHIP_PRICE_LABEL} měsíčně.`,
     isSocialPreviewImageGenerated: true,
     sitemapPriority: 0.7,
     sitemapChangeFrequency: 'monthly',

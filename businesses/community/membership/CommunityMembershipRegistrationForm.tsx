@@ -106,14 +106,13 @@ export function CommunityMembershipRegistrationForm({
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white">
                     <CheckCircle2 className="h-6 w-6" />
                 </div>
-                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Žádost máme</p>
+                <p className="mt-6 text-sm font-bold uppercase tracking-[0.14em] text-emerald-700">Žádost jsme přijali</p>
                 <h3 className="mt-2 text-2xl font-bold text-slate-950">{fullname}, ozveme se e-mailem.</h3>
                 <p className="mt-3 leading-relaxed text-slate-600">
-                    Na <strong>{email}</strong> pošleme potvrzení a platební údaje. V e-mailu najdete i další krok k
-                    aktivaci.
+                    Na <strong>{email}</strong> pošleme potvrzení, platební údaje a pokyny k aktivaci.
                 </p>
                 <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Měsíční cena</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700">Cena za měsíc</p>
                     <p className="mt-2 text-2xl font-bold text-slate-950">
                         {formatCommunityMembershipPrice(registrationResult.price.finalMonthlyEquivalentCzk)} / měsíc
                     </p>
@@ -213,7 +212,7 @@ export function CommunityMembershipRegistrationForm({
             <div className="mt-5">
                 <DiscountCodeField inputId="community-membership-discount-code" validation={discountCodeValidation} />
                 <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                    Máte slevový kód? Zadejte ho. Jinak pole nechte prázdné.
+                    Máte slevový kód? Zadejte ho. Jinak nechte pole prázdné.
                 </p>
             </div>
 
@@ -232,11 +231,11 @@ export function CommunityMembershipRegistrationForm({
                     >
                         obchodními podmínkami
                     </Link>{' '}
-                    a žádám o placené členství za zobrazenou měsíční cenu.
+                    a žádám o placené členství za uvedenou měsíční cenu.
                 </span>
             </label>
             {showValidation && !areTermsAccepted && (
-                <p className="mt-1 text-xs text-red-600">Potvrďte prosím obchodní podmínky.</p>
+                <p className="mt-1 text-xs text-red-600">Potvrďte obchodní podmínky.</p>
             )}
 
             {error !== null && (
@@ -252,7 +251,7 @@ export function CommunityMembershipRegistrationForm({
             >
                 {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Check className="mr-2 h-5 w-5" />}
                 {isSubmitting
-                    ? 'Odesílám…'
+                    ? 'Odesílám...'
                     : `Poslat žádost za ${formatCommunityMembershipPrice(
                           CURRENT_PAID_COMMUNITY_MEMBERSHIP_MONTHLY_PRICE_CZK,
                       )} / měsíc`}

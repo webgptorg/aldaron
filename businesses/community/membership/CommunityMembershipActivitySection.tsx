@@ -129,10 +129,10 @@ export function CommunityMembershipActivitySection({
                 <div className="max-w-3xl">
                     <p className="text-sm font-bold uppercase tracking-[0.14em] text-cyan-700">Uvnitř komunity</p>
                     <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                        Co se v komunitě děje mezi webináři.
+                        Co se děje mezi webináři.
                     </h2>
                     <p className="mt-4 text-lg leading-relaxed text-slate-600">
-                        Čísla, projekty i anketa níže jsou přímo z komunitní místnosti. Nic z toho jsme nevymysleli.
+                        Níže najdete čísla, projekty a anketu přímo z komunitní místnosti.
                     </p>
                 </div>
 
@@ -152,7 +152,7 @@ export function CommunityMembershipActivitySection({
                                     <Sparkles className="h-4 w-4" /> Projekty členů
                                 </p>
                                 <h3 className="mt-4 text-lg font-bold text-slate-950">
-                                    Co členové postavili a sdíleli ostatním
+                                    Co členové postavili a sdíleli
                                 </h3>
                                 <div className="mt-5 space-y-3">
                                     {preview.projects.map((project) => (
