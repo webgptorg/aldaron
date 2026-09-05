@@ -292,7 +292,6 @@ const eventMaximumParticipantCountSchema = z
     .min(1)
     .max(MAXIMAL_EVENT_PARTICIPANT_COUNT)
     .nullable();
-const artificialWatchingParticipantCountSchema = z.number().int().min(0).max(1_000_000);
 
 export const workshopCreateSchema = z
     .object({
@@ -306,7 +305,6 @@ export const workshopCreateSchema = z
         locationLabel: eventLocationLabelSchema.default(''),
         priceCzk: eventPriceCzkSchema.default(0),
         maximumParticipantCount: eventMaximumParticipantCountSchema.default(null),
-        artificialWatchingParticipantCount: artificialWatchingParticipantCountSchema.default(0),
         youtubeVideoId: nullableYoutubeVideoIdSchema.default(null),
         previewYoutubeVideoId: nullableYoutubeVideoIdSchema.default(null),
         isPublished: z.boolean().default(false),
@@ -334,7 +332,6 @@ export const workshopUpdateSchema = z
         locationLabel: eventLocationLabelSchema.optional(),
         priceCzk: eventPriceCzkSchema.optional(),
         maximumParticipantCount: eventMaximumParticipantCountSchema.optional(),
-        artificialWatchingParticipantCount: artificialWatchingParticipantCountSchema.optional(),
         youtubeVideoId: nullableYoutubeVideoIdSchema.optional(),
         previewYoutubeVideoId: nullableYoutubeVideoIdSchema.optional(),
         isPublished: z.boolean().optional(),

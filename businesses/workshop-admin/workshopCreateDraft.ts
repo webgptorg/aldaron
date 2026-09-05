@@ -30,7 +30,6 @@ export type WorkshopCreateDraft = {
     readonly isPublished: boolean;
     readonly allowedReactions: readonly string[];
     readonly disabledPanels: readonly WorkshopPanelKey[];
-    readonly artificialWatchingParticipantCount?: number;
 };
 
 function copyEventDetails(event: EventDetails): EventDetails {
@@ -77,7 +76,6 @@ export function createNewWorkshopDraft(currentTimestamp = Date.now()): WorkshopC
         isPublished: false,
         allowedReactions: [...DEFAULT_WORKSHOP_REACTIONS],
         disabledPanels: [],
-        artificialWatchingParticipantCount: 0,
     };
 }
 
@@ -107,9 +105,6 @@ export function createWorkshopDuplicateDraft(
         isPublished: false,
         allowedReactions: [...workshop.allowedReactions],
         disabledPanels: [...workshop.disabledPanels],
-        ...(workshop.artificialWatchingParticipantCount === undefined
-            ? {}
-            : { artificialWatchingParticipantCount: workshop.artificialWatchingParticipantCount }),
     };
 }
 
@@ -134,8 +129,5 @@ export function createWorkshopCreateValues(draft: WorkshopCreateDraft): Workshop
         isPublished: draft.isPublished,
         allowedReactions: draft.allowedReactions,
         disabledPanels: draft.disabledPanels,
-        ...(draft.artificialWatchingParticipantCount === undefined
-            ? {}
-            : { artificialWatchingParticipantCount: draft.artificialWatchingParticipantCount }),
     };
 }
