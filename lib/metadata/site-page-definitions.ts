@@ -11,9 +11,9 @@ import type { Metadata } from 'next';
 export const BRANDING_PAGE_DEFINITION: PageMetadataDefinition = {
     path: '/branding',
     language: 'en',
-    title: 'Promptbook Branding',
-    description: 'Official Promptbook logos, colors, typography, and messaging for brand and partner use.',
-    socialPreviewImageAlt: 'Promptbook branding guidelines',
+    title: 'Promptbook brand kit',
+    description: 'Promptbook logos, colors, typefaces, and approved messages for partners, press, and product teams.',
+    socialPreviewImageAlt: 'Promptbook brand kit',
     keywords: ['Promptbook branding', 'logo', 'brand assets', 'press kit'],
     sitemapPriority: 0.4,
     sitemapChangeFrequency: 'yearly',

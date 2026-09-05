@@ -14,7 +14,7 @@ const SAMPLE_MESSAGES = [
     {
         sender: 'agent',
         content:
-            "Of course! Based on the company policies, employees are entitled to **20 days** of paid leave per year. You can carry over up to 5 unused days to the next year. Would you like more details on a specific aspect?",
+            'According to the company policy, employees get **20 days** of paid leave each year. Up to five unused days carry over. Do you want the details?',
     },
     {
         sender: 'user',
@@ -23,7 +23,7 @@ const SAMPLE_MESSAGES = [
     {
         sender: 'agent',
         content:
-            "Sick leave is handled separately from annual leave. You are entitled to up to **10 days** of paid sick leave per year. After 3 consecutive sick days, a doctor's certificate is required. Is there anything else you'd like to know?",
+            "Sick leave is separate from annual leave. Employees get up to **10 days** of paid sick leave each year. A doctor's certificate is required after three days in a row.",
     },
 ];
 
@@ -37,8 +37,8 @@ export function BrandingComponentsDemo() {
         <div className="grid gap-8 lg:grid-cols-2">
             <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-6 py-4">
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Book Editor</p>
-                    <h3 className="mt-1 text-xl font-semibold text-slate-950">Define your AI agent in plain text</h3>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Book editor</p>
+                    <h3 className="mt-1 text-xl font-semibold text-slate-950">Write your AI agent in plain text</h3>
                 </div>
                 <BookEditor
                     value={defaultBook}
@@ -53,8 +53,8 @@ export function BrandingComponentsDemo() {
 
             <div className="flex flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 px-6 py-4">
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Mocked Chat</p>
-                    <h3 className="mt-1 text-xl font-semibold text-slate-950">Preview conversations in your UI</h3>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Mocked chat</p>
+                    <h3 className="mt-1 text-xl font-semibold text-slate-950">Preview a conversation in your interface</h3>
                 </div>
                 <div className="h-[420px] overflow-hidden [&>*]:h-full [&>*]:max-w-full">
                     <MockedChat

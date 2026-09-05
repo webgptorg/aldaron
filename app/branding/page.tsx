@@ -14,7 +14,7 @@ export const metadata: Metadata = BRANDING_METADATA;
 const logoCollections = [
     {
         title: 'Primary logo',
-        description: 'Use this transparent blue version on light backgrounds, documents, and partner pages.',
+        description: 'Use this transparent blue version on light backgrounds, in documents, and on partner pages.',
         previewSrc: '/logo/promptbook-logo-blue-transparent-256.png',
         previewAlt: 'Promptbook blue transparent logo',
         previewClassName: 'border border-slate-200 bg-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)]',
@@ -26,7 +26,7 @@ const logoCollections = [
     },
     {
         title: 'Reversed logo',
-        description: 'Use the blue-and-white version anywhere the brand needs stronger contrast or a filled badge.',
+        description: 'Use the blue-and-white version when you need more contrast or a filled badge.',
         previewSrc: '/logo/promptbook-logo-blue-white-256.png',
         previewAlt: 'Promptbook blue and white logo',
         previewClassName: 'border border-cyan-900/40 bg-slate-950',
@@ -38,7 +38,7 @@ const logoCollections = [
     },
     {
         title: 'White logo',
-        description: 'Use the monochrome white mark on dark photography, stage visuals, and dark UIs.',
+        description: 'Use the white mark on dark photos, stage visuals, and dark interfaces.',
         previewSrc: '/logo/promptbook-logo-white-transparent-1024.png',
         previewAlt: 'Promptbook white transparent logo',
         previewClassName: 'border border-white/10 bg-[radial-gradient(circle_at_top,#1e293b_0%,#020617_68%)]',
@@ -57,18 +57,18 @@ const colorTokens = [
 
 const usageRules = [
     {
-        title: 'Prioritize contrast',
-        description: 'Use the transparent blue mark on light surfaces and the white mark when the background is dark.',
+        title: 'Choose the right contrast',
+        description: 'Put the transparent blue mark on light surfaces. Use the white mark on dark ones.',
         icon: ShieldCheck,
     },
     {
         title: 'Keep the mark intact',
-        description: 'Do not stretch, recolor, rotate, outline, or add effects to the Promptbook logo.',
+        description: 'Do not stretch, recolor, rotate, outline, or decorate the Promptbook logo.',
         icon: Palette,
     },
     {
-        title: 'Request custom exports when needed',
-        description: 'The current kit includes raster PNGs. If you need print, vector, or partner lockups, contact us.',
+        title: 'Need another file?',
+        description: 'This kit has raster PNGs. For print files, vector artwork, or partner lockups, contact us.',
         icon: Download,
     },
 ] as const;
@@ -91,17 +91,16 @@ export default function BrandingPage() {
                         <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center">
                             <div className="max-w-2xl">
                                 <div className="inline-flex items-center rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-800">
-                                    Official Brand Kit
+                                    Official brand kit
                                 </div>
 
                                 <h1 className="mt-6 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-                                    Promptbook branding for partners, press, and product teams.
+                                    Promptbook brand kit for partners, press, and product teams.
                                 </h1>
 
                                 <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-                                    This page contains the current Promptbook logo files, color references, typography,
-                                    and approved messaging for presentations, event materials, partner pages, and
-                                    articles.
+                                    Find the Promptbook logos, colors, typefaces, and approved messages for
+                                    presentations, event materials, partner pages, and articles.
                                 </p>
 
                                 <div className="mt-8 flex flex-wrap gap-3">
@@ -113,7 +112,7 @@ export default function BrandingPage() {
                                             'rounded-full bg-slate-950 px-6 text-white hover:bg-slate-800',
                                         )}
                                     >
-                                        Download primary logo
+                                        Download the primary logo
                                         <Download className="ml-2 h-4 w-4" />
                                     </a>
 
@@ -124,18 +123,18 @@ export default function BrandingPage() {
                                             'rounded-full border-slate-300 px-6 text-slate-700 hover:bg-slate-50',
                                         )}
                                     >
-                                        Contact team
+                                        Contact us
                                         <ArrowUpRight className="ml-2 h-4 w-4" />
                                     </Link>
                                 </div>
 
                                 <div className="mt-10 grid gap-4 sm:grid-cols-3">
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                        <p className="text-sm font-medium text-slate-500">Available assets</p>
-                                        <p className="mt-2 text-2xl font-semibold text-slate-950">3 logo variants</p>
+                                        <p className="text-sm font-medium text-slate-500">Logo files</p>
+                                        <p className="mt-2 text-2xl font-semibold text-slate-950">3 logo versions</p>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                        <p className="text-sm font-medium text-slate-500">Core typography</p>
+                                        <p className="text-sm font-medium text-slate-500">Typefaces</p>
                                         <p className="mt-2 text-2xl font-semibold text-slate-950">Outfit + Inter</p>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -157,7 +156,7 @@ export default function BrandingPage() {
                                         />
 
                                         <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                            Primary claim
+                                            Main message
                                         </p>
                                         <p className="mt-3 text-2xl font-semibold leading-tight text-slate-950">
                                             Create AI that truly understands your business.
@@ -173,14 +172,14 @@ export default function BrandingPage() {
                                         height={176}
                                         className="h-16 w-16"
                                     />
-                                    <p className="mt-6 text-sm uppercase tracking-[0.18em] text-slate-400">Dark use</p>
+                                    <p className="mt-6 text-sm uppercase tracking-[0.18em] text-slate-400">On dark backgrounds</p>
                                     <p className="mt-2 text-lg font-semibold text-white">
-                                        Use the white mark when the background carries the attention.
+                                        Use the white mark on dark backgrounds.
                                     </p>
                                 </div>
 
                                 <div className="rounded-[28px] border border-cyan-100 bg-cyan-50 p-6 shadow-[0_30px_80px_-30px_rgba(8,145,178,0.28)]">
-                                    <p className="text-sm uppercase tracking-[0.18em] text-cyan-800">Voice</p>
+                                    <p className="text-sm uppercase tracking-[0.18em] text-cyan-800">Tone of voice</p>
                                     <div className="mt-4 space-y-3">
                                         {voiceExamples.map((example) => (
                                             <div key={example.language} className="rounded-2xl bg-white/80 p-4">
@@ -209,7 +208,7 @@ export default function BrandingPage() {
                                         Typography
                                     </p>
                                     <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-                                        Two fonts, distinct roles.
+                                        Two fonts. Two jobs.
                                     </h2>
                                 </div>
                             </div>
@@ -218,14 +217,14 @@ export default function BrandingPage() {
                                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                                     <p className="font-['Outfit'] text-3xl font-semibold text-slate-950">Outfit</p>
                                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                                        Use for headlines, section titles, and high-visibility statements.
+                                        Use it for headlines, section titles, and other prominent text.
                                     </p>
                                 </div>
 
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <p className="text-3xl font-medium text-slate-950">Inter</p>
                                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                                        Use for body copy, interface text, labels, and supporting information.
+                                        Use it for body copy, interface text, labels, and supporting information.
                                     </p>
                                 </div>
                             </div>
@@ -238,10 +237,10 @@ export default function BrandingPage() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                        Color System
+                                        Color system
                                     </p>
                                     <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-                                        Core colors from the live site.
+                                        The colors used on the site.
                                     </h2>
                                 </div>
                             </div>
@@ -263,13 +262,13 @@ export default function BrandingPage() {
                     <div className="container mx-auto px-4 py-16 sm:px-6">
                         <div className="max-w-2xl">
                             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                Logo Downloads
+                                Logo files
                             </p>
                             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                                Choose the asset that matches the surface.
+                                Pick the logo that fits the background.
                             </h2>
                             <p className="mt-4 text-base leading-7 text-slate-600">
-                                The files below are the current Promptbook exports stored directly in this project.
+                                These are the current Promptbook PNG exports.
                             </p>
                         </div>
 
@@ -320,9 +319,9 @@ export default function BrandingPage() {
 
                 <section className="container mx-auto px-4 py-16 sm:px-6">
                     <div className="max-w-2xl">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Usage Rules</p>
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Using the logo</p>
                         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                            Keep the brand recognizable and clean.
+                            Keep the logo clear and recognizable.
                         </h2>
                     </div>
 
@@ -344,14 +343,14 @@ export default function BrandingPage() {
 
                 <section className="container mx-auto px-4 py-16 sm:px-6">
                     <div className="max-w-2xl">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">UI Components</p>
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">UI components</p>
                         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                            Ready-made components for your integration.
+                            Components for your product.
                         </h2>
                         <p className="mt-4 text-base leading-7 text-slate-600">
-                            The <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm">@promptbook/components</code> package ships{' '}
-                            <strong>BookEditor</strong> for authoring agents in plain text and <strong>MockedChat</strong> for
-                            embedding realistic conversation previews in your product or landing page.
+                            The <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm">@promptbook/components</code> package includes{' '}
+                            <strong>BookEditor</strong> for writing agents in plain text and <strong>MockedChat</strong> for
+                            showing conversation previews in your product or landing page.
                         </p>
                     </div>
 
@@ -365,15 +364,14 @@ export default function BrandingPage() {
                         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                             <div className="max-w-2xl">
                                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                    Need Something Else?
+                                    Need a different file?
                                 </p>
                                 <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-                                    Ask for custom exports, partner lockups, or print-ready files.
+                                    Need a custom export, partner lockup, or print-ready file?
                                 </h2>
                                 <p className="mt-4 text-base leading-7 text-slate-300">
-                                    If the current PNG kit is not enough, contact the Promptbook team and describe the
-                                    surface, size, and context. We will send the right asset instead of improvising in
-                                    production.
+                                    If the PNGs do not cover your use case, tell us the surface, size, and context. We
+                                    will send the right file.
                                 </p>
                             </div>
 
@@ -385,7 +383,7 @@ export default function BrandingPage() {
                                         'rounded-full bg-white px-6 text-slate-950 hover:bg-slate-100',
                                     )}
                                 >
-                                    Contact Promptbook
+                                    Contact us
                                     <ArrowUpRight className="ml-2 h-4 w-4" />
                                 </Link>
 
@@ -396,7 +394,7 @@ export default function BrandingPage() {
                                         'rounded-full border-white/20 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white',
                                     )}
                                 >
-                                    Visit homepage
+                                    Back to homepage
                                 </Link>
                             </div>
                         </div>
