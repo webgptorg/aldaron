@@ -99,6 +99,7 @@ export type WorkshopRow = {
     readonly location_label: string;
     readonly price_czk: number | null;
     readonly maximum_participant_count: number | null;
+    readonly artificial_watching_participant_count?: number;
 
     /**
      * The keys of the panels this workshop switched off for its participants
@@ -423,6 +424,7 @@ export function mapWorkshopRow(row: WorkshopRow): WorkshopDetails {
         previewYoutubeVideoId: row.preview_youtube_video_id,
         allowedReactions: row.allowed_reactions,
         disabledPanels: normalizeWorkshopDisabledPanels(row.disabled_panels),
+        artificialWatchingParticipantCount: row.artificial_watching_participant_count ?? 0,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
@@ -1090,7 +1092,7 @@ export async function countWatchingWorkshopParticipants(
         return 0;
     }
 
-    return count ?? 0;
+    return (count ?? 0) + Math.max(0, workshopRow.artificial_watching_participant_count ?? 0);
 }
 
 type LoadedWorkshopReactionCounts = {

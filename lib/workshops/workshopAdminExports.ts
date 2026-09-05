@@ -13,6 +13,7 @@ import {
     getAdminContactPhoneNumbers,
 } from '@/lib/admin/adminContactJoin';
 import { getWorkshopKindCapabilities } from '@/lib/workshops/workshopKindCapabilities';
+import { isWorkshopPanelOfferedByKind } from '@/lib/workshops/workshopPanels';
 
 export const WORKSHOP_ADMIN_EXPORT_KINDS = [
     'settings',
@@ -82,6 +83,14 @@ function serializeWorkshopSettingsAsCsv(workshop: WorkshopDetails): string {
                       {
                           header: 'Povolené reakce',
                           getValue: (item: WorkshopDetails) => item.allowedReactions.join(' '),
+                      },
+                  ]
+                : []),
+            ...(isWorkshopPanelOfferedByKind(workshop.kind, 'watching-count')
+                ? [
+                      {
+                          header: 'Umělý počet sledujících',
+                          getValue: (item: WorkshopDetails) => item.artificialWatchingParticipantCount ?? 0,
                       },
                   ]
                 : []),

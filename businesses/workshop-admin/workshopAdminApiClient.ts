@@ -33,6 +33,7 @@ export type WorkshopWriteValues = {
     readonly description: string;
     readonly isPublished: boolean;
     readonly disabledPanels: readonly WorkshopPanelKey[];
+    readonly artificialWatchingParticipantCount?: number;
     readonly slug?: string;
     readonly startsAt?: string;
     readonly endsAt?: string | null;

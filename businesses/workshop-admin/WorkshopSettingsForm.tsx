@@ -50,6 +50,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     //       one at all rather than showing a field which cannot be used for anything.
     const isSlugOffered = !roomCapabilities.isSlugFixed;
     const isReactionSettingOffered = isWorkshopPanelOfferedByKind(workshop.kind, 'reactions');
+    const isWatchingCountSettingOffered = isWorkshopPanelOfferedByKind(workshop.kind, 'watching-count');
     const [slug, setSlug] = useState(workshop.slug);
     const [title, setTitle] = useState(workshop.title);
     const [description, setDescription] = useState(workshop.description);
@@ -60,6 +61,9 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
     const [previewYoutubeVideoId, setPreviewYoutubeVideoId] = useState(workshop.previewYoutubeVideoId ?? '');
     const [reactionText, setReactionText] = useState(workshop.allowedReactions.join(' '));
     const [disabledPanels, setDisabledPanels] = useState(workshop.disabledPanels);
+    const [artificialWatchingParticipantCount, setArtificialWatchingParticipantCount] = useState(
+        workshop.artificialWatchingParticipantCount ?? 0,
+    );
     const [isPublished, setIsPublished] = useState(workshop.isPublished);
 
     // Note: Both the settings and the ending of a workshop are one and the same save, so the form says which of them
@@ -89,6 +93,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
         setPreviewYoutubeVideoId(workshop.previewYoutubeVideoId ?? '');
         setReactionText(workshop.allowedReactions.join(' '));
         setDisabledPanels(workshop.disabledPanels);
+        setArtificialWatchingParticipantCount(workshop.artificialWatchingParticipantCount ?? 0);
         setIsPublished(workshop.isPublished);
     }, [workshop]);
 
@@ -110,6 +115,7 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
             description,
             isPublished,
             disabledPanels,
+            ...(isWatchingCountSettingOffered ? { artificialWatchingParticipantCount } : {}),
             ...(isSlugOffered ? { slug } : {}),
             ...(roomCapabilities.isScheduled && startsAtIso ? { startsAt: startsAtIso, endsAt: endsAtIso } : {}),
             ...(roomCapabilities.isEvent ? createWorkshopEventWriteValues(eventDetails) : {}),
@@ -213,6 +219,25 @@ export function WorkshopSettingsForm({ workshop, onSave, subjectLabel = 'worksho
                             />
                         </div>
                     </>
+                )}
+                {isWatchingCountSettingOffered && (
+                    <label className="text-sm font-medium text-slate-700">
+                        Umělý počet sledujících
+                        <Input
+                            type="number"
+                            min={0}
+                            max={1_000_000}
+                            step={1}
+                            value={artificialWatchingParticipantCount}
+                            onChange={(event) =>
+                                setArtificialWatchingParticipantCount(Math.max(0, Number(event.target.value) || 0))
+                            }
+                            className="mt-2"
+                        />
+                        <span className="mt-1 block text-xs font-normal text-slate-400">
+                            Přičte se k živému počtu v místnosti. Nezapisuje žádné skutečné účastníky ani analytickou návštěvnost.
+                        </span>
+                    </label>
                 )}
                 {roomCapabilities.isEvent && <WorkshopEventFields event={eventDetails} onChange={setEventDetails} />}
                 {roomCapabilities.isStageOffered && (

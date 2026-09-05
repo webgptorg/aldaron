@@ -78,6 +78,8 @@ export type WorkshopAdminSummary = WorkshopSummary & {
 };
 
 export type WorkshopDetails = WorkshopSummary & {
+    /** Number of artificial viewers added to the live watching badge by an administrator. */
+    readonly artificialWatchingParticipantCount?: number;
     readonly youtubeVideoId: string | null;
 
     /**
