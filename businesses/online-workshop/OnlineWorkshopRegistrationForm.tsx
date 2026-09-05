@@ -76,7 +76,7 @@ type OnlineWorkshopTermPickerProps = {
 function OnlineWorkshopTermPicker({ workshops, selectedWorkshop, onSelectWorkshop }: OnlineWorkshopTermPickerProps) {
     return (
         <fieldset>
-            <legend className="text-sm font-semibold text-slate-700">Termín online workshopu</legend>
+            <legend className="text-sm font-semibold text-slate-700">Vyber termín workshopu</legend>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {workshops.map((workshop) => (
                     <EventTermOptionCard
@@ -97,7 +97,7 @@ function OnlineWorkshopTermPicker({ workshops, selectedWorkshop, onSelectWorksho
 function OnlineWorkshopNoTermNotice() {
     return (
         <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600 shadow-xl">
-            Zatím není vypsaný žádný další termín. Sleduj Promptbook, nový workshop sem přidáme hned po zveřejnění.
+            Zatím není vypsaný další termín. Sleduj Promptbook, nový workshop sem přidáme hned po zveřejnění.
         </div>
     );
 }
@@ -151,7 +151,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
 
         if (!isSubmissionAllowed) {
             setIsValidationShown(true);
-            setErrorMessage('Vyplňte prosím jméno a platný e-mail.');
+            setErrorMessage('Vyplň jméno a platný e-mail.');
             return;
         }
 
@@ -183,7 +183,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
                 }),
             );
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : 'Odeslání se nepovedlo. Zkuste to prosím znovu.');
+            setErrorMessage(error instanceof Error ? error.message : 'Registraci se nepodařilo odeslat. Zkus to znovu.');
             setIsSubmitting(false);
         }
     };
@@ -286,7 +286,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
 
                 <div>
                     <label htmlFor={`${fieldIdPrefix}-phone`} className="text-sm font-semibold text-slate-700">
-                        Telefon <span className="font-normal text-slate-400">(nepovinné, pro SMS připomínku)</span>
+                        Telefon <span className="font-normal text-slate-400">(nepovinný, kvůli SMS připomínce)</span>
                     </label>
                     <Input
                         id={`${fieldIdPrefix}-phone`}
@@ -311,7 +311,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
                     {isSubmitting ? (
                         <>
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Odesílám registraci
+                            Odesílám registraci...
                         </>
                     ) : (
                         'Rezervovat místo zdarma'
@@ -319,7 +319,7 @@ function OnlineWorkshopSelectedTermRegistrationForm({
                 </Button>
 
                 <PersonalDataConsentNote language="cs" addressForm="informal" className="text-center">
-                    Odkaz na připojení ti přijde e-mailem.
+                    Odkaz k připojení ti přijde e-mailem.
                 </PersonalDataConsentNote>
             </div>
         </form>

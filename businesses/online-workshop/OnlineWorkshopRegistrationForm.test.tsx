@@ -78,6 +78,6 @@ describe('Online workshop registration form', () => {
         const { container } = render(<OnlineWorkshopRegistrationForm workshops={[]} />);
 
         expect(container.querySelector('form')).toBeNull();
-        expect(screen.getByText(/Zatím není vypsaný žádný další termín\./)).toBeTruthy();
+        expect(screen.getByText(/Zatím není vypsaný další termín\./)).toBeTruthy();
     });
 });

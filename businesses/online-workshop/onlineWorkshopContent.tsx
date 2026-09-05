@@ -20,8 +20,8 @@ import Link from 'next/link';
 export function createOnlineWorkshopHeroBullets(durationLabel: string): readonly string[] {
     return [
         durationLabel,
-        'Zdarma, naživo',
-        'TypeScript · Claude Code · Codex · Cursor',
+        'Zdarma, živě',
+        'TypeScript, Claude Code, Codex, Cursor',
     ];
 }
 
@@ -60,18 +60,18 @@ export const onlineWorkshopStats: StatCard[] = [
     {
         value: '66 %',
         description:
-            'vývojářů říká, že řešení od AI jsou skoro správná, ale ne úplně. Právě to dohledávání žere čas.',
+            'vývojářů říká, že řešení od AI jsou skoro správná, ale něco na nich nesedí. Hledání těch rozdílů bere čas.',
         source: 'Stack Overflow Survey 2025',
     },
     {
         value: '19 %',
         description:
-            'o tolik byli zkušení vývojáři s AI pomalejší. Sami přitom věřili, že jsou o pětinu rychlejší.',
+            'o tolik byli zkušení vývojáři s AI pomalejší. Přitom čekali, že budou o pětinu rychlejší.',
         source: 'METR, řízená studie 2025',
     },
     {
         value: '82 %',
-        description: 'firem mělo za půl roku vážný výpadek v produkci kvůli kódu od AI.',
+        description: 'firem mělo během půl roku vážný výpadek v produkci kvůli kódu od AI.',
         source: 'New Relic, State of AI Coding 2026',
     },
 ];
@@ -86,30 +86,30 @@ type PainPoint = {
 export const onlineWorkshopPainPoints: PainPoint[] = [
     {
         icon: GitCompare,
-        title: 'Který agent je vlastně na co?',
+        title: 'Který agent se hodí na co?',
         description:
-            'Claude Code, Codex, Cursor, Copilot. Každý týden nový žebříček a ty máš rozhodnout, co pustíš do týmu a na jakou práci.',
-        consequence: 'Vybíráš podle Twitteru, ne podle svého repa.',
+            'Claude Code, Codex, Cursor, Copilot. Každý týden nový žebříček a někdo po tobě chce rozhodnutí, co pustit do týmu.',
+            consequence: 'Vybíráš podle Twitteru místo podle vlastního repa.',
     },
     {
         icon: Clock,
-        title: 'Šetří ti agent čas, nebo ho žere?',
+        title: 'Zrychluje tě agent, nebo brzdí?',
         description:
-            'Na malém tasku letí. Nad určitou velikost repa přestane vidět celek a místo hledání začne duplikovat.',
-        consequence: 'Bez měření nepoznáš, jestli tě zrychluje, nebo brzdí.',
+            'Na malém tasku letí. U většího repa ztratí celek a začne kopírovat.',
+        consequence: 'Bez měření nevíš, jestli ti pomáhá, nebo bere čas.',
     },
     {
         icon: Bug,
         title: 'Kód z AI je z půlky rozbitý',
         description:
-            'Vypadá hotově, testy projdou. Jenže agent si je cestou upravil, aby prošly. Padne to až v produkci.',
+            'Vypadá hotově, testy projdou. Jenže agent si je cestou upravil, aby prošly. Problém se ukáže až v produkci.',
         consequence: 'Opravit skoro hotové bývá dražší než napsat od nuly.',
     },
     {
         icon: Layers,
-        title: 'Napsáno rychle, placeno později',
+        title: 'Rychle napsáno, pozdě zaplaceno',
         description:
-            'Za poslední rok jste nasekali hromadu AI kódu. Teď se hlásí duplicity, migrace, bezpečnost a rozbité integrace.',
+            'Za poslední rok jste nasekali hromadu AI kódu. Teď se ozývají duplicity, migrace, bezpečnost a rozbité integrace.',
         consequence: 'Už nestavíte. Jen se snažíte nic nerozbít.',
     },
 ];
@@ -122,7 +122,7 @@ type FitCard = {
 
 export const onlineWorkshopFitCards: FitCard[] = [
     {
-        title: 'Je to pro tebe, pokud',
+        title: 'Hodí se to pro tebe, pokud',
         description:
             'jsi tech lead, CTO, senior dev, product manager nebo owner a tvůj tým už používá Claude Code, Cursor, Copilot, Codex, Cline nebo Gemini.',
         isPositive: true,
@@ -130,7 +130,7 @@ export const onlineWorkshopFitCards: FitCard[] = [
     {
         title: 'Není to pro tebe, pokud',
         description:
-            's AI vývojem ještě nezačínáš, nebo čekáš, že to někdo nasadí a vyřeší za tebe. Ukážeme, jak to zvládneš sám se svým týmem.',
+            's AI vývojem ještě nezačínáš, nebo čekáš, že to někdo nasadí a vyřeší za tebe. Ukážeme ti, jak na to se svým týmem.',
         isPositive: false,
     },
 ];
@@ -144,33 +144,33 @@ type ContentItem = {
 export const onlineWorkshopContentItems: ContentItem[] = [
     {
         icon: Workflow,
-        title: 'Co agentovi napsat, kdy a jak',
-        description: 'Nejdřív plán, teprve pak kód. Zadání, po kterém to dopadne napoprvé, místo tří kol oprav.',
+        title: 'Co agentovi zadat, kdy a jak',
+        description: 'Nejdřív plán, potom kód. Zadání, které vyjde napoprvé, místo tří kol oprav.',
     },
     {
         icon: GitPullRequest,
-        title: 'Celé flow od zadání po merge',
-        description: 'Jak si postavit postup, ve kterém agent neztratí kontext ani na velkém repu.',
+        title: 'Od zadání k merge',
+        description: 'Jak udržet agentovi kontext i na velkém repu.',
     },
     {
         icon: Bot,
-        title: 'Kdy Claude Code, kdy Codex, kdy Cursor',
-        description: 'Co na jakou úlohu, podle tří let na reálných projektech, ne podle žebříčků z internetu.',
+        title: 'Claude Code, Codex, nebo Cursor?',
+        description: 'Co se hodí na jakou úlohu podle tří let práce na reálných projektech, ne podle internetových žebříčků.',
     },
     {
         icon: ShieldCheck,
-        title: 'Mantinely, aby kód nebyl rozbitý',
-        description: 'Malé PR, testy a typy jako pojistka. Jak poznat, že agent kecá, dřív než to jde do produkce.',
+        title: 'Jak udržet rozbitý kód na uzdě',
+        description: 'Malé PR, testy a typy jako pojistka. Jak poznat, že agent kecá, dřív než kód pustíš do produkce.',
     },
     {
         icon: Sparkles,
-        title: 'Jak z agenta vytáhnout maximum',
-        description: 'Práce s kontextem, aby ti nedošel v půlce úkolu. Kde je strop nástroje a kde tvůj setup.',
+        title: 'Jak z agenta dostat víc',
+        description: 'Jak pracovat s kontextem, aby ti nedošel v půlce úkolu. Kde je strop nástroje a kde tvůj setup.',
     },
     {
         icon: MessageSquareText,
-        title: 'Q&A naživo',
-        description: 'Přines vlastní problém z projektu. Nejužitečnější část celého workshopu pro ty, co zůstanou do konce.',
+        title: 'Živé otázky a odpovědi',
+        description: 'Vezmi vlastní problém z projektu. Pro ty, kteří zůstanou do konce, to bývá nejpraktičtější část workshopu.',
     },
 ];
 
@@ -185,29 +185,29 @@ export type OnlineWorkshopScheduleItem = {
 export const onlineWorkshopScheduleItems: OnlineWorkshopScheduleItem[] = [
     {
         time: '19:00 – 19:10',
-        title: 'Proč agenti selhávají na velkých projektech',
-        description: 'Není to nástrojem, ale setupem. Ukážeme, kde přesně se to láme.',
+        title: 'Proč agenti na velkých projektech selhávají',
+        description: 'Nástroj za to nemůže sám. Rozhoduje setup. Ukážeme, kde se to láme.',
         icon: Sparkles,
         badgeClassName: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
     },
     {
         time: '19:10 – 19:40',
-        title: 'Živé demo na reálném repu',
-        description: 'Reálná feature od issue po hotové PR. Sdílená obrazovka, žádný sestřih.',
+        title: 'Živé demo na skutečném repu',
+        description: 'Jedna feature od issue po hotové PR. Sdílená obrazovka, bez sestřihu.',
         icon: Code2,
         badgeClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
     },
     {
         time: '19:40 – 19:50',
-        title: 'Workflow a pravidla pro tvůj tým',
-        description: 'Konkrétní postup, který nasadíš hned druhý den.',
+        title: 'Workflow a pravidla pro tým',
+        description: 'Postup, který můžeš nasadit hned další den.',
         icon: NotebookTabs,
         badgeClassName: 'bg-amber-50 text-amber-700 ring-amber-200',
     },
     {
         time: '19:50 – 20:00',
-        title: 'Q&A naživo',
-        description: 'Přines vlastní problém z projektu a rozebereme ho.',
+        title: 'Otázky a odpovědi živě',
+        description: 'Přines problém z projektu a společně ho rozebereme.',
         icon: MessageSquareText,
         badgeClassName: 'bg-rose-50 text-rose-700 ring-rose-200',
     },
@@ -222,7 +222,7 @@ export const onlineWorkshopFaqs: FAQ[] = [
         question: 'Bude záznam?',
         answer: (
             <p>
-                Záznam pošleme jen registrovaným a bude dostupný 48 hodin. Nejvíc si ale odneseš naživo, hlavně z
+                Záznam pošleme jen registrovaným a bude dostupný 48 hodin. Naživo si ale odneseš nejvíc, hlavně z
                 Q&amp;A.
             </p>
         ),
@@ -231,8 +231,8 @@ export const onlineWorkshopFaqs: FAQ[] = [
         question: 'Musím používat Claude Code?',
         answer: (
             <p>
-                Ne. Workflow, který ukážeme, funguje s Cursorem, Copilotem, Codexem i dalšími. Claude Code používáme
-                v demu.
+                Nemusíš. Workflow, který ukážeme, funguje s Cursorem, Copilotem, Codexem i dalšími nástroji. Claude
+                Code používáme v demu.
             </p>
         ),
     },
@@ -247,7 +247,7 @@ export const onlineWorkshopFaqs: FAQ[] = [
                 >
                     AI Supervize Mini
                 </Link>
-                . Zabere to pár minut na závěr, zbytek je čistý obsah.
+                . Zabere to pár minut na konci. Zbytek je samotný workshop.
             </p>
         ),
     },
@@ -255,8 +255,8 @@ export const onlineWorkshopFaqs: FAQ[] = [
         question: 'Jak se připojím?',
         answer: (
             <p>
-                Odkaz ti pošleme e-mailem den předem a hodinu předem. Když vyplníš telefon, pošleme i SMS, ať ti to
-                neuteče.
+                Odkaz ti pošleme e-mailem den předem i hodinu předem. Když uvedeš telefon, přijde ti i SMS, aby ti
+                workshop neutekl.
             </p>
         ),
     },

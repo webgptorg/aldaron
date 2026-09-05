@@ -100,16 +100,16 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                 </div>
 
                                 <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-                                    Jak s AI agenty psát produkční kód,{' '}
+                                    Jak s AI agenty psát produkční kód{' '}
                                     <span className="bg-gradient-promptbook bg-clip-text text-transparent">
-                                        aniž bys po nich všechno přepisoval
+                                        a nepřepisovat po nich všechno
                                     </span>
                                 </h1>
 
                                 <p className="max-w-2xl text-lg leading-relaxed text-white/85 sm:text-xl">
-                                    Pavol Hejný ukáže naživo celé workflow od issue po merge na reálném repu. Za{' '}
-                                    {nearestWorkshopDurationLabel} uvidíš, kde přesně se agenti lámou a čím to
-                                    podchytit.
+                                    Pavol Hejný naživo projde workflow od issue po merge na reálném repu. Za{' '}
+                                    {nearestWorkshopDurationLabel} uvidíš, kde se agenti lámou a jak jim nastavit
+                                    mantinely.
                                 </p>
                             </div>
 
@@ -131,7 +131,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                     className="rounded-full border-white/20 bg-white/10 px-8 py-6 text-center text-lg text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:text-white"
                                 >
                                     <Link href={AI_SUPERVIZE_MINI_PATH}>
-                                        Placený navazující workshop
+                                        Navazující placený workshop
                                     </Link>
                                 </Button>
                             </div>
@@ -159,8 +159,8 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                 commandArgs="--issue 142 --branch feat/pdf-export"
                                 initializingText="Načítám kontext repozitáře..."
                                 okLines={['Plán schválen: 4 kroky', 'Testy prošly (12/12)', 'Typecheck bez chyb']}
-                                reportTitle="WORKSHOP PREVIEW"
-                                reportSubtitle="AI agent workflow before / after"
+                                reportTitle="UKÁZKA WORKSHOPU"
+                                reportSubtitle="Workflow s AI agentem, před a po"
                                 doneText="PR #143 připraven k review."
                                 metrics={onlineWorkshopTerminalMetrics}
                             />
@@ -172,12 +172,12 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
             <section id="bolesti" className="bg-slate-50 py-20">
                 <div className="container mx-auto px-4">
                     <SectionIntro
-                        eyebrow="Proč o tom děláme workshop"
+                        eyebrow="Proč tenhle workshop děláme"
                         title={
                             <>
                                 Agent ti napíše feature za hodinu.{' '}
                                 <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                                    Tým ji pak týden opravuje.
+                                    Tým ji pak týden dává dohromady.
                                 </span>
                             </>
                         }
@@ -236,12 +236,12 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
             <section id="obsah" className="bg-white py-20">
                 <div className="container mx-auto px-4">
                     <SectionIntro
-                        eyebrow="Obsah workshopu"
+                        eyebrow="Co si projdeme"
                         title={
                             <>
                                 Šest věcí, které si{' '}
                                 <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                                    odneseš do týmu hned druhý den
+                                    můžeš použít v týmu hned další den
                                 </span>
                             </>
                         }
@@ -280,20 +280,20 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                         </div>
 
                         <div className="pb-4 lg:pb-8">
-                            <p className="text-sm font-semibold uppercase text-cyan-700">Kdo to vede</p>
+                            <p className="text-sm font-semibold uppercase text-cyan-700">Kdo workshop vede</p>
                             <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Pavol Hejný</h2>
                             <p className="mt-5 text-lg leading-relaxed text-slate-600">
-                                Vývojář s 15+ lety praxe, aktivní{' '}
+                                Vývojář s více než 15 lety praxe a aktivní{' '}
                                 <Link
                                     href="https://www.pavolhejny.com/"
                                     className="font-semibold text-cyan-700 underline-offset-4 hover:underline"
                                 >
                                     open-source contributor
                                 </Link>
-                                . Poslední 3 roky staví s AI agenty reálné produkty a učí to týmy ve firmách.
+                                . Už tři roky staví s AI agenty reálné produkty a učí to týmy ve firmách.
                             </p>
                             <p className="mt-4 text-base leading-relaxed text-slate-600">
-                                Workshop moderuje společně s Jiřím Jahnem, CEO Promptbooku.
+                                Workshop vede spolu s Jiřím Jahnem, CEO Promptbooku.
                             </p>
 
                             <div className="mt-6 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4">
@@ -306,7 +306,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                 />
                                 <div>
                                     <p className="text-sm font-semibold text-slate-950">Jiří Jahn</p>
-                                    <p className="text-xs text-slate-400">CEO Promptbooku, spoluvede workshop</p>
+                                    <p className="text-xs text-slate-400">CEO Promptbooku, workshop spolumoderuje s Pavolem</p>
                                 </div>
                             </div>
 
@@ -325,16 +325,16 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
 
             <TestimonialsSection
                 id="reference"
-                eyebrow="Reference"
+                eyebrow="Ohlasy"
                 title={
                     <>
                         Co říkají lidé, kteří s{' '}
                         <span className="bg-gradient-to-r from-[#0891b2] to-[#06b6d4] bg-clip-text text-transparent">
-                            Pavolem spolupracovali
+                            se kterými Pavol pracoval
                         </span>
                     </>
                 }
-                description="Stejný přístup, který Pavol ukáže na workshopu, používá roky v reálných projektech."
+                description="Pavol tenhle přístup používá roky na reálných projektech."
                 testimonials={onlineWorkshopTestimonials}
                 metrics={onlineWorkshopImpactMetrics}
             />
@@ -346,8 +346,8 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                         <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">Vyber si termín</h2>
                         <p className="mt-4 text-lg leading-relaxed text-slate-600">
                             {workshops.length === 0
-                                ? 'Další online workshopy právě připravujeme.'
-                                : 'Každý workshop je zdarma, probíhá online a odkaz na připojení dostaneš e-mailem.'}
+                                ? 'Další online workshop teď připravujeme.'
+                                : 'Všechny workshopy jsou zdarma a online. Odkaz k připojení ti přijde e-mailem.'}
                         </p>
                     </div>
 
@@ -357,11 +357,11 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                 <div className="rounded-2xl border border-slate-200 bg-white p-5">
                                     <CalendarDays className="h-6 w-6 text-cyan-700" />
                                     <h3 className="mt-3 font-bold text-slate-950">
-                                        {nearestWorkshopDateLabel ?? 'Další termíny brzy'}
+                                        {nearestWorkshopDateLabel ?? 'Termín brzy doplníme'}
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
                                         {nearestWorkshopTimeLabel === null
-                                            ? 'Nech nám chvíli: nový termín sem doplníme hned, jak ho vypíšeme.'
+                                            ? 'Nový termín doplníme, jakmile ho vypíšeme.'
                                             : `Nejbližší workshop začíná v ${nearestWorkshopTimeLabel}. Odkaz na připojení dostaneš e-mailem.`}
                                     </p>
                                 </div>
@@ -369,13 +369,13 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                                     <Clock className="h-6 w-6 text-cyan-700" />
                                     <h3 className="mt-3 font-bold text-slate-950">{nearestWorkshopDurationLabel}</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                        Krátké a soustředěné. Program držíme v jasném rytmu, ať máš čas i na dotazy.
+                                        Držíme svižné tempo a necháme prostor i na tvoje dotazy.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                                <h3 className="text-xl font-bold text-slate-950">Jak bude hodina vypadat</h3>
+                                <h3 className="text-xl font-bold text-slate-950">Co tě během hodiny čeká</h3>
                                 <div className="mx-auto mt-6 max-w-2xl">
                                     {onlineWorkshopScheduleItems.map((item, index) => {
                                         const Icon = item.icon;
@@ -413,7 +413,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
 
                             <p className="flex items-center gap-2 text-sm text-slate-500">
                                 <Users className="h-4 w-4 shrink-0 text-cyan-700" />
-                                Odkaz na připojení a připomínky ti pošleme automaticky. Stačí se registrovat.
+                                Po registraci ti automaticky pošleme odkaz k připojení a připomínky.
                             </p>
                         </div>
 
@@ -433,7 +433,7 @@ export function OnlineWorkshopPage({ workshops }: OnlineWorkshopPageProps) {
                         </span>
                     </>
                 }
-                description="Praktické informace k obsahu, průběhu a registraci."
+                description="Obsah, průběh i registrace na jednom místě."
             />
 
             <Footer {...czechBusinessFooterProps} isTechnologyIncubationShown={true} />

@@ -21,9 +21,9 @@ export const ONLINE_WORKSHOP_PAGE_DEFINITION: PageMetadataDefinition = {
     title: 'Promptbook | Online workshop zdarma',
     socialTitle: 'Online workshop zdarma',
     description:
-        'Jak s AI agenty psát produkční kód, aniž bys po nich všechno přepisoval. 60minutový online workshop naživo pro tech leady, CTO a vývojáře, kteří už používají Claude Code, Cursor, Copilot nebo Codex.',
+        'Jak s AI agenty psát produkční kód a nepřepisovat po nich všechno. 60minutový online workshop naživo pro tech leady, CTO a vývojáře, kteří už používají Claude Code, Cursor, Copilot nebo Codex.',
     socialDescription:
-        'Naživo uvidíš, kde přesně se AI agenti lámou na reálných projektech a jak z nich dostat produkční kód. Zdarma, 60 minut + Q&A.',
+        'Naživo uvidíš, kde se AI agenti lámou na reálných projektech a jak z nich dostat produkční kód. Zdarma, 60 minut + Q&A.',
     socialPreviewImageAlt: 'Online workshop zdarma - Promptbook',
     keywords: ['online workshop', 'AI agenti', 'produkční kód', 'Claude Code', 'Cursor', 'Copilot', 'Promptbook'],
     isSocialPreviewImageGenerated: true,
