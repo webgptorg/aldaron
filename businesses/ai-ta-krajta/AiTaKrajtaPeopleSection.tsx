@@ -2,8 +2,9 @@
 
 import { useAiTaKrajtaPageState } from '@/businesses/ai-ta-krajta/AiTaKrajtaPageState';
 import { countAiTaKrajtaEpisodesByPerson } from '@/businesses/ai-ta-krajta/aiTaKrajtaEpisodePeople';
-import { getAiTaKrajtaPeopleByRole, type AiTaKrajtaPersonRole } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
+import { filterAiTaKrajtaPeopleByRole, type AiTaKrajtaPersonRole } from '@/businesses/ai-ta-krajta/aiTaKrajtaPeople';
 import { AiTaKrajtaPersonCard } from '@/businesses/ai-ta-krajta/AiTaKrajtaPersonCard';
+import { useAiTaKrajtaOrderedPeople } from '@/businesses/ai-ta-krajta/useAiTaKrajtaOrderedPeople';
 import { AI_TA_KRAJTA_SECTION_IDS } from '@/businesses/ai-ta-krajta/config';
 import { useMemo } from 'react';
 
@@ -25,6 +26,8 @@ export function AiTaKrajtaPeopleSection() {
         () => countAiTaKrajtaEpisodesByPerson(archive.episodes),
         [archive.episodes],
     );
+
+    const orderedPeople = useAiTaKrajtaOrderedPeople(episodeCountByPersonId);
 
     const handleSelect = (personId: string) => {
         togglePersonFilter(personId);
@@ -53,7 +56,7 @@ export function AiTaKrajtaPeopleSection() {
                         </h3>
 
                         <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {getAiTaKrajtaPeopleByRole(role).map((person) => (
+                            {filterAiTaKrajtaPeopleByRole(orderedPeople, role).map((person) => (
                                 <li key={person.id}>
                                     <AiTaKrajtaPersonCard
                                         person={person}

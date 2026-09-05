@@ -56,6 +56,9 @@ export type AiTaKrajtaPerson = {
  *
  * Note: Every line here is taken from the episode descriptions of the show or from the site itself. Nobody is given a
  *       title the show has not given them.
+ *
+ * Note: This is the roster, not the order the page shows it in - `aiTaKrajtaPeopleOrder.ts` draws that one. The order
+ *       written down here is only what people the archive names equally often fall back on.
  */
 export const AI_TA_KRAJTA_PEOPLE: readonly AiTaKrajtaPerson[] = [
     {
@@ -223,8 +226,14 @@ export function getAiTaKrajtaPersonById(personId: string | null): AiTaKrajtaPers
 }
 
 /**
- * Everyone who sits at the microphone regularly
+ * Everyone of one group of the page, in the order they were handed in
+ *
+ * Note: The people are handed in rather than taken from the roster, so that whoever decides in which order the page
+ *       shows them decides it once for both groups.
  */
-export function getAiTaKrajtaPeopleByRole(role: AiTaKrajtaPersonRole): readonly AiTaKrajtaPerson[] {
-    return AI_TA_KRAJTA_PEOPLE.filter((person) => person.role === role);
+export function filterAiTaKrajtaPeopleByRole(
+    people: readonly AiTaKrajtaPerson[],
+    role: AiTaKrajtaPersonRole,
+): readonly AiTaKrajtaPerson[] {
+    return people.filter((person) => person.role === role);
 }

@@ -1,3 +1,5 @@
+import type { CreateRandomNumber } from '@/lib/random/CreateRandomNumber';
+
 /**
  * A point of the playing field, in pixels of the canvas
  */
@@ -135,11 +137,6 @@ const MINIMUM_FOOD_DISTANCE_IN_PIXELS = 90;
  *       teleporting across the field when the visitor comes back.
  */
 const MAXIMUM_STEP_IN_SECONDS = 1 / 20;
-
-/**
- * A source of random numbers between zero and one, handed in so that a test can run the same game twice
- */
-export type CreateRandomNumber = () => number;
 
 type PlayableFieldBounds = {
     readonly minimumX: number;
