@@ -73,7 +73,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Zátiší: Pavol Hejný & Tomáš Studeník',
                 description:
-                    'Rozhovor v pořadu Zátiší o tom, kam se může vyvíjet AI, jak ji efektivně používat v každodenním životě a kde být opatrný.',
+                    'Rozhovor v pořadu Zátiší o budoucnosti AI, jejím použití v každodenním životě a o tom, kde je na místě opatrnost.',
             },
             en: {
                 kind: 'Podcast',
@@ -99,7 +99,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Data Talk Special: Podcast crossover feat. AI ta Krajta',
                 description:
-                    'A long interview about AI in software development, the future of developer tools, and why AI ta Krajta was created.',
+                    'A long interview about AI in software development, the future of developer tools, and how AI ta Krajta came to be.',
             },
         },
     },
@@ -114,13 +114,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Přednáška',
                 title: 'Most interesting browser APIs',
                 description:
-                    'Přednáška z DevConf.CZ o zajímavých webových API, včetně Web Speech API, Sensor APIs, WebXR, Offscreen Canvas a File System Access API.',
+                    'Přednáška z DevConf.CZ o webových API, včetně Web Speech API, Sensor APIs, WebXR, Offscreen Canvas a File System Access API.',
             },
             en: {
                 kind: 'Talk',
                 title: 'Most interesting browser APIs',
                 description:
-                    'A DevConf.CZ talk about interesting web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and File System Access API.',
+                    'A DevConf.CZ talk about web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and File System Access API.',
             },
         },
     },
@@ -134,13 +134,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Přednáška',
                 title: 'Vývoj modulárních aplikací pro online vzdělávání',
                 description:
-                    'Přednáška o navrhování modulárních aplikací a technickém zázemí digitálních produktů pro školství.',
+                    'Přednáška o modulárních aplikacích a technickém zázemí digitálních produktů pro školství.',
             },
             en: {
                 kind: 'Talk',
                 title: 'Building modular apps for online education',
                 description:
-                    'A talk about designing modular applications and the technical background of digital products for education.',
+                    'A talk about modular applications and the technical background of digital products for education.',
             },
         },
     },
@@ -154,13 +154,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Pavol Hejný a Collboard',
                 description:
-                    'Rozhovor o Collboardu, vzdělávání a tom, jak vznikají produkty na pomezí technologie a společenského dopadu.',
+                    'Rozhovor o Collboardu, vzdělávání a vzniku produktů na pomezí technologií a společenského dopadu.',
             },
             en: {
                 kind: 'Podcast',
                 title: 'Podcast: Pavol Hejný and Collboard',
                 description:
-                    'An interview about Collboard, education, and how products are created at the intersection of technology and social impact.',
+                    'An interview about Collboard, education, and building products at the intersection of technology and social impact.',
             },
         },
     },
@@ -174,13 +174,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Přednáška',
                 title: 'LinuxDays - Užitečná browser APIs',
                 description:
-                    'Technická přednáška o méně známých browser API a o tom, kde mohou vývojářům ušetřit práci.',
+                    'Technická přednáška o méně známých browser API a o tom, jak mohou vývojářům ušetřit práci.',
             },
             en: {
                 kind: 'Talk',
                 title: 'LinuxDays - Useful browser APIs',
                 description:
-                    'A technical talk about lesser-known browser APIs and where they can save developers work.',
+                    'A technical talk about lesser-known browser APIs and how they can save developers work.',
             },
         },
     },
@@ -194,13 +194,13 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Článek',
                 title: 'Digitální škamny. Pandemie rozpohybovala zkostnatělé české školství',
                 description:
-                    'Mediální výstup o změnách ve školství, digitalizaci a projektech, které vznikaly kolem online výuky.',
+                    'Článek o změnách ve školství, digitalizaci a projektech kolem online výuky.',
             },
             en: {
                 kind: 'Article',
                 title: 'Digital school desks: the pandemic shook Czech education awake',
                 description:
-                    'A media appearance about changes in education, digitalization, and projects that emerged around online teaching.',
+                    'An article about changes in education, digitalization, and projects around online teaching.',
             },
         },
     },

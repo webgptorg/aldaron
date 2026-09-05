@@ -33,14 +33,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'Promptbook',
             description:
-                'Ekosystém pro persistentní AI agenty, kteří pracují s cíli, pravidly, znalostmi a firemním kontextem místo jednorázového chatování.',
+                'Ekosystém AI agentů, kteří si drží cíle, pravidla, znalosti a firemní kontext.',
             links: [{ href: '/', label: 'Otevřít Promptbook', icon: ArrowRight }],
         },
         {
             logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
-                'Produkty pro vzdělávání a online spolupráci, které se osvědčily ve školách i ve chvíli, kdy bylo potřeba rychle reagovat na nový kontext.',
+                'Produkty pro vzdělávání a spolupráci online, které se osvědčily ve školách i při rychlé změně okolností.',
             links: [
                 { href: 'https://collboard.com/', label: 'Collboard', icon: ExternalLink },
                 { href: 'https://www.h-edu.cz/', label: 'H-edu', icon: ExternalLink },
@@ -50,14 +50,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logoText: 'AI*',
             title: 'AI Supervize',
             description:
-                'Praktický rámec pro firmy a týmy, které chtějí dělat AI development s menším chaosem a větší kontrolou nad kvalitou.',
+                'Praktický rámec pro firmy a týmy, které chtějí mít při vývoji s AI méně chaosu a lépe hlídat kvalitu.',
             links: [{ href: '/ai-supervize', label: 'AI Supervize', icon: ArrowRight }],
         },
         {
             icon: Github,
             title: 'Všechny projekty',
             description:
-                'Desítky open-source a produktových projektů od prototypů přes vzdělávání až po nástroje pro AI a vývoj.',
+                'Desítky open-source a produktových projektů. Od prototypů přes vzdělávací produkty po nástroje pro AI a vývoj.',
             links: [
                 { href: 'https://github.com/hejny', label: 'GitHub', icon: Github },
                 {
@@ -73,14 +73,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'Promptbook',
             description:
-                'An ecosystem for persistent AI agents that work with goals, rules, knowledge, and company context instead of one-off chats.',
+                'An ecosystem of AI agents that retain goals, rules, knowledge, and company context.',
             links: [{ href: '/', label: 'Open Promptbook', icon: ArrowRight }],
         },
         {
             logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
-                'Products for education and online collaboration that proved themselves in schools and when it was necessary to respond quickly to a new context.',
+                'Products for education and online collaboration that proved themselves in schools and when circumstances changed quickly.',
             links: [
                 { href: 'https://collboard.com/', label: 'Collboard', icon: ExternalLink },
                 { href: 'https://www.h-edu.cz/', label: 'H-edu', icon: ExternalLink },
@@ -90,14 +90,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logoText: 'AI*',
             title: 'AI Supervize',
             description:
-                'A practical framework for companies and teams that want to do AI development with less chaos and greater control over quality.',
+                'A practical framework for companies and teams that want less chaos and better quality control when developing with AI.',
             links: [{ href: '/ai-supervize', label: 'AI Supervize', icon: ArrowRight }],
         },
         {
             icon: Github,
             title: 'All projects',
             description:
-                'Dozens of open-source and product projects from prototypes through education to tools for AI and development.',
+                'Dozens of open-source and product projects, from prototypes and education products to AI and developer tools.',
             links: [
                 { href: 'https://github.com/hejny', label: 'GitHub', icon: Github },
                 {

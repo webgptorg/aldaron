@@ -96,14 +96,14 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
     cs: {
         header: {
             navItems: [
-                { label: 'Jak pomohu', href: '#services' },
+                { label: 'Jak vám pomohu', href: '#services' },
                 { label: 'Reference', href: '#testimonials' },
                 { label: 'Projekty', href: '#projects' },
                 { label: 'Čísla', href: '#numbers' },
                 { label: 'Média', href: '#media' },
                 { label: 'Kontakt', href: '#contact' },
             ],
-            primaryAction: 'Napsište mi',
+            primaryAction: 'Napište mi',
             secondaryAction: 'CV',
             languageSwitcherLabel: 'Přepnout jazyk',
         },
@@ -111,68 +111,65 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             eyebrow: 'AI konzultace, workshopy a vývoj',
             title: 'Pavol Hejný',
             description:
-                'Pomáhám firmám a týmům zavádět AI do vývoje, produktů a interních procesů tak, aby přinášela reálnou hodnotu místo dalšího hype.',
-            badges: ['AI consulting', 'Workshopy a talks', '15+ let zkušeností s vývojem'],
-            primaryAction: 'Chci řešit AI',
-            secondaryAction: 'Zjistit více',
+                'Pomáhám firmám a týmům nasadit AI do vývoje, produktů a interních procesů tak, aby jim v praxi přinášela užitek. Bez dalšího hype.',
+            badges: ['AI konzultace', 'Workshopy a přednášky', '15+ let vývoje'],
+            primaryAction: 'Probrat AI',
+            secondaryAction: 'Moje projekty',
         },
         services: {
-            eyebrow: 'Co nabízím',
-            title: 'Kde dávám největší smysl',
+            eyebrow: 'S čím pomohu',
+            title: 'S čím vám pomohu',
             description:
-                'Neprodávám jednu univerzální AI odpověď. Pomáhám vybrat správný use-case, proces a způsob práce pro konkrétní tým nebo produkt.',
+                'Každý tým řeší něco jiného. Pomohu vám najít konkrétní použití AI, nastavit proces a vybrat způsob práce, který sedne vašemu produktu.',
             items: [
                 {
                     id: 'ai-consulting',
                     icon: BrainCircuit,
                     title: 'AI konzultace',
                     description:
-                        'Strategie, výběr nástrojů, vendor lock-in, bezpečnost dat, agentní workflow a to, jak dostat AI z demo režimu do běžného provozu.',
-                    buttonLabel: 'Chci AI konzultaci',
-                    prefillMessage: 'Dobrý den Pavle, mám zájem o AI konzultace, prosím ozvěte se mi.',
+                        'Strategie, výběr nástrojů, vendor lock-in, bezpečnost dat, práce s AI agenty a cesta od dema k běžnému provozu.',
+                    buttonLabel: 'Domluvit AI konzultaci',
+                    prefillMessage: 'Dobrý den, Pavle. Mám zájem o AI konzultaci. Prosím, ozvěte se mi.',
                 },
                 {
                     id: 'ai-workshops-talks',
                     icon: Presentation,
-                    title: 'Workshopy / Přednášky',
+                    title: 'Workshopy a přednášky',
                     description:
-                        'Přednášky a hands-on workshopy pro firmy, product týmy i vývojáře. Bez zbytečného hype, s důrazem na praxi, kvalitu a konkrétní rozhodnutí.',
-                    buttonLabel: 'Chci workshop nebo přednášku',
-                    prefillMessage: 'Dobrý den Pavle, mám zájem o AI workshopy / přednášky, prosím ozvěte se mi.',
+                        'Přednášky a praktické workshopy pro firmy, produktové týmy a vývojáře. Zaměříme se na to, co můžete hned použít, jak udržet kvalitu a která rozhodnutí je potřeba udělat.',
+                    buttonLabel: 'Domluvit workshop nebo přednášku',
+                    prefillMessage: 'Dobrý den, Pavle. Mám zájem o AI workshop nebo přednášku. Prosím, ozvěte se mi.',
                 },
             ],
         },
         testimonials: {
             eyebrow: 'Reference',
-            title: 'Lidé, kteří se mnou opravdu pracovali',
-            description:
-                'Reference z různých projektů, školení, workshopů i dlouhodobé spolupráce na budování nových věcí od nuly.',
+            title: 'Lidé, se kterými jsem pracoval',
+            description: 'Reference z projektů, školení, workshopů i delší spolupráce.',
         },
         projects: {
             eyebrow: 'Projekty',
-            title: 'Od aplikací až k AI agentům',
+            title: 'Od aplikací po AI agenty',
             description:
-                'Vyvíjím víc než polovinu mého života. Za tu dobu jsem pracoval na mnoha různých projektech, od webových aplikací až po AI agenty. Zde je výběr těch nejrelevantnějších pro to, co dělám dnes:',
+                'Vyvíjím už více než polovinu života. Pracoval jsem na webových aplikacích, vzdělávacích produktech i AI agentech. Tady jsou projekty, které nejlépe ukazují, čemu se věnuji dnes.',
         },
         numbers: {
             eyebrow: 'Čísla',
-            title: 'Zkušenost, která má za sebou reálnou práci',
-            description:
-                'Zajímá mě dopad v praxi. Ne jen to, jak věci znějí v prezentaci, ale co obstojí v týmu, produktu a v dlouhodobém provozu.',
+            title: 'Praxe v číslech',
+            description: 'Zajímá mě, co funguje v praxi. V týmu, v produktu i po delší době.',
         },
         media: {
             eyebrow: 'Média',
             title: 'Rozhovory, podcasty a přednášky',
-            description:
-                'Pravidelně mě můžete potkat v různých veřejných rozhovorech, podcastech a přednáškách, kde mluvím o AI, vývoji a budování digitálních produktů.',
-            highlightsLabel: 'Highlights',
+            description: 'O AI, vývoji a digitálních produktech mluvím v rozhovorech, podcastech a na přednáškách.',
+            highlightsLabel: 'Vybrané výstupy',
             restLabel: 'Další výstupy',
             moreLabel: 'Více',
         },
         contact: {
             eyebrow: 'Kontakt',
             title: 'Napište mi, co řešíte',
-            description: 'Pošlete stručnou zprávu já se ozvu zpět do 24 hodin!',
+            description: 'Napište stručně, co řešíte. Ozvu se do 24 hodin.',
             formNameLabel: 'Jméno',
             formNamePlaceholder: 'Vaše jméno',
             formEmailLabel: 'E-mail',
@@ -181,10 +178,10 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             formCompanyPlaceholder: 'Firma s.r.o.',
             formMessageLabel: 'Zpráva',
             formMessagePlaceholder: 'Popište stručně, co řešíte a s čím byste potřebovali pomoci.',
-            submitLabel: 'Odeslat zprávu, spojíme se do 24 hodin!',
+            submitLabel: 'Odeslat zprávu',
             submittingLabel: 'Odesílám...',
             successTitle: 'Děkuji, zpráva je odeslaná',
-            successDescription: 'Jakmile to bude možné, ozvu se zpět na uvedený e-mail.',
+            successDescription: 'Ozvu se na uvedený e-mail co nejdřív.',
             errorMessage: 'Vyplňte prosím jméno, e-mail a zprávu.',
             otherContactsTitle: 'Další odkazy',
             links: [
@@ -197,7 +194,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
         },
         footer: {
             description:
-                'Pomáhám firmám i týmům používat AI prakticky: od strategie a workshopů až po konkrétní produktové a vývojové workflow.',
+                'Pomáhám firmám a týmům používat AI v praxi, od strategie a workshopů po konkrétní produktové a vývojové workflow.',
             navigationTitle: 'Navigace',
             connectTitle: 'Spojte se se mnou',
             primaryAction: 'Napište mi',
@@ -207,7 +204,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
     en: {
         header: {
             navItems: [
-                { label: 'How I Help', href: '#services' },
+                { label: 'How I help', href: '#services' },
                 { label: 'Testimonials', href: '#testimonials' },
                 { label: 'Projects', href: '#projects' },
                 { label: 'Numbers', href: '#numbers' },
@@ -222,60 +219,57 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             eyebrow: 'AI consulting, workshops, and development',
             title: 'Pavol Hejný',
             description:
-                'I help companies and teams introduce AI into development, products, and internal processes so that it brings real value instead of more hype.',
-            badges: ['AI consulting', 'Workshops and talks', '15+ years of development experience'],
-            primaryAction: 'I want to discuss AI',
-            secondaryAction: 'Learn more',
+                'I help companies and teams bring AI into development, products, and internal processes where it can do useful work. No extra hype.',
+            badges: ['AI consulting', 'Workshops and talks', '15+ years building software'],
+            primaryAction: 'Talk about AI',
+            secondaryAction: 'See my projects',
         },
         services: {
-            eyebrow: 'What I offer',
-            title: 'Where I make the most sense',
+            eyebrow: 'How I can help',
+            title: 'What I can help you with',
             description:
-                'I do not sell one universal AI answer. I help choose the right use case, process, and way of working for a specific team or product.',
+                'Every team has a different problem. I help you find a concrete use for AI, set up the process, and choose a way of working that fits your product.',
             items: [
                 {
                     id: 'ai-consulting',
                     icon: BrainCircuit,
                     title: 'AI consulting',
                     description:
-                        'Strategy, tool selection, vendor lock-in, data security, agentic workflows, and how to get AI from demo mode into everyday operations.',
-                    buttonLabel: 'I want an AI consultation',
-                    prefillMessage: 'Hello Pavol, I am interested in AI consultations, please contact me.',
+                        'Strategy, tool selection, vendor lock-in, data security, working with AI agents, and moving from a demo to everyday use.',
+                    buttonLabel: 'Talk about AI consulting',
+                    prefillMessage: 'Hello Pavol. I am interested in AI consulting. Please get in touch.',
                 },
                 {
                     id: 'ai-workshops-talks',
                     icon: Presentation,
-                    title: 'Workshops / Talks',
+                    title: 'Workshops and talks',
                     description:
-                        'Talks and hands-on workshops for companies, product teams, and developers. No unnecessary hype, with emphasis on practice, quality, and specific decisions.',
-                    buttonLabel: 'I want a workshop or talk',
-                    prefillMessage: 'Hello Pavol, I am interested in AI workshops / talks, please contact me.',
+                        'Talks and hands-on workshops for companies, product teams, and developers. We focus on what you can use right away, how to keep the quality up, and which decisions need to be made.',
+                    buttonLabel: 'Arrange a workshop or talk',
+                    prefillMessage: 'Hello Pavol. I am interested in an AI workshop or talk. Please get in touch.',
                 },
             ],
         },
         testimonials: {
             eyebrow: 'Testimonials',
-            title: 'People who have actually worked with me',
-            description:
-                'References from various projects, trainings, workshops, and long-term collaborations on building new things from scratch.',
+            title: 'People I have worked with',
+            description: 'A few words from people I have worked with on projects, trainings, workshops, and longer collaborations.',
         },
         projects: {
             eyebrow: 'Projects',
-            title: 'From applications to AI agents',
+            title: 'From apps to AI agents',
             description:
-                'I have been developing for more than half of my life. During that time I have worked on many different projects, from web applications to AI agents. Here is a selection of the most relevant ones for what I do today:',
+                'I have been building software for more than half my life. I have worked on web applications, education products, and AI agents. These are the projects that best represent what I do today.',
         },
         numbers: {
             eyebrow: 'Numbers',
-            title: 'Experience grounded in real delivery',
-            description:
-                'I care about impact in practice. Not only how something sounds on a slide, but what survives inside a team, a product, and long-term operations.',
+            title: 'The work behind the numbers',
+            description: 'I care about what works in practice, inside a team, in a product, and over time.',
         },
         media: {
             eyebrow: 'Media',
             title: 'Interviews, podcasts, and talks',
-            description:
-                'You can regularly find me in various public interviews, podcasts, and talks where I speak about AI, development, and building digital products.',
+            description: 'I talk about AI, development, and digital products in interviews, podcasts, and talks.',
             highlightsLabel: 'Highlights',
             restLabel: 'Other appearances',
             moreLabel: 'More',
@@ -283,7 +277,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
         contact: {
             eyebrow: 'Contact',
             title: 'Tell me what you are working on',
-            description: 'Send a brief message and I will get back to you within 24 hours!',
+            description: 'Tell me briefly what you are working on. I will get back to you within 24 hours.',
             formNameLabel: 'Name',
             formNamePlaceholder: 'Your name',
             formEmailLabel: 'Email',
@@ -292,7 +286,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
             formCompanyPlaceholder: 'Awesome Company',
             formMessageLabel: 'Message',
             formMessagePlaceholder: 'Briefly explain your situation and what kind of help would be useful.',
-            submitLabel: 'Send message, we will connect within 24 hours!',
+            submitLabel: 'Send message',
             submittingLabel: 'Sending...',
             successTitle: 'Thank you, the message has been sent',
             successDescription: 'I will reply to the email address you provided as soon as I can.',
@@ -308,7 +302,7 @@ export const pavolPageContent: Record<SupportedHomepageLanguage, PavolPageConten
         },
         footer: {
             description:
-                'I help companies and teams use AI in a practical way: from strategy and workshops to concrete product and engineering workflows.',
+                'I help companies and teams use AI in their day-to-day work, from strategy and workshops to concrete product and engineering workflows.',
             navigationTitle: 'Navigation',
             connectTitle: 'Connect with me',
             primaryAction: 'Contact me',

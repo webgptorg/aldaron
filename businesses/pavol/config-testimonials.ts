@@ -12,35 +12,35 @@ export const pavolTestimonials: Record<SupportedHomepageLanguage, Testimonial[]>
             name: 'Tomáš Studeník',
             role: 'Startupper',
             testimonial:
-                'Pavola znám už 6 let. Zejména z hackathonů a dalších inovačních projektů. Pokud se se svým týmem zúčastnil, mohli byste si vsadit, že bude mezi nejlepšími třemi. A měli byste pravdu! Pavol je inovátor, který se orientuje v nejnovějších technologiích a dokáže nacházet rychlá řešení výzev v průmyslu, vzdělávání či rozvoji měst.',
+                'Pavola znám šest let, hlavně z hackathonů a dalších inovačních projektů. Když se účastnil se svým týmem, mohli jste si vsadit, že skončí mezi prvními třemi. A taky že ano. Pavol se vyzná v nových technologiích a umí rychle najít řešení pro průmysl, vzdělávání i rozvoj měst.',
             avatar: tomasStudenik,
         },
         {
             name: 'Jan Šedo',
             role: 'Zakladatel H-edu',
             testimonial:
-                'Pavol vytvořil prototyp naší aplikace H-edu tak, že jsme okamžitě získali investici. Následně navrhl architekturu systému a využití technologií, které se v testu času ukázaly jako správně zvolené pro naše účely.',
+                'Pavol vytvořil prototyp naší aplikace H-edu a díky němu jsme hned získali investici. Potom navrhl architekturu systému i technologie, které se ukázaly jako správná volba i s odstupem času.',
             avatar: janSedo,
         },
         {
             name: 'Max Kozlov',
             role: 'Founder & CEO, Undout',
             testimonial:
-                'Pavol je naprosto špičkový v tvorbě digitálních produktů. Viděl jsem ho doslova přes noc vytvořit integrovaného chatbota, který nám zajistil první místo na Startup Weekendu v Praze. Rychle vezme jakoukoliv technologii nebo téma a postaví nad ní fungující produkt.',
+                'Pavol umí stavět digitální produkty. Viděl jsem ho přes noc vytvořit integrovaného chatbota, se kterým jsme vyhráli Startup Weekend v Praze. Dokáže rychle vzít nové téma nebo technologii a postavit na něm fungující produkt.',
             avatar: maxKozlov,
         },
         {
             name: 'Bob Kartous',
             role: 'Prorektor VŠEM a autor',
             testimonial:
-                'Pavol je velmi schopný inovátor, jehož potenciál sahá napříč digitálními technologiemi a společenskými tématy. V projektech, na kterých spolupracoval, přinesl do světa vzdělávání nové vize a přístupy.',
+                'Pavol je schopný inovátor, který propojuje digitální technologie se společenskými tématy. V projektech, na kterých pracoval, přinesl do vzdělávání nové nápady a postupy.',
             avatar: bobKartous,
         },
         {
             name: 'Tereza Texlová',
             role: 'Spoluzakladatelka Czech.events',
             testimonial:
-                'Pavolova kombinace technických dovedností spolu s veřejným vystupováním a schopností nastartovat nové nápady je impozantní. Těším se na náš další super zajímavý projekt.',
+                'Pavol spojuje technické dovednosti s veřejným vystupováním a umí rozjet nové nápady. Těším se na náš další projekt.',
             avatar: terezaTexlova,
         },
     ],
@@ -49,35 +49,35 @@ export const pavolTestimonials: Record<SupportedHomepageLanguage, Testimonial[]>
             name: 'Tomáš Studeník',
             role: 'Startupper',
             testimonial:
-                'I have known Pavol for 6 years, especially from hackathons and other innovation projects. If he took part with his team, you could bet they would be among the top three. And you would be right! Pavol is an innovator who understands the latest technologies and can find fast solutions to challenges in industry, education, or city development.',
+                'I have known Pavol for six years, mainly through hackathons and other innovation projects. When he took part with his team, you could bet they would finish in the top three. And they did. Pavol understands new technologies and finds fast solutions for industry, education, and city development.',
             avatar: tomasStudenik,
         },
         {
             name: 'Jan Šedo',
             role: 'Founder of H-edu',
             testimonial:
-                'Pavol created the prototype of our H-edu app in such a way that we immediately secured investment. He then designed the system architecture and use of technologies that stood the test of time as the right choices for our purposes.',
+                'Pavol created the prototype of our H-edu app, and we secured investment right away. He then designed the system architecture and chose technologies that have proved to be the right choices over time.',
             avatar: janSedo,
         },
         {
             name: 'Max Kozlov',
             role: 'Founder & CEO, Undout',
             testimonial:
-                'Pavol is absolutely top-notch at creating digital products. I saw him literally create an integrated chatbot overnight that secured us first place at Startup Weekend in Prague. He quickly takes any technology or topic and builds a working product on top of it.',
+                'Pavol knows how to build digital products. I saw him create an integrated chatbot overnight, and it won us first place at Startup Weekend in Prague. He can quickly take a new topic or technology and turn it into a working product.',
             avatar: maxKozlov,
         },
         {
             name: 'Bob Kartous',
             role: 'Vice-Rector at VŠEM and author',
             testimonial:
-                'Pavol is a very capable innovator whose potential spans digital technologies and social topics. In the projects he collaborated on, he brought new visions and approaches into the world of education.',
+                'Pavol is an innovator who connects digital technologies with social topics. In the projects he worked on, he brought new ideas and approaches to education.',
             avatar: bobKartous,
         },
         {
             name: 'Tereza Texlová',
             role: 'Co-founder, Czech.events',
             testimonial:
-                'Pavol combines technical skills, public speaking, and the ability to kick-start new ideas in an impressive way. I look forward to our next really interesting project.',
+                'Pavol combines technical skills with public speaking and knows how to get new ideas moving. I look forward to our next project.',
             avatar: terezaTexlova,
         },
     ],

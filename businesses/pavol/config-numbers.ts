@@ -13,44 +13,44 @@ export const pavolNumbers: Record<SupportedHomepageLanguage, PavolNumber[]> = {
         {
             icon: BriefcaseBusiness,
             value: '15+',
-            label: 'let zkušeností se software developmentem a product managementem',
+            label: 'let praxe ve vývoji softwaru a product managementu',
         },
         {
             icon: Bot,
             value: '3+',
-            label: 'roky intenzivní práce s AI nástroji v reálných projektech',
+            label: 'roky práce s AI nástroji na skutečných projektech',
         },
         {
             icon: FolderKanban,
             value: '10+',
-            label: 'úspěšných projektů od prototypu po produkční nasazení',
+            label: 'úspěšných projektů od prototypu po produkci',
         },
         {
             icon: Users,
             value: '4500+',
-            label: 'proškolených lidí skrze workshopy, talks, podcasty a další výstupy',
+            label: 'proškolených lidí na workshopech, přednáškách, v podcastech a dalších výstupech',
         },
     ],
     en: [
         {
             icon: BriefcaseBusiness,
             value: '15+',
-            label: 'years of experience in software development and product management',
+            label: 'years in software development and product management',
         },
         {
             icon: Bot,
             value: '3+',
-            label: 'years of intensive work with AI tools in real projects',
+            label: 'years of working with AI tools on real projects',
         },
         {
             icon: FolderKanban,
             value: '10+',
-            label: 'successful projects delivered from prototype to production',
+            label: 'successful projects from prototype to production',
         },
         {
             icon: Users,
             value: '4500+',
-            label: 'people trained through workshops, talks, podcasts, and other appearances',
+            label: 'people trained through workshops, talks, podcasts, and other events',
         },
     ],
 };
