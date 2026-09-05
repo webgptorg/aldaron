@@ -23,8 +23,7 @@ export const CONTACT_PAGE_DEFINITION: PageMetadataDefinition = {
     path: '/contact',
     language: 'en',
     title: 'Contact | Promptbook',
-    description:
-        'Talk to the people behind Promptbook about bringing AI agents that truly understand your business into your company.',
+    description: 'Get in touch with the Promptbook team about AI agents for your business.',
     sitemapPriority: 0.6,
     sitemapChangeFrequency: 'yearly',
 };
