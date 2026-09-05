@@ -35,22 +35,22 @@ export const pavolNumbers: Record<SupportedHomepageLanguage, PavolNumber[]> = {
         {
             icon: BriefcaseBusiness,
             value: '15+',
-            label: 'years in software development and product management',
+            label: 'years working in software development and product management',
         },
         {
             icon: Bot,
             value: '3+',
-            label: 'years of working with AI tools on real projects',
+            label: 'years using AI tools on real projects',
         },
         {
             icon: FolderKanban,
             value: '10+',
-            label: 'successful projects from prototype to production',
+            label: 'successful projects taken from prototype to production',
         },
         {
             icon: Users,
             value: '4500+',
-            label: 'people trained through workshops, talks, podcasts, and other events',
+            label: 'people reached through workshops, talks, podcasts, and other events',
         },
     ],
 };

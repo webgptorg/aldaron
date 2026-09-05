@@ -73,14 +73,14 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logos: [{ src: promptbookLogo, className: 'h-7 w-7' }],
             title: 'Promptbook',
             description:
-                'An ecosystem of AI agents that retain goals, rules, knowledge, and company context.',
+                'AI agents that keep track of goals, rules, knowledge, and company context.',
             links: [{ href: '/', label: 'Open Promptbook', icon: ArrowRight }],
         },
         {
             logos: [{ src: collboardLogo, className: 'h-7 w-7' }],
             title: 'Collboard & H-edu',
             description:
-                'Products for education and online collaboration that proved themselves in schools and when circumstances changed quickly.',
+                'Education and online collaboration products used in schools, including when circumstances changed quickly.',
             links: [
                 { href: 'https://collboard.com/', label: 'Collboard', icon: ExternalLink },
                 { href: 'https://www.h-edu.cz/', label: 'H-edu', icon: ExternalLink },
@@ -90,7 +90,7 @@ export const pavolProjects: Record<SupportedHomepageLanguage, PavolProject[]> = 
             logoText: 'AI*',
             title: 'AI Supervize',
             description:
-                'A practical framework for companies and teams that want less chaos and better quality control when developing with AI.',
+                'A practical framework for companies and teams that want less chaos and tighter quality control when developing with AI.',
             links: [{ href: '/ai-supervize', label: 'AI Supervize', icon: ArrowRight }],
         },
         {

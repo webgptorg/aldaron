@@ -79,7 +79,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Zátiší: Pavol Hejný & Tomáš Studeník',
                 description:
-                    'An interview on the Zátiší program about where AI may be heading, how to use it effectively in everyday life, and where to be cautious.',
+                    'An interview on Zátiší about where AI may be heading, how to use it in everyday life, and where to be cautious.',
             },
         },
     },
@@ -99,7 +99,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Data Talk Special: Podcast crossover feat. AI ta Krajta',
                 description:
-                    'A long interview about AI in software development, the future of developer tools, and how AI ta Krajta came to be.',
+                    'A long conversation about AI in software development, the future of developer tools, and how AI ta Krajta came to be.',
             },
         },
     },
@@ -120,7 +120,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Talk',
                 title: 'Most interesting browser APIs',
                 description:
-                    'A DevConf.CZ talk about web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and File System Access API.',
+                    'A DevConf.CZ talk about web APIs, including Web Speech API, Sensor APIs, WebXR, Offscreen Canvas, and the File System Access API.',
             },
         },
     },
@@ -140,7 +140,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Talk',
                 title: 'Building modular apps for online education',
                 description:
-                    'A talk about modular applications and the technical background of digital products for education.',
+                    'A talk about modular applications and the technology behind digital products for education.',
             },
         },
     },
@@ -160,7 +160,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Podcast',
                 title: 'Podcast: Pavol Hejný and Collboard',
                 description:
-                    'An interview about Collboard, education, and building products at the intersection of technology and social impact.',
+                    'An interview about Collboard, education, and building products where technology meets social impact.',
             },
         },
     },
@@ -180,7 +180,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Talk',
                 title: 'LinuxDays - Useful browser APIs',
                 description:
-                    'A technical talk about lesser-known browser APIs and how they can save developers work.',
+                    'A technical talk about lesser-known browser APIs and how they can save developers time.',
             },
         },
     },
@@ -200,7 +200,7 @@ const sharedMediaAppearances: SharedMediaAppearance[] = [
                 kind: 'Article',
                 title: 'Digital school desks: the pandemic shook Czech education awake',
                 description:
-                    'An article about changes in education, digitalization, and projects around online teaching.',
+                    'An article about changes in education, digitalization, and projects built around online teaching.',
             },
         },
     },

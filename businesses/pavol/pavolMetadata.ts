@@ -64,12 +64,12 @@ export const PAVOL_PAGE_DEFINITIONS: Readonly<Record<SupportedHomepageLanguage, 
     en: {
         path: PAVOL_LANGUAGE_ALTERNATES.en,
         language: 'en',
-        title: 'Pavol Hejný | AI consulting, development, and workshops',
+        title: 'Pavol Hejný | AI consulting, software development, and workshops',
         socialTitle: 'Pavol Hejný',
         description:
-            'The personal page of Pavol Hejný. He helps companies bring AI into development, products, and internal processes through consulting, workshops, and talks.',
-        socialDescription: 'AI consulting, development, and workshops for companies and teams.',
-        socialPreviewImageAlt: 'Pavol Hejný - AI consulting, development, and workshops',
+            'Pavol Hejný helps companies use AI in development, products, and internal processes through consulting, workshops, and talks.',
+        socialDescription: 'AI consulting, software development, and workshops for companies and teams.',
+        socialPreviewImageAlt: 'Pavol Hejný - AI consulting, software development, and workshops',
         keywords: ['Pavol Hejný', 'AI consulting', 'AI workshops', 'talks', 'development', 'Promptbook'],
         languageAlternates: PAVOL_LANGUAGE_ALTERNATES,
         openGraphType: 'profile',
@@ -102,7 +102,7 @@ export const PAVOL_SOCIAL_PREVIEW_OPTIONS: Readonly<Record<SupportedHomepageLang
     }),
     en: createSocialPreviewOptions(PAVOL_PAGE_DEFINITIONS.en, {
         brandLabel: PAVOL_NAME,
-        eyebrow: 'AI consulting, workshops, and development',
+        eyebrow: 'AI consulting, workshops, and software development',
         artwork: 'person',
         paletteSeed: PAVOL_PALETTE_SEED,
     }),
@@ -113,7 +113,7 @@ export const PAVOL_SOCIAL_PREVIEW_OPTIONS: Readonly<Record<SupportedHomepageLang
  */
 const PAVOL_JOB_TITLE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
     cs: 'AI konzultant a vývojář',
-    en: 'AI consultant and developer',
+    en: 'AI consultant and software developer',
 };
 
 /**
