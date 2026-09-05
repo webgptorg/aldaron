@@ -32,10 +32,10 @@ function ThankYouContent() {
                         className="text-[32px] sm:text-[40px] font-extrabold text-[#0f172a] tracking-tight mb-4"
                         style={{ lineHeight: 1.15 }}
                     >
-                        {name ? `Výborně, ${name}!` : 'Děkujeme za váš zájem!'}
+                        {name ? `Díky, ${name}!` : 'Děkujeme za váš zájem.'}
                     </h1>
                     <p className="text-[16px] sm:text-[18px] text-gray-500 leading-relaxed max-w-lg mx-auto mb-12">
-                        Vaše odpovědi jsme zaznamenali. Tady je, co se bude dít dál:
+                        Vaše odpovědi máme. Takhle to bude pokračovat:
                     </p>
 
                     {/* Timeline steps */}
@@ -50,11 +50,11 @@ function ThankYouContent() {
                             </div>
                             <div className="pb-8">
                                 <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">
-                                    Jirka vám zavolá do 24 hodin
+                                    Jirka vám do 24 hodin zavolá
                                 </h3>
                                 <p className="text-[14px] text-gray-500 leading-relaxed">
-                                    Probereme vaše konkrétní potřeby a odpovíme na vaše otázky. Žádný prodejní tlak -
-                                    jen upřímný rozhovor.
+                                    Probereme, co potřebujete, a odpovíme na vaše otázky. Bez prodejního tlaku. Jen
+                                    otevřený rozhovor.
                                 </p>
                             </div>
                         </div>
@@ -68,11 +68,11 @@ function ThankYouContent() {
                                 <div className="w-px h-full bg-gray-200 my-1" />
                             </div>
                             <div className="pb-8">
-                                <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">Domluvíme videohovor</h3>
+                                <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">Domluvíme si videohovor</h3>
                                 <p className="text-[14px] text-gray-500 leading-relaxed">
-                                    Odkaz na videohovor vám zašleme na{' '}
+                                    Odkaz pošleme na{' '}
                                     {email ? <strong className="text-[#0f172a]">{email}</strong> : 'váš e-mail'}.
-                                    Ukážeme vám Promptbook na vašich reálných datech.
+                                    Promptbook vám ukážeme na vašich reálných datech.
                                 </p>
                             </div>
                         </div>
@@ -86,10 +86,10 @@ function ThankYouContent() {
                             </div>
                             <div>
                                 <h3 className="text-[15px] font-bold text-[#0f172a] mb-1">
-                                    Proběhne videohovor a domluvíme další kroky
+                                    Na videohovoru si řekneme, co dál
                                 </h3>
                                 <p className="text-[14px] text-gray-500 leading-relaxed">
-                                    Pokud to bude dávat smysl oběma stranám, navrhneme konkrétní řešení na míru.
+                                    Pokud to bude dávat smysl vám i nám, navrhneme řešení podle vaší situace.
                                 </p>
                             </div>
                         </div>
@@ -98,7 +98,7 @@ function ThankYouContent() {
                     {/* Team section */}
                     <div className="border-t border-gray-100 pt-12 mb-12">
                         <p className="text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-8">
-                            S kým budete mluvit?
+                            S kým si zavoláte?
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-lg mx-auto">
