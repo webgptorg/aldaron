@@ -42,11 +42,11 @@ export function AiTaKrajtaPeopleSection() {
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Kdo v tom jede</h2>
                 <p className="mt-3 max-w-2xl text-white/60">
-                    U mikrofonu se střídáme podle toho, kdo má co říct k tématu. Klikněte na kohokoliv a v archivu
-                    nahoře zůstanou jen díly, ve kterých je slyšet.
+                    U mikrofonu se střídáme podle tématu. Klikněte na jméno a nahoře v archivu zůstanou jen díly, ve
+                    kterých ten člověk mluví.
                 </p>
                 <p className="mt-2 max-w-2xl text-sm text-white/40">
-                    Sestavu bereme z popisků dílů. Když popisek někoho nezmíní, u dílu prostě nesvítí.
+                    Sestavu skládáme z popisků dílů. Když v popisku někdo není, u dílu se neobjeví.
                 </p>
 
                 {(Object.keys(GROUP_TITLE_BY_ROLE) as AiTaKrajtaPersonRole[]).map((role) => (

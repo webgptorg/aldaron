@@ -21,8 +21,8 @@ function AiTaKrajtaEmptyArchive({ hasEpisodes }: { readonly hasEpisodes: boolean
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
             <p className="text-white/70">
                 {hasEpisodes
-                    ? 'Tomuhle hledání neodpovídá žádný díl. Zkuste jiné slovo nebo filtr zrušte.'
-                    : 'Seznam dílů se teď nepodařilo načíst. Všechny díly jsou zatím tady:'}
+                    ? 'Nic jsme nenašli. Zkuste jiné slovo nebo zrušte filtr.'
+                    : 'Díly se teď nepodařilo načíst. Zatím je najdete na těchto platformách:'}
             </p>
 
             {!hasEpisodes && (
@@ -76,7 +76,7 @@ export function AiTaKrajtaEpisodeList() {
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Díly</h2>
                         <p className="mt-3 max-w-xl text-white/60">
-                            Pusťte si je rovnou tady. Přehrávač zůstane dole, takže můžete dál scrollovat.
+                            Pusťte si díl rovnou tady. Přehrávač zůstane dole, i když sjedete dál.
                         </p>
                     </div>
 
@@ -125,7 +125,7 @@ export function AiTaKrajtaEpisodeList() {
 
                     {isTranscriptSearchPending && (
                         <span aria-live="polite" className="text-white/50">
-                            Hledám v přepisech…
+                            Prohledávám přepisy.
                         </span>
                     )}
                 </div>
@@ -169,7 +169,7 @@ export function AiTaKrajtaEpisodeList() {
                             onClick={showWholeArchive}
                             className="inline-flex h-11 items-center rounded-full border border-white/20 px-6 text-sm font-medium text-white transition-colors hover:border-white/50"
                         >
-                            Zobrazit zbylých {formatCzechCountedNoun(hiddenEpisodeCount, ['díl', 'díly', 'dílů'])}
+                            Zobrazit ještě {formatCzechCountedNoun(hiddenEpisodeCount, ['díl', 'díly', 'dílů'])}
                         </button>
                     </div>
                 )}

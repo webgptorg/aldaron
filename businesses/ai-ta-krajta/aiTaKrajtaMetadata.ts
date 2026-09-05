@@ -51,7 +51,7 @@ export const AI_TA_KRAJTA_PAGE_DEFINITION: PageMetadataDefinition = {
     title: `${AI_TA_KRAJTA_BRAND_NAME} | Český podcast o umělé inteligenci`,
     socialTitle: AI_TA_KRAJTA_BRAND_NAME,
     description:
-        'Každý týden si sedneme a probereme, co se v AI stalo. Poslechněte si díly přímo tady, nebo se na ně podívejte na YouTube.',
+        'Každý týden probíráme, co se v AI událo. Nové modely, nástroje a průšvihy. Díly si pustíte tady, nebo je najdete na YouTube.',
     socialDescription: AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE.cs,
     socialPreviewImageAlt: `${AI_TA_KRAJTA_BRAND_NAME}, český podcast o umělé inteligenci`,
     keywords: [

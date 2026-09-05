@@ -27,11 +27,11 @@ export function AiTaKrajtaCollaborationSection() {
                             Hosté, témata a spolupráce
                         </p>
                         <h2 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                            Pojďme do toho spolu
+                            Máte nápad? Napište.
                         </h2>
                         <p className="mt-3 max-w-2xl leading-relaxed text-white/60">
-                            Máte hosta, téma, partnerství nebo nápad, který by neměl zapadnout? V media kitu najdete,
-                            co hledáme, jak pracujeme a kam nám napsat.
+                            Máte tip na hosta, téma nebo spolupráci? V media kitu najdete, co nabízíme, jak pracujeme a
+                            kam napsat.
                         </p>
                     </div>
 
@@ -72,8 +72,8 @@ export function AiTaKrajtaCollaborationSection() {
                                 Partnerství ano. Koupený názor ne.
                             </h3>
                             <p className="mt-3 text-sm leading-relaxed text-white/65">
-                                Nabízíme nativní, transparentní a redakčně nezávislé spolupráce pro firmy, které chtějí
-                                oslovit české a slovenské publikum kolem AI.
+                                Děláme nativní spolupráce pro firmy, které chtějí oslovit české a slovenské publikum
+                                kolem AI. Vždy je označíme a redakce zůstává nezávislá.
                             </p>
                             <ul className="mt-5 grid gap-2">
                                 {AI_TA_KRAJTA_EDITORIAL_PRINCIPLES.slice(0, 2).map((principle) => (
@@ -94,7 +94,7 @@ export function AiTaKrajtaCollaborationSection() {
                                         href={createAiTaKrajtaMediaKitCollaborationPath(offer.collaborationKind)}
                                         className="mt-4 inline-flex items-center gap-1 text-sm text-white/65 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
                                     >
-                                        Detail nabídky
+                                        Podrobnosti
                                         <ArrowUpRight className="h-3.5 w-3.5" />
                                     </Link>
                                 </li>

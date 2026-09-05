@@ -109,8 +109,8 @@ export const AI_TA_KRAJTA_THEME_COLOR = AI_TA_KRAJTA_COLORS.MOSS_DEEP;
  * One sentence describing the show, taken from the podcast feed
  */
 export const AI_TA_KRAJTA_TAGLINE_BY_LANGUAGE: Readonly<Record<SupportedHomepageLanguage, string>> = {
-    cs: 'Vše o AI na jednom místě, každý týden. Novinky, zajímavosti a diskuze z oblasti umělé inteligence.',
-    en: 'Everything about AI in one place, every week. News, interesting finds and discussions about artificial intelligence.',
+    cs: 'Každý týden probíráme, co se kolem AI semlelo. Nové modely, nástroje a průšvihy.',
+    en: 'Every week, we talk through what happened in AI. New models, tools and the occasional mess.',
 };
 
 export const AI_TA_KRAJTA_YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@aitakrajta_tv';
@@ -313,7 +313,7 @@ export const AI_TA_KRAJTA_COLLABORATION_OPTIONS: readonly AiTaKrajtaCollaboratio
         label: 'Zajímá mě partnerství',
         title: 'Partnerství pro firmy',
         description:
-            'Chcete oslovit české a slovenské publikum, které AI aktivně sleduje a řeší? Ukážeme vám veřejné formáty, ceny i redakční pravidla dřív, než nám napíšete.',
+            'Chcete oslovit české a slovenské publikum, které AI sleduje a řeší? Veřejné formáty, ceny i redakční pravidla si můžete projít předem.',
     },
     {
         id: 'jine',

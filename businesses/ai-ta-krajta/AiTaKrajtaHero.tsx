@@ -44,13 +44,13 @@ export function AiTaKrajtaHero() {
                     </h1>
 
                     <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/75 sm:text-xl">
-                        Každý týden si sedneme a probereme, co se v AI za těch sedm dní stalo. Nové modely, nástroje,
-                        průšvihy. Občas se pohádáme o tom, jestli to celé dává smysl.
+                        Každý týden probíráme, co nového se v AI objevilo. Nové modely, nástroje, průšvihy. A občas se
+                        pohádáme, jestli to celé dává smysl.
                     </p>
 
                     <p className="mt-4 max-w-xl leading-relaxed text-white/55">
-                        Video vychází na YouTube, zvuk na Spotify a v Apple Podcasts. Česky. U mikrofonu se střídá parta
-                        lidí, kteří AI staví nebo nasazují, a hosté, kteří k tomu mají co říct.
+                        Dívat se můžete na YouTube, poslouchat na Spotify nebo v Apple Podcasts. Česky. U mikrofonu se
+                        střídají lidé, kteří AI staví nebo nasazují, s hosty, kteří k tématu mají co říct.
                     </p>
 
                     <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -117,8 +117,8 @@ export function AiTaKrajtaHero() {
 
                             {(estimatedSubscriberCount !== null || estimatedListeningHours !== null) && (
                                 <p className="mt-4 max-w-xl text-xs leading-relaxed text-white/40">
-                                    Odběry jsou součtem veřejných kanálů; Spotify a Apple Podcasts nezveřejňují počet
-                                    poslechů, proto je čas konzervativní odhad z veřejných zhlédnutí a délky dílů.
+                                    Odběry jsou součtem veřejných kanálů. Spotify ani Apple Podcasts počet poslechů
+                                    nezveřejňují, takže hodiny jsou opatrný odhad z veřejných zhlédnutí a délky dílů.
                                 </p>
                             )}
                         </>
