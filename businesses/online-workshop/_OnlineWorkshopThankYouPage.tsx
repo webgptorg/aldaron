@@ -38,19 +38,19 @@ function createNextSteps(durationLabel: string) {
     return [
         {
             icon: Mail,
-            title: 'Potvrzovací e-mail už je na cestě',
+            title: 'Potvrzovací e-mail přijde za chvíli',
             description:
-                'Najdeš v něm odkaz na připojení. Kdyby nedorazil do pár minut, mrkni do spamu a do složky Hromadné.',
+                'V e-mailu najdeš odkaz na připojení. Když během pár minut nedorazí, zkontroluj spam a Hromadné.',
         },
         {
             icon: BellRing,
-            title: 'Připomeneme se den předem',
-            description: 'Pošleme krátkou připomínku, ať ti workshop neuteče mezi meetingy.',
+            title: 'Den předem ti pošleme připomínku',
+            description: 'Ať ti workshop nezapadne mezi schůzky.',
         },
         {
             icon: Video,
-            title: `${durationLabel} naživo`,
-            description: 'Celé workflow od issue po merge na reálném repu, na konci prostor na tvoje otázky.',
+            title: `${durationLabel} živě`,
+            description: 'Projdeme celé workflow od issue po merge na reálném repu. Na konci bude čas na tvoje otázky.',
         },
     ] as const;
 }
@@ -96,18 +96,17 @@ export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: On
                     </div>
 
                     <h1 className="mb-4 text-[32px] font-extrabold tracking-tight text-[#0f172a] sm:text-[40px] leading-tight">
-                        Máš místo na workshopu „{workshop.title}“.
+                        Máš rezervované místo na workshopu: {workshop.title}.
                     </h1>
                     <p className="mx-auto mb-10 max-w-lg text-[16px] leading-relaxed text-gray-500 sm:text-[18px]">
-                        Uvidíme se {dateLabel} v {timeLabel} online. Registrace je hotová, nic dalšího už
-                        dělat nemusíš.
+                        Uvidíme se {dateLabel} v {timeLabel} online. Registrace je hotová.
                     </p>
 
                     {participantLink && (
                         <div className="mx-auto mb-10 max-w-md rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-teal-50 p-6 text-left">
-                            <h2 className="text-[15px] font-bold text-[#0f172a]">Workshop začíná už brzy</h2>
+                            <h2 className="text-[15px] font-bold text-[#0f172a]">Připojení najdeš i tady</h2>
                             <p className="mt-1 text-[14px] leading-relaxed text-gray-500">
-                                Kdyby potvrzovací e-mail zapadl ve spamu, můžeš se do místnosti připojit rovnou tady.
+                                Kdyby potvrzovací e-mail zapadl ve spamu, do místnosti se připojíš rovnou tady.
                             </p>
                             <Button
                                 asChild
@@ -166,7 +165,7 @@ export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: On
                             />
                         </div>
                         <p className="mx-auto max-w-md text-[14px] leading-relaxed text-gray-500">
-                            Máš dotaz ještě před workshopem? Napiš rovnou na{' '}
+                            Máš dotaz před workshopem? Napiš na{' '}
                             <Link
                                 href="mailto:pavol@ptbk.io"
                                 className="font-semibold text-cyan-700 underline-offset-4 hover:underline"
@@ -179,16 +178,16 @@ export function OnlineWorkshopThankYouPage({ workshop, participantIdentity }: On
 
                     <div className="mb-12 rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-teal-50 p-6 text-left">
                         <h2 className="text-[15px] font-bold text-[#0f172a]">
-                            Chceš to projít do hloubky s vlastním týmem?
+                            Chceš si to projít s vlastním týmem?
                         </h2>
                         <p className="mt-1 text-[14px] leading-relaxed text-gray-500">
-                            Praktický workshop AI Supervize Mini navazuje tam, kde tento workshop skončí.
+                            AI Supervize Mini pokračuje tam, kde tento workshop skončí.
                         </p>
                         <Link
                             href={AI_SUPERVIZE_MINI_PATH}
                             className="mt-3 inline-flex items-center gap-1.5 text-[14px] font-semibold text-cyan-700 underline-offset-4 hover:underline"
                         >
-                            Prohlédnout navazující workshop
+                            Podívat se na AI Supervize Mini
                             <ArrowRight className="h-4 w-4" />
                         </Link>
                     </div>
